@@ -14,8 +14,8 @@ export type UserProfile = {
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
+    const { data, error } = await (supabase
+      .from('profiles') as any)
       .select('*')
       .eq('id', userId)
       .single();
@@ -36,8 +36,8 @@ export async function updateUserProfile(
   updates: Partial<Omit<UserProfile, 'id' | 'created_at'>>
 ): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('profiles')
+    const { error } = await (supabase
+      .from('profiles') as any)
       .update(updates)
       .eq('id', userId);
 
