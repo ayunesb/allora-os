@@ -35,8 +35,7 @@ const createAuthError = (message: string): AuthError => {
     name: 'AuthApiError',
     status: 400,
     code: 'not_implemented',
-    __isAuthError: true,
-  };
+  } as AuthError;
 };
 
 // Define admin as a complete object with all required properties
@@ -74,7 +73,6 @@ supabase.auth.admin = {
   updateUserById: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
   // Add stubs for the remaining required properties
   mfa: {
-    removeMFAFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
     listFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
     deleteFactorById: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
   },
