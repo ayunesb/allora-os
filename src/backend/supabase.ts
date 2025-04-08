@@ -77,7 +77,7 @@ supabase.auth.admin = {
     deleteFactor: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
   },
   // Required Admin API properties
-  signOut: () => Promise.resolve({ error: null }),
+  signOut: () => Promise.resolve({ data: null, error: null }),
   getUserById: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
   _listFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
   _deleteFactor: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
