@@ -65,7 +65,46 @@ export async function saveCompanyInfo(
   industry: string
 ): Promise<boolean> {
   try {
-    // First, create the company entry
+    console.log("Creating company for user:", userId, companyName, industry);
+    
+    // First, check if the user already has a company_id
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', userId)
+      .single();
+      
+    if (profileError && profileError.code !== 'PGRST116') {
+      // PGRST116 is "no rows returned" - not an error in this case
+      console.error("Profile fetch error:", profileError);
+      throw profileError;
+    }
+    
+    // If user already has a company, update it instead of creating new
+    if (profile && profile.company_id) {
+      console.log("User already has company, updating:", profile.company_id);
+      const { error: updateError } = await supabase
+        .from('companies')
+        .update({ 
+          name: companyName, 
+          industry 
+        })
+        .eq('id', profile.company_id);
+        
+      if (updateError) {
+        console.error("Company update error:", updateError);
+        throw updateError;
+      }
+      
+      // Update the profile with company name and industry
+      return await updateUserProfile(userId, {
+        company: companyName,
+        industry
+      });
+    }
+    
+    // Create new company
+    console.log("Creating new company");
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
       .insert([
@@ -75,9 +114,11 @@ export async function saveCompanyInfo(
       .single();
 
     if (companyError) {
+      console.error("Company creation error:", companyError);
       throw companyError;
     }
 
+    console.log("Company created, updating profile with company_id:", companyData.id);
     // Update the user profile with company_id and set as admin
     return await updateUserProfile(userId, {
       company: companyName,
@@ -86,6 +127,7 @@ export async function saveCompanyInfo(
       role: 'admin'
     });
   } catch (error: any) {
+    console.error(`Failed to save company info:`, error);
     toast.error(`Failed to save company info: ${error.message}`);
     return false;
   }

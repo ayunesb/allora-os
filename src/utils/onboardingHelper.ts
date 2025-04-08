@@ -9,7 +9,7 @@ export const saveOnboardingInfo = async (
   goals: string[] = []
 ) => {
   try {
-    // Save the company information to the database
+    // Use the auth.uid() in Supabase RLS policy by passing userId 
     const success = await saveCompanyInfo(userId, companyName, industry);
     
     if (!success) {
@@ -28,10 +28,10 @@ export const saveOnboardingInfo = async (
       }
     };
   } catch (error: any) {
-    toast.error(error.message || "Failed to save onboarding information");
+    console.error("Error saving onboarding info:", error);
     return {
       success: false,
-      error: error.message
+      error: error.message || "Failed to save onboarding information"
     };
   }
 };

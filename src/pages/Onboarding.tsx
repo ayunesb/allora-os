@@ -76,6 +76,7 @@ export default function Onboarding() {
     setIsLoading(true);
 
     try {
+      console.log("Saving onboarding info:", user.id, companyName, industry, goals);
       const result = await saveOnboardingInfo(user.id, companyName, industry, goals);
       
       if (!result.success) {
@@ -88,6 +89,7 @@ export default function Onboarding() {
       toast.success("Company setup completed successfully!");
       navigate("/dashboard");
     } catch (error: any) {
+      console.error("Onboarding error:", error);
       toast.error(error.message || "An error occurred during setup");
     } finally {
       setIsLoading(false);
