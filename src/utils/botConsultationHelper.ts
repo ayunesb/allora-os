@@ -152,7 +152,7 @@ export async function getUserConsultationHistory(): Promise<BotConsultation[]> {
           },
           {
             type: 'bot',
-            content: 'As Ruth Porat, I'd recommend calculating the ROI of both options. Typically, investing in product enhancements that increase customer lifetime value yields better long-term results.',
+            content: "As Ruth Porat, I'd recommend calculating the ROI of both options. Typically, investing in product enhancements that increase customer lifetime value yields better long-term results.",
             timestamp: new Date(Date.now() - 172700000).toISOString()
           }
         ]
