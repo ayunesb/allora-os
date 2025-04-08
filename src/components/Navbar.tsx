@@ -15,12 +15,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function Navbar() {
+// Update the props type to include optional isLoggedIn
+interface NavbarProps {
+  isLoggedIn?: boolean;
+}
+
+export default function Navbar({ isLoggedIn: propIsLoggedIn }: NavbarProps = {}) {
   const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   
-  const isLoggedIn = !!user;
+  // Use the prop if provided, otherwise derive from user state
+  const isLoggedIn = propIsLoggedIn !== undefined ? propIsLoggedIn : !!user;
   
   const navLinks = isLoggedIn ? [
     { name: "Dashboard", href: "/dashboard" },
@@ -36,7 +42,7 @@ export default function Navbar() {
   ];
 
   // Check if user has admin access (simplified for demo)
-  const isAdmin = isLoggedIn && user.email === 'admin@example.com';
+  const isAdmin = isLoggedIn && user?.email === 'admin@example.com';
   
   if (isAdmin) {
     navLinks.push({ name: "Admin", href: "/admin" });
