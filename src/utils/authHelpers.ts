@@ -74,7 +74,7 @@ export async function resendVerificationEmail(email: string): Promise<{ success:
       type: 'signup',
       email,
       options: {
-        redirectTo
+        emailRedirectTo: redirectTo  // Changed from redirectTo to emailRedirectTo
       }
     });
 
