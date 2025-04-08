@@ -6,13 +6,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 type IndustryFormProps = {
   industry: string;
   setIndustry: (industry: string) => void;
+  error?: string;
 }
 
-export default function IndustryForm({ industry, setIndustry }: IndustryFormProps) {
+export default function IndustryForm({ industry, setIndustry, error }: IndustryFormProps) {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Industry Details</h3>
@@ -21,7 +24,7 @@ export default function IndustryForm({ industry, setIndustry }: IndustryFormProp
           Select your industry
         </label>
         <Select onValueChange={setIndustry} value={industry}>
-          <SelectTrigger>
+          <SelectTrigger className={error ? "border-destructive" : ""}>
             <SelectValue placeholder="Select an industry" />
           </SelectTrigger>
           <SelectContent>
@@ -34,6 +37,12 @@ export default function IndustryForm({ industry, setIndustry }: IndustryFormProp
             <SelectItem value="other">Other</SelectItem>
           </SelectContent>
         </Select>
+        {error && (
+          <Alert variant="destructive" className="py-2">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="ml-2 text-xs">{error}</AlertDescription>
+          </Alert>
+        )}
       </div>
     </div>
   );

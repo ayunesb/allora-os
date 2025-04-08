@@ -1,15 +1,17 @@
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Check } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type GoalsFormProps = {
   goals: string[];
   toggleGoal: (goal: string) => void;
   companyName: string;
   industry: string;
+  error?: string;
 }
 
-export default function GoalsForm({ goals, toggleGoal, companyName, industry }: GoalsFormProps) {
+export default function GoalsForm({ goals, toggleGoal, companyName, industry, error }: GoalsFormProps) {
   const goalOptions = [
     "Increase revenue",
     "Expand customer base",
@@ -32,14 +34,25 @@ export default function GoalsForm({ goals, toggleGoal, companyName, industry }: 
             key={goal}
             type="button"
             variant={goals.includes(goal) ? "default" : "outline"}
-            className="justify-start gap-2"
+            className="justify-start gap-2 transition-all"
             onClick={() => toggleGoal(goal)}
           >
-            {goals.includes(goal) && <CheckCircle2 className="h-4 w-4" />}
+            {goals.includes(goal) ? (
+              <Check className="h-4 w-4 shrink-0" />
+            ) : (
+              <div className="w-4 h-4 shrink-0" />
+            )}
             {goal}
           </Button>
         ))}
       </div>
+      
+      {error && (
+        <Alert variant="destructive" className="py-2 mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="ml-2 text-xs">{error}</AlertDescription>
+        </Alert>
+      )}
       
       <div className="p-4 bg-primary/10 rounded-lg mt-6">
         <p className="font-medium">Company: {companyName}</p>

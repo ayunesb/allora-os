@@ -23,16 +23,6 @@ export default function useOnboardingState() {
   }, [profile]);
 
   const handleNext = () => {
-    if (step === 1 && !companyName) {
-      toast.error("Please enter your company name to continue");
-      return;
-    }
-
-    if (step === 2 && !industry) {
-      toast.error("Please select your industry to continue");
-      return;
-    }
-
     if (step < 3) {
       setStep(step + 1);
     } else {
