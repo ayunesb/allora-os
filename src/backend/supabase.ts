@@ -2,13 +2,13 @@
 // Add admin auth methods to our supabase client
 // This is a custom client that includes admin methods for testing purposes
 
-import { createClient, type User, AuthError } from '@supabase/supabase-js';
+import { createClient, type User, AuthError, GoTrueAdminApi } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
 // Create a custom type that extends the Supabase Client type
 type SupabaseClientWithAdmin = ReturnType<typeof createClient<Database>> & {
   auth: ReturnType<typeof createClient<Database>>['auth'] & {
-    admin: {
+    admin: GoTrueAdminApi & {
       getUserByEmail: (email: string) => Promise<{
         data: { user: any } | null;
         error: any;
@@ -40,8 +40,13 @@ const createAuthError = (message: string): AuthError => {
   } as unknown as AuthError;
 };
 
-// Define the admin interface
-supabase.auth.admin = {
+// Create a mock admin implementation that extends the existing auth.admin with our custom method
+const mockAdminApi: Partial<GoTrueAdminApi> & {
+  getUserByEmail: (email: string) => Promise<{
+    data: { user: any } | null;
+    error: any;
+  }>;
+} = {
   // Implement the specific function we need
   getUserByEmail: async (email: string) => {
     try {
@@ -66,6 +71,54 @@ supabase.auth.admin = {
       return { data: null, error };
     }
   },
+  
+  // Empty implementation of required methods from GoTrueAdminApi
+  // These are just stubs and will return appropriate errors if called
+  createUser: async () => {
+    return { data: { user: null }, error: createAuthError('Not implemented') };
+  },
+  deleteUser: async () => {
+    return { data: { user: null }, error: createAuthError('Not implemented') };
+  },
+  listUsers: async () => {
+    return { data: { users: [] }, error: createAuthError('Not implemented') };
+  },
+  getUserById: async () => {
+    return { data: { user: null }, error: createAuthError('Not implemented') };
+  },
+  updateUserById: async () => {
+    return { data: { user: null }, error: createAuthError('Not implemented') };
+  },
+  inviteUserByEmail: async () => {
+    return { data: {}, error: createAuthError('Not implemented') };
+  },
+  resetPasswordForEmail: async () => {
+    return { data: {}, error: createAuthError('Not implemented') };
+  },
+  generateLink: async () => {
+    return { data: { properties: { email: '', hashed_token: '', action_link: '' } }, error: createAuthError('Not implemented') };
+  },
+  // Fill in other required methods with stub implementations
+  mfa: {
+    listFactors: async () => {
+      return { data: null, error: createAuthError('Not implemented') };
+    },
+    deleteFactor: async () => {
+      return { data: null, error: createAuthError('Not implemented') };
+    }
+  } as any,
+  // These properties are required by GoTrueAdminApi
+  url: '',
+  headers: {},
+  fetch: async () => new Response()
+};
+
+// Assign our mock admin API to supabase.auth.admin
+supabase.auth.admin = mockAdminApi as GoTrueAdminApi & {
+  getUserByEmail: (email: string) => Promise<{
+    data: { user: any } | null;
+    error: any;
+  }>;
 };
 
 // Add these helper functions to make the code cleaner elsewhere
