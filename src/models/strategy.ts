@@ -1,9 +1,9 @@
 
 export type Strategy = {
   id: string;
-  companyId: string;
+  company_id: string;
   title: string;
   description: string;
-  riskLevel: 'Low' | 'Medium' | 'High';
+  risk_level: 'Low' | 'Medium' | 'High';
   created_at: string;
 };

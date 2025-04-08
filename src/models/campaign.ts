@@ -1,7 +1,7 @@
 
 export type Campaign = {
   id: string;
-  companyId: string;
+  company_id: string;
   name: string;
   platform: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok';
   budget: number;

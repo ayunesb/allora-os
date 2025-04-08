@@ -9,29 +9,204 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      campaigns: {
+        Row: {
+          budget: number | null
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+          platform: string | null
+        }
+        Insert: {
+          budget?: number | null
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+          platform?: string | null
+        }
+        Update: {
+          budget?: number | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          platform?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companies: {
+        Row: {
+          created_at: string
+          id: string
+          industry: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          industry?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          industry?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          status: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          status?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company: string | null
+          company_id: string | null
           created_at: string
           id: string
           industry: string | null
           name: string | null
+          role: string | null
         }
         Insert: {
           company?: string | null
+          company_id?: string | null
           created_at?: string
           id: string
           industry?: string | null
           name?: string | null
+          role?: string | null
         }
         Update: {
           company?: string | null
+          company_id?: string | null
           created_at?: string
           id?: string
           industry?: string | null
           name?: string | null
+          role?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategies: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          risk_level: string | null
+          title: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          risk_level?: string | null
+          title: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          risk_level?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          id: string
+          status: string | null
+          strategy_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string | null
+          strategy_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string | null
+          strategy_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

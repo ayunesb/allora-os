@@ -8,7 +8,9 @@ export type UserProfile = {
   id: string;
   name: string;
   company: string;
+  company_id: string | null;
   industry: string;
+  role: 'admin' | 'user';
   created_at: string;
 };
 
@@ -58,8 +60,40 @@ export async function saveCompanyInfo(
   companyName: string,
   industry: string
 ): Promise<boolean> {
+  try {
+    // First, create the company entry
+    const { data: companyData, error: companyError } = await (supabase
+      .from('companies') as any)
+      .insert([
+        { name: companyName, industry }
+      ])
+      .select('id')
+      .single();
+
+    if (companyError) {
+      throw companyError;
+    }
+
+    // Update the user profile with company_id and set as admin
+    return await updateUserProfile(userId, {
+      company: companyName,
+      industry,
+      company_id: companyData.id,
+      role: 'admin'
+    });
+  } catch (error: any) {
+    toast.error(`Failed to save company info: ${error.message}`);
+    return false;
+  }
+}
+
+export async function addUserToCompany(
+  userId: string,
+  companyId: string,
+  role: 'admin' | 'user' = 'user'
+): Promise<boolean> {
   return await updateUserProfile(userId, {
-    company: companyName,
-    industry
+    company_id: companyId,
+    role
   });
 }
