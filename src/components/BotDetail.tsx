@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { 
@@ -29,7 +28,7 @@ import {
   generateBotResponse,
   saveConsultationMessage,
   startNewConsultation
-} from "@/utils/botConsultationHelper";
+} from "@/utils/consultation";
 
 export default function BotDetail() {
   const { botName, role } = useParams<{ botName: string; role: string }>();
@@ -41,7 +40,6 @@ export default function BotDetail() {
   
   const bot = botName && role ? getBotByNameAndRole(botName, role) : null;
 
-  // Initialize consultation
   useEffect(() => {
     async function initConsultation() {
       if (botName && role) {
@@ -53,7 +51,6 @@ export default function BotDetail() {
     initConsultation();
   }, [botName, role]);
 
-  // Scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -63,7 +60,6 @@ export default function BotDetail() {
     
     setIsLoading(true);
     
-    // Add user message
     const userMessage: ConsultationMessage = {
       type: "user",
       content: inputMessage,
@@ -73,17 +69,14 @@ export default function BotDetail() {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage("");
     
-    // Save user message
     await saveConsultationMessage(consultationId, {
       type: "user",
       content: inputMessage
     });
     
     try {
-      // Generate bot response
       const responseContent = await generateBotResponse(botName, role, inputMessage);
       
-      // Add bot message
       const botMessage: ConsultationMessage = {
         type: "bot",
         content: responseContent,
@@ -92,7 +85,6 @@ export default function BotDetail() {
       
       setMessages(prev => [...prev, botMessage]);
       
-      // Save bot message
       await saveConsultationMessage(consultationId, {
         type: "bot",
         content: responseContent

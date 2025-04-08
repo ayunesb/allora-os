@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { getUserConsultationHistory, BotConsultation } from "@/utils/botConsultationHelper";
+import { getUserConsultationHistory, BotConsultation } from "@/utils/consultation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare, Calendar, User, Bot } from "lucide-react";
 import { format } from "date-fns";
