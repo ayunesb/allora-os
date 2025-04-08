@@ -92,11 +92,19 @@ const mockAdminApi: Partial<GoTrueAdminApi> & {
   inviteUserByEmail: async () => {
     return { data: {}, error: createAuthError('Not implemented') };
   },
-  resetPasswordForEmail: async () => {
-    return { data: {}, error: createAuthError('Not implemented') };
+  resetPasswordForEmail: async (_email: string, _options?: any) => {
+    // Fixing the return type to include the required 'user' property
+    return { data: { user: null }, error: createAuthError('Not implemented') };
   },
-  generateLink: async () => {
-    return { data: { properties: { email: '', hashed_token: '', action_link: '' } }, error: createAuthError('Not implemented') };
+  generateLink: async (_params: any) => {
+    // Fixing the return type to include the required 'user' property
+    return { 
+      data: { 
+        properties: null, 
+        user: null 
+      }, 
+      error: createAuthError('Not implemented') 
+    };
   },
   // Fill in other required methods with stub implementations
   mfa: {
