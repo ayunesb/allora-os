@@ -11,10 +11,12 @@ interface AuthContextType {
   isLoading: boolean;
   profile: UserProfile | null;
   isProfileLoading: boolean;
+  isEmailVerified: boolean;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const loadUserProfile = async (userId: string) => {
     if (!userId) return;
@@ -45,6 +48,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await loadUserProfile(user.id);
     }
   };
+  
+  const refreshSession = async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+      
+      if (data.session?.user) {
+        setTimeout(() => {
+          loadUserProfile(data.session.user.id);
+        }, 0);
+      }
+    } catch (error) {
+      console.error('Error refreshing session:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Check email verification status when user changes
+    if (user) {
+      setIsEmailVerified(user.email_confirmed_at !== null);
+    } else {
+      setIsEmailVerified(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -67,6 +97,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           toast.info('You have been signed out');
         } else if (event === 'SIGNED_IN') {
           toast.success('Welcome back!');
+        } else if (event === 'USER_UPDATED') {
+          toast.success('Your profile has been updated');
         }
       }
     );
@@ -148,10 +180,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     profile,
     isProfileLoading,
+    isEmailVerified,
     signIn: handleSignIn,
     signUp: handleSignUp,
     signOut: handleSignOut,
     refreshProfile,
+    refreshSession,
   };
 
   return (

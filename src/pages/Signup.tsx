@@ -8,11 +8,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { RocketIcon, ArrowRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { RocketIcon, ArrowRight, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
 import { saveCompanyInfo } from "@/utils/profileHelpers";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -26,6 +27,7 @@ type SignupValues = z.infer<typeof signupSchema>;
 
 export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const { signUp } = useAuth();
   
@@ -61,13 +63,74 @@ export default function Signup() {
       }
       
       toast.success("Account created successfully!");
-      navigate("/dashboard");
+      
+      // Check if email confirmation is required
+      const { getSession } = await import('@/backend/supabase');
+      const { session } = await getSession();
+      
+      if (!session) {
+        setIsSubmitted(true);
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       console.error("Signup error:", error);
       toast.error(error.message || "Failed to create account");
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b">
+          <div className="flex items-center gap-2">
+            <RocketIcon className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold">Allora AI</span>
+          </div>
+          <div>
+            <Button variant="ghost" onClick={() => navigate("/login")}>
+              Login
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex-1 container max-w-lg mx-auto px-4 py-12 flex items-center justify-center">
+          <Card className="w-full">
+            <CardHeader className="text-center">
+              <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                <RocketIcon className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Verify Your Email</CardTitle>
+              <CardDescription>
+                We've sent a verification email to your inbox
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert className="bg-muted">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Check your email</AlertTitle>
+                <AlertDescription>
+                  Please check your email inbox and click the verification link to complete your registration.
+                </AlertDescription>
+              </Alert>
+              <p className="text-sm text-muted-foreground text-center">
+                If you don't see the email, check your spam folder or try logging in anyway - email verification may be disabled in development.
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-center gap-4">
+              <Button variant="outline" onClick={() => navigate("/login")}>
+                Go to Login
+              </Button>
+              <Button onClick={() => form.reset() || setIsSubmitted(false)}>
+                Try Again
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
