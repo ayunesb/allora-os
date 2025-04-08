@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { UserProfile, fetchUserProfile } from '@/utils/profileHelpers';
@@ -12,6 +11,7 @@ export function useAuthState() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [lastActivity, setLastActivity] = useState<Date>(new Date());
 
   const loadUserProfile = async (userId: string) => {
     if (!userId) return;
@@ -27,8 +27,62 @@ export function useAuthState() {
     }
   };
 
+  const updateLastActivity = () => {
+    setLastActivity(new Date());
+  };
+
   useEffect(() => {
-    // Check email verification status when user changes
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    
+    const handleActivity = () => {
+      updateLastActivity();
+    };
+    
+    events.forEach(event => {
+      window.addEventListener(event, handleActivity);
+    });
+    
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, handleActivity);
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    
+    const checkSessionRefresh = async () => {
+      try {
+        const expiresAt = session.expires_at;
+        if (!expiresAt) return;
+        
+        const expiryTime = new Date(expiresAt * 1000);
+        const now = new Date();
+        
+        if (expiryTime.getTime() - now.getTime() < 5 * 60 * 1000) {
+          console.log('Session expiring soon, refreshing...');
+          const { data, error } = await supabase.auth.refreshSession();
+          
+          if (error) {
+            console.error('Error refreshing session:', error);
+          } else if (data.session) {
+            console.log('Session refreshed successfully');
+            setSession(data.session);
+            setUser(data.session.user);
+          }
+        }
+      } catch (error) {
+        console.error('Error in session refresh check:', error);
+      }
+    };
+    
+    const intervalId = setInterval(checkSessionRefresh, 60 * 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [session, lastActivity]);
+
+  useEffect(() => {
     if (user) {
       setIsEmailVerified(user.email_confirmed_at !== null);
     } else {
@@ -37,14 +91,13 @@ export function useAuthState() {
   }, [user]);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         console.log('Auth state change:', event);
+        
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
-        // Use setTimeout to avoid potential deadlocks with Supabase client
         if (newSession?.user) {
           setTimeout(() => {
             loadUserProfile(newSession.user.id);
@@ -59,11 +112,14 @@ export function useAuthState() {
           toast.success('Welcome back!');
         } else if (event === 'USER_UPDATED') {
           toast.success('Your profile has been updated');
+        } else if (event === 'PASSWORD_RECOVERY') {
+          toast.info('Password recovery initiated');
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('Auth token refreshed');
         }
       }
     );
 
-    // THEN check for existing session
     const initializeAuth = async () => {
       setIsLoading(true);
       try {
@@ -99,6 +155,7 @@ export function useAuthState() {
     isEmailVerified,
     setUser,
     setSession,
-    loadUserProfile
+    loadUserProfile,
+    updateLastActivity
   };
 }

@@ -8,9 +8,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Link, useNavigate } from "react-router-dom";
-import { RocketIcon, ArrowLeft, Mail } from "lucide-react";
+import { RocketIcon, ArrowLeft, Mail, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const resetSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -21,6 +22,7 @@ type ResetFormValues = z.infer<typeof resetSchema>;
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { sendPasswordReset } = useAuth();
   
@@ -33,6 +35,7 @@ export default function ResetPassword() {
 
   async function onSubmit(data: ResetFormValues) {
     setIsLoading(true);
+    setResetError(null);
     
     try {
       const { success, error } = await sendPasswordReset(data.email);
@@ -45,7 +48,15 @@ export default function ResetPassword() {
       toast.success("Password reset instructions sent to your email");
     } catch (error: any) {
       console.error("Reset password error:", error);
-      toast.error(error.message || "Failed to send reset instructions");
+      
+      // Handle specific error cases
+      if (error.message.includes("not found")) {
+        setResetError("No account found with this email address.");
+      } else if (error.message.includes("rate limit")) {
+        setResetError("Too many requests. Please try again later.");
+      } else {
+        setResetError(error.message || "Failed to send reset instructions");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -82,11 +93,22 @@ export default function ResetPassword() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {resetError && !isSubmitted && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{resetError}</AlertDescription>
+              </Alert>
+            )}
+
             {isSubmitted ? (
               <div className="text-center space-y-4">
-                <p className="text-muted-foreground text-sm">
-                  We've sent instructions to reset your password. Please check your email inbox and spam folder.
-                </p>
+                <Alert className="bg-green-50 border-green-200">
+                  <Mail className="h-4 w-4 text-green-500" />
+                  <AlertTitle className="text-green-700">Email Sent!</AlertTitle>
+                  <AlertDescription className="text-green-600">
+                    We've sent instructions to reset your password. Please check your email inbox and spam folder.
+                  </AlertDescription>
+                </Alert>
                 <div className="flex flex-col space-y-2 mt-4">
                   <Button onClick={() => navigate("/login")} variant="outline">
                     Return to Login
@@ -124,7 +146,11 @@ export default function ResetPassword() {
                     className="w-full mt-6" 
                     disabled={isLoading}
                   >
-                    {isLoading ? "Sending..." : "Send Reset Instructions"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...
+                      </>
+                    ) : "Send Reset Instructions"}
                   </Button>
 
                   <div className="text-center mt-4">

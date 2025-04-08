@@ -1,11 +1,12 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { resendVerificationEmail } from "@/utils/authHelpers";
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -20,13 +21,36 @@ export default function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, isLoading, profile, isEmailVerified, refreshSession } = useAuth();
   const location = useLocation();
+  const [isResending, setIsResending] = useState(false);
+
+  const handleResendVerificationEmail = async () => {
+    if (!user?.email) {
+      toast.error("Email address is missing");
+      return;
+    }
+
+    setIsResending(true);
+    try {
+      const result = await resendVerificationEmail(user.email);
+      if (result.success) {
+        toast.success("Verification email sent successfully");
+      } else {
+        toast.error(result.error || "Failed to send verification email");
+      }
+    } catch (error) {
+      console.error("Error sending verification email:", error);
+      toast.error("An error occurred while sending verification email");
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   // If still loading, show loading spinner
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">Loading your account information...</p>
       </div>
     );
   }
@@ -57,16 +81,27 @@ export default function ProtectedRoute({
                 toast.info("Session refreshed. If you've verified your email, try again.");
               }}
               variant="outline"
+              className="flex items-center gap-2"
             >
+              <RefreshCw className="h-4 w-4" />
               I've verified my email
             </Button>
             <Button 
-              onClick={() => {
-                // This could be expanded to resend verification email
-                toast.info("Please check your email for verification link");
-              }}
+              onClick={handleResendVerificationEmail}
+              disabled={isResending}
+              className="flex items-center gap-2"
             >
-              Resend verification email
+              {isResending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4" />
+                  Resend verification email
+                </>
+              )}
             </Button>
           </div>
         </div>
