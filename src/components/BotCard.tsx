@@ -1,15 +1,9 @@
 
-import { MessageSquare } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger 
-} from "@/components/ui/tooltip";
+import { MessageSquare } from "lucide-react";
 
-interface BotCardProps {
+type BotCardProps = {
   bot: {
     name: string;
     title: string;
@@ -18,55 +12,37 @@ interface BotCardProps {
     role: string;
   };
   onConsult: () => void;
-}
+};
 
 export default function BotCard({ bot, onConsult }: BotCardProps) {
-  const getRoleDescription = (role: string) => {
-    switch(role) {
-      case 'ceo':
-        return 'Chief Executive Officer: Strategic Vision & Leadership';
-      case 'cfo':
-        return 'Chief Financial Officer: Financial Planning & Analysis';
-      case 'cmo':
-        return 'Chief Marketing Officer: Brand Strategy & Growth';
-      case 'cio':
-        return 'Chief Information Officer: Technology Strategy';
-      case 'chro':
-        return 'Chief HR Officer: Talent Strategy & Culture';
-      default:
-        return 'Strategic Advisor';
-    }
-  };
-
   return (
-    <div className="dashboard-card flex flex-col items-center text-center group">
-      <Link to={`/dashboard/ai-bots/${encodeURIComponent(bot.name)}/${bot.role}`} className="block w-full">
-        <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-primary mx-auto transition-transform group-hover:scale-105">
-          <img src={bot.avatar} alt={bot.name} className="w-full h-full object-cover" />
-        </div>
-        
-        <h3 className="text-xl font-bold mb-1">{bot.name}</h3>
-        <p className="text-primary mb-1">{bot.title}</p>
-        <p className="text-gray-400 text-sm mb-2">{bot.specialty}</p>
-      </Link>
+    <Card className="overflow-hidden flex flex-col">
+      <div className="relative pb-[56.25%] h-0">
+        <img 
+          src={bot.avatar} 
+          alt={bot.name} 
+          className="absolute top-0 left-0 w-full h-full object-cover"
+        />
+      </div>
       
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="text-xs text-muted-foreground mb-4 inline-block">
-              {bot.role.toUpperCase()}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{getRoleDescription(bot.role)}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <CardHeader className="pb-2">
+        <h3 className="font-bold text-xl">{bot.name}</h3>
+        <p className="text-primary font-medium text-sm">{bot.title}</p>
+      </CardHeader>
       
-      <Button className="mt-auto w-full" onClick={onConsult}>
-        <MessageSquare className="mr-2 h-4 w-4" />
-        Consult
-      </Button>
-    </div>
+      <CardContent className="pb-2">
+        <p className="text-muted-foreground text-sm">{bot.specialty}</p>
+      </CardContent>
+      
+      <CardFooter className="pt-2 mt-auto">
+        <Button 
+          onClick={onConsult}
+          className="w-full flex items-center justify-center gap-2"
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span>Consult</span>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

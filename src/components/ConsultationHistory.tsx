@@ -1,129 +1,105 @@
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { getUserConsultationHistory, BotConsultation } from "@/utils/botConsultationHelper";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MessageSquare, Calendar, User, Bot } from "lucide-react";
+import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CalendarDays, MessageSquare } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { BotConsultation, getUserConsultationHistory } from "@/utils/botConsultationHelper";
+import { Separator } from "@/components/ui/separator";
 
 export default function ConsultationHistory() {
   const [consultations, setConsultations] = useState<BotConsultation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchConsultations = async () => {
+    async function loadConsultations() {
       setLoading(true);
       try {
         const history = await getUserConsultationHistory();
         setConsultations(history);
       } catch (error) {
-        console.error("Failed to fetch consultation history", error);
+        console.error("Failed to load consultation history:", error);
       } finally {
         setLoading(false);
       }
-    };
+    }
 
-    fetchConsultations();
+    loadConsultations();
   }, []);
 
-  // For demo purposes, let's add some sample consultations if none exist
-  useEffect(() => {
-    if (!loading && consultations.length === 0) {
-      // Add sample data for demonstration
-      setConsultations([
-        {
-          id: '1',
-          botName: 'Elon Musk',
-          botRole: 'ceo',
-          messages: [
-            {
-              type: 'user',
-              content: 'How can I scale my startup more efficiently?',
-              timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-              type: 'bot',
-              content: 'Focus on what creates real value for customers and ruthlessly eliminate everything else. Time and resources are your most precious assets.',
-              timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 60000).toISOString()
-            }
-          ]
-        },
-        {
-          id: '2',
-          botName: 'Warren Buffett',
-          botRole: 'cfo',
-          messages: [
-            {
-              type: 'user',
-              content: 'What investment strategy would you recommend for my business reserves?',
-              timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-            },
-            {
-              type: 'bot',
-              content: 'Be fearful when others are greedy, and greedy when others are fearful. Look for businesses with strong fundamentals and a durable competitive advantage.',
-              timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 90000).toISOString()
-            }
-          ]
-        }
-      ]);
-    }
-  }, [loading, consultations]);
-
   if (loading) {
-    return <div className="text-center py-8">Loading your consultation history...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (consultations.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+          <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium mb-2">No consultations yet</h3>
+          <p className="text-muted-foreground">
+            Your conversations with executive advisors will appear here
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">Previous Consultations</h2>
-      
-      {consultations.length === 0 ? (
-        <div className="text-center text-muted-foreground py-8">
-          <MessageSquare className="mx-auto h-12 w-12 mb-2 opacity-50" />
-          <p>No previous consultations found</p>
-          <p className="text-sm">Consult with an AI executive to get personalized advice</p>
-        </div>
-      ) : (
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-4">
-            {consultations.map((consultation) => (
-              <Card key={consultation.id}>
-                <CardHeader>
-                  <CardTitle>{consultation.botName}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <CalendarDays className="h-3 w-3" />
-                    <span>
-                      {formatDistanceToNow(new Date(consultation.messages[0].timestamp), { addSuffix: true })}
+    <div className="space-y-6">
+      {consultations.map((consultation) => (
+        <Card key={consultation.id}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span>{consultation.botName}</span>
+              <span className="text-xs text-muted-foreground">
+                ({consultation.botRole})
+              </span>
+            </CardTitle>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              <span>
+                {format(
+                  new Date(consultation.messages[0].timestamp),
+                  "MMM d, yyyy"
+                )}
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] rounded-md border p-4">
+              {consultation.messages.map((message, index) => (
+                <div key={index} className="mb-4 last:mb-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    {message.type === "user" ? (
+                      <User className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Bot className="h-4 w-4 text-primary" />
+                    )}
+                    <span className="text-xs font-medium">
+                      {message.type === "user" ? "You" : consultation.botName}
                     </span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">You asked:</p>
-                    <p className="text-muted-foreground text-sm">
-                      {consultation.messages[0].content}
-                    </p>
+                    <span className="text-xs text-muted-foreground">
+                      {format(
+                        new Date(message.timestamp),
+                        "h:mm a"
+                      )}
+                    </span>
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Continue Consultation
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </ScrollArea>
-      )}
+                  <p className="text-sm pl-6">{message.content}</p>
+                  {index < consultation.messages.length - 1 && (
+                    <Separator className="my-2" />
+                  )}
+                </div>
+              ))}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
