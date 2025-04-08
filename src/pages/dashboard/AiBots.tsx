@@ -34,27 +34,22 @@ import {
 } from "@/components/ui/card";
 import { formatRoleTitle, getBotExpertise } from "@/utils/consultation";
 
-// Helper function to format role titles
-// Helper function to get bot specialty based on role
-
 export default function AiBots() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("bots");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
 
-  // Prepare all bots as array of objects
   const allBots = Object.entries(executiveBots).flatMap(([role, names]) => 
     names.map(name => ({
       name,
       role,
       title: formatRoleTitle(role),
       specialty: getBotExpertise(role),
-      avatar: `/avatars/${name.toLowerCase().replace(/\s+/g, '-')}.png` // Path to avatar image
+      avatar: `/avatars/${name.toLowerCase().replace(/\s+/g, '-')}.png`
     }))
   );
 
-  // Filter bots based on search query and role filter
   const filteredBots = allBots.filter(bot => {
     const matchesSearch = bot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           bot.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -65,7 +60,6 @@ export default function AiBots() {
     return matchesSearch && matchesRole;
   });
 
-  // Handle consulting a specific bot
   const handleConsult = (bot: any) => {
     navigate(`/dashboard/ai-bots/${encodeURIComponent(bot.name)}/${bot.role}`);
   };
@@ -95,7 +89,6 @@ export default function AiBots() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Bots Grid Tab */}
         <TabsContent value="bots">
           <div className="mb-6 flex flex-col md:flex-row gap-4">
             <div className="relative flex-grow">
@@ -147,12 +140,10 @@ export default function AiBots() {
           )}
         </TabsContent>
 
-        {/* Executive Roster Tab */}
         <TabsContent value="roster">
           <ExecutiveRoster />
         </TabsContent>
 
-        {/* Consultation History Tab */}
         <TabsContent value="history">
           <ConsultationHistory />
         </TabsContent>
