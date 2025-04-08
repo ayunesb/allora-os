@@ -2,7 +2,7 @@
 // Add admin auth methods to our supabase client
 // This is a custom client that includes admin methods for testing purposes
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type User } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
 // Create a custom type that extends the Supabase Client type
@@ -28,8 +28,10 @@ const baseClient = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Add custom admin methods
 const supabase = baseClient as SupabaseClientWithAdmin;
 
-// Mock implementation of admin.getUserByEmail
+// Define admin as a complete object with all required properties
+// We're only implementing getUserByEmail but the type expects all GoTrueAdminApi properties
 supabase.auth.admin = {
+  // Implement the specific function we need
   getUserByEmail: async (email: string) => {
     try {
       // Get the user's session
@@ -52,7 +54,36 @@ supabase.auth.admin = {
     } catch (error) {
       return { data: null, error };
     }
-  }
+  },
+  // Add stubs for other required GoTrueAdminApi properties to satisfy the type
+  // These won't be used in our code but are necessary for TypeScript
+  createUser: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+  deleteUser: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+  listUsers: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+  updateUserById: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+  // Add stubs for the remaining required properties
+  mfa: {
+    removeMFAFactors: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+    listFactors: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+    deleteFactorById: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+  },
+  url: '',
+  headers: {},
+  fetch: () => Promise.resolve(new Response()),
+  inviteUserByEmail: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+  generateLink: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+  updateUserById: () => Promise.resolve({ data: null, error: new Error('Not implemented') }),
+};
+
+// Add these helper functions to make the code cleaner elsewhere
+export const getSession = async () => {
+  const { data, error } = await supabase.auth.getSession();
+  return { session: data.session, error };
+};
+
+export const getCurrentUser = async () => {
+  const { data, error } = await supabase.auth.getUser();
+  return { user: data.user, error };
 };
 
 export { supabase };

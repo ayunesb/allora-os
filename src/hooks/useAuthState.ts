@@ -176,7 +176,7 @@ export function useAuthState() {
     const initializeAuth = async () => {
       setIsLoading(true);
       try {
-        // Get current session and user
+        // Get current session and user using our exported functions
         const { session: currentSession } = await getSession();
         const { user: currentUser } = await getCurrentUser();
         
