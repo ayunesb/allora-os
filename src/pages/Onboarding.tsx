@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,17 +19,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { saveCompanyInfo } from "@/utils/profileHelpers";
+import { saveOnboardingInfo } from "@/utils/onboardingHelper";
 import { useAuth } from "@/context/AuthContext";
-import { RocketIcon } from "lucide-react";
+import { RocketIcon, CheckCircle2 } from "lucide-react";
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [companyName, setCompanyName] = useState("");
   const [industry, setIndustry] = useState("");
+  const [goals, setGoals] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
+
+  // Pre-fill fields if user has partial profile data (common with social logins)
+  useEffect(() => {
+    if (profile) {
+      if (profile.company) setCompanyName(profile.company);
+      if (profile.industry) setIndustry(profile.industry);
+    }
+  }, [profile]);
 
   const handleNext = () => {
     if (step === 1 && !companyName) {
@@ -49,6 +58,14 @@ export default function Onboarding() {
     }
   };
 
+  const toggleGoal = (goal: string) => {
+    if (goals.includes(goal)) {
+      setGoals(goals.filter(g => g !== goal));
+    } else {
+      setGoals([...goals, goal]);
+    }
+  };
+
   const handleComplete = async () => {
     if (!user) {
       toast.error("You must be logged in to complete onboarding");
@@ -59,11 +76,14 @@ export default function Onboarding() {
     setIsLoading(true);
 
     try {
-      const success = await saveCompanyInfo(user.id, companyName, industry);
+      const result = await saveOnboardingInfo(user.id, companyName, industry, goals);
       
-      if (!success) {
-        throw new Error("Failed to save company information");
+      if (!result.success) {
+        throw new Error(result.error || "Failed to save company information");
       }
+      
+      // Refresh user profile to get updated data
+      await refreshProfile();
       
       toast.success("Company setup completed successfully!");
       navigate("/dashboard");
@@ -73,6 +93,15 @@ export default function Onboarding() {
       setIsLoading(false);
     }
   };
+
+  const goalOptions = [
+    "Increase revenue",
+    "Expand customer base",
+    "Improve product/service",
+    "Enter new markets",
+    "Optimize operations",
+    "Reduce costs"
+  ];
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -132,15 +161,39 @@ export default function Onboarding() {
 
           {step === 3 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Ready to Launch!</h3>
-              <p className="text-muted-foreground">
-                We've set up your company profile. You're now ready to explore Allora AI's
-                powerful features including AI strategy generation, campaign management,
-                and executive insights.
+              <h3 className="text-lg font-medium">Business Goals</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Select the goals that align with your business strategy
               </p>
-              <div className="p-4 bg-primary/10 rounded-lg">
+              
+              <div className="grid grid-cols-1 gap-2">
+                {goalOptions.map(goal => (
+                  <Button
+                    key={goal}
+                    type="button"
+                    variant={goals.includes(goal) ? "default" : "outline"}
+                    className="justify-start gap-2"
+                    onClick={() => toggleGoal(goal)}
+                  >
+                    {goals.includes(goal) && <CheckCircle2 className="h-4 w-4" />}
+                    {goal}
+                  </Button>
+                ))}
+              </div>
+              
+              <div className="p-4 bg-primary/10 rounded-lg mt-6">
                 <p className="font-medium">Company: {companyName}</p>
                 <p className="font-medium">Industry: {industry}</p>
+                {goals.length > 0 && (
+                  <div className="mt-2">
+                    <p className="font-medium">Goals:</p>
+                    <ul className="list-disc pl-5 text-sm">
+                      {goals.map(goal => (
+                        <li key={goal}>{goal}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           )}
