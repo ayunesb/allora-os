@@ -15,7 +15,12 @@ export async function fetchCompanyUsers(companyId: string): Promise<User[]> {
       throw error;
     }
 
-    return data || [];
+    // Transform the data to match the User type, including adding the required email field
+    return (data || []).map(profile => ({
+      ...profile,
+      email: '', // Add a default empty email since it's required in the User type
+      role: profile.role as User['role']
+    }));
   } catch (error: any) {
     console.error('Error fetching company users:', error.message);
     return [];

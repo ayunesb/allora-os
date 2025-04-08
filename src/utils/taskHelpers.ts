@@ -15,7 +15,11 @@ export async function fetchStrategyTasks(strategyId: string): Promise<Task[]> {
       throw error;
     }
 
-    return data || [];
+    // Cast the data to ensure it matches the Task type
+    return (data || []).map(task => ({
+      ...task,
+      status: task.status as Task['status']
+    }));
   } catch (error: any) {
     console.error('Error fetching tasks:', error.message);
     return [];
@@ -45,7 +49,12 @@ export async function createTask(
     }
 
     toast.success('Task created successfully');
-    return data;
+    
+    // Cast the data to ensure it matches the Task type
+    return data ? {
+      ...data,
+      status: data.status as Task['status']
+    } : null;
   } catch (error: any) {
     toast.error(`Failed to create task: ${error.message}`);
     return null;

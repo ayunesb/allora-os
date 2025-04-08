@@ -15,7 +15,11 @@ export async function fetchCampaignLeads(campaignId: string): Promise<Lead[]> {
       throw error;
     }
 
-    return data || [];
+    // Cast the data to ensure it matches the Lead type
+    return (data || []).map(lead => ({
+      ...lead,
+      status: lead.status as Lead['status']
+    }));
   } catch (error: any) {
     console.error('Error fetching leads:', error.message);
     return [];
@@ -49,7 +53,11 @@ export async function fetchCompanyLeads(companyId: string): Promise<Lead[]> {
       throw error;
     }
 
-    return data || [];
+    // Cast the data to ensure it matches the Lead type
+    return (data || []).map(lead => ({
+      ...lead,
+      status: lead.status as Lead['status']
+    }));
   } catch (error: any) {
     console.error('Error fetching company leads:', error.message);
     return [];
@@ -83,7 +91,12 @@ export async function createLead(
     }
 
     toast.success('Lead created successfully');
-    return data;
+    
+    // Cast the data to ensure it matches the Lead type
+    return data ? {
+      ...data,
+      status: data.status as Lead['status']
+    } : null;
   } catch (error: any) {
     toast.error(`Failed to create lead: ${error.message}`);
     return null;

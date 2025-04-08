@@ -26,7 +26,11 @@ export async function fetchUserProfile(userId: string): Promise<UserProfile | nu
       throw error;
     }
 
-    return data;
+    // Cast the data to ensure it matches the UserProfile type
+    return data ? {
+      ...data,
+      role: data.role as UserProfile['role']
+    } : null;
   } catch (error: any) {
     console.error('Error fetching user profile:', error.message);
     return null;

@@ -17,7 +17,11 @@ export async function fetchCompanyStrategies(companyId: string): Promise<Strateg
       throw error;
     }
 
-    return data || [];
+    // Cast the data to ensure it matches the Strategy type
+    return (data || []).map(strategy => ({
+      ...strategy,
+      risk_level: strategy.risk_level as Strategy['risk_level']
+    }));
   } catch (error: any) {
     console.error('Error fetching strategies:', error.message);
     return [];
@@ -36,7 +40,11 @@ export async function fetchStrategy(strategyId: string): Promise<Strategy | null
       throw error;
     }
 
-    return data;
+    // Cast the data to ensure it matches the Strategy type
+    return data ? {
+      ...data,
+      risk_level: data.risk_level as Strategy['risk_level']
+    } : null;
   } catch (error: any) {
     console.error('Error fetching strategy:', error.message);
     return null;
@@ -68,7 +76,12 @@ export async function createStrategy(
     }
 
     toast.success('Strategy created successfully');
-    return data;
+    
+    // Cast the data to ensure it matches the Strategy type
+    return data ? {
+      ...data,
+      risk_level: data.risk_level as Strategy['risk_level']
+    } : null;
   } catch (error: any) {
     toast.error(`Failed to create strategy: ${error.message}`);
     return null;

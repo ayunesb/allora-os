@@ -15,7 +15,11 @@ export async function fetchCompanyCampaigns(companyId: string): Promise<Campaign
       throw error;
     }
 
-    return data || [];
+    // Cast the data to ensure it matches the Campaign type
+    return (data || []).map(campaign => ({
+      ...campaign,
+      platform: campaign.platform as Campaign['platform']
+    }));
   } catch (error: any) {
     console.error('Error fetching campaigns:', error.message);
     return [];
@@ -34,7 +38,11 @@ export async function fetchCampaign(campaignId: string): Promise<Campaign | null
       throw error;
     }
 
-    return data;
+    // Cast the data to ensure it matches the Campaign type
+    return data ? {
+      ...data,
+      platform: data.platform as Campaign['platform']
+    } : null;
   } catch (error: any) {
     console.error('Error fetching campaign:', error.message);
     return null;
@@ -66,7 +74,11 @@ export async function createCampaign(
     }
 
     toast.success('Campaign created successfully');
-    return data;
+    // Cast the data to ensure it matches the Campaign type
+    return data ? {
+      ...data,
+      platform: data.platform as Campaign['platform']
+    } : null;
   } catch (error: any) {
     toast.error(`Failed to create campaign: ${error.message}`);
     return null;
