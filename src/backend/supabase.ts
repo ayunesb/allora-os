@@ -35,11 +35,11 @@ const createAuthError = (message: string): AuthError => {
     name: 'AuthApiError',
     status: 400,
     code: 'not_implemented',
+    __isAuthError: true
   } as AuthError;
 };
 
-// Define admin as a complete object with all required properties
-// We're only implementing getUserByEmail but the type expects all GoTrueAdminApi properties
+// We need to implement at least the basic methods required by the GoTrueAdminApi interface
 supabase.auth.admin = {
   // Implement the specific function we need
   getUserByEmail: async (email: string) => {
@@ -66,7 +66,6 @@ supabase.auth.admin = {
     }
   },
   // Add stubs for other required GoTrueAdminApi properties to satisfy the type
-  // These won't be used in our code but are necessary for TypeScript
   createUser: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
   deleteUser: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
   listUsers: () => Promise.resolve({ data: { users: [] }, error: createAuthError('Not implemented') }),
@@ -76,6 +75,11 @@ supabase.auth.admin = {
     listFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
     deleteFactor: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
   },
+  // Required Admin API properties
+  signOut: () => Promise.resolve({ error: null }),
+  getUserById: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
+  _listFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
+  _deleteFactor: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
   url: '',
   headers: {},
   fetch: () => Promise.resolve(new Response()),
