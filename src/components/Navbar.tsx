@@ -15,6 +15,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
     { name: "Calls", href: "/dashboard/calls" },
     { name: "Leads", href: "/dashboard/leads" },
     { name: "AI Team", href: "/dashboard/ai-bots" },
+    { name: "Admin", href: "/admin" },
   ] : [
     { name: "Home", href: "/" },
     { name: "Login", href: "/login" },

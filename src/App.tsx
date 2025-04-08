@@ -15,6 +15,14 @@ import Campaigns from "./pages/dashboard/Campaigns";
 import Calls from "./pages/dashboard/Calls";
 import Leads from "./pages/dashboard/Leads";
 import AiBots from "./pages/dashboard/AiBots";
+
+// Admin Pages
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+import AdminCampaigns from "./pages/admin/Campaigns";
+import AdminLeads from "./pages/admin/Leads";
+import AdminSettings from "./pages/admin/Settings";
+
 import Legal from "./pages/Legal";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
@@ -39,6 +47,13 @@ const App = () => (
           <Route path="/dashboard/calls" element={<Calls />} />
           <Route path="/dashboard/leads" element={<Leads />} />
           <Route path="/dashboard/ai-bots" element={<AiBots />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/campaigns" element={<AdminCampaigns />} />
+          <Route path="/admin/leads" element={<AdminLeads />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           
           {/* Legal Routes */}
           <Route path="/legal" element={<Legal />} />
