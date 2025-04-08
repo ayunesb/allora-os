@@ -1,6 +1,7 @@
 
 import { toast } from 'sonner';
 import { supabase } from '@/backend/supabase';
+import { executiveBots } from '@/backend/executiveBots';
 
 export type ConsultationMessage = {
   type: 'user' | 'bot';
@@ -21,10 +22,21 @@ export async function saveConsultationMessage(
 ): Promise<boolean> {
   try {
     // In a real implementation, this would save to a database
-    // For now, we'll just simulate success
+    const { error } = await supabase
+      .from('bot_messages')
+      .insert({
+        consultation_id: consultationId,
+        type: message.type,
+        content: message.content,
+        created_at: new Date().toISOString()
+      });
+    
+    if (error) throw new Error(error.message);
+    
     toast.success('Message saved');
     return true;
   } catch (error: any) {
+    console.error('Error saving message:', error);
     toast.error(`Failed to save message: ${error.message}`);
     return false;
   }
@@ -69,10 +81,35 @@ export async function generateBotResponse(
         "This challenge requires a multifaceted approach. Let's break it down into manageable initiatives.",
         "I'd recommend running a pilot program first to validate these assumptions before full implementation.",
         "Consider performing a SWOT analysis to identify the most strategic path forward."
+      ],
+      coo: [
+        "From an operational perspective, we should focus on streamlining your processes before scaling.",
+        "Have you considered implementing KPIs to measure operational efficiency across departments?",
+        "I'd suggest conducting a thorough audit of your current operations to identify bottlenecks."
+      ],
+      vp_global_operations: [
+        "Global expansion requires careful consideration of local regulations and market conditions.",
+        "I'd recommend establishing regional hubs to better manage your global operations.",
+        "Have you analyzed the supply chain implications of your current growth strategy?"
+      ],
+      vp_research_development: [
+        "Innovation should be at the core of your strategy. Have you established a formal R&D process?",
+        "I'd suggest allocating a specific percentage of revenue to research and development initiatives.",
+        "Consider creating cross-functional innovation teams to tackle your biggest challenges."
+      ],
+      sales_business_development: [
+        "Your sales process needs to be more consultative to address complex B2B customer needs.",
+        "Have you considered implementing a customer success program to drive retention and expansion?",
+        "I'd focus on building strategic partnerships that can accelerate your market penetration."
+      ],
+      operations_efficiency: [
+        "Process optimization should be your priority. Have you mapped your current workflows?",
+        "I'd recommend implementing lean methodologies across your organization.",
+        "Consider investing in automation for your most repetitive and time-consuming tasks."
       ]
     };
 
-    // Get responses for this bot role, fallback to generic if not found
+    // Get responses for this bot role, fallback to strategy if not found
     const roleResponses = responses[botRole] || responses.strategy;
     
     // Select a random response from the available options
@@ -90,10 +127,112 @@ export async function generateBotResponse(
 export async function getUserConsultationHistory(): Promise<BotConsultation[]> {
   try {
     // In a real implementation, this would fetch from a database
-    // For now, return an empty array
-    return [];
+    const { data: consultations, error } = await supabase
+      .from('bot_consultations')
+      .select('id, bot_name, bot_role, created_at')
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
+    
+    const result: BotConsultation[] = [];
+    
+    // For each consultation, fetch its messages
+    for (const consultation of (consultations || [])) {
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('bot_messages')
+        .select('type, content, created_at')
+        .eq('consultation_id', consultation.id)
+        .order('created_at', { ascending: true });
+        
+      if (messagesError) continue;
+      
+      result.push({
+        id: consultation.id,
+        botName: consultation.bot_name,
+        botRole: consultation.bot_role,
+        messages: (messagesData || []).map(msg => ({
+          type: msg.type as 'user' | 'bot',
+          content: msg.content,
+          timestamp: msg.created_at
+        }))
+      });
+    }
+    
+    return result;
   } catch (error: any) {
     console.error('Error fetching consultation history:', error.message);
     return [];
+  }
+}
+
+export async function startNewConsultation(botName: string, botRole: string): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('bot_consultations')
+      .insert({
+        bot_name: botName,
+        bot_role: botRole,
+        created_at: new Date().toISOString()
+      })
+      .select();
+      
+    if (error) throw error;
+    
+    return data?.[0]?.id || null;
+  } catch (error: any) {
+    console.error('Error starting new consultation:', error.message);
+    toast.error('Failed to start consultation');
+    return null;
+  }
+}
+
+export function getBotByNameAndRole(name: string, role: string) {
+  // Validate that this bot exists in our roster
+  const roleExists = Object.keys(executiveBots).includes(role);
+  const nameExists = roleExists && executiveBots[role as keyof typeof executiveBots].includes(name);
+  
+  if (!nameExists) {
+    return null;
+  }
+  
+  return {
+    name,
+    role,
+    title: formatRoleTitle(role),
+    expertise: getBotExpertise(role)
+  };
+}
+
+function formatRoleTitle(role: string): string {
+  switch (role) {
+    case 'ceo': return 'Chief Executive Officer';
+    case 'cfo': return 'Chief Financial Officer';
+    case 'cio': return 'Chief Information Officer';
+    case 'cmo': return 'Chief Marketing Officer';
+    case 'chro': return 'Chief HR Officer';
+    case 'coo': return 'Chief Operations Officer';
+    case 'strategy': return 'Strategy Consultant';
+    case 'vp_global_operations': return 'VP of Global Operations';
+    case 'vp_research_development': return 'VP of Research & Development';
+    case 'sales_business_development': return 'Sales & Business Development';
+    case 'operations_efficiency': return 'Operations Efficiency Expert';
+    default: return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }
+}
+
+function getBotExpertise(role: string): string {
+  switch (role) {
+    case 'ceo': return 'Leadership, Vision, Strategy';
+    case 'cfo': return 'Finance, Investment, Risk Management';
+    case 'cio': return 'Technology, Innovation, Digital Transformation';
+    case 'cmo': return 'Marketing, Brand, Customer Experience';
+    case 'chro': return 'HR, Talent, Culture';
+    case 'coo': return 'Operations, Efficiency, Process Optimization';
+    case 'strategy': return 'Business Strategy, Competitive Analysis';
+    case 'vp_global_operations': return 'Global Operations, Supply Chain';
+    case 'vp_research_development': return 'R&D, Innovation, Product Development';
+    case 'sales_business_development': return 'Sales, Partnerships, Business Development';
+    case 'operations_efficiency': return 'Process Optimization, Operational Efficiency';
+    default: return 'Business Consulting';
   }
 }

@@ -1,37 +1,99 @@
 
-import { toast } from "sonner";
-import { saveCompanyInfo } from "./profileHelpers";
+import { supabase } from '@/backend/supabase';
+import { toast } from 'sonner';
 
-export const saveOnboardingInfo = async (
-  userId: string, 
-  companyName: string, 
-  industry: string, 
-  goals: string[] = []
-) => {
+interface OnboardingResult {
+  success: boolean;
+  error?: string;
+}
+
+export async function saveOnboardingInfo(
+  userId: string,
+  companyName: string,
+  industry: string,
+  goals: string[]
+): Promise<OnboardingResult> {
   try {
-    // Use the auth.uid() in Supabase RLS policy by passing userId 
-    const success = await saveCompanyInfo(userId, companyName, industry);
-    
-    if (!success) {
-      throw new Error("Failed to save company information");
+    if (!userId) {
+      throw new Error("User ID is required");
     }
-    
-    // Return success result
-    return {
-      success: true,
-      userId,
-      companyData: {
+
+    if (!companyName || companyName.trim().length < 2) {
+      throw new Error("Company name is required and must be at least 2 characters");
+    }
+
+    if (!industry) {
+      throw new Error("Industry is required");
+    }
+
+    if (!goals.length) {
+      throw new Error("At least one business goal must be selected");
+    }
+
+    console.log("Saving onboarding info:", { userId, companyName, industry, goals });
+
+    // First, create or update the company record
+    const { data: companyData, error: companyError } = await supabase
+      .from('companies')
+      .upsert({
+        created_by: userId,
         name: companyName,
-        industry,
-        goals,
-        createdAt: new Date().toISOString()
-      }
-    };
+        industry: industry,
+        goals: goals,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select('id')
+      .single();
+
+    if (companyError) throw companyError;
+
+    const companyId = companyData?.id;
+
+    if (!companyId) {
+      throw new Error("Failed to create company record");
+    }
+
+    // Next, update the user profile with the company ID
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: userId,
+        company_id: companyId,
+        company: companyName,
+        industry: industry,
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+    if (profileError) throw profileError;
+
+    return { success: true };
   } catch (error: any) {
-    console.error("Error saving onboarding info:", error);
+    console.error("Error in saveOnboardingInfo:", error);
     return {
       success: false,
-      error: error.message || "Failed to save onboarding information"
+      error: error.message || "An unexpected error occurred"
     };
   }
-};
+}
+
+export async function checkOnboardingStatus(userId: string): Promise<boolean> {
+  try {
+    if (!userId) return false;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+
+    return data?.onboarding_completed || false;
+  } catch (error) {
+    console.error("Error checking onboarding status:", error);
+    return false;
+  }
+}
