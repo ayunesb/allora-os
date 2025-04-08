@@ -12,6 +12,7 @@ import { RocketIcon, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
+import { saveCompanyInfo } from "@/utils/profileHelpers";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -43,18 +44,26 @@ export default function Signup() {
     setIsLoading(true);
     
     try {
+      // Sign up the user with Supabase Auth
       const { success, error } = await signUp(data.email, data.password);
       
       if (!success) {
         throw new Error(error);
       }
       
-      // Save additional user data to profiles table
-      // We'll implement this logic later
+      // Get the current user
+      const { getCurrentUser } = await import('@/backend/supabase');
+      const { user } = await getCurrentUser();
+      
+      if (user && data.company && data.industry) {
+        // Save company information and update user profile
+        await saveCompanyInfo(user.id, data.company, data.industry);
+      }
       
       toast.success("Account created successfully!");
       navigate("/dashboard");
     } catch (error: any) {
+      console.error("Signup error:", error);
       toast.error(error.message || "Failed to create account");
     } finally {
       setIsLoading(false);

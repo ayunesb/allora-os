@@ -11,6 +11,7 @@ import Calls from './pages/dashboard/Calls';
 import Leads from './pages/dashboard/Leads';
 import AiBots from './pages/dashboard/AiBots';
 import BotDetail from './pages/dashboard/BotDetail';
+import Profile from './pages/dashboard/Profile';
 import Onboarding from './pages/Onboarding';
 import NotFound from './pages/NotFound';
 import Legal from './pages/Legal';
@@ -46,6 +47,7 @@ function App() {
           <Route path="/dashboard/leads" element={<Leads />} />
           <Route path="/dashboard/ai-bots" element={<AiBots />} />
           <Route path="/dashboard/ai-bots/:botName/:role" element={<BotDetail />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
         </Route>
         
         {/* Catch-all route */}

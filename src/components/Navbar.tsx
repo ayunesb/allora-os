@@ -1,7 +1,7 @@
 
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { RocketIcon, Menu, LogOut, User } from "lucide-react";
+import { RocketIcon, Menu, LogOut, User, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
@@ -87,14 +87,20 @@ export default function Navbar({ isLoggedIn: propIsLoggedIn }: NavbarProps = {})
               <div className="flex flex-col space-y-6 mt-6">
                 <NavLinks />
                 {isLoggedIn && (
-                  <Button 
-                    variant="destructive" 
-                    onClick={handleSignOut}
-                    className="mt-4"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </Button>
+                  <>
+                    <Link to="/dashboard/profile" className="flex items-center text-gray-300 hover:text-white transition-colors">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Profile Settings
+                    </Link>
+                    <Button 
+                      variant="destructive" 
+                      onClick={handleSignOut}
+                      className="mt-4"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
+                  </>
                 )}
               </div>
             </SheetContent>
@@ -115,6 +121,10 @@ export default function Navbar({ isLoggedIn: propIsLoggedIn }: NavbarProps = {})
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                     Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Profile Settings
                   </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate('/admin')}>
