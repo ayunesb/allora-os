@@ -5,8 +5,8 @@ import { User } from '@/models/user';
 
 export async function fetchCompanyUsers(companyId: string): Promise<User[]> {
   try {
-    const { data, error } = await (supabase
-      .from('profiles') as any)
+    const { data, error } = await supabase
+      .from('profiles')
       .select('id, name, company, company_id, role, created_at')
       .eq('company_id', companyId)
       .order('created_at', { ascending: false });
@@ -27,8 +27,8 @@ export async function updateUserRole(
   role: 'admin' | 'user'
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('profiles') as any)
+    const { error } = await supabase
+      .from('profiles')
       .update({ role })
       .eq('id', userId);
 
@@ -62,8 +62,8 @@ export async function inviteUserToCompany(
 
 export async function removeUserFromCompany(userId: string): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('profiles') as any)
+    const { error } = await supabase
+      .from('profiles')
       .update({ company_id: null })
       .eq('id', userId);
 

@@ -7,8 +7,8 @@ import { generateStrategy } from '@/utils/generateStrategy';
 
 export async function fetchCompanyStrategies(companyId: string): Promise<Strategy[]> {
   try {
-    const { data, error } = await (supabase
-      .from('strategies') as any)
+    const { data, error } = await supabase
+      .from('strategies')
       .select('*')
       .eq('company_id', companyId)
       .order('created_at', { ascending: false });
@@ -26,8 +26,8 @@ export async function fetchCompanyStrategies(companyId: string): Promise<Strateg
 
 export async function fetchStrategy(strategyId: string): Promise<Strategy | null> {
   try {
-    const { data, error } = await (supabase
-      .from('strategies') as any)
+    const { data, error } = await supabase
+      .from('strategies')
       .select('*')
       .eq('id', strategyId)
       .single();
@@ -50,8 +50,8 @@ export async function createStrategy(
   riskLevel: 'Low' | 'Medium' | 'High'
 ): Promise<Strategy | null> {
   try {
-    const { data, error } = await (supabase
-      .from('strategies') as any)
+    const { data, error } = await supabase
+      .from('strategies')
       .insert([
         { 
           company_id: companyId,
@@ -86,17 +86,17 @@ export async function generateStrategyFromAnswers(
     companyId,
     strategyTemplate.title,
     strategyTemplate.description,
-    strategyTemplate.riskLevel
+    strategyTemplate.riskLevel as 'Low' | 'Medium' | 'High'
   );
 }
 
 export async function updateStrategy(
   strategyId: string,
-  updates: Partial<Omit<Strategy, 'id' | 'created_at' | 'companyId'>>
+  updates: Partial<Omit<Strategy, 'id' | 'created_at' | 'company_id'>>
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('strategies') as any)
+    const { error } = await supabase
+      .from('strategies')
       .update(updates)
       .eq('id', strategyId);
 
@@ -114,8 +114,8 @@ export async function updateStrategy(
 
 export async function deleteStrategy(strategyId: string): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('strategies') as any)
+    const { error } = await supabase
+      .from('strategies')
       .delete()
       .eq('id', strategyId);
 

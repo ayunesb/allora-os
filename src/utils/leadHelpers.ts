@@ -5,8 +5,8 @@ import { Lead } from '@/models/lead';
 
 export async function fetchCampaignLeads(campaignId: string): Promise<Lead[]> {
   try {
-    const { data, error } = await (supabase
-      .from('leads') as any)
+    const { data, error } = await supabase
+      .from('leads')
       .select('*')
       .eq('campaign_id', campaignId)
       .order('created_at', { ascending: false });
@@ -24,8 +24,8 @@ export async function fetchCampaignLeads(campaignId: string): Promise<Lead[]> {
 
 export async function fetchCompanyLeads(companyId: string): Promise<Lead[]> {
   try {
-    const { data: campaigns, error: campaignsError } = await (supabase
-      .from('campaigns') as any)
+    const { data: campaigns, error: campaignsError } = await supabase
+      .from('campaigns')
       .select('id')
       .eq('company_id', companyId);
     
@@ -39,8 +39,8 @@ export async function fetchCompanyLeads(companyId: string): Promise<Lead[]> {
       return [];
     }
     
-    const { data, error } = await (supabase
-      .from('leads') as any)
+    const { data, error } = await supabase
+      .from('leads')
       .select('*')
       .in('campaign_id', campaignIds)
       .order('created_at', { ascending: false });
@@ -64,8 +64,8 @@ export async function createLead(
   status: 'new' | 'contacted' | 'qualified' | 'closed' = 'new'
 ): Promise<Lead | null> {
   try {
-    const { data, error } = await (supabase
-      .from('leads') as any)
+    const { data, error } = await supabase
+      .from('leads')
       .insert([
         { 
           campaign_id: campaignId,
@@ -95,8 +95,8 @@ export async function updateLeadStatus(
   status: 'new' | 'contacted' | 'qualified' | 'closed'
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('leads') as any)
+    const { error } = await supabase
+      .from('leads')
       .update({ status })
       .eq('id', leadId);
 
@@ -114,11 +114,11 @@ export async function updateLeadStatus(
 
 export async function updateLead(
   leadId: string,
-  updates: Partial<Omit<Lead, 'id' | 'created_at' | 'campaignId'>>
+  updates: Partial<Omit<Lead, 'id' | 'created_at' | 'campaign_id'>>
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('leads') as any)
+    const { error } = await supabase
+      .from('leads')
       .update(updates)
       .eq('id', leadId);
 
@@ -136,8 +136,8 @@ export async function updateLead(
 
 export async function deleteLead(leadId: string): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('leads') as any)
+    const { error } = await supabase
+      .from('leads')
       .delete()
       .eq('id', leadId);
 

@@ -5,8 +5,8 @@ import { Campaign } from '@/models/campaign';
 
 export async function fetchCompanyCampaigns(companyId: string): Promise<Campaign[]> {
   try {
-    const { data, error } = await (supabase
-      .from('campaigns') as any)
+    const { data, error } = await supabase
+      .from('campaigns')
       .select('*')
       .eq('company_id', companyId)
       .order('created_at', { ascending: false });
@@ -24,8 +24,8 @@ export async function fetchCompanyCampaigns(companyId: string): Promise<Campaign
 
 export async function fetchCampaign(campaignId: string): Promise<Campaign | null> {
   try {
-    const { data, error } = await (supabase
-      .from('campaigns') as any)
+    const { data, error } = await supabase
+      .from('campaigns')
       .select('*')
       .eq('id', campaignId)
       .single();
@@ -48,8 +48,8 @@ export async function createCampaign(
   budget: number
 ): Promise<Campaign | null> {
   try {
-    const { data, error } = await (supabase
-      .from('campaigns') as any)
+    const { data, error } = await supabase
+      .from('campaigns')
       .insert([
         { 
           company_id: companyId,
@@ -75,11 +75,11 @@ export async function createCampaign(
 
 export async function updateCampaign(
   campaignId: string,
-  updates: Partial<Omit<Campaign, 'id' | 'created_at' | 'companyId'>>
+  updates: Partial<Omit<Campaign, 'id' | 'created_at' | 'company_id'>>
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('campaigns') as any)
+    const { error } = await supabase
+      .from('campaigns')
       .update(updates)
       .eq('id', campaignId);
 
@@ -97,8 +97,8 @@ export async function updateCampaign(
 
 export async function deleteCampaign(campaignId: string): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('campaigns') as any)
+    const { error } = await supabase
+      .from('campaigns')
       .delete()
       .eq('id', campaignId);
 

@@ -12,7 +12,7 @@ export default function AdminCampaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([
     {
       id: "1",
-      companyId: "c1",
+      company_id: "c1",
       name: "Summer Promotion",
       platform: "Facebook",
       budget: 5000,
@@ -20,7 +20,7 @@ export default function AdminCampaigns() {
     },
     {
       id: "2",
-      companyId: "c1",
+      company_id: "c1",
       name: "Product Launch",
       platform: "Google",
       budget: 10000,

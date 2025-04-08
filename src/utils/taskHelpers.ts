@@ -5,8 +5,8 @@ import { Task } from '@/models/task';
 
 export async function fetchStrategyTasks(strategyId: string): Promise<Task[]> {
   try {
-    const { data, error } = await (supabase
-      .from('tasks') as any)
+    const { data, error } = await supabase
+      .from('tasks')
       .select('*')
       .eq('strategy_id', strategyId)
       .order('created_at', { ascending: false });
@@ -28,8 +28,8 @@ export async function createTask(
   status: 'pending' | 'in_progress' | 'completed' = 'pending'
 ): Promise<Task | null> {
   try {
-    const { data, error } = await (supabase
-      .from('tasks') as any)
+    const { data, error } = await supabase
+      .from('tasks')
       .insert([
         { 
           strategy_id: strategyId,
@@ -57,8 +57,8 @@ export async function updateTaskStatus(
   status: 'pending' | 'in_progress' | 'completed'
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('tasks') as any)
+    const { error } = await supabase
+      .from('tasks')
       .update({ status })
       .eq('id', taskId);
 
@@ -76,8 +76,8 @@ export async function updateTaskStatus(
 
 export async function deleteTask(taskId: string): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('tasks') as any)
+    const { error } = await supabase
+      .from('tasks')
       .delete()
       .eq('id', taskId);
 

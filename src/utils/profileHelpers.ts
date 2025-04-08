@@ -16,8 +16,8 @@ export type UserProfile = {
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
   try {
-    const { data, error } = await (supabase
-      .from('profiles') as any)
+    const { data, error } = await supabase
+      .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
@@ -38,8 +38,8 @@ export async function updateUserProfile(
   updates: Partial<Omit<UserProfile, 'id' | 'created_at'>>
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('profiles') as any)
+    const { error } = await supabase
+      .from('profiles')
       .update(updates)
       .eq('id', userId);
 
@@ -62,8 +62,8 @@ export async function saveCompanyInfo(
 ): Promise<boolean> {
   try {
     // First, create the company entry
-    const { data: companyData, error: companyError } = await (supabase
-      .from('companies') as any)
+    const { data: companyData, error: companyError } = await supabase
+      .from('companies')
       .insert([
         { name: companyName, industry }
       ])

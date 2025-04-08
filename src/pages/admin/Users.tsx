@@ -14,7 +14,7 @@ export default function AdminUsers() {
       id: "1",
       email: "user1@example.com",
       name: "John Doe",
-      companyId: "c1",
+      company_id: "c1",
       role: "admin",
       created_at: "2023-01-01T00:00:00Z"
     },
@@ -22,7 +22,7 @@ export default function AdminUsers() {
       id: "2",
       email: "user2@example.com",
       name: "Jane Smith",
-      companyId: "c1",
+      company_id: "c1",
       role: "user",
       created_at: "2023-01-02T00:00:00Z"
     }

@@ -5,8 +5,8 @@ import { Company } from '@/models/company';
 
 export async function fetchCompany(companyId: string): Promise<Company | null> {
   try {
-    const { data, error } = await (supabase
-      .from('companies') as any)
+    const { data, error } = await supabase
+      .from('companies')
       .select('*')
       .eq('id', companyId)
       .single();
@@ -24,8 +24,8 @@ export async function fetchCompany(companyId: string): Promise<Company | null> {
 
 export async function fetchUserCompany(userId: string): Promise<Company | null> {
   try {
-    const { data: profile, error: profileError } = await (supabase
-      .from('profiles') as any)
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
       .select('company_id')
       .eq('id', userId)
       .single();
@@ -46,8 +46,8 @@ export async function updateCompany(
   updates: Partial<Omit<Company, 'id' | 'created_at'>>
 ): Promise<boolean> {
   try {
-    const { error } = await (supabase
-      .from('companies') as any)
+    const { error } = await supabase
+      .from('companies')
       .update(updates)
       .eq('id', companyId);
 

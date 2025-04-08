@@ -12,7 +12,7 @@ export default function AdminLeads() {
   const [leads, setLeads] = useState<Lead[]>([
     {
       id: "1",
-      campaignId: "c1",
+      campaign_id: "c1",
       name: "John Smith",
       email: "john@example.com",
       phone: "123-456-7890",
@@ -21,7 +21,7 @@ export default function AdminLeads() {
     },
     {
       id: "2",
-      campaignId: "c1",
+      campaign_id: "c1",
       name: "Sarah Jones",
       email: "sarah@example.com",
       phone: "234-567-8901",
@@ -30,7 +30,7 @@ export default function AdminLeads() {
     },
     {
       id: "3",
-      campaignId: "c2",
+      campaign_id: "c2",
       name: "Michael Brown",
       email: "michael@example.com",
       phone: "345-678-9012",
@@ -43,13 +43,13 @@ export default function AdminLeads() {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'new':
-        return <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">New</Badge>;
+        return <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20">New</Badge>;
       case 'contacted':
-        return <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">Contacted</Badge>;
+        return <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/20">Contacted</Badge>;
       case 'qualified':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">Qualified</Badge>;
+        return <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20">Qualified</Badge>;
       case 'closed':
-        return <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20">Closed</Badge>;
+        return <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20">Closed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
