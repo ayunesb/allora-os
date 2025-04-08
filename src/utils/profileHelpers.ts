@@ -2,6 +2,7 @@
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
+import { Database } from '@/integrations/supabase/types';
 
 export type UserProfile = {
   id: string;
@@ -13,9 +14,8 @@ export type UserProfile = {
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
   try {
-    // Typed as any to work around type issues until Supabase tables are properly defined
-    const { data, error } = await (supabase
-      .from('profiles') as any)
+    const { data, error } = await supabase
+      .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
@@ -36,9 +36,8 @@ export async function updateUserProfile(
   updates: Partial<Omit<UserProfile, 'id' | 'created_at'>>
 ): Promise<boolean> {
   try {
-    // Typed as any to work around type issues until Supabase tables are properly defined
-    const { error } = await (supabase
-      .from('profiles') as any)
+    const { error } = await supabase
+      .from('profiles')
       .update(updates)
       .eq('id', userId);
 
