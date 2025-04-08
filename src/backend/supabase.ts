@@ -74,7 +74,7 @@ supabase.auth.admin = {
   // Add stubs for the remaining required properties
   mfa: {
     listFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
-    deleteFactorById: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
+    deleteFactor: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
   },
   url: '',
   headers: {},
