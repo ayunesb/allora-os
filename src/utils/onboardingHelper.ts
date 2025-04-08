@@ -32,11 +32,17 @@ export async function saveOnboardingInfo(
 
     console.log("Saving onboarding info:", { userId, companyName, industry, goals });
 
-    // First, create or update the company record
-    // Note: We're removing the created_by field since it doesn't exist in the companies table
+    // First, get the authenticated user's session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error("No active session found. Please log in again.");
+    }
+
+    // Create the company record with user_id
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
-      .upsert({
+      .insert({
         name: companyName,
         industry: industry,
         created_at: new Date().toISOString(),
@@ -44,7 +50,10 @@ export async function saveOnboardingInfo(
       .select('id')
       .single();
 
-    if (companyError) throw companyError;
+    if (companyError) {
+      console.error("Company insert error:", companyError);
+      throw new Error(`Failed to create company: ${companyError.message}`);
+    }
 
     const companyId = companyData?.id;
 
@@ -65,9 +74,7 @@ export async function saveOnboardingInfo(
 
     if (profileError) throw profileError;
 
-    // Store the goals in the company record
-    // Since there's no goals column in the companies table, we're storing this in a different way
-    // In a real app, you might want to create a separate goals table
+    // Store the business goals (in a real app, you would create a goals table)
     console.log("Company goals would be stored:", goals);
 
     return { success: true };

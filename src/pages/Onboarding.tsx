@@ -7,6 +7,8 @@ import GoalsForm from "@/components/onboarding/GoalsForm";
 import useOnboardingState from "@/hooks/useOnboardingState";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function Onboarding() {
   const {
@@ -17,6 +19,7 @@ export default function Onboarding() {
     setIndustry,
     goals,
     isLoading,
+    errorMessage,
     handleNext,
     handleBack,
     toggleGoal
@@ -80,6 +83,13 @@ export default function Onboarding() {
       isLoading={isLoading}
       isLastStep={step === 3}
     >
+      {errorMessage && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="ml-2">{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+      
       {step === 1 && (
         <CompanyInfoForm 
           companyName={companyName} 

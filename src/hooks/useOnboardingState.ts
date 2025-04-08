@@ -11,6 +11,7 @@ export default function useOnboardingState() {
   const [industry, setIndustry] = useState("");
   const [goals, setGoals] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
 
@@ -45,6 +46,8 @@ export default function useOnboardingState() {
   };
 
   const handleComplete = async () => {
+    setErrorMessage(null);
+    
     if (!user) {
       toast.error("You must be logged in to complete onboarding");
       navigate("/login");
@@ -68,7 +71,15 @@ export default function useOnboardingState() {
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Onboarding error:", error);
-      toast.error(error.message || "An error occurred during setup");
+      const errorMsg = error.message || "An error occurred during setup";
+      setErrorMessage(errorMsg);
+      toast.error(errorMsg);
+      
+      if (errorMsg.includes("row-level security policy")) {
+        toast.error("Permission error. Please contact support.", {
+          description: "There's an issue with the database permissions."
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -82,6 +93,7 @@ export default function useOnboardingState() {
     setIndustry,
     goals,
     isLoading,
+    errorMessage,
     handleNext,
     handleBack,
     toggleGoal
