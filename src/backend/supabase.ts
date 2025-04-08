@@ -40,7 +40,7 @@ const createAuthError = (message: string): AuthError => {
   } as unknown as AuthError;
 };
 
-// We need to implement at least the basic methods required by the GoTrueAdminApi interface
+// Define the admin interface
 supabase.auth.admin = {
   // Implement the specific function we need
   getUserByEmail: async (email: string) => {
@@ -66,29 +66,6 @@ supabase.auth.admin = {
       return { data: null, error };
     }
   },
-  // Add stubs for other required GoTrueAdminApi properties to satisfy the type
-  createUser: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
-  deleteUser: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
-  listUsers: () => Promise.resolve({ data: { users: [] }, error: createAuthError('Not implemented') }),
-  updateUserById: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
-  // Add stubs for the remaining required properties
-  mfa: {
-    listFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
-    deleteFactor: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
-  },
-  // Required Admin API properties
-  signOut: () => Promise.resolve({ data: null, error: null }),
-  getUserById: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
-  _listFactors: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
-  _deleteFactor: () => Promise.resolve({ data: null, error: createAuthError('Not implemented') }),
-  url: '',
-  headers: {},
-  fetch: () => Promise.resolve(new Response()),
-  inviteUserByEmail: () => Promise.resolve({ data: { user: null }, error: createAuthError('Not implemented') }),
-  generateLink: () => Promise.resolve({ 
-    data: { properties: null, user: null }, 
-    error: createAuthError('Not implemented') 
-  }),
 };
 
 // Add these helper functions to make the code cleaner elsewhere
