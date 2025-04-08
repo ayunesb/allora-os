@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuthState } from '@/hooks/useAuthState';
@@ -22,6 +21,7 @@ import {
   Calendar, 
   Upload
 } from 'lucide-react';
+import { updateUserProfile } from '@/utils/profileHelpers';
 
 interface ProfileFormData {
   name: string;
@@ -81,21 +81,17 @@ const ProfileForm: React.FC = () => {
     
     try {
       // Update profile data
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          name: data.name,
-          company: data.company,
-          role: data.role,
-          phone: data.phone,
-          location: data.location,
-          website: data.website,
-          bio: data.bio,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-        
-      if (error) throw error;
+      const success = await updateUserProfile(user.id, {
+        name: data.name,
+        company: data.company,
+        role: data.role as 'admin' | 'user',
+        phone: data.phone,
+        location: data.location,
+        website: data.website,
+        bio: data.bio
+      });
+      
+      if (!success) throw new Error("Failed to update profile");
       
       // Upload avatar if selected
       if (avatarFile) {
