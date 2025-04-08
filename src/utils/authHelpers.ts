@@ -63,3 +63,30 @@ export async function verifyOtp(email: string, token: string): Promise<{ success
     };
   }
 }
+
+export async function resendVerificationEmail(email: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Get the current URL origin for the redirect
+    const origin = window.location.origin;
+    const redirectTo = `${origin}/login`;
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        redirectTo
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Failed to resend verification email'
+    };
+  }
+}

@@ -1,9 +1,12 @@
 
-import { RocketIcon, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { RocketIcon, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
+import { resendVerificationEmail } from "@/utils/authHelpers";
+import { toast } from "sonner";
 
 interface EmailVerificationViewProps {
   email: string;
@@ -12,6 +15,31 @@ interface EmailVerificationViewProps {
 
 export default function EmailVerificationView({ email, onTryAgain }: EmailVerificationViewProps) {
   const navigate = useNavigate();
+  const [isResending, setIsResending] = useState(false);
+
+  const handleResendEmail = async () => {
+    if (!email) {
+      toast.error("Email address is missing. Please try again.");
+      return;
+    }
+
+    setIsResending(true);
+    
+    try {
+      const result = await resendVerificationEmail(email);
+      
+      if (result.success) {
+        toast.success("Verification email resent successfully!");
+      } else {
+        toast.error(result.error || "Failed to resend verification email");
+      }
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   return (
     <Card className="w-full">
@@ -35,6 +63,27 @@ export default function EmailVerificationView({ email, onTryAgain }: EmailVerifi
         <p className="text-sm text-muted-foreground text-center">
           If you don't see the email, check your spam folder or try logging in anyway - email verification may be disabled in development.
         </p>
+        <div className="flex justify-center">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleResendEmail} 
+            disabled={isResending}
+            className="flex items-center gap-1"
+          >
+            {isResending ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Resend verification email
+              </>
+            )}
+          </Button>
+        </div>
       </CardContent>
       <CardFooter className="flex justify-center gap-4">
         <Button variant="outline" onClick={() => navigate("/login")}>
