@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from './pages/Index';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword'; 
+import UpdatePassword from './pages/UpdatePassword';
 import Dashboard from './pages/dashboard/Index';
 import Strategies from './pages/dashboard/Strategies';
 import Campaigns from './pages/dashboard/Campaigns';
@@ -28,6 +30,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Login />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/legal" element={<Legal />} />
         <Route path="/privacy" element={<Privacy />} />
         
