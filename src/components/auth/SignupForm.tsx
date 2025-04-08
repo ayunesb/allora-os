@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ interface SignupFormProps {
 export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
+  const navigate = useNavigate();
   
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
@@ -70,7 +72,6 @@ export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
       if (!session) {
         onSubmitSuccess();
       } else {
-        const navigate = await import('react-router-dom').then(module => module.useNavigate());
         navigate("/dashboard");
       }
     } catch (error: any) {
@@ -195,10 +196,7 @@ export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
             <Button 
               variant="link" 
               className="p-0" 
-              onClick={() => {
-                const navigate = import('react-router-dom').then(module => module.useNavigate());
-                navigate("/login");
-              }}
+              onClick={() => navigate("/login")}
               type="button"
             >
               Log in
