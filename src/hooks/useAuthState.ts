@@ -20,6 +20,7 @@ export function useAuthState() {
     user,
     setUser,
     profile,
+    setProfile,
     isProfileLoading,
     isEmailVerified,
     authError,

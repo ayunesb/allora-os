@@ -30,13 +30,14 @@ const supabase = baseClient as SupabaseClientWithAdmin;
 
 // Helper function to create AuthError objects
 const createAuthError = (message: string): AuthError => {
+  // Use type assertion with 'as unknown as AuthError' to safely convert
   return {
     message,
     name: 'AuthApiError',
     status: 400,
     code: 'not_implemented',
     __isAuthError: true
-  } as AuthError;
+  } as unknown as AuthError;
 };
 
 // We need to implement at least the basic methods required by the GoTrueAdminApi interface
