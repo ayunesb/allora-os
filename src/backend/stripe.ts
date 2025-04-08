@@ -1,4 +1,3 @@
-
 import { supabase } from './supabase';
 
 const STRIPE_FUNCTION_ENDPOINT = "/functions/v1/stripe";
@@ -120,21 +119,21 @@ export const checkSubscriptionStatus = async (): Promise<{
     }
     
     // Fetch the profile from database which contains subscription status
-    const { data: profile, error } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('subscription_status, subscription_plan_id, subscription_expires_at')
       .eq('id', session.user.id)
       .single();
       
-    if (error || !profile) {
+    if (error || !data) {
       console.error('Error fetching subscription status:', error);
       return { isActive: false };
     }
     
     return {
-      isActive: profile.subscription_status === 'active',
-      planId: profile.subscription_plan_id,
-      expiresAt: profile.subscription_expires_at
+      isActive: data.subscription_status === 'active',
+      planId: data.subscription_plan_id,
+      expiresAt: data.subscription_expires_at
     };
   } catch (error) {
     console.error('Failed to check subscription status:', error);

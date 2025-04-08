@@ -7,7 +7,7 @@ import type { Database } from '@/integrations/supabase/types';
 
 // Create a custom type that extends the Supabase Client type
 type SupabaseClientWithAdmin = ReturnType<typeof createClient<Database>> & {
-  auth: {
+  auth: ReturnType<typeof createClient<Database>>['auth'] & {
     admin: {
       getUserByEmail: (email: string) => Promise<{
         data: { user: any } | null;

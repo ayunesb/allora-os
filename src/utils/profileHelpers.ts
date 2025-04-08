@@ -12,6 +12,15 @@ export type UserProfile = {
   industry: string;
   role: 'admin' | 'user';
   created_at: string;
+  avatar_url: string | null;
+  phone: string | null;
+  location: string | null;
+  website: string | null;
+  bio: string | null;
+  subscription_status: string | null;
+  subscription_plan_id: string | null;
+  subscription_expires_at: string | null;
+  stripe_customer_id: string | null;
 };
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {

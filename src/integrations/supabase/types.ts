@@ -105,31 +105,58 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           company: string | null
           company_id: string | null
           created_at: string
           id: string
           industry: string | null
+          location: string | null
           name: string | null
+          phone: string | null
           role: string | null
+          stripe_customer_id: string | null
+          subscription_expires_at: string | null
+          subscription_plan_id: string | null
+          subscription_status: string | null
+          website: string | null
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           company?: string | null
           company_id?: string | null
           created_at?: string
           id: string
           industry?: string | null
+          location?: string | null
           name?: string | null
+          phone?: string | null
           role?: string | null
+          stripe_customer_id?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan_id?: string | null
+          subscription_status?: string | null
+          website?: string | null
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           company?: string | null
           company_id?: string | null
           created_at?: string
           id?: string
           industry?: string | null
+          location?: string | null
           name?: string | null
+          phone?: string | null
           role?: string | null
+          stripe_customer_id?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan_id?: string | null
+          subscription_status?: string | null
+          website?: string | null
         }
         Relationships: [
           {
