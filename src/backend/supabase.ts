@@ -1,7 +1,4 @@
 
-// Add admin auth methods to our supabase client
-// This is a custom client that includes admin methods for testing purposes
-
 import { createClient, type User, AuthError, GoTrueAdminApi } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -112,10 +109,6 @@ const mockAdminApi: Partial<GoTrueAdminApi> & {
       return { data: null, error: createAuthError('Not implemented') };
     }
   } as any,
-  // These properties are required by GoTrueAdminApi
-  url: '',
-  headers: {},
-  fetch: async () => new Response()
 };
 
 // Assign our mock admin API to supabase.auth.admin
