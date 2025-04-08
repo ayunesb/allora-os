@@ -62,7 +62,6 @@ export async function saveOnboardingInfo(
         company_id: companyId,
         company: companyName,
         industry: industry,
-        // We'll remove onboarding_completed fields since they don't exist in our schema
         updated_at: new Date().toISOString()
       });
 
@@ -84,7 +83,7 @@ export async function checkOnboardingStatus(userId: string): Promise<boolean> {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('company_id') // Using company_id instead of onboarding_completed
+      .select('company_id')
       .eq('id', userId)
       .single();
 
