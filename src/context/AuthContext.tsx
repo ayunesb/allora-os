@@ -23,9 +23,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile, 
     isProfileLoading, 
     isEmailVerified,
+    authError,
+    isSessionExpired,
     loadUserProfile,
     setUser,
-    setSession
+    setSession,
+    refreshSession: refreshUserSession
   } = useAuthState();
 
   const refreshProfile = async () => {
@@ -34,20 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
   
-  const refreshUserSession = async () => {
+  const refreshUserAuth = async () => {
     try {
-      const { session: newSession, user: newUser } = await refreshSession();
-      
-      setSession(newSession);
-      setUser(newUser);
-      
-      if (newUser) {
-        setTimeout(() => {
-          loadUserProfile(newUser.id);
-        }, 0);
-      }
+      return await refreshUserSession();
     } catch (error) {
       console.error('Error refreshing session:', error);
+      return false;
     }
   };
 
@@ -79,11 +74,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile,
     isProfileLoading,
     isEmailVerified,
+    authError,
+    isSessionExpired,
     signIn: handleSignIn,
     signUp: handleSignUp,
     signOut: handleSignOut,
     refreshProfile,
-    refreshSession: refreshUserSession,
+    refreshSession: refreshUserAuth,
     updateUserProfile,
     sendPasswordReset,
     verifyOtp,

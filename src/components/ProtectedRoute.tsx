@@ -1,10 +1,10 @@
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
+import { AlertCircle, Loader2, RefreshCw, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { resendVerificationEmail } from "@/utils/authHelpers";
 
@@ -19,9 +19,25 @@ export default function ProtectedRoute({
   roleRequired,
   requireVerified = false 
 }: ProtectedRouteProps) {
-  const { user, isLoading, profile, isEmailVerified, refreshSession } = useAuth();
+  const { 
+    user, 
+    isLoading, 
+    profile, 
+    isEmailVerified, 
+    refreshSession, 
+    authError,
+    isSessionExpired
+  } = useAuth();
   const location = useLocation();
   const [isResending, setIsResending] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Handle session expiration
+  useEffect(() => {
+    if (isSessionExpired && user) {
+      toast.error("Your session has expired. Please log in again.");
+    }
+  }, [isSessionExpired, user]);
 
   const handleResendVerificationEmail = async () => {
     if (!user?.email) {
@@ -45,6 +61,24 @@ export default function ProtectedRoute({
     }
   };
 
+  const handleSessionRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const success = await refreshSession();
+      if (success) {
+        toast.success("Session refreshed successfully");
+      } else {
+        toast.error("Failed to refresh session. Please log in again.");
+        return <Navigate to="/login" state={{ from: location }} replace />;
+      }
+    } catch (error) {
+      console.error("Error refreshing session:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // If still loading, show loading spinner
   if (isLoading) {
     return (
@@ -53,6 +87,47 @@ export default function ProtectedRoute({
         <p className="text-muted-foreground">Loading your account information...</p>
       </div>
     );
+  }
+
+  // If authentication error, show error message with retry option
+  if (authError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="max-w-md w-full space-y-4">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertDescription>
+              {authError}
+            </AlertDescription>
+          </Alert>
+          <div className="flex justify-center">
+            <Button 
+              onClick={handleSessionRefresh} 
+              disabled={isRefreshing}
+              className="flex items-center gap-2"
+            >
+              {isRefreshing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Retrying...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4" />
+                  Retry
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If session expired, redirect to login
+  if (isSessionExpired) {
+    return <Navigate to="/login" state={{ from: location, expired: true }} replace />;
   }
 
   // If not logged in, redirect to login

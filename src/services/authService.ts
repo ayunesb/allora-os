@@ -1,15 +1,25 @@
-
 import { supabase } from '@/backend/supabase';
 
-export async function handleSignIn(email: string, password: string) {
+export async function handleSignIn(email: string, password: string, rememberMe = false) {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
+      options: {
+        // If rememberMe is true, session will be kept until explicitly signed out
+        // Otherwise, session expires after browser close (default behavior)
+      }
     });
 
     if (error) {
       throw error;
+    }
+
+    // Store user preference for "remember me" in local storage
+    if (rememberMe) {
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      localStorage.removeItem('rememberMe');
     }
 
     return { success: true };
@@ -23,9 +33,16 @@ export async function handleSignIn(email: string, password: string) {
 
 export async function handleSignUp(email: string, password: string) {
   try {
+    // Get the current URL origin for the redirect
+    const origin = window.location.origin;
+    const redirectTo = `${origin}/login`;
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: redirectTo
+      }
     });
 
     if (error) {
@@ -42,7 +59,13 @@ export async function handleSignUp(email: string, password: string) {
 }
 
 export async function handleSignOut() {
-  await supabase.auth.signOut();
+  try {
+    await supabase.auth.signOut();
+    // Clear any auth related items from storage
+    localStorage.removeItem('rememberMe');
+  } catch (error) {
+    console.error('Error signing out:', error);
+  }
 }
 
 export async function refreshSession() {

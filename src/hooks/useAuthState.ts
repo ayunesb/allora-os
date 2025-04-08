@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { UserProfile, fetchUserProfile } from '@/utils/profileHelpers';
 import { supabase, getSession, getCurrentUser } from '@/backend/supabase';
@@ -12,6 +13,8 @@ export function useAuthState() {
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [lastActivity, setLastActivity] = useState<Date>(new Date());
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const loadUserProfile = async (userId: string) => {
     if (!userId) return;
@@ -22,15 +25,46 @@ export function useAuthState() {
       setProfile(userProfile);
     } catch (error) {
       console.error('Error loading user profile:', error);
+      setAuthError('Failed to load user profile data');
     } finally {
       setIsProfileLoading(false);
     }
   };
 
-  const updateLastActivity = () => {
+  const updateLastActivity = useCallback(() => {
     setLastActivity(new Date());
-  };
+    setIsSessionExpired(false); // Reset session expired flag when there's activity
+  }, []);
 
+  // Refresh session method that can be called manually when needed
+  const refreshUserSession = useCallback(async () => {
+    try {
+      console.log('Manually refreshing session...');
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.error('Error refreshing session:', error);
+        setAuthError('Session refresh failed');
+        return false;
+      }
+      
+      if (data.session) {
+        console.log('Session refreshed successfully');
+        setSession(data.session);
+        setUser(data.session.user);
+        setIsSessionExpired(false);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error in manual session refresh:', error);
+      setAuthError('Session refresh failed');
+      return false;
+    }
+  }, []);
+
+  // Monitor user activity to prevent session timeouts
   useEffect(() => {
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
     
@@ -47,8 +81,9 @@ export function useAuthState() {
         window.removeEventListener(event, handleActivity);
       });
     };
-  }, []);
+  }, [updateLastActivity]);
 
+  // Auto session refresh logic
   useEffect(() => {
     if (!session) return;
     
@@ -59,18 +94,28 @@ export function useAuthState() {
         
         const expiryTime = new Date(expiresAt * 1000);
         const now = new Date();
+        const timeToExpiry = expiryTime.getTime() - now.getTime();
         
-        if (expiryTime.getTime() - now.getTime() < 5 * 60 * 1000) {
+        // If session is about to expire in the next 5 minutes, refresh it
+        if (timeToExpiry < 5 * 60 * 1000 && timeToExpiry > 0) {
           console.log('Session expiring soon, refreshing...');
           const { data, error } = await supabase.auth.refreshSession();
           
           if (error) {
             console.error('Error refreshing session:', error);
+            setAuthError('Your session is about to expire and could not be refreshed');
           } else if (data.session) {
             console.log('Session refreshed successfully');
             setSession(data.session);
             setUser(data.session.user);
           }
+        }
+        
+        // If session is expired, set flag
+        if (timeToExpiry <= 0) {
+          console.log('Session expired');
+          setIsSessionExpired(true);
+          toast.error('Your session has expired. Please log in again.');
         }
       } catch (error) {
         console.error('Error in session refresh check:', error);
@@ -82,6 +127,7 @@ export function useAuthState() {
     return () => clearInterval(intervalId);
   }, [session, lastActivity]);
 
+  // Check if email is verified whenever user changes
   useEffect(() => {
     if (user) {
       setIsEmailVerified(user.email_confirmed_at !== null);
@@ -90,7 +136,11 @@ export function useAuthState() {
     }
   }, [user]);
 
+  // Set up auth state change listener and initialize auth
   useEffect(() => {
+    setAuthError(null);
+    
+    // Set up auth state change listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         console.log('Auth state change:', event);
@@ -99,6 +149,7 @@ export function useAuthState() {
         setUser(newSession?.user ?? null);
         
         if (newSession?.user) {
+          // Use setTimeout to prevent deadlock with Supabase client
           setTimeout(() => {
             loadUserProfile(newSession.user.id);
           }, 0);
@@ -106,6 +157,7 @@ export function useAuthState() {
           setProfile(null);
         }
         
+        // Show appropriate notifications for auth events
         if (event === 'SIGNED_OUT') {
           toast.info('You have been signed out');
         } else if (event === 'SIGNED_IN') {
@@ -120,9 +172,11 @@ export function useAuthState() {
       }
     );
 
+    // Then check for existing session
     const initializeAuth = async () => {
       setIsLoading(true);
       try {
+        // Get current session and user
         const { session: currentSession } = await getSession();
         const { user: currentUser } = await getCurrentUser();
         
@@ -134,6 +188,7 @@ export function useAuthState() {
         }
       } catch (error) {
         console.error('Error loading auth:', error);
+        setAuthError('Failed to initialize authentication');
       } finally {
         setIsLoading(false);
       }
@@ -153,9 +208,12 @@ export function useAuthState() {
     profile,
     isProfileLoading,
     isEmailVerified,
+    authError,
+    isSessionExpired,
     setUser,
     setSession,
     loadUserProfile,
-    updateLastActivity
+    updateLastActivity,
+    refreshSession: refreshUserSession
   };
 }

@@ -1,24 +1,34 @@
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSignupForm, SignupValues } from "@/hooks/useSignupForm";
 import PasswordInput from "./PasswordInput";
 import CompanyInfoFields from "./CompanyInfoFields";
+import { useState } from "react";
 
 interface SignupFormProps {
   onSubmitSuccess: () => void;
 }
 
 export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
-  const { form, isLoading, onSubmit, navigate } = useSignupForm({ 
+  const { form, isLoading, onSubmit, navigate, formError } = useSignupForm({ 
     onSubmitSuccess
   });
+  const [showPasswordTips, setShowPasswordTips] = useState(false);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {formError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{formError}</AlertDescription>
+          </Alert>
+        )}
+        
         <FormField
           control={form.control}
           name="name"
@@ -40,7 +50,12 @@ export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} />
+                <Input 
+                  placeholder="you@example.com" 
+                  {...field} 
+                  type="email"
+                  autoComplete="email"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -51,8 +66,21 @@ export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
           form={form} 
           name="password" 
           label="Password" 
-          showStrengthMeter={true} 
+          showStrengthMeter={true}
+          onFocus={() => setShowPasswordTips(true)}
         />
+
+        {showPasswordTips && (
+          <div className="text-xs text-muted-foreground space-y-1 bg-muted p-2 rounded">
+            <p>Your password should:</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>Be at least 8 characters long</li>
+              <li>Include uppercase and lowercase letters</li>
+              <li>Include at least one number</li>
+              <li>Include at least one special character</li>
+            </ul>
+          </div>
+        )}
 
         <PasswordInput 
           form={form} 

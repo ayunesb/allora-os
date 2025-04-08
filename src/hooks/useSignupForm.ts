@@ -15,6 +15,22 @@ export const signupSchema = z.object({
   password: z.string()
     .min(8, "Password must be at least 8 characters")
     .refine(
+      (password) => /[A-Z]/.test(password),
+      "Password must contain at least one uppercase letter"
+    )
+    .refine(
+      (password) => /[a-z]/.test(password),
+      "Password must contain at least one lowercase letter"
+    )
+    .refine(
+      (password) => /[0-9]/.test(password),
+      "Password must contain at least one number"
+    )
+    .refine(
+      (password) => /[^A-Za-z0-9]/.test(password),
+      "Password must contain at least one special character"
+    )
+    .refine(
       (password) => calculatePasswordStrength(password) >= 60,
       "Password must meet strength requirements"
     ),
@@ -34,6 +50,7 @@ interface UseSignupFormProps {
 
 export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const { signUp } = useAuth();
   const navigate = useNavigate();
   
@@ -47,10 +64,12 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       company: "",
       industry: "",
     },
+    mode: "onBlur", // Validate fields when they lose focus
   });
 
   async function onSubmit(data: SignupValues) {
     setIsLoading(true);
+    setFormError(null);
     
     try {
       // Store the email in sessionStorage for verification page access
@@ -60,6 +79,14 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       const signUpResult = await signUp(data.email, data.password);
       
       if (!signUpResult.success) {
+        if (signUpResult.error?.includes("already registered")) {
+          setFormError("This email is already registered. Try logging in instead.");
+          form.setError("email", { 
+            type: "manual", 
+            message: "Email already in use" 
+          });
+          return;
+        }
         throw new Error(signUpResult.error);
       }
       
@@ -86,11 +113,12 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       }
     } catch (error: any) {
       console.error("Signup error:", error);
+      setFormError(error.message || "Failed to create account");
       toast.error(error.message || "Failed to create account");
     } finally {
       setIsLoading(false);
     }
   }
 
-  return { form, isLoading, onSubmit, navigate };
+  return { form, isLoading, onSubmit, navigate, formError };
 }
