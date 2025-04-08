@@ -14,4 +14,8 @@ export interface AuthContextType {
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  updateUserProfile: (data: Partial<Omit<UserProfile, 'id' | 'created_at'>>) => Promise<boolean>;
+  sendPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
+  verifyOtp: (email: string, token: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
 }

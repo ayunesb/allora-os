@@ -8,9 +8,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Link, useNavigate } from "react-router-dom";
-import { RocketIcon, ArrowLeft } from "lucide-react";
+import { RocketIcon, ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { resetPassword } from "@/utils/authHelpers";
+import { useAuth } from "@/context/AuthContext";
 
 const resetSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,6 +22,7 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
+  const { sendPasswordReset } = useAuth();
   
   const form = useForm<ResetFormValues>({
     resolver: zodResolver(resetSchema),
@@ -34,7 +35,7 @@ export default function ResetPassword() {
     setIsLoading(true);
     
     try {
-      const { success, error } = await resetPassword(data.email);
+      const { success, error } = await sendPasswordReset(data.email);
       
       if (!success) {
         throw new Error(error);
@@ -70,6 +71,9 @@ export default function ResetPassword() {
       <div className="flex-1 container max-w-md mx-auto px-4 py-12 flex items-center justify-center">
         <Card className="w-full border-primary/10 shadow-lg">
           <CardHeader className="text-center space-y-2">
+            <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center">
+              <Mail className="h-8 w-8 text-primary" />
+            </div>
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
             <CardDescription>
               {isSubmitted 
@@ -128,6 +132,7 @@ export default function ResetPassword() {
                       variant="link" 
                       className="p-0" 
                       onClick={() => navigate("/login")}
+                      type="button"
                     >
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Back to login

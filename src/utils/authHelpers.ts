@@ -42,3 +42,24 @@ export async function updatePassword(newPassword: string): Promise<{ success: bo
     };
   }
 }
+
+export async function verifyOtp(email: string, token: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'recovery',
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { 
+      success: false, 
+      error: error.message || 'Failed to verify OTP' 
+    };
+  }
+}

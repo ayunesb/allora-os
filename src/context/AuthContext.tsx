@@ -2,7 +2,16 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useAuthState } from '@/hooks/useAuthState';
 import { AuthContextType } from '@/types/auth';
-import { handleSignIn, handleSignUp, handleSignOut, refreshSession } from '@/services/authService';
+import { 
+  handleSignIn, 
+  handleSignUp, 
+  handleSignOut, 
+  refreshSession,
+  sendPasswordResetEmail,
+  verifyOtpCode,
+  updateUserPassword
+} from '@/services/authService';
+import { updateUserProfile as updateProfile } from '@/utils/profileHelpers';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -42,6 +51,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateUserProfile = async (data: Parameters<typeof updateProfile>[1]) => {
+    if (!user?.id) return false;
+    const result = await updateProfile(user.id, data);
+    if (result) {
+      await refreshProfile();
+    }
+    return result;
+  };
+
+  const sendPasswordReset = async (email: string) => {
+    return await sendPasswordResetEmail(email);
+  };
+
+  const verifyOtp = async (email: string, token: string) => {
+    return await verifyOtpCode(email, token);
+  };
+
+  const updatePassword = async (password: string) => {
+    return await updateUserPassword(password);
+  };
+
   const value: AuthContextType = {
     user,
     session,
@@ -54,6 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut: handleSignOut,
     refreshProfile,
     refreshSession: refreshUserSession,
+    updateUserProfile,
+    sendPasswordReset,
+    verifyOtp,
+    updatePassword
   };
 
   return (

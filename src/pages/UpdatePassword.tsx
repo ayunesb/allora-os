@@ -8,15 +8,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { RocketIcon, ShieldCheck } from "lucide-react";
+import { RocketIcon, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { updatePassword } from "@/utils/authHelpers";
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/backend/supabase";
+import PasswordStrengthMeter, { calculatePasswordStrength } from "@/components/auth/PasswordStrengthMeter";
 
 const passwordSchema = z.object({
   password: z.string()
     .min(8, "Password must be at least 8 characters")
-    .max(64, "Password must be less than 64 characters"),
+    .max(64, "Password must be less than 64 characters")
+    .refine(
+      (password) => calculatePasswordStrength(password) >= 60,
+      "Password must meet strength requirements"
+    ),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
@@ -28,7 +33,10 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 export default function UpdatePassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const { updatePassword } = useAuth();
   
   useEffect(() => {
     // Check if the URL contains hash parameters from Supabase
@@ -56,6 +64,9 @@ export default function UpdatePassword() {
     },
   });
 
+  // Watch password for strength meter
+  const password = form.watch("password");
+
   async function onSubmit(data: PasswordFormValues) {
     setIsLoading(true);
     
@@ -75,6 +86,9 @@ export default function UpdatePassword() {
       setIsLoading(false);
     }
   }
+
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
   if (isTokenValid === false) {
     return (
@@ -145,8 +159,25 @@ export default function UpdatePassword() {
                     <FormItem>
                       <FormLabel>New Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="••••••••" 
+                            {...field} 
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3"
+                            onClick={togglePasswordVisibility}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                          </Button>
+                        </div>
                       </FormControl>
+                      <PasswordStrengthMeter password={password} />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -159,7 +190,23 @@ export default function UpdatePassword() {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <div className="relative">
+                          <Input 
+                            type={showConfirmPassword ? "text" : "password"} 
+                            placeholder="••••••••" 
+                            {...field} 
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3"
+                            onClick={toggleConfirmPasswordVisibility}
+                          >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            <span className="sr-only">{showConfirmPassword ? "Hide password" : "Show password"}</span>
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
