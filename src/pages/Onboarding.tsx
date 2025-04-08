@@ -4,6 +4,7 @@ import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
 import IndustryForm from "@/components/onboarding/IndustryForm";
 import GoalsForm from "@/components/onboarding/GoalsForm";
+import CompanyDetailsSurvey from "@/components/onboarding/CompanyDetailsSurvey";
 import useOnboardingState from "@/hooks/useOnboardingState";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -18,6 +19,8 @@ export default function Onboarding() {
     industry,
     setIndustry,
     goals,
+    companyDetails,
+    updateCompanyDetails,
     isLoading,
     errorMessage,
     handleNext,
@@ -29,6 +32,7 @@ export default function Onboarding() {
     companyName?: string;
     industry?: string;
     goals?: string;
+    companyDetails?: string;
   }>({});
   
   const { user } = useAuth();
@@ -63,6 +67,7 @@ export default function Onboarding() {
         return false;
       }
     }
+    // Step 4 (company details) is optional, so no validation required
     
     return true;
   };
@@ -77,11 +82,11 @@ export default function Onboarding() {
     <OnboardingLayout
       title="Welcome to Allora AI"
       step={step}
-      totalSteps={3}
+      totalSteps={4}
       onBack={handleBack}
       onNext={handleStepNext}
       isLoading={isLoading}
-      isLastStep={step === 3}
+      isLastStep={step === 4}
     >
       {errorMessage && (
         <Alert variant="destructive" className="mb-4">
@@ -113,6 +118,14 @@ export default function Onboarding() {
           companyName={companyName}
           industry={industry}
           error={errors.goals}
+        />
+      )}
+      
+      {step === 4 && (
+        <CompanyDetailsSurvey
+          companyDetails={companyDetails}
+          updateCompanyDetails={updateCompanyDetails}
+          error={errors.companyDetails}
         />
       )}
     </OnboardingLayout>

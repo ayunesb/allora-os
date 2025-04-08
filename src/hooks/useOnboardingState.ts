@@ -4,12 +4,14 @@ import { useAuth } from "@/context/AuthContext";
 import { saveOnboardingInfo } from "@/utils/onboardingHelper";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { PartialCompanyDetails } from "@/models/companyDetails";
 
 export default function useOnboardingState() {
   const [step, setStep] = useState(1);
   const [companyName, setCompanyName] = useState("");
   const [industry, setIndustry] = useState("");
   const [goals, setGoals] = useState<string[]>([]);
+  const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ export default function useOnboardingState() {
   }, [profile]);
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
     } else {
       handleComplete();
@@ -45,6 +47,10 @@ export default function useOnboardingState() {
     }
   };
 
+  const updateCompanyDetails = (details: PartialCompanyDetails) => {
+    setCompanyDetails({ ...companyDetails, ...details });
+  };
+
   const handleComplete = async () => {
     setErrorMessage(null);
     
@@ -57,8 +63,8 @@ export default function useOnboardingState() {
     setIsLoading(true);
 
     try {
-      console.log("Saving onboarding info:", user.id, companyName, industry, goals);
-      const result = await saveOnboardingInfo(user.id, companyName, industry, goals);
+      console.log("Saving onboarding info:", user.id, companyName, industry, goals, companyDetails);
+      const result = await saveOnboardingInfo(user.id, companyName, industry, goals, companyDetails);
       
       if (!result.success) {
         throw new Error(result.error || "Failed to save company information");
@@ -92,6 +98,8 @@ export default function useOnboardingState() {
     industry,
     setIndustry,
     goals,
+    companyDetails,
+    updateCompanyDetails,
     isLoading,
     errorMessage,
     handleNext,

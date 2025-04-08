@@ -1,6 +1,7 @@
 
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
+import { PartialCompanyDetails } from '@/models/companyDetails';
 
 interface OnboardingResult {
   success: boolean;
@@ -11,7 +12,8 @@ export async function saveOnboardingInfo(
   userId: string,
   companyName: string,
   industry: string,
-  goals: string[]
+  goals: string[],
+  companyDetails?: PartialCompanyDetails
 ): Promise<OnboardingResult> {
   try {
     if (!userId) {
@@ -46,6 +48,8 @@ export async function saveOnboardingInfo(
         name: companyName,
         industry: industry,
         created_at: new Date().toISOString(),
+        // Add detailed company information if provided
+        ...(companyDetails && { details: companyDetails }),
       })
       .select('id')
       .single();
