@@ -90,7 +90,8 @@ const mockAdminApi: Partial<GoTrueAdminApi> & {
     return { data: { user: null }, error: createAuthError('Not implemented') };
   },
   inviteUserByEmail: async () => {
-    return { data: {}, error: createAuthError('Not implemented') };
+    // Fix the return type to include the required 'user' property
+    return { data: { user: null }, error: createAuthError('Not implemented') };
   },
   resetPasswordForEmail: async (_email: string, _options?: any) => {
     // Fixing the return type to include the required 'user' property
