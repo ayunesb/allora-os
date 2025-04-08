@@ -1,12 +1,26 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { RocketIcon, Menu } from "lucide-react";
+import { RocketIcon, Menu, LogOut, User } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+export default function Navbar() {
   const isMobile = useIsMobile();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  
+  const isLoggedIn = !!user;
   
   const navLinks = isLoggedIn ? [
     { name: "Dashboard", href: "/dashboard" },
@@ -15,12 +29,24 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
     { name: "Calls", href: "/dashboard/calls" },
     { name: "Leads", href: "/dashboard/leads" },
     { name: "AI Team", href: "/dashboard/ai-bots" },
-    { name: "Admin", href: "/admin" },
   ] : [
     { name: "Home", href: "/" },
     { name: "Login", href: "/login" },
     { name: "Signup", href: "/signup" },
   ];
+
+  // Check if user has admin access (simplified for demo)
+  const isAdmin = isLoggedIn && user.email === 'admin@example.com';
+  
+  if (isAdmin) {
+    navLinks.push({ name: "Admin", href: "/admin" });
+  }
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+    toast.success('You have been logged out');
+  };
 
   const NavLinks = () => (
     <>
@@ -54,12 +80,49 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
             <SheetContent>
               <div className="flex flex-col space-y-6 mt-6">
                 <NavLinks />
+                {isLoggedIn && (
+                  <Button 
+                    variant="destructive" 
+                    onClick={handleSignOut}
+                    className="mt-4"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </Button>
+                )}
               </div>
             </SheetContent>
           </Sheet>
         ) : (
           <div className="flex items-center space-x-6">
             <NavLinks />
+            
+            {isLoggedIn && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      Admin Panel
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         )}
       </div>

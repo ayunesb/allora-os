@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { RocketIcon, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/context/AuthContext";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -25,6 +26,7 @@ type SignupValues = z.infer<typeof signupSchema>;
 export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
@@ -37,15 +39,26 @@ export default function Signup() {
     },
   });
 
-  function onSubmit(data: SignupValues) {
+  async function onSubmit(data: SignupValues) {
     setIsLoading(true);
     
-    // This would connect to your backend API in a full implementation
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { success, error } = await signUp(data.email, data.password);
+      
+      if (!success) {
+        throw new Error(error);
+      }
+      
+      // Save additional user data to profiles table
+      // We'll implement this logic later
+      
       toast.success("Account created successfully!");
       navigate("/dashboard");
-    }, 1500);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create account");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

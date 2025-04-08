@@ -1,23 +1,43 @@
 
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!email || !password) {
       toast.error("Please fill in all fields");
       return;
     }
-    toast.success("Login functionality will be implemented soon!");
-    // Redirect would happen here in a real implementation
+    
+    setIsLoading(true);
+    
+    try {
+      const { success, error } = await signIn(email, password);
+      
+      if (!success) {
+        throw new Error(error);
+      }
+      
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Login failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,6 +60,7 @@ export default function Login() {
                 className="allora-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             
@@ -59,11 +80,12 @@ export default function Login() {
                 className="allora-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             
-            <Button type="submit" className="allora-button w-full">
-              Login
+            <Button type="submit" className="allora-button w-full" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
           
