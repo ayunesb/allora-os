@@ -14,6 +14,7 @@ import Leads from './pages/dashboard/Leads';
 import AiBots from './pages/dashboard/AiBots';
 import BotDetail from './pages/dashboard/BotDetail';
 import Profile from './pages/dashboard/Profile';
+import Settings from './pages/dashboard/Settings';
 import Onboarding from './pages/Onboarding';
 import NotFound from './pages/NotFound';
 import Legal from './pages/Legal';
@@ -62,6 +63,7 @@ function App() {
           <Route path="/dashboard/ai-bots" element={<AiBots />} />
           <Route path="/dashboard/ai-bots/:botName/:role" element={<BotDetail />} />
           <Route path="/dashboard/profile" element={<Profile />} />
+          <Route path="/dashboard/settings" element={<Settings />} />
         </Route>
         
         {/* Admin routes with admin layout */}
