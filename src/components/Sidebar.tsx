@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   TrendingUp, 
@@ -9,8 +9,12 @@ import {
   Bot, 
   Settings 
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
   const menuItems = [
     { icon: <LayoutDashboard size={18} />, label: "Dashboard", href: "/dashboard" },
     { icon: <TrendingUp size={18} />, label: "Strategies", href: "/dashboard/strategies" },
@@ -31,7 +35,10 @@ export default function Sidebar() {
               <li key={item.label}>
                 <Link
                   to={item.href}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
+                    currentPath === item.href && "text-foreground bg-accent"
+                  )}
                 >
                   {item.icon}
                   <span>{item.label}</span>
