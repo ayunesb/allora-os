@@ -9,7 +9,9 @@ import {
   refreshSession,
   sendPasswordResetEmail,
   verifyOtpCode,
-  updateUserPassword
+  updateUserPassword,
+  handleGoogleSignIn,
+  handleGitHubSignIn
 } from '@/services/authService';
 import { updateUserProfile as updateProfile } from '@/utils/profileHelpers';
 
@@ -67,6 +69,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return await updateUserPassword(password);
   };
 
+  const signInWithGoogle = async () => {
+    return await handleGoogleSignIn();
+  };
+
+  const signInWithGitHub = async () => {
+    return await handleGitHubSignIn();
+  };
+
   const value: AuthContextType = {
     user,
     session,
@@ -84,7 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updateUserProfile,
     sendPasswordReset,
     verifyOtp,
-    updatePassword
+    updatePassword,
+    signInWithGoogle,
+    signInWithGitHub
   };
 
   return (

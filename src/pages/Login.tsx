@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import SocialLoginButtons from "@/components/auth/SocialLoginButtons";
+import { Separator } from "@/components/ui/separator";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -31,7 +32,6 @@ export default function Login() {
   const location = useLocation();
   const { signIn, user, isLoading: authLoading } = useAuth();
 
-  // Get redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || "/dashboard";
 
   const form = useForm<LoginFormValues>({
@@ -43,7 +43,6 @@ export default function Login() {
     }
   });
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
       navigate(from, { replace: true });
@@ -55,7 +54,6 @@ export default function Login() {
     setIsLoading(true);
     
     try {
-      // Set persistence based on rememberMe
       localStorage.setItem('supabase.auth.persistSession', data.rememberMe.toString());
       
       const { success, error } = await signIn(data.email, data.password);
@@ -69,12 +67,10 @@ export default function Login() {
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Handle specific error cases
       if (error.message.includes("Invalid login credentials")) {
         setLoginError("Invalid email or password. Please try again.");
       } else if (error.message.includes("Email not confirmed")) {
         setLoginError("Please verify your email before logging in.");
-        // Optionally offer resend verification option here
       } else {
         setLoginError(error.message || "Login failed. Please try again.");
       }
@@ -203,6 +199,21 @@ export default function Login() {
                 </Button>
               </form>
             </Form>
+            
+            <div className="relative mt-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            
+            <div className="mt-6">
+              <SocialLoginButtons />
+            </div>
             
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">

@@ -20,4 +20,6 @@ export interface AuthContextType {
   sendPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
   verifyOtp: (email: string, token: string) => Promise<{ success: boolean; error?: string, session?: Session }>;
   updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  signInWithGitHub: () => Promise<{ success: boolean; error?: string }>;
 }

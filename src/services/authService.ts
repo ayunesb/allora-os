@@ -31,6 +31,50 @@ export async function handleSignIn(email: string, password: string, rememberMe =
   }
 }
 
+export async function handleGoogleSignIn() {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/login`
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Failed to sign in with Google'
+    };
+  }
+}
+
+export async function handleGitHubSignIn() {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: `${window.location.origin}/login`
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Failed to sign in with GitHub'
+    };
+  }
+}
+
 export async function handleSignUp(email: string, password: string) {
   try {
     // Get the current URL origin for the redirect

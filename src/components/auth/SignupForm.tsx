@@ -8,6 +8,8 @@ import { useSignupForm, SignupValues } from "@/hooks/useSignupForm";
 import PasswordInput from "./PasswordInput";
 import CompanyInfoFields from "./CompanyInfoFields";
 import { useState } from "react";
+import SocialLoginButtons from "./SocialLoginButtons";
+import { Separator } from "@/components/ui/separator";
 
 interface SignupFormProps {
   onSubmitSuccess: () => void;
@@ -67,7 +69,7 @@ export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
           name="password" 
           label="Password" 
           showStrengthMeter={true}
-          onFocus={() => setShowPasswordTips(true)}
+          setShowTips={setShowPasswordTips}
         />
 
         {showPasswordTips && (
@@ -102,6 +104,19 @@ export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
             </>
           )}
         </Button>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <SocialLoginButtons />
 
         <div className="text-center mt-4">
           <p className="text-muted-foreground">
