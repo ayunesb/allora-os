@@ -1,4 +1,3 @@
-
 import { runTestCompanySetup } from '@/utils/company/testCompany';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { getTestCompany } from '@/utils/company/testCompany/getTestCompany';
@@ -82,8 +81,8 @@ describe('setupTestCompany', () => {
     
     expect(result.success).toBe(true);
     expect(result.message).toContain('already exists');
-    expect(result.data?.companyId).toBe('company-123');
-    expect(result.data?.companyName).toBe('Existing Test Company');
+    expect(result.companyId).toBe('company-123');
+    expect(result.companyName).toBe('Existing Test Company');
     expect(vi.mocked(createTestCompany)).not.toHaveBeenCalled();
   });
 
@@ -130,7 +129,7 @@ describe('setupTestCompany', () => {
     
     expect(result.success).toBe(true);
     expect(result.message).toContain('Successfully created');
-    expect(result.data?.companyId).toBe('new-company-123');
+    expect(result.companyId).toBe('new-company-123');
     expect(vi.mocked(createTestCompany)).toHaveBeenCalledWith('Test Company - valid');
     
     // Verify profile update was called correctly

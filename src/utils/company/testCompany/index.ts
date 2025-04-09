@@ -19,10 +19,10 @@ export interface TestCompany {
   industry?: string;
 }
 
-export interface TestCompanySetupData {
+// Simplified setup result with direct properties instead of nested data
+export interface TestCompanySetupResult extends StandardResponse<null> {
   companyId?: string;
   companyName?: string;
 }
 
 export type TestCompanyResponse = StandardResponse<TestCompany | null>;
-export type TestCompanySetupResult = StandardResponse<TestCompanySetupData>;

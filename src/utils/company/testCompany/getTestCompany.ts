@@ -40,7 +40,7 @@ export async function getTestCompany(): Promise<TestCompanyResponse> {
       return successResponse(null, 'No test company found');
     }
 
-    // Explicitly convert to TestCompany type to avoid deep inference
+    // Explicitly transform to TestCompany type
     const testCompany: TestCompany = {
       id: data.id,
       name: data.name,

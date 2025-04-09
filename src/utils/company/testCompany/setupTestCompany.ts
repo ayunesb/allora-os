@@ -4,7 +4,7 @@ import { getTestCompany } from './getTestCompany';
 import { createTestCompany } from './createTestCompany';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { User } from '@/models/user';
-import { TestCompanySetupResult, TestCompanySetupData } from './index';
+import { TestCompanySetupResult } from './index';
 import { isValidEmail } from '@/utils/validation';
 import { successResponse, errorResponse } from '@/utils/api/standardResponse';
 
@@ -15,22 +15,23 @@ import { successResponse, errorResponse } from '@/utils/api/standardResponse';
  * // Set up a test company for a user
  * const result = await runTestCompanySetup("user@example.com");
  * if (result.success) {
- *   console.log(`Company set up with ID: ${result.data?.companyId}`);
+ *   console.log(`Company set up with ID: ${result.companyId}`);
  * } else {
  *   console.error(`Setup failed: ${result.message}`);
  * }
  * 
  * @param userEmail Email of the user to set up the test company for
- * @returns Promise resolving with standardized result object
+ * @returns Promise resolving with standardized result object with companyId and companyName
  */
 export async function runTestCompanySetup(userEmail: string): Promise<TestCompanySetupResult> {
   // Validate input
   if (!isValidEmail(userEmail)) {
-    return errorResponse<TestCompanySetupData>(
+    const response = errorResponse(
       'Invalid email format provided',
       'Email validation failed',
       'VALIDATION_ERROR'
-    );
+    ) as TestCompanySetupResult;
+    return response;
   }
 
   try {
@@ -38,11 +39,12 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     const userProfile: User | null = await getUserProfileByEmail(userEmail);
     
     if (!userProfile) {
-      return errorResponse<TestCompanySetupData>(
+      const response = errorResponse(
         `No user found with email: ${userEmail}`,
         'User lookup failed',
         'USER_NOT_FOUND'
-      );
+      ) as TestCompanySetupResult;
+      return response;
     }
 
     // Step 2: Check for existing test company
@@ -51,13 +53,15 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     // If a test company exists, return success with details
     if (existingCompanyResponse.success && existingCompanyResponse.data) {
       const existingCompany = existingCompanyResponse.data;
-      return successResponse<TestCompanySetupData>(
-        {
-          companyId: existingCompany.id,
-          companyName: existingCompany.name
-        },
+      const response = successResponse(
+        null,
         'Test company already exists'
-      );
+      ) as TestCompanySetupResult;
+      
+      response.companyId = existingCompany.id;
+      response.companyName = existingCompany.name;
+      
+      return response;
     }
     
     // Step 3: Create a test company name based on the user's email
@@ -68,11 +72,12 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     const newCompanyResponse = await createTestCompany(companyName);
     
     if (!newCompanyResponse.success || !newCompanyResponse.data) {
-      return errorResponse<TestCompanySetupData>(
+      const response = errorResponse(
         'Failed to create test company',
         newCompanyResponse.error || 'Company creation returned null',
         'COMPANY_CREATION_FAILED'
-      );
+      ) as TestCompanySetupResult;
+      return response;
     }
 
     const newCompany = newCompanyResponse.data;
@@ -88,25 +93,29 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
       .eq('id', userProfile.id);
       
     if (profileUpdateError) {
-      return errorResponse<TestCompanySetupData>(
+      const response = errorResponse(
         `Created company but failed to associate with user: ${profileUpdateError.message}`,
         profileUpdateError.message,
         profileUpdateError.code
-      );
+      ) as TestCompanySetupResult;
+      return response;
     }
     
-    return successResponse<TestCompanySetupData>(
-      {
-        companyId: newCompany.id,
-        companyName: newCompany.name
-      },
+    const response = successResponse(
+      null,
       'Successfully created and associated test company'
-    );
+    ) as TestCompanySetupResult;
+    
+    response.companyId = newCompany.id;
+    response.companyName = newCompany.name;
+    
+    return response;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return errorResponse<TestCompanySetupData>(
+    const response = errorResponse(
       `Error in test company setup: ${errorMessage}`,
       errorMessage
-    );
+    ) as TestCompanySetupResult;
+    return response;
   }
 }
