@@ -27,6 +27,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
 
 const DeleteAccountDialog = () => {
   const [isInitialDialogOpen, setIsInitialDialogOpen] = useState(false);
@@ -89,7 +91,10 @@ const DeleteAccountDialog = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleFirstStep}>
+            <AlertDialogAction 
+              className={cn(buttonVariants({ variant: "destructive" }))}
+              onClick={handleFirstStep}
+            >
               Continue to Deletion
             </AlertDialogAction>
           </AlertDialogFooter>
