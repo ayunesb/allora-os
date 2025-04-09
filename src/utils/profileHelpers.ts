@@ -21,6 +21,7 @@ export type UserProfile = {
   subscription_plan_id: string | null;
   subscription_expires_at: string | null;
   stripe_customer_id: string | null;
+  personal_api_keys?: Record<string, string> | string | null;
 };
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
@@ -51,6 +52,11 @@ export async function updateUserProfile(
   updates: Partial<Omit<UserProfile, 'id' | 'created_at'>>
 ): Promise<boolean> {
   try {
+    // If updates contain personal_api_keys and it's an object, stringify it
+    if (updates.personal_api_keys && typeof updates.personal_api_keys === 'object') {
+      updates.personal_api_keys = JSON.stringify(updates.personal_api_keys);
+    }
+
     const { error } = await supabase
       .from('profiles')
       .update(updates)

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuthState } from '@/hooks/useAuthState';
@@ -19,9 +20,13 @@ import {
   MapPin, 
   Globe, 
   Calendar, 
-  Upload
+  Upload,
+  Key,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { updateUserProfile } from '@/utils/profileHelpers';
+import APIKeyInput from '@/components/admin/APIKeyInput';
 
 interface ProfileFormData {
   name: string;
@@ -32,6 +37,10 @@ interface ProfileFormData {
   location: string;
   website: string;
   bio: string;
+  stripe_key: string;
+  twilio_sid: string;
+  twilio_token: string;
+  heygen_key: string;
 }
 
 const ProfileForm: React.FC = () => {
@@ -39,6 +48,13 @@ const ProfileForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [showApiSection, setShowApiSection] = useState(false);
+  const [personalApiKeys, setPersonalApiKeys] = useState({
+    stripe: '',
+    twilio_sid: '',
+    twilio_token: '',
+    heygen: ''
+  });
   
   const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<ProfileFormData>({
     defaultValues: {
@@ -49,7 +65,11 @@ const ProfileForm: React.FC = () => {
       phone: '',
       location: '',
       website: '',
-      bio: ''
+      bio: '',
+      stripe_key: '',
+      twilio_sid: '',
+      twilio_token: '',
+      heygen_key: ''
     }
   });
 
@@ -71,6 +91,20 @@ const ProfileForm: React.FC = () => {
       if (profile.avatar_url) {
         setAvatarUrl(profile.avatar_url);
       }
+      
+      // Load personal API keys if they exist
+      if (profile.personal_api_keys) {
+        const keys = typeof profile.personal_api_keys === 'string' 
+          ? JSON.parse(profile.personal_api_keys) 
+          : profile.personal_api_keys;
+        
+        setPersonalApiKeys({
+          stripe: keys.stripe || '',
+          twilio_sid: keys.twilio_sid || '',
+          twilio_token: keys.twilio_token || '',
+          heygen: keys.heygen || ''
+        });
+      }
     }
   }, [profile, user, reset]);
 
@@ -80,7 +114,7 @@ const ProfileForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Update profile data
+      // Update profile data including personal API keys
       const success = await updateUserProfile(user.id, {
         name: data.name,
         company: data.company,
@@ -88,7 +122,13 @@ const ProfileForm: React.FC = () => {
         phone: data.phone,
         location: data.location,
         website: data.website,
-        bio: data.bio
+        bio: data.bio,
+        personal_api_keys: {
+          stripe: personalApiKeys.stripe,
+          twilio_sid: personalApiKeys.twilio_sid,
+          twilio_token: personalApiKeys.twilio_token,
+          heygen: personalApiKeys.heygen
+        }
       });
       
       if (!success) throw new Error("Failed to update profile");
@@ -148,6 +188,13 @@ const ProfileForm: React.FC = () => {
       setAvatarUrl(reader.result as string);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleApiKeyChange = (key: keyof typeof personalApiKeys, value: string) => {
+    setPersonalApiKeys(prev => ({
+      ...prev,
+      [key]: value
+    }));
   };
 
   return (
@@ -333,6 +380,70 @@ const ProfileForm: React.FC = () => {
               This will be displayed on your public profile
             </p>
           </div>
+
+          <Separator />
+          
+          {/* Personal API Keys Section */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <Key className="h-5 w-5" />
+                Personal API Keys
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowApiSection(!showApiSection)}
+              >
+                {showApiSection ? 'Hide' : 'Show'} API Keys
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Add your personal API keys to use instead of company-wide keys.
+              These keys will override company keys for your account only.
+            </p>
+            
+            {showApiSection && (
+              <div className="space-y-4 p-4 border rounded-md bg-muted/30">
+                <APIKeyInput
+                  id="stripe-key"
+                  label="Stripe API Key"
+                  value={personalApiKeys.stripe}
+                  onChange={(value) => handleApiKeyChange('stripe', value)}
+                  placeholder="Enter your Stripe API key"
+                />
+                
+                <APIKeyInput
+                  id="twilio-sid"
+                  label="Twilio SID"
+                  value={personalApiKeys.twilio_sid}
+                  onChange={(value) => handleApiKeyChange('twilio_sid', value)}
+                  placeholder="Enter your Twilio SID"
+                />
+                
+                <APIKeyInput
+                  id="twilio-token"
+                  label="Twilio Auth Token"
+                  value={personalApiKeys.twilio_token}
+                  onChange={(value) => handleApiKeyChange('twilio_token', value)}
+                  placeholder="Enter your Twilio auth token"
+                />
+                
+                <APIKeyInput
+                  id="heygen-key"
+                  label="HeyGen API Key"
+                  value={personalApiKeys.heygen}
+                  onChange={(value) => handleApiKeyChange('heygen', value)}
+                  placeholder="Enter your HeyGen API key"
+                />
+                
+                <p className="text-xs text-muted-foreground mt-2">
+                  These keys are stored securely and used only for your account.
+                </p>
+              </div>
+            )}
+          </div>
         </CardContent>
         <CardFooter className="flex justify-end space-x-2">
           <Button 
@@ -345,7 +456,7 @@ const ProfileForm: React.FC = () => {
           </Button>
           <Button 
             type="submit" 
-            disabled={isLoading || !isDirty && !avatarFile}
+            disabled={isLoading || (!isDirty && !avatarFile)}
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
           </Button>
