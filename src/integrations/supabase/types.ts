@@ -312,7 +312,65 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_recent_user_actions: {
+        Args: { p_user_id: string; p_days: number }
+        Returns: {
+          action: string
+          category: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json | null
+          timestamp: string
+          user_id: string
+        }[]
+      }
+      get_user_action_categories: {
+        Args: { p_user_id: string }
+        Returns: {
+          category: string
+          count: number
+        }[]
+      }
+      get_user_preferences: {
+        Args: { p_user_id: string }
+        Returns: {
+          activity_peak_times: Json | null
+          communication_style: string | null
+          dashboard_preferences: Json | null
+          favorite_topics: Json | null
+          id: string
+          last_updated: string | null
+          preferred_executives: Json | null
+          risk_appetite: string | null
+          user_id: string
+        }
+      }
+      insert_user_action: {
+        Args: {
+          p_user_id: string
+          p_action: string
+          p_category: string
+          p_entity_id: string
+          p_entity_type: string
+          p_metadata: Json
+          p_timestamp: string
+        }
+        Returns: undefined
+      }
+      update_user_preferences: {
+        Args: {
+          p_user_id: string
+          p_risk_appetite: string
+          p_preferred_executives: Json
+          p_favorite_topics: Json
+          p_communication_style: string
+          p_activity_peak_times: Json
+          p_dashboard_preferences: Json
+          p_last_updated: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
