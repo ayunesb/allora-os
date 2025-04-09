@@ -16,51 +16,53 @@ interface SecuritySettingsType {
 
 interface SaveSecuritySettingsParams {
   settings: SecuritySettingsType;
-  companyId: string | null;
 }
 
-const saveSecuritySettings = async ({ settings, companyId }: SaveSecuritySettingsParams): Promise<boolean> => {
-  if (!companyId) {
-    throw new Error('Company ID is required');
-  }
-
-  // Get current company details
-  const { data: companyData, error: fetchError } = await supabase
-    .from('companies')
-    .select('details')
-    .eq('id', companyId)
+const saveSecuritySettings = async ({ settings }: SaveSecuritySettingsParams): Promise<boolean> => {
+  // Get current system settings
+  const { data: settingsData, error: fetchError } = await supabase
+    .from('system_settings')
+    .select('*')
+    .eq('key', 'security_settings')
     .single();
 
-  if (fetchError) {
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    // PGRST116 means no rows returned, which is fine if settings don't exist yet
     throw fetchError;
   }
 
-  // Prepare details object, merging with existing or creating new
-  const currentDetails = companyData?.details || {};
-  const newDetails = {
-    ...currentDetails,
-    security_settings: settings
-  };
+  if (settingsData) {
+    // Update existing settings
+    const { error: updateError } = await supabase
+      .from('system_settings')
+      .update({ value: settings })
+      .eq('key', 'security_settings');
 
-  // Update the company details
-  const { error: updateError } = await supabase
-    .from('companies')
-    .update({ details: newDetails })
-    .eq('id', companyId);
+    if (updateError) {
+      throw updateError;
+    }
+  } else {
+    // Insert new settings
+    const { error: insertError } = await supabase
+      .from('system_settings')
+      .insert({ 
+        key: 'security_settings',
+        value: settings
+      });
 
-  if (updateError) {
-    throw updateError;
+    if (insertError) {
+      throw insertError;
+    }
   }
 
   return true;
 };
 
 interface SecurityTabProps {
-  companyId: string | null;
   initialSettings?: SecuritySettingsType;
 }
 
-const SecurityTab = ({ companyId, initialSettings }: SecurityTabProps) => {
+const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
   const [settings, setSettings] = useState<SecuritySettingsType>(
     initialSettings || {
       twoFactorEnabled: false,
@@ -85,12 +87,7 @@ const SecurityTab = ({ companyId, initialSettings }: SecurityTabProps) => {
   };
 
   const handleSave = async () => {
-    if (!companyId) {
-      toast.error("No company selected");
-      return;
-    }
-    
-    await execute({ settings, companyId });
+    await execute({ settings });
   };
 
   return (

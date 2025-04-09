@@ -40,75 +40,38 @@ const AdminSettingsProvider: React.FC<AdminSettingsProviderProps> = ({ children 
     extendedSessionTimeout: false
   });
 
-  // Fetch the current company data to get its ID and settings
+  // Fetch the settings data
   useEffect(() => {
-    const fetchCompanyData = async () => {
+    const fetchData = async () => {
       try {
+        setIsLoading(true);
+        
+        // Fetch the current user's company ID for API keys
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
-        
-        // First try to get the company ID from the user's profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('company_id')
-          .eq('id', session.user.id)
-          .single();
-        
-        let currentCompanyId = profileData?.company_id;
-        
-        if (currentCompanyId) {
-          setCompanyId(currentCompanyId);
-          
-          // Now fetch the existing settings if they exist
-          const { data: companyData } = await supabase
-            .from('companies')
-            .select('details')
-            .eq('id', currentCompanyId)
+        if (session) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('id', session.user.id)
             .single();
           
-          if (companyData?.details) {
-            // Handle the case where details might be a string or an object
-            const details = typeof companyData.details === 'string' 
-              ? JSON.parse(companyData.details) 
-              : companyData.details;
-              
-            // Set API keys if they exist
-            if (details.api_keys) {
-              setApiKeys({
-                stripe: details.api_keys.stripe || '',
-                twilio_sid: details.api_keys.twilio_sid || '',
-                twilio_token: details.api_keys.twilio_token || '',
-                heygen: details.api_keys.heygen || ''
-              });
-            }
+          let currentCompanyId = profileData?.company_id;
+          setCompanyId(currentCompanyId);
+          
+          // Fetch API keys if company ID is available
+          if (currentCompanyId) {
+            const { data: companyData } = await supabase
+              .from('companies')
+              .select('details')
+              .eq('id', currentCompanyId)
+              .single();
             
-            // Set security settings if they exist
-            if (details.security_settings) {
-              setSecuritySettings({
-                twoFactorEnabled: details.security_settings.twoFactorEnabled || false,
-                extendedSessionTimeout: details.security_settings.extendedSessionTimeout || false
-              });
-            }
-          }
-        } else {
-          // If no company is associated, get the first company (for demo purposes)
-          const { data: companies } = await supabase
-            .from('companies')
-            .select('id, details')
-            .limit(1);
-            
-          if (companies && companies.length > 0) {
-            currentCompanyId = companies[0].id;
-            setCompanyId(currentCompanyId);
-            
-            // Load existing settings if they exist
-            if (companies[0].details) {
-              // Handle the case where details might be a string or an object
-              const details = typeof companies[0].details === 'string' 
-                ? JSON.parse(companies[0].details) 
-                : companies[0].details;
-              
-              // Set API keys if they exist  
+            if (companyData?.details) {
+              const details = typeof companyData.details === 'string' 
+                ? JSON.parse(companyData.details) 
+                : companyData.details;
+                
+              // Set API keys if they exist
               if (details.api_keys) {
                 setApiKeys({
                   stripe: details.api_keys.stripe || '',
@@ -117,25 +80,55 @@ const AdminSettingsProvider: React.FC<AdminSettingsProviderProps> = ({ children 
                   heygen: details.api_keys.heygen || ''
                 });
               }
+            }
+          } else {
+            // If no company is found, try to get the first one for API keys
+            const { data: companies } = await supabase
+              .from('companies')
+              .select('id, details')
+              .limit(1);
               
-              // Set security settings if they exist
-              if (details.security_settings) {
-                setSecuritySettings({
-                  twoFactorEnabled: details.security_settings.twoFactorEnabled || false,
-                  extendedSessionTimeout: details.security_settings.extendedSessionTimeout || false
-                });
+            if (companies && companies.length > 0) {
+              setCompanyId(companies[0].id);
+              
+              // Load existing API keys if they exist
+              if (companies[0].details) {
+                const details = typeof companies[0].details === 'string' 
+                  ? JSON.parse(companies[0].details) 
+                  : companies[0].details;
+                
+                if (details.api_keys) {
+                  setApiKeys({
+                    stripe: details.api_keys.stripe || '',
+                    twilio_sid: details.api_keys.twilio_sid || '',
+                    twilio_token: details.api_keys.twilio_token || '',
+                    heygen: details.api_keys.heygen || ''
+                  });
+                }
               }
             }
           }
         }
+        
+        // Fetch global security settings - independent of company
+        const { data: securityData, error: securityError } = await supabase
+          .from('system_settings')
+          .select('value')
+          .eq('key', 'security_settings')
+          .single();
+          
+        if (!securityError && securityData) {
+          setSecuritySettings(securityData.value as SecuritySettings);
+        }
+        
       } catch (error) {
-        console.error('Error fetching company data:', error);
+        console.error('Error fetching settings data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchCompanyData();
+    fetchData();
   }, []);
 
   if (isLoading) {
