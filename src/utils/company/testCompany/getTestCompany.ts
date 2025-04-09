@@ -1,10 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-/**
- * Simple Company interface with essential properties
- * Using a standalone interface avoids deep type inference issues
- */
+// Define a minimal interface for test companies
 interface TestCompany {
   id: string;
   name: string;
@@ -13,12 +10,12 @@ interface TestCompany {
 }
 
 /**
- * Fetches a test company from the database
- * @returns Promise resolving to a test company or null
+ * Fetches a test company from the database using explicit column selection
+ * to avoid deep type inference issues
  */
 export async function getTestCompany(): Promise<TestCompany | null> {
   try {
-    // Using raw query approach to avoid type inference issues completely
+    // Use a raw query approach to avoid type inference issues completely
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')

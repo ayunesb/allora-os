@@ -13,9 +13,12 @@ vi.mock('@/utils/company/testCompany/createTestCompany');
 vi.mock('@/backend/supabase', () => ({
   supabase: {
     from: vi.fn(() => ({
-      update: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ error: null }))
-      }))
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn(),
+      limit: vi.fn().mockReturnThis()
     }))
   }
 }));
