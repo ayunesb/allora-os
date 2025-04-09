@@ -2,6 +2,9 @@
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 
+// The only email allowed to be an admin
+const ADMIN_EMAIL = 'ayunesb@icloud.com';
+
 /**
  * Helper function to set the current user as an admin
  * This is useful for development and testing purposes
@@ -12,6 +15,12 @@ export async function setCurrentUserAsAdmin(): Promise<boolean> {
     
     if (!user) {
       toast.error("You must be logged in to become an admin");
+      return false;
+    }
+    
+    // Check if the user has the authorized email
+    if (user.email !== ADMIN_EMAIL) {
+      toast.error(`Only ${ADMIN_EMAIL} is authorized to be an admin`);
       return false;
     }
     
