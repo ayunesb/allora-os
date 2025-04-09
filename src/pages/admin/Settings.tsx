@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -17,26 +17,103 @@ export default function AdminSettings() {
   const [twilioToken, setTwilioToken] = useState('');
   const [heygenKey, setHeygenKey] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSaveApiConfiguration = async () => {
-    setIsSaving(true);
-    try {
-      // In a real implementation, we'd use a secure way to store these keys
-      // For now, we'll just simulate saving by updating a settings table
-      const { error } = await supabase
-        .from('system_settings')
-        .upsert([
-          { 
-            key: 'api_keys', 
-            value: {
-              stripe: stripeKey,
-              twilio_sid: twilioSid,
-              twilio_token: twilioToken,
-              heygen: heygenKey
+  // Fetch the current company data to get its ID
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        
+        // First try to get the company ID from the user's profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('company_id')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profileData?.company_id) {
+          setCompanyId(profileData.company_id);
+          
+          // Now fetch the existing API keys if they exist
+          const { data: companyData } = await supabase
+            .from('companies')
+            .select('details')
+            .eq('id', profileData.company_id)
+            .single();
+            
+          if (companyData?.details?.api_keys) {
+            const apiKeys = companyData.details.api_keys;
+            setStripeKey(apiKeys.stripe || '');
+            setTwilioSid(apiKeys.twilio_sid || '');
+            setTwilioToken(apiKeys.twilio_token || '');
+            setHeygenKey(apiKeys.heygen || '');
+          }
+        } else {
+          // If no company is associated, get the first company (for demo purposes)
+          const { data: companies } = await supabase
+            .from('companies')
+            .select('id, details')
+            .limit(1);
+            
+          if (companies && companies.length > 0) {
+            setCompanyId(companies[0].id);
+            
+            // Load existing API keys if they exist
+            if (companies[0].details?.api_keys) {
+              const apiKeys = companies[0].details.api_keys;
+              setStripeKey(apiKeys.stripe || '');
+              setTwilioSid(apiKeys.twilio_sid || '');
+              setTwilioToken(apiKeys.twilio_token || '');
+              setHeygenKey(apiKeys.heygen || '');
             }
           }
-        ], 
-        { onConflict: 'key' });
+        }
+      } catch (error) {
+        console.error('Error fetching company data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCompanyData();
+  }, []);
+
+  const handleSaveApiConfiguration = async () => {
+    if (!companyId) {
+      toast.error("No company found to save settings");
+      return;
+    }
+    
+    setIsSaving(true);
+    try {
+      // First, get the current details to preserve other data
+      const { data: currentCompany } = await supabase
+        .from('companies')
+        .select('details')
+        .eq('id', companyId)
+        .single();
+      
+      // Prepare the updated details object, preserving existing data
+      const updatedDetails = {
+        ...(currentCompany?.details || {}),
+        api_keys: {
+          stripe: stripeKey,
+          twilio_sid: twilioSid,
+          twilio_token: twilioToken,
+          heygen: heygenKey
+        }
+      };
+      
+      // Update the company record with the new details
+      const { error } = await supabase
+        .from('companies')
+        .update({ 
+          details: updatedDetails
+        })
+        .eq('id', companyId);
       
       if (error) throw error;
       
@@ -78,62 +155,71 @@ export default function AdminSettings() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="stripe-key">Stripe API Key</Label>
-                  <Input 
-                    id="stripe-key" 
-                    type="password" 
-                    placeholder="sk_test_..." 
-                    value={stripeKey}
-                    onChange={(e) => setStripeKey(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="twilio-sid">Twilio Account SID</Label>
-                  <Input 
-                    id="twilio-sid" 
-                    placeholder="AC..." 
-                    value={twilioSid}
-                    onChange={(e) => setTwilioSid(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="twilio-token">Twilio Auth Token</Label>
-                  <Input 
-                    id="twilio-token" 
-                    type="password" 
-                    placeholder="********" 
-                    value={twilioToken}
-                    onChange={(e) => setTwilioToken(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="heygen-key">Heygen API Key</Label>
-                  <Input 
-                    id="heygen-key" 
-                    type="password" 
-                    placeholder="********" 
-                    value={heygenKey}
-                    onChange={(e) => setHeygenKey(e.target.value)}
-                  />
-                </div>
-                
-                <Button 
-                  onClick={handleSaveApiConfiguration}
-                  disabled={isSaving}
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save API Configuration"
-                  )}
-                </Button>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <span className="ml-2">Loading configuration...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="stripe-key">Stripe API Key</Label>
+                      <Input 
+                        id="stripe-key" 
+                        type="password" 
+                        placeholder="sk_test_..." 
+                        value={stripeKey}
+                        onChange={(e) => setStripeKey(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="twilio-sid">Twilio Account SID</Label>
+                      <Input 
+                        id="twilio-sid" 
+                        placeholder="AC..." 
+                        value={twilioSid}
+                        onChange={(e) => setTwilioSid(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="twilio-token">Twilio Auth Token</Label>
+                      <Input 
+                        id="twilio-token" 
+                        type="password" 
+                        placeholder="********" 
+                        value={twilioToken}
+                        onChange={(e) => setTwilioToken(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="heygen-key">Heygen API Key</Label>
+                      <Input 
+                        id="heygen-key" 
+                        type="password" 
+                        placeholder="********" 
+                        value={heygenKey}
+                        onChange={(e) => setHeygenKey(e.target.value)}
+                      />
+                    </div>
+                    
+                    <Button 
+                      onClick={handleSaveApiConfiguration}
+                      disabled={isSaving || !companyId}
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save API Configuration"
+                      )}
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
