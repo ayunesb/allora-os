@@ -14,9 +14,11 @@ export default function AdminCampaigns() {
     companies,
     isLoading,
     isSubmitting,
+    error,
     newCampaign,
     updateFormData,
-    createCampaign
+    createCampaign,
+    refreshCampaigns
   } = useCampaignOperations();
 
   const handleCreateCampaign = async () => {
@@ -38,6 +40,8 @@ export default function AdminCampaigns() {
           <CampaignTable 
             campaigns={campaigns}
             isLoading={isLoading}
+            error={error}
+            onRetry={refreshCampaigns}
           />
         </CardContent>
       </Card>

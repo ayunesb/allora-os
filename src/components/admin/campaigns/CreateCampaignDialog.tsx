@@ -1,23 +1,14 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import CampaignForm from './CampaignForm';
+import { CampaignFormData } from '@/hooks/admin/useCampaignOperations';
 
 interface CreateCampaignDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  formData: {
-    name: string;
-    platform: string;
-    budget: number;
-    company_id: string;
-  };
-  onChange: (data: Partial<{
-    name: string;
-    platform: string;
-    budget: number;
-    company_id: string;
-  }>) => void;
+  formData: CampaignFormData;
+  onChange: (data: Partial<CampaignFormData>) => void;
   onSubmit: () => void;
   companies: Array<{ id: string; name: string }>;
   isSubmitting: boolean;
