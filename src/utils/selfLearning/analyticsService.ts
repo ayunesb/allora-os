@@ -11,6 +11,8 @@ import { getUserPreferences, updateUserPreferences } from './preferencesService'
 // Process feedback loop to learn from user actions
 export const processFeedbackLoop = async (userId: string) => {
   try {
+    console.log('Processing feedback loop for user:', userId);
+    
     // 1. Get recent user actions (last 30 days)
     // Use stored procedure to avoid TypeScript issues
     const { data: recentActions, error: actionsError } = await supabase.rpc('get_recent_user_actions', {
@@ -23,15 +25,25 @@ export const processFeedbackLoop = async (userId: string) => {
       return;
     }
 
+    if (!recentActions || recentActions.length === 0) {
+      console.log('No recent actions found for user', userId);
+      return;
+    }
+
+    console.log(`Found ${recentActions.length} recent actions for analysis`);
+    
     // 2. Get user's current preferences
     const userPreferencesData = await getUserPreferences(userId);
     
     // 3. Analyze actions and update user model
-    const updatedPreferences = analyzeUserBehavior(recentActions || [], userPreferencesData);
+    const updatedPreferences = analyzeUserBehavior(recentActions, userPreferencesData);
     
     // 4. Save updated user preferences if there are any changes
     if (updatedPreferences) {
+      console.log('Updating user preferences based on behavior analysis');
       await updateUserPreferences(userId, updatedPreferences);
+    } else {
+      console.log('No preference updates needed based on analysis');
     }
   } catch (error) {
     console.error('Error in processFeedbackLoop:', error);
@@ -68,34 +80,49 @@ export const analyzeUserBehavior = (
   // Track activity times
   const activityHours: number[] = new Array(24).fill(0);
   
+  // Track view vs. create/edit behavior to determine communication style
+  let viewCount = 0;
+  let editCount = 0;
+  
   // Analyze each action
   actions.forEach(action => {
-    const hour = new Date(action.timestamp).getHours();
+    // Track activity time
+    const timestamp = new Date(action.timestamp);
+    const hour = timestamp.getHours();
     activityHours[hour]++;
     
+    // Track actions by type
     switch (action.category) {
       case 'strategy_create':
       case 'strategy_update':
+        editCount++;
         if (action.metadata?.risk_level) {
-          const risk = action.metadata.risk_level.toLowerCase();
+          const risk = String(action.metadata.risk_level).toLowerCase();
           if (riskLevelCounts[risk] !== undefined) {
             riskLevelCounts[risk]++;
           }
         }
         break;
       
+      case 'strategy_view':
+        viewCount++;
+        if (action.metadata?.topic) {
+          const topic = String(action.metadata.topic);
+          topicCounts[topic] = (topicCounts[topic] || 0) + 1;
+        }
+        break;
+        
       case 'bot_consultation':
         if (action.metadata?.executive_id) {
-          executiveCounts[action.metadata.executive_id] = 
-            (executiveCounts[action.metadata.executive_id] || 0) + 1;
+          const executiveId = String(action.metadata.executive_id);
+          executiveCounts[executiveId] = (executiveCounts[executiveId] || 0) + 1;
         }
         break;
       
       case 'debate_participation':
-      case 'strategy_view':
         if (action.metadata?.topic) {
-          topicCounts[action.metadata.topic] = 
-            (topicCounts[action.metadata.topic] || 0) + 1;
+          const topic = String(action.metadata.topic);
+          topicCounts[topic] = (topicCounts[topic] || 0) + 2; // Weight debates higher
         }
         break;
     }
@@ -119,7 +146,9 @@ export const analyzeUserBehavior = (
     .slice(0, 3)
     .map(entry => entry[0]);
   
-  preferences.preferred_executives = preferredExecutives;
+  if (preferredExecutives.length > 0) {
+    preferences.preferred_executives = preferredExecutives;
+  }
   
   // Determine favorite topics
   const favoriteTopics = Object.entries(topicCounts)
@@ -127,7 +156,9 @@ export const analyzeUserBehavior = (
     .slice(0, 5)
     .map(entry => entry[0]);
   
-  preferences.favorite_topics = favoriteTopics;
+  if (favoriteTopics.length > 0) {
+    preferences.favorite_topics = favoriteTopics;
+  }
   
   // Determine peak activity times
   const activityPeaks = activityHours
@@ -137,7 +168,22 @@ export const analyzeUserBehavior = (
     .slice(0, 3)
     .map(item => item.hour);
   
-  preferences.activity_peak_times = activityPeaks;
+  if (activityPeaks.length > 0) {
+    preferences.activity_peak_times = activityPeaks;
+  }
+  
+  // Determine communication style preference
+  if (viewCount + editCount > 10) { // Ensure sufficient data
+    const viewRatio = viewCount / (viewCount + editCount);
+    
+    if (viewRatio > 0.7) {
+      preferences.communication_style = 'concise'; // Mostly viewing, less interaction
+    } else if (viewRatio < 0.3) {
+      preferences.communication_style = 'detailed'; // Mostly editing, more hands-on
+    } else {
+      preferences.communication_style = 'balanced';
+    }
+  }
   
   return preferences;
 };

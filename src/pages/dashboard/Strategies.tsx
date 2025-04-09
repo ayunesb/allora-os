@@ -1,5 +1,4 @@
-
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { TrendingUp, Plus, Loader2, SlidersHorizontal, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStrategies } from "@/hooks/useStrategies";
@@ -29,6 +28,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useStrategyTracking } from "@/hooks/useStrategyTracking";
+import LearningInsights from "@/components/dashboard/LearningInsights";
 
 // Define risk level type to avoid issues
 type RiskLevel = 'Low' | 'Medium' | 'High';
@@ -42,6 +43,7 @@ export default function Strategies() {
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [showInsights, setShowInsights] = useState(true);
   
   const { 
     strategies, 
@@ -56,6 +58,29 @@ export default function Strategies() {
     refetch
   } = useStrategies();
 
+  const {
+    trackStrategyView,
+    trackStrategyCreate,
+    trackStrategyUpdate,
+    trackStrategyDelete,
+    trackStrategyFilter,
+    isLoggedIn
+  } = useStrategyTracking();
+
+  // Track filter changes
+  useEffect(() => {
+    if (isLoggedIn && riskFilter !== 'all') {
+      trackStrategyFilter('risk_level', riskFilter);
+    }
+  }, [riskFilter, isLoggedIn, trackStrategyFilter]);
+
+  // Track sort changes
+  useEffect(() => {
+    if (isLoggedIn) {
+      trackStrategyFilter('sort', sortBy);
+    }
+  }, [sortBy, isLoggedIn, trackStrategyFilter]);
+
   const handleCreateOrUpdateStrategy = useCallback((data: StrategyFormValues) => {
     if (editingStrategyId) {
       updateStrategy({ 
@@ -64,25 +89,42 @@ export default function Strategies() {
         description: data.description, 
         riskLevel: data.riskLevel 
       });
+      
+      if (isLoggedIn) {
+        trackStrategyUpdate(editingStrategyId, data.title, data.riskLevel);
+      }
     } else {
       createStrategy({
         title: data.title,
         description: data.description,
         riskLevel: data.riskLevel
       });
+      
+      // Note: Can't track strategy creation here because we don't have the ID yet
+      // It should be tracked after successful creation in the API
     }
     
     setIsDialogOpen(false);
     setEditingStrategyId(null);
-  }, [editingStrategyId, createStrategy, updateStrategy]);
+  }, [editingStrategyId, createStrategy, updateStrategy, isLoggedIn, trackStrategyUpdate]);
+  
+  const handleViewStrategy = useCallback((strategyId: string, title: string) => {
+    if (isLoggedIn) {
+      trackStrategyView(strategyId, title);
+    }
+  }, [isLoggedIn, trackStrategyView]);
   
   const handleEditStrategy = useCallback((strategyId: string) => {
     const strategy = strategies.find(s => s.id === strategyId);
     if (strategy) {
       setEditingStrategyId(strategyId);
       setIsDialogOpen(true);
+      
+      if (isLoggedIn) {
+        trackStrategyView(strategyId, strategy.title);
+      }
     }
-  }, [strategies]);
+  }, [strategies, isLoggedIn, trackStrategyView]);
   
   const handleNewStrategy = useCallback(() => {
     setEditingStrategyId(null);
@@ -90,12 +132,14 @@ export default function Strategies() {
   }, []);
 
   const handleDeleteStrategy = useCallback((strategyId: string) => {
+    if (isLoggedIn) {
+      trackStrategyDelete(strategyId);
+    }
     deleteStrategy(strategyId);
-  }, [deleteStrategy]);
+  }, [deleteStrategy, isLoggedIn, trackStrategyDelete]);
 
   // Filter and sort strategies
   const filteredAndSortedStrategies = useMemo(() => {
-    // First, filter strategies
     let filtered = [...strategies];
     
     if (searchQuery) {
@@ -112,7 +156,6 @@ export default function Strategies() {
       );
     }
     
-    // Then, sort strategies
     return filtered.sort((a, b) => {
       switch (sortBy) {
         case 'newest':
@@ -180,7 +223,6 @@ export default function Strategies() {
     
     if (filteredAndSortedStrategies.length === 0) {
       if (searchQuery || riskFilter !== 'all') {
-        // No results based on filter
         return (
           <div className="bg-secondary/40 border border-border/50 rounded-lg p-6 text-center mb-10">
             <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -198,7 +240,6 @@ export default function Strategies() {
         );
       }
       
-      // No strategies at all
       return <EmptyState onCreateNew={handleNewStrategy} />;
     }
     
@@ -210,13 +251,18 @@ export default function Strategies() {
             strategy={strategy} 
             onEdit={handleEditStrategy}
             onDelete={handleDeleteStrategy}
+            onView={() => handleViewStrategy(strategy.id, strategy.title)}
           />
         ))}
       </div>
     );
-  }, [isLoading, error, refetch, filteredAndSortedStrategies, searchQuery, riskFilter, handleNewStrategy, handleEditStrategy, handleDeleteStrategy]);
+  }, [isLoading, error, refetch, filteredAndSortedStrategies, searchQuery, riskFilter, handleNewStrategy, handleEditStrategy, handleDeleteStrategy, handleViewStrategy]);
 
   const isAnyActionPending = isCreating || isUpdating || isDeleting;
+
+  const toggleInsights = useCallback(() => {
+    setShowInsights(prev => !prev);
+  }, []);
 
   return (
     <div className="animate-fadeIn">
@@ -226,34 +272,49 @@ export default function Strategies() {
           <h1 className="text-3xl font-bold">AI-Generated Business Strategies</h1>
         </div>
         
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                onClick={handleNewStrategy} 
-                className="allora-button"
-                disabled={isAnyActionPending}
-              >
-                {isAnyActionPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Plus className="mr-2 h-4 w-4" />
-                )}
-                New Strategy
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Create a new business strategy</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={toggleInsights}
+            className="hidden md:flex"
+          >
+            {showInsights ? "Hide Insights" : "Show Insights"}
+          </Button>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={handleNewStrategy} 
+                  className="allora-button"
+                  disabled={isAnyActionPending}
+                >
+                  {isAnyActionPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="mr-2 h-4 w-4" />
+                  )}
+                  New Strategy
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Create a new business strategy</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
       
       <p className="text-xl text-gray-300 mb-6">
         Allora AI automatically builds full business plans customized to your needs
       </p>
       
-      {/* Filtering and sorting controls */}
+      {showInsights && (
+        <div className="mb-6">
+          <LearningInsights />
+        </div>
+      )}
+      
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-grow">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

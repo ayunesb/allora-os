@@ -1,4 +1,3 @@
-
 /**
  * Recommendation Service
  * Generates personalized recommendations based on user preferences
@@ -22,9 +21,24 @@ export const getPersonalizedRecommendations = async (userId: string): Promise<Re
       };
     }
     
+    // Get recently viewed strategies to avoid recommending duplicates
+    const { data: recentActions, error: actionsError } = await supabase.rpc('get_recent_user_actions', {
+      p_user_id: userId,
+      p_days: 7
+    });
+    
+    const viewedStrategyIds = new Set<string>();
+    if (recentActions) {
+      recentActions
+        .filter(action => action.category === 'strategy_view')
+        .forEach(action => {
+          if (action.entity_id) viewedStrategyIds.add(action.entity_id);
+        });
+    }
+    
     // Return recommendations based on preferences
     return {
-      strategies: generateStrategyRecommendations(preferences.risk_appetite),
+      strategies: generateStrategyRecommendations(preferences.risk_appetite, viewedStrategyIds),
       executives: preferences.preferred_executives || [],
       topics: preferences.favorite_topics || []
     };
@@ -39,36 +53,59 @@ export const getPersonalizedRecommendations = async (userId: string): Promise<Re
 };
 
 // Generate strategy recommendations based on user preferences
-const generateStrategyRecommendations = (riskAppetite: string) => {
-  const strategies = [];
+const generateStrategyRecommendations = (riskAppetite: string, viewedStrategyIds: Set<string>) => {
+  // Define a larger pool of strategies
+  const strategyPool = {
+    high: [
+      { id: 'high-1', title: 'Rapid Market Expansion', description: 'Aggressively enter new markets with innovative products' },
+      { id: 'high-2', title: 'Disruptive Innovation', description: 'Invest heavily in R&D to create industry-changing solutions' },
+      { id: 'high-3', title: 'Acquisition Strategy', description: 'Grow through strategic acquisitions of competitors or complementary businesses' },
+      { id: 'high-4', title: 'First-Mover Advantage', description: 'Be first to market with new technologies to capture market share' },
+      { id: 'high-5', title: 'Venture Investment', description: 'Allocate resources to high-risk, high-reward ventures with significant upside' }
+    ],
+    medium: [
+      { id: 'med-1', title: 'Balanced Growth', description: 'Mix of established markets and careful expansion to new ones' },
+      { id: 'med-2', title: 'Strategic Partnerships', description: 'Form alliances with complementary businesses' },
+      { id: 'med-3', title: 'Product Line Extension', description: 'Expand existing product lines to reach adjacent markets' },
+      { id: 'med-4', title: 'Selective Innovation', description: 'Focus R&D on proven areas with moderate risk and good returns' },
+      { id: 'med-5', title: 'Market Penetration', description: 'Increase market share in existing markets through improved offering' }
+    ],
+    low: [
+      { id: 'low-1', title: 'Focused Optimization', description: 'Refine existing products and services for better margins' },
+      { id: 'low-2', title: 'Customer Retention', description: 'Invest in deepening relationships with existing customers' },
+      { id: 'low-3', title: 'Cost Leadership', description: 'Optimize operations to achieve lowest cost position in the market' },
+      { id: 'low-4', title: 'Incremental Improvement', description: 'Make small, continuous improvements to existing offerings' },
+      { id: 'low-5', title: 'Defensive Position', description: 'Protect current market share and focus on stable, low-risk growth' }
+    ]
+  };
   
-  switch (riskAppetite) {
-    case 'high':
-      strategies.push(
-        { title: 'Rapid Market Expansion', description: 'Aggressively enter new markets with innovative products' },
-        { title: 'Disruptive Innovation', description: 'Invest heavily in R&D to create industry-changing solutions' }
-      );
-      break;
-    case 'medium':
-      strategies.push(
-        { title: 'Balanced Growth', description: 'Mix of established markets and careful expansion to new ones' },
-        { title: 'Strategic Partnerships', description: 'Form alliances with complementary businesses' }
-      );
-      break;
-    case 'low':
-      strategies.push(
-        { title: 'Focused Optimization', description: 'Refine existing products and services for better margins' },
-        { title: 'Customer Retention', description: 'Invest in deepening relationships with existing customers' }
-      );
-      break;
-    default:
-      strategies.push(
-        { title: 'Balanced Growth', description: 'Mix of established markets and careful expansion to new ones' },
-        { title: 'Strategic Partnerships', description: 'Form alliances with complementary businesses' }
-      );
+  // Select the appropriate strategy pool based on risk appetite
+  let selectedPool = strategyPool.medium; // Default
+  if (riskAppetite === 'high') {
+    selectedPool = strategyPool.high;
+  } else if (riskAppetite === 'low') {
+    selectedPool = strategyPool.low;
   }
   
-  return strategies;
+  // Filter out strategies the user has already viewed
+  const filteredPool = selectedPool.filter(strategy => !viewedStrategyIds.has(strategy.id));
+  
+  // If all strategies have been viewed, return a mix of strategies
+  if (filteredPool.length === 0) {
+    // Mix strategies from all risk levels
+    const mixedRecommendations = [
+      ...strategyPool.high.slice(0, 1),
+      ...strategyPool.medium.slice(0, 1),
+      ...strategyPool.low.slice(0, 1)
+    ];
+    
+    return mixedRecommendations.map(({ title, description }) => ({ title, description }));
+  }
+  
+  // Return a subset of filtered strategies (up to 3)
+  return filteredPool
+    .slice(0, 3)
+    .map(({ title, description }) => ({ title, description }));
 };
 
 // Get user learning insights
