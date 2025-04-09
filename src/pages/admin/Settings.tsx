@@ -1,24 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import APIKeysTab from '@/components/admin/APIKeysTab';
+import WebhooksTab from '@/components/admin/WebhooksTab';
+import SecurityTab from '@/components/admin/SecurityTab';
+import NotificationsTab from '@/components/admin/NotificationsTab';
 
 export default function AdminSettings() {
-  const [stripeKey, setStripeKey] = useState('');
-  const [twilioSid, setTwilioSid] = useState('');
-  const [twilioToken, setTwilioToken] = useState('');
-  const [heygenKey, setHeygenKey] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [apiKeys, setApiKeys] = useState({
+    stripe: '',
+    twilio_sid: '',
+    twilio_token: '',
+    heygen: ''
+  });
 
   // Fetch the current company data to get its ID
   useEffect(() => {
@@ -43,13 +41,21 @@ export default function AdminSettings() {
             .select('details')
             .eq('id', profileData.company_id)
             .single();
-            
-          if (companyData?.details?.api_keys) {
-            const apiKeys = companyData.details.api_keys;
-            setStripeKey(apiKeys.stripe || '');
-            setTwilioSid(apiKeys.twilio_sid || '');
-            setTwilioToken(apiKeys.twilio_token || '');
-            setHeygenKey(apiKeys.heygen || '');
+          
+          if (companyData?.details) {
+            // Handle the case where details might be a string or an object
+            const details = typeof companyData.details === 'string' 
+              ? JSON.parse(companyData.details) 
+              : companyData.details;
+              
+            if (details.api_keys) {
+              setApiKeys({
+                stripe: details.api_keys.stripe || '',
+                twilio_sid: details.api_keys.twilio_sid || '',
+                twilio_token: details.api_keys.twilio_token || '',
+                heygen: details.api_keys.heygen || ''
+              });
+            }
           }
         } else {
           // If no company is associated, get the first company (for demo purposes)
@@ -62,12 +68,20 @@ export default function AdminSettings() {
             setCompanyId(companies[0].id);
             
             // Load existing API keys if they exist
-            if (companies[0].details?.api_keys) {
-              const apiKeys = companies[0].details.api_keys;
-              setStripeKey(apiKeys.stripe || '');
-              setTwilioSid(apiKeys.twilio_sid || '');
-              setTwilioToken(apiKeys.twilio_token || '');
-              setHeygenKey(apiKeys.heygen || '');
+            if (companies[0].details) {
+              // Handle the case where details might be a string or an object
+              const details = typeof companies[0].details === 'string' 
+                ? JSON.parse(companies[0].details) 
+                : companies[0].details;
+                
+              if (details.api_keys) {
+                setApiKeys({
+                  stripe: details.api_keys.stripe || '',
+                  twilio_sid: details.api_keys.twilio_sid || '',
+                  twilio_token: details.api_keys.twilio_token || '',
+                  heygen: details.api_keys.heygen || ''
+                });
+              }
             }
           }
         }
@@ -80,51 +94,6 @@ export default function AdminSettings() {
 
     fetchCompanyData();
   }, []);
-
-  const handleSaveApiConfiguration = async () => {
-    if (!companyId) {
-      toast.error("No company found to save settings");
-      return;
-    }
-    
-    setIsSaving(true);
-    try {
-      // First, get the current details to preserve other data
-      const { data: currentCompany } = await supabase
-        .from('companies')
-        .select('details')
-        .eq('id', companyId)
-        .single();
-      
-      // Prepare the updated details object, preserving existing data
-      const updatedDetails = {
-        ...(currentCompany?.details || {}),
-        api_keys: {
-          stripe: stripeKey,
-          twilio_sid: twilioSid,
-          twilio_token: twilioToken,
-          heygen: heygenKey
-        }
-      };
-      
-      // Update the company record with the new details
-      const { error } = await supabase
-        .from('companies')
-        .update({ 
-          details: updatedDetails
-        })
-        .eq('id', companyId);
-      
-      if (error) throw error;
-      
-      toast.success("API configuration saved successfully");
-    } catch (error) {
-      console.error("Error saving API configuration:", error);
-      toast.error("Failed to save API configuration");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -147,173 +116,23 @@ export default function AdminSettings() {
           </TabsList>
           
           <TabsContent value="api-keys">
-            <Card>
-              <CardHeader>
-                <CardTitle>API Keys Configuration</CardTitle>
-                <CardDescription>
-                  Manage integration keys for external services
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {isLoading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    <span className="ml-2">Loading configuration...</span>
-                  </div>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="stripe-key">Stripe API Key</Label>
-                      <Input 
-                        id="stripe-key" 
-                        type="password" 
-                        placeholder="sk_test_..." 
-                        value={stripeKey}
-                        onChange={(e) => setStripeKey(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="twilio-sid">Twilio Account SID</Label>
-                      <Input 
-                        id="twilio-sid" 
-                        placeholder="AC..." 
-                        value={twilioSid}
-                        onChange={(e) => setTwilioSid(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="twilio-token">Twilio Auth Token</Label>
-                      <Input 
-                        id="twilio-token" 
-                        type="password" 
-                        placeholder="********" 
-                        value={twilioToken}
-                        onChange={(e) => setTwilioToken(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="heygen-key">Heygen API Key</Label>
-                      <Input 
-                        id="heygen-key" 
-                        type="password" 
-                        placeholder="********" 
-                        value={heygenKey}
-                        onChange={(e) => setHeygenKey(e.target.value)}
-                      />
-                    </div>
-                    
-                    <Button 
-                      onClick={handleSaveApiConfiguration}
-                      disabled={isSaving || !companyId}
-                    >
-                      {isSaving ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        "Save API Configuration"
-                      )}
-                    </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            <APIKeysTab 
+              companyId={companyId} 
+              initialApiKeys={apiKeys}
+              isLoading={isLoading}
+            />
           </TabsContent>
           
           <TabsContent value="webhooks">
-            <Card>
-              <CardHeader>
-                <CardTitle>Webhooks</CardTitle>
-                <CardDescription>
-                  Configure webhook endpoints for events
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="stripe-webhook">Stripe Webhook URL</Label>
-                  <Input id="stripe-webhook" placeholder="https://your-domain.com/api/webhooks/stripe" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="zapier-webhook">Zapier Webhook URL</Label>
-                  <Input id="zapier-webhook" placeholder="https://hooks.zapier.com/hooks/catch/..." />
-                </div>
-                
-                <Button>Save Webhook Settings</Button>
-              </CardContent>
-            </Card>
+            <WebhooksTab />
           </TabsContent>
           
           <TabsContent value="security">
-            <Card>
-              <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>
-                  Configure security preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="two-factor">Two-Factor Authentication</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Require 2FA for all admin users
-                    </p>
-                  </div>
-                  <Switch id="two-factor" />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="session-timeout">Extended Session Timeout</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Increase session duration to 24 hours
-                    </p>
-                  </div>
-                  <Switch id="session-timeout" />
-                </div>
-                
-                <Button>Save Security Settings</Button>
-              </CardContent>
-            </Card>
+            <SecurityTab />
           </TabsContent>
           
           <TabsContent value="notifications">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>
-                  Configure system notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Send email for important system events
-                    </p>
-                  </div>
-                  <Switch id="email-notifications" defaultChecked />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="sms-notifications">SMS Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Send text messages for critical alerts
-                    </p>
-                  </div>
-                  <Switch id="sms-notifications" />
-                </div>
-                
-                <Button>Save Notification Settings</Button>
-              </CardContent>
-            </Card>
+            <NotificationsTab />
           </TabsContent>
         </Tabs>
       </div>
