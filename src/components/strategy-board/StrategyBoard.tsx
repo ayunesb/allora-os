@@ -16,6 +16,7 @@ export default function StrategyBoard() {
   const [riskFilter, setRiskFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical' | 'risk'>('alphabetical');
   const breakpoint = useBreakpoint();
+  const isMobile = ['xs', 'mobile'].includes(breakpoint);
   
   // Handle creating a new strategy
   const handleCreateNew = useCallback(async () => {
@@ -66,7 +67,7 @@ export default function StrategyBoard() {
   });
   
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fadeIn">
+    <div className="space-y-3 sm:space-y-6 animate-fadeIn px-3 sm:px-4 md:px-6">
       <StrategyHeader 
         title="📈 Your Strategic Plans" 
         subtitle="View and manage your business strategies"
@@ -88,16 +89,16 @@ export default function StrategyBoard() {
           onRetry={handleRetry}
         />
       ) : isLoading ? (
-        <div className="py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {[1, 2, 3, 4].map((index) => (
-              <div key={index} className="bg-secondary/60 border border-border/50 rounded-lg p-4 sm:p-6 h-52">
-                <Skeleton className="h-6 w-2/3 mb-2" />
-                <Skeleton className="h-4 w-1/4 mb-4" />
-                <Skeleton className="h-24 w-full mb-4" />
+        <div className="py-4 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+            {Array.from({ length: isMobile ? 2 : 4 }).map((_, index) => (
+              <div key={index} className="bg-secondary/60 border border-border/50 rounded-lg p-4 sm:p-6 h-40 sm:h-52">
+                <Skeleton className="h-5 sm:h-6 w-2/3 mb-2" />
+                <Skeleton className="h-3 sm:h-4 w-1/4 mb-4" />
+                <Skeleton className="h-16 sm:h-24 w-full mb-4" />
                 <div className="flex justify-between">
-                  <Skeleton className="h-8 w-16" />
-                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-7 sm:h-8 w-14 sm:w-16" />
+                  <Skeleton className="h-7 sm:h-8 w-14 sm:w-16" />
                 </div>
               </div>
             ))}

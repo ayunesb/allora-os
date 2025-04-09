@@ -13,3 +13,11 @@ Sitemap: https://allora-ai.com/sitemap.xml
 
 # Additional crawler guidance
 Crawl-delay: 10
+
+# Google mobile-friendly bot directives
+User-agent: Googlebot-Mobile
+Allow: /
+
+# This site is optimized for mobile devices and responsive design
+# All pages adapt to different screen sizes and devices
+

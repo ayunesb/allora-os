@@ -4,11 +4,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Home, ChartBar, Shield } from "lucide-react";
 import ThemeToggle from "./navigation/ThemeToggle";
 import UserMenu from "./navigation/UserMenu";
 import MobileNavigation from "./navigation/MobileNavigation";
 import { toast } from "sonner";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 // Logo component
 const Logo = ({ className }: { className?: string }) => (
@@ -17,12 +18,12 @@ const Logo = ({ className }: { className?: string }) => (
   </div>
 );
 
-// Navigation items definition
+// Navigation items definition with better icons
 const getNavItems = () => [
   {
     name: "Home",
     href: "/dashboard",
-    icon: ({ className }: { className?: string }) => <BarChart3 className={className} />,
+    icon: ({ className }: { className?: string }) => <Home className={className} />,
   },
   {
     name: "Strategies",
@@ -32,12 +33,12 @@ const getNavItems = () => [
   {
     name: "Analytics",
     href: "/dashboard/analytics",
-    icon: ({ className }: { className?: string }) => <BarChart3 className={className} />,
+    icon: ({ className }: { className?: string }) => <ChartBar className={className} />,
   },
   {
     name: "Compliance",
     href: "/compliance",
-    icon: ({ className }: { className?: string }) => <BarChart3 className={className} />,
+    icon: ({ className }: { className?: string }) => <Shield className={className} />,
   }
 ];
 
@@ -48,6 +49,7 @@ export function Navbar({ isLoggedIn = true }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const breakpoint = useBreakpoint();
   
   // Mock subscription data
   const subscription = { status: "inactive" };
@@ -85,14 +87,25 @@ export function Navbar({ isLoggedIn = true }) {
           navItems={navItems}
           onSignOut={handleSignOut}
           isSigningOut={isSigningOut}
+          userName={profile?.name}
+          userEmail={user?.email}
         />
         
-        <Link className="ml-auto font-bold text-2xl flex items-center" to="/dashboard">
-          <Logo className="h-6 w-6 mr-2" />
+        <Link 
+          className={cn(
+            "flex items-center font-bold", 
+            ['xs', 'mobile'].includes(breakpoint) ? "text-xl" : "text-2xl",
+            ['xs', 'mobile'].includes(breakpoint) ? "ml-2" : "ml-auto"
+          )}
+          to="/dashboard"
+        >
+          <Logo className={cn(
+            ['xs', 'mobile'].includes(breakpoint) ? "h-5 w-5 mr-2" : "h-6 w-6 mr-2"
+          )} />
           <span>Allora AI</span>
         </Link>
         
-        <div className="ml-auto flex items-center space-x-4">
+        <div className="ml-auto flex items-center space-x-3 sm:space-x-4">
           <ThemeToggle />
           <UserMenu 
             avatarUrl={profile?.avatar_url} 
@@ -106,13 +119,13 @@ export function Navbar({ isLoggedIn = true }) {
       </div>
       
       {isLoggedIn && (
-        <div className="hidden md:flex justify-center space-x-6 p-4">
+        <div className="hidden md:flex justify-center space-x-3 lg:space-x-6 p-2 md:p-4 overflow-x-auto scrollbar-none">
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.href}
               className={cn(
-                "flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground",
+                "flex items-center space-x-2 rounded-md px-2 py-1.5 md:px-3 md:py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground whitespace-nowrap",
                 location.pathname === item.href || location.pathname.startsWith(`${item.href}/`)
                   ? "bg-secondary text-foreground"
                   : "text-muted-foreground"

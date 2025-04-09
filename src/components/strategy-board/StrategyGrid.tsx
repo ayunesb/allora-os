@@ -2,7 +2,7 @@
 import React from "react";
 import StrategyCard from "./StrategyCard";
 import { Strategy } from "./useStrategies";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import { useBreakpoint, getResponsiveGridCols } from "@/hooks/use-mobile";
 
 interface StrategyGridProps {
   strategies: Strategy[];
@@ -11,23 +11,11 @@ interface StrategyGridProps {
 export default function StrategyGrid({ strategies }: StrategyGridProps) {
   const breakpoint = useBreakpoint();
   
-  const getGridCols = () => {
-    switch(breakpoint) {
-      case 'mobile':
-        return 'grid-cols-1';
-      case 'tablet':
-        return 'grid-cols-2';
-      case 'laptop':
-        return 'grid-cols-2';
-      case 'desktop':
-        return 'grid-cols-3';
-      default:
-        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
-    }
-  };
+  // Get responsive grid columns based on breakpoint
+  const gridCols = getResponsiveGridCols(breakpoint);
   
   return (
-    <div className={`grid ${getGridCols()} gap-4 sm:gap-6`}>
+    <div className={`grid ${gridCols} gap-3 sm:gap-4 md:gap-6`}>
       {strategies.map((strategy, index) => (
         <StrategyCard 
           key={index}

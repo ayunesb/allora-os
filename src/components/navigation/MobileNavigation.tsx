@@ -21,7 +21,8 @@ import {
   Settings
 } from "lucide-react";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 interface MobileNavigationProps {
   isOpen: boolean;
@@ -46,6 +47,9 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
   userName,
   userEmail
 }) => {
+  const breakpoint = useBreakpoint();
+  const isXSmall = breakpoint === 'xs';
+  
   // Create the user's initials for the avatar
   const getInitials = () => {
     if (!userName) return "U";
@@ -67,14 +71,14 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="pr-0 w-[280px] sm:w-[320px]">
+      <SheetContent side="left" className="pr-0 w-[85vw] max-w-[280px] sm:max-w-[320px]">
         <SheetHeader className="text-left">
           <div className="flex items-center mb-4">
             <Avatar className="h-10 w-10 mr-3">
               <AvatarFallback>{getInitials()}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <SheetTitle className="text-left">{userName || "Dashboard Menu"}</SheetTitle>
+            <div className="flex flex-col overflow-hidden">
+              <SheetTitle className="text-left truncate">{userName || "Dashboard Menu"}</SheetTitle>
               {userEmail && (
                 <SheetDescription className="text-left text-xs mt-1 truncate">
                   {userEmail}
@@ -87,7 +91,10 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
         <div className="py-4">
           {navItems.map((item) => (
             <Link key={item.name} to={item.href} onClick={() => setIsOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start text-base py-3 h-auto">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-base py-3 h-auto"
+              >
                 <item.icon className="mr-3 h-5 w-5" />
                 {item.name}
               </Button>
