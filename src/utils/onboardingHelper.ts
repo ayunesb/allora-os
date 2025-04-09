@@ -77,17 +77,14 @@ export async function saveOnboardingInfo(
       companyId = profileData.company_id;
     } else {
       // Create a new company
-      // This time we'll use a different approach - create the profile with empty company_id first
-      // Then create the company, and then update the profile with the company_id
-      
       // First, make sure the profile exists with auth.uid as the id
       const { error: ensureProfileError } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
           company: companyName,
-          industry: industry,
-          updated_at: new Date().toISOString()
+          industry: industry
+          // Removed updated_at field since it doesn't exist in the schema
         });
         
       if (ensureProfileError) {
