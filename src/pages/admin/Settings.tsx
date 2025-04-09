@@ -7,6 +7,7 @@ import APIKeysTab from '@/components/admin/APIKeysTab';
 import WebhooksTab from '@/components/admin/WebhooksTab';
 import SecurityTab from '@/components/admin/SecurityTab';
 import NotificationsTab from '@/components/admin/NotificationsTab';
+import { Loader2 } from 'lucide-react';
 
 export default function AdminSettings() {
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -17,8 +18,12 @@ export default function AdminSettings() {
     twilio_token: '',
     heygen: ''
   });
+  const [securitySettings, setSecuritySettings] = useState({
+    twoFactorEnabled: false,
+    extendedSessionTimeout: false
+  });
 
-  // Fetch the current company data to get its ID
+  // Fetch the current company data to get its ID and settings
   useEffect(() => {
     const fetchCompanyData = async () => {
       try {
@@ -32,14 +37,16 @@ export default function AdminSettings() {
           .eq('id', session.user.id)
           .single();
         
-        if (profileData?.company_id) {
-          setCompanyId(profileData.company_id);
+        let currentCompanyId = profileData?.company_id;
+        
+        if (currentCompanyId) {
+          setCompanyId(currentCompanyId);
           
-          // Now fetch the existing API keys if they exist
+          // Now fetch the existing settings if they exist
           const { data: companyData } = await supabase
             .from('companies')
             .select('details')
-            .eq('id', profileData.company_id)
+            .eq('id', currentCompanyId)
             .single();
           
           if (companyData?.details) {
@@ -48,12 +55,21 @@ export default function AdminSettings() {
               ? JSON.parse(companyData.details) 
               : companyData.details;
               
+            // Set API keys if they exist
             if (details.api_keys) {
               setApiKeys({
                 stripe: details.api_keys.stripe || '',
                 twilio_sid: details.api_keys.twilio_sid || '',
                 twilio_token: details.api_keys.twilio_token || '',
                 heygen: details.api_keys.heygen || ''
+              });
+            }
+            
+            // Set security settings if they exist
+            if (details.security_settings) {
+              setSecuritySettings({
+                twoFactorEnabled: details.security_settings.twoFactorEnabled || false,
+                extendedSessionTimeout: details.security_settings.extendedSessionTimeout || false
               });
             }
           }
@@ -65,21 +81,31 @@ export default function AdminSettings() {
             .limit(1);
             
           if (companies && companies.length > 0) {
-            setCompanyId(companies[0].id);
+            currentCompanyId = companies[0].id;
+            setCompanyId(currentCompanyId);
             
-            // Load existing API keys if they exist
+            // Load existing settings if they exist
             if (companies[0].details) {
               // Handle the case where details might be a string or an object
               const details = typeof companies[0].details === 'string' 
                 ? JSON.parse(companies[0].details) 
                 : companies[0].details;
-                
+              
+              // Set API keys if they exist  
               if (details.api_keys) {
                 setApiKeys({
                   stripe: details.api_keys.stripe || '',
                   twilio_sid: details.api_keys.twilio_sid || '',
                   twilio_token: details.api_keys.twilio_token || '',
                   heygen: details.api_keys.heygen || ''
+                });
+              }
+              
+              // Set security settings if they exist
+              if (details.security_settings) {
+                setSecuritySettings({
+                  twoFactorEnabled: details.security_settings.twoFactorEnabled || false,
+                  extendedSessionTimeout: details.security_settings.extendedSessionTimeout || false
                 });
               }
             }
@@ -94,6 +120,14 @@ export default function AdminSettings() {
 
     fetchCompanyData();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,7 +162,10 @@ export default function AdminSettings() {
           </TabsContent>
           
           <TabsContent value="security">
-            <SecurityTab />
+            <SecurityTab 
+              companyId={companyId}
+              initialSettings={securitySettings}
+            />
           </TabsContent>
           
           <TabsContent value="notifications">
