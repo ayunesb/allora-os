@@ -23,11 +23,15 @@ export async function setupCompanyIntegrations(
     const stripeResult = await createStripeCustomer(companyName, email, industry);
     if (stripeResult.success && stripeResult.customerId) {
       integrationIds.stripe_customer_id = stripeResult.customerId;
+      console.log('Created Stripe customer:', stripeResult.customerId);
+    } else {
+      console.warn('Failed to create Stripe customer:', stripeResult.error);
     }
     
     // 2. Store all integration IDs in Supabase
     await storeIntegrationIds(companyId, integrationIds);
     
+    console.log('Successfully set up company integrations');
     return { success: true };
   } catch (error: any) {
     console.error('Failed to set up company integrations:', error);
@@ -47,7 +51,9 @@ async function createStripeCustomer(
   industry: string
 ): Promise<{ success: boolean; customerId?: string; error?: string }> {
   try {
-    // Call our custom function to create a Stripe customer
+    console.log('Creating Stripe customer for:', companyName, email);
+    
+    // Call the createCustomer function from our stripe.ts utility
     const response = await createCustomer(companyName, email, {
       industry,
       source: 'allora_platform'
@@ -78,6 +84,8 @@ async function storeIntegrationIds(
   integrationIds: Record<string, string>
 ): Promise<void> {
   try {
+    console.log('Storing integration IDs for company:', companyId, integrationIds);
+    
     // First check if a record already exists
     const { data, error: fetchError } = await supabase
       .from('company_integrations')
@@ -85,9 +93,13 @@ async function storeIntegrationIds(
       .eq('company_id', companyId)
       .maybeSingle();
       
-    if (fetchError) throw fetchError;
+    if (fetchError) {
+      console.error('Error fetching existing integration record:', fetchError);
+      throw fetchError;
+    }
     
     if (data) {
+      console.log('Updating existing integration record');
       // Update existing record
       const { error: updateError } = await supabase
         .from('company_integrations')
@@ -96,8 +108,12 @@ async function storeIntegrationIds(
         })
         .eq('company_id', companyId);
         
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Error updating integration record:', updateError);
+        throw updateError;
+      }
     } else {
+      console.log('Creating new integration record');
       // Create new record
       const { error: insertError } = await supabase
         .from('company_integrations')
@@ -106,8 +122,13 @@ async function storeIntegrationIds(
           integration_ids: integrationIds
         });
         
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error('Error inserting integration record:', insertError);
+        throw insertError;
+      }
     }
+    
+    console.log('Successfully stored integration IDs');
   } catch (error: any) {
     console.error('Failed to store integration IDs:', error);
     throw error;
@@ -121,13 +142,18 @@ export async function getCompanyIntegrationIds(
   companyId: string
 ): Promise<Record<string, string> | null> {
   try {
+    console.log('Getting integration IDs for company:', companyId);
+    
     const { data, error } = await supabase
       .from('company_integrations')
       .select('integration_ids')
       .eq('company_id', companyId)
       .maybeSingle();
       
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching integration IDs:', error);
+      throw error;
+    }
     
     // Ensure we're returning a Record<string, string> or null
     if (data?.integration_ids) {
@@ -142,9 +168,11 @@ export async function getCompanyIntegrationIds(
         });
       }
       
+      console.log('Found integration IDs:', typedIntegrationIds);
       return typedIntegrationIds;
     }
     
+    console.log('No integration IDs found');
     return null;
   } catch (error: any) {
     console.error('Failed to get company integration IDs:', error.message);

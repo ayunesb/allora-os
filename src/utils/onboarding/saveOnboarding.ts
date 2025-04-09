@@ -58,7 +58,7 @@ export async function saveOnboardingInfo(
       .from('profiles')
       .select('company_id, company')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
       
     if (profileCheckError && profileCheckError.code !== 'PGRST116') {
       console.error("Profile check error:", profileCheckError);
@@ -108,8 +108,9 @@ export async function saveOnboardingInfo(
         } else {
           throw new Error(`Failed to create company: ${createError.message}`);
         }
-      } else {
+      } else if (newCompany) {
         companyId = newCompany.id;
+        console.log("Created new company with ID:", companyId);
       }
     }
 
@@ -125,6 +126,7 @@ export async function saveOnboardingInfo(
       updateData.company_id = companyId;
       
       // Set up external service integrations for the company
+      console.log("Setting up integrations for company:", companyId);
       const integrationResult = await setupCompanyIntegrations(
         companyId,
         companyName,
@@ -135,6 +137,8 @@ export async function saveOnboardingInfo(
       if (!integrationResult.success) {
         console.warn("Warning: Failed to set up some integrations:", integrationResult.error);
         // Continue with onboarding even if some integrations fail
+      } else {
+        console.log("Integration setup successful");
       }
     }
     

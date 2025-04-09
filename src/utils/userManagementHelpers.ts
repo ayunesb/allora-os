@@ -106,6 +106,7 @@ export async function inviteUserToCompany(
       throw new Error(result.message || 'Failed to send invitation email');
     }
 
+    console.log('Invitation email sent successfully');
     toast.success(`Invitation sent to ${email}`);
     return true;
   } catch (error: any) {
