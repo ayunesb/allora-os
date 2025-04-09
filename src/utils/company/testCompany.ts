@@ -13,7 +13,7 @@ export async function setupTestCompany(email: string): Promise<{ success: boolea
       .from('profiles')
       .select('id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
       
     if (profileError || !profile) {
       console.error("Error finding user:", profileError);

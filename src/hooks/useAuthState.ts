@@ -41,7 +41,7 @@ export function useAuthState() {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         logger.error('Error loading user profile:', { error, userId });
@@ -70,11 +70,13 @@ export function useAuthState() {
         
         if (!mounted) return;
         
-        // Update session and user state immediately - only synchronous operations here
+        // Only perform synchronous operations inside the main callback
+        // This prevents potential deadlocks with the Supabase client
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
-        // Use setTimeout to prevent deadlock with Supabase client
+        // Defer any asynchronous operations with setTimeout
+        // This breaks the potential deadlock by pushing the operation to the next event loop tick
         if (newSession?.user) {
           setTimeout(() => {
             if (mounted) {
