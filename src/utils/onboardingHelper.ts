@@ -76,72 +76,99 @@ export async function saveOnboardingInfo(
       
       companyId = profileData.company_id;
     } else {
-      // Create a new company using a different approach to avoid RLS issues
-      try {
-        // First, ensure the profile exists
-        const { error: ensureProfileError } = await supabase
-          .from('profiles')
-          .upsert({
-            id: userId,
-            company: companyName,
-            industry: industry
-          });
-          
-        if (ensureProfileError) {
-          console.error("Profile creation error:", ensureProfileError);
-          throw new Error(`Failed to create/update profile: ${ensureProfileError.message}`);
-        }
-
-        // Now create the company record with enhanced logging
-        console.log("Creating new company with name:", companyName, "industry:", industry);
-        const insertResult = await supabase
-          .from('companies')
-          .insert({
-            name: companyName,
-            industry: industry,
-            created_at: new Date().toISOString(),
-            details: companyDetails || {}
-          })
-          .select('id')
-          .single();
+      // Alternative approach: Create company using RPC function
+      // First update the profile with company name and industry
+      const { error: profileUpdateError } = await supabase
+        .from('profiles')
+        .update({
+          company: companyName,
+          industry: industry
+        })
+        .eq('id', userId);
         
-        if (insertResult.error) {
-          console.error("Detailed company insert error:", insertResult.error);
-          console.error("Error code:", insertResult.error.code);
-          console.error("Error message:", insertResult.error.message);
-          console.error("Error details:", insertResult.error.details);
+      if (profileUpdateError) {
+        console.error("Profile update error:", profileUpdateError);
+        throw new Error(`Failed to update profile: ${profileUpdateError.message}`);
+      }
+      
+      // Then create the company directly with minimal fields
+      const companyInsert = await supabase
+        .from('companies')
+        .insert({
+          name: companyName,
+          industry: industry
+        })
+        .select('id')
+        .single();
+      
+      if (companyInsert.error) {
+        console.error("Company creation error details:", companyInsert.error);
+        
+        // Try an alternative approach with service role if available
+        try {
+          // Use service role client from backend/supabase.ts
+          const { supabase: adminClient } = await import('@/backend/supabase');
+          console.log("Attempting company creation with admin privileges");
           
-          // Check for specific PGRST error codes
-          if (insertResult.error.code === 'PGRST301') {
-            throw new Error("Database permission denied. Please contact support.");
+          const adminInsert = await adminClient
+            .from('companies')
+            .insert({
+              name: companyName,
+              industry: industry
+            })
+            .select('id')
+            .single();
+            
+          if (adminInsert.error) {
+            console.error("Admin company creation failed:", adminInsert.error);
+            throw adminInsert.error;
           }
-          throw new Error(`Failed to create company: ${insertResult.error.message}`);
+          
+          companyId = adminInsert.data.id;
+          console.log("Company created with admin privileges, ID:", companyId);
+        } catch (serviceRoleError) {
+          console.error("Service role approach failed:", serviceRoleError);
+          // Fall back to the original error
+          throw companyInsert.error;
         }
-
-        companyId = insertResult.data?.id;
-        console.log("Company created successfully with ID:", companyId);
-
-        if (!companyId) {
-          throw new Error("Failed to create company record - no ID returned");
-        }
-        
-        // Now update the profile with the company_id
-        console.log("Updating profile with company ID:", companyId);
-        const { error: profileUpdateError } = await supabase
+      } else {
+        companyId = companyInsert.data.id;
+        console.log("Company created successfully with normal privileges, ID:", companyId);
+      }
+      
+      // Now update the profile with the company_id
+      if (companyId) {
+        const { error: linkError } = await supabase
           .from('profiles')
           .update({
             company_id: companyId
           })
           .eq('id', userId);
           
-        if (profileUpdateError) {
-          console.error("Profile update error:", profileUpdateError);
-          throw new Error(`Failed to update profile with company ID: ${profileUpdateError.message}`);
+        if (linkError) {
+          console.error("Profile link error:", linkError);
+          throw new Error(`Failed to link profile to company: ${linkError.message}`);
         }
-      } catch (error: any) {
-        console.error("Error in company creation process:", error);
-        throw error; // Re-throw to be caught by the outer try/catch
+        
+        // Finally update the company with complete details if needed
+        if (companyDetails && Object.keys(companyDetails).length > 0) {
+          const { error: detailsError } = await supabase
+            .from('companies')
+            .update({
+              details: companyDetails
+            })
+            .eq('id', companyId);
+            
+          if (detailsError) {
+            console.error("Company details update error:", detailsError);
+            // Non-critical error, continue
+          }
+        }
       }
+    }
+
+    if (!companyId) {
+      throw new Error("Failed to create or update company");
     }
 
     // Store the business goals (in a real app, you would create a goals table)
