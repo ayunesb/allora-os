@@ -6,12 +6,20 @@ import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, LogOut, User, Settings } from "lucide-react";
 import { checkOnboardingStatus } from "@/utils/onboarding";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function DashboardLayout() {
-  const { user, isLoading, profile, refreshSession } = useAuth();
+  const { user, isLoading, profile, refreshSession, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -49,6 +57,13 @@ export default function DashboardLayout() {
     toast.info("Refreshing session...");
     await refreshSession();
     toast.success("Session refreshed");
+  };
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+    toast.success('You have been logged out');
   };
 
   // If still loading, show skeleton UI
@@ -121,20 +136,43 @@ export default function DashboardLayout() {
             <div className="flex items-center space-x-2">
               <h1 className="text-xl font-bold">Allora AI</h1>
             </div>
-            <Tabs defaultValue={getActiveValue()} className="w-auto" value={getActiveValue()}>
-              <TabsList className="bg-transparent">
-                {navItems.map((item) => (
-                  <TabsTrigger 
-                    key={item.path} 
-                    value={item.path}
-                    className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                    asChild
-                  >
-                    <Link to={item.path}>{item.label}</Link>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+            <div className="flex items-center">
+              <Tabs defaultValue={getActiveValue()} className="w-auto mr-4" value={getActiveValue()}>
+                <TabsList className="bg-transparent">
+                  {navItems.map((item) => (
+                    <TabsTrigger 
+                      key={item.path} 
+                      value={item.path}
+                      className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+                      asChild
+                    >
+                      <Link to={item.path}>{item.label}</Link>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Profile Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>
