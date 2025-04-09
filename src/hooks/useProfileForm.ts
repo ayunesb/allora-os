@@ -2,22 +2,29 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuthState } from '@/hooks/useAuthState';
-import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { updateUserProfile } from '@/utils/profileHelpers';
 import { ApiKeys, ProfileFormData } from '@/components/profile/ProfileForm';
+import { useAvatarUpload } from './useAvatarUpload';
 
 export function useProfileForm() {
   const { user, profile } = useAuthState();
   const [isLoading, setIsLoading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [personalApiKeys, setPersonalApiKeys] = useState<ApiKeys>({
     stripe: '',
     twilio_sid: '',
     twilio_token: '',
     heygen: ''
   });
+  
+  // Use the new avatar upload hook
+  const { 
+    avatarUrl, 
+    setAvatarUrl, 
+    avatarFile, 
+    setAvatarFile, 
+    uploadAvatar 
+  } = useAvatarUpload();
   
   const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<ProfileFormData>({
     defaultValues: {
@@ -69,40 +76,7 @@ export function useProfileForm() {
         });
       }
     }
-  }, [profile, user, reset]);
-
-  const uploadAvatar = async (userId: string, file: File) => {
-    const { supabase } = await import('@/backend/supabase');
-    
-    // Generate a unique file path
-    const fileExt = file.name.split('.').pop();
-    const filePath = `avatars/${userId}-${Date.now()}.${fileExt}`;
-    
-    // Upload the file
-    const { error: uploadError } = await supabase.storage
-      .from('profiles')
-      .upload(filePath, file, {
-        upsert: true,
-        contentType: file.type
-      });
-      
-    if (uploadError) throw uploadError;
-    
-    // Get the public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('profiles')
-      .getPublicUrl(filePath);
-      
-    // Update profile with avatar URL
-    const { error: avatarError } = await supabase
-      .from('profiles')
-      .update({ avatar_url: publicUrl })
-      .eq('id', userId);
-      
-    if (avatarError) throw avatarError;
-    
-    setAvatarUrl(publicUrl);
-  };
+  }, [profile, user, reset, setAvatarUrl]);
 
   const onSubmit = async (data: ProfileFormData) => {
     if (!user) return;
@@ -131,7 +105,14 @@ export function useProfileForm() {
       
       // Upload avatar if selected
       if (avatarFile) {
-        await uploadAvatar(user.id, avatarFile);
+        const uploadedAvatarUrl = await uploadAvatar(user.id, avatarFile);
+        
+        if (uploadedAvatarUrl) {
+          // Update the avatar URL in the database
+          await updateUserProfile(user.id, {
+            avatar_url: uploadedAvatarUrl
+          });
+        }
       }
       
       toast.success('Profile updated successfully');
