@@ -28,10 +28,10 @@ import { useBreakpoint } from '@/hooks/use-mobile';
 import { Lead } from '@/models/lead';
 import { supabase } from '@/backend/supabase';
 import { fetchCompanyLeads, updateLeadStatus, deleteLead } from '@/utils/leadHelpers';
+import { handleApiError } from '@/utils/api/errorHandling';
+import { useQuery } from '@tanstack/react-query';
 
 export default function AdminLeads() {
-  const [loading, setLoading] = useState(true);
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'created_at'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -39,44 +39,62 @@ export default function AdminLeads() {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
-  useEffect(() => {
-    async function loadLeads() {
-      setLoading(true);
+  const { 
+    data: leads = [], 
+    isLoading, 
+    error, 
+    refetch 
+  } = useQuery({
+    queryKey: ['leads', sortBy, sortOrder],
+    queryFn: async () => {
       try {
-        // Get all leads across all campaigns
         const { data, error } = await supabase
           .from('leads')
           .select('*')
           .order(sortBy, { ascending: sortOrder === 'asc' });
           
         if (error) throw error;
-        
-        setLeads(data || []);
-      } catch (error: any) {
-        console.error('Error loading leads:', error.message);
-        toast.error('Failed to load leads');
-      } finally {
-        setLoading(false);
+        return data || [];
+      } catch (error) {
+        throw error;
       }
     }
-    
-    loadLeads();
-  }, [sortBy, sortOrder]);
+  });
+  
+  useEffect(() => {
+    if (error) {
+      handleApiError(error, {
+        customMessage: 'Failed to load leads data'
+      });
+    }
+  }, [error]);
   
   const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
-    const success = await updateLeadStatus(leadId, status);
-    if (success) {
-      setLeads(leads.map(lead => 
-        lead.id === leadId ? { ...lead, status } : lead
-      ));
+    try {
+      const success = await updateLeadStatus(leadId, status);
+      if (success) {
+        toast.success(`Lead status updated to ${status}`);
+        refetch();
+      }
+    } catch (error) {
+      handleApiError(error, {
+        customMessage: 'Failed to update lead status'
+      });
     }
   };
   
   const handleDelete = async (leadId: string) => {
     if (window.confirm('Are you sure you want to delete this lead?')) {
-      const success = await deleteLead(leadId);
-      if (success) {
-        setLeads(leads.filter(lead => lead.id !== leadId));
+      try {
+        const success = await deleteLead(leadId);
+        if (success) {
+          toast.success('Lead deleted successfully');
+          refetch();
+        }
+      } catch (error) {
+        handleApiError(error, {
+          customMessage: 'Failed to delete lead'
+        });
       }
     }
   };
@@ -135,7 +153,7 @@ export default function AdminLeads() {
         />
       </div>
       
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>

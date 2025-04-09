@@ -1,108 +1,64 @@
 
-import { Users, Filter, Download, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// Create a consistent implementation for the dashboard leads page
+import React from 'react';
+import { useBreakpoint } from '@/hooks/use-mobile';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/backend/supabase';
+import { handleApiError } from '@/utils/api/errorHandling';
+import { useAuthState } from '@/hooks/useAuthState';
+import { Lead } from '@/models/lead';
+import { Loader2 } from 'lucide-react';
 
-export default function Leads() {
-  const leads = [
-    {
-      name: "Sarah Johnson",
-      company: "Innovate Tech",
-      email: "sjohnson@innovatetech.com",
-      source: "AI Cold Call",
-      stage: "Qualified",
+export default function DashboardLeads() {
+  const { user } = useAuthState();
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  
+  const { data: leads = [], isLoading, error } = useQuery({
+    queryKey: ['dashboard-leads', user?.id],
+    queryFn: async () => {
+      try {
+        // This would typically filter leads for the current user/company
+        const { data, error } = await supabase
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        return data as Lead[] || [];
+      } catch (error) {
+        throw error;
+      }
     },
-    {
-      name: "Michael Chen",
-      company: "Growth Solutions",
-      email: "mchen@growthsolutions.com",
-      source: "Email Campaign",
-      stage: "New Lead",
-    },
-    {
-      name: "Jessica Rodriguez",
-      company: "Summit Partners",
-      email: "jrodriguez@summitpartners.com",
-      source: "Marketing Campaign",
-      stage: "Meeting Scheduled",
-    },
-    {
-      name: "David Kim",
-      company: "Nexus Systems",
-      email: "dkim@nexussystems.com",
-      source: "AI Cold Call",
-      stage: "New Lead",
-    },
-  ];
-
+    enabled: !!user?.id,
+  });
+  
+  // Handle error from the query
+  React.useEffect(() => {
+    if (error) {
+      handleApiError(error, {
+        customMessage: 'Failed to load your leads data'
+      });
+    }
+  }, [error]);
+  
   return (
-    <div>
-      <div className="flex items-center mb-8">
-        <Users className="h-8 w-8 text-primary mr-3" />
-        <h1 className="text-3xl font-bold">Generated Leads</h1>
-      </div>
+    <div className="animate-fadeIn space-y-6">
+      <h1 className={`${isMobileView ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold`}>
+        Your Leads
+      </h1>
       
-      <p className="text-xl text-gray-300 mb-10">
-        Leads captured through AI strategies, campaigns, and cold calls
-      </p>
-      
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Recent Leads</h2>
-        <div className="flex space-x-3">
-          <Button variant="outline" size="sm">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button className="allora-button">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Lead
-          </Button>
+      {isLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </div>
-      
-      <div className="bg-secondary/40 border border-border/50 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border/50">
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Company</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Email</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Source</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Stage</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((lead, index) => (
-                <tr key={index} className="border-b border-border/50 hover:bg-secondary/60">
-                  <td className="px-4 py-3 text-sm">{lead.name}</td>
-                  <td className="px-4 py-3 text-sm">{lead.company}</td>
-                  <td className="px-4 py-3 text-sm">{lead.email}</td>
-                  <td className="px-4 py-3 text-sm">{lead.source}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      lead.stage === "Qualified" 
-                        ? "bg-green-500/20 text-green-400" 
-                        : lead.stage === "Meeting Scheduled"
-                        ? "bg-blue-500/20 text-blue-400"
-                        : "bg-gray-500/20 text-gray-400"
-                    }`}>
-                      {lead.stage}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    <Button variant="ghost" size="sm">View</Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">
+            Leads data will be displayed here. Please check the admin panel for full leads management.
+          </p>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -37,7 +36,6 @@ export default function ProtectedRoute({
   const [adminCheckDone, setAdminCheckDone] = useState(false);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
 
-  // Handle session expiration notification
   useEffect(() => {
     if (isSessionExpired && user) {
       toast.error("Your session has expired. Please log in again.", {
@@ -46,7 +44,6 @@ export default function ProtectedRoute({
     }
   }, [isSessionExpired, user]);
 
-  // Check admin status directly from the database
   useEffect(() => {
     const verifyAdminStatus = async () => {
       if (user && (adminOnly || roleRequired === 'admin')) {
@@ -64,7 +61,6 @@ export default function ProtectedRoute({
     }
   }, [user, adminOnly, roleRequired, adminCheckDone]);
 
-  // For development purposes, log auth state
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       console.log('Protected Route Auth State:', { 
@@ -79,7 +75,6 @@ export default function ProtectedRoute({
     }
   }, [user, profile, roleRequired, adminOnly, isLoading, isUserAdmin]);
 
-  // Handler functions
   const handleResendVerificationEmail = async (): Promise<void> => {
     if (!user?.email) {
       toast.error("Email address is missing", {
@@ -125,7 +120,6 @@ export default function ProtectedRoute({
     }
   };
 
-  // Conditional rendering based on auth state
   if (isLoading || !adminCheckDone) {
     return <AuthLoadingState />;
   }
@@ -159,15 +153,12 @@ export default function ProtectedRoute({
     />;
   }
 
-  // Check for admin access if adminOnly is set
   if ((adminOnly || roleRequired === 'admin')) {
-    // Check admin status directly from database result first
     if (isUserAdmin) {
       console.log('Admin access granted via direct database check');
       return <>{children}</>;
     }
     
-    // Fall back to profile check if available
     const isAdmin = profile?.role === 'admin';
     
     if (!isAdmin) {
@@ -178,7 +169,6 @@ export default function ProtectedRoute({
       return <Navigate to="/dashboard" replace />;
     }
   }
-  // Check for role if roleRequired is set
   else if (roleRequired && profile) {
     const hasRequiredRole = profile.role === roleRequired || 
                            (roleRequired === 'user' && profile.role === 'admin');
