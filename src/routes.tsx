@@ -12,6 +12,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import AdminLayout from "@/components/AdminLayout";
 import Legal from "@/pages/Legal";
 import Privacy from "@/pages/Privacy";
+import ComplianceLayout from "@/components/ComplianceLayout";
 
 // Dashboard Pages
 import DashboardIndex from "@/pages/dashboard/Index";
@@ -131,7 +132,7 @@ export const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <ProtectedRoute adminOnly>
+      <ProtectedRoute roleRequired="admin">
         <AdminLayout />
       </ProtectedRoute>
     ),
@@ -170,7 +171,9 @@ export const router = createBrowserRouter([
     path: "/compliance",
     element: (
       <ProtectedRoute>
-        <ComplianceOverview />
+        <ComplianceLayout>
+          <ComplianceOverview />
+        </ComplianceLayout>
       </ProtectedRoute>
     ),
   },
@@ -178,7 +181,9 @@ export const router = createBrowserRouter([
     path: "/compliance/audit-logs",
     element: (
       <ProtectedRoute>
-        <ComplianceAuditLogs />
+        <ComplianceLayout>
+          <ComplianceAuditLogs />
+        </ComplianceLayout>
       </ProtectedRoute>
     ),
   },
@@ -186,7 +191,9 @@ export const router = createBrowserRouter([
     path: "/compliance/data-policies",
     element: (
       <ProtectedRoute>
-        <ComplianceDataPolicies />
+        <ComplianceLayout>
+          <ComplianceDataPolicies />
+        </ComplianceLayout>
       </ProtectedRoute>
     ),
   },
@@ -194,7 +201,9 @@ export const router = createBrowserRouter([
     path: "/compliance/reports",
     element: (
       <ProtectedRoute>
-        <ComplianceReports />
+        <ComplianceLayout>
+          <ComplianceReports />
+        </ComplianceLayout>
       </ProtectedRoute>
     ),
   },

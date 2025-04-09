@@ -11,12 +11,14 @@ import { resendVerificationEmail } from "@/utils/authHelpers";
 type ProtectedRouteProps = {
   children: ReactNode;
   roleRequired?: 'admin' | 'user';
+  adminOnly?: boolean; // Added this property to match usage in routes.tsx
   requireVerified?: boolean;
 };
 
 export default function ProtectedRoute({ 
   children, 
   roleRequired,
+  adminOnly, // Added this parameter
   requireVerified = false 
 }: ProtectedRouteProps) {
   const { 
@@ -184,8 +186,17 @@ export default function ProtectedRoute({
     );
   }
 
-  // Uncommented the role check for production
-  if (roleRequired && profile) {
+  // Check for admin access if adminOnly is set
+  if ((adminOnly || roleRequired === 'admin') && profile) {
+    const isAdmin = profile.role === 'admin';
+    
+    if (!isAdmin) {
+      toast.error("You don't have permission to access this page");
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+  // Check for role if roleRequired is set
+  else if (roleRequired && profile) {
     const hasRequiredRole = profile.role === roleRequired || 
                            (roleRequired === 'user' && profile.role === 'admin');
     
