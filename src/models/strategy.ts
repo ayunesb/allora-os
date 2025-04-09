@@ -7,3 +7,7 @@ export type Strategy = {
   risk_level: 'Low' | 'Medium' | 'High';
   created_at: string;
 };
+
+// Import and re-export GeneratedStrategy type
+import { GeneratedStrategy } from '../utils/strategy/types';
+export { GeneratedStrategy };

@@ -1,10 +1,29 @@
 
-import { Strategy, GeneratedStrategy } from '@/models/strategy';
+import { Strategy } from '@/models/strategy';
+import { GeneratedStrategy } from './strategy/types';
 
 // Import from strategy with individual imports to avoid naming conflicts
 import { 
   analyzeStrategy,
 } from './strategy/strategyAnalysis';
+
+// Define the StrategyAnalysis type that's missing
+export interface StrategyAnalysis {
+  strengths: string[];
+  weaknesses: string[];
+  implementationComplexity: {
+    score: number;
+  };
+  competitiveAdvantage: {
+    score: number;
+  };
+  insights: {
+    id: string;
+    type: 'positive' | 'negative' | 'neutral';
+    title: string;
+    description: string;
+  }[];
+}
 
 // Define the missing analysis functions that were referenced
 export const estimateTimeToResults = (strategy: Strategy | GeneratedStrategy): string => {
