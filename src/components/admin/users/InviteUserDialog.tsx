@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, UserPlus } from 'lucide-react';
 import { inviteUserToCompany } from '@/utils/userManagementHelpers';
 import { toast } from 'sonner';
+import { useBreakpoint } from '@/hooks/use-mobile';
 
 interface Company {
   id: string;
@@ -34,6 +35,8 @@ export const InviteUserDialog = ({ companies, loadingCompanies, onSuccess }: Inv
   const [role, setRole] = useState<'admin' | 'user'>('user');
   const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
 
   const handleInviteUser = async () => {
     if (!email) {
@@ -67,12 +70,12 @@ export const InviteUserDialog = ({ companies, loadingCompanies, onSuccess }: Inv
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="touch-target">
+        <Button className={isMobileView ? "w-full" : "touch-target"}>
           <UserPlus className="mr-2 h-4 w-4" />
           Add New User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={isMobileView ? "w-[calc(100%-32px)] p-4" : "sm:max-w-md"}>
         <DialogHeader>
           <DialogTitle>Invite New User</DialogTitle>
           <DialogDescription>
@@ -126,12 +129,12 @@ export const InviteUserDialog = ({ companies, loadingCompanies, onSuccess }: Inv
             </Select>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className={isMobileView ? "flex-col space-y-2" : ""}>
           <Button 
             type="submit" 
             onClick={handleInviteUser} 
             disabled={isSubmitting || !email || !company}
-            className="w-full sm:w-auto"
+            className={isMobileView ? "w-full" : "w-full sm:w-auto"}
           >
             {isSubmitting ? (
               <>

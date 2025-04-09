@@ -7,11 +7,14 @@ import { UserListSkeleton } from '@/components/admin/users/UserListSkeleton';
 import { toast } from 'sonner';
 import { supabase } from '@/backend/supabase';
 import useAdminFunctions from '@/hooks/useAdminFunctions';
+import { useBreakpoint } from '@/hooks/use-mobile';
 
 export default function AdminUsers() {
   const { users, loadUsers, isLoading, updateUser, deleteUser } = useAdminFunctions();
   const [companies, setCompanies] = useState<{id: string, name: string}[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
 
   useEffect(() => {
     // Load users when component mounts
@@ -47,18 +50,18 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 animate-fadeIn">
+    <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 animate-fadeIn">
       <UserManagementHeader 
         companies={companies} 
         loadingCompanies={loadingCompanies} 
         onUserAdded={loadUsers}
       />
       
-      <Card className="border-primary/10 shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle>User Accounts</CardTitle>
+      <Card className={`border-primary/10 shadow-md ${isMobileView ? 'p-2' : ''}`}>
+        <CardHeader className={`${isMobileView ? 'px-3 py-3 pb-1' : 'pb-2'}`}>
+          <CardTitle className={isMobileView ? 'text-lg' : ''}>User Accounts</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={isMobileView ? 'p-3' : ''}>
           {isLoading ? (
             <UserListSkeleton />
           ) : (
