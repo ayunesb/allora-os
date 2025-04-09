@@ -5,16 +5,18 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { getCompanyDashboardAnalytics } from "@/backend/analyticsService";
 
-// Define a more specific type for company details to avoid excessive type instantiation
-type CompanyDetails = {
-  riskAppetite?: string;
-  companySize?: string;
-  industry?: string;
-  [key: string]: any;
-};
-
+// Define a more specific type for company details
 type RiskAppetiteType = 'low' | 'medium' | 'high';
 type RecommendationType = { title: string; description: string; type: string };
+
+// Use a simpler, flatter type structure to avoid excessive instantiation
+interface CompanyDetails {
+  riskAppetite?: RiskAppetiteType;
+  companySize?: string;
+  industry?: string;
+  // Allow additional properties without causing deep instantiation
+  [key: string]: any; 
+}
 
 export function useDashboardData() {
   const { profile } = useAuth();
@@ -43,15 +45,14 @@ export function useDashboardData() {
           
         if (companyError) throw companyError;
         
-        // Extract company details and ensure it's an object
-        // Use type assertion with an intermediate variable to avoid deep instantiation
-        const rawDetails = companyData?.details || {};
-        const companyDetails: CompanyDetails = rawDetails as CompanyDetails;
+        // Use a simple approach to handle company details
+        const details = companyData?.details || {};
         
-        // Set risk appetite
-        if (companyDetails.riskAppetite && 
-            ['low', 'medium', 'high'].includes(companyDetails.riskAppetite)) {
-          setRiskAppetite(companyDetails.riskAppetite as RiskAppetiteType);
+        // Safely extract risk appetite without complex type instantiation
+        const detailsRiskAppetite = details.riskAppetite;
+        if (detailsRiskAppetite && 
+            ['low', 'medium', 'high'].includes(detailsRiskAppetite)) {
+          setRiskAppetite(detailsRiskAppetite as RiskAppetiteType);
         }
 
         // Fetch company analytics
@@ -66,6 +67,13 @@ export function useDashboardData() {
           
         if (pendingError) throw pendingError;
         setPendingApprovals(pendingData?.length || 0);
+        
+        // Create a company details object with safe types
+        const companyDetails: CompanyDetails = {
+          riskAppetite: detailsRiskAppetite as RiskAppetiteType,
+          companySize: details.companySize as string,
+          industry: details.industry as string
+        };
         
         // Generate AI recommendations based on analytics and company profile
         generateAiRecommendations(companyDetails, analytics);
