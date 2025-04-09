@@ -126,7 +126,7 @@ export const getLearningInsights = async (userId: string): Promise<InsightResult
       },
       {
         title: 'Learning Progress',
-        value: `${Math.min(actionData?.length || 0, 10)}/10`,
+        value: `${Math.min((actionData?.length || 0), 10)}/10`,
         description: 'How well we understand your preferences'
       },
       {

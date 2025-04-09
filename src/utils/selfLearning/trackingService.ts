@@ -30,7 +30,7 @@ export const trackUserAction = async (
     // Log action to console for development
     console.log('Tracking user action:', userAction);
 
-    // Instead of using database queries directly, use raw SQL
+    // Instead of using database queries directly, use RPC
     // This is a workaround for TypeScript issues with the database schema
     const { error } = await supabase.rpc('insert_user_action', {
       p_user_id: userId,

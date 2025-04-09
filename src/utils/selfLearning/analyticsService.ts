@@ -12,9 +12,6 @@ import { getUserPreferences, updateUserPreferences } from './preferencesService'
 export const processFeedbackLoop = async (userId: string) => {
   try {
     // 1. Get recent user actions (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
     // Use stored procedure to avoid TypeScript issues
     const { data: recentActions, error: actionsError } = await supabase.rpc('get_recent_user_actions', {
       p_user_id: userId,
