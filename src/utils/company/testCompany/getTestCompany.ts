@@ -1,13 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-
-// Define a minimal interface for test companies
-interface TestCompany {
-  id: string;
-  name: string;
-  created_at: string;
-  industry?: string;
-}
+import { TestCompany } from './index';
 
 /**
  * Fetches a test company from the database using explicit column selection
@@ -21,7 +14,7 @@ export async function getTestCompany(): Promise<TestCompany | null> {
       .select('id, name, created_at, industry')
       .eq('is_test', true)
       .limit(1)
-      .single();
+      .maybeSingle();
       
     if (error) {
       console.error('Error fetching test company:', error);
