@@ -12,13 +12,22 @@ import { AppRoutes } from './routes';
 // Import styles - using the new centralized import
 import './styles/index';
 
-// Create a new QueryClient instance
+// Create a new QueryClient instance with better error handling
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: 2,
       staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
+      onError: (error) => {
+        console.error('Query error:', error);
+      }
     },
+    mutations: {
+      onError: (error) => {
+        console.error('Mutation error:', error);
+      }
+    }
   },
 });
 

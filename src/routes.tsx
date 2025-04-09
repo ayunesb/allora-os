@@ -1,6 +1,6 @@
 
 import { RouteObject } from "react-router-dom";
-import { Outlet } from "react-router-dom";
+import { Outlet, useRoutes } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { publicRoutes } from "./routes/public-routes";
@@ -27,10 +27,12 @@ const routes: RouteObject[] = [
 ];
 
 export function AppRoutes() {
+  const element = useRoutes(routes);
+  
   return (
     <>
       <AuthProvider>
-        <Outlet />
+        {element || <Outlet />}
       </AuthProvider>
       <Toaster position="top-right" richColors />
     </>

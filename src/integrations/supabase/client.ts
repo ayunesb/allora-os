@@ -10,17 +10,30 @@ export const supabase = createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      storage: typeof window !== 'undefined' ? localStorage : undefined
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined
     }
   }
 );
 
 // Export functions to get sessions and current user
 export async function getSession() {
-  return await supabase.auth.getSession();
+  try {
+    const response = await supabase.auth.getSession();
+    console.log("Session response:", response);
+    return response;
+  } catch (error) {
+    console.error("Error getting session:", error);
+    return { data: { session: null }, error: error as Error };
+  }
 }
 
 export async function getCurrentUser() {
-  const { data: { session } } = await getSession();
-  return { user: session?.user || null, session };
+  try {
+    const { data: { session } } = await getSession();
+    console.log("Current user session:", session);
+    return { user: session?.user || null, session };
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    return { user: null, session: null };
+  }
 }
