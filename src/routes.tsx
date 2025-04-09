@@ -1,5 +1,5 @@
 
-import { RouteObject } from "react-router-dom";
+import { RouteObject, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { publicRoutes } from "./routes/public-routes";
