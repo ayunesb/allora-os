@@ -4,11 +4,14 @@ import { Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { useLeads } from '@/hooks/admin/useLeads';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   LeadsHeader,
   LeadsSearchBar,
   LeadsTable,
-  MobileLeadCards 
+  MobileLeadCards,
+  AddLeadDialog 
 } from '@/components/admin/leads';
 
 export default function AdminLeads() {
@@ -24,25 +27,44 @@ export default function AdminLeads() {
     sortOrder,
     toggleSort,
     handleStatusUpdate,
-    handleDelete
+    handleDelete,
+    refetchLeads
   } = useLeads();
   
-  const handleAddNewLead = () => {
-    // To be implemented - for now just a placeholder for the button
-    alert('Add new lead functionality will be implemented soon');
-  };
+  // Fetch campaigns for the AddLeadDialog
+  const { data: campaigns = [] } = useQuery({
+    queryKey: ['campaigns'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('id, name')
+        .order('name', { ascending: true });
+        
+      if (error) throw error;
+      return data || [];
+    }
+  });
   
   return (
     <div className="animate-fadeIn space-y-4 sm:space-y-6">
       <LeadsHeader 
-        isMobileView={isMobileView} 
-        onAddNewLead={handleAddNewLead}
+        isMobileView={isMobileView}
+        onAddNewLead={null}  // We're replacing this with the AddLeadDialog
       />
       
-      <LeadsSearchBar 
-        searchQuery={searchQuery} 
-        onSearchChange={setSearchQuery} 
-      />
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div className="w-full sm:w-72">
+          <LeadsSearchBar 
+            searchQuery={searchQuery} 
+            onSearchChange={setSearchQuery} 
+          />
+        </div>
+        <AddLeadDialog 
+          campaigns={campaigns}
+          onLeadAdded={refetchLeads}
+          isMobileView={isMobileView}
+        />
+      </div>
       
       {isLoading ? (
         <div className="flex justify-center items-center py-8">

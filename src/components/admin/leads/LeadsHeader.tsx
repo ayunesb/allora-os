@@ -1,16 +1,12 @@
 
 import React from 'react';
-import { PlusCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type LeadsHeaderProps = {
   isMobileView: boolean;
-  onAddNewLead?: () => void;
 };
 
 export const LeadsHeader: React.FC<LeadsHeaderProps> = ({ 
-  isMobileView,
-  onAddNewLead
+  isMobileView
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -22,15 +18,6 @@ export const LeadsHeader: React.FC<LeadsHeaderProps> = ({
           View and manage all leads
         </p>
       </div>
-      
-      <Button 
-        size={isMobileView ? "sm" : "default"} 
-        className="w-full sm:w-auto"
-        onClick={onAddNewLead}
-      >
-        <PlusCircle className="h-4 w-4 mr-2" />
-        Add New Lead
-      </Button>
     </div>
   );
 };

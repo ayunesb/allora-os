@@ -97,6 +97,7 @@ export const useLeads = () => {
     sortOrder,
     toggleSort,
     handleStatusUpdate,
-    handleDelete
+    handleDelete,
+    refetchLeads: refetch
   };
 };
