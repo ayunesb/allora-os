@@ -6,6 +6,8 @@ import ResetPassword from "@/pages/ResetPassword";
 import UpdatePassword from "@/pages/UpdatePassword";
 import Legal from "@/pages/Legal";
 import Privacy from "@/pages/Privacy";
+import FAQ from "@/pages/FAQ";
+import Pricing from "@/pages/Pricing";
 import NotFound from "@/pages/NotFound";
 import { RouteObject } from "react-router-dom";
 
@@ -38,5 +40,13 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/privacy",
     element: <Privacy />,
+  },
+  {
+    path: "/faq",
+    element: <FAQ />,
+  },
+  {
+    path: "/pricing",
+    element: <Pricing />,
   },
 ];
