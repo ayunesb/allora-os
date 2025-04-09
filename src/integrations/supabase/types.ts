@@ -68,6 +68,35 @@ export type Database = {
         }
         Relationships: []
       }
+      company_integrations: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          integration_ids: Json | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          integration_ids?: Json | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          integration_ids?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_integrations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           campaign_id: string

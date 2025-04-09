@@ -47,28 +47,19 @@ async function createStripeCustomer(
   industry: string
 ): Promise<{ success: boolean; customerId?: string; error?: string }> {
   try {
-    // Call the existing Stripe backend function to create a customer
-    const { data, error } = await supabase.functions.invoke('stripe', {
-      body: {
-        action: 'create-customer',
-        name: companyName,
-        email,
-        metadata: {
-          industry,
-          source: 'allora_platform'
-        }
-      }
+    // Call the Stripe backend function to create a customer
+    const result = await createCustomer(companyName, email, {
+      industry,
+      source: 'allora_platform'
     });
     
-    if (error) throw error;
-    
-    if (!data.customerId) {
-      throw new Error('No customer ID returned from Stripe');
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to create Stripe customer');
     }
     
     return {
       success: true,
-      customerId: data.customerId
+      customerId: result.customerId
     };
   } catch (error: any) {
     console.error('Failed to create Stripe customer:', error);

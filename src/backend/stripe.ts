@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 const STRIPE_FUNCTION_ENDPOINT = "/functions/v1/stripe";
@@ -139,5 +138,57 @@ export const checkSubscriptionStatus = async (): Promise<{
   } catch (error) {
     console.error('Failed to check subscription status:', error);
     return { isActive: false };
+  }
+};
+
+/**
+ * Creates a Stripe customer for a company
+ * This is used by the master account integration system
+ */
+export const createCustomer = async (
+  name: string, 
+  email: string, 
+  metadata: Record<string, string> = {}
+): Promise<{ success: boolean; customerId?: string; error?: string }> => {
+  try {
+    // Get the current auth session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('Authentication required to create a customer');
+    }
+
+    // Call the Stripe edge function
+    const { data, error } = await supabase.functions.invoke(
+      "stripe",
+      {
+        body: {
+          action: "create-customer",
+          name,
+          email,
+          metadata
+        }
+      }
+    );
+
+    if (error) {
+      console.error('Error creating Stripe customer:', error);
+      throw error;
+    }
+
+    if (!data?.customerId) {
+      throw new Error('No customer ID returned from Stripe');
+    }
+
+    return {
+      success: true,
+      customerId: data.customerId
+    };
+  } catch (error: any) {
+    console.error('Failed to create Stripe customer:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to create Stripe customer'
+    };
   }
 };
