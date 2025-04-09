@@ -10,7 +10,7 @@ import {
   CardDescription
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle, Info } from "lucide-react";
+import { ArrowLeft, AlertCircle, Info, HelpCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import UserPreferencesDialog from "@/components/UserPreferencesDialog";
 import BotInfo from "./bot-detail/BotInfo";
@@ -83,7 +83,13 @@ export default function BotDetail() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={clearConversation} disabled={messages.length === 0}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2" 
+                  onClick={clearConversation} 
+                  disabled={messages.length === 0}
+                >
                   <span>New Conversation</span>
                 </Button>
               </TooltipTrigger>
@@ -92,7 +98,41 @@ export default function BotDetail() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <UserPreferencesDialog />
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <UserPreferencesDialog />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Customize advisor responses</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-8 w-8">
+                  <HelpCircle className="h-4 w-4" />
+                  <span className="sr-only">Help</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left" align="center" className="max-w-xs">
+                <div className="space-y-1">
+                  <p className="font-medium">How to use this advisor</p>
+                  <ul className="text-xs space-y-1 list-disc pl-3">
+                    <li>Ask specific questions about your business</li>
+                    <li>Share details about your situation for better advice</li>
+                    <li>Use the preferences to customize responses</li>
+                    <li>Save your favorite responses for later reference</li>
+                  </ul>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       
