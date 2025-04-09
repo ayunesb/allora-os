@@ -1,30 +1,16 @@
 
 import { Link } from "react-router-dom";
-import { ThumbsUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-interface DashboardHeaderProps {
-  pendingApprovals: number;
-}
-
-export default function DashboardHeader({ pendingApprovals }: DashboardHeaderProps) {
+export function DashboardHeader() {
   return (
-    <div className="flex justify-between items-center mb-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Welcome to Your Dashboard</h1>
-        <p className="text-muted-foreground">
-          Let's grow your business with AI-powered strategies
-        </p>
+    <div className="bg-card border-b border-border sticky top-0 z-10">
+      <div className="container mx-auto px-4 py-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Link to="/dashboard" className="text-xl font-bold">Allora AI</Link>
+          </div>
+        </div>
       </div>
-      
-      {pendingApprovals > 0 && (
-        <Button asChild variant="default">
-          <Link to="/dashboard/approvals">
-            <ThumbsUp className="mr-2 h-4 w-4" />
-            {pendingApprovals} Pending Approvals
-          </Link>
-        </Button>
-      )}
     </div>
   );
 }

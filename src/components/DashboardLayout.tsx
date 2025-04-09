@@ -1,90 +1,35 @@
-import { useEffect, useState } from "react";
-import { Navigate, Outlet, useNavigate, Link, useLocation } from "react-router-dom";
+
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import Sidebar from "@/components/Sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, LogOut, User, Settings, Menu } from "lucide-react";
-import { checkOnboardingStatus } from "@/utils/onboarding";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBreakpoint } from "@/hooks/use-mobile";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { useDashboardNavigation } from "@/hooks/useDashboardNavigation";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardTabs } from "@/components/dashboard/navigation/DashboardTabs";
+import { MobileNavDrawer } from "@/components/dashboard/navigation/MobileNavDrawer";
+import { UserDropdown } from "@/components/dashboard/navigation/UserDropdown";
+import { SessionRefreshBar } from "@/components/dashboard/SessionRefreshBar";
+import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
 
 export default function DashboardLayout() {
-  const { user, isLoading, profile, refreshSession, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   const breakpoint = useBreakpoint();
   const isMobile = breakpoint === 'mobile';
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const navItems = [
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "Strategies", path: "/dashboard/strategies" },
-    { label: "Campaigns", path: "/dashboard/campaigns" },
-    { label: "Calls", path: "/dashboard/calls" },
-    { label: "Leads", path: "/dashboard/leads" },
-    { label: "AI Bots", path: "/dashboard/ai-bots" },
-  ];
-
-  useEffect(() => {
-    const checkUserOnboarding = async () => {
-      if (user && !isLoading) {
-        const hasCompletedOnboarding = await checkOnboardingStatus(user.id);
-        
-        if (!hasCompletedOnboarding) {
-          toast.info("Please complete onboarding first");
-          navigate("/onboarding");
-        }
-      }
-    };
-    
-    checkUserOnboarding();
-  }, [user, isLoading, profile, navigate]);
-
-  const handleRefreshSession = async () => {
-    toast.info("Refreshing session...");
-    await refreshSession();
-    toast.success("Session refreshed");
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-    toast.success('You have been logged out');
-  };
+  
+  const {
+    navItems,
+    mobileMenuOpen,
+    setMobileMenuOpen,
+    needsSessionRefresh,
+    handleRefreshSession,
+    handleSignOut,
+    handleNavigateToProfile
+  } = useDashboardNavigation();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <div className="flex-1 container mx-auto px-4 py-8 sm:py-12 lg:py-24">
-          <div className="flex justify-between items-center mb-6">
-            <Skeleton className="h-8 sm:h-12 w-[200px] sm:w-[250px]" />
-            <Skeleton className="h-8 sm:h-10 w-24 sm:w-32" />
-          </div>
-          <Skeleton className="h-4 w-full max-w-md mb-8" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {Array(6).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-[160px] sm:h-[200px] rounded-lg" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <DashboardLoadingState />;
   }
 
   if (!user) {
@@ -92,139 +37,32 @@ export default function DashboardLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  const sessionTime = user.updated_at ? new Date(user.updated_at).getTime() : 0;
-  const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
-  const showRefreshButton = sessionTime < thirtyMinutesAgo;
-
-  const getActiveValue = () => {
-    if (currentPath === '/dashboard') return '/dashboard';
-    
-    for (const item of navItems) {
-      if (currentPath.startsWith(item.path) && item.path !== '/dashboard') {
-        return item.path;
-      }
-    }
-    
-    return '/dashboard';
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
-      {showRefreshButton && (
-        <div className="bg-muted py-2 px-4 border-b">
-          <div className="container mx-auto flex justify-end">
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={handleRefreshSession}
-              className="text-xs flex items-center gap-1"
-            >
-              <RefreshCw className="h-3 w-3" /> Refresh Session
-            </Button>
-          </div>
-        </div>
+      {needsSessionRefresh() && (
+        <SessionRefreshBar onRefreshSession={handleRefreshSession} />
       )}
+      
+      <DashboardHeader />
       
       <div className="bg-card border-b border-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Link to="/dashboard" className="text-xl font-bold">Allora AI</Link>
-            </div>
-            
+          <div className="flex items-center justify-between">            
             <div className="flex items-center">
               {isMobile ? (
-                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="mr-2 md:hidden">
-                      <Menu className="h-5 w-5" />
-                      <span className="sr-only">Menu</span>
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-[240px] sm:w-[300px]">
-                    <div className="py-6">
-                      <h2 className="text-lg font-semibold mb-4">Navigation</h2>
-                      <nav className="flex flex-col space-y-1">
-                        {navItems.map((item) => (
-                          <Link 
-                            key={item.path} 
-                            to={item.path}
-                            className={`px-4 py-2 rounded-md ${
-                              currentPath.startsWith(item.path) 
-                                ? "bg-primary/10 text-primary font-medium" 
-                                : "hover:bg-muted"
-                            }`}
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
-                      </nav>
-                      
-                      <div className="mt-8 pt-4 border-t">
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-start" 
-                          onClick={() => {
-                            navigate('/dashboard/profile');
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          <Settings className="mr-2 h-4 w-4" />
-                          Profile Settings
-                        </Button>
-                        
-                        <Button 
-                          variant="destructive" 
-                          className="w-full justify-start mt-2" 
-                          onClick={handleSignOut}
-                        >
-                          <LogOut className="mr-2 h-4 w-4" />
-                          Sign Out
-                        </Button>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                <MobileNavDrawer 
+                  navItems={navItems}
+                  currentPath={currentPath}
+                  open={mobileMenuOpen}
+                  onOpenChange={setMobileMenuOpen}
+                  onNavigateToProfile={handleNavigateToProfile}
+                  onSignOut={handleSignOut}
+                />
               ) : (
-                <Tabs defaultValue={getActiveValue()} className="w-auto mr-4" value={getActiveValue()}>
-                  <TabsList className="bg-transparent">
-                    {navItems.map((item) => (
-                      <TabsTrigger 
-                        key={item.path} 
-                        value={item.path}
-                        className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                        asChild
-                      >
-                        <Link to={item.path}>{item.label}</Link>
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
+                <DashboardTabs navItems={navItems} />
               )}
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard/profile">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Profile Settings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <UserDropdown onSignOut={handleSignOut} />
             </div>
           </div>
         </div>
