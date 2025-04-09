@@ -8,7 +8,7 @@ import { User } from '@/models/user';
  * Provides functionality for creating and managing test companies
  */
 
-// Export simplified interfaces
+// Export simplified interfaces to avoid deep type recursion
 export interface TestCompany {
   id: string;
   name: string;
