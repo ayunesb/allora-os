@@ -5,13 +5,16 @@ import App from './App.tsx'
 import './index.css'
 import { AuthProvider } from './context/AuthContext'
 import { AccessibilityProvider } from './context/AccessibilityContext'
+import ErrorBoundary from './components/ErrorBoundary'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <AuthProvider>
-      <AccessibilityProvider>
-        <App />
-      </AccessibilityProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AccessibilityProvider>
+          <App />
+        </AccessibilityProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 )
