@@ -5,16 +5,47 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { User } from "@/models/user";
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import useAdminFunctions from '@/hooks/useAdminFunctions';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { inviteUserToCompany } from '@/utils/userManagementHelpers';
 
 export default function AdminUsers() {
   const { users, loadUsers, isLoading, updateUser, deleteUser } = useAdminFunctions();
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<'admin' | 'user'>('user');
+  const [company, setCompany] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Load users when component mounts
     loadUsers();
   }, [loadUsers]);
+
+  const handleInviteUser = async () => {
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    try {
+      // In a real implementation, we would have a company selection
+      // For now, we'll use a placeholder company ID
+      const success = await inviteUserToCompany(email, company || 'default-company-id', role);
+      if (success) {
+        setOpen(false);
+        setEmail('');
+        setRole('user');
+      }
+    } catch (error) {
+      console.error('Error inviting user:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 pt-6 pb-12">
@@ -25,7 +56,64 @@ export default function AdminUsers() {
             Manage user accounts and permissions
           </p>
         </div>
-        <Button>Add New User</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New User
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Invite New User</DialogTitle>
+              <DialogDescription>
+                Send an invitation email to add a new user to the platform.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input 
+                  id="email" 
+                  placeholder="user@example.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">User Role</Label>
+                <Select 
+                  value={role} 
+                  onValueChange={(value) => setRole(value as 'admin' | 'user')}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                type="submit" 
+                onClick={handleInviteUser} 
+                disabled={isSubmitting || !email}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Send Invitation"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       
       <Card className="border-primary/10 shadow-md">
@@ -58,7 +146,7 @@ export default function AdminUsers() {
                 ) : (
                   users.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell className="font-medium">{user.name || 'Unnamed User'}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
                         <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
@@ -84,7 +172,7 @@ export default function AdminUsers() {
                             size="sm" 
                             className="text-destructive hover:text-destructive/90"
                             onClick={() => {
-                              if (window.confirm(`Are you sure you want to delete user ${user.name}?`)) {
+                              if (window.confirm(`Are you sure you want to delete user ${user.name || user.email}?`)) {
                                 deleteUser(user.id);
                               }
                             }}

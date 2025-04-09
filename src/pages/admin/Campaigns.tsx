@@ -5,37 +5,121 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Campaign } from "@/models/campaign";
-import { Loader2 } from 'lucide-react';
-import { fetchCompanyCampaigns } from '@/utils/campaignHelpers';
+import { Loader2, Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AdminCampaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [companies, setCompanies] = useState<{id: string, name: string}[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [newCampaign, setNewCampaign] = useState({
+    name: '',
+    platform: 'Email',
+    budget: 0,
+    company_id: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const loadCampaigns = async () => {
-      setIsLoading(true);
-      try {
-        // In a real implementation, you would fetch campaigns for all companies
-        // This is a simplified implementation
-        const allCompanyCampaigns: Campaign[] = [];
-        
-        // Fetch campaigns for some example companies
-        // In a real implementation, you would first fetch all companies and then fetch campaigns for each
-        const companyCampaigns1 = await fetchCompanyCampaigns('company-1');
-        const companyCampaigns2 = await fetchCompanyCampaigns('company-2');
-        
-        allCompanyCampaigns.push(...companyCampaigns1, ...companyCampaigns2);
-        setCampaigns(allCompanyCampaigns);
-      } catch (error) {
-        console.error('Error loading campaigns:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadCampaigns();
+    loadCompanies();
   }, []);
+
+  const loadCampaigns = async () => {
+    setIsLoading(true);
+    try {
+      // Get all campaigns with company information
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select(`
+          *,
+          companies(name)
+        `)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      setCampaigns(data || []);
+    } catch (error: any) {
+      console.error('Error loading campaigns:', error);
+      toast.error('Failed to load campaigns: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadCompanies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, name')
+        .order('name');
+        
+      if (error) throw error;
+      
+      setCompanies(data || []);
+    } catch (error: any) {
+      console.error('Error loading companies:', error);
+    }
+  };
+
+  const handleCreateCampaign = async () => {
+    if (!newCampaign.name || !newCampaign.company_id) {
+      toast.error('Name and company are required');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .insert([
+          {
+            name: newCampaign.name,
+            platform: newCampaign.platform,
+            budget: newCampaign.budget,
+            company_id: newCampaign.company_id
+          }
+        ])
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      // Get the company name for the new campaign
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select('name')
+        .eq('id', newCampaign.company_id)
+        .single();
+      
+      const campaignWithCompany = {
+        ...data,
+        companies: companyData
+      };
+      
+      toast.success('Campaign created successfully');
+      setCampaigns([campaignWithCompany, ...campaigns]);
+      setOpenAddDialog(false);
+      setNewCampaign({
+        name: '',
+        platform: 'Email',
+        budget: 0,
+        company_id: ''
+      });
+    } catch (error: any) {
+      console.error('Error creating campaign:', error);
+      toast.error('Failed to create campaign: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 pt-6 pb-12">
@@ -46,7 +130,95 @@ export default function AdminCampaigns() {
             Oversee all marketing campaigns
           </p>
         </div>
-        <Button>Create Campaign</Button>
+        <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Campaign
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Campaign</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Campaign Name*</Label>
+                <Input 
+                  id="name" 
+                  value={newCampaign.name}
+                  onChange={(e) => setNewCampaign({...newCampaign, name: e.target.value})}
+                  placeholder="Summer Promotion 2025" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="platform">Platform</Label>
+                <Select 
+                  value={newCampaign.platform} 
+                  onValueChange={(value) => setNewCampaign({...newCampaign, platform: value})}
+                >
+                  <SelectTrigger id="platform">
+                    <SelectValue placeholder="Select platform" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Email">Email</SelectItem>
+                    <SelectItem value="SMS">SMS</SelectItem>
+                    <SelectItem value="Facebook">Facebook</SelectItem>
+                    <SelectItem value="Google">Google</SelectItem>
+                    <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                    <SelectItem value="Twitter">Twitter</SelectItem>
+                    <SelectItem value="Instagram">Instagram</SelectItem>
+                    <SelectItem value="TikTok">TikTok</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="budget">Budget ($)</Label>
+                <Input 
+                  id="budget" 
+                  type="number"
+                  value={newCampaign.budget.toString()}
+                  onChange={(e) => setNewCampaign({...newCampaign, budget: parseFloat(e.target.value) || 0})}
+                  placeholder="1000" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="company">Company*</Label>
+                <Select 
+                  value={newCampaign.company_id} 
+                  onValueChange={(value) => setNewCampaign({...newCampaign, company_id: value})}
+                >
+                  <SelectTrigger id="company">
+                    <SelectValue placeholder="Select company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map(company => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                onClick={handleCreateCampaign}
+                disabled={isSubmitting || !newCampaign.name || !newCampaign.company_id}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Campaign"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       
       <Card className="border-primary/10 shadow-md">
@@ -64,6 +236,7 @@ export default function AdminCampaigns() {
                 <TableRow>
                   <TableHead>Campaign Name</TableHead>
                   <TableHead>Platform</TableHead>
+                  <TableHead>Company</TableHead>
                   <TableHead>Budget</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Actions</TableHead>
@@ -72,8 +245,8 @@ export default function AdminCampaigns() {
               <TableBody>
                 {campaigns.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      No campaigns found
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No campaigns found. Create your first campaign to get started.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -81,8 +254,9 @@ export default function AdminCampaigns() {
                     <TableRow key={campaign.id}>
                       <TableCell className="font-medium">{campaign.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{campaign.platform}</Badge>
+                        <Badge variant="outline">{campaign.platform || 'Unknown'}</Badge>
                       </TableCell>
+                      <TableCell>{campaign.companies?.name || 'Unknown'}</TableCell>
                       <TableCell>${campaign.budget?.toLocaleString() || 0}</TableCell>
                       <TableCell>{new Date(campaign.created_at).toLocaleDateString()}</TableCell>
                       <TableCell>

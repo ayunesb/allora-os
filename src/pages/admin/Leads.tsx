@@ -5,37 +5,123 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Lead } from "@/models/lead";
-import { Loader2 } from 'lucide-react';
-import { fetchCompanyLeads } from '@/utils/leadHelpers';
+import { Loader2, Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { updateLeadStatus } from '@/utils/leadHelpers';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function AdminLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [campaigns, setCampaigns] = useState<{id: string, name: string}[]>([]);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [newLead, setNewLead] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    campaign_id: '',
+    status: 'new' as 'new' | 'contacted' | 'qualified' | 'closed'
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const loadLeads = async () => {
-      setIsLoading(true);
-      try {
-        // In a real implementation, you would fetch leads for all companies
-        // This is a simplified implementation
-        const allCompanyLeads: Lead[] = [];
-        
-        // Fetch leads for some example companies
-        // In a real implementation, you would first fetch all companies and then fetch leads for each
-        const companyLeads1 = await fetchCompanyLeads('company-1');
-        const companyLeads2 = await fetchCompanyLeads('company-2');
-        
-        allCompanyLeads.push(...companyLeads1, ...companyLeads2);
-        setLeads(allCompanyLeads);
-      } catch (error) {
-        console.error('Error loading leads:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadLeads();
+    loadCampaigns();
   }, []);
+
+  const loadLeads = async () => {
+    setIsLoading(true);
+    try {
+      // Get all leads from all companies
+      const { data, error } = await supabase
+        .from('leads')
+        .select(`
+          *,
+          campaigns(name)
+        `)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      setLeads(data || []);
+    } catch (error: any) {
+      console.error('Error loading leads:', error);
+      toast.error('Failed to load leads: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadCampaigns = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('id, name')
+        .order('name');
+        
+      if (error) throw error;
+      
+      setCampaigns(data || []);
+    } catch (error: any) {
+      console.error('Error loading campaigns:', error);
+    }
+  };
+
+  const handleUpdateStatus = async (leadId: string, newStatus: 'new' | 'contacted' | 'qualified' | 'closed') => {
+    const success = await updateLeadStatus(leadId, newStatus);
+    if (success) {
+      // Update the lead in the local state
+      setLeads(leads.map(lead => 
+        lead.id === leadId ? {...lead, status: newStatus} : lead
+      ));
+    }
+  };
+  
+  const handleCreateLead = async () => {
+    if (!newLead.name || !newLead.campaign_id) {
+      toast.error('Name and campaign are required');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .insert([
+          {
+            name: newLead.name,
+            email: newLead.email,
+            phone: newLead.phone,
+            campaign_id: newLead.campaign_id,
+            status: newLead.status
+          }
+        ])
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      toast.success('Lead created successfully');
+      setLeads([data, ...leads]);
+      setOpenAddDialog(false);
+      setNewLead({
+        name: '',
+        email: '',
+        phone: '',
+        campaign_id: '',
+        status: 'new'
+      });
+    } catch (error: any) {
+      console.error('Error creating lead:', error);
+      toast.error('Failed to create lead: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Helper function to get the appropriate badge style for different statuses
   const getStatusBadge = (status: string) => {
@@ -62,7 +148,99 @@ export default function AdminLeads() {
             Track and manage sales leads
           </p>
         </div>
-        <Button>Add New Lead</Button>
+        <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Lead
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Lead</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name*</Label>
+                <Input 
+                  id="name" 
+                  value={newLead.name}
+                  onChange={(e) => setNewLead({...newLead, name: e.target.value})}
+                  placeholder="John Doe" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  type="email"
+                  value={newLead.email}
+                  onChange={(e) => setNewLead({...newLead, email: e.target.value})}
+                  placeholder="john@example.com" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input 
+                  id="phone" 
+                  value={newLead.phone}
+                  onChange={(e) => setNewLead({...newLead, phone: e.target.value})}
+                  placeholder="+1 (555) 123-4567" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="campaign">Campaign*</Label>
+                <Select 
+                  value={newLead.campaign_id} 
+                  onValueChange={(value) => setNewLead({...newLead, campaign_id: value})}
+                >
+                  <SelectTrigger id="campaign">
+                    <SelectValue placeholder="Select campaign" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {campaigns.map(campaign => (
+                      <SelectItem key={campaign.id} value={campaign.id}>
+                        {campaign.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select 
+                  value={newLead.status} 
+                  onValueChange={(value: any) => setNewLead({...newLead, status: value})}
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="contacted">Contacted</SelectItem>
+                    <SelectItem value="qualified">Qualified</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                onClick={handleCreateLead}
+                disabled={isSubmitting || !newLead.name || !newLead.campaign_id}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Lead"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       
       <Card className="border-primary/10 shadow-md">
@@ -80,6 +258,7 @@ export default function AdminLeads() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Contact</TableHead>
+                  <TableHead>Campaign</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date Added</TableHead>
                   <TableHead>Actions</TableHead>
@@ -88,8 +267,8 @@ export default function AdminLeads() {
               <TableBody>
                 {leads.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      No leads found
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No leads found. Add your first lead to get started.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -100,14 +279,29 @@ export default function AdminLeads() {
                         <div>{lead.email}</div>
                         <div className="text-xs text-muted-foreground">{lead.phone}</div>
                       </TableCell>
+                      <TableCell>{lead.campaigns?.name || 'Unknown'}</TableCell>
                       <TableCell>
                         {getStatusBadge(lead.status)}
                       </TableCell>
                       <TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm">View</Button>
-                          <Button variant="ghost" size="sm">Update</Button>
+                          <Select 
+                            value={lead.status} 
+                            onValueChange={(value: 'new' | 'contacted' | 'qualified' | 'closed') => 
+                              handleUpdateStatus(lead.id, value)
+                            }
+                          >
+                            <SelectTrigger className="h-8 w-32">
+                              <SelectValue placeholder="Update status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="new">New</SelectItem>
+                              <SelectItem value="contacted">Contacted</SelectItem>
+                              <SelectItem value="qualified">Qualified</SelectItem>
+                              <SelectItem value="closed">Closed</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </TableCell>
                     </TableRow>
