@@ -4,7 +4,7 @@ import { createTestCompany } from '@/utils/company/testCompany';
 import { supabase } from '@/integrations/supabase/client';
 import { mockTestCompany } from './mockData';
 
-// Mock the supabase client
+// Mock the supabase client with properly typed mock functions
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn().mockReturnThis(),
@@ -30,10 +30,15 @@ describe('createTestCompany', () => {
       error: null
     };
     
-    vi.mocked(supabase.from).mockReturnValue(supabase as any);
-    vi.mocked(supabase.insert).mockReturnValue(supabase as any);
-    vi.mocked(supabase.select).mockReturnValue(supabase as any);
-    vi.mocked(supabase.single).mockResolvedValue(mockSupabaseResponse);
+    const fromMock = vi.fn().mockReturnValue({
+      insert: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue(mockSupabaseResponse)
+        })
+      })
+    });
+    
+    vi.mocked(supabase.from).mockImplementation(fromMock);
 
     // Act
     const result = await createTestCompany("Test Company");
@@ -42,14 +47,14 @@ describe('createTestCompany', () => {
     expect(result.success).toBe(true);
     expect(result.data).toEqual(mockTestCompany);
     expect(supabase.from).toHaveBeenCalledWith('companies');
-    expect(supabase.insert).toHaveBeenCalledWith([
+    expect(fromMock().insert).toHaveBeenCalledWith([
       expect.objectContaining({
         name: "Test Company",
         is_test: true,
         status: 'active'
       })
     ]);
-    expect(supabase.select).toHaveBeenCalledWith('id, name, created_at, industry');
+    expect(fromMock().insert().select).toHaveBeenCalledWith('id, name, created_at, industry');
   });
 
   it('returns error for empty company name', async () => {
@@ -73,10 +78,15 @@ describe('createTestCompany', () => {
       }
     };
     
-    vi.mocked(supabase.from).mockReturnValue(supabase as any);
-    vi.mocked(supabase.insert).mockReturnValue(supabase as any);
-    vi.mocked(supabase.select).mockReturnValue(supabase as any);
-    vi.mocked(supabase.single).mockResolvedValue(mockSupabaseResponse);
+    const fromMock = vi.fn().mockReturnValue({
+      insert: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue(mockSupabaseResponse)
+        })
+      })
+    });
+    
+    vi.mocked(supabase.from).mockImplementation(fromMock);
 
     // Act
     const result = await createTestCompany("Test Company");

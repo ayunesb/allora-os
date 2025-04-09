@@ -2,6 +2,29 @@
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { lazy, Suspense } from "react";
+
+// Lazy load non-critical components
+const LazyFeatureBlock = lazy(() => import("@/components/home/FeatureBlock"));
+
+// Feature data
+const features = [
+  {
+    emoji: "🚀",
+    title: "AI Strategy Generation",
+    description: "Get personalized business strategies created by our AI executive team."
+  },
+  {
+    emoji: "💼",
+    title: "Virtual Executive Team",
+    description: "Access the expertise of AI personas modeled after top executives."
+  },
+  {
+    emoji: "📊",
+    title: "Lead Management",
+    description: "Track and nurture leads with our AI-powered CRM tools."
+  }
+];
 
 export default function Index() {
   return (
@@ -28,29 +51,17 @@ export default function Index() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mt-16">
-          <div className="bg-card p-6 rounded-lg border border-border">
-            <div className="text-3xl mb-4">🚀</div>
-            <h3 className="text-xl font-semibold mb-2">AI Strategy Generation</h3>
-            <p className="text-muted-foreground">
-              Get personalized business strategies created by our AI executive team.
-            </p>
-          </div>
-          
-          <div className="bg-card p-6 rounded-lg border border-border">
-            <div className="text-3xl mb-4">💼</div>
-            <h3 className="text-xl font-semibold mb-2">Virtual Executive Team</h3>
-            <p className="text-muted-foreground">
-              Access the expertise of AI personas modeled after top executives.
-            </p>
-          </div>
-          
-          <div className="bg-card p-6 rounded-lg border border-border">
-            <div className="text-3xl mb-4">📊</div>
-            <h3 className="text-xl font-semibold mb-2">Lead Management</h3>
-            <p className="text-muted-foreground">
-              Track and nurture leads with our AI-powered CRM tools.
-            </p>
-          </div>
+          {features.map((feature, index) => (
+            <Suspense key={index} fallback={
+              <div className="bg-card p-6 rounded-lg border border-border animate-pulse h-48"></div>
+            }>
+              <LazyFeatureBlock
+                emoji={feature.emoji}
+                title={feature.title}
+                description={feature.description}
+              />
+            </Suspense>
+          ))}
         </div>
         
         <div className="mt-24 text-center">

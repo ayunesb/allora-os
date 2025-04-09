@@ -45,7 +45,7 @@ export async function getTestCompany(): Promise<TestCompanyResponse> {
       };
     }
 
-    // Explicitly transform to TestCompany type to avoid deep inference
+    // Explicitly type the returned data to avoid deep inference issues
     const testCompany: TestCompany = {
       id: data.id,
       name: data.name,

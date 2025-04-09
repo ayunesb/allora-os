@@ -29,15 +29,23 @@ type ApiRequestOptions = {
   retryDelay?: number;
 };
 
+// Cache storage for API results
+const apiCache = new Map<string, {data: any, timestamp: number}>();
+const DEFAULT_CACHE_TTL = 60000; // 1 minute in milliseconds
+
 /**
- * Wrapper for API calls with consistent error handling and timeouts
+ * Wrapper for API calls with consistent error handling, timeouts and caching
  * @param apiCall - The async function making the API call
  * @param options - Configuration options for the API call
  * @returns Standardized API response
  */
 export async function apiRequest<T>(
   apiCall: () => Promise<any>,
-  options: ApiRequestOptions = {}
+  options: ApiRequestOptions & { 
+    cacheKey?: string; 
+    cacheTTL?: number;
+    skipCache?: boolean;
+  } = {}
 ): Promise<ApiResponse<T>> {
   const {
     errorMessage = 'An error occurred',
@@ -47,8 +55,26 @@ export async function apiRequest<T>(
     timeout = API_CONFIG.defaultTimeout,
     retry = false,
     maxRetries = API_CONFIG.retryAttempts,
-    retryDelay = 1000
+    retryDelay = 1000,
+    cacheKey,
+    cacheTTL = DEFAULT_CACHE_TTL,
+    skipCache = false
   } = options;
+
+  // Check cache for GET requests when cacheKey is provided
+  if (cacheKey && !skipCache) {
+    const cachedResponse = apiCache.get(cacheKey);
+    const now = Date.now();
+    
+    if (cachedResponse && (now - cachedResponse.timestamp < cacheTTL)) {
+      logger.info('Returning cached API response', { cacheKey });
+      return {
+        data: cachedResponse.data,
+        error: null,
+        status: 'success'
+      };
+    }
+  }
 
   let attempts = 0;
 
@@ -85,9 +111,18 @@ export async function apiRequest<T>(
         toast.success(sanitizeInput(successMessage));
       }
       
+      // Cache successful responses when cacheKey is provided
+      if (cacheKey && response.data) {
+        apiCache.set(cacheKey, {
+          data: response.data,
+          timestamp: Date.now()
+        });
+      }
+      
       logger.info('API request successful', { 
         successMessage, 
-        dataType: typeof response.data 
+        dataType: typeof response.data,
+        cached: !!cacheKey
       });
       
       return {
@@ -109,8 +144,8 @@ export async function apiRequest<T>(
       if (retry && attempts < maxRetries) {
         logger.info(`Retrying API call (${attempts}/${maxRetries})...`);
         
-        // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, retryDelay * attempts));
+        // Wait before retrying with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, attempts - 1)));
         
         // Recursive retry
         return executeWithRetries();
@@ -129,6 +164,20 @@ export async function apiRequest<T>(
   };
 
   return executeWithRetries();
+}
+
+/**
+ * Clears the API cache either completely or for a specific key
+ * @param cacheKey Optional specific cache key to clear
+ */
+export function clearApiCache(cacheKey?: string): void {
+  if (cacheKey) {
+    apiCache.delete(cacheKey);
+    logger.info('Cleared API cache for key', { cacheKey });
+  } else {
+    apiCache.clear();
+    logger.info('Cleared all API cache');
+  }
 }
 
 /**

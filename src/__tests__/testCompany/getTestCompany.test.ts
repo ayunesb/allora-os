@@ -4,7 +4,7 @@ import { getTestCompany } from '@/utils/company/testCompany';
 import { supabase } from '@/integrations/supabase/client';
 import { mockSuccessTestCompanyResponse, mockEmptyTestCompanyResponse, mockErrorTestCompanyResponse, mockTestCompany } from './mockData';
 
-// Mock the supabase client
+// Mock the supabase client with properly typed mock functions
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn().mockReturnThis(),
@@ -31,11 +31,17 @@ describe('getTestCompany', () => {
       error: null
     };
     
-    vi.mocked(supabase.from).mockReturnValue(supabase as any);
-    vi.mocked(supabase.select).mockReturnValue(supabase as any);
-    vi.mocked(supabase.eq).mockReturnValue(supabase as any);
-    vi.mocked(supabase.limit).mockReturnValue(supabase as any);
-    vi.mocked(supabase.maybeSingle).mockResolvedValue(mockSupabaseResponse);
+    const fromMock = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue(mockSupabaseResponse)
+          })
+        })
+      })
+    });
+    
+    vi.mocked(supabase.from).mockImplementation(fromMock);
 
     // Act
     const result = await getTestCompany();
@@ -43,9 +49,9 @@ describe('getTestCompany', () => {
     // Assert
     expect(result).toEqual(mockSuccessTestCompanyResponse);
     expect(supabase.from).toHaveBeenCalledWith('companies');
-    expect(supabase.select).toHaveBeenCalledWith('id, name, created_at, industry');
-    expect(supabase.eq).toHaveBeenCalledWith('is_test', true);
-    expect(supabase.limit).toHaveBeenCalledWith(1);
+    expect(fromMock().select).toHaveBeenCalledWith('id, name, created_at, industry');
+    expect(fromMock().select().eq).toHaveBeenCalledWith('is_test', true);
+    expect(fromMock().select().eq().limit).toHaveBeenCalledWith(1);
   });
 
   it('returns null data when no test company exists', async () => {
@@ -55,11 +61,17 @@ describe('getTestCompany', () => {
       error: null
     };
     
-    vi.mocked(supabase.from).mockReturnValue(supabase as any);
-    vi.mocked(supabase.select).mockReturnValue(supabase as any);
-    vi.mocked(supabase.eq).mockReturnValue(supabase as any);
-    vi.mocked(supabase.limit).mockReturnValue(supabase as any);
-    vi.mocked(supabase.maybeSingle).mockResolvedValue(mockSupabaseResponse);
+    const fromMock = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue(mockSupabaseResponse)
+          })
+        })
+      })
+    });
+    
+    vi.mocked(supabase.from).mockImplementation(fromMock);
 
     // Act
     const result = await getTestCompany();
@@ -78,11 +90,17 @@ describe('getTestCompany', () => {
       }
     };
     
-    vi.mocked(supabase.from).mockReturnValue(supabase as any);
-    vi.mocked(supabase.select).mockReturnValue(supabase as any);
-    vi.mocked(supabase.eq).mockReturnValue(supabase as any);
-    vi.mocked(supabase.limit).mockReturnValue(supabase as any);
-    vi.mocked(supabase.maybeSingle).mockResolvedValue(mockSupabaseResponse);
+    const fromMock = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue(mockSupabaseResponse)
+          })
+        })
+      })
+    });
+    
+    vi.mocked(supabase.from).mockImplementation(fromMock);
 
     // Act
     const result = await getTestCompany();
