@@ -1,7 +1,7 @@
 
 import { supabase } from '@/backend/supabase';
 import { toast } from "sonner";
-import { Lead } from '@/models/lead';
+import { Lead, LeadStatus } from '@/models/lead';
 
 export async function fetchCompanyLeads(companyId: string): Promise<Lead[]> {
   try {
@@ -37,7 +37,7 @@ export async function fetchCompanyLeads(companyId: string): Promise<Lead[]> {
 
 export async function updateLeadStatus(
   leadId: string,
-  status: 'new' | 'contacted' | 'qualified' | 'closed'
+  status: LeadStatus
 ): Promise<boolean> {
   try {
     const { error } = await supabase
