@@ -43,6 +43,19 @@ export default function ProtectedRoute({
     }
   }, [isSessionExpired, user]);
 
+  // For development purposes, log auth state
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Protected Route Auth State:', { 
+        user, 
+        profile, 
+        roleRequired, 
+        adminOnly,
+        isLoading
+      });
+    }
+  }, [user, profile, roleRequired, adminOnly, isLoading]);
+
   // Handler functions
   const handleResendVerificationEmail = async (): Promise<void> => {
     if (!user?.email) {
@@ -128,6 +141,7 @@ export default function ProtectedRoute({
     const isAdmin = profile.role === 'admin';
     
     if (!isAdmin) {
+      console.log('Access denied: User does not have admin role', profile);
       toast.error("You don't have permission to access this page", {
         description: "This area requires administrator privileges."
       });

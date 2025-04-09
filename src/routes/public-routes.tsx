@@ -9,6 +9,7 @@ import Privacy from "@/pages/Privacy";
 import FAQ from "@/pages/FAQ";
 import Pricing from "@/pages/Pricing";
 import NotFound from "@/pages/NotFound";
+import DevAdminHelper from "@/pages/DevAdminHelper";
 import { RouteObject } from "react-router-dom";
 
 export const publicRoutes: RouteObject[] = [
@@ -48,5 +49,9 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/pricing",
     element: <Pricing />,
+  },
+  {
+    path: "/dev-admin",
+    element: <DevAdminHelper />,
   },
 ];
