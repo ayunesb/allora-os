@@ -16,9 +16,9 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       ...publicRoutes,
-      ...dashboardRoutes,
+      dashboardRoutes,
       ...onboardingRoutes,
-      ...adminRoutes,
+      adminRoutes,
       ...complianceRoutes,
     ],
   },

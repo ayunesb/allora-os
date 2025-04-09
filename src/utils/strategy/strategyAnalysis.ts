@@ -1,7 +1,6 @@
 
 import { 
-  GeneratedStrategy, 
-  StrategyRiskLevel 
+  GeneratedStrategy
 } from "./types";
 
 interface StrategyStrength {
@@ -22,10 +21,10 @@ interface ImplementationStep {
 
 export function analyzeStrategy(strategy: GeneratedStrategy) {
   // Get key aspects from strategy
-  const name = strategy.name;
+  const title = strategy.title;
   const description = strategy.description;
-  const actions = strategy.actions || [];
-  const objectives = strategy.objectives || [];
+  const actions = strategy.keyActions || [];
+  const objectives = strategy.successMetrics || [];
   const marketFit = evaluateMarketFit(strategy);
   
   // Analyze strengths and weaknesses
@@ -41,7 +40,7 @@ export function analyzeStrategy(strategy: GeneratedStrategy) {
   const competitiveAdvantage = evaluateCompetitiveAdvantage(strategy);
   
   return {
-    name,
+    title,
     description,
     marketFit,
     strengths,
@@ -60,9 +59,9 @@ function evaluateMarketFit(strategy: GeneratedStrategy): string {
   // This is a simplified version
   const riskLevel = strategy.riskLevel;
   
-  if (riskLevel === 'aggressive') {
+  if (riskLevel === 'High') {
     return "High potential return but requires strong market positioning";
-  } else if (riskLevel === 'balanced') {
+  } else if (riskLevel === 'Medium') {
     return "Good market alignment with moderate competition";
   } else {
     return "Strong fit for established markets with lower disruption risk";
@@ -76,7 +75,7 @@ function identifyStrengths(strategy: GeneratedStrategy): StrategyStrength[] {
   // Sample implementation
   const strengths: StrategyStrength[] = [];
   
-  if (strategy.riskLevel === 'conservative') {
+  if (strategy.riskLevel === 'Low') {
     strengths.push({ 
       description: "Lower resource requirements", 
       impact: "medium" 
@@ -85,7 +84,7 @@ function identifyStrengths(strategy: GeneratedStrategy): StrategyStrength[] {
       description: "Higher probability of success", 
       impact: "high" 
     });
-  } else if (strategy.riskLevel === 'aggressive') {
+  } else if (strategy.riskLevel === 'High') {
     strengths.push({ 
       description: "Potential for market disruption", 
       impact: "high" 
@@ -110,7 +109,7 @@ function identifyWeaknesses(strategy: GeneratedStrategy): StrategyWeakness[] {
   
   const weaknesses: StrategyWeakness[] = [];
   
-  if (strategy.riskLevel === 'conservative') {
+  if (strategy.riskLevel === 'Low') {
     weaknesses.push({ 
       description: "Limited growth potential", 
       risk: "medium" 
@@ -119,7 +118,7 @@ function identifyWeaknesses(strategy: GeneratedStrategy): StrategyWeakness[] {
       description: "May fall behind more innovative competitors", 
       risk: "high" 
     });
-  } else if (strategy.riskLevel === 'aggressive') {
+  } else if (strategy.riskLevel === 'High') {
     weaknesses.push({ 
       description: "Higher resource requirements", 
       risk: "high" 
@@ -138,12 +137,12 @@ function generateImplementationSteps(strategy: GeneratedStrategy): Implementatio
   const steps: ImplementationStep[] = [];
   
   // Use actions to generate implementation steps
-  (strategy.actions || []).forEach((action, index) => {
+  (strategy.keyActions || []).forEach((action, index) => {
     const timeframe = index < 2 ? "1-3 months" : index < 4 ? "4-6 months" : "7-12 months";
     const complexity = index % 3 === 0 ? "high" : index % 2 === 0 ? "medium" : "low";
     
     steps.push({
-      description: action,
+      description: action.title,
       timeframe,
       complexity
     });
@@ -154,9 +153,9 @@ function generateImplementationSteps(strategy: GeneratedStrategy): Implementatio
 
 function estimateTimeToMarket(strategy: GeneratedStrategy): string {
   // Based on risk level and complexity
-  if (strategy.riskLevel === 'aggressive') {
+  if (strategy.riskLevel === 'High') {
     return "6-9 months (requires aggressive timeline)";
-  } else if (strategy.riskLevel === 'balanced') {
+  } else if (strategy.riskLevel === 'Medium') {
     return "9-12 months (standard implementation timeline)";
   } else {
     return "12-18 months (conservative approach with lower risk)";
@@ -165,10 +164,10 @@ function estimateTimeToMarket(strategy: GeneratedStrategy): string {
 
 function evaluateComplexity(strategy: GeneratedStrategy): "high" | "medium" | "low" {
   // Simplified complexity evaluation
-  const actionsCount = (strategy.actions || []).length;
-  const objectivesCount = (strategy.objectives || []).length;
+  const actionsCount = (strategy.keyActions || []).length;
+  const objectivesCount = (strategy.successMetrics || []).length;
   
-  if (actionsCount > 5 || strategy.riskLevel === 'aggressive') {
+  if (actionsCount > 5 || strategy.riskLevel === 'High') {
     return "high";
   } else if (actionsCount > 3 || objectivesCount > 3) {
     return "medium";
@@ -180,11 +179,65 @@ function evaluateComplexity(strategy: GeneratedStrategy): "high" | "medium" | "l
 function evaluateCompetitiveAdvantage(strategy: GeneratedStrategy): string {
   // In real implementation, this would compare against market data
   
-  if (strategy.riskLevel === 'aggressive') {
+  if (strategy.riskLevel === 'High') {
     return "Potential for significant differentiation if successfully executed";
-  } else if (strategy.riskLevel === 'balanced') {
+  } else if (strategy.riskLevel === 'Medium') {
     return "Moderate competitive advantage with less risk exposure";
   } else {
     return "Incremental improvement over current market offerings";
   }
+}
+
+// Add the missing exports needed by strategyInsights.ts
+export function analyzeStrategyFactors(strategy: GeneratedStrategy, riskProfile: any) {
+  const strengths = identifyStrengths(strategy).map(s => s.description);
+  const weaknesses = identifyWeaknesses(strategy).map(w => w.description);
+  const keySuccessFactors = [
+    "Clear strategic alignment",
+    "Effective resource allocation",
+    "Strong leadership commitment"
+  ];
+  
+  return { strengths, weaknesses, keySuccessFactors };
+}
+
+export function calculateImplementationComplexity(strategy: GeneratedStrategy, assessmentInput: any) {
+  const complexityLevel = evaluateComplexity(strategy);
+  const score = complexityLevel === "high" ? 80 : complexityLevel === "medium" ? 50 : 30;
+  
+  const factors = [
+    "Technical implementation requirements",
+    "Organizational change management needs",
+    "Resource allocation challenges"
+  ];
+  
+  return { score, factors };
+}
+
+export function calculateCompetitiveAdvantage(strategy: GeneratedStrategy, riskProfile: any) {
+  const advantageDescription = evaluateCompetitiveAdvantage(strategy);
+  const score = strategy.riskLevel === 'High' ? 85 : 
+                strategy.riskLevel === 'Medium' ? 65 : 45;
+  
+  const factors = [
+    "Market positioning strength",
+    "Unique value proposition",
+    "Competitor response readiness"
+  ];
+  
+  return { score, factors };
+}
+
+export function estimateTimeToResults(strategy: GeneratedStrategy, riskProfile: any) {
+  const timeframe = estimateTimeToMarket(strategy);
+  const confidenceLevel = strategy.riskLevel === 'Low' ? 'High' : 
+                          strategy.riskLevel === 'Medium' ? 'Medium' : 'Low';
+  
+  const milestones = [
+    { description: "Initial implementation complete", timeframe: "3 months" },
+    { description: "First results measurable", timeframe: "6 months" },
+    { description: "Full strategy impact realized", timeframe: "12-18 months" }
+  ];
+  
+  return { timeframe, confidenceLevel, milestones };
 }

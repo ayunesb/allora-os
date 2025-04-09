@@ -5,4 +5,8 @@ export * from './consultation';
 // Also export our enhanced risk-adjusted strategy tools
 export * from './riskEngine';
 export * from './strategy';
+
+// Re-export strategyInsights but use a different name for analyzeStrategy
+import { analyzeStrategy as analyzeStrategyInsights } from './strategyInsights';
+export { analyzeStrategyInsights };
 export * from './strategyInsights';
