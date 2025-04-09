@@ -1,3 +1,4 @@
+
 import React from "react";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
@@ -114,7 +115,8 @@ export default function Onboarding() {
   };
 
   const getTotalSteps = () => {
-    return step === 3 && step === 3 ? 3 : 5;
+    // Fixed the logic to correctly return the total number of steps
+    return 5;
   };
 
   return (

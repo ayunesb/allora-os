@@ -16,7 +16,7 @@ export default function DashboardLayout() {
   useEffect(() => {
     // Check for onboarding status
     const checkUserOnboarding = async () => {
-      if (user && !isLoading && !profile?.company_id) {
+      if (user && !isLoading) {
         // First check using the helper function for a more reliable check
         const hasCompletedOnboarding = await checkOnboardingStatus(user.id);
         
