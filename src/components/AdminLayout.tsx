@@ -74,7 +74,7 @@ export default function AdminLayout() {
         </Sidebar>
         
         <SidebarInset>
-          <div className="pt-20">
+          <div>
             <Outlet />
           </div>
         </SidebarInset>
