@@ -15,15 +15,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 interface StrategyCardProps {
   strategy: Strategy;
   onEdit: (strategyId: string) => void;
   onDelete: (strategyId: string) => void;
-  onView?: () => void; // Added onView as an optional prop
+  onView?: () => void;
 }
 
 const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete, onView }) => {
+  const breakpoint = useBreakpoint();
+  const isMobile = breakpoint === 'mobile';
+  
   const getRiskColor = (risk: string | null | undefined) => {
     switch(risk) {
       case "High":
@@ -37,7 +41,6 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
     }
   };
 
-  // Add click handler to track views when clicking on the card
   const handleCardClick = () => {
     if (onView) {
       onView();
@@ -51,16 +54,16 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
       data-testid={`strategy-card-${strategy.id}`}
       onClick={handleCardClick}
     >
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-xl font-bold">{strategy.title}</h3>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3 sm:mb-4">
+        <h3 className="text-lg sm:text-xl font-bold">{strategy.title}</h3>
+        <span className={`self-start sm:self-auto px-3 py-1 rounded-full text-xs font-medium ${
           getRiskColor(strategy.risk_level)
         }`}>
           {strategy.risk_level || "Medium"} Risk
         </span>
       </div>
       
-      <p className="text-gray-300 mb-6 line-clamp-3">{strategy.description}</p>
+      <p className="text-gray-300 mb-4 sm:mb-6 line-clamp-3">{strategy.description}</p>
       
       <div className="mt-auto flex justify-between">
         <TooltipProvider>
@@ -68,9 +71,9 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
             <TooltipTrigger asChild>
               <Button 
                 variant="outline" 
-                size="sm"
+                size={isMobile ? "sm" : "sm"}
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click
+                  e.stopPropagation();
                   onEdit(strategy.id);
                 }}
                 aria-label={`Edit ${strategy.title}`}
@@ -92,8 +95,8 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
                 <AlertDialogTrigger asChild>
                   <Button 
                     variant="destructive" 
-                    size="sm"
-                    onClick={(e) => e.stopPropagation()} // Prevent card click
+                    size={isMobile ? "sm" : "sm"}
+                    onClick={(e) => e.stopPropagation()}
                     aria-label={`Delete ${strategy.title}`}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -106,7 +109,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+          <AlertDialogContent onClick={(e) => e.stopPropagation()} className="w-full max-w-md mx-4">
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -114,11 +117,11 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
                 strategy "{strategy.title}".
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction 
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click
+                  e.stopPropagation();
                   onDelete(strategy.id);
                 }} 
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

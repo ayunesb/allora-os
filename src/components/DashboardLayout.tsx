@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import { Navigate, Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, LogOut, User, Settings } from "lucide-react";
+import { Loader2, RefreshCw, LogOut, User, Settings, Menu } from "lucide-react";
 import { checkOnboardingStatus } from "@/utils/onboarding";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useBreakpoint } from "@/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,12 +18,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export default function DashboardLayout() {
   const { user, isLoading, profile, refreshSession, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const breakpoint = useBreakpoint();
+  const isMobile = breakpoint === 'mobile';
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Define the main navigation items
   const navItems = [
@@ -68,15 +78,15 @@ export default function DashboardLayout() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <div className="flex-1 container mx-auto px-4 py-24">
+        <div className="flex-1 container mx-auto px-4 py-8 sm:py-12 lg:py-24">
           <div className="flex justify-between items-center mb-6">
-            <Skeleton className="h-12 w-[250px]" />
-            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-8 sm:h-12 w-[200px] sm:w-[250px]" />
+            <Skeleton className="h-8 sm:h-10 w-24 sm:w-32" />
           </div>
           <Skeleton className="h-4 w-full max-w-md mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {Array(6).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-[200px] rounded-lg" />
+              <Skeleton key={i} className="h-[160px] sm:h-[200px] rounded-lg" />
             ))}
           </div>
         </div>
@@ -127,28 +137,85 @@ export default function DashboardLayout() {
         </div>
       )}
       
-      {/* Top Navigation Tabs */}
+      {/* Top Navigation */}
       <div className="bg-card border-b border-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <h1 className="text-xl font-bold">Allora AI</h1>
             </div>
+            
             <div className="flex items-center">
-              <Tabs defaultValue={getActiveValue()} className="w-auto mr-4" value={getActiveValue()}>
-                <TabsList className="bg-transparent">
-                  {navItems.map((item) => (
-                    <TabsTrigger 
-                      key={item.path} 
-                      value={item.path}
-                      className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                      asChild
-                    >
-                      <Link to={item.path}>{item.label}</Link>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
+              {/* Mobile Menu */}
+              {isMobile ? (
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="mr-2 md:hidden">
+                      <Menu className="h-5 w-5" />
+                      <span className="sr-only">Menu</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+                    <div className="py-6">
+                      <h2 className="text-lg font-semibold mb-4">Navigation</h2>
+                      <nav className="flex flex-col space-y-1">
+                        {navItems.map((item) => (
+                          <Link 
+                            key={item.path} 
+                            to={item.path}
+                            className={`px-4 py-2 rounded-md ${
+                              currentPath.startsWith(item.path) 
+                                ? "bg-primary/10 text-primary font-medium" 
+                                : "hover:bg-muted"
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </nav>
+                      
+                      <div className="mt-8 pt-4 border-t">
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start" 
+                          onClick={() => {
+                            navigate('/dashboard/profile');
+                            setMobileMenuOpen(false);
+                          }}
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          Profile Settings
+                        </Button>
+                        
+                        <Button 
+                          variant="destructive" 
+                          className="w-full justify-start mt-2" 
+                          onClick={handleSignOut}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Sign Out
+                        </Button>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              ) : (
+                <Tabs defaultValue={getActiveValue()} className="w-auto mr-4" value={getActiveValue()}>
+                  <TabsList className="bg-transparent">
+                    {navItems.map((item) => (
+                      <TabsTrigger 
+                        key={item.path} 
+                        value={item.path}
+                        className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+                        asChild
+                      >
+                        <Link to={item.path}>{item.label}</Link>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+              )}
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -177,7 +244,7 @@ export default function DashboardLayout() {
       
       <div className="flex flex-1">
         <main className="flex-1">
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
             <Outlet />
           </div>
         </main>

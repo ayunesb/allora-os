@@ -38,7 +38,7 @@ const StrategyContent: React.FC<StrategyContentProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-10">
         {[1, 2, 3, 4].map((_, index) => (
           <div key={index} className="dashboard-card">
             <Skeleton className="h-6 w-3/4 mb-2" />
@@ -53,7 +53,7 @@ const StrategyContent: React.FC<StrategyContentProps> = ({
   
   if (error) {
     return (
-      <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-6 mb-10">
+      <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-4 sm:p-6 mb-10">
         <h3 className="text-xl font-bold mb-2">Error Loading Strategies</h3>
         <p className="mb-4">We couldn't load your strategies. Please try again.</p>
         <Button variant="outline" onClick={() => refetch()}>
@@ -66,7 +66,7 @@ const StrategyContent: React.FC<StrategyContentProps> = ({
   if (filteredAndSortedStrategies.length === 0) {
     if (searchQuery || riskFilter !== 'all') {
       return (
-        <div className="bg-secondary/40 border border-border/50 rounded-lg p-6 text-center mb-10">
+        <div className="bg-secondary/40 border border-border/50 rounded-lg p-4 sm:p-6 text-center mb-10">
           <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-xl font-bold mb-2">No Results Found</h3>
           <p className="text-gray-300 mb-6">
@@ -86,7 +86,7 @@ const StrategyContent: React.FC<StrategyContentProps> = ({
   }
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-10">
       {filteredAndSortedStrategies.map((strategy) => (
         <StrategyCard 
           key={strategy.id} 

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 type SortOption = 'newest' | 'oldest' | 'alphabetical' | 'risk';
 
@@ -24,8 +25,11 @@ const StrategyFilters: React.FC<StrategyFiltersProps> = ({
   sortBy,
   setSortBy,
 }) => {
+  const breakpoint = useBreakpoint();
+  const isMobileOrTablet = breakpoint === 'mobile' || breakpoint === 'tablet';
+
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-6">
+    <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="relative flex-grow">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
@@ -36,9 +40,9 @@ const StrategyFilters: React.FC<StrategyFiltersProps> = ({
         />
       </div>
       
-      <div className="flex gap-2">
+      <div className={`flex ${isMobileOrTablet ? 'w-full' : ''} gap-2`}>
         <Select value={riskFilter} onValueChange={setRiskFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className={isMobileOrTablet ? "flex-1" : "w-[140px]"}>
             <SelectValue placeholder="Risk Level" />
           </SelectTrigger>
           <SelectContent>
@@ -53,7 +57,7 @@ const StrategyFilters: React.FC<StrategyFiltersProps> = ({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="gap-2">
               <SlidersHorizontal className="h-4 w-4" />
-              Sort
+              {!isMobileOrTablet && "Sort"}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

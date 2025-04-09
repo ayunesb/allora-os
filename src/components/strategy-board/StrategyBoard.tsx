@@ -4,12 +4,14 @@ import StrategyHeader from "./StrategyHeader";
 import StrategyGrid from "./StrategyGrid";
 import { useStrategies } from "./useStrategies";
 import StrategyFilters from "../strategies/StrategyFilters";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 export default function StrategyBoard() {
   const { strategies } = useStrategies();
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical' | 'risk'>('alphabetical');
+  const breakpoint = useBreakpoint();
   
   // Filter and sort strategies
   const filteredStrategies = strategies.filter(strategy => {
@@ -40,7 +42,7 @@ export default function StrategyBoard() {
   });
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <StrategyHeader 
         title="📈 Your Strategic Plans" 
         subtitle="View and manage your business strategies"
