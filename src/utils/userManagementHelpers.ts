@@ -1,4 +1,3 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { User } from '@/models/user';
@@ -16,7 +15,6 @@ export async function fetchCompanyUsers(companyId: string): Promise<User[]> {
       throw error;
     }
 
-    // Transform the data to match the User type, including adding the required email field
     return (data || []).map(profile => ({
       ...profile,
       email: '', // Add a default empty email since it's required in the User type
@@ -58,7 +56,6 @@ export async function inviteUserToCompany(
   try {
     console.log(`Inviting user ${email} to company ${companyId} with role ${role}`);
     
-    // Get company name for the invitation
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
       .select('name')
@@ -71,11 +68,10 @@ export async function inviteUserToCompany(
     
     const companyName = companyData.name || 'Our Company';
     
-    // Send invitation email using the Postmark service
     const result = await sendEmail({
       to: email,
       subject: 'Invitation to join Allora AI',
-      companyName, // Required parameter
+      companyName,
       htmlBody: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #4f46e5;">You've Been Invited!</h2>
@@ -132,5 +128,62 @@ export async function removeUserFromCompany(userId: string): Promise<boolean> {
   } catch (error: any) {
     toast.error(`Failed to remove user from company: ${error.message}`);
     return false;
+  }
+}
+
+/**
+ * Helper function to lookup a user by email and handle errors properly
+ * @param email User email to lookup
+ * @returns User ID or null if not found
+ */
+export async function getUserIdByEmail(email: string): Promise<string | null> {
+  try {
+    const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(email);
+    
+    if (userError || !userData?.user?.id) {
+      console.error('Error finding user by email:', userError);
+      return null;
+    }
+    
+    return userData.user.id;
+  } catch (error) {
+    console.error('Unexpected error looking up user by email:', error);
+    return null;
+  }
+}
+
+/**
+ * Gets user profile by email with proper error handling and type safety
+ * @param email User email to lookup
+ * @returns User profile or null if not found
+ */
+export async function getUserProfileByEmail(email: string): Promise<User | null> {
+  try {
+    const userId = await getUserIdByEmail(email);
+    
+    if (!userId) {
+      console.error(`No user found with email: ${email}`);
+      return null;
+    }
+    
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, name, company, company_id, role, created_at, email')
+      .eq('id', userId)
+      .single();
+    
+    if (profileError) {
+      console.error('Error finding user profile:', profileError);
+      return null;
+    }
+    
+    return {
+      ...profileData,
+      email: email,
+      role: profileData.role as User['role']
+    };
+  } catch (error) {
+    console.error('Unexpected error in getUserProfileByEmail:', error);
+    return null;
   }
 }
