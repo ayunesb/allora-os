@@ -26,7 +26,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-card border-r border-border h-screen fixed top-0 left-0 pt-16">
+    <aside className="w-64 bg-card border-r border-border h-screen fixed top-0 left-0 pt-16 overflow-y-auto">
       <div className="p-4">
         <h2 className="text-lg font-semibold mb-4 px-2">Business Center</h2>
         <nav>
@@ -37,7 +37,9 @@ export default function Sidebar() {
                   to={item.href}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
-                    currentPath === item.href && "text-foreground bg-accent"
+                    (currentPath === item.href || 
+                     (item.href !== "/dashboard" && currentPath.startsWith(item.href))) && 
+                     "text-foreground bg-accent"
                   )}
                 >
                   {item.icon}

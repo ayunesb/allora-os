@@ -1,8 +1,10 @@
+
 import { useEffect } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -86,7 +88,14 @@ export default function DashboardLayout() {
           </div>
         </div>
       )}
-      <Outlet />
+      <div className="flex flex-1">
+        <Sidebar />
+        <main className="flex-1 pl-64">
+          <div className="container mx-auto px-4 py-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
