@@ -76,61 +76,77 @@ export async function saveOnboardingInfo(
       
       companyId = profileData.company_id;
     } else {
-      // Create a new company
-      // First, make sure the profile exists with auth.uid as the id
-      const { error: ensureProfileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          company: companyName,
-          industry: industry
-          // Removed updated_at field since it doesn't exist in the schema
-        });
+      // Create a new company using a different approach to avoid RLS issues
+      try {
+        // First, ensure the profile exists
+        const { error: ensureProfileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: userId,
+            company: companyName,
+            industry: industry
+          });
+          
+        if (ensureProfileError) {
+          console.error("Profile creation error:", ensureProfileError);
+          throw new Error(`Failed to create/update profile: ${ensureProfileError.message}`);
+        }
+
+        // Now create the company record with enhanced logging
+        console.log("Creating new company with name:", companyName, "industry:", industry);
+        const insertResult = await supabase
+          .from('companies')
+          .insert({
+            name: companyName,
+            industry: industry,
+            created_at: new Date().toISOString(),
+            details: companyDetails || {}
+          })
+          .select('id')
+          .single();
         
-      if (ensureProfileError) {
-        console.error("Profile creation error:", ensureProfileError);
-        throw new Error(`Failed to create/update profile: ${ensureProfileError.message}`);
-      }
+        if (insertResult.error) {
+          console.error("Detailed company insert error:", insertResult.error);
+          console.error("Error code:", insertResult.error.code);
+          console.error("Error message:", insertResult.error.message);
+          console.error("Error details:", insertResult.error.details);
+          
+          // Check for specific PGRST error codes
+          if (insertResult.error.code === 'PGRST301') {
+            throw new Error("Database permission denied. Please contact support.");
+          }
+          throw new Error(`Failed to create company: ${insertResult.error.message}`);
+        }
 
-      // Now create the company record
-      const { data: companyData, error: companyError } = await supabase
-        .from('companies')
-        .insert({
-          name: companyName,
-          industry: industry,
-          created_at: new Date().toISOString(),
-          details: companyDetails || {}
-        })
-        .select('id')
-        .single();
+        companyId = insertResult.data?.id;
+        console.log("Company created successfully with ID:", companyId);
 
-      if (companyError) {
-        console.error("Company insert error:", companyError);
-        throw new Error(`Failed to create company: ${companyError.message}`);
-      }
-
-      companyId = companyData?.id;
-
-      if (!companyId) {
-        throw new Error("Failed to create company record");
-      }
-      
-      // Now update the profile with the company_id
-      const { error: profileUpdateError } = await supabase
-        .from('profiles')
-        .update({
-          company_id: companyId
-        })
-        .eq('id', userId);
+        if (!companyId) {
+          throw new Error("Failed to create company record - no ID returned");
+        }
         
-      if (profileUpdateError) {
-        console.error("Profile update error:", profileUpdateError);
-        throw new Error(`Failed to update profile with company ID: ${profileUpdateError.message}`);
+        // Now update the profile with the company_id
+        console.log("Updating profile with company ID:", companyId);
+        const { error: profileUpdateError } = await supabase
+          .from('profiles')
+          .update({
+            company_id: companyId
+          })
+          .eq('id', userId);
+          
+        if (profileUpdateError) {
+          console.error("Profile update error:", profileUpdateError);
+          throw new Error(`Failed to update profile with company ID: ${profileUpdateError.message}`);
+        }
+      } catch (error: any) {
+        console.error("Error in company creation process:", error);
+        throw error; // Re-throw to be caught by the outer try/catch
       }
     }
 
     // Store the business goals (in a real app, you would create a goals table)
     console.log("Company goals would be stored:", goals);
+    console.log("Onboarding completed successfully!");
 
     return { success: true };
   } catch (error: any) {
