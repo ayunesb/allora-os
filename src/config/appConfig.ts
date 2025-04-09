@@ -6,10 +6,11 @@
 
 // Supabase configuration
 export const SUPABASE_CONFIG = {
-  // In production, these values would be loaded from environment variables
-  // For development purposes, we use these values for compatibility
-  url: "https://ofwxyctfzskeeniaaazw.supabase.co",
-  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo"
+  // These values are obtained from environment variables
+  // For production deployments, they should be set in the hosting environment
+  // We're still using the values below for development compatibility
+  url: process.env.SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co",
+  anonKey: process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo"
 }
 
 // API configuration
