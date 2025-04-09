@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,48 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { supabase } from '@/backend/supabase';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 export default function AdminSettings() {
+  const [stripeKey, setStripeKey] = useState('');
+  const [twilioSid, setTwilioSid] = useState('');
+  const [twilioToken, setTwilioToken] = useState('');
+  const [heygenKey, setHeygenKey] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveApiConfiguration = async () => {
+    setIsSaving(true);
+    try {
+      // In a real implementation, we'd use a secure way to store these keys
+      // For now, we'll just simulate saving by updating a settings table
+      const { error } = await supabase
+        .from('system_settings')
+        .upsert([
+          { 
+            key: 'api_keys', 
+            value: {
+              stripe: stripeKey,
+              twilio_sid: twilioSid,
+              twilio_token: twilioToken,
+              heygen: heygenKey
+            }
+          }
+        ], 
+        { onConflict: 'key' });
+      
+      if (error) throw error;
+      
+      toast.success("API configuration saved successfully");
+    } catch (error) {
+      console.error("Error saving API configuration:", error);
+      toast.error("Failed to save API configuration");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar isLoggedIn={true} />
@@ -40,25 +80,60 @@ export default function AdminSettings() {
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="stripe-key">Stripe API Key</Label>
-                  <Input id="stripe-key" type="password" placeholder="sk_test_..." />
+                  <Input 
+                    id="stripe-key" 
+                    type="password" 
+                    placeholder="sk_test_..." 
+                    value={stripeKey}
+                    onChange={(e) => setStripeKey(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="twilio-sid">Twilio Account SID</Label>
-                  <Input id="twilio-sid" placeholder="AC..." />
+                  <Input 
+                    id="twilio-sid" 
+                    placeholder="AC..." 
+                    value={twilioSid}
+                    onChange={(e) => setTwilioSid(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="twilio-token">Twilio Auth Token</Label>
-                  <Input id="twilio-token" type="password" placeholder="********" />
+                  <Input 
+                    id="twilio-token" 
+                    type="password" 
+                    placeholder="********" 
+                    value={twilioToken}
+                    onChange={(e) => setTwilioToken(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="heygen-key">Heygen API Key</Label>
-                  <Input id="heygen-key" type="password" placeholder="********" />
+                  <Input 
+                    id="heygen-key" 
+                    type="password" 
+                    placeholder="********" 
+                    value={heygenKey}
+                    onChange={(e) => setHeygenKey(e.target.value)}
+                  />
                 </div>
                 
-                <Button>Save API Configuration</Button>
+                <Button 
+                  onClick={handleSaveApiConfiguration}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save API Configuration"
+                  )}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
