@@ -16,16 +16,18 @@ export type CampaignUpdateInput = Partial<Omit<Campaign, 'id' | 'created_at' | '
  * Fetch all campaigns for a specific company
  */
 export async function fetchCompanyCampaigns(companyId: string) {
-  return apiRequest<Campaign[]>(() => 
-    supabase
+  return apiRequest<Campaign[]>(async () => {
+    const response = await supabase
       .from('campaigns')
       .select(`
         *,
         companies(name)
       `)
       .eq('company_id', companyId)
-      .order('created_at', { ascending: false })
-  , {
+      .order('created_at', { ascending: false });
+    
+    return response;
+  }, {
     errorMessage: 'Failed to load campaigns'
   });
 }
@@ -34,16 +36,18 @@ export async function fetchCompanyCampaigns(companyId: string) {
  * Create a new campaign
  */
 export async function createCampaign(campaign: CampaignCreateInput) {
-  return apiRequest<Campaign>(() => 
-    supabase
+  return apiRequest<Campaign>(async () => {
+    const response = await supabase
       .from('campaigns')
       .insert([campaign])
       .select(`
         *,
         companies(name)
       `)
-      .single()
-  , {
+      .single();
+    
+    return response;
+  }, {
     showSuccessToast: true,
     successMessage: 'Campaign created successfully',
     errorMessage: 'Failed to create campaign'
@@ -54,8 +58,8 @@ export async function createCampaign(campaign: CampaignCreateInput) {
  * Update an existing campaign
  */
 export async function updateCampaign(id: string, updates: CampaignUpdateInput) {
-  return apiRequest<Campaign>(() => 
-    supabase
+  return apiRequest<Campaign>(async () => {
+    const response = await supabase
       .from('campaigns')
       .update(updates)
       .eq('id', id)
@@ -63,8 +67,10 @@ export async function updateCampaign(id: string, updates: CampaignUpdateInput) {
         *,
         companies(name)
       `)
-      .single()
-  , {
+      .single();
+    
+    return response;
+  }, {
     showSuccessToast: true,
     successMessage: 'Campaign updated successfully',
     errorMessage: 'Failed to update campaign'
@@ -75,12 +81,14 @@ export async function updateCampaign(id: string, updates: CampaignUpdateInput) {
  * Delete a campaign
  */
 export async function deleteCampaign(id: string) {
-  return apiRequest<null>(() => 
-    supabase
+  return apiRequest<null>(async () => {
+    const response = await supabase
       .from('campaigns')
       .delete()
-      .eq('id', id)
-  , {
+      .eq('id', id);
+    
+    return response;
+  }, {
     showSuccessToast: true,
     successMessage: 'Campaign deleted successfully',
     errorMessage: 'Failed to delete campaign'
