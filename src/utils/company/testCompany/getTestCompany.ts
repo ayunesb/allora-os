@@ -1,12 +1,24 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { TestCompany } from './index';
+import { TestCompany, TestCompanyResponse } from './index';
+import { successResponse, errorResponse } from '@/utils/api/standardResponse';
 
 /**
  * Fetches a test company from the database using explicit column selection
  * to avoid deep type inference issues
+ * 
+ * @example
+ * // Get test company data
+ * const response = await getTestCompany();
+ * if (response.success) {
+ *   console.log(`Found test company: ${response.data?.name}`);
+ * } else {
+ *   console.error(`Error: ${response.message}`);
+ * }
+ * 
+ * @returns Promise resolving to a standardized response with test company data
  */
-export async function getTestCompany(): Promise<TestCompany | null> {
+export async function getTestCompany(): Promise<TestCompanyResponse> {
   try {
     // Use a simpler query approach with explicit cast to avoid type inference issues
     const { data, error } = await supabase
@@ -17,13 +29,20 @@ export async function getTestCompany(): Promise<TestCompany | null> {
       .maybeSingle();
       
     if (error) {
-      console.error('Error fetching test company:', error);
-      return null;
+      return errorResponse(
+        'Error fetching test company', 
+        error.message,
+        error.code
+      );
     }
 
-    return data as TestCompany;
+    if (!data) {
+      return successResponse(null, 'No test company found');
+    }
+
+    return successResponse(data as TestCompany, 'Test company found');
   } catch (error) {
-    console.error('Unexpected error in getTestCompany:', error);
-    return null;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return errorResponse('Unexpected error in getTestCompany', errorMessage);
   }
 }

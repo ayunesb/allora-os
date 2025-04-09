@@ -4,6 +4,8 @@
  * Provides functionality for creating and managing test companies
  */
 
+import { StandardResponse } from '@/utils/api/standardResponse';
+
 // Re-export all test company functions
 export * from './setupTestCompany';
 export * from './getTestCompany';
@@ -17,10 +19,10 @@ export interface TestCompany {
   industry?: string;
 }
 
-export interface TestCompanySetupResult {
-  success: boolean;
-  message: string;
+export interface TestCompanySetupData {
   companyId?: string;
   companyName?: string;
-  error?: string;
 }
+
+export type TestCompanySetupResult = StandardResponse<TestCompanySetupData>;
+export type TestCompanyResponse = StandardResponse<TestCompany | null>;

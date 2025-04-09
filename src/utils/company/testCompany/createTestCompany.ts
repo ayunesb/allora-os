@@ -1,27 +1,29 @@
 
 import { supabase } from '@/integrations/supabase/client';
-
-/**
- * Simple Company interface with essential properties
- * Using a standalone interface avoids deep type inference issues
- */
-interface TestCompany {
-  id: string;
-  name: string;
-  created_at: string;
-  industry?: string;
-}
+import { TestCompany, TestCompanyResponse } from './index';
+import { successResponse, errorResponse } from '@/utils/api/standardResponse';
+import { isNonEmptyString } from '@/utils/validation';
 
 /**
  * Creates a new test company in the database
+ * 
+ * @example
+ * // Create a new test company
+ * const response = await createTestCompany("Test Company ABC");
+ * if (response.success) {
+ *   console.log(`Created company with ID: ${response.data?.id}`);
+ * } else {
+ *   console.error(`Error: ${response.message}`);
+ * }
+ * 
  * @param name Name for the test company
- * @returns Promise resolving to the created test company or null
+ * @returns Promise resolving to a standardized response with the created test company
  */
-export async function createTestCompany(name: string): Promise<TestCompany | null> {
+export async function createTestCompany(name: string): Promise<TestCompanyResponse> {
   try {
     // Input validation
-    if (!name || typeof name !== 'string') {
-      throw new Error('Invalid company name provided');
+    if (!isNonEmptyString(name)) {
+      return errorResponse('Invalid company name provided', 'Company name must be a non-empty string', 'VALIDATION_ERROR');
     }
 
     // Using explicit column selection
@@ -39,13 +41,19 @@ export async function createTestCompany(name: string): Promise<TestCompany | nul
       .single();
 
     if (error) {
-      console.error('Error creating test company:', error);
-      return null;
+      return errorResponse(
+        'Error creating test company', 
+        error.message,
+        error.code
+      );
     }
 
-    return data as TestCompany;
+    return successResponse(
+      data as TestCompany, 
+      `Test company "${name}" created successfully`
+    );
   } catch (error) {
-    console.error('Error in createTestCompany:', error);
-    return null;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return errorResponse('Error in createTestCompany', errorMessage);
   }
 }
