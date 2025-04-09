@@ -37,14 +37,18 @@ export default function ProtectedRoute({
   // Handle session expiration notification
   useEffect(() => {
     if (isSessionExpired && user) {
-      toast.error("Your session has expired. Please log in again.");
+      toast.error("Your session has expired. Please log in again.", {
+        description: "You'll be redirected to the login page."
+      });
     }
   }, [isSessionExpired, user]);
 
   // Handler functions
   const handleResendVerificationEmail = async (): Promise<void> => {
     if (!user?.email) {
-      toast.error("Email address is missing");
+      toast.error("Email address is missing", {
+        description: "We couldn't find your email address. Please try logging in again."
+      });
       return;
     }
 
@@ -52,13 +56,19 @@ export default function ProtectedRoute({
     try {
       const result = await resendVerificationEmail(user.email);
       if (result.success) {
-        toast.success("Verification email sent successfully");
+        toast.success("Verification email sent successfully", {
+          description: "Please check your inbox and spam folder."
+        });
       } else {
-        toast.error(result.error || "Failed to send verification email");
+        toast.error(result.error || "Failed to send verification email", {
+          description: "Please try again in a few minutes."
+        });
       }
     } catch (error) {
       console.error("Error sending verification email:", error);
-      toast.error("An error occurred while sending verification email");
+      toast.error("An error occurred while sending verification email", {
+        description: "Please try again later or contact support."
+      });
     } finally {
       setIsResending(false);
     }
@@ -71,7 +81,9 @@ export default function ProtectedRoute({
       toast.success("Session refreshed successfully");
     } catch (error) {
       console.error("Error refreshing session:", error);
-      toast.error("An unexpected error occurred");
+      toast.error("An unexpected error occurred", {
+        description: "Unable to refresh your session. Please try logging in again."
+      });
     } finally {
       setIsRefreshing(false);
     }
@@ -95,7 +107,9 @@ export default function ProtectedRoute({
   }
 
   if (!user) {
-    toast.error("Please log in to access this page");
+    toast.error("Please log in to access this page", {
+      description: "This page requires authentication."
+    });
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -114,7 +128,9 @@ export default function ProtectedRoute({
     const isAdmin = profile.role === 'admin';
     
     if (!isAdmin) {
-      toast.error("You don't have permission to access this page");
+      toast.error("You don't have permission to access this page", {
+        description: "This area requires administrator privileges."
+      });
       return <Navigate to="/dashboard" replace />;
     }
   }
@@ -124,7 +140,9 @@ export default function ProtectedRoute({
                            (roleRequired === 'user' && profile.role === 'admin');
     
     if (!hasRequiredRole) {
-      toast.error("You don't have permission to access this page");
+      toast.error("You don't have permission to access this page", {
+        description: `You need ${roleRequired} privileges to access this area.`
+      });
       return <Navigate to="/dashboard" replace />;
     }
   }

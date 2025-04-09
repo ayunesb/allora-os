@@ -18,12 +18,20 @@ export default function Login() {
   const { signIn, user, isLoading: authLoading } = useAuth();
 
   const from = location.state?.from?.pathname || "/dashboard";
+  const isSessionExpired = location.state?.expired || false;
 
   useEffect(() => {
     if (user && !authLoading) {
       navigate(from, { replace: true });
     }
-  }, [user, authLoading, navigate, from]);
+    
+    // Show session expired message if redirected due to expired session
+    if (isSessionExpired) {
+      toast.error("Your session has expired", {
+        description: "Please log in again to continue."
+      });
+    }
+  }, [user, authLoading, navigate, from, isSessionExpired]);
 
   const onSubmit = async (data: LoginFormValues) => {
     setLoginError(null);
