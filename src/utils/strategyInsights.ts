@@ -1,6 +1,12 @@
 
 import { RiskProfile, RiskAssessmentInput, calculateRiskScore } from './riskEngine';
 import { GeneratedStrategy, generateCustomizedStrategy } from './strategy';
+import { 
+  analyzeStrategyFactors,
+  calculateImplementationComplexity, 
+  calculateCompetitiveAdvantage,
+  estimateTimeToResults
+} from './strategy/strategyAnalysis';
 
 export type StrategyInsight = {
   id: string;
@@ -14,9 +20,22 @@ export type StrategyAnalysis = {
   strategy: GeneratedStrategy;
   riskProfile: RiskProfile;
   insights: StrategyInsight[];
-  competitiveAdvantage: number; // 0-100 score
-  implementationComplexity: number; // 0-100 score
-  expectedTimeToResults: string;
+  strengths: string[];
+  weaknesses: string[];
+  keySuccessFactors: string[];
+  competitiveAdvantage: {
+    score: number;
+    factors: string[];
+  };
+  implementationComplexity: {
+    score: number;
+    factors: string[];
+  };
+  timeToResults: {
+    timeframe: string;
+    confidenceLevel: 'Low' | 'Medium' | 'High';
+    milestones: { description: string; timeframe: string }[];
+  };
 };
 
 export function analyzeStrategy(
@@ -39,18 +58,24 @@ export function analyzeStrategy(
   // Generate insights based on risk profile and inputs
   const insights = generateInsights(riskProfile, assessmentInput, strategy);
   
+  // Analyze strategy factors
+  const { strengths, weaknesses, keySuccessFactors } = analyzeStrategyFactors(strategy, riskProfile);
+  
   // Calculate additional metrics
   const competitiveAdvantage = calculateCompetitiveAdvantage(strategy, riskProfile);
   const implementationComplexity = calculateImplementationComplexity(strategy, assessmentInput);
-  const expectedTimeToResults = calculateTimeToResults(strategy, riskProfile);
+  const timeToResults = estimateTimeToResults(strategy, riskProfile);
   
   return {
     strategy,
     riskProfile,
     insights,
+    strengths,
+    weaknesses,
+    keySuccessFactors,
     competitiveAdvantage,
     implementationComplexity,
-    expectedTimeToResults
+    timeToResults
   };
 }
 
@@ -126,6 +151,29 @@ function generateInsights(
     });
   }
   
+  // Innovation capacity
+  if (assessmentInput.innovationCapacity && assessmentInput.innovationCapacity >= 4 && 
+      strategy.keyActions.some(a => a.timeframe === 'Long-term')) {
+    insights.push({
+      id: 'innovation-strength',
+      title: 'Strong Innovation Capacity',
+      description: 'Your high innovation capacity is well aligned with the ambitious elements of this strategy.',
+      type: 'positive',
+      recommendation: 'Consider formalizing innovation processes to sustain this advantage.'
+    });
+  }
+  
+  // Regulatory insights
+  if (assessmentInput.regulatoryConstraints && assessmentInput.regulatoryConstraints >= 4) {
+    insights.push({
+      id: 'regulatory-burden',
+      title: 'High Regulatory Constraints',
+      description: 'Your regulatory environment adds complexity to strategy execution.',
+      type: 'negative',
+      recommendation: 'Consider dedicating resources to compliance management and regulatory monitoring.'
+    });
+  }
+  
   // Add a balance of insight types
   if (!insights.some(i => i.type === 'positive')) {
     insights.push({
@@ -137,61 +185,4 @@ function generateInsights(
   }
   
   return insights;
-}
-
-function calculateCompetitiveAdvantage(strategy: GeneratedStrategy, riskProfile: RiskProfile): number {
-  // Calculate based on strategy components and risk profile
-  let score = 50; // Base score
-  
-  // Higher risk strategies typically offer more competitive advantage potential
-  if (riskProfile.level === 'High') score += 20;
-  else if (riskProfile.level === 'Medium') score += 10;
-  
-  // Adjust based on key actions
-  const highImpactActions = strategy.keyActions.filter(a => a.impact === 'High').length;
-  score += highImpactActions * 5;
-  
-  // Cap at 100
-  return Math.min(score, 100);
-}
-
-function calculateImplementationComplexity(
-  strategy: GeneratedStrategy,
-  assessment: RiskAssessmentInput
-): number {
-  // Calculate complexity score (higher = more complex)
-  let score = 30; // Base complexity
-  
-  // Add complexity for each action
-  strategy.keyActions.forEach(action => {
-    if (action.impact === 'High') score += 10;
-    if (action.timeframe === 'Long-term') score += 10;
-  });
-  
-  // Add complexity based on assessment factors
-  if (assessment.organizationalReadiness && assessment.organizationalReadiness < 3) {
-    score += 15; // Less ready = more complex
-  }
-  
-  if (assessment.regulatoryConstraints && assessment.regulatoryConstraints > 3) {
-    score += 15; // More constraints = more complex
-  }
-  
-  // Cap at 100
-  return Math.min(score, 100);
-}
-
-function calculateTimeToResults(strategy: GeneratedStrategy, riskProfile: RiskProfile): string {
-  // Determine time to results based on strategy and risk
-  const longTermActions = strategy.keyActions.filter(a => a.timeframe === 'Long-term').length;
-  const mediumTermActions = strategy.keyActions.filter(a => a.timeframe === 'Medium-term').length;
-  
-  // More high-risk strategies often take longer for full results
-  if (riskProfile.level === 'High') {
-    return longTermActions > 0 ? '12-24 months' : '9-18 months';
-  } else if (riskProfile.level === 'Medium') {
-    return mediumTermActions > longTermActions ? '6-12 months' : '9-15 months';
-  } else {
-    return '3-9 months';
-  }
 }
