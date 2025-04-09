@@ -8,14 +8,20 @@ import { updateCompanyDetails } from './companyUpdate';
  */
 export async function setupTestCompany(email: string): Promise<{ success: boolean; error?: string }> {
   try {
-    // Use RPC call to get user ID by email to avoid TypeScript recursion issues
-    const { data: userId, error: userError } = await supabase
-      .rpc('get_user_id_by_email', { user_email: email });
+    // Query directly for the user ID to avoid TypeScript issues
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .limit(1)
+      .maybeSingle();
       
-    if (userError || !userId) {
-      console.error("Error finding user:", userError);
+    if (error || !data) {
+      console.error("Error finding user:", error);
       return { success: false, error: `User with email ${email} not found` };
     }
+    
+    const userId = data.id;
     
     // Set up the test company details
     const result = await updateCompanyDetails(userId, {
