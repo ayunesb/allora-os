@@ -42,7 +42,8 @@ const APIKeysTab = ({ companyId, initialApiKeys, isLoading }: APIKeysTabProps) =
       
       // Prepare the updated details object, preserving existing data
       // Fix: Ensure currentCompany.details is properly handled and explicitly type cast
-      let currentDetails = {};
+      let currentDetails: Record<string, any> = {}; // Explicitly type as a Record to allow spreading
+      
       if (currentCompany && currentCompany.details) {
         // Handle case when details might be a string
         if (typeof currentCompany.details === 'string') {
@@ -50,13 +51,14 @@ const APIKeysTab = ({ companyId, initialApiKeys, isLoading }: APIKeysTabProps) =
             currentDetails = JSON.parse(currentCompany.details);
           } catch (e) {
             console.error("Error parsing details JSON:", e);
-            currentDetails = {};
           }
-        } else if (typeof currentCompany.details === 'object') {
-          currentDetails = currentCompany.details;
+        } else if (typeof currentCompany.details === 'object' && currentCompany.details !== null) {
+          // Make sure it's a non-null object before assignment
+          currentDetails = currentCompany.details as Record<string, any>;
         }
       }
       
+      // Create the updated details object with the API keys
       const updatedDetails = {
         ...currentDetails,
         api_keys: {
