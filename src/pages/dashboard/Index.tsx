@@ -8,6 +8,7 @@ import QuickAccess from "@/components/dashboard/QuickAccess";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 
 export default function Dashboard() {
+  // This doesn't need to change as we're maintaining the same API
   const {
     isLoading,
     pendingApprovals,
