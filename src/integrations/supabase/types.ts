@@ -117,6 +117,7 @@ export type Database = {
           industry: string | null
           location: string | null
           name: string | null
+          personal_api_keys: Json | null
           phone: string | null
           role: string | null
           stripe_customer_id: string | null
@@ -135,6 +136,7 @@ export type Database = {
           industry?: string | null
           location?: string | null
           name?: string | null
+          personal_api_keys?: Json | null
           phone?: string | null
           role?: string | null
           stripe_customer_id?: string | null
@@ -153,6 +155,7 @@ export type Database = {
           industry?: string | null
           location?: string | null
           name?: string | null
+          personal_api_keys?: Json | null
           phone?: string | null
           role?: string | null
           stripe_customer_id?: string | null
