@@ -6,7 +6,13 @@ import { toast } from "sonner";
 import { getCompanyDashboardAnalytics } from "@/backend/analyticsService";
 
 // Define a more specific type for company details to avoid excessive type instantiation
-type CompanyDetails = Record<string, any>;
+type CompanyDetails = {
+  riskAppetite?: string;
+  companySize?: string;
+  industry?: string;
+  [key: string]: any;
+};
+
 type RiskAppetiteType = 'low' | 'medium' | 'high';
 type RecommendationType = { title: string; description: string; type: string };
 
@@ -38,7 +44,7 @@ export function useDashboardData() {
         if (companyError) throw companyError;
         
         // Extract company details and ensure it's an object
-        const companyDetails = companyData?.details as CompanyDetails || {};
+        const companyDetails: CompanyDetails = companyData?.details as CompanyDetails || {};
         
         // Set risk appetite
         if (companyDetails.riskAppetite && 
@@ -74,7 +80,7 @@ export function useDashboardData() {
   
   // Generate AI recommendations based on company profile and analytics
   const generateAiRecommendations = (
-    companyDetails: Record<string, any>, 
+    companyDetails: CompanyDetails, 
     analytics: any
   ) => {
     // In a real app, this would be more sophisticated and personalized
