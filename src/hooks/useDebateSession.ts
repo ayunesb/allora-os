@@ -1,5 +1,6 @@
+
 import { useCallback, useState } from 'react';
-import { saveDebateSession } from '@/backend/debateManager';
+import { saveDebateSession, generateDebateSummary } from '@/backend/debate';
 import { DebateSession } from '@/utils/consultation/types';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';

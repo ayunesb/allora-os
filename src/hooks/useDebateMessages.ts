@@ -1,7 +1,6 @@
-
 import { useState, useCallback } from 'react';
 import { DebateMessage, DebateParticipant } from '@/utils/consultation/types';
-import { generateBotResponse } from '@/backend/debateManager';
+import { generateBotResponse } from '@/backend/debate';
 
 export default function useDebateMessages() {
   const [messages, setMessages] = useState<DebateMessage[]>([]);

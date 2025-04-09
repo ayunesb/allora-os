@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getInitialParticipants } from '@/backend/debateManager';
+import { getInitialParticipants } from '@/backend/debate';
 import { DebateParticipant } from '@/utils/consultation/types';
 import { executiveBots } from '@/backend/executiveBots';
 
