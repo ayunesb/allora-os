@@ -5,7 +5,7 @@ export type Lead = {
   name: string;
   email: string | null;
   phone: string | null;
-  status: 'new' | 'contacted' | 'qualified' | 'closed' | string; // Allow string for flexibility
+  status: 'new' | 'contacted' | 'qualified' | 'closed';
   created_at: string;
   // For joins with campaigns table
   campaigns?: { name: string };

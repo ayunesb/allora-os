@@ -64,7 +64,7 @@ export default function AdminLeads() {
     loadLeads();
   }, [sortBy, sortOrder]);
   
-  const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
+  const handleStatusUpdate = async (leadId: string, status: 'new' | 'contacted' | 'qualified' | 'closed') => {
     const success = await updateLeadStatus(leadId, status);
     if (success) {
       setLeads(leads.map(lead => 
@@ -95,7 +95,7 @@ export default function AdminLeads() {
     ? leads 
     : leads.filter(lead => 
         lead.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        lead.email.toLowerCase().includes(searchQuery.toLowerCase())
+        lead.email?.toLowerCase().includes(searchQuery.toLowerCase())
       );
   
   const getStatusColor = (status: Lead['status']) => {

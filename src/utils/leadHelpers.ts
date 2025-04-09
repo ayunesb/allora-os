@@ -1,105 +1,37 @@
 
 import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { Lead } from '@/models/lead';
-
-export async function fetchCampaignLeads(campaignId: string): Promise<Lead[]> {
-  try {
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .eq('campaign_id', campaignId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    // Cast the data to ensure it matches the Lead type
-    return (data || []).map(lead => ({
-      ...lead,
-      status: lead.status as Lead['status']
-    }));
-  } catch (error: any) {
-    console.error('Error fetching leads:', error.message);
-    return [];
-  }
-}
 
 export async function fetchCompanyLeads(companyId: string): Promise<Lead[]> {
   try {
+    // Get campaigns for the company
     const { data: campaigns, error: campaignsError } = await supabase
       .from('campaigns')
       .select('id')
       .eq('company_id', companyId);
+      
+    if (campaignsError) throw campaignsError;
     
-    if (campaignsError) {
-      throw campaignsError;
-    }
-    
-    const campaignIds = campaigns.map((c: { id: string }) => c.id);
-    
-    if (campaignIds.length === 0) {
+    if (!campaigns || campaigns.length === 0) {
       return [];
     }
     
-    const { data, error } = await supabase
+    const campaignIds = campaigns.map(campaign => campaign.id);
+    
+    // Get leads for the campaigns
+    const { data: leads, error: leadsError } = await supabase
       .from('leads')
-      .select('*')
+      .select('*, campaigns(name)')
       .in('campaign_id', campaignIds)
       .order('created_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    // Cast the data to ensure it matches the Lead type
-    return (data || []).map(lead => ({
-      ...lead,
-      status: lead.status as Lead['status']
-    }));
-  } catch (error: any) {
-    console.error('Error fetching company leads:', error.message);
-    return [];
-  }
-}
-
-export async function createLead(
-  campaignId: string,
-  name: string,
-  email: string,
-  phone: string,
-  status: 'new' | 'contacted' | 'qualified' | 'closed' = 'new'
-): Promise<Lead | null> {
-  try {
-    const { data, error } = await supabase
-      .from('leads')
-      .insert([
-        { 
-          campaign_id: campaignId,
-          name,
-          email,
-          phone,
-          status
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    toast.success('Lead created successfully');
+      
+    if (leadsError) throw leadsError;
     
-    // Cast the data to ensure it matches the Lead type
-    return data ? {
-      ...data,
-      status: data.status as Lead['status']
-    } : null;
+    return leads as Lead[] || [];
   } catch (error: any) {
-    toast.error(`Failed to create lead: ${error.message}`);
-    return null;
+    console.error('Error fetching leads:', error.message);
+    return [];
   }
 }
 
@@ -112,37 +44,14 @@ export async function updateLeadStatus(
       .from('leads')
       .update({ status })
       .eq('id', leadId);
-
-    if (error) {
-      throw error;
-    }
-
-    toast.success('Lead status updated successfully');
+      
+    if (error) throw error;
+    
+    toast.success(`Lead status updated to ${status}`);
     return true;
   } catch (error: any) {
-    toast.error(`Failed to update lead status: ${error.message}`);
-    return false;
-  }
-}
-
-export async function updateLead(
-  leadId: string,
-  updates: Partial<Omit<Lead, 'id' | 'created_at' | 'campaign_id'>>
-): Promise<boolean> {
-  try {
-    const { error } = await supabase
-      .from('leads')
-      .update(updates)
-      .eq('id', leadId);
-
-    if (error) {
-      throw error;
-    }
-
-    toast.success('Lead updated successfully');
-    return true;
-  } catch (error: any) {
-    toast.error(`Failed to update lead: ${error.message}`);
+    console.error('Error updating lead status:', error.message);
+    toast.error('Failed to update lead status');
     return false;
   }
 }
@@ -153,15 +62,14 @@ export async function deleteLead(leadId: string): Promise<boolean> {
       .from('leads')
       .delete()
       .eq('id', leadId);
-
-    if (error) {
-      throw error;
-    }
-
+      
+    if (error) throw error;
+    
     toast.success('Lead deleted successfully');
     return true;
   } catch (error: any) {
-    toast.error(`Failed to delete lead: ${error.message}`);
+    console.error('Error deleting lead:', error.message);
+    toast.error('Failed to delete lead');
     return false;
   }
 }
