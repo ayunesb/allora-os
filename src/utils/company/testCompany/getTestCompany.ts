@@ -1,8 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-// Define explicit type interfaces for the company data structure
-interface CompanyBase {
+// Define a simple company interface to avoid complex type dependencies
+interface Company {
   id: string;
   name: string;
   created_at: string;
@@ -13,9 +13,9 @@ interface CompanyBase {
  * Fetches a test company from the database
  * @returns Promise resolving to a test company or null
  */
-export async function getTestCompany(): Promise<CompanyBase | null> {
+export async function getTestCompany(): Promise<Company | null> {
   try {
-    // Using explicit column selection with specific types to avoid deep type issues
+    // Using a simple approach to querying to avoid complex type issues
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')
@@ -32,7 +32,7 @@ export async function getTestCompany(): Promise<CompanyBase | null> {
       return null;
     }
 
-    // Return with explicit typing to avoid recursive type issues
+    // Return with explicit typing
     return {
       id: data[0].id,
       name: data[0].name,
