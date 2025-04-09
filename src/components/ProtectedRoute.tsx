@@ -67,12 +67,9 @@ export default function ProtectedRoute({
   const handleSessionRefresh = async (): Promise<void> => {
     setIsRefreshing(true);
     try {
-      const success = await refreshSession();
-      if (success) {
-        toast.success("Session refreshed successfully");
-      } else {
-        toast.error("Failed to refresh session. Please log in again.");
-      }
+      await refreshSession();
+      // Remove the return value and just show toast notifications based on the result
+      toast.success("Session refreshed successfully");
     } catch (error) {
       console.error("Error refreshing session:", error);
       toast.error("An unexpected error occurred");
