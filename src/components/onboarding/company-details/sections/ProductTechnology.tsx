@@ -63,13 +63,14 @@ export function ProductTechnology({
             Current Product Stage
           </label>
           <Select 
-            value={companyDetails.productStage || ''} 
+            value={companyDetails.productStage || 'unknown'} 
             onValueChange={(value) => handleTextChange('productStage', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select product stage" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="unknown">Unknown</SelectItem>
               <SelectItem value="idea">Idea</SelectItem>
               <SelectItem value="mvp">MVP</SelectItem>
               <SelectItem value="beta">Beta</SelectItem>

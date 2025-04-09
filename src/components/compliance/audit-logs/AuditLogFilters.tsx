@@ -31,7 +31,7 @@ export default function AuditLogFilters({
   onExportLogs
 }: AuditLogFiltersProps) {
   const resetFilters = () => {
-    setActionFilter("");
+    setActionFilter("all");
     setUserFilter("");
     setDate(undefined);
   };
@@ -45,7 +45,7 @@ export default function AuditLogFilters({
             <SelectValue placeholder="All actions" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All actions</SelectItem>
+            <SelectItem value="all">All actions</SelectItem>
             <SelectItem value="DATA_ACCESS">Data Access</SelectItem>
             <SelectItem value="DATA_MODIFICATION">Data Modification</SelectItem>
             <SelectItem value="AUTHENTICATION">Authentication</SelectItem>

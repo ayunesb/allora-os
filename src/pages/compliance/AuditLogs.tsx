@@ -7,13 +7,13 @@ import { mockAuditLogs } from "@/components/compliance/audit-logs/mockData";
 
 export default function AuditLogs() {
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [actionFilter, setActionFilter] = useState<string>("");
+  const [actionFilter, setActionFilter] = useState<string>("all");
   const [userFilter, setUserFilter] = useState<string>("");
   
   // Filter logs based on selected filters
   const filteredLogs = mockAuditLogs.filter(log => {
     // Filter by action type if selected
-    if (actionFilter && log.action !== actionFilter) return false;
+    if (actionFilter !== "all" && log.action !== actionFilter) return false;
     
     // Filter by user search term
     if (userFilter && !log.user.toLowerCase().includes(userFilter.toLowerCase())) return false;
