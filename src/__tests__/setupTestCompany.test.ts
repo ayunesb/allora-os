@@ -18,7 +18,7 @@ const mockedGetTestCompany = getTestCompany as unknown as typeof getTestCompany 
 const mockedCreateTestCompany = createTestCompany as unknown as typeof createTestCompany & { mockResolvedValue: (value: any) => void };
 
 // Properly typed Supabase mock
-type SupabaseMock = typeof supabase & {
+const mockedSupabase = supabase as {
   from: ReturnType<typeof vi.fn> & {
     mockReturnValue: (value: {
       update: ReturnType<typeof vi.fn> & {
@@ -32,15 +32,13 @@ type SupabaseMock = typeof supabase & {
   }
 };
 
-const mockedSupabase = supabase as SupabaseMock;
-
 describe('setupTestCompany', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     vi.clearAllMocks();
     
-    // Properly typed mock implementation for supabase
-    mockedSupabase.from.mockReturnValue({
+    // Setup mock implementation for supabase
+    (mockedSupabase.from as any).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null })
       })
@@ -125,7 +123,7 @@ describe('setupTestCompany', () => {
     
     // Verify profile update was called correctly
     expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
-    expect(mockedSupabase.from().update).toHaveBeenCalledWith({
+    expect((mockedSupabase.from('profiles').update as any)).toHaveBeenCalledWith({
       company_id: 'new-company-123',
       company: 'Test Company - valid',
       email: 'valid@example.com'
@@ -178,7 +176,7 @@ describe('setupTestCompany', () => {
     });
     
     // Mock profile update failure - with proper typing
-    mockedSupabase.from.mockReturnValue({
+    (mockedSupabase.from as any).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: { message: 'Profile update failed' } })
       })
