@@ -1,0 +1,93 @@
+
+/* Accessibility classes */
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  
+  /* Increase contrast in text */
+  --muted-foreground: 240 3.8% 26.1%;
+  
+  /* High contrast focus styles */
+  *:focus {
+    outline: 3px solid hsl(240, 5.9%, 10%) !important;
+    outline-offset: 2px !important;
+  }
+}
+
+.large-text {
+  font-size: 110%;
+  line-height: 1.5;
+}
+
+.large-text h1 {
+  font-size: 2.5rem;
+}
+
+.large-text h2 {
+  font-size: 2rem;
+}
+
+.large-text h3 {
+  font-size: 1.75rem;
+}
+
+.large-text button,
+.large-text input,
+.large-text select,
+.large-text textarea {
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+}
+
+.large-text .text-xs {
+  font-size: 0.875rem;
+}
+
+.large-text .text-sm {
+  font-size: 1rem;
+}
+
+.large-text .text-base {
+  font-size: 1.2rem;
+}
+
+.large-text .text-lg {
+  font-size: 1.3rem;
+}
+
+.large-text .text-xl {
+  font-size: 1.5rem;
+}
+
+.large-text .text-2xl {
+  font-size: 1.8rem;
+}
+
+.reduced-motion * {
+  transition-duration: 0.001ms !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+.screen-reader-friendly .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.screen-reader-friendly [aria-hidden="true"] {
+  display: none !important;
+}
