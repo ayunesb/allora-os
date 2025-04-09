@@ -28,7 +28,8 @@ export type ActionCategory =
   | 'campaign_interaction'
   | 'lead_conversion'
   | 'video_generation'
-  | 'page_view';
+  | 'page_view'
+  | 'automation'; // Added 'automation' category for Zapier
 
 // Track user actions
 export const trackUserAction = async (
@@ -70,8 +71,8 @@ export const trackUserAction = async (
       return false;
     }
 
-    // Trigger learning algorithm after tracking action
-    await processFeedbackLoop(userId);
+    // Process feedback loop after successful tracking
+    setTimeout(() => processFeedbackLoop(userId), 500);
     
     return true;
   } catch (error) {
@@ -91,8 +92,7 @@ const processFeedbackLoop = async (userId: string) => {
       .from('user_actions')
       .select('*')
       .eq('user_id', userId)
-      .gte('timestamp', thirtyDaysAgo.toISOString())
-      .order('timestamp', { ascending: false });
+      .gte('timestamp', thirtyDaysAgo.toISOString());
     
     if (actionsError) {
       console.error('Error fetching recent actions:', actionsError);
@@ -100,11 +100,11 @@ const processFeedbackLoop = async (userId: string) => {
     }
 
     // 2. Get user's current preferences
-    const { data: userPreferences, error: preferencesError } = await supabase
+    const { data: userPreferencesData, error: preferencesError } = await supabase
       .from('user_preferences')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
     
     if (preferencesError && preferencesError.code !== 'PGRST116') { // PGRST116 = not found
       console.error('Error fetching user preferences:', preferencesError);
@@ -112,11 +112,11 @@ const processFeedbackLoop = async (userId: string) => {
     }
 
     // 3. Analyze actions and update user model
-    const updatedPreferences = analyzeUserBehavior(recentActions || [], userPreferences);
+    const updatedPreferences = analyzeUserBehavior(recentActions || [], userPreferencesData);
     
     // 4. Save updated user preferences
     if (updatedPreferences) {
-      if (userPreferences) {
+      if (userPreferencesData) {
         // Update existing preferences
         const { error: updateError } = await supabase
           .from('user_preferences')
@@ -220,17 +220,21 @@ const analyzeUserBehavior = (
     }
   }
   
-  // Determine preferred executives
-  preferences.preferred_executives = Object.entries(executiveCounts)
+  // Determine preferred executives (convert to array format expected by DB)
+  const preferredExecutives = Object.entries(executiveCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(entry => entry[0]);
   
-  // Determine favorite topics
-  preferences.favorite_topics = Object.entries(topicCounts)
+  preferences.preferred_executives = preferredExecutives;
+  
+  // Determine favorite topics (convert to array format expected by DB)
+  const favoriteTopics = Object.entries(topicCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(entry => entry[0]);
+  
+  preferences.favorite_topics = favoriteTopics;
   
   // Determine peak activity times
   const activityPeaks = activityHours
@@ -253,7 +257,7 @@ export const getPersonalizedRecommendations = async (userId: string) => {
       .from('user_preferences')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
     
     if (error) {
       console.error('Error fetching user preferences:', error);
@@ -266,9 +270,9 @@ export const getPersonalizedRecommendations = async (userId: string) => {
     
     // Return recommendations based on preferences
     return {
-      strategies: generateStrategyRecommendations(preferences),
-      executives: preferences.preferred_executives || [],
-      topics: preferences.favorite_topics || []
+      strategies: generateStrategyRecommendations(preferences?.risk_appetite || 'medium'),
+      executives: preferences?.preferred_executives || [],
+      topics: preferences?.favorite_topics || []
     };
   } catch (error) {
     console.error('Error in getPersonalizedRecommendations:', error);
@@ -281,8 +285,7 @@ export const getPersonalizedRecommendations = async (userId: string) => {
 };
 
 // Generate strategy recommendations based on user preferences
-const generateStrategyRecommendations = (preferences: any) => {
-  const riskAppetite = preferences?.risk_appetite || 'medium';
+const generateStrategyRecommendations = (riskAppetite: string) => {
   const strategies = [];
   
   switch (riskAppetite) {
@@ -304,6 +307,11 @@ const generateStrategyRecommendations = (preferences: any) => {
         { title: 'Customer Retention', description: 'Invest in deepening relationships with existing customers' }
       );
       break;
+    default:
+      strategies.push(
+        { title: 'Balanced Growth', description: 'Mix of established markets and careful expansion to new ones' },
+        { title: 'Strategic Partnerships', description: 'Form alliances with complementary businesses' }
+      );
   }
   
   return strategies;
@@ -312,16 +320,20 @@ const generateStrategyRecommendations = (preferences: any) => {
 // Get user learning insights
 export const getLearningInsights = async (userId: string) => {
   try {
-    // Get user's action counts by category
-    const { data, error } = await supabase
+    // Get counts of user actions by category
+    const { data: actionData, error: actionError } = await supabase
       .from('user_actions')
-      .select('category, count(*)')
-      .eq('user_id', userId)
-      .group('category');
+      .select('category')
+      .eq('user_id', userId);
     
-    if (error) {
-      console.error('Error fetching learning insights:', error);
-      return [];
+    if (actionError) {
+      console.error('Error fetching learning insights:', actionError);
+      return [
+        { title: 'Behavioral Pattern', value: 'No data', description: 'Your most common interaction with the platform' },
+        { title: 'Risk Appetite', value: 'medium', description: 'Based on your strategy selections and decisions' },
+        { title: 'Learning Progress', value: '0/10', description: 'How well we understand your preferences' },
+        { title: 'Usage Pattern', value: 'No pattern', description: 'When you tend to use the platform most' }
+      ];
     }
     
     // Get user preferences
@@ -329,17 +341,44 @@ export const getLearningInsights = async (userId: string) => {
       .from('user_preferences')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
     
     if (prefError && prefError.code !== 'PGRST116') {
       console.error('Error fetching user preferences:', prefError);
     }
     
+    // Count actions by category for behavioral pattern
+    const categoryCounts: Record<string, number> = {};
+    if (actionData) {
+      actionData.forEach(item => {
+        categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+      });
+    }
+    
+    // Determine most frequent category
+    let mostFrequentCategory = 'No data';
+    let maxCount = 0;
+    
+    Object.entries(categoryCounts).forEach(([category, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        mostFrequentCategory = category;
+      }
+    });
+    
+    // Format category for display
+    if (mostFrequentCategory !== 'No data') {
+      mostFrequentCategory = mostFrequentCategory
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+
     // Format insights
     return [
       {
         title: 'Behavioral Pattern',
-        value: getMostFrequentCategory(data),
+        value: mostFrequentCategory,
         description: 'Your most common interaction with the platform'
       },
       {
@@ -349,7 +388,7 @@ export const getLearningInsights = async (userId: string) => {
       },
       {
         title: 'Learning Progress',
-        value: `${Math.min(data?.length || 0, 10)}/10`,
+        value: `${Math.min(actionData?.length || 0, 10)}/10`,
         description: 'How well we understand your preferences'
       },
       {
@@ -362,19 +401,6 @@ export const getLearningInsights = async (userId: string) => {
     console.error('Error in getLearningInsights:', error);
     return [];
   }
-};
-
-// Determine most frequent action category
-const getMostFrequentCategory = (categoryCounts: any[]) => {
-  if (!categoryCounts || !categoryCounts.length) return 'No data';
-  
-  const category = categoryCounts.sort((a, b) => b.count - a.count)[0].category;
-  
-  // Format category for display
-  return category
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 };
 
 // Determine usage pattern based on activity hours

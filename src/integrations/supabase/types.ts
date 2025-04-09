@@ -238,6 +238,75 @@ export type Database = {
           },
         ]
       }
+      user_actions: {
+        Row: {
+          action: string
+          category: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          category: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          category?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          activity_peak_times: Json | null
+          communication_style: string | null
+          dashboard_preferences: Json | null
+          favorite_topics: Json | null
+          id: string
+          last_updated: string | null
+          preferred_executives: Json | null
+          risk_appetite: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_peak_times?: Json | null
+          communication_style?: string | null
+          dashboard_preferences?: Json | null
+          favorite_topics?: Json | null
+          id?: string
+          last_updated?: string | null
+          preferred_executives?: Json | null
+          risk_appetite?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_peak_times?: Json | null
+          communication_style?: string | null
+          dashboard_preferences?: Json | null
+          favorite_topics?: Json | null
+          id?: string
+          last_updated?: string | null
+          preferred_executives?: Json | null
+          risk_appetite?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
