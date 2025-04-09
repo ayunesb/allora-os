@@ -1,4 +1,3 @@
-
 import React from "react";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
@@ -114,15 +113,12 @@ export default function Onboarding() {
     }
   };
 
-  // Calculate total steps based on whether we're skipping company and industry steps
   const getTotalSteps = () => {
-    // If we start at step 3 (goals), then we only have 3 steps total
-    return step === 3 && (step === 1) ? 3 : 5;
+    return step === 3 && step === 3 ? 3 : 5;
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Add logout button at the top right */}
       <div className="absolute top-4 right-4">
         <Button
           variant="outline"
