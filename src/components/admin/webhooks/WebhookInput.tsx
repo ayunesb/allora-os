@@ -14,6 +14,7 @@ interface WebhookInputProps {
   isValid: boolean | null;
   errorMessage: string;
   validMessage: string;
+  validationMessage?: string | null;
   description?: string;
   className?: string;
 }
@@ -27,6 +28,7 @@ const WebhookInput = ({
   isValid,
   errorMessage,
   validMessage,
+  validationMessage,
   description,
   className
 }: WebhookInputProps) => {
@@ -40,7 +42,7 @@ const WebhookInput = ({
               <TooltipTrigger asChild>
                 <AlertTriangle className="h-4 w-4 text-destructive" />
               </TooltipTrigger>
-              <TooltipContent>{errorMessage}</TooltipContent>
+              <TooltipContent>{validationMessage || errorMessage}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         }
@@ -62,6 +64,11 @@ const WebhookInput = ({
         onChange={onChange}
         className={isValid === false ? "border-destructive" : ""}
       />
+      {validationMessage && isValid === false && (
+        <p className="text-xs text-destructive">
+          {validationMessage}
+        </p>
+      )}
       {description && (
         <p className="text-xs text-muted-foreground">
           {description}

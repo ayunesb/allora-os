@@ -1,40 +1,30 @@
 
 import { useState } from 'react';
-import { sanitizeUrl } from '@/utils/sanitizers';
+import { WebhookType, validateWebhookUrl } from '@/utils/webhookValidation';
 
-type WebhookType = 'stripe' | 'zapier';
-
+/**
+ * Hook for validating webhook URLs for different services
+ * @param type The type of webhook to validate
+ * @returns Validation state and validation function
+ */
 export const useWebhookValidation = (type: WebhookType) => {
   const [isValid, setIsValid] = useState<boolean | null>(null);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
   const validateUrl = (url: string): boolean => {
     if (!url.trim()) {
       setIsValid(null);
+      setValidationMessage(null);
       return false;
     }
     
-    try {
-      // Use the sanitizeUrl utility to sanitize and validate the URL
-      const sanitized = sanitizeUrl(url);
-      const isUrlValid = !!sanitized && new URL(sanitized).toString() === sanitized;
-      
-      // Additional specific validation
-      if (type === 'zapier') {
-        const isZapierUrl = sanitized.includes('hooks.zapier.com');
-        setIsValid(isUrlValid && isZapierUrl);
-        if (isUrlValid && !isZapierUrl) {
-          console.warn('URL is valid but does not appear to be a Zapier webhook');
-        }
-        return isUrlValid && isZapierUrl;
-      } else {
-        setIsValid(isUrlValid);
-        return isUrlValid;
-      }
-    } catch (e) {
-      setIsValid(false);
-      return false;
-    }
+    const { isValid: urlIsValid, message } = validateWebhookUrl(url, type);
+    
+    setIsValid(urlIsValid);
+    setValidationMessage(message || null);
+    
+    return urlIsValid;
   };
 
-  return { isValid, validateUrl };
+  return { isValid, validationMessage, validateUrl };
 };

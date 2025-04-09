@@ -13,7 +13,7 @@ const StripeWebhookSection = ({
   stripeWebhook, 
   onStripeWebhookChange 
 }: StripeWebhookSectionProps) => {
-  const { isValid: isStripeWebhookValid, validateUrl } = useWebhookValidation('stripe');
+  const { isValid: isStripeWebhookValid, validationMessage, validateUrl } = useWebhookValidation('stripe');
 
   // Handle input change
   const handleStripeWebhookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,6 +38,7 @@ const StripeWebhookSection = ({
         isValid={isStripeWebhookValid}
         errorMessage="Invalid URL format"
         validMessage="Valid URL format"
+        validationMessage={validationMessage}
         description="Enter the URL where Stripe should send webhook events. This is used for payment processing."
       />
     </div>

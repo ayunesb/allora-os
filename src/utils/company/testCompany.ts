@@ -1,96 +1,55 @@
 
+/**
+ * Utility functions for working with test company data
+ * Used for development and testing purposes
+ */
+
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { updateCompanyDetails } from './companyUpdate';
+import { Company } from '@/models/company';
 
 /**
- * Sets up a test company for a specific user
+ * Fetches a test company from the database
+ * @returns Promise resolving to a test company or null
  */
-export async function setupTestCompany(email: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    // Query directly for the user ID using maybeSingle() to avoid type instantiation errors
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .single();
-      
-    if (profileError || !profile) {
-      console.error("Error finding user:", profileError);
-      return { success: false, error: `User with email ${email} not found` };
-    }
-    
-    const userId = profile.id;
-    
-    // Set up the test company details
-    const result = await updateCompanyDetails(userId, {
-      name: "Allora AI S.A.S",
-      industry: "AI SaaS",
-      description: "Allora AI is a SaaS platform that democratizes access to strategic business consulting by using AI personas modeled after global leaders like Elon Musk, Jeff Bezos, and Satya Nadella. Businesses can launch, grow, and dominate their industries with AI-generated strategies, bot debates, and actionable final reports.",
-      mission: "Revolutionize business strategy through AI executive intelligence and automation.",
-      vision: "Empower businesses worldwide to scale with AI-driven strategic leadership.",
-      headquarters: "Calle 40, Colonia El Pedregal, Playa del Carmen, Quintana Roo, México, 77712",
-      phone: "+52 984 113 5107",
-      website: "www.allora-ai.com",
-      email: "contact@allora-ai.com",
-      stage: "MVP Completed, Ready for Launch",
-      businessModel: {
-        freemium: "Free (Limited Access)",
-        premium: "$99/month",
-        enterprise: "$299/month",
-        upsells: ["Custom AI Bot Training", "Premium Reports"]
-      },
-      marketInfo: {
-        size: "$200B+ Global AI SaaS Market",
-        growthRate: "30% Year-over-Year",
-        targetCustomers: ["Small-Medium Businesses (SMBs)", "Startups", "Entrepreneurs", "Agencies"]
-      },
-      products: [
-        { name: "AI Strategy Wizard", description: "Guided strategy creation tailored to business goals." },
-        { name: "Executive Bots Debates", description: "AI executive bots simulate real-time debates to refine strategies." },
-        { name: "Final Strategy Report", description: "Auto-generated executive summary and action plan." },
-        { name: "Admin Dashboard", description: "KPIs, Growth Metrics, User Management, Analytics." }
-      ],
-      team: [
-        { role: "Founder", name: "Ayunes B." },
-        { role: "CTO (Future Hire)", name: "TBD" },
-        { role: "Marketing (Future Hire)", name: "TBD" },
-        { role: "Customer Success (Future Hire)", name: "TBD" }
-      ],
-      financials: {
-        fundingRound: "Seed",
-        fundingAmount: "$400,000",
-        valuation: "$2.5 Million (Post-Money)",
-        useOfFunds: "50% Product Dev, 30% Marketing, 20% Operations",
-        cac: "$20",
-        ltv: "$300",
-        runway: "12 months"
-      },
-      techStack: ["React", "Next.js", "Supabase", "Node.js", "OpenAI", "Heygen", "Stripe", "Twilio", "Postmark", "Zapier"],
-      legalEntity: {
-        name: "Allora AI S.A.S",
-        country: "México"
-      }
-    });
-    
-    return result;
-  } catch (error: any) {
-    console.error("Error setting up test company:", error);
-    return { success: false, error: error.message };
+export async function getTestCompany(): Promise<Company | null> {
+  const { data, error } = await supabase
+    .from('companies')
+    .select()
+    .eq('is_test', true)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching test company:', error);
+    return null;
   }
+
+  return data as Company | null;
 }
 
 /**
- * Script to set up a test company for existing user
+ * Creates a new test company in the database
+ * @param name Name for the test company
+ * @returns Promise resolving to the created test company or null
  */
-export async function runTestCompanySetup(email: string = "ayunesb@icloud.com"): Promise<void> {
-  const result = await setupTestCompany(email);
-  
-  if (result.success) {
-    toast.success(`Test company set up successfully for ${email}`);
-    console.log("Test company setup completed successfully");
-  } else {
-    toast.error(`Failed to set up test company: ${result.error}`);
-    console.error("Test company setup failed:", result.error);
+export async function createTestCompany(name: string): Promise<Company | null> {
+  const { data, error } = await supabase
+    .from('companies')
+    .insert([
+      {
+        name,
+        is_test: true,
+        status: 'active',
+        created_at: new Date().toISOString(),
+      },
+    ])
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating test company:', error);
+    return null;
   }
+
+  return data as Company | null;
 }

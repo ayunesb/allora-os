@@ -18,7 +18,7 @@ const ZapierWebhookSection = ({
   onTestWebhook,
   isTestLoading
 }: ZapierWebhookSectionProps) => {
-  const { isValid: isZapierWebhookValid, validateUrl } = useWebhookValidation('zapier');
+  const { isValid: isZapierWebhookValid, validationMessage, validateUrl } = useWebhookValidation('zapier');
 
   // Handle input change
   const handleZapierWebhookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,14 +43,9 @@ const ZapierWebhookSection = ({
         isValid={isZapierWebhookValid}
         errorMessage="Invalid Zapier webhook URL"
         validMessage="Valid Zapier webhook URL"
+        validationMessage={validationMessage}
         description="Enter your Zapier webhook URL to automate workflows when events occur in the platform."
       />
-      
-      {isZapierWebhookValid === false && zapierWebhook && (
-        <p className="text-xs text-destructive">
-          This does not appear to be a valid Zapier webhook URL. It should start with https://hooks.zapier.com/
-        </p>
-      )}
       
       <div className="flex gap-2">
         <Button 
