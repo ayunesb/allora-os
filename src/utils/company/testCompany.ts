@@ -44,7 +44,7 @@ export async function createTestCompany(name: string): Promise<Company | null> {
         created_at: new Date().toISOString(),
       },
     ])
-    .select()
+    .select('id, name, created_at, details, industry')
     .maybeSingle();
 
   if (error) {

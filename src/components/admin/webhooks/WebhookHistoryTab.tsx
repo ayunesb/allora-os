@@ -190,8 +190,8 @@ const WebhookHistoryTab: React.FC = () => {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious 
-                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
+                  onClick={() => currentPage > 1 ? handlePageChange(currentPage - 1) : undefined}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
               
@@ -209,7 +209,7 @@ const WebhookHistoryTab: React.FC = () => {
                     <React.Fragment key={page}>
                       {showEllipsis && (
                         <PaginationItem>
-                          <PaginationLink disabled>...</PaginationLink>
+                          <span className="flex h-9 w-9 items-center justify-center">...</span>
                         </PaginationItem>
                       )}
                       <PaginationItem>
@@ -226,8 +226,8 @@ const WebhookHistoryTab: React.FC = () => {
               
               <PaginationItem>
                 <PaginationNext 
-                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => currentPage < totalPages ? handlePageChange(currentPage + 1) : undefined}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
             </PaginationContent>
