@@ -1,30 +1,32 @@
 
 import { runTestCompanySetup } from '@/utils/company/testCompany';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
-import { getTestCompany, createTestCompany } from '@/utils/company/testCompany';
+import { getTestCompany } from '@/utils/company/testCompany/getTestCompany';
+import { createTestCompany } from '@/utils/company/testCompany/createTestCompany';
 import { supabase } from '@/backend/supabase';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock the dependencies
-jest.mock('@/utils/users/fetchUsers');
-jest.mock('@/utils/company/testCompany/getTestCompany');
-jest.mock('@/utils/company/testCompany/createTestCompany');
-jest.mock('@/backend/supabase');
+vi.mock('@/utils/users/fetchUsers');
+vi.mock('@/utils/company/testCompany/getTestCompany');
+vi.mock('@/utils/company/testCompany/createTestCompany');
+vi.mock('@/backend/supabase');
 
 // Type the mocks for TypeScript
-const mockedGetUserProfileByEmail = getUserProfileByEmail as jest.MockedFunction<typeof getUserProfileByEmail>;
-const mockedGetTestCompany = getTestCompany as jest.MockedFunction<typeof getTestCompany>;
-const mockedCreateTestCompany = createTestCompany as jest.MockedFunction<typeof createTestCompany>;
-const mockedSupabase = supabase as jest.Mocked<typeof supabase>;
+const mockedGetUserProfileByEmail = getUserProfileByEmail as vi.MockedFunction<typeof getUserProfileByEmail>;
+const mockedGetTestCompany = getTestCompany as vi.MockedFunction<typeof getTestCompany>;
+const mockedCreateTestCompany = createTestCompany as vi.MockedFunction<typeof createTestCompany>;
+const mockedSupabase = supabase as vi.Mocked<typeof supabase>;
 
 describe('setupTestCompany', () => {
   beforeEach(() => {
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Default mock implementation for supabase
     mockedSupabase.from.mockReturnValue({
-      update: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ error: null })
+      update: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: null })
       })
     } as any);
   });
@@ -161,8 +163,8 @@ describe('setupTestCompany', () => {
     
     // Mock profile update failure
     mockedSupabase.from.mockReturnValue({
-      update: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ error: { message: 'Profile update failed' } })
+      update: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: { message: 'Profile update failed' } })
       })
     } as any);
     

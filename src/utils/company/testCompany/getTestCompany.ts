@@ -8,7 +8,7 @@ import { Company } from '@/models/company';
  */
 export async function getTestCompany(): Promise<Partial<Company> | null> {
   try {
-    // Using explicit column selection and type casting to avoid deep type issues
+    // Using explicit column selection to avoid deep type issues
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')
@@ -25,8 +25,13 @@ export async function getTestCompany(): Promise<Partial<Company> | null> {
       return null;
     }
 
-    // Use just the first item with type assertion
-    return data[0] as Partial<Company>;
+    // Use explicit type assertion for the first item
+    return {
+      id: data[0].id,
+      name: data[0].name,
+      created_at: data[0].created_at,
+      industry: data[0].industry
+    } as Partial<Company>;
   } catch (error) {
     console.error('Unexpected error in getTestCompany:', error);
     return null;
