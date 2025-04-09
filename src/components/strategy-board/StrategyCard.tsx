@@ -37,7 +37,7 @@ export default function StrategyCard({ title, description, risk }: StrategyCardP
   };
 
   return (
-    <Card className="border-primary/10 shadow-md">
+    <Card className="border-primary/10 shadow-md hover:shadow-lg transition-all cursor-pointer">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
