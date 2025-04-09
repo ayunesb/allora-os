@@ -11,11 +11,11 @@ import { Company } from '@/models/company';
  * Fetches a test company from the database
  * @returns Promise resolving to a test company or null
  */
-export async function getTestCompany(): Promise<Company | null> {
-  // Using explicit column selection and maybeSingle to avoid deep type instantiation error
+export async function getTestCompany(): Promise<Partial<Company> | null> {
+  // Using explicit column selection to avoid deep type instantiation error
   const { data, error } = await supabase
     .from('companies')
-    .select('id, name, created_at, details, industry')
+    .select('id, name, created_at, industry')
     .eq('is_test', true)
     .limit(1)
     .maybeSingle();
@@ -25,7 +25,7 @@ export async function getTestCompany(): Promise<Company | null> {
     return null;
   }
 
-  return data as Company | null;
+  return data as Partial<Company> | null;
 }
 
 /**
@@ -33,7 +33,7 @@ export async function getTestCompany(): Promise<Company | null> {
  * @param name Name for the test company
  * @returns Promise resolving to the created test company or null
  */
-export async function createTestCompany(name: string): Promise<Company | null> {
+export async function createTestCompany(name: string): Promise<Partial<Company> | null> {
   const { data, error } = await supabase
     .from('companies')
     .insert([
@@ -44,7 +44,7 @@ export async function createTestCompany(name: string): Promise<Company | null> {
         created_at: new Date().toISOString(),
       },
     ])
-    .select('id, name, created_at, details, industry')
+    .select('id, name, created_at, industry')
     .maybeSingle();
 
   if (error) {
@@ -52,7 +52,7 @@ export async function createTestCompany(name: string): Promise<Company | null> {
     return null;
   }
 
-  return data as Company | null;
+  return data as Partial<Company> | null;
 }
 
 /**
