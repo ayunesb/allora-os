@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -42,7 +41,6 @@ export default function DashboardLayout() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar isLoggedIn={true} />
         <div className="flex-1 container mx-auto px-4 py-24">
           <div className="flex justify-between items-center mb-6">
             <Skeleton className="h-12 w-[250px]" />
@@ -73,7 +71,6 @@ export default function DashboardLayout() {
   // Render child routes with consistent layout
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar isLoggedIn={true} />
       {showRefreshButton && (
         <div className="bg-muted py-2 px-4 border-b">
           <div className="container mx-auto flex justify-end">
