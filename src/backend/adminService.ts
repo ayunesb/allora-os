@@ -1,5 +1,5 @@
 
-import { supabase } from './supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/models/user';
 import { Company } from '@/models/company';
 import { toast } from 'sonner';
@@ -16,29 +16,24 @@ export interface AdminCompanyUpdateData {
   industry?: string;
 }
 
-// Get all users for admin dashboard (mock implementation)
+// Get all users for admin dashboard
 export const getAllUsers = async (): Promise<User[]> => {
   try {
-    // In a real implementation, this would query the Supabase database
-    // For now, return mock data
-    return [
-      {
-        id: 'user-1',
-        email: 'admin@example.com',
-        name: 'Admin User',
-        company_id: 'company-1',
-        role: 'admin',
-        created_at: new Date(Date.now() - 30 * 86400000).toISOString() // 30 days ago
-      },
-      {
-        id: 'user-2',
-        email: 'user@example.com',
-        name: 'Regular User',
-        company_id: 'company-1',
-        role: 'user',
-        created_at: new Date(Date.now() - 15 * 86400000).toISOString() // 15 days ago
-      }
-    ];
+    // Query the profiles table to get all users
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, email, company_id, role, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    // For each profile, we need to get the email from auth.users
+    // But since we can't directly query auth.users with the JS client,
+    // we'll have to work with what we have in the profiles table
+
+    return data || [];
   } catch (error: any) {
     console.error('Error fetching all users:', error.message);
     toast.error(`Admin error: ${error.message}`);
@@ -46,25 +41,19 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 };
 
-// Get all companies for admin dashboard (mock implementation)
+// Get all companies
 export const getAllCompanies = async (): Promise<Company[]> => {
   try {
-    // In a real implementation, this would query the Supabase database
-    // For now, return mock data
-    return [
-      {
-        id: 'company-1',
-        name: 'Acme Corporation',
-        industry: 'Technology',
-        created_at: new Date(Date.now() - 45 * 86400000).toISOString() // 45 days ago
-      },
-      {
-        id: 'company-2',
-        name: 'XYZ Enterprises',
-        industry: 'Healthcare',
-        created_at: new Date(Date.now() - 30 * 86400000).toISOString() // 30 days ago
-      }
-    ];
+    const { data, error } = await supabase
+      .from('companies')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
   } catch (error: any) {
     console.error('Error fetching all companies:', error.message);
     toast.error(`Admin error: ${error.message}`);
@@ -72,14 +61,20 @@ export const getAllCompanies = async (): Promise<Company[]> => {
   }
 };
 
-// Update user as admin (mock implementation)
+// Update user as admin
 export const updateUserAsAdmin = async (
   userId: string,
   data: AdminUserUpdateData
 ): Promise<boolean> => {
   try {
-    // In a real implementation, this would update the Supabase database
-    console.log('Would update user:', userId, 'with data:', data);
+    const { error } = await supabase
+      .from('profiles')
+      .update(data)
+      .eq('id', userId);
+
+    if (error) {
+      throw error;
+    }
     
     toast.success('User updated successfully');
     return true;
@@ -90,14 +85,20 @@ export const updateUserAsAdmin = async (
   }
 };
 
-// Update company as admin (mock implementation)
+// Update company as admin
 export const updateCompanyAsAdmin = async (
   companyId: string,
   data: AdminCompanyUpdateData
 ): Promise<boolean> => {
   try {
-    // In a real implementation, this would update the Supabase database
-    console.log('Would update company:', companyId, 'with data:', data);
+    const { error } = await supabase
+      .from('companies')
+      .update(data)
+      .eq('id', companyId);
+
+    if (error) {
+      throw error;
+    }
     
     toast.success('Company updated successfully');
     return true;
@@ -108,13 +109,24 @@ export const updateCompanyAsAdmin = async (
   }
 };
 
-// Delete user as admin (mock implementation)
+// Delete user as admin
 export const deleteUserAsAdmin = async (userId: string): Promise<boolean> => {
   try {
-    // In a real implementation, this would delete from the Supabase database
-    console.log('Would delete user:', userId);
+    // Note: Deleting from the auth.users table requires admin API access 
+    // which is not available in the client. Typically this would be done 
+    // via a Supabase Edge Function with service_role access.
+    // For now, we'll just delete from profiles as a demonstration
     
-    toast.success('User deleted successfully');
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+
+    if (error) {
+      throw error;
+    }
+    
+    toast.success('User profile deleted successfully');
     return true;
   } catch (error: any) {
     console.error('Error deleting user as admin:', error.message);
@@ -123,11 +135,17 @@ export const deleteUserAsAdmin = async (userId: string): Promise<boolean> => {
   }
 };
 
-// Delete company as admin (mock implementation)
+// Delete company as admin
 export const deleteCompanyAsAdmin = async (companyId: string): Promise<boolean> => {
   try {
-    // In a real implementation, this would delete from the Supabase database
-    console.log('Would delete company:', companyId);
+    const { error } = await supabase
+      .from('companies')
+      .delete()
+      .eq('id', companyId);
+
+    if (error) {
+      throw error;
+    }
     
     toast.success('Company deleted successfully');
     return true;
@@ -138,33 +156,20 @@ export const deleteCompanyAsAdmin = async (companyId: string): Promise<boolean> 
   }
 };
 
-// Get users for a specific company (mock implementation)
+// Get users for a specific company
 export const getCompanyUsers = async (companyId: string): Promise<User[]> => {
   try {
-    // In a real implementation, this would query the Supabase database
-    // For now, return mock data if the company ID matches our mock data
-    if (companyId === 'company-1') {
-      return [
-        {
-          id: 'user-1',
-          email: 'admin@example.com',
-          name: 'Admin User',
-          company_id: companyId,
-          role: 'admin',
-          created_at: new Date(Date.now() - 30 * 86400000).toISOString()
-        },
-        {
-          id: 'user-2',
-          email: 'user@example.com',
-          name: 'Regular User',
-          company_id: companyId,
-          role: 'user',
-          created_at: new Date(Date.now() - 15 * 86400000).toISOString()
-        }
-      ];
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, email, company_id, role, created_at')
+      .eq('company_id', companyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
     }
     
-    return [];
+    return data || [];
   } catch (error: any) {
     console.error('Error fetching company users:', error.message);
     toast.error(`Admin error: ${error.message}`);

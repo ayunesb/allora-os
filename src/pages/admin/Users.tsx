@@ -1,53 +1,43 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { User } from "@/models/user";
+import { Loader2 } from 'lucide-react';
+import useAdminFunctions from '@/hooks/useAdminFunctions';
 
 export default function AdminUsers() {
-  // Mock user data - in a real application, this would come from Supabase
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: "1",
-      email: "user1@example.com",
-      name: "John Doe",
-      company_id: "c1",
-      role: "admin",
-      created_at: "2023-01-01T00:00:00Z"
-    },
-    {
-      id: "2",
-      email: "user2@example.com",
-      name: "Jane Smith",
-      company_id: "c1",
-      role: "user",
-      created_at: "2023-01-02T00:00:00Z"
-    }
-  ]);
+  const { users, loadUsers, isLoading, updateUser, deleteUser } = useAdminFunctions();
+
+  useEffect(() => {
+    // Load users when component mounts
+    loadUsers();
+  }, [loadUsers]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar isLoggedIn={true} />
-      
-      <div className="container mx-auto px-4 pt-24 pb-12">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">User Management</h1>
-            <p className="text-muted-foreground mt-2">
-              Manage user accounts and permissions
-            </p>
-          </div>
-          <Button>Add New User</Button>
+    <div className="container mx-auto px-4 pt-6 pb-12">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage user accounts and permissions
+          </p>
         </div>
-        
-        <Card className="border-primary/10 shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle>User Accounts</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Button>Add New User</Button>
+      </div>
+      
+      <Card className="border-primary/10 shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle>User Accounts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -59,26 +49,58 @@ export default function AdminUsers() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
-                        {user.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm">Edit</Button>
+                {users.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      No users found
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              // Toggle user role between admin and user
+                              const newRole = user.role === 'admin' ? 'user' : 'admin';
+                              updateUser(user.id, { role: newRole });
+                            }}
+                          >
+                            {user.role === 'admin' ? 'Make User' : 'Make Admin'}
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-destructive hover:text-destructive/90"
+                            onClick={() => {
+                              if (window.confirm(`Are you sure you want to delete user ${user.name}?`)) {
+                                deleteUser(user.id);
+                              }
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

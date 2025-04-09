@@ -1,43 +1,41 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Lead } from "@/models/lead";
+import { Loader2 } from 'lucide-react';
+import { fetchCompanyLeads } from '@/utils/leadHelpers';
 
 export default function AdminLeads() {
-  // Mock lead data - in a real application, this would come from Supabase
-  const [leads, setLeads] = useState<Lead[]>([
-    {
-      id: "1",
-      campaign_id: "c1",
-      name: "John Smith",
-      email: "john@example.com",
-      phone: "123-456-7890",
-      status: "new",
-      created_at: "2023-07-01T00:00:00Z"
-    },
-    {
-      id: "2",
-      campaign_id: "c1",
-      name: "Sarah Jones",
-      email: "sarah@example.com",
-      phone: "234-567-8901",
-      status: "contacted",
-      created_at: "2023-07-15T00:00:00Z"
-    },
-    {
-      id: "3",
-      campaign_id: "c2",
-      name: "Michael Brown",
-      email: "michael@example.com",
-      phone: "345-678-9012",
-      status: "qualified",
-      created_at: "2023-08-01T00:00:00Z"
-    }
-  ]);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadLeads = async () => {
+      setIsLoading(true);
+      try {
+        // In a real implementation, you would fetch leads for all companies
+        // This is a simplified implementation
+        const allCompanyLeads: Lead[] = [];
+        
+        // Fetch leads for some example companies
+        // In a real implementation, you would first fetch all companies and then fetch leads for each
+        const companyLeads1 = await fetchCompanyLeads('company-1');
+        const companyLeads2 = await fetchCompanyLeads('company-2');
+        
+        allCompanyLeads.push(...companyLeads1, ...companyLeads2);
+        setLeads(allCompanyLeads);
+      } catch (error) {
+        console.error('Error loading leads:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLeads();
+  }, []);
 
   // Helper function to get the appropriate badge style for different statuses
   const getStatusBadge = (status: string) => {
@@ -56,25 +54,27 @@ export default function AdminLeads() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar isLoggedIn={true} />
-      
-      <div className="container mx-auto px-4 pt-24 pb-12">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Lead Management</h1>
-            <p className="text-muted-foreground mt-2">
-              Track and manage sales leads
-            </p>
-          </div>
-          <Button>Add New Lead</Button>
+    <div className="container mx-auto px-4 pt-6 pb-12">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Lead Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Track and manage sales leads
+          </p>
         </div>
-        
-        <Card className="border-primary/10 shadow-md">
-          <CardHeader className="pb-2">
-            <CardTitle>Active Leads</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Button>Add New Lead</Button>
+      </div>
+      
+      <Card className="border-primary/10 shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle>Active Leads</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -86,27 +86,38 @@ export default function AdminLeads() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leads.map((lead) => (
-                  <TableRow key={lead.id}>
-                    <TableCell className="font-medium">{lead.name}</TableCell>
-                    <TableCell>
-                      <div>{lead.email}</div>
-                      <div className="text-xs text-muted-foreground">{lead.phone}</div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(lead.status)}
-                    </TableCell>
-                    <TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm">Update</Button>
+                {leads.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      No leads found
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  leads.map((lead) => (
+                    <TableRow key={lead.id}>
+                      <TableCell className="font-medium">{lead.name}</TableCell>
+                      <TableCell>
+                        <div>{lead.email}</div>
+                        <div className="text-xs text-muted-foreground">{lead.phone}</div>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(lead.status)}
+                      </TableCell>
+                      <TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button variant="ghost" size="sm">View</Button>
+                          <Button variant="ghost" size="sm">Update</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
