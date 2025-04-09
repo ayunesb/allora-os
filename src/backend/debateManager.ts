@@ -1,3 +1,4 @@
+
 import { executiveBots } from './executiveBots';
 import { formatRoleTitle, getBotExpertise } from '@/utils/consultation';
 import { supabase } from './supabase';
@@ -63,7 +64,7 @@ export const generateBotResponse = async (
   topic: string, 
   riskAppetite: string = 'medium',
   businessPriority: string = 'growth'
-): Promise<string> {
+): Promise<string> => {
   try {
     // Call the OpenAI edge function
     const { data, error } = await supabase.functions.invoke('openai', {
