@@ -12,11 +12,11 @@ vi.mock('@/utils/company/testCompany/getTestCompany');
 vi.mock('@/utils/company/testCompany/createTestCompany');
 vi.mock('@/backend/supabase');
 
-// Type the mocks for TypeScript
-const mockedGetUserProfileByEmail = getUserProfileByEmail as vi.MockedFunction<typeof getUserProfileByEmail>;
-const mockedGetTestCompany = getTestCompany as vi.MockedFunction<typeof getTestCompany>;
-const mockedCreateTestCompany = createTestCompany as vi.MockedFunction<typeof createTestCompany>;
-const mockedSupabase = supabase as vi.Mocked<typeof supabase>;
+// Type the mocks for TypeScript - using proper Vitest MockInstance types
+const mockedGetUserProfileByEmail = getUserProfileByEmail as unknown as typeof getUserProfileByEmail & { mockResolvedValue: (value: any) => void, mockRejectedValue: (value: any) => void };
+const mockedGetTestCompany = getTestCompany as unknown as typeof getTestCompany & { mockResolvedValue: (value: any) => void };
+const mockedCreateTestCompany = createTestCompany as unknown as typeof createTestCompany & { mockResolvedValue: (value: any) => void };
+const mockedSupabase = supabase as unknown as typeof supabase & { from: vi.Mock };
 
 describe('setupTestCompany', () => {
   beforeEach(() => {
