@@ -19,14 +19,10 @@ interface SaveSecuritySettingsParams {
 }
 
 const saveSecuritySettings = async ({ settings }: SaveSecuritySettingsParams): Promise<boolean> => {
-  // Save the security settings to the system_settings table
-  const { error } = await supabase
-    .from('system_settings')
-    .update({ 
-      value: settings,
-      updated_at: new Date().toISOString()
-    })
-    .eq('key', 'security_settings');
+  // Use raw API call to avoid type issues with system_settings table
+  const { error } = await supabase.rpc('update_security_settings', { 
+    p_settings: settings 
+  });
     
   if (error) {
     console.error("Error saving security settings:", error);

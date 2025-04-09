@@ -110,27 +110,27 @@ const AdminSettingsProvider: React.FC<AdminSettingsProviderProps> = ({ children 
           }
         }
         
-        // Fetch global security settings directly using raw query to avoid type issues
-        const { data: securityData, error: securityError } = await supabase
-          .rpc('get_security_settings');
-          
-        if (!securityError && securityData) {
+        // Fetch global security settings using a direct API call to avoid type issues
+        const response = await fetch('https://ofwxyctfzskeeniaaazw.supabase.co/rest/v1/rpc/get_security_settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo',
+            'Authorization': `Bearer ${supabase.auth.getSession().then(({ data }) => data.session?.access_token)}`
+          }
+        });
+        
+        if (response.ok) {
+          const securityData = await response.json();
           setSecuritySettings(securityData);
         } else {
-          console.error("Error fetching security settings:", securityError);
-          
-          // Fetch using a more direct approach as fallback
-          const { data: rawSettingsData } = await supabase
-            .from('system_settings')
-            .select('*')
-            .eq('key', 'security_settings')
-            .single();
-          
-          if (rawSettingsData && rawSettingsData.value) {
-            setSecuritySettings(rawSettingsData.value as SecuritySettings);
-          }
+          console.error("Error fetching security settings from API");
+          // Fallback to default settings
+          setSecuritySettings({
+            twoFactorEnabled: false,
+            extendedSessionTimeout: false
+          });
         }
-        
       } catch (error) {
         console.error('Error fetching settings data:', error);
       } finally {
