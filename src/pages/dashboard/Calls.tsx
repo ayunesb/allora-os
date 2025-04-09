@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Phone, Play, Download, FileText, PhoneCall, User, Loader2, Send as SendIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { sendSMS } from "@/utils/twilioHelpers";
 import { toast } from "sonner";
 import { makeCall } from "@/utils/callHelpers";
+import { useSelfLearning } from "@/hooks/useSelfLearning";
+import { useAuthState } from "@/hooks/useAuthState";
 
 export default function Calls() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -16,6 +17,9 @@ export default function Calls() {
   const [isCallingLoading, setIsCallingLoading] = useState(false);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [activeTab, setActiveTab] = useState("scripts");
+
+  const { user } = useAuthState();
+  const { trackAction } = useSelfLearning();
 
   const callScripts = [
     {
@@ -46,7 +50,17 @@ export default function Calls() {
     
     setIsCallingLoading(true);
     try {
-      await makeCall(phoneNumber);
+      if (user?.id) {
+        trackAction(
+          'initiate_call',
+          'call_initiate',
+          phoneNumber,
+          'phone_call',
+          { phoneNumber }
+        );
+      }
+      
+      await makeCall(phoneNumber, user?.id);
       toast.success("Call initiated successfully");
     } catch (error) {
       console.error("Call error:", error);
@@ -69,6 +83,16 @@ export default function Calls() {
     
     setIsSendingMessage(true);
     try {
+      if (user?.id) {
+        trackAction(
+          'send_sms',
+          'message_send',
+          phoneNumber,
+          'sms_message',
+          { phoneNumber, messageLength: message.length }
+        );
+      }
+      
       const result = await sendSMS(phoneNumber, message);
       if (result) {
         toast.success("Message sent successfully");
@@ -82,6 +106,34 @@ export default function Calls() {
     }
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    if (user?.id) {
+      trackAction(
+        'switch_tab',
+        'page_view',
+        `calls_${value}`,
+        'tab',
+        { from: activeTab, to: value }
+      );
+    }
+  };
+
+  const handleUseScript = (scriptTitle: string) => {
+    if (user?.id) {
+      trackAction(
+        'use_script',
+        'strategy_view',
+        scriptTitle,
+        'call_script',
+        { scriptTitle }
+      );
+    }
+    
+    setActiveTab("dialer");
+  };
+
   return (
     <div>
       <div className="flex items-center mb-8">
@@ -93,7 +145,7 @@ export default function Calls() {
         Make calls, send messages, and manage call scripts
       </p>
       
-      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="grid grid-cols-2">
           <TabsTrigger value="scripts">
             <FileText className="mr-2 h-4 w-4" />
@@ -131,7 +183,7 @@ export default function Calls() {
                 <div className="flex space-x-2">
                   {script.status === "Ready" ? (
                     <>
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => setActiveTab("dialer")}>
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handleUseScript(script.title)}>
                         <Play className="mr-2 h-4 w-4" />
                         Use
                       </Button>

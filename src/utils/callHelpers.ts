@@ -1,8 +1,9 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { trackUserAction } from '@/utils/selfLearningEngine';
 
-export async function makeCall(to: string) {
+export async function makeCall(to: string, userId?: string) {
   try {
     const { data, error } = await supabase.functions.invoke('twilio', {
       body: { action: 'make-call', to }
@@ -12,6 +13,19 @@ export async function makeCall(to: string) {
     
     if (data.success) {
       toast.success('Call initiated successfully');
+      
+      // Track this action in our self-learning system if we have userId
+      if (userId) {
+        await trackUserAction(
+          userId,
+          'initiate_call',
+          'call_initiate',
+          data.callSid,
+          'phone_call',
+          { to, success: true }
+        );
+      }
+      
       return {
         success: true,
         callSid: data.callSid
@@ -21,6 +35,19 @@ export async function makeCall(to: string) {
     }
   } catch (error: any) {
     toast.error(`Call error: ${error.message}`);
+    
+    // Track failed call attempt if we have userId
+    if (userId) {
+      await trackUserAction(
+        userId,
+        'failed_call',
+        'call_initiate',
+        undefined,
+        'phone_call',
+        { to, success: false, error: error.message }
+      );
+    }
+    
     return {
       success: false,
       error: error.message
