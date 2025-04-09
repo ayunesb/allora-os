@@ -24,12 +24,16 @@ export const getUserPreferences = async (userId: string): Promise<UserPreference
 
     return {
       risk_appetite: data.risk_appetite || 'medium',
-      preferred_executives: data.preferred_executives || [],
-      favorite_topics: data.favorite_topics || [],
+      preferred_executives: Array.isArray(data.preferred_executives) ? data.preferred_executives : [],
+      favorite_topics: Array.isArray(data.favorite_topics) ? data.favorite_topics : [],
       communication_style: data.communication_style || 'balanced',
-      activity_peak_times: data.activity_peak_times || [],
-      dashboard_preferences: data.dashboard_preferences || {},
-      last_updated: new Date(data.last_updated)
+      activity_peak_times: Array.isArray(data.activity_peak_times) 
+        ? data.activity_peak_times.map(time => Number(time)) 
+        : [],
+      dashboard_preferences: typeof data.dashboard_preferences === 'object' 
+        ? data.dashboard_preferences as Record<string, any> 
+        : {},
+      last_updated: new Date(data.last_updated || new Date())
     };
   } catch (error) {
     console.error('Error in getUserPreferences:', error);
@@ -47,11 +51,11 @@ export const updateUserPreferences = async (
     const { error } = await supabase.rpc('update_user_preferences', {
       p_user_id: userId,
       p_risk_appetite: preferences.risk_appetite,
-      p_preferred_executives: preferences.preferred_executives,
-      p_favorite_topics: preferences.favorite_topics,
+      p_preferred_executives: preferences.preferred_executives || [],
+      p_favorite_topics: preferences.favorite_topics || [],
       p_communication_style: preferences.communication_style,
-      p_activity_peak_times: preferences.activity_peak_times,
-      p_dashboard_preferences: preferences.dashboard_preferences,
+      p_activity_peak_times: preferences.activity_peak_times || [],
+      p_dashboard_preferences: preferences.dashboard_preferences || {},
       p_last_updated: preferences.last_updated?.toISOString()
     });
 

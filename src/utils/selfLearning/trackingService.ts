@@ -39,7 +39,7 @@ export const trackUserAction = async (
       p_entity_id: userAction.entityId || null,
       p_entity_type: userAction.entityType || null,
       p_metadata: userAction.metadata || null,
-      p_timestamp: userAction.timestamp
+      p_timestamp: userAction.timestamp.toISOString()
     });
 
     if (error) {
