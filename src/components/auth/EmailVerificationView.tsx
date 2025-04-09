@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from "react";
-import { RocketIcon, AlertCircle, RefreshCw, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { resendVerificationEmail } from "@/utils/authHelpers";
 import { toast } from "sonner";
 import { supabase } from "@/backend/supabase";
+import { VerificationHeader } from "./verification/VerificationHeader";
+import { PendingVerificationContent } from "./verification/PendingVerificationContent";
+import { VerificationStatusContent } from "./verification/VerificationStatusContent";
 
 interface EmailVerificationViewProps {
   email: string;
@@ -102,90 +103,20 @@ export default function EmailVerificationView({ email, onTryAgain }: EmailVerifi
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-          {verificationStatus === "verified" ? (
-            <CheckCircle className="h-8 w-8 text-green-500" />
-          ) : verificationStatus === "failed" ? (
-            <XCircle className="h-8 w-8 text-destructive" />
-          ) : (
-            <RocketIcon className="h-8 w-8 text-primary" />
-          )}
-        </div>
-        <CardTitle className="text-2xl">
-          {verificationStatus === "verified" 
-            ? "Email Verified!" 
-            : verificationStatus === "failed" 
-              ? "Verification Failed" 
-              : "Verify Your Email"}
-        </CardTitle>
-        <CardDescription>
-          {verificationStatus === "verified" 
-            ? "You'll be redirected to the dashboard shortly" 
-            : verificationStatus === "failed" 
-              ? "There was a problem verifying your email" 
-              : `We've sent a verification email to ${email}`}
-        </CardDescription>
+        <VerificationHeader 
+          verificationStatus={verificationStatus} 
+          email={email} 
+        />
       </CardHeader>
       <CardContent className="space-y-4">
-        {verificationStatus === "pending" && (
-          <>
-            <Alert className="bg-muted">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Check your email</AlertTitle>
-              <AlertDescription>
-                Please check your email inbox and click the verification link to complete your registration.
-              </AlertDescription>
-            </Alert>
-            <p className="text-sm text-muted-foreground text-center">
-              If you don't see the email, check your spam folder or try logging in anyway - email verification may be disabled in development.
-            </p>
-            <div className="flex justify-center">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleResendEmail} 
-                disabled={isResending || (timeLeft !== null && timeLeft > 0)}
-                className="flex items-center gap-1"
-              >
-                {isResending ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : timeLeft !== null && timeLeft > 0 ? (
-                  <>
-                    <RefreshCw className="h-4 w-4" />
-                    Resend in {timeLeft}s
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="h-4 w-4" />
-                    Resend verification email
-                  </>
-                )}
-              </Button>
-            </div>
-          </>
-        )}
-        
-        {verificationStatus === "verified" && (
-          <Alert className="bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            <AlertTitle className="text-green-700">Success!</AlertTitle>
-            <AlertDescription className="text-green-600">
-              Your email has been verified. You'll be redirected to the dashboard.
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {verificationStatus === "failed" && (
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertTitle>Verification Failed</AlertTitle>
-            <AlertDescription>
-              There was a problem verifying your email. Please try again or contact support.
-            </AlertDescription>
-          </Alert>
+        {verificationStatus === "pending" ? (
+          <PendingVerificationContent 
+            onResendEmail={handleResendEmail}
+            isResending={isResending}
+            timeLeft={timeLeft}
+          />
+        ) : (
+          <VerificationStatusContent status={verificationStatus} />
         )}
       </CardContent>
       <CardFooter className="flex justify-center gap-4">

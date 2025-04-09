@@ -3,22 +3,22 @@ import { ReactNode, useState, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2, RefreshCw, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { resendVerificationEmail } from "@/utils/authHelpers";
+import { AuthLoadingState } from "./auth/AuthLoadingState";
+import { AuthErrorState } from "./auth/AuthErrorState";
+import { VerificationRequiredState } from "./auth/VerificationRequiredState";
 
 type ProtectedRouteProps = {
   children: ReactNode;
   roleRequired?: 'admin' | 'user';
-  adminOnly?: boolean; // Added this property to match usage in routes.tsx
+  adminOnly?: boolean;
   requireVerified?: boolean;
 };
 
 export default function ProtectedRoute({ 
   children, 
   roleRequired,
-  adminOnly, // Added this parameter
+  adminOnly,
   requireVerified = false 
 }: ProtectedRouteProps) {
   const { 
@@ -34,13 +34,14 @@ export default function ProtectedRoute({
   const [isResending, setIsResending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Handle session expiration
+  // Handle session expiration notification
   useEffect(() => {
     if (isSessionExpired && user) {
       toast.error("Your session has expired. Please log in again.");
     }
   }, [isSessionExpired, user]);
 
+  // Handler functions
   const handleResendVerificationEmail = async () => {
     if (!user?.email) {
       toast.error("Email address is missing");
@@ -81,109 +82,34 @@ export default function ProtectedRoute({
     }
   };
 
-  // If still loading, show loading spinner
+  // Conditional rendering based on auth state
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading your account information...</p>
-      </div>
-    );
+    return <AuthLoadingState />;
   }
 
-  // If authentication error, show error message with retry option
   if (authError) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="max-w-md w-full space-y-4">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Authentication Error</AlertTitle>
-            <AlertDescription>
-              {authError}
-            </AlertDescription>
-          </Alert>
-          <div className="flex justify-center">
-            <Button 
-              onClick={handleSessionRefresh} 
-              disabled={isRefreshing}
-              className="flex items-center gap-2"
-            >
-              {isRefreshing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Retrying...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4" />
-                  Retry
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <AuthErrorState 
+      error={authError} 
+      onRetry={handleSessionRefresh} 
+      isRetrying={isRefreshing} 
+    />;
   }
 
-  // If session expired, redirect to login
   if (isSessionExpired) {
     return <Navigate to="/login" state={{ from: location, expired: true }} replace />;
   }
 
-  // If not logged in, redirect to login
   if (!user) {
     toast.error("Please log in to access this page");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If email verification is required but email not verified
   if (requireVerified && !isEmailVerified) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="max-w-md w-full space-y-4">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Email verification required</AlertTitle>
-            <AlertDescription>
-              Please verify your email address before accessing this page.
-              Check your inbox for a verification email.
-            </AlertDescription>
-          </Alert>
-          <div className="flex flex-col gap-2">
-            <Button 
-              onClick={async () => {
-                await refreshSession();
-                toast.info("Session refreshed. If you've verified your email, try again.");
-              }}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              I've verified my email
-            </Button>
-            <Button 
-              onClick={handleResendVerificationEmail}
-              disabled={isResending}
-              className="flex items-center gap-2"
-            >
-              {isResending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4" />
-                  Resend verification email
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <VerificationRequiredState 
+      onRefresh={refreshSession}
+      onResendVerification={handleResendVerificationEmail}
+      isResending={isResending}
+    />;
   }
 
   // Check for admin access if adminOnly is set
