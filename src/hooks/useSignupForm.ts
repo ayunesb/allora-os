@@ -108,7 +108,8 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       if (!session) {
         onSubmitSuccess();
       } else {
-        navigate("/dashboard");
+        // Always redirect to onboarding after successful signup, not directly to dashboard
+        navigate("/onboarding");
       }
     } catch (error: any) {
       console.error("Signup error:", error);

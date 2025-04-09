@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
+import { checkOnboardingStatus } from "@/utils/onboardingHelper";
 
 export default function DashboardLayout() {
   const { user, isLoading, profile, refreshSession } = useAuth();
@@ -14,15 +15,19 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     // Check for onboarding status
-    if (user && !isLoading && profile) {
-      // Check if user has completed onboarding by having company info
-      const hasCompletedOnboarding = !!profile.company && !!profile.industry;
-      
-      if (!hasCompletedOnboarding) {
-        toast.info("Please complete onboarding first");
-        navigate("/onboarding");
+    const checkUserOnboarding = async () => {
+      if (user && !isLoading && !profile?.company_id) {
+        // First check using the helper function for a more reliable check
+        const hasCompletedOnboarding = await checkOnboardingStatus(user.id);
+        
+        if (!hasCompletedOnboarding) {
+          toast.info("Please complete onboarding first");
+          navigate("/onboarding");
+        }
       }
-    }
+    };
+    
+    checkUserOnboarding();
   }, [user, isLoading, profile, navigate]);
 
   // Handle session refresh
@@ -59,7 +64,7 @@ export default function DashboardLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  // If session might be stale (no refreshes in 30 minutes)
+  // Session time check
   const sessionTime = user.updated_at ? new Date(user.updated_at).getTime() : 0;
   const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
   const showRefreshButton = sessionTime < thirtyMinutesAgo;
