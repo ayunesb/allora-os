@@ -19,40 +19,18 @@ interface SaveSecuritySettingsParams {
 }
 
 const saveSecuritySettings = async ({ settings }: SaveSecuritySettingsParams): Promise<boolean> => {
-  // Get current system settings
-  const { data: settingsData, error: fetchError } = await supabase
+  // Save the security settings to the system_settings table
+  const { error } = await supabase
     .from('system_settings')
-    .select('*')
-    .eq('key', 'security_settings')
-    .single();
-
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    // PGRST116 means no rows returned, which is fine if settings don't exist yet
-    throw fetchError;
-  }
-
-  if (settingsData) {
-    // Update existing settings
-    const { error: updateError } = await supabase
-      .from('system_settings')
-      .update({ value: settings })
-      .eq('key', 'security_settings');
-
-    if (updateError) {
-      throw updateError;
-    }
-  } else {
-    // Insert new settings
-    const { error: insertError } = await supabase
-      .from('system_settings')
-      .insert({ 
-        key: 'security_settings',
-        value: settings
-      });
-
-    if (insertError) {
-      throw insertError;
-    }
+    .update({ 
+      value: settings,
+      updated_at: new Date().toISOString()
+    })
+    .eq('key', 'security_settings');
+    
+  if (error) {
+    console.error("Error saving security settings:", error);
+    throw error;
   }
 
   return true;

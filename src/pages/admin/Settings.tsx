@@ -45,7 +45,6 @@ export default function AdminSettings() {
               
               <TabsContent value="security">
                 <SecurityTab 
-                  companyId={companyId}
                   initialSettings={securitySettings}
                 />
               </TabsContent>

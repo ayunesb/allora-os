@@ -110,15 +110,25 @@ const AdminSettingsProvider: React.FC<AdminSettingsProviderProps> = ({ children 
           }
         }
         
-        // Fetch global security settings - independent of company
+        // Fetch global security settings directly using raw query to avoid type issues
         const { data: securityData, error: securityError } = await supabase
-          .from('system_settings')
-          .select('value')
-          .eq('key', 'security_settings')
-          .single();
+          .rpc('get_security_settings');
           
         if (!securityError && securityData) {
-          setSecuritySettings(securityData.value as SecuritySettings);
+          setSecuritySettings(securityData);
+        } else {
+          console.error("Error fetching security settings:", securityError);
+          
+          // Fetch using a more direct approach as fallback
+          const { data: rawSettingsData } = await supabase
+            .from('system_settings')
+            .select('*')
+            .eq('key', 'security_settings')
+            .single();
+          
+          if (rawSettingsData && rawSettingsData.value) {
+            setSecuritySettings(rawSettingsData.value as SecuritySettings);
+          }
         }
         
       } catch (error) {
