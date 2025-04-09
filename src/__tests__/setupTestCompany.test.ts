@@ -16,19 +16,35 @@ vi.mock('@/backend/supabase');
 const mockedGetUserProfileByEmail = getUserProfileByEmail as unknown as typeof getUserProfileByEmail & { mockResolvedValue: (value: any) => void, mockRejectedValue: (value: any) => void };
 const mockedGetTestCompany = getTestCompany as unknown as typeof getTestCompany & { mockResolvedValue: (value: any) => void };
 const mockedCreateTestCompany = createTestCompany as unknown as typeof createTestCompany & { mockResolvedValue: (value: any) => void };
-const mockedSupabase = supabase as unknown as typeof supabase & { from: ReturnType<typeof vi.fn> };
+
+// Properly typed Supabase mock
+type SupabaseMock = typeof supabase & {
+  from: ReturnType<typeof vi.fn> & {
+    mockReturnValue: (value: {
+      update: ReturnType<typeof vi.fn> & {
+        mockReturnValue: (value: {
+          eq: ReturnType<typeof vi.fn> & {
+            mockResolvedValue: (value: { error: Error | null }) => void
+          }
+        }) => void
+      }
+    }) => void
+  }
+};
+
+const mockedSupabase = supabase as SupabaseMock;
 
 describe('setupTestCompany', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     vi.clearAllMocks();
     
-    // Default mock implementation for supabase
+    // Properly typed mock implementation for supabase
     mockedSupabase.from.mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null })
       })
-    } as any);
+    });
   });
 
   it('should validate email format', async () => {
@@ -161,12 +177,12 @@ describe('setupTestCompany', () => {
       created_at: '2023-01-01'
     });
     
-    // Mock profile update failure
+    // Mock profile update failure - with proper typing
     mockedSupabase.from.mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: { message: 'Profile update failed' } })
       })
-    } as any);
+    });
     
     const result = await runTestCompanySetup('valid@example.com');
     

@@ -1,14 +1,21 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Company } from '@/models/company';
+
+// Define explicit type interfaces for the company data structure
+interface CompanyBase {
+  id: string;
+  name: string;
+  created_at: string;
+  industry?: string;
+}
 
 /**
  * Fetches a test company from the database
  * @returns Promise resolving to a test company or null
  */
-export async function getTestCompany(): Promise<Partial<Company> | null> {
+export async function getTestCompany(): Promise<CompanyBase | null> {
   try {
-    // Using explicit column selection to avoid deep type issues
+    // Using explicit column selection with specific types to avoid deep type issues
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')
@@ -25,13 +32,13 @@ export async function getTestCompany(): Promise<Partial<Company> | null> {
       return null;
     }
 
-    // Use explicit type assertion for the first item
+    // Return with explicit typing to avoid recursive type issues
     return {
       id: data[0].id,
       name: data[0].name,
       created_at: data[0].created_at,
       industry: data[0].industry
-    } as Partial<Company>;
+    };
   } catch (error) {
     console.error('Unexpected error in getTestCompany:', error);
     return null;

@@ -3,6 +3,22 @@ import { supabase } from '@/backend/supabase';
 import { getTestCompany } from './getTestCompany';
 import { createTestCompany } from './createTestCompany';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
+import { User } from '@/models/user';
+
+// Define specific interfaces for better typing control
+interface TestCompanySetupResult {
+  success: boolean;
+  message: string;
+  companyId?: string;
+  companyName?: string;
+}
+
+interface CompanyBase {
+  id: string;
+  name: string;
+  created_at: string;
+  industry?: string;
+}
 
 /**
  * Validates if an email is in the correct format
@@ -22,12 +38,7 @@ function isValidEmail(email: string): boolean {
  * @param userEmail Email of the user to set up the test company for
  * @returns Promise resolving with result object
  */
-export async function runTestCompanySetup(userEmail: string): Promise<{
-  success: boolean;
-  message: string;
-  companyId?: string;
-  companyName?: string;
-}> {
+export async function runTestCompanySetup(userEmail: string): Promise<TestCompanySetupResult> {
   // Validate input
   if (!isValidEmail(userEmail)) {
     return {
@@ -38,7 +49,7 @@ export async function runTestCompanySetup(userEmail: string): Promise<{
 
   try {
     // Step 1: Get user profile by email
-    const userProfile = await getUserProfileByEmail(userEmail);
+    const userProfile: User | null = await getUserProfileByEmail(userEmail);
     
     if (!userProfile) {
       return {
@@ -48,7 +59,7 @@ export async function runTestCompanySetup(userEmail: string): Promise<{
     }
 
     // Step 2: Check for existing test company
-    const existingCompany = await getTestCompany();
+    const existingCompany: CompanyBase | null = await getTestCompany();
     
     // If a test company exists, return success with details
     if (existingCompany) {
@@ -65,7 +76,7 @@ export async function runTestCompanySetup(userEmail: string): Promise<{
     const companyName = `Test Company - ${username}`;
     
     // Step 4: Create a new test company
-    const newCompany = await createTestCompany(companyName);
+    const newCompany: CompanyBase | null = await createTestCompany(companyName);
     
     if (!newCompany || !newCompany.id) {
       return {
@@ -75,7 +86,13 @@ export async function runTestCompanySetup(userEmail: string): Promise<{
     }
     
     // Step 5: Associate the user with the new test company
-    const { error: profileUpdateError } = await supabase
+    interface ProfileUpdateResponse {
+      error: {
+        message: string;
+      } | null;
+    }
+
+    const { error: profileUpdateError }: ProfileUpdateResponse = await supabase
       .from('profiles')
       .update({ 
         company_id: newCompany.id,

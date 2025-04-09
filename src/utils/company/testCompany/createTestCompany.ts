@@ -1,20 +1,27 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Company } from '@/models/company';
+
+// Define explicit type for the company structure
+interface CompanyBase {
+  id: string;
+  name: string;
+  created_at: string;
+  industry?: string;
+}
 
 /**
  * Creates a new test company in the database
  * @param name Name for the test company
  * @returns Promise resolving to the created test company or null
  */
-export async function createTestCompany(name: string): Promise<Partial<Company> | null> {
+export async function createTestCompany(name: string): Promise<CompanyBase | null> {
   try {
     // Input validation
     if (!name || typeof name !== 'string') {
       throw new Error('Invalid company name provided');
     }
 
-    // Using explicit column selection and type assertion to avoid deep type issues
+    // Using explicit column selection and type safety
     const { data, error } = await supabase
       .from('companies')
       .insert([
@@ -33,8 +40,13 @@ export async function createTestCompany(name: string): Promise<Partial<Company> 
       return null;
     }
 
-    // Use explicit type assertion
-    return data as Partial<Company>;
+    // Return with explicit typing
+    return data ? {
+      id: data.id,
+      name: data.name,
+      created_at: data.created_at,
+      industry: data.industry
+    } : null;
   } catch (error) {
     console.error('Error in createTestCompany:', error);
     return null;
