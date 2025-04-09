@@ -1,15 +1,13 @@
 
-import { useAuth } from "@/context/AuthContext";
+import React from "react";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
 import IndustryForm from "@/components/onboarding/IndustryForm";
 import GoalsForm from "@/components/onboarding/GoalsForm";
-import CompanyDetailsSurvey from "@/components/onboarding/CompanyDetailsSurvey";
 import useOnboardingState from "@/hooks/useOnboardingState";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import CompanyDetailsSurvey from "@/components/onboarding/CompanyDetailsSurvey";
+import RiskProfileForm from "@/components/onboarding/RiskProfileForm";
+import ExecutiveTeamIntro from "@/components/onboarding/ExecutiveTeamIntro";
 
 export default function Onboarding() {
   const {
@@ -21,113 +19,98 @@ export default function Onboarding() {
     goals,
     companyDetails,
     updateCompanyDetails,
+    riskAppetite,
+    setRiskAppetite,
+    executiveTeamEnabled,
+    setExecutiveTeamEnabled,
     isLoading,
     errorMessage,
     handleNext,
     handleBack,
     toggleGoal
   } = useOnboardingState();
-  
-  const [errors, setErrors] = useState<{
-    companyName?: string;
-    industry?: string;
-    goals?: string;
-    companyDetails?: string;
-  }>({});
-  
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
+  const getStepContent = () => {
+    switch (step) {
+      case 1:
+        return (
+          <CompanyInfoForm
+            companyName={companyName}
+            setCompanyName={setCompanyName}
+            error={errorMessage?.includes("company") ? errorMessage : undefined}
+          />
+        );
+      case 2:
+        return (
+          <IndustryForm
+            industry={industry}
+            setIndustry={setIndustry}
+            error={errorMessage?.includes("industry") ? errorMessage : undefined}
+          />
+        );
+      case 3:
+        return (
+          <GoalsForm
+            goals={goals}
+            toggleGoal={toggleGoal}
+            companyName={companyName}
+            industry={industry}
+            error={errorMessage?.includes("goal") ? errorMessage : undefined}
+          />
+        );
+      case 4:
+        return (
+          <RiskProfileForm
+            riskAppetite={riskAppetite}
+            setRiskAppetite={setRiskAppetite}
+            executiveTeamEnabled={executiveTeamEnabled}
+            setExecutiveTeamEnabled={setExecutiveTeamEnabled}
+            error={errorMessage?.includes("risk") ? errorMessage : undefined}
+          />
+        );
+      case 5:
+        return (
+          <ExecutiveTeamIntro />
+        );
+      default:
+        return (
+          <CompanyDetailsSurvey
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
+            error={errorMessage}
+          />
+        );
     }
-  }, [user, navigate]);
-  
-  const validateCurrentStep = () => {
-    setErrors({});
-    
-    if (step === 1) {
-      if (!companyName.trim()) {
-        setErrors({ companyName: "Company name is required" });
-        return false;
-      } else if (companyName.trim().length < 2) {
-        setErrors({ companyName: "Company name must be at least 2 characters" });
-        return false;
-      }
-    } else if (step === 2) {
-      if (!industry) {
-        setErrors({ industry: "Please select your industry" });
-        return false;
-      }
-    } else if (step === 3) {
-      if (goals.length === 0) {
-        setErrors({ goals: "Please select at least one business goal" });
-        return false;
-      }
-    }
-    // Step 4 (company details) is optional, so no validation required
-    
-    return true;
   };
-  
-  const handleStepNext = () => {
-    if (validateCurrentStep()) {
-      handleNext();
+
+  const getStepTitle = () => {
+    switch (step) {
+      case 1:
+        return "Company Information";
+      case 2:
+        return "Industry Details";
+      case 3:
+        return "Business Goals";
+      case 4:
+        return "Strategy Risk Profile";
+      case 5:
+        return "Your AI Executive Team";
+      default:
+        return "Business Setup";
     }
   };
 
   return (
     <OnboardingLayout
-      title="Welcome to Allora AI"
+      title={getStepTitle()}
       step={step}
-      totalSteps={4}
+      totalSteps={5}
       onBack={handleBack}
-      onNext={handleStepNext}
+      onNext={handleNext}
       isLoading={isLoading}
-      isLastStep={step === 4}
+      isLastStep={step === 5}
     >
-      {errorMessage && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="ml-2">{errorMessage}</AlertDescription>
-        </Alert>
-      )}
-      
-      {step === 1 && (
-        <CompanyInfoForm 
-          companyName={companyName} 
-          setCompanyName={setCompanyName}
-          error={errors.companyName}
-        />
-      )}
-
-      {step === 2 && (
-        <IndustryForm 
-          industry={industry} 
-          setIndustry={setIndustry}
-          error={errors.industry}
-        />
-      )}
-
-      {step === 3 && (
-        <GoalsForm 
-          goals={goals} 
-          toggleGoal={toggleGoal} 
-          companyName={companyName}
-          industry={industry}
-          error={errors.goals}
-        />
-      )}
-      
-      {step === 4 && (
-        <CompanyDetailsSurvey
-          companyDetails={companyDetails}
-          updateCompanyDetails={updateCompanyDetails}
-          error={errors.companyDetails}
-        />
-      )}
+      {getStepContent()}
     </OnboardingLayout>
   );
 }

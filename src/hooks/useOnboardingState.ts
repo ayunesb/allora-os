@@ -14,6 +14,8 @@ export default function useOnboardingState() {
   const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [riskAppetite, setRiskAppetite] = useState<'low' | 'medium' | 'high'>('medium');
+  const [executiveTeamEnabled, setExecutiveTeamEnabled] = useState(true);
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
 
@@ -26,7 +28,7 @@ export default function useOnboardingState() {
   }, [profile]);
 
   const handleNext = () => {
-    if (step < 4) {
+    if (step < 5) { // Added an extra step for executive team intro
       setStep(step + 1);
     } else {
       handleComplete();
@@ -63,8 +65,15 @@ export default function useOnboardingState() {
     setIsLoading(true);
 
     try {
-      console.log("Saving onboarding info:", user.id, companyName, industry, goals, companyDetails);
-      const result = await saveOnboardingInfo(user.id, companyName, industry, goals, companyDetails);
+      // Include risk appetite in the company details
+      const enhancedDetails = {
+        ...companyDetails,
+        riskAppetite,
+        executiveTeamEnabled
+      };
+      
+      console.log("Saving onboarding info:", user.id, companyName, industry, goals, enhancedDetails);
+      const result = await saveOnboardingInfo(user.id, companyName, industry, goals, enhancedDetails);
       
       if (!result.success) {
         throw new Error(result.error || "Failed to save company information");
@@ -102,6 +111,10 @@ export default function useOnboardingState() {
     updateCompanyDetails,
     isLoading,
     errorMessage,
+    riskAppetite,
+    setRiskAppetite,
+    executiveTeamEnabled,
+    setExecutiveTeamEnabled,
     handleNext,
     handleBack,
     toggleGoal

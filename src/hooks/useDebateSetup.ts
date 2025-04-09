@@ -9,6 +9,8 @@ export default function useDebateSetup() {
   const [debateObjective, setDebateObjective] = useState('');
   const [debateDuration, setDebateDuration] = useState<string>('5');
   const [isDebateActive, setIsDebateActive] = useState(false);
+  const [riskAppetite, setRiskAppetite] = useState<'low' | 'medium' | 'high'>('medium');
+  const [businessPriority, setBusinessPriority] = useState<string>('growth');
 
   const handleTopicChange = useCallback((value: string) => {
     setSelectedTopic(value);
@@ -31,12 +33,16 @@ export default function useDebateSetup() {
     debateObjective,
     debateDuration,
     isDebateActive,
+    riskAppetite,
+    businessPriority,
     debateTopics,
     setSelectedTopic: handleTopicChange,
     setDebateTitle,
     setDebateObjective,
     setDebateDuration,
     setIsDebateActive,
+    setRiskAppetite,
+    setBusinessPriority,
     getSelectedTopicDetails
   };
 }

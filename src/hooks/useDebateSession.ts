@@ -14,7 +14,8 @@ export default function useDebateSession() {
   
   const {
     participants,
-    setParticipants
+    setParticipants,
+    availableExecutives
   } = useDebateParticipants();
   
   const {
@@ -33,12 +34,16 @@ export default function useDebateSession() {
     debateObjective,
     debateDuration,
     isDebateActive,
+    riskAppetite,
+    businessPriority,
     debateTopics,
     setSelectedTopic,
     setDebateTitle,
     setDebateObjective,
     setDebateDuration,
     setIsDebateActive,
+    setRiskAppetite,
+    setBusinessPriority,
     getSelectedTopicDetails
   } = useDebateSetup();
 
@@ -55,8 +60,9 @@ export default function useDebateSession() {
     // First message from system (debate setup)
     const selectedTopicDetails = getSelectedTopicDetails();
     
+    // Include risk appetite and business priority in the initial message
     const initialMessage = addSystemMessage(
-      `Debate started: ${debateTitle}\n\nObjective: ${debateObjective}\n\nTopic: ${selectedTopicDetails?.topic || selectedTopic}`
+      `Debate started: ${debateTitle}\n\nObjective: ${debateObjective}\n\nTopic: ${selectedTopicDetails?.topic || selectedTopic}\n\nRisk Appetite: ${riskAppetite}\n\nBusiness Priority: ${businessPriority}`
     );
     
     // Create session object
@@ -67,7 +73,9 @@ export default function useDebateSession() {
       participants,
       messages: [initialMessage],
       duration: parseInt(debateDuration, 10),
-      company_id: profile?.company_id || 'unknown'
+      company_id: profile?.company_id || 'unknown',
+      riskAppetite,
+      businessPriority
     };
     
     // Save the session
@@ -85,6 +93,8 @@ export default function useDebateSession() {
     debateDuration, 
     participants, 
     profile, 
+    riskAppetite,
+    businessPriority,
     setIsLoading, 
     setIsDebateActive, 
     setMessages, 
@@ -107,9 +117,12 @@ export default function useDebateSession() {
     debateTitle,
     debateObjective,
     debateDuration,
+    riskAppetite,
+    businessPriority,
     isLoading,
     sessionId,
     debateTopics,
+    availableExecutives,
     startDebate,
     simulateBotResponses: () => {
       const topicDetails = getSelectedTopicDetails();
@@ -121,6 +134,8 @@ export default function useDebateSession() {
     setDebateTitle,
     setDebateObjective,
     setDebateDuration,
+    setRiskAppetite,
+    setBusinessPriority,
     setParticipants,
   };
 }
