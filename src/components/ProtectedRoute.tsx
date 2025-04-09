@@ -68,7 +68,6 @@ export default function ProtectedRoute({
     setIsRefreshing(true);
     try {
       await refreshSession();
-      // Remove the return value and just show toast notifications based on the result
       toast.success("Session refreshed successfully");
     } catch (error) {
       console.error("Error refreshing session:", error);
@@ -102,7 +101,9 @@ export default function ProtectedRoute({
 
   if (requireVerified && !isEmailVerified) {
     return <VerificationRequiredState 
-      onRefresh={refreshSession}
+      onRefresh={async (): Promise<void> => {
+        await refreshSession();
+      }}
       onResendVerification={handleResendVerificationEmail}
       isResending={isResending}
     />;
