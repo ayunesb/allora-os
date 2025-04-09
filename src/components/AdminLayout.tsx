@@ -60,7 +60,7 @@ export default function AdminLayout() {
     return (
       <div className="min-h-screen bg-background">
         {/* Mobile Navbar */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b shadow-sm">
           <div className="flex items-center justify-between p-3">
             <Button 
               variant="ghost" 
@@ -70,7 +70,7 @@ export default function AdminLayout() {
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
-            <span className="font-medium">Admin Panel</span>
+            <span className="font-medium text-sm">Admin Panel</span>
             <div className="w-8"></div> {/* Empty div for alignment */}
           </div>
         </div>
@@ -86,14 +86,14 @@ export default function AdminLayout() {
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
-          <div className="py-4">
+          <div className="py-2">
             {adminMenuItems.map((item) => (
               <Link
                 key={item.label}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 text-sm",
-                  currentPath === item.href 
+                  "flex items-center gap-3 px-4 py-2.5 text-sm",
+                  currentPath === item.href || currentPath.startsWith(item.href + '/') 
                     ? "bg-primary/10 text-primary font-medium" 
                     : "hover:bg-muted/50"
                 )}
@@ -107,7 +107,7 @@ export default function AdminLayout() {
         </div>
         
         {/* Page content */}
-        <div className="pt-14 pb-4 px-3">
+        <div className="pt-14 pb-4 px-3 max-w-full overflow-x-hidden">
           <Outlet />
         </div>
       </div>
@@ -138,7 +138,7 @@ export default function AdminLayout() {
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
                     asChild
-                    isActive={currentPath === item.href}
+                    isActive={currentPath === item.href || currentPath.startsWith(item.href + '/')}
                     tooltip={item.label}
                   >
                     <Link

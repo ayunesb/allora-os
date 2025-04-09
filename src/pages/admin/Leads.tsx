@@ -1,346 +1,288 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { Loader2, PlusCircle, Search, ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { 
+  Table, 
+  TableHeader, 
+  TableRow, 
+  TableHead, 
+  TableBody, 
+  TableCell 
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Lead } from "@/models/lead";
-import { Loader2, Plus } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { updateLeadStatus } from '@/utils/leadHelpers';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { useBreakpoint } from '@/hooks/use-mobile';
+import { Lead } from '@/models/lead';
+import { supabase } from '@/backend/supabase';
+import { fetchCompanyLeads, updateLeadStatus, deleteLead } from '@/utils/leadHelpers';
 
 export default function AdminLeads() {
+  const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [campaigns, setCampaigns] = useState<{id: string, name: string}[]>([]);
-  const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [newLead, setNewLead] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    campaign_id: '',
-    status: 'new' as 'new' | 'contacted' | 'qualified' | 'closed'
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'created_at'>('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  
   useEffect(() => {
+    async function loadLeads() {
+      setLoading(true);
+      try {
+        // Get all leads across all campaigns
+        const { data, error } = await supabase
+          .from('leads')
+          .select('*')
+          .order(sortBy, { ascending: sortOrder === 'asc' });
+          
+        if (error) throw error;
+        
+        setLeads(data || []);
+      } catch (error: any) {
+        console.error('Error loading leads:', error.message);
+        toast.error('Failed to load leads');
+      } finally {
+        setLoading(false);
+      }
+    }
+    
     loadLeads();
-    loadCampaigns();
-  }, []);
-
-  const loadLeads = async () => {
-    setIsLoading(true);
-    try {
-      // Get all leads from all companies
-      const { data, error } = await supabase
-        .from('leads')
-        .select(`
-          *,
-          campaigns(name)
-        `)
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      
-      // Type-cast the data to our Lead model
-      const typedLeads: Lead[] = (data || []).map(lead => ({
-        id: lead.id,
-        campaign_id: lead.campaign_id,
-        name: lead.name,
-        email: lead.email,
-        phone: lead.phone,
-        status: lead.status as Lead['status'] || 'new',
-        created_at: lead.created_at,
-        campaigns: lead.campaigns
-      }));
-      
-      setLeads(typedLeads);
-    } catch (error: any) {
-      console.error('Error loading leads:', error);
-      toast.error('Failed to load leads: ' + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadCampaigns = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('campaigns')
-        .select('id, name')
-        .order('name');
-        
-      if (error) throw error;
-      
-      setCampaigns(data || []);
-    } catch (error: any) {
-      console.error('Error loading campaigns:', error);
-    }
-  };
-
-  const handleUpdateStatus = async (leadId: string, newStatus: 'new' | 'contacted' | 'qualified' | 'closed') => {
-    const success = await updateLeadStatus(leadId, newStatus);
+  }, [sortBy, sortOrder]);
+  
+  const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
+    const success = await updateLeadStatus(leadId, status);
     if (success) {
-      // Update the lead in the local state
       setLeads(leads.map(lead => 
-        lead.id === leadId ? {...lead, status: newStatus} : lead
+        lead.id === leadId ? { ...lead, status } : lead
       ));
     }
   };
   
-  const handleCreateLead = async () => {
-    if (!newLead.name || !newLead.campaign_id) {
-      toast.error('Name and campaign are required');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    try {
-      const { data, error } = await supabase
-        .from('leads')
-        .insert([
-          {
-            name: newLead.name,
-            email: newLead.email,
-            phone: newLead.phone,
-            campaign_id: newLead.campaign_id,
-            status: newLead.status
-          }
-        ])
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      // Get the campaign name for the new lead
-      const { data: campaignData } = await supabase
-        .from('campaigns')
-        .select('name')
-        .eq('id', newLead.campaign_id)
-        .single();
-      
-      // Create a typed lead object
-      const newTypedLead: Lead = {
-        id: data.id,
-        campaign_id: data.campaign_id,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        status: data.status as Lead['status'],
-        created_at: data.created_at,
-        campaigns: campaignData
-      };
-      
-      toast.success('Lead created successfully');
-      setLeads([newTypedLead, ...leads]);
-      setOpenAddDialog(false);
-      setNewLead({
-        name: '',
-        email: '',
-        phone: '',
-        campaign_id: '',
-        status: 'new'
-      });
-    } catch (error: any) {
-      console.error('Error creating lead:', error);
-      toast.error('Failed to create lead: ' + error.message);
-    } finally {
-      setIsSubmitting(false);
+  const handleDelete = async (leadId: string) => {
+    if (window.confirm('Are you sure you want to delete this lead?')) {
+      const success = await deleteLead(leadId);
+      if (success) {
+        setLeads(leads.filter(lead => lead.id !== leadId));
+      }
     }
   };
-
-  const getStatusBadge = (status: string) => {
+  
+  const toggleSort = (column: 'name' | 'created_at') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('desc');
+    }
+  };
+  
+  const filteredLeads = searchQuery.trim() === '' 
+    ? leads 
+    : leads.filter(lead => 
+        lead.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        lead.email.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+  
+  const getStatusColor = (status: Lead['status']) => {
     switch(status) {
-      case 'new':
-        return <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20">New</Badge>;
-      case 'contacted':
-        return <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/20">Contacted</Badge>;
-      case 'qualified':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20">Qualified</Badge>;
-      case 'closed':
-        return <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20">Closed</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+      case 'new': return 'bg-blue-500/10 text-blue-500';
+      case 'contacted': return 'bg-yellow-500/10 text-yellow-500';
+      case 'qualified': return 'bg-green-500/10 text-green-500';
+      case 'closed': return 'bg-gray-500/10 text-gray-500';
+      default: return 'bg-blue-500/10 text-blue-500';
     }
   };
-
+  
   return (
-    <div className="container mx-auto px-4 pt-6 pb-12">
-      <div className="flex justify-between items-center mb-8">
+    <div className="animate-fadeIn space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Lead Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Track and manage sales leads
+          <h1 className={`${isMobileView ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold`}>
+            Leads Management
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            View and manage all leads
           </p>
         </div>
-        <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Lead
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Lead</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name*</Label>
-                <Input 
-                  id="name" 
-                  value={newLead.name}
-                  onChange={(e) => setNewLead({...newLead, name: e.target.value})}
-                  placeholder="John Doe" 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email"
-                  value={newLead.email}
-                  onChange={(e) => setNewLead({...newLead, email: e.target.value})}
-                  placeholder="john@example.com" 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input 
-                  id="phone" 
-                  value={newLead.phone}
-                  onChange={(e) => setNewLead({...newLead, phone: e.target.value})}
-                  placeholder="+1 (555) 123-4567" 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="campaign">Campaign*</Label>
-                <Select 
-                  value={newLead.campaign_id} 
-                  onValueChange={(value) => setNewLead({...newLead, campaign_id: value})}
-                >
-                  <SelectTrigger id="campaign">
-                    <SelectValue placeholder="Select campaign" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {campaigns.map(campaign => (
-                      <SelectItem key={campaign.id} value={campaign.id}>
-                        {campaign.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select 
-                  value={newLead.status} 
-                  onValueChange={(value: any) => setNewLead({...newLead, status: value})}
-                >
-                  <SelectTrigger id="status">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="contacted">Contacted</SelectItem>
-                    <SelectItem value="qualified">Qualified</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button 
-                onClick={handleCreateLead}
-                disabled={isSubmitting || !newLead.name || !newLead.campaign_id}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create Lead"
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        
+        <Button size={isMobileView ? "sm" : "default"} className="w-full sm:w-auto">
+          <PlusCircle className="h-4 w-4 mr-2" />
+          Add New Lead
+        </Button>
       </div>
       
-      <Card className="border-primary/10 shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle>Active Leads</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Campaign</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date Added</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leads.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      No leads found. Add your first lead to get started.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  leads.map((lead) => (
-                    <TableRow key={lead.id}>
-                      <TableCell className="font-medium">{lead.name}</TableCell>
-                      <TableCell>
-                        <div>{lead.email}</div>
-                        <div className="text-xs text-muted-foreground">{lead.phone}</div>
-                      </TableCell>
-                      <TableCell>{lead.campaigns?.name || 'Unknown'}</TableCell>
-                      <TableCell>
-                        {getStatusBadge(lead.status)}
-                      </TableCell>
-                      <TableCell>{new Date(lead.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Select 
-                            value={lead.status} 
-                            onValueChange={(value: 'new' | 'contacted' | 'qualified' | 'closed') => 
-                              handleUpdateStatus(lead.id, value)
-                            }
-                          >
-                            <SelectTrigger className="h-8 w-32">
-                              <SelectValue placeholder="Update status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="new">New</SelectItem>
-                              <SelectItem value="contacted">Contacted</SelectItem>
-                              <SelectItem value="qualified">Qualified</SelectItem>
-                              <SelectItem value="closed">Closed</SelectItem>
-                            </SelectContent>
-                          </Select>
+      <div className="relative">
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search leads..."
+          className="pl-9"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <>
+          {/* Desktop view */}
+          {!isMobileView && (
+            <Card className="border-primary/10 shadow-sm overflow-hidden hidden sm:block">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[200px] cursor-pointer" onClick={() => toggleSort('name')}>
+                        <div className="flex items-center">
+                          Name
+                          <ArrowUpDown className="h-4 w-4 ml-1" />
                         </div>
-                      </TableCell>
+                      </TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="cursor-pointer" onClick={() => toggleSort('created_at')}>
+                        <div className="flex items-center">
+                          Created
+                          <ArrowUpDown className="h-4 w-4 ml-1" />
+                        </div>
+                      </TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredLeads.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                          No leads found
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredLeads.map((lead) => (
+                        <TableRow key={lead.id}>
+                          <TableCell className="font-medium">{lead.name}</TableCell>
+                          <TableCell>{lead.email}</TableCell>
+                          <TableCell>{lead.phone}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={`${getStatusColor(lead.status)}`}>
+                              {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {new Date(lead.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'new')}>
+                                  Mark as New
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'contacted')}>
+                                  Mark as Contacted
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'qualified')}>
+                                  Mark as Qualified
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'closed')}>
+                                  Mark as Closed
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(lead.id)}>
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
+          
+          {/* Mobile view */}
+          {isMobileView && (
+            <div className="space-y-3 block sm:hidden">
+              {filteredLeads.length === 0 ? (
+                <Card className="border-primary/10 shadow-sm">
+                  <CardContent className="p-4 text-center text-muted-foreground">
+                    No leads found
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredLeads.map((lead) => (
+                  <Card key={lead.id} className="border-primary/10 shadow-sm overflow-hidden">
+                    <CardHeader className="p-3 pb-1">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-base truncate">{lead.name}</CardTitle>
+                        <Badge variant="outline" className={`${getStatusColor(lead.status)} text-xs`}>
+                          {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-3 pt-1 space-y-1">
+                      <p className="text-xs truncate text-muted-foreground">{lead.email}</p>
+                      <p className="text-xs text-muted-foreground">{lead.phone}</p>
+                      <div className="flex justify-between items-center pt-2 mt-1 border-t border-border">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(lead.created_at).toLocaleDateString()}
+                        </span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'new')}>
+                              Mark as New
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'contacted')}>
+                              Mark as Contacted
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'qualified')}>
+                              Mark as Qualified
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusUpdate(lead.id, 'closed')}>
+                              Mark as Closed
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(lead.id)}>
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
