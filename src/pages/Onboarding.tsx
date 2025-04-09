@@ -8,6 +8,11 @@ import useOnboardingState from "@/hooks/useOnboardingState";
 import CompanyDetailsSurvey from "@/components/onboarding/CompanyDetailsSurvey";
 import RiskProfileForm from "@/components/onboarding/RiskProfileForm";
 import ExecutiveTeamIntro from "@/components/onboarding/ExecutiveTeamIntro";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Onboarding() {
   const {
@@ -29,6 +34,15 @@ export default function Onboarding() {
     handleBack,
     toggleGoal
   } = useOnboardingState();
+
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("You have been logged out");
+    navigate("/login");
+  };
 
   const getStepContent = () => {
     switch (step) {
@@ -101,16 +115,31 @@ export default function Onboarding() {
   };
 
   return (
-    <OnboardingLayout
-      title={getStepTitle()}
-      step={step}
-      totalSteps={5}
-      onBack={handleBack}
-      onNext={handleNext}
-      isLoading={isLoading}
-      isLastStep={step === 5}
-    >
-      {getStepContent()}
-    </OnboardingLayout>
+    <div className="min-h-screen bg-background">
+      {/* Add logout button at the top right */}
+      <div className="absolute top-4 right-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSignOut}
+          className="flex items-center gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+      </div>
+
+      <OnboardingLayout
+        title={getStepTitle()}
+        step={step}
+        totalSteps={5}
+        onBack={handleBack}
+        onNext={handleNext}
+        isLoading={isLoading}
+        isLastStep={step === 5}
+      >
+        {getStepContent()}
+      </OnboardingLayout>
+    </div>
   );
 }
