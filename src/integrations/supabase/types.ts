@@ -393,6 +393,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_security_settings: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_action_categories: {
         Args: { p_user_id: string }
         Returns: {
@@ -433,6 +437,10 @@ export type Database = {
       update_company_integrations: {
         Args: { p_company_id: string; p_integration_ids: Json }
         Returns: undefined
+      }
+      update_security_settings: {
+        Args: { p_settings: Json }
+        Returns: boolean
       }
       update_user_preferences: {
         Args: {

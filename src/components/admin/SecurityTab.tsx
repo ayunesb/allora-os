@@ -8,6 +8,8 @@ import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { useProtectedApi } from '@/hooks/useProtectedApi';
 import { Loader2, Shield, Lock, Key } from 'lucide-react';
+import { logSystemChange } from '@/utils/auditLogger';
+import { useAuth } from '@/context/AuthContext';
 
 interface SecuritySettingsType {
   twoFactorEnabled: boolean;
@@ -21,29 +23,18 @@ interface SaveSecuritySettingsParams {
 }
 
 const saveSecuritySettings = async ({ settings }: SaveSecuritySettingsParams): Promise<boolean> => {
-  // Use a direct fetch call to the RPC endpoint to avoid type issues
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  const response = await fetch(
-    'https://ofwxyctfzskeeniaaazw.supabase.co/rest/v1/rpc/update_security_settings',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo',
-        'Authorization': `Bearer ${session?.access_token}`
-      },
-      body: JSON.stringify({ p_settings: settings })
-    }
-  );
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Error saving security settings:", errorText);
-    throw new Error(errorText || "Failed to save security settings");
+  try {
+    const { data, error } = await supabase.rpc('update_security_settings', {
+      p_settings: settings
+    });
+    
+    if (error) throw error;
+    
+    return data;
+  } catch (error: any) {
+    console.error("Error saving security settings:", error.message);
+    throw new Error(error.message || "Failed to save security settings");
   }
-  
-  return true;
 };
 
 interface SecurityTabProps {
@@ -51,6 +42,7 @@ interface SecurityTabProps {
 }
 
 const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
+  const { user } = useAuth();
   const [settings, setSettings] = useState<SecuritySettingsType>(
     initialSettings || {
       twoFactorEnabled: false,
@@ -77,8 +69,47 @@ const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
   };
 
   const handleSave = async () => {
-    await execute({ settings });
+    try {
+      await execute({ settings });
+      
+      // Log the security change
+      if (user) {
+        await logSystemChange(
+          user.id, 
+          'security_settings', 
+          'Security settings updated',
+          { settings }
+        );
+      }
+    } catch (error) {
+      console.error("Failed to save security settings:", error);
+    }
   };
+
+  // Fetch settings if not provided
+  useEffect(() => {
+    const fetchSecuritySettings = async () => {
+      if (!initialSettings) {
+        try {
+          const { data, error } = await supabase.rpc('get_security_settings');
+          
+          if (error) throw error;
+          
+          setSettings(data || {
+            twoFactorEnabled: false,
+            extendedSessionTimeout: false,
+            strictContentSecurity: false,
+            enhancedApiProtection: false
+          });
+        } catch (error: any) {
+          console.error("Error fetching security settings:", error.message);
+          toast.error("Failed to load security settings");
+        }
+      }
+    };
+    
+    fetchSecuritySettings();
+  }, [initialSettings]);
 
   return (
     <Card>

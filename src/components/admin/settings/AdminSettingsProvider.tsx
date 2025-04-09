@@ -114,28 +114,13 @@ const AdminSettingsProvider: React.FC<AdminSettingsProviderProps> = ({ children 
           }
         }
         
-        // Fetch global security settings using a direct API call to avoid type issues
-        const response = await fetch('https://ofwxyctfzskeeniaaazw.supabase.co/rest/v1/rpc/get_security_settings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo',
-            'Authorization': `Bearer ${supabase.auth.getSession().then(({ data }) => data.session?.access_token)}`
-          }
-        });
+        // Fetch global security settings using Supabase RPC
+        const { data: securityData, error: securityError } = await supabase.rpc('get_security_settings');
         
-        if (response.ok) {
-          const securityData = await response.json();
-          setSecuritySettings({
-            twoFactorEnabled: securityData.twoFactorEnabled || false,
-            extendedSessionTimeout: securityData.extendedSessionTimeout || false,
-            strictContentSecurity: securityData.strictContentSecurity || false,
-            enhancedApiProtection: securityData.enhancedApiProtection || false
-          });
+        if (securityError) {
+          console.error("Error fetching security settings:", securityError);
         } else {
-          console.error("Error fetching security settings from API");
-          // Fallback to default settings
-          setSecuritySettings({
+          setSecuritySettings(securityData || {
             twoFactorEnabled: false,
             extendedSessionTimeout: false,
             strictContentSecurity: false,
