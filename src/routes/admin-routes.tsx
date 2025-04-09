@@ -8,6 +8,7 @@ import AdminCampaigns from "@/pages/admin/Campaigns";
 import AdminLeads from "@/pages/admin/Leads";
 import AdminAnalytics from "@/pages/admin/Analytics";
 import AdminSettings from "@/pages/admin/Settings";
+import LaunchPrep from "@/pages/admin/LaunchPrep";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const adminRoutes: RouteObject = {
@@ -45,6 +46,10 @@ export const adminRoutes: RouteObject = {
     {
       path: "settings",
       element: <AdminSettings />,
+    },
+    {
+      path: "launch-prep",
+      element: <LaunchPrep />,
     },
   ],
 };

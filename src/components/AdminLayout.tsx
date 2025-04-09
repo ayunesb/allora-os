@@ -10,7 +10,8 @@ import {
   LineChart, 
   Settings,
   Menu,
-  X
+  X,
+  Rocket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Navbar } from '@/components/Navbar';
@@ -49,6 +50,7 @@ export default function AdminLayout() {
     { icon: <UserPlus size={isMobileView ? 16 : 18} />, label: "Leads", href: "/admin/leads" },
     { icon: <LineChart size={isMobileView ? 16 : 18} />, label: "Analytics", href: "/admin/analytics" },
     { icon: <Settings size={isMobileView ? 16 : 18} />, label: "Settings", href: "/admin/settings" },
+    { icon: <Rocket size={isMobileView ? 16 : 18} />, label: "Launch Prep", href: "/admin/launch-prep" },
   ];
 
   // Mobile menu toggle
