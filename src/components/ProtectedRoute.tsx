@@ -184,10 +184,7 @@ export default function ProtectedRoute({
     );
   }
 
-  // --- TEMPORARILY BYPASSING ROLE CHECK FOR ADMIN ROUTES ---
-  // Remove or comment out the role check to grant access to admin pages 
-  
-  /* Original role check code:
+  // Uncommented the role check for production
   if (roleRequired && profile) {
     const hasRequiredRole = profile.role === roleRequired || 
                            (roleRequired === 'user' && profile.role === 'admin');
@@ -197,7 +194,6 @@ export default function ProtectedRoute({
       return <Navigate to="/dashboard" replace />;
     }
   }
-  */
 
   return <>{children}</>;
 }
