@@ -51,7 +51,7 @@ const Icons = {
 };
 
 export function Navbar({ isLoggedIn = true }) {
-  const { signOut, user } = useAuth();
+  const { signOut, user, profile } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const location = useLocation();
@@ -144,8 +144,8 @@ export function Navbar({ isLoggedIn = true }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 data-[state=open]:bg-muted">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.image} alt={user?.name} />
-                  <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+                  <AvatarImage src={profile?.avatar_url || ""} alt={profile?.name || ""} />
+                  <AvatarFallback>{profile?.name?.[0] || user?.email?.[0]}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
