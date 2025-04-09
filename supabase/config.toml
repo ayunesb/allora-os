@@ -11,7 +11,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.postmark]
-verify_jwt = true
+verify_jwt = false
 
 [functions.heygen]
 verify_jwt = true

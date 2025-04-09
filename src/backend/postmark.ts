@@ -1,5 +1,6 @@
 
 import { supabase } from './supabase';
+import { toast } from 'sonner';
 
 /**
  * Sends an email using Postmark
@@ -38,7 +39,7 @@ export const sendEmail = async ({
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
-      throw new Error('Authentication required to send email');
+      console.warn("No session found when sending email. This might be expected for public emails.");
     }
 
     // Call the Postmark edge function
@@ -58,14 +59,18 @@ export const sendEmail = async ({
       }
     );
 
+    console.log("Postmark edge function response:", data);
+
     if (error || !data.success) {
-      console.error('Error sending email:', error || data?.message);
+      console.error('Error sending email:', error || data?.message, data?.details);
+      toast.error(data?.message || error?.message || 'Failed to send email');
       return { 
         success: false, 
         message: error?.message || data?.message || 'Failed to send email'
       };
     }
 
+    toast.success('Email sent successfully');
     return {
       success: true,
       messageId: data.messageId,
@@ -73,6 +78,7 @@ export const sendEmail = async ({
     };
   } catch (error) {
     console.error('Failed to send email:', error);
+    toast.error('Failed to send email: ' + (error instanceof Error ? error.message : 'Unknown error'));
     return { 
       success: false, 
       message: error instanceof Error ? error.message : 'Unknown error sending email'

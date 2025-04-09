@@ -46,11 +46,15 @@ serve(async (req) => {
     // Get the current user from the auth header
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Unauthorized", details: authError }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
+
+    // Log debug info
+    console.log("POSTMARK API token exists:", !!POSTMARK_API_TOKEN);
+    console.log("POSTMARK from email:", POSTMARK_FROM_EMAIL);
 
     // Get the request body
     const { action, to, subject, htmlBody, textBody, templateId, templateModel, leadId, messageType, campaignId } = await req.json();
@@ -63,6 +67,9 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
+
+      // Log information for debugging
+      console.log(`Sending email to: ${to}, subject: ${subject}`);
 
       // Prepare email data
       const emailData = {
@@ -84,6 +91,8 @@ serve(async (req) => {
           MessageStream: "outbound"
         };
 
+        console.log("Using template:", templateId);
+
         // Send email using Postmark Template API
         const postmarkResponse = await fetch("https://api.postmarkapp.com/email/withTemplate", {
           method: "POST",
@@ -94,7 +103,9 @@ serve(async (req) => {
           body: JSON.stringify(templateData)
         });
 
+        console.log("Postmark template API response status:", postmarkResponse.status);
         const postmarkResult = await postmarkResponse.json();
+        console.log("Postmark template API response:", postmarkResult);
 
         // If we have a leadId, update the lead with the message info
         if (leadId) {
@@ -116,11 +127,14 @@ serve(async (req) => {
         return new Response(JSON.stringify({ 
           success: postmarkResponse.ok,
           messageId: postmarkResult.MessageID,
-          message: postmarkResponse.ok ? "Email sent successfully" : "Failed to send email" 
+          message: postmarkResponse.ok ? "Email sent successfully" : "Failed to send email",
+          details: postmarkResult
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       } else {
+        console.log("Using direct email API");
+        
         // Send email using Postmark Email API
         const postmarkResponse = await fetch("https://api.postmarkapp.com/email", {
           method: "POST",
@@ -131,7 +145,9 @@ serve(async (req) => {
           body: JSON.stringify(emailData)
         });
 
+        console.log("Postmark API response status:", postmarkResponse.status);
         const postmarkResult = await postmarkResponse.json();
+        console.log("Postmark API response:", postmarkResult);
 
         // If we have a leadId, update the lead with the message info
         if (leadId) {
@@ -153,7 +169,8 @@ serve(async (req) => {
         return new Response(JSON.stringify({ 
           success: postmarkResponse.ok,
           messageId: postmarkResult.MessageID,
-          message: postmarkResponse.ok ? "Email sent successfully" : "Failed to send email" 
+          message: postmarkResponse.ok ? "Email sent successfully" : "Failed to send email",
+          details: postmarkResult 
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
@@ -303,7 +320,7 @@ serve(async (req) => {
     }
   } catch (err) {
     console.error(`Postmark API error: ${err.message}`);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
