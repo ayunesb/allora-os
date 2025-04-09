@@ -31,29 +31,7 @@ export interface TestCompanySetupResult {
   companyName?: string;
 }
 
-// Placeholders for test company functions with proper parameter signatures
-export const runTestCompanySetup = async (email: string): Promise<TestCompanySetupResult> => {
-  console.warn('Test company functionality is disabled in production');
-  return {
-    success: false,
-    message: 'Test company functionality is disabled in production'
-  };
-};
-
-export const getTestCompany = async (): Promise<TestCompanyResponse> => {
-  console.warn('Test company functionality is disabled in production');
-  return {
-    success: false,
-    data: null,
-    message: 'Test company functionality is disabled in production'
-  };
-};
-
-export const createTestCompany = async (name: string): Promise<TestCompanyResponse> => {
-  console.warn('Test company functionality is disabled in production');
-  return {
-    success: false,
-    data: null,
-    message: 'Test company functionality is disabled in production'
-  };
-};
+// Export actual implementation functions
+export { getTestCompany } from './getTestCompany';
+export { createTestCompany } from './createTestCompany';
+export { runTestCompanySetup } from './setupTestCompany';
