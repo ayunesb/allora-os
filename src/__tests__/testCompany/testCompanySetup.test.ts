@@ -1,5 +1,5 @@
 
-import { runTestCompanySetup } from '@/utils/company/testCompany';
+import { runTestCompanySetup } from '@/utils/company/test';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { supabase } from '@/integrations/supabase/client';
 

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
-import { runTestCompanySetup } from "@/utils/company/testCompany";
+import { runTestCompanySetup } from "@/utils/company/test";
 import { toast } from "sonner";
 
 export default function Settings() {
