@@ -1,5 +1,5 @@
 
-import { Profile } from './user';
+import { User } from './user';
 
 export interface Campaign {
   id: string;
@@ -35,5 +35,5 @@ export interface CampaignWithMetadata extends Campaign {
     conversions?: number;
     roi?: number;
   };
-  assignedTo?: Profile;
+  assignedTo?: User; // Changed from Profile to User
 }
