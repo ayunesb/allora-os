@@ -40,7 +40,8 @@ export default function AdminLayout() {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen bg-background flex">
-        <Navbar isLoggedIn={true} />
+        {/* Using isLoggedIn prop to ensure the Navbar doesn't render dashboard tabs in admin layout */}
+        <Navbar isLoggedIn={false} />
         
         <Sidebar>
           <SidebarHeader>
