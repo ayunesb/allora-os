@@ -58,14 +58,28 @@ export async function inviteUserToCompany(
   try {
     console.log(`Inviting user ${email} to company ${companyId} with role ${role}`);
     
+    // Get company name for the invitation
+    const { data: companyData, error: companyError } = await supabase
+      .from('companies')
+      .select('name')
+      .eq('id', companyId)
+      .single();
+      
+    if (companyError) {
+      throw new Error(`Failed to get company information: ${companyError.message}`);
+    }
+    
+    const companyName = companyData.name || 'Our Company';
+    
     // Send invitation email using the Postmark service
     const result = await sendEmail({
       to: email,
       subject: 'Invitation to join Allora AI',
+      companyName,
       htmlBody: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #4f46e5;">You've Been Invited!</h2>
-          <p>You've been invited to join a company on Allora AI.</p>
+          <p>You've been invited to join ${companyName} on Allora AI.</p>
           <p>To accept this invitation, please click the button below to create your account:</p>
           <a href="${window.location.origin}/signup?email=${encodeURIComponent(email)}&company_id=${companyId}&role=${role}" 
              style="display: inline-block; background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin: 20px 0;">
@@ -76,7 +90,7 @@ export async function inviteUserToCompany(
         </div>
       `,
       textBody: `
-        You've been invited to join a company on Allora AI.
+        You've been invited to join ${companyName} on Allora AI.
         
         To accept this invitation, please visit this link to create your account:
         ${window.location.origin}/signup?email=${encodeURIComponent(email)}&company_id=${companyId}&role=${role}

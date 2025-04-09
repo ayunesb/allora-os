@@ -1,7 +1,6 @@
 
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
-import { createCustomer } from '@/backend/stripe';
 
 /**
  * Creates integration records for a new company in all master service accounts
@@ -47,11 +46,23 @@ async function createStripeCustomer(
   industry: string
 ): Promise<{ success: boolean; customerId?: string; error?: string }> {
   try {
-    // Call the Stripe backend function to create a customer
-    const result = await createCustomer(companyName, email, {
-      industry,
-      source: 'allora_platform'
+    // Call our custom function to create a Stripe customer
+    const response = await fetch('/api/stripe/create-customer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: companyName,
+        email,
+        metadata: {
+          industry,
+          source: 'allora_platform'
+        }
+      }),
     });
+
+    const result = await response.json();
     
     if (!result.success) {
       throw new Error(result.error || 'Failed to create Stripe customer');
@@ -78,31 +89,34 @@ async function storeIntegrationIds(
   integrationIds: Record<string, string>
 ): Promise<void> {
   try {
-    // First check if a record already exists
-    const { data: existingData, error: fetchError } = await supabase
-      .from('company_integrations')
-      .select('id')
-      .eq('company_id', companyId)
-      .maybeSingle();
+    // First check if a record already exists by running a raw SQL query
+    const { data: existingData, error: fetchError } = await supabase.rpc(
+      'get_company_integrations',
+      { p_company_id: companyId }
+    );
       
     if (fetchError) throw fetchError;
     
-    if (existingData) {
+    if (existingData && existingData.length > 0) {
       // Update existing record
-      const { error: updateError } = await supabase
-        .from('company_integrations')
-        .update({ integration_ids: integrationIds })
-        .eq('id', existingData.id);
+      const { error: updateError } = await supabase.rpc(
+        'update_company_integrations',
+        { 
+          p_company_id: companyId,
+          p_integration_ids: integrationIds
+        }
+      );
         
       if (updateError) throw updateError;
     } else {
       // Create new record
-      const { error: insertError } = await supabase
-        .from('company_integrations')
-        .insert([{ 
-          company_id: companyId,
-          integration_ids: integrationIds
-        }]);
+      const { error: insertError } = await supabase.rpc(
+        'insert_company_integrations',
+        { 
+          p_company_id: companyId,
+          p_integration_ids: integrationIds
+        }
+      );
         
       if (insertError) throw insertError;
     }
@@ -119,15 +133,14 @@ export async function getCompanyIntegrationIds(
   companyId: string
 ): Promise<Record<string, string> | null> {
   try {
-    const { data, error } = await supabase
-      .from('company_integrations')
-      .select('integration_ids')
-      .eq('company_id', companyId)
-      .maybeSingle();
+    const { data, error } = await supabase.rpc(
+      'get_company_integrations',
+      { p_company_id: companyId }
+    );
       
     if (error) throw error;
     
-    return data?.integration_ids || null;
+    return data?.[0]?.integration_ids || null;
   } catch (error: any) {
     console.error('Failed to get company integration IDs:', error.message);
     return null;
