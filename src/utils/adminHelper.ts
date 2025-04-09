@@ -1,5 +1,5 @@
 
-import { supabase } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // The only email allowed to be an admin
