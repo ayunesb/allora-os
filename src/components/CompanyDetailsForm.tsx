@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { updateCompanyDetails } from "@/utils/companySetup";
+import { updateCompanyDetails } from "@/utils/company";
 import { PartialCompanyDetails } from "@/models/companyDetails";
 import { Accordion } from "@/components/ui/accordion";
 import CompanyDetailsSurvey from "@/components/onboarding/CompanyDetailsSurvey";
@@ -46,9 +46,19 @@ export default function CompanyDetailsForm() {
     setErrorMessage(null);
 
     try {
+      // Extract basic info that's required by the API
+      const companyName = profile?.company || "";
+      const industryName = profile?.industry || "";
+      
+      // Provide the bare minimum required fields plus the additionalDetails
       const result = await updateCompanyDetails(user.id, {
-        name: profile?.company || "",
-        industry: profile?.industry || "",
+        name: companyName,
+        industry: industryName,
+        description: companyDetails.description || "",
+        mission: companyDetails.mission || "",
+        vision: companyDetails.vision || "",
+        headquarters: "",
+        phone: "",
         additionalDetails: companyDetails
       });
 

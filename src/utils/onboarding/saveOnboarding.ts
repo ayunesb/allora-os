@@ -1,7 +1,7 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { PartialCompanyDetails } from '@/models/companyDetails';
+import { updateCompanyDetails } from '@/utils/company';
 
 interface OnboardingResult {
   success: boolean;
