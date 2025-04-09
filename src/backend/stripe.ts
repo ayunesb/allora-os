@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 const STRIPE_FUNCTION_ENDPOINT = "/functions/v1/stripe";

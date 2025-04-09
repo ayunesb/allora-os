@@ -89,15 +89,15 @@ async function storeIntegrationIds(
   integrationIds: Record<string, string>
 ): Promise<void> {
   try {
-    // First check if a record already exists by running a raw SQL query
-    const { data: existingData, error: fetchError } = await supabase.rpc(
+    // First check if a record already exists by running the RPC function
+    const { data, error: fetchError } = await supabase.rpc(
       'get_company_integrations',
       { p_company_id: companyId }
     );
       
     if (fetchError) throw fetchError;
     
-    if (existingData && existingData.length > 0) {
+    if (data && data.length > 0) {
       // Update existing record
       const { error: updateError } = await supabase.rpc(
         'update_company_integrations',
