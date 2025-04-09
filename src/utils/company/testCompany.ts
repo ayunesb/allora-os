@@ -9,21 +9,22 @@ import { updateCompanyDetails } from './companyUpdate';
 export async function setupTestCompany(email: string): Promise<{ success: boolean; error?: string }> {
   try {
     // First get the user ID from the email
-    const { data: userData, error: userError } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
       
-    if (userError) {
-      console.error("Error finding user:", userError);
+    if (profileError) {
+      console.error("Error finding user:", profileError);
       return { success: false, error: `User with email ${email} not found` };
     }
     
-    const userId = userData.id;
-    if (!userId) {
-      return { success: false, error: "User ID not found" };
+    if (!profileData) {
+      return { success: false, error: `User with email ${email} not found` };
     }
+    
+    const userId = profileData.id;
     
     // Set up the test company details
     const result = await updateCompanyDetails(userId, {
