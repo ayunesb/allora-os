@@ -1,8 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-// Define simple company interface to avoid complex type dependencies
-interface Company {
+/**
+ * Simple Company interface with essential properties
+ * Using a standalone interface avoids deep type inference issues
+ */
+interface TestCompany {
   id: string;
   name: string;
   created_at: string;
@@ -14,7 +17,7 @@ interface Company {
  * @param name Name for the test company
  * @returns Promise resolving to the created test company or null
  */
-export async function createTestCompany(name: string): Promise<Company | null> {
+export async function createTestCompany(name: string): Promise<TestCompany | null> {
   try {
     // Input validation
     if (!name || typeof name !== 'string') {
@@ -40,17 +43,7 @@ export async function createTestCompany(name: string): Promise<Company | null> {
       return null;
     }
 
-    if (!data) {
-      return null;
-    }
-
-    // Return with explicit typing
-    return {
-      id: data.id,
-      name: data.name,
-      created_at: data.created_at,
-      industry: data.industry
-    };
+    return data as TestCompany;
   } catch (error) {
     console.error('Error in createTestCompany:', error);
     return null;

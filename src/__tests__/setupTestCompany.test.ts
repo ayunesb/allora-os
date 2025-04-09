@@ -1,4 +1,3 @@
-
 import { runTestCompanySetup } from '@/utils/company/testCompany';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { getTestCompany } from '@/utils/company/testCompany/getTestCompany';
@@ -10,18 +9,16 @@ vi.mock('@/utils/users/fetchUsers');
 vi.mock('@/utils/company/testCompany/getTestCompany');
 vi.mock('@/utils/company/testCompany/createTestCompany');
 
-// Mock the supabase dependency
-vi.mock('@/backend/supabase', () => {
-  return {
-    supabase: {
-      from: vi.fn(() => ({
-        update: vi.fn(() => ({
-          eq: vi.fn(() => Promise.resolve({ error: null }))
-        }))
+// Create a proper typed mock for supabase
+vi.mock('@/backend/supabase', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      update: vi.fn(() => ({
+        eq: vi.fn(() => Promise.resolve({ error: null }))
       }))
-    }
-  };
-});
+    }))
+  }
+}));
 
 // Import the mocked supabase
 import { supabase } from '@/backend/supabase';
@@ -101,14 +98,12 @@ describe('setupTestCompany', () => {
       created_at: '2023-01-01'
     });
     
-    // Define properly typed mock functions
-    const mockFrom = vi.fn().mockReturnValue({
-      update: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({ error: null })
-      })
-    });
+    // Create a properly typed mock for from() -> update() -> eq()
+    const mockEq = vi.fn().mockResolvedValue({ error: null });
+    const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
+    const mockFrom = vi.fn().mockReturnValue({ update: mockUpdate });
     
-    // Replace the mock implementation
+    // Apply mock implementation
     vi.mocked(supabase.from).mockImplementation(mockFrom);
     
     const result = await runTestCompanySetup('valid@example.com');
@@ -120,6 +115,12 @@ describe('setupTestCompany', () => {
     
     // Verify profile update was called correctly
     expect(mockFrom).toHaveBeenCalledWith('profiles');
+    expect(mockUpdate).toHaveBeenCalledWith({ 
+      company_id: 'new-company-123',
+      company: 'Test Company - valid',
+      email: 'valid@example.com'
+    });
+    expect(mockEq).toHaveBeenCalledWith('id', 'user-123');
   });
 
   it('should handle company creation failure', async () => {
@@ -167,14 +168,10 @@ describe('setupTestCompany', () => {
       created_at: '2023-01-01'
     });
     
-    // Mock profile update failure
-    const mockFrom = vi.fn().mockReturnValue({
-      update: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({ 
-          error: { message: 'Profile update failed' } 
-        })
-      })
-    });
+    // Mock profile update failure with proper typing
+    const mockEq = vi.fn().mockResolvedValue({ error: { message: 'Profile update failed' } });
+    const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
+    const mockFrom = vi.fn().mockReturnValue({ update: mockUpdate });
     
     // Apply the mock
     vi.mocked(supabase.from).mockImplementation(mockFrom);
