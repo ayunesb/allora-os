@@ -42,27 +42,62 @@ export async function saveOnboardingInfo(
       throw new Error("No active session found. Please log in again.");
     }
 
-    // Create the company record with user_id
-    const { data: companyData, error: companyError } = await supabase
-      .from('companies')
-      .insert({
-        name: companyName,
-        industry: industry,
-        created_at: new Date().toISOString(),
-        details: companyDetails || {} // Add the details object, default to empty object if null
-      })
-      .select('id')
+    // Check if the user already has a company_id in their profile
+    const { data: profileData, error: profileCheckError } = await supabase
+      .from('profiles')
+      .select('company_id, company')
+      .eq('id', userId)
       .single();
-
-    if (companyError) {
-      console.error("Company insert error:", companyError);
-      throw new Error(`Failed to create company: ${companyError.message}`);
+      
+    if (profileCheckError && profileCheckError.code !== 'PGRST116') {
+      console.error("Profile check error:", profileCheckError);
+      throw new Error(`Failed to check user profile: ${profileCheckError.message}`);
     }
+    
+    let companyId: string | null = null;
+    
+    // If user already has a company, update it instead of creating a new one
+    if (profileData?.company_id) {
+      console.log("User already has a company, updating existing company:", profileData.company_id);
+      
+      const { error: updateError } = await supabase
+        .from('companies')
+        .update({
+          name: companyName,
+          industry: industry,
+          details: companyDetails || {}
+        })
+        .eq('id', profileData.company_id);
+        
+      if (updateError) {
+        console.error("Company update error:", updateError);
+        throw new Error(`Failed to update company: ${updateError.message}`);
+      }
+      
+      companyId = profileData.company_id;
+    } else {
+      // Create the company record with user_id
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .insert({
+          name: companyName,
+          industry: industry,
+          created_at: new Date().toISOString(),
+          details: companyDetails || {} // Add the details object, default to empty object if null
+        })
+        .select('id')
+        .single();
 
-    const companyId = companyData?.id;
+      if (companyError) {
+        console.error("Company insert error:", companyError);
+        throw new Error(`Failed to create company: ${companyError.message}`);
+      }
 
-    if (!companyId) {
-      throw new Error("Failed to create company record");
+      companyId = companyData?.id;
+
+      if (!companyId) {
+        throw new Error("Failed to create company record");
+      }
     }
 
     // Next, update the user profile with the company ID
@@ -76,7 +111,10 @@ export async function saveOnboardingInfo(
         updated_at: new Date().toISOString()
       });
 
-    if (profileError) throw profileError;
+    if (profileError) {
+      console.error("Profile update error:", profileError);
+      throw new Error(`Failed to update profile: ${profileError.message}`);
+    }
 
     // Store the business goals (in a real app, you would create a goals table)
     console.log("Company goals would be stored:", goals);
