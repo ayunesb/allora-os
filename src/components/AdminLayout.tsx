@@ -74,7 +74,7 @@ export default function AdminLayout() {
         </Sidebar>
         
         <SidebarInset>
-          <div className="container mx-auto px-4 pt-24 pb-12">
+          <div className="container mx-auto px-8 pt-24 pb-12">
             <Outlet />
           </div>
         </SidebarInset>
