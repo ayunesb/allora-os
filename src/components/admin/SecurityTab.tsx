@@ -19,16 +19,28 @@ interface SaveSecuritySettingsParams {
 }
 
 const saveSecuritySettings = async ({ settings }: SaveSecuritySettingsParams): Promise<boolean> => {
-  // Use raw API call to avoid type issues with system_settings table
-  const { error } = await supabase.rpc('update_security_settings', { 
-    p_settings: settings 
-  });
-    
-  if (error) {
-    console.error("Error saving security settings:", error);
-    throw error;
+  // Use a direct fetch call to the RPC endpoint to avoid type issues
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch(
+    'https://ofwxyctfzskeeniaaazw.supabase.co/rest/v1/rpc/update_security_settings',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo',
+        'Authorization': `Bearer ${session?.access_token}`
+      },
+      body: JSON.stringify({ p_settings: settings })
+    }
+  );
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Error saving security settings:", errorText);
+    throw new Error(errorText || "Failed to save security settings");
   }
-
+  
   return true;
 };
 
