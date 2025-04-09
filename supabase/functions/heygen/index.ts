@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -13,12 +12,10 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Get the authorization header
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
     return new Response(JSON.stringify({ error: "No authorization header" }), {
@@ -27,7 +24,6 @@ serve(async (req) => {
     });
   }
 
-  // Initialize supabase client
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       autoRefreshToken: false,
@@ -42,7 +38,6 @@ serve(async (req) => {
   });
 
   try {
-    // Get the current user from the auth header
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -51,11 +46,9 @@ serve(async (req) => {
       });
     }
 
-    // Get the request body
-    const { action, text, avatarId, voiceId, campaignId, strategyId } = await req.json();
+    const { action, text, avatarId, voiceId, campaignId, strategyId, companyName } = await req.json();
 
     if (action === "generate-video") {
-      // Validate request
       if (!text || !avatarId || !voiceId) {
         return new Response(JSON.stringify({ error: "Missing required fields" }), {
           status: 400,
@@ -63,7 +56,6 @@ serve(async (req) => {
         });
       }
 
-      // Create a video using Heygen API
       const heygenResponse = await fetch("https://api.heygen.com/v1/video/generate", {
         method: "POST",
         headers: {
@@ -98,7 +90,6 @@ serve(async (req) => {
         });
       }
 
-      // Store video information in the database
       const { data: videoData, error: videoError } = await supabase
         .from("generated_videos")
         .insert([{
@@ -109,7 +100,8 @@ serve(async (req) => {
           text_content: text,
           status: "processing",
           avatar_id: avatarId,
-          voice_id: voiceId
+          voice_id: voiceId,
+          company_name: companyName || null
         }])
         .select()
         .single();
@@ -129,7 +121,6 @@ serve(async (req) => {
     }
     
     else if (action === "get-video-status") {
-      // Validate request
       if (!text) {
         return new Response(JSON.stringify({ error: "Missing video ID" }), {
           status: 400,
@@ -137,7 +128,6 @@ serve(async (req) => {
         });
       }
 
-      // Check video status using Heygen API
       const heygenResponse = await fetch(`https://api.heygen.com/v1/video/status?video_id=${text}`, {
         method: "GET",
         headers: {
@@ -157,7 +147,6 @@ serve(async (req) => {
         });
       }
 
-      // Update video status in the database
       if (heygenResult.data.status === "completed") {
         const { error: updateError } = await supabase
           .from("generated_videos")
@@ -182,7 +171,6 @@ serve(async (req) => {
     }
     
     else if (action === "list-avatars") {
-      // Get avatars from Heygen API
       const heygenResponse = await fetch("https://api.heygen.com/v1/avatar", {
         method: "GET",
         headers: {
@@ -211,7 +199,6 @@ serve(async (req) => {
     }
     
     else if (action === "list-voices") {
-      // Get voices from Heygen API
       const heygenResponse = await fetch("https://api.heygen.com/v1/voice", {
         method: "GET",
         headers: {

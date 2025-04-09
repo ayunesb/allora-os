@@ -3,6 +3,7 @@ import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { PartialCompanyDetails } from '@/models/companyDetails';
 import { updateCompanyDetails } from '@/utils/company';
+import { setupCompanyIntegrations } from '@/utils/masterAccountIntegrations';
 
 interface OnboardingResult {
   success: boolean;
@@ -10,7 +11,7 @@ interface OnboardingResult {
 }
 
 /**
- * Saves onboarding information for a user
+ * Saves onboarding information for a user and sets up external service integrations
  */
 export async function saveOnboardingInfo(
   userId: string,
@@ -44,6 +45,12 @@ export async function saveOnboardingInfo(
     
     if (!session) {
       throw new Error("No active session found. Please log in again.");
+    }
+
+    // Get the user's email for integrations
+    const userEmail = session.user.email;
+    if (!userEmail) {
+      throw new Error("User email is required for account setup.");
     }
 
     // Check if the user already has a company_id in their profile
@@ -116,6 +123,19 @@ export async function saveOnboardingInfo(
     // Only add company_id if we successfully created or updated a company
     if (companyId) {
       updateData.company_id = companyId;
+      
+      // Set up external service integrations for the company
+      const integrationResult = await setupCompanyIntegrations(
+        companyId,
+        companyName,
+        industry,
+        userEmail
+      );
+      
+      if (!integrationResult.success) {
+        console.warn("Warning: Failed to set up some integrations:", integrationResult.error);
+        // Continue with onboarding even if some integrations fail
+      }
     }
     
     const { error: profileUpdateError } = await supabase

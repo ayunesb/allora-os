@@ -2,10 +2,11 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Generates an AI video using Heygen API
+ * Generates an AI video using Heygen API with company metadata
  * @param text The text content for the video
  * @param avatarId The Heygen avatar ID to use
  * @param voiceId The Heygen voice ID to use
+ * @param companyName The company name for tracking
  * @param campaignId Optional campaign ID to associate the video with
  * @param strategyId Optional strategy ID to associate the video with
  * @returns A promise with the result of the operation
@@ -14,6 +15,7 @@ export const generateVideo = async (
   text: string,
   avatarId: string,
   voiceId: string,
+  companyName: string,
   campaignId?: string,
   strategyId?: string
 ): Promise<{
@@ -41,7 +43,8 @@ export const generateVideo = async (
           avatarId,
           voiceId,
           campaignId,
-          strategyId
+          strategyId,
+          companyName // Add company metadata
         }
       }
     );

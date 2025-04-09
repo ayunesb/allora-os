@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -59,7 +58,7 @@ serve(async (req) => {
     }
 
     // Get the request body
-    const { action, priceId, productId, customerId } = await req.json();
+    const { action, priceId, name, email, metadata, customerId } = await req.json();
 
     if (action === "create-checkout-session") {
       // Create a new Checkout Session
@@ -84,6 +83,25 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     } 
+    
+    else if (action === "create-customer") {
+      // Create a new customer in Stripe
+      const customer = await stripe.customers.create({
+        name,
+        email,
+        metadata: {
+          userId: user.id,
+          ...metadata
+        }
+      });
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        customerId: customer.id 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
     
     else if (action === "create-customer-portal") {
       // Get the customer ID from the database

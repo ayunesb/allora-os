@@ -2,15 +2,17 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Sends an SMS message to a specified phone number
+ * Sends an SMS message to a specified phone number with company metadata
  * @param to The phone number to send the SMS to
  * @param body The message content
+ * @param companyId The company ID to associate the message with
  * @param leadId Optional lead ID to associate the message with
  * @returns A promise with the result of the operation
  */
 export const sendSMS = async (
   to: string,
   body: string,
+  companyId: string,
   leadId?: string
 ): Promise<{ success: boolean; message: string; sid?: string }> => {
   try {
@@ -29,7 +31,8 @@ export const sendSMS = async (
           action: "send-sms",
           to,
           body,
-          leadId
+          leadId,
+          companyId // Pass company ID for tracking
         }
       }
     );
@@ -60,11 +63,13 @@ export const sendSMS = async (
  * Sends bulk SMS messages to leads in a campaign
  * @param messageType The type of leads to message ('new', 'contacted', 'qualified', 'all', etc.)
  * @param body The message content
+ * @param companyId The company ID to associate the messages with
  * @returns A promise with the result of the operation
  */
 export const sendBulkSMS = async (
   messageType: string,
-  body: string
+  body: string,
+  companyId: string
 ): Promise<{
   success: boolean;
   totalSent?: number;
@@ -87,7 +92,8 @@ export const sendBulkSMS = async (
         body: {
           action: "send-bulk-sms",
           messageType,
-          body
+          body,
+          companyId // Pass company ID for tracking
         }
       }
     );
