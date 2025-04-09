@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function PolicyDocuments() {
   return (
@@ -9,7 +10,7 @@ export default function PolicyDocuments() {
         <span>Privacy Policy</span>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" asChild>
-            <a href="/privacy">View</a>
+            <Link to="/privacy">View</Link>
           </Button>
           <Button variant="ghost" size="sm">
             <Download className="h-4 w-4" />
@@ -20,7 +21,7 @@ export default function PolicyDocuments() {
         <span>Terms of Service</span>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" asChild>
-            <a href="/legal">View</a>
+            <Link to="/legal">View</Link>
           </Button>
           <Button variant="ghost" size="sm">
             <Download className="h-4 w-4" />
@@ -30,7 +31,9 @@ export default function PolicyDocuments() {
       <li className="flex justify-between items-center p-3 border rounded-md">
         <span>Data Processing Agreement</span>
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm">View</Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/legal/data-processing">View</Link>
+          </Button>
           <Button variant="ghost" size="sm">
             <Download className="h-4 w-4" />
           </Button>
@@ -39,7 +42,9 @@ export default function PolicyDocuments() {
       <li className="flex justify-between items-center p-3 border rounded-md">
         <span>Breach Notification Policy</span>
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm">View</Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/legal/breach-notification">View</Link>
+          </Button>
           <Button variant="ghost" size="sm">
             <Download className="h-4 w-4" />
           </Button>
