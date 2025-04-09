@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { trackUserAction } from '@/utils/selfLearningEngine';
+import { trackUserAction } from '@/utils/selfLearning'; // Updated import path
 
 export async function makeCall(to: string, userId?: string) {
   try {

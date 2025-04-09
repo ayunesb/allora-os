@@ -5,6 +5,7 @@
  */
 
 import { useSelfLearning } from '@/hooks/useSelfLearning';
+import { ActionCategory } from '@/utils/selfLearning'; // Updated import path
 
 export const triggerZap = async (event: string, payload: Record<string, any>) => {
   try {
@@ -78,7 +79,7 @@ export const useZapier = () => {
     // Track this action in our self-learning system
     trackAction(
       'trigger_zapier_workflow',
-      'automation',
+      'automation', // This is now properly typed
       entityId,
       entityType,
       {

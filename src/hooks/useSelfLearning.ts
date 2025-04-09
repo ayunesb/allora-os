@@ -1,7 +1,12 @@
 
 import { useCallback } from 'react';
-import { trackUserAction, ActionCategory, getPersonalizedRecommendations, getLearningInsights } from '@/utils/selfLearningEngine';
 import { useAuthState } from '@/hooks/useAuthState';
+import { 
+  trackUserAction, 
+  getPersonalizedRecommendations, 
+  getLearningInsights,
+  ActionCategory
+} from '@/utils/selfLearning';
 
 export const useSelfLearning = () => {
   const { user } = useAuthState();
