@@ -23,10 +23,17 @@
  * ✓ No render-blocking resources
  * ✓ Proper caching headers in place
  * 
+ * Runtime Performance:
+ * ✓ List scrolling is smooth (60fps)
+ * ✓ Animations run at 60fps
+ * ✓ No unnecessary re-renders in components
+ * ✓ Memory usage remains stable over time
+ * 
  * Tools to use:
  * - Chrome DevTools Performance tab
  * - Lighthouse reports
  * - WebPageTest.org
+ * - React Profiler
  */
 
 // This file serves as a checklist, not actual automated tests

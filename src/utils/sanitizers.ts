@@ -1,4 +1,3 @@
-
 /**
  * Sanitizes user input to prevent XSS attacks
  * @param input The user input to sanitize
@@ -13,9 +12,11 @@ export function sanitizeInput(input: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
     .replace(/\//g, '&#x2F;')
-    .replace(/`/g, '&#x60;') // Added backtick sanitization
-    .replace(/{/g, '&#x7B;') // Added curly braces sanitization 
-    .replace(/}/g, '&#x7D;'); // Added curly braces sanitization
+    .replace(/`/g, '&#x60;')
+    .replace(/{/g, '&#x7B;')
+    .replace(/}/g, '&#x7D;')
+    .replace(/eval\(/gi, 'blocked(')
+    .replace(/javascript:/gi, 'blocked:');
 }
 
 /**
@@ -30,14 +31,17 @@ export function sanitizeHtml(html: string): string {
   // This is a simple implementation that handles common attack vectors
   return html
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '') // Also remove iframes
-    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '') // And objects
-    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '') // And embeds
-    .replace(/javascript:/gi, '') // Remove javascript: URLs
-    .replace(/data:/gi, '') // Remove data: URLs 
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/data:/gi, '') 
     .replace(/on\w+="[^"]*"/g, '')
     .replace(/on\w+='[^']*'/g, '')
-    .replace(/on\w+=\S+/g, ''); // Handle event handlers without quotes
+    .replace(/on\w+=\S+/g, '')
+    .replace(/onerror/gi, 'data-blocked')
+    .replace(/onload/gi, 'data-blocked')
+    .replace(/onclick/gi, 'data-blocked');
 }
 
 /**
@@ -118,4 +122,43 @@ export function sanitizeUrl(url: string, allowedDomains?: string[]): string {
     // If the URL is invalid, return an empty string
     return '';
   }
+}
+
+/**
+ * Generates a nonce for CSP headers
+ * @returns Random nonce string
+ */
+export function generateNonce(): string {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
+}
+
+/**
+ * Checks if a password meets security requirements
+ * @param password Password to check
+ * @returns Boolean indicating if password is secure
+ */
+export function isSecurePassword(password: string): boolean {
+  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
+  return passwordRegex.test(password);
+}
+
+/**
+ * Content Security Policy helper
+ * @returns CSP directives as a string
+ */
+export function getCSPDirectives(): string {
+  return `
+    default-src 'self';
+    script-src 'self' https://cdn.gpteng.co https://supabase.com;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https://*;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+    font-src 'self';
+    object-src 'none';
+    frame-src 'self';
+    base-uri 'self';
+    form-action 'self';
+  `.replace(/\s+/g, ' ').trim();
 }

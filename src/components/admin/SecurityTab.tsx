@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -7,11 +7,13 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { useProtectedApi } from '@/hooks/useProtectedApi';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Shield, Lock, Key } from 'lucide-react';
 
 interface SecuritySettingsType {
   twoFactorEnabled: boolean;
   extendedSessionTimeout: boolean;
+  strictContentSecurity: boolean;
+  enhancedApiProtection: boolean;
 }
 
 interface SaveSecuritySettingsParams {
@@ -52,7 +54,9 @@ const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
   const [settings, setSettings] = useState<SecuritySettingsType>(
     initialSettings || {
       twoFactorEnabled: false,
-      extendedSessionTimeout: false
+      extendedSessionTimeout: false,
+      strictContentSecurity: false,
+      enhancedApiProtection: false
     }
   );
 
@@ -79,18 +83,24 @@ const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Security Settings</CardTitle>
+        <div className="flex items-center space-x-2">
+          <Shield className="h-5 w-5 text-primary" />
+          <CardTitle>Security Settings</CardTitle>
+        </div>
         <CardDescription>
-          Configure security preferences
+          Configure security preferences for your organization
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="two-factor">Two-Factor Authentication</Label>
-            <p className="text-sm text-muted-foreground">
-              Require 2FA for all admin users
-            </p>
+          <div className="space-y-0.5 flex items-center">
+            <Lock className="h-4 w-4 mr-2 text-primary" />
+            <div>
+              <Label htmlFor="two-factor">Two-Factor Authentication</Label>
+              <p className="text-sm text-muted-foreground">
+                Require 2FA for all admin users
+              </p>
+            </div>
           </div>
           <Switch 
             id="two-factor" 
@@ -100,11 +110,14 @@ const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
         </div>
         
         <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="session-timeout">Extended Session Timeout</Label>
-            <p className="text-sm text-muted-foreground">
-              Increase session duration to 24 hours
-            </p>
+          <div className="space-y-0.5 flex items-center">
+            <Key className="h-4 w-4 mr-2 text-primary" />
+            <div>
+              <Label htmlFor="session-timeout">Extended Session Timeout</Label>
+              <p className="text-sm text-muted-foreground">
+                Increase session duration to 24 hours
+              </p>
+            </div>
           </div>
           <Switch 
             id="session-timeout" 
@@ -113,9 +126,44 @@ const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
           />
         </div>
         
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5 flex items-center">
+            <Shield className="h-4 w-4 mr-2 text-primary" />
+            <div>
+              <Label htmlFor="content-security">Strict Content Security</Label>
+              <p className="text-sm text-muted-foreground">
+                Enable strict Content Security Policy
+              </p>
+            </div>
+          </div>
+          <Switch 
+            id="content-security" 
+            checked={settings.strictContentSecurity}
+            onCheckedChange={() => handleToggle('strictContentSecurity')}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5 flex items-center">
+            <Key className="h-4 w-4 mr-2 text-primary" />
+            <div>
+              <Label htmlFor="api-protection">Enhanced API Protection</Label>
+              <p className="text-sm text-muted-foreground">
+                Enable rate limiting and additional API security measures
+              </p>
+            </div>
+          </div>
+          <Switch 
+            id="api-protection" 
+            checked={settings.enhancedApiProtection}
+            onCheckedChange={() => handleToggle('enhancedApiProtection')}
+          />
+        </div>
+        
         <Button 
           onClick={handleSave}
           disabled={isLoading}
+          className="w-full"
         >
           {isLoading ? (
             <>

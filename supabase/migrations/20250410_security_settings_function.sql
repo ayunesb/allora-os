@@ -14,7 +14,7 @@ BEGIN
   
   -- Return empty default settings if none found
   IF settings IS NULL THEN
-    RETURN '{"twoFactorEnabled": false, "extendedSessionTimeout": false}'::jsonb;
+    RETURN '{"twoFactorEnabled": false, "extendedSessionTimeout": false, "strictContentSecurity": false, "enhancedApiProtection": false}'::jsonb;
   END IF;
   
   RETURN settings;
@@ -40,6 +40,23 @@ BEGIN
     VALUES ('security_settings', p_settings);
   END IF;
   
+  -- Log the security settings change
+  INSERT INTO public.audit_logs (
+    event_type, 
+    user_id, 
+    details, 
+    ip_address
+  )
+  VALUES (
+    'security_settings_updated',
+    auth.uid(),
+    p_settings,
+    inet_client_addr()
+  );
+  
   RETURN true;
 END;
 $$;
+
+-- Create an index on system_settings to improve query performance
+CREATE INDEX IF NOT EXISTS idx_system_settings_key ON public.system_settings (key);

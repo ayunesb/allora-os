@@ -23,16 +23,52 @@ export const SUPABASE_CONFIG = {
 export const API_CONFIG = {
   defaultTimeout: 30000, // 30 seconds
   retryAttempts: 3,
+  maxRequestsPerMinute: 60, // Rate limiting
+  retryBackoff: [1000, 3000, 5000], // Exponential backoff for retries
+}
+
+// Security configuration
+export const SECURITY_CONFIG = {
+  passwordMinLength: 10,
+  requireMFA: false, // Can be overridden by admin settings
+  sessionTimeout: 2 * 60 * 60 * 1000, // 2 hours in ms (default)
+  csrfProtection: true,
+  sanitizeUserInput: true,
+  allowedFileTypes: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
+  maxUploadSize: 10 * 1024 * 1024, // 10MB
 }
 
 // Feature flags
 export const FEATURES = {
   enableAnalytics: true,
   enableDetailedLogging: isDevelopment,
+  useServiceWorker: !isDevelopment,
+  useImageLazyLoading: true,
+  usePrefetching: true,
 }
 
 // App metadata
 export const APP_INFO = {
   name: "Allora AI",
   version: "1.0.0",
+  buildDate: "2025-04-09",
+  supportEmail: "support@allora-ai.com",
+  termsUrl: "/terms",
+  privacyUrl: "/privacy",
+}
+
+// Performance configuration
+export const PERFORMANCE_CONFIG = {
+  enablePerformanceMetrics: true,
+  logLongTasks: true,
+  longTaskThreshold: 50, // ms
+  reportToAnalytics: !isDevelopment,
+}
+
+// Content configuration
+export const CONTENT_CONFIG = {
+  maxTitleLength: 100,
+  maxDescriptionLength: 500,
+  defaultLang: 'en',
+  supportedLangs: ['en', 'es', 'fr', 'de'],
 }
