@@ -2,69 +2,48 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Menu, 
-  Home, 
-  LayoutDashboard, 
-  Settings, 
-  HelpCircle, 
-  LogOut, 
-  BarChart3, 
-  Sun, 
-  Moon,
-  Shield
-} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { BarChart3 } from "lucide-react";
+import ThemeToggle from "./navigation/ThemeToggle";
+import UserMenu from "./navigation/UserMenu";
+import MobileNavigation from "./navigation/MobileNavigation";
 import { toast } from "sonner";
 
-// Simple ModeToggle component implementation
-function ModeToggle() {
-  const [isDark, setIsDark] = useState(false);
-  
-  const toggleTheme = () => {
-    const newMode = !isDark;
-    setIsDark(newMode);
-    document.documentElement.classList.toggle('dark', newMode);
-  };
-  
-  return (
-    <Button variant="ghost" size="icon" onClick={toggleTheme}>
-      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-    </Button>
-  );
-}
+// Logo component
+const Logo = ({ className }: { className?: string }) => (
+  <div className={cn("rounded-full bg-primary/10 p-1", className)}>
+    <BarChart3 className="h-5 w-5 text-primary" />
+  </div>
+);
 
-// Icons component as a simple substitute
-const Icons = {
-  logo: ({ className }: { className?: string }) => (
-    <div className={cn("rounded-full bg-primary/10 p-1", className)}>
-      <BarChart3 className="h-5 w-5 text-primary" />
-    </div>
-  )
-};
+// Navigation items definition
+const getNavItems = () => [
+  {
+    name: "Home",
+    href: "/dashboard",
+    icon: ({ className }: { className?: string }) => <BarChart3 className={className} />,
+  },
+  {
+    name: "Strategies",
+    href: "/dashboard/strategies",
+    icon: ({ className }: { className?: string }) => <BarChart3 className={className} />,
+  },
+  {
+    name: "Analytics",
+    href: "/dashboard/analytics",
+    icon: ({ className }: { className?: string }) => <BarChart3 className={className} />,
+  },
+  {
+    name: "Compliance",
+    href: "/compliance",
+    icon: ({ className }: { className?: string }) => <BarChart3 className={className} />,
+  }
+];
 
 export function Navbar({ isLoggedIn = true }) {
   const { signOut, user, profile } = useAuth();
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -72,6 +51,7 @@ export function Navbar({ isLoggedIn = true }) {
   
   // Mock subscription data
   const subscription = { status: "inactive" };
+  const navItems = getNavItems();
 
   const handleSignOut = async () => {
     try {
@@ -82,13 +62,10 @@ export function Navbar({ isLoggedIn = true }) {
         throw new Error(result.error || "Failed to sign out");
       }
       
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      });
+      toast("Signed out successfully");
       navigate("/login");
     } catch (error: any) {
-      toast({
+      uiToast({
         variant: "destructive",
         title: "Error signing out",
         description: error.message,
@@ -99,123 +76,35 @@ export function Navbar({ isLoggedIn = true }) {
     }
   };
 
-  const navItems = [
-    {
-      name: "Home",
-      href: "/dashboard",
-      icon: Home,
-    },
-    {
-      name: "Strategies",
-      href: "/dashboard/strategies",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Analytics",
-      href: "/dashboard/analytics",
-      icon: BarChart3,
-    },
-    {
-      name: "Compliance",
-      href: "/compliance",
-      icon: Shield,
-    }
-  ];
-
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mr-2 flex md:hidden"
-              aria-label="Toggle Menu"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <SheetHeader className="text-left">
-              <SheetTitle>Dashboard Menu</SheetTitle>
-              <SheetDescription>
-                Navigate through different sections of the dashboard.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="py-4">
-              {navItems.map((item) => (
-                <Link key={item.name} to={item.href}>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.name}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-            <SheetTitle>Account</SheetTitle>
-            <DropdownMenuSeparator />
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start" 
-              onClick={handleSignOut}
-              disabled={isSigningOut}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              {isSigningOut ? "Signing out..." : "Sign Out"}
-            </Button>
-          </SheetContent>
-        </Sheet>
+        <MobileNavigation 
+          isOpen={open}
+          setIsOpen={setOpen}
+          navItems={navItems}
+          onSignOut={handleSignOut}
+          isSigningOut={isSigningOut}
+        />
+        
         <Link className="ml-auto font-bold text-2xl flex items-center" to="/dashboard">
-          <Icons.logo className="h-6 w-6 mr-2" />
+          <Logo className="h-6 w-6 mr-2" />
           <span>Allora AI</span>
         </Link>
+        
         <div className="ml-auto flex items-center space-x-4">
-          <ModeToggle />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 data-[state=open]:bg-muted">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={profile?.avatar_url || ""} alt={profile?.name || ""} />
-                  <AvatarFallback>{profile?.name?.[0] || user?.email?.[0]}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/faq">
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>FAQ</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {subscription?.status === "active" ? null : (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link to="/pricing">Upgrade</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
-              <DropdownMenuItem 
-                onClick={handleSignOut}
-                disabled={isSigningOut}
-                className="cursor-pointer"
-              >
-                {isSigningOut ? "Signing out..." : "Sign out"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ThemeToggle />
+          <UserMenu 
+            avatarUrl={profile?.avatar_url} 
+            name={profile?.name}
+            email={user?.email}
+            onSignOut={handleSignOut}
+            isSigningOut={isSigningOut}
+            hasActiveSubscription={subscription?.status === "active"}
+          />
         </div>
       </div>
+      
       {isLoggedIn && (
         <div className="hidden md:flex justify-center space-x-6 p-4">
           {navItems.map((item) => (

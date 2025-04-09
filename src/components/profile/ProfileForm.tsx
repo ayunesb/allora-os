@@ -10,7 +10,7 @@ import { updateUserProfile } from '@/utils/profileHelpers';
 import ProfileAvatar from './ProfileAvatar';
 import PersonalInfoForm from './PersonalInfoForm';
 import ApiKeysSection from './ApiKeysSection';
-import DeleteAccountDialog from './DeleteAccountDialog';
+import DangerZone from './DangerZone';
 
 export type ProfileFormData = {
   name: string;
@@ -232,15 +232,7 @@ const ProfileForm: React.FC = () => {
             </Button>
           </div>
           
-          <Separator className="my-4" />
-          
-          <div className="w-full">
-            <h3 className="text-lg font-medium text-destructive mb-2">Danger Zone</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Permanently delete your account and all associated data. This action cannot be undone.
-            </p>
-            <DeleteAccountDialog />
-          </div>
+          <DangerZone />
         </CardFooter>
       </form>
     </Card>

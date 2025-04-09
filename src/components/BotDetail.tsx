@@ -23,7 +23,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function BotDetail() {
-  const { botName, role } = useParams<{ botName: string; role: string }>();
+  const { botId } = useParams<{ botId: string }>();
+  const [botName, role] = botId?.split('-') || ['', ''];
+  
   const { 
     bot, 
     messages, 
