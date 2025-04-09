@@ -47,18 +47,21 @@ export type Database = {
       companies: {
         Row: {
           created_at: string
+          details: Json | null
           id: string
           industry: string | null
           name: string
         }
         Insert: {
           created_at?: string
+          details?: Json | null
           id?: string
           industry?: string | null
           name: string
         }
         Update: {
           created_at?: string
+          details?: Json | null
           id?: string
           industry?: string | null
           name?: string

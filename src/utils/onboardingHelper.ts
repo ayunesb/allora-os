@@ -33,6 +33,7 @@ export async function saveOnboardingInfo(
     }
 
     console.log("Saving onboarding info:", { userId, companyName, industry, goals });
+    console.log("Company details:", companyDetails);
 
     // First, get the authenticated user's session
     const { data: { session } } = await supabase.auth.getSession();
@@ -48,8 +49,7 @@ export async function saveOnboardingInfo(
         name: companyName,
         industry: industry,
         created_at: new Date().toISOString(),
-        // Add detailed company information if provided
-        ...(companyDetails && { details: companyDetails }),
+        details: companyDetails || {} // Add the details object, default to empty object if null
       })
       .select('id')
       .single();
