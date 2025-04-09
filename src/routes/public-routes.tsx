@@ -51,7 +51,7 @@ export const publicRoutes: RouteObject[] = [
     element: <Pricing />,
   },
   {
-    path: "/dev-admin",
+    path: "/dev-admin-helper",
     element: <DevAdminHelper />,
   },
 ];
