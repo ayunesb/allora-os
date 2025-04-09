@@ -8,19 +8,19 @@ import { updateCompanyDetails } from './companyUpdate';
  */
 export async function setupTestCompany(email: string): Promise<{ success: boolean; error?: string }> {
   try {
-    // Query directly for the user ID to avoid TypeScript issues
-    const { data: profile, error: profileError } = await supabase
+    // Query directly for the user ID using a simple query to avoid type issues
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
-      .maybeSingle();
+      .limit(1);
       
-    if (profileError || !profile) {
+    if (profileError || !profileData || profileData.length === 0) {
       console.error("Error finding user:", profileError);
       return { success: false, error: `User with email ${email} not found` };
     }
     
-    const userId = profile.id;
+    const userId = profileData[0].id;
     
     // Set up the test company details
     const result = await updateCompanyDetails(userId, {

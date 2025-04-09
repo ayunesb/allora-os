@@ -4,13 +4,22 @@
  * All environment variables and configuration settings should be accessed through this file
  */
 
+// Environment detection
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 // Supabase configuration
 export const SUPABASE_CONFIG = {
-  // These values are obtained from environment variables
-  // For production deployments, they should be set in the hosting environment
-  // We're still using the values below for development compatibility
-  url: process.env.SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co",
-  anonKey: process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo"
+  // These values should be set as environment variables in production
+  url: process.env.SUPABASE_URL || (isDevelopment ? "https://ofwxyctfzskeeniaaazw.supabase.co" : ""),
+  anonKey: process.env.SUPABASE_ANON_KEY || (isDevelopment ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo" : ""),
+}
+
+// Add warning about missing environment variables in production
+if (!isDevelopment && (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY)) {
+  console.warn(
+    "WARNING: Supabase environment variables are not set. " +
+    "This is fine for development but should be configured for production."
+  );
 }
 
 // API configuration
@@ -22,7 +31,7 @@ export const API_CONFIG = {
 // Feature flags
 export const FEATURES = {
   enableAnalytics: true,
-  enableDetailedLogging: false,
+  enableDetailedLogging: process.env.NODE_ENV === 'development',
 }
 
 // App metadata

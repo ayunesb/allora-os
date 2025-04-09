@@ -5,59 +5,83 @@
  */
 
 import { useSelfLearning } from '@/hooks/useSelfLearning';
-import { ActionCategory } from '@/utils/selfLearning'; // Updated import path
+import { ActionCategory } from '@/utils/selfLearning';
+import { sanitizeInput } from '@/utils/sanitizers';
 
+// Base function to trigger a Zapier webhook with proper validation
 export const triggerZap = async (event: string, payload: Record<string, any>) => {
   try {
-    // In production, you would use an environment variable for the webhook URL
-    const ZAPIER_WEBHOOK_URL = payload.webhookUrl || "YOUR_ZAPIER_WEBHOOK_URL";
+    // Validate webhook URL
+    const webhookUrl = payload.webhookUrl;
     
-    if (!ZAPIER_WEBHOOK_URL || ZAPIER_WEBHOOK_URL === "YOUR_ZAPIER_WEBHOOK_URL") {
-      throw new Error("Zapier webhook URL not configured");
+    if (!webhookUrl) {
+      throw new Error("Zapier webhook URL not provided");
     }
     
-    const response = await fetch(ZAPIER_WEBHOOK_URL, {
+    // Basic URL validation
+    try {
+      new URL(webhookUrl);
+    } catch (e) {
+      throw new Error("Invalid Zapier webhook URL format");
+    }
+    
+    // Verify it's a Zapier webhook
+    if (!webhookUrl.includes('hooks.zapier.com')) {
+      console.warn('The webhook URL does not appear to be from Zapier');
+    }
+    
+    // Sanitize event name and payload values to prevent injection
+    const sanitizedEvent = sanitizeInput(event);
+    const sanitizedPayload = Object.entries(payload).reduce((acc, [key, value]) => {
+      // Only sanitize string values
+      acc[key] = typeof value === 'string' ? sanitizeInput(value) : value;
+      return acc;
+    }, {} as Record<string, any>);
+    
+    // Add metadata
+    const requestBody = {
+      event: sanitizedEvent,
+      payload: sanitizedPayload,
+      timestamp: new Date().toISOString(),
+      source: 'Allora AI Platform'
+    };
+    
+    // Make the request to Zapier
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        event, 
-        payload,
-        timestamp: new Date().toISOString(),
-        source: 'Allora AI Platform'
-      }),
+      body: JSON.stringify(requestBody),
     });
     
+    // Validate response
     if (!response.ok) {
-      throw new Error(`Zapier webhook failed: ${response.status}`);
+      throw new Error(`Zapier webhook failed: ${response.status} ${response.statusText}`);
     }
     
     // Track this zapier event in our self-learning system if we have userId
-    if (payload.userId) {
-      // We're not using the hook directly because this is not a React component
-      // In a real implementation, you'd pass the user ID to this function
-      // or handle the tracking separately
+    if (sanitizedPayload.userId) {
       console.log('Would track Zapier event:', {
         action: 'trigger_zapier_webhook',
         category: 'automation',
-        entityId: payload.entityId,
-        entityType: payload.entityType,
+        entityId: sanitizedPayload.entityId,
+        entityType: sanitizedPayload.entityType,
         metadata: {
-          event,
+          event: sanitizedEvent,
           success: true
         }
       });
     }
     
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error triggering Zapier webhook:", error);
     return { success: false, error };
   }
 };
 
-// Component hook for using Zapier within React components
+// React hook for using Zapier within components
 export const useZapier = () => {
   const { trackAction } = useSelfLearning();
   
@@ -68,10 +92,14 @@ export const useZapier = () => {
     entityId?: string,
     entityType?: string
   ) => {
+    if (!webhookUrl || !webhookUrl.trim()) {
+      return { success: false, error: new Error("Webhook URL is required") };
+    }
+    
     // Add webhook URL to payload
     const fullPayload = {
       ...payload,
-      webhookUrl
+      webhookUrl: webhookUrl.trim()
     };
     
     const result = await triggerZap(event, fullPayload);
@@ -79,7 +107,7 @@ export const useZapier = () => {
     // Track this action in our self-learning system
     trackAction(
       'trigger_zapier_workflow',
-      'automation', // This is now properly typed
+      'automation',
       entityId,
       entityType,
       {

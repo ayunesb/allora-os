@@ -4,10 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
 
-// Validation to ensure required config is present
+// Validate that required configuration exists
 if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
   console.error(
-    "Supabase URL or Anon Key is missing. Make sure these are properly configured in appConfig.ts."
+    "Supabase URL or Anon Key is missing. Make sure these are properly configured in your environment or in appConfig.ts."
   );
 }
 
