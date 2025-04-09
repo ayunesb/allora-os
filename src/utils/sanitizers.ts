@@ -80,9 +80,9 @@ export function sanitizeFormData<T extends Record<string, any>>(formData: T): T 
   const sanitized = { ...formData };
   
   Object.keys(sanitized).forEach(key => {
-    const value = sanitized[key];
+    const value = sanitized[key as keyof T];
     if (typeof value === 'string') {
-      sanitized[key] = sanitizeInput(value) as any;
+      sanitized[key as keyof T] = sanitizeInput(value) as any;
     }
   });
   

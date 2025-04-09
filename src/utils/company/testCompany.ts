@@ -12,7 +12,7 @@ export async function setupTestCompany(email: string): Promise<{ success: boolea
     const { data: userData, error: userError } = await supabase
       .from('profiles')
       .select('id')
-      .eq('id', (await supabase.auth.admin.getUserByEmail(email)).data.user?.id)
+      .eq('email', email)
       .single();
       
     if (userError) {
