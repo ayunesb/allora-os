@@ -1,5 +1,5 @@
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { RouteObject } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { publicRoutes } from "./routes/public-routes";
@@ -10,7 +10,7 @@ import { complianceRoutes } from "./routes/compliance-routes";
 import App from "./App";
 
 // Combine all route configurations
-const router = createBrowserRouter([
+const routes: RouteObject[] = [
   {
     path: "/",
     element: <App />,
@@ -22,13 +22,16 @@ const router = createBrowserRouter([
       ...complianceRoutes,
     ],
   },
-]);
+];
 
 export function AppRoutes() {
   return (
     <>
-      <RouterProvider router={router} />
+      <RouterProvider router={createBrowserRouter(routes)} />
       <Toaster position="top-right" />
     </>
   );
 }
+
+// Export the routes
+export default routes;
