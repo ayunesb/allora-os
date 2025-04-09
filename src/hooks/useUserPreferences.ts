@@ -1,52 +1,148 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useAuthState } from './useAuthState';
 
-export type ResponseStyle = 'concise' | 'detailed' | 'balanced';
-export type TechnicalLevel = 'basic' | 'intermediate' | 'advanced';
-
-export interface UserPreferences {
-  responseStyle: ResponseStyle;
-  technicalLevel: TechnicalLevel;
+export type UserPreferences = {
+  responseStyle: 'concise' | 'balanced' | 'detailed';
+  technicalLevel: 'basic' | 'intermediate' | 'advanced';
   showSources: boolean;
-  focusArea: string;
-}
+  focusArea: 'general' | 'strategy' | 'marketing' | 'operations' | 'technology' | 'finance';
+  riskAppetite: 'low' | 'medium' | 'high';
+  preferredExecutives: string[];
+  favoriteTopics: string[];
+  modelPreference: 'gpt-4o' | 'claude-3' | 'gemini-1.5' | 'auto';
+};
 
-const DEFAULT_PREFERENCES: UserPreferences = {
+const defaultPreferences: UserPreferences = {
   responseStyle: 'balanced',
   technicalLevel: 'intermediate',
   showSources: false,
   focusArea: 'general',
+  riskAppetite: 'medium',
+  preferredExecutives: [],
+  favoriteTopics: [],
+  modelPreference: 'auto'
 };
 
 export function useUserPreferences() {
-  const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES);
+  const { user } = useAuthState();
+  const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Load preferences from localStorage on component mount
+  // Load user preferences from database or localStorage
   useEffect(() => {
-    const savedPreferences = localStorage.getItem('userPreferences');
-    if (savedPreferences) {
+    const loadPreferences = async () => {
+      setIsLoading(true);
+      
       try {
-        setPreferences(JSON.parse(savedPreferences));
+        if (user?.id) {
+          // Try to load from Supabase if user is authenticated
+          const { data, error } = await supabase
+            .from('user_preferences')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (error) {
+            throw error;
+          }
+          
+          if (data) {
+            setPreferences({
+              responseStyle: data.response_style || defaultPreferences.responseStyle,
+              technicalLevel: data.technical_level || defaultPreferences.technicalLevel,
+              showSources: data.show_sources || defaultPreferences.showSources,
+              focusArea: data.focus_area || defaultPreferences.focusArea,
+              riskAppetite: data.risk_appetite || defaultPreferences.riskAppetite,
+              preferredExecutives: data.preferred_executives || defaultPreferences.preferredExecutives,
+              favoriteTopics: data.favorite_topics || defaultPreferences.favoriteTopics,
+              modelPreference: data.model_preference || defaultPreferences.modelPreference
+            });
+            return;
+          }
+        }
+        
+        // Fall back to localStorage if no Supabase data
+        const savedPreferences = localStorage.getItem('userPreferences');
+        if (savedPreferences) {
+          setPreferences(JSON.parse(savedPreferences));
+        }
       } catch (error) {
-        console.error('Failed to parse saved preferences:', error);
+        console.error('Error loading preferences:', error);
+        // Fall back to localStorage on error
+        const savedPreferences = localStorage.getItem('userPreferences');
+        if (savedPreferences) {
+          setPreferences(JSON.parse(savedPreferences));
+        }
+      } finally {
+        setIsLoading(false);
       }
+    };
+    
+    loadPreferences();
+  }, [user?.id]);
+
+  // Save preferences to database or localStorage
+  const savePreferences = async (newPreferences: UserPreferences) => {
+    setIsLoading(true);
+    
+    try {
+      setPreferences(newPreferences);
+      
+      // Always save to localStorage as backup
+      localStorage.setItem('userPreferences', JSON.stringify(newPreferences));
+      
+      if (user?.id) {
+        // Also save to Supabase if user is authenticated
+        const { error } = await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: user.id,
+            response_style: newPreferences.responseStyle,
+            technical_level: newPreferences.technicalLevel,
+            show_sources: newPreferences.showSources,
+            focus_area: newPreferences.focusArea,
+            risk_appetite: newPreferences.riskAppetite,
+            preferred_executives: newPreferences.preferredExecutives,
+            favorite_topics: newPreferences.favoriteTopics,
+            model_preference: newPreferences.modelPreference,
+            last_updated: new Date()
+          }, {
+            onConflict: 'user_id'
+          });
+        
+        if (error) {
+          throw error;
+        }
+      }
+      
+      toast.success('Preferences saved successfully');
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      toast.error('Failed to save preferences');
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  };
 
-  // Save preferences to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('userPreferences', JSON.stringify(preferences));
-  }, [preferences]);
+  // Update a single preference
+  const updatePreference = (key: keyof UserPreferences, value: any) => {
+    const newPreferences = { ...preferences, [key]: value };
+    savePreferences(newPreferences);
+  };
 
-  const updatePreferences = useCallback((newPreferences: Partial<UserPreferences>) => {
-    setPreferences(prev => ({
-      ...prev,
-      ...newPreferences
-    }));
-  }, []);
+  // Reset preferences to defaults
+  const resetPreferences = () => {
+    savePreferences(defaultPreferences);
+  };
 
   return {
     preferences,
-    updatePreferences,
+    isLoading,
+    savePreferences,
+    updatePreference,
+    resetPreferences
   };
 }

@@ -1,9 +1,9 @@
 
 import React from 'react';
-import DebateContainer from './debate/DebateContainer';
+import ExecutiveDebate from './ai-debate/ExecutiveDebate';
 
 const BotDebate: React.FC = () => {
-  return <DebateContainer />;
+  return <ExecutiveDebate />;
 };
 
 export default BotDebate;
