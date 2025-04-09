@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
 import IndustryForm from "@/components/onboarding/IndustryForm";
@@ -11,8 +12,8 @@ import ExecutiveTeamIntro from "@/components/onboarding/ExecutiveTeamIntro";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { checkOnboardingStatus } from "@/utils/onboarding";
 
 export default function Onboarding() {
   const {
@@ -35,8 +36,23 @@ export default function Onboarding() {
     toggleGoal
   } = useOnboardingState();
 
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Check if user has already completed onboarding
+  useEffect(() => {
+    if (!user) return;
+
+    const checkStatus = async () => {
+      const isCompleted = await checkOnboardingStatus(user.id);
+      if (isCompleted) {
+        toast.info("You've already completed onboarding");
+        navigate("/dashboard");
+      }
+    };
+
+    checkStatus();
+  }, [user, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -119,7 +135,7 @@ export default function Onboarding() {
   };
 
   const getTotalSteps = () => {
-    return 6; // Updated total steps
+    return 6;
   };
 
   return (

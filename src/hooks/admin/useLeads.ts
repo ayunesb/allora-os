@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Lead } from '@/models/lead';
 import { handleApiError } from '@/utils/api/errorHandling';
 import { updateLeadStatus, deleteLead } from '@/utils/leadHelpers';
