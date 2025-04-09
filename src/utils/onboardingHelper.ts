@@ -76,14 +76,33 @@ export async function saveOnboardingInfo(
       
       companyId = profileData.company_id;
     } else {
-      // Create the company record with user_id
+      // Create a new company
+      // This time we'll use a different approach - create the profile with empty company_id first
+      // Then create the company, and then update the profile with the company_id
+      
+      // First, make sure the profile exists with auth.uid as the id
+      const { error: ensureProfileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          company: companyName,
+          industry: industry,
+          updated_at: new Date().toISOString()
+        });
+        
+      if (ensureProfileError) {
+        console.error("Profile creation error:", ensureProfileError);
+        throw new Error(`Failed to create/update profile: ${ensureProfileError.message}`);
+      }
+
+      // Now create the company record
       const { data: companyData, error: companyError } = await supabase
         .from('companies')
         .insert({
           name: companyName,
           industry: industry,
           created_at: new Date().toISOString(),
-          details: companyDetails || {} // Add the details object, default to empty object if null
+          details: companyDetails || {}
         })
         .select('id')
         .single();
@@ -98,22 +117,19 @@ export async function saveOnboardingInfo(
       if (!companyId) {
         throw new Error("Failed to create company record");
       }
-    }
-
-    // Next, update the user profile with the company ID
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: userId,
-        company_id: companyId,
-        company: companyName,
-        industry: industry,
-        updated_at: new Date().toISOString()
-      });
-
-    if (profileError) {
-      console.error("Profile update error:", profileError);
-      throw new Error(`Failed to update profile: ${profileError.message}`);
+      
+      // Now update the profile with the company_id
+      const { error: profileUpdateError } = await supabase
+        .from('profiles')
+        .update({
+          company_id: companyId
+        })
+        .eq('id', userId);
+        
+      if (profileUpdateError) {
+        console.error("Profile update error:", profileUpdateError);
+        throw new Error(`Failed to update profile with company ID: ${profileUpdateError.message}`);
+      }
     }
 
     // Store the business goals (in a real app, you would create a goals table)
