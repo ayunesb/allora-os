@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/backend/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export function usePendingApprovals() {

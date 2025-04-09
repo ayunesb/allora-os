@@ -1,18 +1,19 @@
 
 import { createClient } from '@supabase/supabase-js';
-
-// Get environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+import { SUPABASE_CONFIG } from '@/config/appConfig';
 
 // Create a single supabase client for interacting with the database
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    storage: localStorage
+export const supabase = createClient(
+  SUPABASE_CONFIG.url, 
+  SUPABASE_CONFIG.anonKey, 
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      storage: localStorage
+    }
   }
-});
+);
 
 // Export functions to get sessions and current user
 export async function getSession() {
