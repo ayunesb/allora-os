@@ -31,7 +31,7 @@ export interface TestCompanySetupResult {
   companyName?: string;
 }
 
-// Export actual implementation functions
+// Export function references directly
 export { getTestCompany } from './getTestCompany';
 export { createTestCompany } from './createTestCompany';
 export { runTestCompanySetup } from './setupTestCompany';
