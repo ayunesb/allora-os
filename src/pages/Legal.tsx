@@ -1,5 +1,5 @@
 
-import Navbar from "@/components/Navbar";
+import { Navbar } from "@/components/Navbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Legal() {

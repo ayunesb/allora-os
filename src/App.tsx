@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from './pages/Index';
@@ -54,38 +55,32 @@ function App() {
         } />
         
         {/* Dashboard routes with consistent layout */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/strategies" element={<Strategies />} />
-          <Route path="/dashboard/campaigns" element={<Campaigns />} />
-          <Route path="/dashboard/calls" element={<Calls />} />
-          <Route path="/dashboard/leads" element={<Leads />} />
-          <Route path="/dashboard/ai-bots" element={<AiBots />} />
-          <Route path="/dashboard/ai-bots/:botName/:role" element={<BotDetail />} />
-          <Route path="/dashboard/profile" element={<Profile />} />
-          <Route path="/dashboard/settings" element={<Settings />} />
-          <Route path="/dashboard/analytics" element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Analytics />
-              </DashboardLayout>
-            </ProtectedRoute>
-          } />
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="strategies" element={<Strategies />} />
+          <Route path="campaigns" element={<Campaigns />} />
+          <Route path="calls" element={<Calls />} />
+          <Route path="leads" element={<Leads />} />
+          <Route path="ai-bots" element={<AiBots />} />
+          <Route path="ai-bots/:botName/:role" element={<BotDetail />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="analytics" element={<Analytics />} />
         </Route>
         
         {/* Admin routes with admin layout */}
-        <Route element={
+        <Route path="/admin" element={
           <ProtectedRoute roleRequired="admin">
             <AdminLayout />
           </ProtectedRoute>
         }>
-          <Route path="/admin" element={<AdminIndex />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/companies" element={<AdminCompanies />} />
-          <Route path="/admin/campaigns" element={<AdminCampaigns />} />
-          <Route path="/admin/leads" element={<AdminLeads />} />
-          <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route index element={<AdminIndex />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="companies" element={<AdminCompanies />} />
+          <Route path="campaigns" element={<AdminCampaigns />} />
+          <Route path="leads" element={<AdminLeads />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
         
         {/* Catch-all route */}

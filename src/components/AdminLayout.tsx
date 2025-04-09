@@ -11,7 +11,7 @@ import {
   Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Navbar from '@/components/Navbar';
+import { Navbar } from '@/components/Navbar';
 import {
   Sidebar,
   SidebarContent,

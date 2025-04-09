@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,30 +20,45 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import { ModeToggle } from "@/components/ModeToggle";
+import { Menu, Home, LayoutDashboard, Settings, HelpCircle, LogOut, BarChart3, Sun, Moon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useSubscription } from "@/hooks/useSubscription";
-import { Icons } from "@/components/Icons";
 import { cn } from "@/lib/utils";
-import { useSettings } from "@/hooks/useSettings";
-import { Home, LayoutDashboard, Settings, HelpCircle, LogOut, BarChart3 } from "lucide-react";
 
-interface NavItem {
-  name: string;
-  href: string;
-  icon: React.ComponentType;
+// Simple ModeToggle component implementation
+function ModeToggle() {
+  const [isDark, setIsDark] = useState(false);
+  
+  const toggleTheme = () => {
+    const newMode = !isDark;
+    setIsDark(newMode);
+    document.documentElement.classList.toggle('dark', newMode);
+  };
+  
+  return (
+    <Button variant="ghost" size="icon" onClick={toggleTheme}>
+      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    </Button>
+  );
 }
 
-export function Navbar() {
-  const { signOut } = useAuth();
+// Icons component as a simple substitute
+const Icons = {
+  logo: ({ className }: { className?: string }) => (
+    <div className={cn("rounded-full bg-primary/10 p-1", className)}>
+      <BarChart3 className="h-5 w-5 text-primary" />
+    </div>
+  )
+};
+
+export function Navbar({ isLoggedIn = true }) {
+  const { signOut, user } = useAuth();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const { subscription } = useSubscription();
-  const { settings, updateSettings } = useSettings();
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // Mock subscription data
+  const subscription = { status: "inactive" };
 
   const handleSignOut = async () => {
     try {
@@ -51,7 +67,7 @@ export function Navbar() {
         title: "Signed out",
         description: "You have been signed out successfully.",
       });
-      navigate("/sign-in");
+      navigate("/login");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -61,7 +77,7 @@ export function Navbar() {
     }
   };
 
-  const navItems: NavItem[] = [
+  const navItems = [
     {
       name: "Home",
       href: "/dashboard",
@@ -164,23 +180,27 @@ export function Navbar() {
           </DropdownMenu>
         </div>
       </div>
-      <div className="hidden md:flex justify-center space-x-6 p-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.name}
-            to={item.href}
-            className={cn(
-              "flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground",
-              location.pathname === item.href
-                ? "bg-secondary text-foreground"
-                : "text-muted-foreground"
-            )}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.name}
-          </Link>
-        ))}
-      </div>
+      {isLoggedIn && (
+        <div className="hidden md:flex justify-center space-x-6 p-4">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={cn(
+                "flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground",
+                location.pathname === item.href
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              <span>{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+export default Navbar;
