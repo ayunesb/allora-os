@@ -18,6 +18,7 @@ export function useMessageOperations() {
       senderId: 'system',
       content,
       timestamp: new Date(),
+      isUser: false,
       votes: 0,
       isFavorite: false
     };

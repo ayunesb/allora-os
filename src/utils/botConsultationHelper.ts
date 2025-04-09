@@ -2,7 +2,7 @@
 // Re-export everything from the consultation module
 export * from './consultation';
 
-// Also export our enhanced risk-adjusted strategy tools
+// Export our enhanced risk-adjusted strategy tools
 export * from './riskEngine';
 
 // Import the strategy templates from the correct location
@@ -38,3 +38,6 @@ export type { StrategyAnalysis } from './strategyInsights';
 // Re-export analyzeStrategy with a different name to avoid conflicts
 import { analyzeStrategy as analyzeStrategyInsights } from './strategyInsights';
 export { analyzeStrategyInsights };
+
+// Export RiskProfile type from the consultation types to avoid ambiguity
+export { type RiskProfile } from './consultation/types';

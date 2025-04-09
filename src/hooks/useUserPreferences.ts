@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuthState } from './useAuthState';
+import { AIModelType } from '@/utils/consultation/types';
 
 export type UserPreferences = {
   responseStyle: 'concise' | 'balanced' | 'detailed';
@@ -12,7 +13,7 @@ export type UserPreferences = {
   riskAppetite: 'low' | 'medium' | 'high';
   preferredExecutives: string[];
   favoriteTopics: string[];
-  modelPreference: 'gpt-4o' | 'claude-3' | 'gemini-1.5' | 'auto';
+  modelPreference: AIModelType;
 };
 
 const defaultPreferences: UserPreferences = {
@@ -50,15 +51,16 @@ export function useUserPreferences() {
           }
           
           if (data) {
+            // Convert database fields to our UserPreferences type
             setPreferences({
-              responseStyle: data.response_style || defaultPreferences.responseStyle,
-              technicalLevel: data.technical_level || defaultPreferences.technicalLevel,
+              responseStyle: (data.communication_style as 'concise' | 'balanced' | 'detailed') || defaultPreferences.responseStyle,
+              technicalLevel: (data.technical_level as 'basic' | 'intermediate' | 'advanced') || defaultPreferences.technicalLevel,
               showSources: data.show_sources || defaultPreferences.showSources,
-              focusArea: data.focus_area || defaultPreferences.focusArea,
-              riskAppetite: data.risk_appetite || defaultPreferences.riskAppetite,
-              preferredExecutives: data.preferred_executives || defaultPreferences.preferredExecutives,
-              favoriteTopics: data.favorite_topics || defaultPreferences.favoriteTopics,
-              modelPreference: data.model_preference || defaultPreferences.modelPreference
+              focusArea: (data.focus_area as 'general' | 'strategy' | 'marketing' | 'operations' | 'technology' | 'finance') || defaultPreferences.focusArea,
+              riskAppetite: (data.risk_appetite as 'low' | 'medium' | 'high') || defaultPreferences.riskAppetite,
+              preferredExecutives: Array.isArray(data.preferred_executives) ? data.preferred_executives : defaultPreferences.preferredExecutives,
+              favoriteTopics: Array.isArray(data.favorite_topics) ? data.favorite_topics : defaultPreferences.favoriteTopics,
+              modelPreference: (data.model_preference as AIModelType) || defaultPreferences.modelPreference
             });
             return;
           }
@@ -100,7 +102,7 @@ export function useUserPreferences() {
           .from('user_preferences')
           .upsert({
             user_id: user.id,
-            response_style: newPreferences.responseStyle,
+            communication_style: newPreferences.responseStyle,
             technical_level: newPreferences.technicalLevel,
             show_sources: newPreferences.showSources,
             focus_area: newPreferences.focusArea,
@@ -108,7 +110,7 @@ export function useUserPreferences() {
             preferred_executives: newPreferences.preferredExecutives,
             favorite_topics: newPreferences.favoriteTopics,
             model_preference: newPreferences.modelPreference,
-            last_updated: new Date()
+            last_updated: new Date().toISOString()
           }, {
             onConflict: 'user_id'
           });

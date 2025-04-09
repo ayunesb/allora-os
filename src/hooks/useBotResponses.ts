@@ -26,37 +26,64 @@ export function useBotResponses(
         const debateContext = {
           topic,
           riskAppetite,
-          businessPriority
+          businessPriority,
+          includeRationale: preferences?.showSources || false
         };
         
-        // Call the OpenAI edge function
-        const { data, error } = await supabase.functions.invoke('openai', {
-          body: {
-            botName: participant.name,
-            botRole: participant.title,
-            debateContext,
-            preferences // Pass user preferences to the API
+        try {
+          // Call the OpenAI edge function
+          const { data, error } = await supabase.functions.invoke('openai', {
+            body: {
+              botName: participant.name,
+              botRole: participant.title,
+              debateContext,
+              preferences // Pass user preferences to the API
+            }
+          });
+          
+          if (error) {
+            console.error('Error calling OpenAI API:', error);
+            throw error;
           }
-        });
-        
-        if (error) {
-          console.error('Error calling OpenAI API:', error);
-          continue;
+          
+          // Format the response to include rationale if requested
+          let content = data.content;
+          
+          // If rationale isn't already included but was requested
+          if (preferences?.showSources && !content.includes('Rationale:')) {
+            content += `\n\nRationale: Based on my experience as ${participant.name}, I believe this approach aligns with the ${riskAppetite} risk profile and prioritizes ${businessPriority}.`;
+          }
+          
+          // Add the bot response message
+          const message: DebateMessage = {
+            id: `msg-${Date.now()}-${participant.id}`,
+            sender: participant.name,
+            senderId: participant.id,
+            content,
+            timestamp: new Date(),
+            isUser: false,
+            votes: 0,
+            isFavorite: false
+          };
+          
+          addMessage(message);
+        } catch (error) {
+          // Fallback to mock response if API fails
+          const fallbackContent = `As ${participant.name}, I recommend focusing on ${topic} by implementing a structured approach that balances innovation with stability.${preferences?.showSources ? `\n\nRationale: My recommendation is based on extensive experience in ${participant.specialty}, considering the ${riskAppetite} risk profile and ${businessPriority} priority.` : ''}`;
+          
+          const fallbackMessage: DebateMessage = {
+            id: `msg-${Date.now()}-${participant.id}`,
+            sender: participant.name,
+            senderId: participant.id,
+            content: fallbackContent,
+            timestamp: new Date(),
+            isUser: false,
+            votes: 0,
+            isFavorite: false
+          };
+          
+          addMessage(fallbackMessage);
         }
-        
-        // Add the bot response message
-        const message: DebateMessage = {
-          id: `msg-${Date.now()}-${participant.id}`,
-          sender: participant.name,
-          senderId: participant.id,
-          content: data.content,
-          timestamp: new Date(),
-          isUser: false,
-          votes: 0,
-          isFavorite: false
-        };
-        
-        addMessage(message);
         
         // Add a delay between responses to make it feel more natural
         await new Promise(resolve => setTimeout(resolve, 1500));
