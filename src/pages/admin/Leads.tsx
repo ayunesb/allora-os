@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Loader2, PlusCircle, Search, ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
@@ -64,7 +63,7 @@ export default function AdminLeads() {
     loadLeads();
   }, [sortBy, sortOrder]);
   
-  const handleStatusUpdate = async (leadId: string, status: 'new' | 'contacted' | 'qualified' | 'closed') => {
+  const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
     const success = await updateLeadStatus(leadId, status);
     if (success) {
       setLeads(leads.map(lead => 
