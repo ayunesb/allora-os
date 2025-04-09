@@ -114,6 +114,12 @@ export default function Onboarding() {
     }
   };
 
+  // Calculate total steps based on whether we're skipping company and industry steps
+  const getTotalSteps = () => {
+    // If we start at step 3 (goals), then we only have 3 steps total
+    return step === 3 && (step === 1) ? 3 : 5;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Add logout button at the top right */}
@@ -132,7 +138,7 @@ export default function Onboarding() {
       <OnboardingLayout
         title={getStepTitle()}
         step={step}
-        totalSteps={5}
+        totalSteps={getTotalSteps()}
         onBack={handleBack}
         onNext={handleNext}
         isLoading={isLoading}

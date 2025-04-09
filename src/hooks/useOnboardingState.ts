@@ -24,8 +24,14 @@ export default function useOnboardingState() {
     if (profile) {
       if (profile.company) setCompanyName(profile.company);
       if (profile.industry) setIndustry(profile.industry);
+      
+      // If both company and industry are already set from registration, 
+      // skip to the goals step (step 3)
+      if (profile.company && profile.industry && step === 1) {
+        setStep(3); // Skip to goals step
+      }
     }
-  }, [profile]);
+  }, [profile, step]);
 
   const handleNext = () => {
     if (step < 5) { // Added an extra step for executive team intro
