@@ -64,7 +64,7 @@ describe('runTestCompanySetup', () => {
     const userProfileWithRequiredFields = {
       ...mockUserProfile,
       company_id: 'company-id',
-      role: 'user',
+      role: 'user' as const, // Use literal type to match User type
       created_at: new Date().toISOString()
     };
     
@@ -94,7 +94,7 @@ describe('runTestCompanySetup', () => {
     const userProfileWithRequiredFields = {
       ...mockUserProfile,
       company_id: 'company-id',
-      role: 'user',
+      role: 'user' as const, // Use literal type to match User type
       created_at: new Date().toISOString()
     };
     
@@ -153,7 +153,7 @@ describe('runTestCompanySetup', () => {
     const userProfileWithRequiredFields = {
       ...mockUserProfile,
       company_id: 'company-id',
-      role: 'user',
+      role: 'user' as const, // Use literal type to match User type
       created_at: new Date().toISOString()
     };
     
