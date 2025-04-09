@@ -1,0 +1,42 @@
+
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
+import ResetPassword from "@/pages/ResetPassword";
+import UpdatePassword from "@/pages/UpdatePassword";
+import Legal from "@/pages/Legal";
+import Privacy from "@/pages/Privacy";
+import NotFound from "@/pages/NotFound";
+import { RouteObject } from "react-router-dom";
+
+export const publicRoutes: RouteObject[] = [
+  {
+    path: "/",
+    element: <Index />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+  },
+  {
+    path: "/update-password",
+    element: <UpdatePassword />,
+  },
+  {
+    path: "/legal",
+    element: <Legal />,
+  },
+  {
+    path: "/privacy",
+    element: <Privacy />,
+  },
+];
