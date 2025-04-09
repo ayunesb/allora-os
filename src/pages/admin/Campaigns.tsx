@@ -138,7 +138,7 @@ export default function AdminCampaigns() {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-6 pb-12">
+    <div className="container mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Campaign Management</h1>

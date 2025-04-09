@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
 import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
 import CampaignsList from "@/components/campaigns/CampaignsList";
 import CampaignFormDialog, { CampaignFormValues } from "@/components/campaigns/CampaignFormDialog";
@@ -74,27 +73,25 @@ export default function Campaigns() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-1 container mx-auto px-4 py-24">
-        <CampaignHeader onNewCampaign={handleNewCampaign} />
-        
-        <CampaignsList 
-          campaigns={campaigns}
-          isLoading={isLoading}
-          handleEditCampaign={handleEditCampaign}
-          deleteCampaign={deleteCampaign}
-          onCreateCampaign={handleNewCampaign}
-        />
-        
-        <CampaignFormDialog
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          onSubmit={onSubmit}
-          defaultValues={getFormDefaultValues()}
-          isSubmitting={isCreating || isUpdating}
-          isEditing={!!editingCampaignId}
-        />
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <CampaignHeader onNewCampaign={handleNewCampaign} />
+      
+      <CampaignsList 
+        campaigns={campaigns}
+        isLoading={isLoading}
+        handleEditCampaign={handleEditCampaign}
+        deleteCampaign={deleteCampaign}
+        onCreateCampaign={handleNewCampaign}
+      />
+      
+      <CampaignFormDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSubmit={onSubmit}
+        defaultValues={getFormDefaultValues()}
+        isSubmitting={isCreating || isUpdating}
+        isEditing={!!editingCampaignId}
+      />
     </div>
   );
 }
