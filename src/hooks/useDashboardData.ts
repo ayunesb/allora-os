@@ -44,7 +44,9 @@ export function useDashboardData() {
         if (companyError) throw companyError;
         
         // Extract company details and ensure it's an object
-        const companyDetails: CompanyDetails = companyData?.details as CompanyDetails || {};
+        // Use type assertion with an intermediate variable to avoid deep instantiation
+        const rawDetails = companyData?.details || {};
+        const companyDetails: CompanyDetails = rawDetails as CompanyDetails;
         
         // Set risk appetite
         if (companyDetails.riskAppetite && 
