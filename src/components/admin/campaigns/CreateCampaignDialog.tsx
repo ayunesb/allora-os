@@ -12,7 +12,12 @@ interface CreateCampaignDialogProps {
     budget: number;
     company_id: string;
   };
-  onChange: (data: Partial<typeof formData>) => void;
+  onChange: (data: Partial<{
+    name: string;
+    platform: string;
+    budget: number;
+    company_id: string;
+  }>) => void;
   onSubmit: () => void;
   companies: Array<{ id: string; name: string }>;
   isSubmitting: boolean;
