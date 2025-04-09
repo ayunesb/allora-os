@@ -27,6 +27,8 @@ export interface DebateParticipant {
   title: string;
   specialty: string;
   avatar: string;
+  expertise?: string[];
+  background?: string;
 }
 
 export interface DebateTopic {
@@ -54,6 +56,8 @@ export interface DebateSession {
   created_at: Date;
   duration: number;
   company_id: string;
+  riskAppetite: 'low' | 'medium' | 'high';
+  businessPriority: string;
 }
 
 export interface DebateSummary {
