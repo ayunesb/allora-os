@@ -7,6 +7,6 @@ export * from './riskEngine';
 export * from './strategy';
 
 // Re-export strategyInsights but use a different name for analyzeStrategy
-import { analyzeStrategy as analyzeStrategyInsights } from './strategyInsights';
-export { analyzeStrategyInsights };
+import { analyzeStrategy as analyzeStrategyWithInsights } from './strategyInsights';
+export { analyzeStrategyWithInsights };
 export * from './strategyInsights';

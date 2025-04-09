@@ -1,4 +1,3 @@
-
 import { RiskProfile, RiskAssessmentInput, calculateRiskScore } from './riskEngine';
 import { GeneratedStrategy, generateCustomizedStrategy } from './strategy';
 import { 
@@ -77,6 +76,20 @@ export function analyzeStrategy(
     implementationComplexity,
     timeToResults
   };
+}
+
+function estimateTimeToResults(strategy: any, riskProfile: any) {
+  const timeframe = strategy.timeToMarket || "6-12 months";
+  const confidenceLevel = strategy.riskLevel === 'Low' ? 'High' as const : 
+                          strategy.riskLevel === 'Medium' ? 'Medium' as const : 'Low' as const;
+  
+  const milestones = [
+    { description: "Initial implementation complete", timeframe: "3 months" },
+    { description: "First results measurable", timeframe: "6 months" },
+    { description: "Full strategy impact realized", timeframe: "12-18 months" }
+  ];
+  
+  return { timeframe, confidenceLevel, milestones };
 }
 
 function generateInsights(
