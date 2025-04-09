@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -54,7 +53,7 @@ serve(async (req) => {
     }
 
     // Get the request body
-    const { action, to, body, leadId, messageType } = await req.json();
+    const { action, to, body, leadId, messageType, callSid } = await req.json();
 
     if (action === "send-sms") {
       // Validate request
@@ -215,6 +214,98 @@ serve(async (req) => {
         totalSent: results.filter(r => r.success).length,
         totalFailed: results.filter(r => !r.success).length,
         results
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    else if (action === "make-call") {
+      // Validate request
+      if (!to) {
+        return new Response(JSON.stringify({ error: "Missing required phone number" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Format the phone number (ensure it has the + prefix)
+      const formattedTo = to.startsWith('+') ? to : `+${to}`;
+
+      // Make call using Twilio
+      const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Calls.json`;
+      const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+      const twilioResponse = await fetch(twilioEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Basic ${twilioAuthString}`
+        },
+        body: new URLSearchParams({
+          From: TWILIO_PHONE_NUMBER,
+          To: formattedTo,
+          Url: "https://demo.twilio.com/docs/voice.xml" // A TwiML URL to handle the call (can be customized)
+        })
+      });
+
+      const twilioResult = await twilioResponse.json();
+
+      // Log the call in the database if needed
+      if (leadId) {
+        const { error: updateError } = await supabase
+          .from("lead_communications")
+          .insert([{
+            lead_id: leadId,
+            type: "call",
+            content: "Outbound call",
+            sent_at: new Date().toISOString(),
+            sent_by: user.id
+          }]);
+          
+        if (updateError) {
+          console.error("Error logging call communication:", updateError);
+        }
+      }
+
+      return new Response(JSON.stringify({ 
+        success: twilioResponse.ok,
+        callSid: twilioResult.sid,
+        message: twilioResponse.ok ? "Call initiated successfully" : "Failed to initiate call" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    else if (action === "get-call-status") {
+      // Validate request
+      if (!callSid) {
+        return new Response(JSON.stringify({ error: "Missing required call SID" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Get call status using Twilio
+      const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Calls/${callSid}.json`;
+      const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+      const twilioResponse = await fetch(twilioEndpoint, {
+        method: "GET",
+        headers: {
+          "Authorization": `Basic ${twilioAuthString}`
+        }
+      });
+
+      const twilioResult = await twilioResponse.json();
+
+      return new Response(JSON.stringify({ 
+        success: twilioResponse.ok,
+        status: twilioResult.status,
+        duration: twilioResult.duration,
+        direction: twilioResult.direction,
+        from: twilioResult.from,
+        to: twilioResult.to,
+        message: twilioResponse.ok ? "Call status retrieved successfully" : "Failed to get call status" 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
