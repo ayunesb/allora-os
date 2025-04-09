@@ -1,5 +1,5 @@
 
-import { supabase } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PartialCompanyDetails } from '@/models/companyDetails';
 import { updateCompanyDetails } from '@/utils/company';
