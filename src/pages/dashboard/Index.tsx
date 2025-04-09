@@ -36,12 +36,17 @@ export default function Dashboard() {
           
         if (error) throw error;
         
-        if (data?.details?.riskAppetite) {
-          setRiskAppetite(data.details.riskAppetite as 'low' | 'medium' | 'high');
+        // Extract company details and ensure it's an object
+        const companyDetails = data?.details as Record<string, any> || {};
+        
+        // Now we can safely check if riskAppetite exists and set it
+        if (companyDetails.riskAppetite && 
+            ['low', 'medium', 'high'].includes(companyDetails.riskAppetite)) {
+          setRiskAppetite(companyDetails.riskAppetite as 'low' | 'medium' | 'high');
         }
 
         // Generate AI recommendations based on company details
-        generateAiRecommendations(data?.details || {});
+        generateAiRecommendations(companyDetails);
       } catch (error) {
         console.error("Error fetching company details:", error);
         toast.error("Failed to load company information");
@@ -54,7 +59,7 @@ export default function Dashboard() {
   }, [profile]);
   
   // Generate AI recommendations based on company profile
-  const generateAiRecommendations = (companyDetails: any) => {
+  const generateAiRecommendations = (companyDetails: Record<string, any>) => {
     // In a real app, this would call an AI service
     // For now, we'll generate some example recommendations
     const industry = profile?.industry || "Technology";
