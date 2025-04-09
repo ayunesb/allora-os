@@ -2,6 +2,7 @@
 import { toast } from 'sonner';
 import { ConsultationMessage } from './types';
 import { botResponses } from './mockResponses';
+import { supabase } from '@/integrations/supabase/client';
 
 export async function saveConsultationMessage(
   consultationId: string,
@@ -24,18 +25,57 @@ export async function saveConsultationMessage(
 export async function generateBotResponse(
   botName: string,
   botRole: string,
-  userMessage: string
+  userMessage: string,
+  previousMessages: ConsultationMessage[] = []
 ): Promise<string> {
   try {
-    // Get responses for this bot role, fallback to strategy if not found
-    const roleResponses = botResponses[botRole] || botResponses.strategy;
+    let response;
+
+    // Use OpenAI API through the Supabase Edge Function
+    try {
+      // Format previous messages for the API
+      const formattedMessages = previousMessages.map(msg => ({
+        type: msg.type, // 'user' or 'bot'
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+
+      // Add the current user message
+      formattedMessages.push({
+        type: 'user',
+        content: userMessage,
+        timestamp: new Date().toISOString()
+      });
+
+      // Call the OpenAI edge function
+      const { data, error } = await supabase.functions.invoke('openai', {
+        body: {
+          botName,
+          botRole,
+          messages: formattedMessages
+        }
+      });
+
+      if (error) {
+        throw new Error(`Edge function error: ${error.message}`);
+      }
+
+      if (data.error) {
+        throw new Error(`API error: ${data.error}`);
+      }
+
+      response = data.content;
+      console.log('AI response:', response);
+    } catch (apiError) {
+      console.error('Error calling OpenAI API, falling back to mock data:', apiError);
+      
+      // Fall back to mock responses if the API call fails
+      const roleResponses = botResponses[botRole] || botResponses.strategy;
+      const randomIndex = Math.floor(Math.random() * roleResponses.length);
+      response = `As ${botName}, ${roleResponses[randomIndex]}`;
+    }
     
-    // Select a random response from the available options
-    const randomIndex = Math.floor(Math.random() * roleResponses.length);
-    const baseResponse = roleResponses[randomIndex];
-    
-    // Personalize the response with the bot's name
-    return `As ${botName}, ${baseResponse}`;
+    return response;
   } catch (error: any) {
     console.error('Error generating bot response:', error.message);
     return `I apologize, but I'm having trouble formulating a response right now. Could we try a different approach to your question?`;

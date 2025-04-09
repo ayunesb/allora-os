@@ -1,20 +1,25 @@
 
 project_id = "ofwxyctfzskeeniaaazw"
 
-[functions.stripe-webhook]
-verify_jwt = false
+[api]
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
-[functions.stripe]
-verify_jwt = true
+[db]
+port = 54322
 
-[functions.twilio]
-verify_jwt = true
+[studio]
+port = 54323
 
-[functions.postmark]
-verify_jwt = false
+[inbucket]
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
 
-[functions.heygen]
-verify_jwt = true
+[storage]
+file_size_limit = "50MiB"
 
-[functions.shopify]
+[functions.openai]
 verify_jwt = true

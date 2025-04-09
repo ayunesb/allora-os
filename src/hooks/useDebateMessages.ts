@@ -24,9 +24,14 @@ export default function useDebateMessages() {
     return systemMessage;
   }, [addMessage]);
 
-  const generateBotMessage = useCallback((bot: DebateParticipant, topic: string): DebateMessage => {
-    // Generate a response using the backend service
-    const content = generateBotResponse(bot, topic);
+  const generateBotMessage = useCallback(async (
+    bot: DebateParticipant, 
+    topic: string,
+    riskAppetite: string = 'medium',
+    businessPriority: string = 'growth'
+  ): Promise<DebateMessage> => {
+    // Generate a response using the backend service with OpenAI integration
+    const content = await generateBotResponse(bot, topic, riskAppetite, businessPriority);
     
     return {
       id: `msg-${Date.now()}-${bot.id}`,
@@ -37,17 +42,38 @@ export default function useDebateMessages() {
     };
   }, []);
 
-  const simulateBotResponses = useCallback((participants: DebateParticipant[], topic: string) => {
+  const simulateBotResponses = useCallback(async (
+    participants: DebateParticipant[], 
+    topic: string,
+    riskAppetite: string = 'medium',
+    businessPriority: string = 'growth'
+  ) => {
+    setIsLoading(true);
     // Simulate bot messages with slight delays between each
-    participants.forEach((bot, index) => {
-      setTimeout(() => {
-        const botMessage = generateBotMessage(bot, topic);
+    for (let i = 0; i < participants.length; i++) {
+      const bot = participants[i];
+      try {
+        // Add slight delay between responses
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+        
+        const botMessage = await generateBotMessage(bot, topic, riskAppetite, businessPriority);
         addMessage(botMessage);
-      }, (index + 1) * 2500); // Stagger responses
-    });
+      } catch (error) {
+        console.error(`Error generating response for ${bot.name}:`, error);
+      }
+    }
+    setIsLoading(false);
   }, [addMessage, generateBotMessage]);
 
-  const sendUserMessage = useCallback((content: string, participants: DebateParticipant[], topic: string) => {
+  const sendUserMessage = useCallback(async (
+    content: string, 
+    participants: DebateParticipant[], 
+    topic: string,
+    riskAppetite: string = 'medium',
+    businessPriority: string = 'growth'
+  ) => {
     if (!content.trim()) return;
     
     // Add user message
@@ -62,9 +88,9 @@ export default function useDebateMessages() {
     
     addMessage(userMessage);
     
-    // Trigger bot responses
-    setTimeout(() => {
-      simulateBotResponses(participants, topic);
+    // Trigger bot responses with a small delay
+    setTimeout(async () => {
+      await simulateBotResponses(participants, topic, riskAppetite, businessPriority);
     }, 1000);
   }, [addMessage, simulateBotResponses]);
 

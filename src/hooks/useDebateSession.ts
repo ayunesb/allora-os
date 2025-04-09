@@ -1,4 +1,3 @@
-
 import { useCallback, useState } from 'react';
 import { saveDebateSession } from '@/backend/debateManager';
 import { DebateSession } from '@/utils/consultation/types';
@@ -85,7 +84,7 @@ export default function useDebateSession() {
     setIsLoading(false);
     
     // Schedule first round of bot responses
-    simulateBotResponses(participants, selectedTopicDetails?.topic || selectedTopic);
+    simulateBotResponses(participants, selectedTopicDetails?.topic || selectedTopic, riskAppetite, businessPriority);
   }, [
     selectedTopic, 
     debateTitle, 
@@ -106,8 +105,8 @@ export default function useDebateSession() {
   const sendUserMessage = useCallback((content: string) => {
     const topicDetails = getSelectedTopicDetails();
     const topic = topicDetails?.topic || selectedTopic;
-    sendMessage(content, participants, topic);
-  }, [sendMessage, participants, selectedTopic, getSelectedTopicDetails]);
+    sendMessage(content, participants, topic, riskAppetite, businessPriority);
+  }, [sendMessage, participants, selectedTopic, riskAppetite, businessPriority, getSelectedTopicDetails]);
 
   return {
     participants,
@@ -127,7 +126,7 @@ export default function useDebateSession() {
     simulateBotResponses: () => {
       const topicDetails = getSelectedTopicDetails();
       const topic = topicDetails?.topic || selectedTopic;
-      simulateBotResponses(participants, topic);
+      simulateBotResponses(participants, topic, riskAppetite, businessPriority);
     },
     sendUserMessage,
     setSelectedTopic,
