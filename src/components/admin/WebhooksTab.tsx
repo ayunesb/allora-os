@@ -1,147 +1,52 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { Webhook, WebhookOff, AlertTriangle, CheckCircle2 } from "lucide-react";
-import { useZapier } from '@/lib/zapier';
-import { sanitizeUrl } from '@/utils/sanitizers';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Webhook } from "lucide-react";
+import StripeWebhookSection from './webhooks/StripeWebhookSection';
+import ZapierWebhookSection from './webhooks/ZapierWebhookSection';
+import { useWebhooks } from './webhooks/useWebhooks';
+import { useWebhookValidation as useStripeWebhookValidation } from './webhooks/useWebhookValidation';
+import { useWebhookValidation as useZapierWebhookValidation } from './webhooks/useWebhookValidation';
 
 const WebhooksTab = () => {
-  const [stripeWebhook, setStripeWebhook] = useState<string>('');
-  const [zapierWebhook, setZapierWebhook] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [testLoading, setTestLoading] = useState(false);
-  const { triggerWorkflow } = useZapier();
-  
-  // Validation states
-  const [isStripeWebhookValid, setIsStripeWebhookValid] = useState<boolean | null>(null);
-  const [isZapierWebhookValid, setIsZapierWebhookValid] = useState<boolean | null>(null);
+  // Custom hooks for state management and functionality
+  const {
+    stripeWebhook,
+    setStripeWebhook,
+    zapierWebhook,
+    setZapierWebhook,
+    isSaving,
+    testLoading,
+    handleSaveWebhooks,
+    handleTestZapierWebhook
+  } = useWebhooks();
 
-  // Load webhooks from localStorage on mount
-  useEffect(() => {
-    const savedStripeWebhook = localStorage.getItem('stripe_webhook_url');
-    const savedZapierWebhook = localStorage.getItem('zapier_webhook_url');
-    
-    if (savedStripeWebhook) {
-      setStripeWebhook(savedStripeWebhook);
-      validateUrl(savedStripeWebhook, 'stripe');
-    }
-    
-    if (savedZapierWebhook) {
-      setZapierWebhook(savedZapierWebhook);
-      validateUrl(savedZapierWebhook, 'zapier');
-    }
-  }, []);
+  // Validation hooks
+  const { isValid: isStripeWebhookValid, validateUrl: validateStripeUrl } = useStripeWebhookValidation('stripe');
+  const { isValid: isZapierWebhookValid, validateUrl: validateZapierUrl } = useZapierWebhookValidation('zapier');
 
-  // URL validation function
-  const validateUrl = (url: string, type: 'stripe' | 'zapier'): boolean => {
-    if (!url.trim()) {
-      if (type === 'stripe') setIsStripeWebhookValid(null);
-      else setIsZapierWebhookValid(null);
-      return false;
-    }
-    
-    try {
-      // Use the sanitizeUrl utility to sanitize and validate the URL
-      const sanitized = sanitizeUrl(url);
-      const isValid = !!sanitized && new URL(sanitized).toString() === sanitized;
-      
-      // Additional specific validation
-      if (type === 'zapier') {
-        const isZapierUrl = sanitized.includes('hooks.zapier.com');
-        setIsZapierWebhookValid(isValid && isZapierUrl);
-        if (isValid && !isZapierUrl) {
-          console.warn('URL is valid but does not appear to be a Zapier webhook');
-        }
-        return isValid && isZapierUrl;
-      } else {
-        setIsStripeWebhookValid(isValid);
-        return isValid;
-      }
-    } catch (e) {
-      if (type === 'stripe') setIsStripeWebhookValid(false);
-      else setIsZapierWebhookValid(false);
-      return false;
-    }
-  };
+  // Initialize validation on mount
+  React.useEffect(() => {
+    if (stripeWebhook) validateStripeUrl(stripeWebhook);
+    if (zapierWebhook) validateZapierUrl(zapierWebhook);
+  }, [stripeWebhook, zapierWebhook, validateStripeUrl, validateZapierUrl]);
 
-  const handleStripeWebhookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  // Handlers
+  const handleStripeWebhookChange = (value: string) => {
     setStripeWebhook(value);
-    validateUrl(value, 'stripe');
   };
 
-  const handleZapierWebhookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleZapierWebhookChange = (value: string) => {
     setZapierWebhook(value);
-    validateUrl(value, 'zapier');
   };
 
-  const handleSaveWebhooks = () => {
-    // Validate URLs before saving
-    const isStripeValid = !stripeWebhook || validateUrl(stripeWebhook, 'stripe');
-    const isZapierValid = !zapierWebhook || validateUrl(zapierWebhook, 'zapier');
-    
-    if (!isStripeValid || !isZapierValid) {
-      toast.error("Please correct the invalid webhook URLs before saving");
-      return;
-    }
-    
-    setIsSaving(true);
-    
-    // Sanitize URLs before saving
-    const sanitizedStripeWebhook = sanitizeUrl(stripeWebhook);
-    const sanitizedZapierWebhook = sanitizeUrl(zapierWebhook);
-    
-    // Save to localStorage (in a real app, you would save to a database)
-    localStorage.setItem('stripe_webhook_url', sanitizedStripeWebhook || '');
-    localStorage.setItem('zapier_webhook_url', sanitizedZapierWebhook || '');
-    
-    setTimeout(() => {
-      setIsSaving(false);
-      toast.success("Webhook settings saved successfully");
-    }, 500);
+  const handleTestWebhook = () => {
+    handleTestZapierWebhook(isZapierWebhookValid);
   };
 
-  const handleTestZapierWebhook = async () => {
-    if (!zapierWebhook) {
-      toast.error("Please enter a Zapier webhook URL first");
-      return;
-    }
-
-    if (!validateUrl(zapierWebhook, 'zapier')) {
-      toast.error("Please enter a valid Zapier webhook URL");
-      return;
-    }
-
-    setTestLoading(true);
-    
-    try {
-      const result = await triggerWorkflow(
-        zapierWebhook,
-        'test_webhook',
-        { 
-          timestamp: new Date().toISOString(),
-          source: 'Webhook Test',
-          message: 'This is a test from the Allora AI Platform'
-        }
-      );
-      
-      if (result.success) {
-        toast.success("Zapier webhook test successful!");
-      } else {
-        toast.error("Failed to trigger Zapier webhook: " + (result.error?.message || "Unknown error"));
-      }
-    } catch (error: any) {
-      console.error("Error testing webhook:", error);
-      toast.error("An error occurred while testing the webhook: " + (error.message || "Unknown error"));
-    } finally {
-      setTestLoading(false);
-    }
+  const handleSave = () => {
+    handleSaveWebhooks(isStripeWebhookValid, isZapierWebhookValid);
   };
 
   return (
@@ -156,114 +61,20 @@ const WebhooksTab = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-4 p-4 border rounded-md border-border/30 bg-muted/20">
-          <div className="flex items-center gap-2">
-            <Webhook className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-medium">Stripe Webhook</h3>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="stripe-webhook" className="flex items-center gap-2">
-              Stripe Webhook URL
-              {isStripeWebhookValid === false && 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <AlertTriangle className="h-4 w-4 text-destructive" />
-                    </TooltipTrigger>
-                    <TooltipContent>Invalid URL format</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              }
-              {isStripeWebhookValid === true && 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    </TooltipTrigger>
-                    <TooltipContent>Valid URL format</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              }
-            </Label>
-            <Input 
-              id="stripe-webhook" 
-              placeholder="https://your-domain.com/api/webhooks/stripe" 
-              value={stripeWebhook}
-              onChange={handleStripeWebhookChange}
-              className={isStripeWebhookValid === false ? "border-destructive" : ""}
-            />
-            <p className="text-xs text-muted-foreground">
-              Enter the URL where Stripe should send webhook events. This is used for payment processing.
-            </p>
-          </div>
-        </div>
+        <StripeWebhookSection 
+          stripeWebhook={stripeWebhook}
+          onStripeWebhookChange={handleStripeWebhookChange}
+        />
         
-        <div className="space-y-4 p-4 border rounded-md border-border/30 bg-muted/20">
-          <div className="flex items-center gap-2">
-            <Webhook className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-medium">Zapier Integration</h3>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="zapier-webhook" className="flex items-center gap-2">
-              Zapier Webhook URL
-              {isZapierWebhookValid === false && 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <AlertTriangle className="h-4 w-4 text-destructive" />
-                    </TooltipTrigger>
-                    <TooltipContent>Invalid Zapier webhook URL</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              }
-              {isZapierWebhookValid === true && 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    </TooltipTrigger>
-                    <TooltipContent>Valid Zapier webhook URL</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              }
-            </Label>
-            <Input 
-              id="zapier-webhook" 
-              placeholder="https://hooks.zapier.com/hooks/catch/..." 
-              value={zapierWebhook}
-              onChange={handleZapierWebhookChange}
-              className={isZapierWebhookValid === false ? "border-destructive" : ""}
-            />
-            <p className="text-xs text-muted-foreground">
-              Enter your Zapier webhook URL to automate workflows when events occur in the platform.
-            </p>
-            {isZapierWebhookValid === false && zapierWebhook && (
-              <p className="text-xs text-destructive">
-                This does not appear to be a valid Zapier webhook URL. It should start with https://hooks.zapier.com/
-              </p>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleTestZapierWebhook}
-              disabled={testLoading || !zapierWebhook || isZapierWebhookValid !== true}
-            >
-              {testLoading ? "Testing..." : "Test Webhook"}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => window.open("https://zapier.com/apps/webhook", "_blank")}
-            >
-              Zapier Documentation
-            </Button>
-          </div>
-        </div>
+        <ZapierWebhookSection 
+          zapierWebhook={zapierWebhook}
+          onZapierWebhookChange={handleZapierWebhookChange}
+          onTestWebhook={handleTestWebhook}
+          isTestLoading={testLoading}
+        />
         
         <Button 
-          onClick={handleSaveWebhooks} 
+          onClick={handleSave} 
           disabled={isSaving || (isStripeWebhookValid === false) || (isZapierWebhookValid === false)}
         >
           {isSaving ? "Saving..." : "Save Webhook Settings"}
