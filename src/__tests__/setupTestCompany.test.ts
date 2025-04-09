@@ -16,7 +16,7 @@ vi.mock('@/backend/supabase');
 const mockedGetUserProfileByEmail = getUserProfileByEmail as unknown as typeof getUserProfileByEmail & { mockResolvedValue: (value: any) => void, mockRejectedValue: (value: any) => void };
 const mockedGetTestCompany = getTestCompany as unknown as typeof getTestCompany & { mockResolvedValue: (value: any) => void };
 const mockedCreateTestCompany = createTestCompany as unknown as typeof createTestCompany & { mockResolvedValue: (value: any) => void };
-const mockedSupabase = supabase as unknown as typeof supabase & { from: vi.Mock };
+const mockedSupabase = supabase as unknown as typeof supabase & { from: ReturnType<typeof vi.fn> };
 
 describe('setupTestCompany', () => {
   beforeEach(() => {
