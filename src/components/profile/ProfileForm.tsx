@@ -10,6 +10,7 @@ import { updateUserProfile } from '@/utils/profileHelpers';
 import ProfileAvatar from './ProfileAvatar';
 import PersonalInfoForm from './PersonalInfoForm';
 import ApiKeysSection from './ApiKeysSection';
+import DeleteAccountDialog from './DeleteAccountDialog';
 
 export type ProfileFormData = {
   name: string;
@@ -213,21 +214,33 @@ const ProfileForm: React.FC = () => {
             handleApiKeyChange={handleApiKeyChange}
           />
         </CardContent>
-        <CardFooter className="flex justify-end space-x-2">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => reset()}
-            disabled={isLoading || !isDirty}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={isLoading || (!isDirty && !avatarFile)}
-          >
-            {isLoading ? 'Saving...' : 'Save Changes'}
-          </Button>
+        <CardFooter className="flex flex-col items-end space-y-4">
+          <div className="flex justify-end space-x-2 w-full">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => reset()}
+              disabled={isLoading || !isDirty}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isLoading || (!isDirty && !avatarFile)}
+            >
+              {isLoading ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+          
+          <Separator className="my-4" />
+          
+          <div className="w-full">
+            <h3 className="text-lg font-medium text-destructive mb-2">Danger Zone</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+            <DeleteAccountDialog />
+          </div>
         </CardFooter>
       </form>
     </Card>
