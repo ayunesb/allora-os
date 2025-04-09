@@ -10,4 +10,4 @@ export type Strategy = {
 
 // Import and re-export GeneratedStrategy type
 import { GeneratedStrategy } from '../utils/strategy/types';
-export { GeneratedStrategy };
+export type { GeneratedStrategy };

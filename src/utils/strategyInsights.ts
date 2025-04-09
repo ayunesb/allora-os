@@ -27,21 +27,63 @@ export interface StrategyAnalysis {
 
 // Define the missing analysis functions that were referenced
 export const estimateTimeToResults = (strategy: Strategy | GeneratedStrategy): string => {
-  // Simplified estimation logic
-  return "3-6 months";
+  // We need to handle both Strategy and GeneratedStrategy types
+  if ('riskLevel' in strategy) {
+    // This is a GeneratedStrategy
+    return "3-6 months";
+  } else {
+    // This is a Strategy
+    return "4-8 months";
+  }
 };
 
 export const calculateImplementationComplexity = (strategy: Strategy | GeneratedStrategy): number => {
-  // Simplified complexity calculation
-  return 3; // Medium complexity
+  // Handle both Strategy and GeneratedStrategy types
+  if ('riskLevel' in strategy) {
+    // This is a GeneratedStrategy
+    return 3; // Medium complexity
+  } else {
+    // This is a Strategy
+    return strategy.risk_level === 'High' ? 4 : strategy.risk_level === 'Medium' ? 3 : 2;
+  }
 };
 
 export const calculateCompetitiveAdvantage = (strategy: Strategy | GeneratedStrategy): number => {
-  // Simplified advantage calculation  
-  return 4; // Good advantage
+  // Handle both Strategy and GeneratedStrategy types
+  if ('riskLevel' in strategy) {
+    // This is a GeneratedStrategy
+    return 4; // Good advantage
+  } else {
+    // This is a Strategy
+    return strategy.risk_level === 'High' ? 5 : strategy.risk_level === 'Medium' ? 4 : 3;
+  }
 };
 
-export const analyzeStrategyFactors = analyzeStrategy;
+export const analyzeStrategyFactors = (strategy: Strategy | GeneratedStrategy) => {
+  // For Strategy objects, we need to convert to a format compatible with analyzeStrategy function
+  if (!('riskLevel' in strategy)) {
+    // Convert Strategy to a simplified form that works with analyzeStrategy
+    return {
+      strengths: [
+        "Aligned with business objectives",
+        "Clear implementation path",
+        strategy.risk_level === 'Low' ? "Low resource requirements" : "High potential impact"
+      ],
+      weaknesses: [
+        strategy.risk_level === 'High' ? "Higher implementation risk" : "Limited growth potential",
+        "Requires ongoing monitoring"
+      ],
+      keySuccessFactors: [
+        "Clear strategic alignment",
+        "Effective resource allocation",
+        "Strong leadership commitment"
+      ]
+    };
+  }
+  
+  // If it's already a GeneratedStrategy, call the original function
+  return analyzeStrategy(strategy as GeneratedStrategy);
+};
 
 // Re-export analyzeStrategy with a clear name
 export { analyzeStrategy };
