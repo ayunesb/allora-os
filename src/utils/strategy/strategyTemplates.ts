@@ -1,26 +1,8 @@
 
-import { RiskProfile } from './riskEngine';
+import { StrategyTemplate } from './types';
 
-export type StrategyAction = {
-  title: string;
-  description: string;
-  impact: 'Low' | 'Medium' | 'High';
-  timeframe: 'Short-term' | 'Medium-term' | 'Long-term';
-};
-
-export type GeneratedStrategy = {
-  riskLevel: 'Low' | 'Medium' | 'High';
-  title: string;
-  description: string;
-  primaryFocus: string;
-  secondaryFocus: string;
-  keyActions: StrategyAction[];
-  estimatedROI: string;
-  successMetrics: string[];
-};
-
-// Define some template strategies for each risk level
-const lowRiskStrategies = [
+// Define template strategies for each risk level
+export const lowRiskStrategies: StrategyTemplate[] = [
   {
     title: 'Operational Excellence',
     description: 'Focus on refining internal processes and incrementally improving existing products/services.',
@@ -87,7 +69,7 @@ const lowRiskStrategies = [
   }
 ];
 
-const mediumRiskStrategies = [
+export const mediumRiskStrategies: StrategyTemplate[] = [
   {
     title: 'Selective Market Expansion',
     description: 'Strategically expand into adjacent markets or segments with calculated risk.',
@@ -154,7 +136,7 @@ const mediumRiskStrategies = [
   }
 ];
 
-const highRiskStrategies = [
+export const highRiskStrategies: StrategyTemplate[] = [
   {
     title: 'Disruptive Innovation Strategy',
     description: 'Create breakthrough products/services that potentially redefine your industry.',
@@ -220,188 +202,3 @@ const highRiskStrategies = [
     ]
   }
 ];
-
-export function generateCustomizedStrategy(
-  riskProfile: RiskProfile,
-  industryContext?: string,
-  companySize?: 'Startup' | 'Small' | 'Medium' | 'Enterprise',
-  primaryGoal?: 'Growth' | 'Profitability' | 'Innovation' | 'Stability'
-): GeneratedStrategy {
-  // Select base strategy template based on risk level
-  let strategyTemplates;
-  switch (riskProfile.level) {
-    case 'Low':
-      strategyTemplates = lowRiskStrategies;
-      break;
-    case 'Medium':
-      strategyTemplates = mediumRiskStrategies;
-      break;
-    case 'High':
-      strategyTemplates = highRiskStrategies;
-      break;
-    default:
-      strategyTemplates = mediumRiskStrategies;
-  }
-  
-  // Choose a specific template (could be random or based on other factors)
-  const baseTemplate = strategyTemplates[Math.floor(Math.random() * strategyTemplates.length)];
-  
-  // Customize the template based on additional inputs
-  const strategy: GeneratedStrategy = {
-    riskLevel: riskProfile.level,
-    title: customizeTitle(baseTemplate.title, industryContext, primaryGoal),
-    description: customizeDescription(baseTemplate.description, industryContext, companySize),
-    primaryFocus: baseTemplate.primaryFocus,
-    secondaryFocus: baseTemplate.secondaryFocus,
-    keyActions: baseTemplate.actions.map(action => ({
-      title: action.title,
-      description: action.description,
-      impact: action.impact,
-      timeframe: action.timeframe
-    })),
-    estimatedROI: customizeROI(baseTemplate.roi, companySize),
-    successMetrics: customizeMetrics(baseTemplate.metrics, industryContext)
-  };
-  
-  return strategy;
-}
-
-// Export a simpler version of the strategy generator for basic use cases
-export function generateStrategy(riskLevel: 'Low' | 'Medium' | 'High'): {
-  title: string;
-  description: string;
-  riskLevel: 'Low' | 'Medium' | 'High';
-} {
-  // Choose a template based on risk level
-  let strategyTemplates;
-  switch (riskLevel) {
-    case 'Low':
-      strategyTemplates = lowRiskStrategies;
-      break;
-    case 'Medium':
-      strategyTemplates = mediumRiskStrategies;
-      break;
-    case 'High':
-      strategyTemplates = highRiskStrategies;
-      break;
-    default:
-      strategyTemplates = mediumRiskStrategies;
-  }
-  
-  // Get a random template from the selected risk level
-  const baseTemplate = strategyTemplates[Math.floor(Math.random() * strategyTemplates.length)];
-  
-  return {
-    title: baseTemplate.title,
-    description: baseTemplate.description,
-    riskLevel: riskLevel
-  };
-}
-
-// Helper functions to customize strategy elements
-function customizeTitle(
-  baseTitle: string, 
-  industryContext?: string, 
-  primaryGoal?: 'Growth' | 'Profitability' | 'Innovation' | 'Stability'
-): string {
-  if (!industryContext && !primaryGoal) return baseTitle;
-  
-  let title = baseTitle;
-  
-  if (primaryGoal) {
-    const goalPrefix = {
-      'Growth': 'Growth-Oriented',
-      'Profitability': 'Profit-Focused',
-      'Innovation': 'Innovation-Driven',
-      'Stability': 'Sustainability-Centered'
-    }[primaryGoal];
-    
-    title = `${goalPrefix} ${title}`;
-  }
-  
-  if (industryContext) {
-    title = `${title} for ${industryContext}`;
-  }
-  
-  return title;
-}
-
-function customizeDescription(
-  baseDescription: string, 
-  industryContext?: string, 
-  companySize?: 'Startup' | 'Small' | 'Medium' | 'Enterprise'
-): string {
-  let description = baseDescription;
-  
-  if (industryContext) {
-    description += ` Specifically tailored for the ${industryContext} industry.`;
-  }
-  
-  if (companySize) {
-    const sizeContext = {
-      'Startup': 'early-stage companies looking to establish market presence',
-      'Small': 'small businesses seeking sustainable growth',
-      'Medium': 'mid-sized organizations aiming to scale operations',
-      'Enterprise': 'established enterprises focusing on maintaining competitive advantage'
-    }[companySize];
-    
-    description += ` Optimized for ${sizeContext}.`;
-  }
-  
-  return description;
-}
-
-function customizeROI(baseROI: string, companySize?: 'Startup' | 'Small' | 'Medium' | 'Enterprise'): string {
-  if (!companySize) return baseROI;
-  
-  // Adjust ROI expectations based on company size
-  switch(companySize) {
-    case 'Startup':
-      return baseROI.replace(/\d+%/g, match => {
-        const num = parseInt(match);
-        return `${num + 10}%`;
-      });
-    case 'Small':
-      return baseROI;
-    case 'Medium':
-      return baseROI.replace(/(\d+)-(\d+)%/g, (_, min, max) => {
-        return `${parseInt(min) - 5}-${parseInt(max)}%`;
-      });
-    case 'Enterprise':
-      return baseROI.replace(/(\d+)-(\d+)%/g, (_, min, max) => {
-        return `${parseInt(min) - 10}-${parseInt(max) - 5}%`;
-      });
-    default:
-      return baseROI;
-  }
-}
-
-function customizeMetrics(baseMetrics: string[], industryContext?: string): string[] {
-  if (!industryContext) return baseMetrics;
-  
-  // Add industry-specific metrics
-  const industryMetrics: {[key: string]: string} = {
-    'Technology': 'Increased user engagement by 25%',
-    'Healthcare': 'Improved patient outcomes by 15%',
-    'Retail': 'Enhanced customer lifetime value by 20%',
-    'Manufacturing': 'Reduced production defects by 30%',
-    'Finance': 'Decreased risk exposure by 25%',
-    'Education': 'Improved learning outcomes by 20%'
-  };
-  
-  const metrics = [...baseMetrics];
-  
-  // Add industry-specific metric if available
-  Object.keys(industryMetrics).forEach(industry => {
-    if (industryContext.toLowerCase().includes(industry.toLowerCase())) {
-      metrics.push(industryMetrics[industry]);
-    }
-  });
-  
-  // If no specific industry match, add a generic one
-  if (metrics.length === baseMetrics.length) {
-    metrics.push(`Achieved industry-specific benchmarks for ${industryContext}`);
-  }
-  
-  return metrics;
-}

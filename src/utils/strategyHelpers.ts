@@ -1,9 +1,8 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { Strategy } from '@/models/strategy';
 import { assessRiskLevel, RiskAssessmentInput } from '@/utils/riskEngine';
-import { generateStrategy } from '@/utils/generateStrategy';
+import { generateStrategy } from '@/utils/strategy';
 
 export async function fetchCompanyStrategies(companyId: string): Promise<Strategy[]> {
   try {
