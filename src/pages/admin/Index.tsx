@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Loader2, Users, Building2, BarChart3, UserPlus, LineChart, Settings } from "lucide-react";
 import { getSystemAnalytics } from "@/backend/analyticsService";
@@ -32,6 +31,7 @@ export default function AdminIndex() {
   });
   
   const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -126,60 +126,59 @@ export default function AdminIndex() {
   ];
 
   // Admin modules config with responsive icon sizes
-  const getIconSize = () => ['xs', 'mobile'].includes(breakpoint) ? 6 : 8;
-  const iconSize = getIconSize();
+  const iconSize = isMobileView ? 16 : 20;
   
   const adminModules: AdminModule[] = [
     {
       title: "Users",
       count: counts.users.toString(),
-      icon: <Users className={`h-${iconSize} w-${iconSize} text-primary`} />,
+      icon: <Users className={`h-${isMobileView ? 4 : 5} w-${isMobileView ? 4 : 5} text-primary`} />,
       description: "Active user accounts",
       href: "/admin/users",
     },
     {
       title: "Companies",
       count: counts.companies.toString(),
-      icon: <Building2 className={`h-${iconSize} w-${iconSize} text-primary`} />,
+      icon: <Building2 className={`h-${isMobileView ? 4 : 5} w-${isMobileView ? 4 : 5} text-primary`} />,
       description: "Registered companies",
       href: "/admin/companies",
     },
     {
       title: "Campaigns",
       count: counts.campaigns.toString(),
-      icon: <BarChart3 className={`h-${iconSize} w-${iconSize} text-primary`} />,
+      icon: <BarChart3 className={`h-${isMobileView ? 4 : 5} w-${isMobileView ? 4 : 5} text-primary`} />,
       description: "Active marketing campaigns",
       href: "/admin/campaigns",
     },
     {
       title: "Leads",
       count: counts.leads.toString(),
-      icon: <UserPlus className={`h-${iconSize} w-${iconSize} text-primary`} />,
+      icon: <UserPlus className={`h-${isMobileView ? 4 : 5} w-${isMobileView ? 4 : 5} text-primary`} />,
       description: "Generated sales leads",
       href: "/admin/leads",
     },
     {
       title: "Analytics",
-      icon: <LineChart className={`h-${iconSize} w-${iconSize} text-primary`} />,
+      icon: <LineChart className={`h-${isMobileView ? 4 : 5} w-${isMobileView ? 4 : 5} text-primary`} />,
       description: "System performance metrics",
       href: "/admin/analytics",
     },
     {
       title: "Settings",
-      icon: <Settings className={`h-${iconSize} w-${iconSize} text-primary`} />,
+      icon: <Settings className={`h-${isMobileView ? 4 : 5} w-${isMobileView ? 4 : 5} text-primary`} />,
       description: "System configuration",
       href: "/admin/settings",
     },
   ];
 
   return (
-    <>
+    <div className={isMobileView ? "animate-fadeIn" : "container mx-auto animate-fadeIn"}>
       <AdminHeader />
       
       {loading ? (
         <div className="flex items-center justify-center min-h-[200px]">
-          <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-primary" />
-          <span className="ml-2 text-sm sm:text-base">Loading dashboard data...</span>
+          <Loader2 className={`h-${isMobileView ? 5 : 6} w-${isMobileView ? 5 : 6} animate-spin text-primary`} />
+          <span className="ml-2 text-sm">Loading dashboard data...</span>
         </div>
       ) : (
         <>
@@ -187,6 +186,6 @@ export default function AdminIndex() {
           <AdminModuleGrid modules={adminModules} isLoading={loading} />
         </>
       )}
-    </>
+    </div>
   );
 }
