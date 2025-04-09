@@ -11,6 +11,7 @@ import ProfileAvatar from './ProfileAvatar';
 import PersonalInfoForm from './PersonalInfoForm';
 import ApiKeysSection from './ApiKeysSection';
 import DangerZone from './DangerZone';
+import ProfileFormFooter from './ProfileFormFooter';
 
 export type ProfileFormData = {
   name: string;
@@ -214,26 +215,12 @@ const ProfileForm: React.FC = () => {
             handleApiKeyChange={handleApiKeyChange}
           />
         </CardContent>
-        <CardFooter className="flex flex-col items-end space-y-4">
-          <div className="flex justify-end space-x-2 w-full">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => reset()}
-              disabled={isLoading || !isDirty}
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading || (!isDirty && !avatarFile)}
-            >
-              {isLoading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-          
-          <DangerZone />
-        </CardFooter>
+        <ProfileFormFooter 
+          isLoading={isLoading} 
+          isDirty={isDirty} 
+          avatarFile={avatarFile}
+          onReset={() => reset()}
+        />
       </form>
     </Card>
   );
