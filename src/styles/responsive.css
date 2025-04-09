@@ -33,6 +33,10 @@
   .mobile-text-base {
     font-size: 1rem !important;
   }
+
+  .mobile-text-lg {
+    font-size: 1.125rem !important;
+  }
   
   .mobile-p-2 {
     padding: 0.5rem !important;
@@ -63,6 +67,23 @@
     white-space: normal !important;
     word-break: break-word !important;
   }
+
+  /* Admin specific mobile fixes */
+  .admin-card-mobile {
+    padding: 0.75rem !important;
+  }
+
+  .admin-header-mobile {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .admin-sidebar-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+    position: fixed !important;
+    z-index: 50 !important;
+  }
 }
 
 /* Tablet-specific media queries */
@@ -77,6 +98,15 @@
   
   .tablet-3-cols {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  /* Admin specific tablet fixes */
+  .admin-sidebar-tablet {
+    width: 14rem !important;
+  }
+
+  .admin-content-tablet {
+    padding-left: 14rem !important;
   }
 }
 
@@ -104,4 +134,43 @@
 /* Fix for Safari overflow issues */
 .safari-fix {
   -webkit-overflow-scrolling: touch;
+}
+
+/* Admin specific responsive utility classes */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .admin-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Admin sidebar collapse behavior */
+.admin-sidebar-collapsed {
+  width: 4rem !important;
+}
+
+.admin-sidebar-collapsed span {
+  display: none !important;
+}
+
+.admin-sidebar-collapsed .sidebar-label {
+  opacity: 0 !important;
 }

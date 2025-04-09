@@ -1,13 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Users, Building2, BarChart3, UserPlus, LineChart, Settings, Activity } from "lucide-react";
+import { Loader2, Users, Building2, BarChart3, UserPlus, LineChart, Settings } from "lucide-react";
 import { getSystemAnalytics } from "@/backend/analyticsService";
 import { supabase } from "@/backend/supabase";
 import { toast } from "sonner";
-import { AdminHeader, StatsRow, AdminModuleGrid } from '@/components/admin/dashboard';
+import { AdminHeader } from '@/components/admin/dashboard/AdminHeader';
+import { StatsRow } from '@/components/admin/dashboard/StatsRow';
+import { AdminModuleGrid } from '@/components/admin/dashboard/AdminModuleGrid';
 import { formatRevenue, formatSessionTime } from '@/utils/admin/formatters';
 import { StatItem } from '@/components/admin/dashboard/StatsRow';
 import { AdminModule } from '@/components/admin/dashboard/AdminModuleGrid';
+import { useBreakpoint } from '@/hooks/use-mobile';
 
 export default function AdminIndex() {
   const [loading, setLoading] = useState(true);
@@ -27,6 +30,8 @@ export default function AdminIndex() {
     conversionChange: 0,
     sessionChange: 0
   });
+  
+  const breakpoint = useBreakpoint();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,45 +125,48 @@ export default function AdminIndex() {
     },
   ];
 
-  // Admin modules config
+  // Admin modules config with responsive icon sizes
+  const getIconSize = () => ['xs', 'mobile'].includes(breakpoint) ? 6 : 8;
+  const iconSize = getIconSize();
+  
   const adminModules: AdminModule[] = [
     {
       title: "Users",
       count: counts.users.toString(),
-      icon: <Users className="h-8 w-8 text-primary" />,
+      icon: <Users className={`h-${iconSize} w-${iconSize} text-primary`} />,
       description: "Active user accounts",
       href: "/admin/users",
     },
     {
       title: "Companies",
       count: counts.companies.toString(),
-      icon: <Building2 className="h-8 w-8 text-primary" />,
+      icon: <Building2 className={`h-${iconSize} w-${iconSize} text-primary`} />,
       description: "Registered companies",
       href: "/admin/companies",
     },
     {
       title: "Campaigns",
       count: counts.campaigns.toString(),
-      icon: <BarChart3 className="h-8 w-8 text-primary" />,
+      icon: <BarChart3 className={`h-${iconSize} w-${iconSize} text-primary`} />,
       description: "Active marketing campaigns",
       href: "/admin/campaigns",
     },
     {
       title: "Leads",
       count: counts.leads.toString(),
-      icon: <UserPlus className="h-8 w-8 text-primary" />,
+      icon: <UserPlus className={`h-${iconSize} w-${iconSize} text-primary`} />,
       description: "Generated sales leads",
       href: "/admin/leads",
     },
     {
       title: "Analytics",
-      icon: <LineChart className="h-8 w-8 text-primary" />,
+      icon: <LineChart className={`h-${iconSize} w-${iconSize} text-primary`} />,
       description: "System performance metrics",
       href: "/admin/analytics",
     },
     {
       title: "Settings",
-      icon: <Settings className="h-8 w-8 text-primary" />,
+      icon: <Settings className={`h-${iconSize} w-${iconSize} text-primary`} />,
       description: "System configuration",
       href: "/admin/settings",
     },
@@ -170,8 +178,8 @@ export default function AdminIndex() {
       
       {loading ? (
         <div className="flex items-center justify-center min-h-[200px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2">Loading dashboard data...</span>
+          <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-primary" />
+          <span className="ml-2 text-sm sm:text-base">Loading dashboard data...</span>
         </div>
       ) : (
         <>
