@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Navigate, Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -32,7 +31,6 @@ export default function DashboardLayout() {
     { label: "Calls", path: "/dashboard/calls" },
     { label: "Leads", path: "/dashboard/leads" },
     { label: "AI Bots", path: "/dashboard/ai-bots" },
-    { label: "Settings", path: "/dashboard/settings" },
   ];
 
   useEffect(() => {
