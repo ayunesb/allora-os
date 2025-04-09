@@ -1,85 +1,119 @@
 
 import { useState, useEffect } from "react";
-import { 
-  ConsultationMessage, 
-  getBotByNameAndRole, 
-  generateBotResponse, 
-  saveConsultationMessage, 
-  startNewConsultation 
-} from "@/utils/consultation";
+import { toast } from "sonner";
+import { useProtectedApi } from "@/hooks/useProtectedApi";
+import { getBotExpertise, formatRoleTitle } from "@/utils/consultation";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 
-export function useBotConsultation(botName?: string, role?: string) {
-  const [messages, setMessages] = useState<ConsultationMessage[]>([]);
-  const [consultationId, setConsultationId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { preferences } = useUserPreferences();
-  
-  const bot = botName && role ? getBotByNameAndRole(botName, role) : null;
+interface Message {
+  id: string;
+  content: string;
+  sender: "user" | "bot";
+  timestamp: Date;
+}
 
+interface Bot {
+  name: string;
+  title: string;
+  expertise: string;
+}
+
+export function useBotConsultation(botName?: string, role?: string) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [bot, setBot] = useState<Bot | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { preferences } = useUserPreferences();
+
+  // Initialize the bot data
   useEffect(() => {
-    async function initConsultation() {
-      if (botName && role) {
-        const newConsultationId = await startNewConsultation(botName, role);
-        setConsultationId(newConsultationId);
-      }
+    if (!botName || !role) {
+      setBot(null);
+      return;
     }
-    
-    initConsultation();
+
+    try {
+      // In a real application, we would fetch the bot data from an API
+      // For now, we'll just create it based on the URL parameters
+      setBot({
+        name: botName || "",
+        title: formatRoleTitle(role || ""),
+        expertise: getBotExpertise(role || ""),
+      });
+      setError(null);
+    } catch (err) {
+      console.error("Failed to initialize bot:", err);
+      setBot(null);
+      setError("Failed to initialize advisor. Please try again later.");
+    }
   }, [botName, role]);
 
-  async function handleSendMessage(inputMessage: string) {
-    if (!inputMessage.trim() || !consultationId || !botName || !role) return;
+  const { execute: fetchBotResponse } = useProtectedApi<string, string>(
+    async (userMessage) => {
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // In a real application, we would make an API call here
+      // For now, we'll just return a mock response
+      const mockResponses = [
+        `Thank you for your message. Based on my analysis and ${preferences.technicalLevel === 'high' ? 'in-depth technical assessment' : 'business expertise'}, I would recommend exploring this further.`,
+        `I've considered your question carefully. ${preferences.responseStyle === 'formal' ? 'My professional assessment indicates' : 'I think'} we should approach this systematically.`,
+        `That's an interesting point. ${preferences.includeSourceCitations ? 'According to recent industry reports (Harvard Business Review, 2024),' : ''} this strategy could yield significant results for your business.`,
+      ];
+      
+      // Select a random response
+      const randomIndex = Math.floor(Math.random() * mockResponses.length);
+      return mockResponses[randomIndex];
+    }
+  );
+
+  const handleSendMessage = async (content: string) => {
+    if (!content.trim() || !bot) return;
     
     setIsLoading(true);
+    setError(null);
     
-    const userMessage: ConsultationMessage = {
-      type: "user",
-      content: inputMessage,
-      timestamp: new Date().toISOString()
+    // Add user message to the conversation
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      content,
+      sender: "user",
+      timestamp: new Date(),
     };
     
-    setMessages(prev => [...prev, userMessage]);
-    
-    await saveConsultationMessage(consultationId, {
-      type: "user",
-      content: inputMessage
-    });
+    setMessages((prev) => [...prev, userMessage]);
     
     try {
-      // Pass user preferences to the response generator
-      const responseContent = await generateBotResponse(
-        botName, 
-        role, 
-        inputMessage, 
-        messages,
-        undefined, // No debate context
-        preferences // Pass user preferences
-      );
+      // Fetch bot response
+      const response = await fetchBotResponse(content);
       
-      const botMessage: ConsultationMessage = {
-        type: "bot",
-        content: responseContent,
-        timestamp: new Date().toISOString()
-      };
-      
-      setMessages(prev => [...prev, botMessage]);
-      
-      await saveConsultationMessage(consultationId, {
-        type: "bot",
-        content: responseContent
-      });
-    } catch (error) {
-      console.error("Error generating response:", error);
+      if (response) {
+        // Add bot response to the conversation
+        const botMessage: Message = {
+          id: `bot-${Date.now()}`,
+          content: response,
+          sender: "bot",
+          timestamp: new Date(),
+        };
+        
+        setMessages((prev) => [...prev, botMessage]);
+      } else {
+        throw new Error("Failed to get response");
+      }
+    } catch (err) {
+      console.error("Failed to get response:", err);
+      setError("Failed to get a response. Please try again.");
+      toast.error("Failed to get a response. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return {
     bot,
     messages,
     isLoading,
-    handleSendMessage
+    error,
+    handleSendMessage,
   };
 }

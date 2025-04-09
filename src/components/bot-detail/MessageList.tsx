@@ -1,56 +1,85 @@
 
 import React, { useRef, useEffect } from "react";
+import { Bot, User } from "lucide-react";
 import { format } from "date-fns";
-import { Bot, User, Clock } from "lucide-react";
-import { ConsultationMessage } from "@/utils/consultation";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+
+interface Message {
+  id: string;
+  content: string;
+  sender: "user" | "bot";
+  timestamp: Date;
+}
 
 interface MessageListProps {
-  messages: ConsultationMessage[];
+  messages: Message[];
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const isMobile = useIsMobile();
+  
+  // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   if (messages.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-32 text-center">
-        <Bot className="h-8 w-8 text-muted-foreground mb-2" />
-        <p className="text-muted-foreground">
-          Start your consultation
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-2">
       {messages.map((message, index) => (
-        <div key={index} className={`flex gap-3 ${message.type === 'bot' ? 'items-start' : 'items-start justify-end'}`}>
-          {message.type === 'bot' && (
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Bot className="h-4 w-4 text-primary" />
-            </div>
+        <div
+          key={message.id}
+          className={cn(
+            "flex items-start gap-3 transition-opacity animate-fade-in",
+            message.sender === "bot" ? "opacity-100" : "opacity-100",
+            {"mt-8": index > 0 && messages[index - 1].sender !== message.sender}
           )}
-          
-          <div className={`flex flex-col space-y-1 max-w-[75%] ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
-            <div className={`px-4 py-2 rounded-lg ${message.type === 'bot' ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
-              <p className="text-sm">{message.content}</p>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>{format(new Date(message.timestamp), "h:mm a")}</span>
-            </div>
+          aria-label={`${message.sender === "bot" ? "Advisor" : "You"} message`}
+        >
+          <div 
+            className={cn(
+              "flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center",
+              message.sender === "bot" ? "bg-primary/20" : "bg-secondary"
+            )}
+            aria-hidden="true"
+          >
+            {message.sender === "bot" ? (
+              <Bot className="h-4 w-4 text-primary" />
+            ) : (
+              <User className="h-4 w-4" />
+            )}
           </div>
           
-          {message.type === 'user' && (
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <User className="h-4 w-4 text-primary" />
+          <div className={cn("flex flex-col", isMobile ? "max-w-[calc(100%-60px)]" : "max-w-[80%]")}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-medium text-sm">
+                {message.sender === "bot" ? "Advisor" : "You"}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {format(new Date(message.timestamp), "h:mm a")}
+              </span>
             </div>
-          )}
+            
+            <div 
+              className={cn(
+                "rounded-lg p-3",
+                message.sender === "bot" 
+                  ? "bg-primary/5 border border-primary/10" 
+                  : "bg-secondary"
+              )}
+            >
+              <div className="whitespace-pre-wrap break-words">
+                {message.content}
+              </div>
+            </div>
+          </div>
         </div>
       ))}
       <div ref={messagesEndRef} />
