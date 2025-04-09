@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Webhook, WebhookOff, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useZapier } from '@/lib/zapier';
 import { sanitizeUrl } from '@/utils/sanitizers';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const WebhooksTab = () => {
   const [stripeWebhook, setStripeWebhook] = useState<string>('');
@@ -164,10 +165,24 @@ const WebhooksTab = () => {
             <Label htmlFor="stripe-webhook" className="flex items-center gap-2">
               Stripe Webhook URL
               {isStripeWebhookValid === false && 
-                <AlertTriangle className="h-4 w-4 text-destructive" title="Invalid URL format" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                    </TooltipTrigger>
+                    <TooltipContent>Invalid URL format</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               }
               {isStripeWebhookValid === true && 
-                <CheckCircle2 className="h-4 w-4 text-green-500" title="Valid URL format" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>Valid URL format</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               }
             </Label>
             <Input 
@@ -192,10 +207,24 @@ const WebhooksTab = () => {
             <Label htmlFor="zapier-webhook" className="flex items-center gap-2">
               Zapier Webhook URL
               {isZapierWebhookValid === false && 
-                <AlertTriangle className="h-4 w-4 text-destructive" title="Invalid Zapier webhook URL" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                    </TooltipTrigger>
+                    <TooltipContent>Invalid Zapier webhook URL</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               }
               {isZapierWebhookValid === true && 
-                <CheckCircle2 className="h-4 w-4 text-green-500" title="Valid Zapier webhook URL" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>Valid Zapier webhook URL</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               }
             </Label>
             <Input 

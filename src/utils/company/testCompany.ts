@@ -1,5 +1,5 @@
 
-import { supabase } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { updateCompanyDetails } from './companyUpdate';
 
@@ -8,19 +8,20 @@ import { updateCompanyDetails } from './companyUpdate';
  */
 export async function setupTestCompany(email: string): Promise<{ success: boolean; error?: string }> {
   try {
-    // Query directly for the user ID using a simple query to avoid type issues
-    const { data: profileData, error: profileError } = await supabase
+    // Query directly for the user ID using maybeSingle() to avoid type instantiation errors
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
-      .limit(1);
+      .limit(1)
+      .maybeSingle();
       
-    if (profileError || !profileData || profileData.length === 0) {
+    if (profileError || !profile) {
       console.error("Error finding user:", profileError);
       return { success: false, error: `User with email ${email} not found` };
     }
     
-    const userId = profileData[0].id;
+    const userId = profile.id;
     
     // Set up the test company details
     const result = await updateCompanyDetails(userId, {
