@@ -19,13 +19,19 @@ const queryClient = new QueryClient({
       retry: 2,
       staleTime: 5 * 60 * 1000, // 5 minutes
       refetchOnWindowFocus: false,
-      onError: (error) => {
-        console.error('Query error:', error);
+      // Updated error handling to use the correct API
+      meta: {
+        onError: (error: Error) => {
+          console.error('Query error:', error);
+        }
       }
     },
     mutations: {
-      onError: (error) => {
-        console.error('Mutation error:', error);
+      // Updated error handling to use the correct API
+      meta: {
+        onError: (error: Error) => {
+          console.error('Mutation error:', error);
+        }
       }
     }
   },
@@ -41,3 +47,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+
