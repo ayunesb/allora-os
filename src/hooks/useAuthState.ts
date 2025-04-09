@@ -2,9 +2,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from './useSession';
 import { useUserProfile } from './useUserProfile';
-import { supabase, getSession, getCurrentUser } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 
 export function useAuthState() {
   const { 
@@ -66,11 +66,12 @@ export function useAuthState() {
       (event, newSession) => {
         console.log('Auth state change:', event);
         
+        // Update session and user state immediately
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
+        // Use setTimeout to prevent deadlock with Supabase client
         if (newSession?.user) {
-          // Use setTimeout to prevent deadlock with Supabase client
           setTimeout(() => {
             loadUserProfile(newSession.user.id);
           }, 0);
@@ -97,17 +98,23 @@ export function useAuthState() {
     const initializeAuth = async () => {
       setIsLoading(true);
       try {
-        // Get current session and user using our exported functions
-        const { session: currentSession } = await getSession();
-        const { user: currentUser } = await getCurrentUser();
+        // Get current session
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          throw sessionError;
+        }
         
         setSession(currentSession);
-        setUser(currentUser);
         
-        if (currentUser) {
-          await loadUserProfile(currentUser.id);
+        if (currentSession?.user) {
+          setUser(currentSession.user);
+          // Use setTimeout to prevent potential deadlock
+          setTimeout(() => {
+            loadUserProfile(currentSession.user.id);
+          }, 0);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading auth:', error);
         setAuthError('Failed to initialize authentication');
       } finally {
@@ -120,7 +127,7 @@ export function useAuthState() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [setSession, loadUserProfile, setAuthError, setIsLoading]);
+  }, [setSession, loadUserProfile, setIsLoading]);
 
   // Update email verification status whenever user changes
   useEffect(() => {
