@@ -1,30 +1,27 @@
 
 import React, { useRef, useEffect } from "react";
+import { Message } from "./useBotConsultation";
 import { Bot, User } from "lucide-react";
 import { format } from "date-fns";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
-
-interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "bot";
-  timestamp: Date;
-}
 
 interface MessageListProps {
   messages: Message[];
 }
 
+const TypingIndicator = () => (
+  <div className="flex space-x-1.5">
+    <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+    <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+    <div className="w-2.5 h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+  </div>
+);
+
 const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
-  
+
   // Scroll to bottom when messages change
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   if (messages.length === 0) {
@@ -32,54 +29,62 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   }
 
   return (
-    <div className="space-y-4 pb-2">
-      {messages.map((message, index) => (
+    <div 
+      className="space-y-4 pb-4" 
+      role="log" 
+      aria-label="Conversation Messages" 
+      aria-live="polite"
+    >
+      {messages.map((message) => (
         <div
           key={message.id}
-          className={cn(
-            "flex items-start gap-3 transition-opacity animate-fade-in",
-            message.sender === "bot" ? "opacity-100" : "opacity-100",
-            {"mt-8": index > 0 && messages[index - 1].sender !== message.sender}
-          )}
-          aria-label={`${message.sender === "bot" ? "Advisor" : "You"} message`}
+          className={`flex items-start gap-2 ${
+            message.sender === "user" ? "justify-end text-right" : "justify-start text-left"
+          }`}
         >
-          <div 
-            className={cn(
-              "flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center",
-              message.sender === "bot" ? "bg-primary/20" : "bg-secondary"
-            )}
-            aria-hidden="true"
-          >
-            {message.sender === "bot" ? (
-              <Bot className="h-4 w-4 text-primary" />
-            ) : (
-              <User className="h-4 w-4" />
-            )}
-          </div>
-          
-          <div className={cn("flex flex-col", isMobile ? "max-w-[calc(100%-60px)]" : "max-w-[80%]")}>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-sm">
-                {message.sender === "bot" ? "Advisor" : "You"}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {format(new Date(message.timestamp), "h:mm a")}
-              </span>
-            </div>
-            
+          {message.sender === "bot" && (
             <div 
-              className={cn(
-                "rounded-lg p-3",
-                message.sender === "bot" 
-                  ? "bg-primary/5 border border-primary/10" 
-                  : "bg-secondary"
-              )}
+              className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1"
+              aria-hidden="true"
             >
-              <div className="whitespace-pre-wrap break-words">
-                {message.content}
-              </div>
+              <Bot className="h-4 w-4 text-primary" />
             </div>
+          )}
+          <div 
+            className={`max-w-[80%] flex flex-col ${
+              message.sender === "user" ? "items-end" : "items-start"
+            }`}
+          >
+            <div
+              className={`px-4 py-2 rounded-lg ${
+                message.sender === "user"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted"
+              }`}
+              role={message.sender === "user" ? "complementary" : "article"}
+              aria-label={`${message.sender === "user" ? "You" : "Advisor"} said`}
+            >
+              {message.isTyping ? (
+                <TypingIndicator />
+              ) : (
+                <div className="whitespace-pre-wrap">{message.content}</div>
+              )}
+            </div>
+            <span 
+              className="text-xs text-muted-foreground mt-1" 
+              aria-label={`Sent at ${format(message.timestamp, 'p')}`}
+            >
+              {format(message.timestamp, 'p')}
+            </span>
           </div>
+          {message.sender === "user" && (
+            <div 
+              className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1"
+              aria-hidden="true"
+            >
+              <User className="h-4 w-4 text-primary" />
+            </div>
+          )}
         </div>
       ))}
       <div ref={messagesEndRef} />

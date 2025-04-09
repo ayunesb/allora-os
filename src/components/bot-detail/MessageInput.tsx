@@ -2,97 +2,147 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { SendIcon, RefreshCw, Trash2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MessageInputProps {
   botName: string;
   isLoading: boolean;
-  onSendMessage: (message: string) => void;
-  error?: string | null;
+  onSendMessage: (content: string) => void;
+  onRetry?: () => void;
+  onClear?: () => void;
+  error: string | null;
+  canRetry?: boolean;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ 
-  botName, 
-  isLoading, 
-  onSendMessage, 
-  error = null 
+const MessageInput: React.FC<MessageInputProps> = ({
+  botName,
+  isLoading,
+  onSendMessage,
+  onRetry,
+  onClear,
+  error,
+  canRetry = false,
 }) => {
-  const [inputMessage, setInputMessage] = useState("");
+  const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const isMobile = useIsMobile();
-  
-  // Auto-focus textarea on desktop
+
+  // Auto focus the textarea when the component mounts
   useEffect(() => {
-    if (!isMobile && textareaRef.current) {
+    if (textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [isMobile]);
+  }, []);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim() || isLoading) return;
-    
-    try {
-      onSendMessage(inputMessage);
-      setInputMessage("");
-      
-      // Show visual feedback when message is sent
-      toast.success("Message sent successfully");
-    } catch (err) {
-      console.error("Error sending message:", err);
-      toast.error("Failed to send message. Please try again.");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim() && !isLoading) {
+      onSendMessage(message);
+      setMessage("");
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Submit on Enter (without Shift)
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      handleSubmit(e);
     }
   };
 
   return (
-    <div className="flex flex-col w-full">
-      {error && (
-        <div className="mb-2 p-2 bg-destructive/10 text-destructive rounded-md text-sm flex items-center gap-2">
-          <AlertCircle className="h-4 w-4" aria-hidden="true" />
-          <span>{error}</span>
+    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-2">
+      <div className="flex gap-2">
+        <Textarea
+          ref={textareaRef}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={`Ask ${botName} a question...`}
+          className="flex-grow resize-none min-h-[60px] max-h-[150px]"
+          disabled={isLoading}
+          aria-label="Your message"
+          aria-describedby={error ? "message-error" : undefined}
+        />
+        <div className="flex flex-col gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={!message.trim() || isLoading}
+                  aria-label="Send message"
+                  className="h-[60px] w-[60px]"
+                >
+                  <SendIcon className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Send message</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+      
+      {/* Action buttons for retry and clear */}
+      {(onRetry || onClear) && (
+        <div className="flex gap-2 justify-end">
+          {onRetry && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onRetry}
+                    disabled={isLoading || !canRetry}
+                    aria-label="Retry last message"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Retry
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Retry last message</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          
+          {onClear && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onClear}
+                    disabled={isLoading}
+                    aria-label="Clear conversation"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Clear
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Clear conversation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       )}
       
-      <div className="flex items-center gap-2 w-full">
-        <Textarea
-          ref={textareaRef}
-          placeholder={`Ask ${botName} anything...`}
-          className="min-h-[60px] flex-grow"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isLoading}
-          aria-label={`Message to ${botName}`}
-          aria-describedby="message-instructions"
-        />
-        <Button 
-          onClick={handleSendMessage} 
-          size="icon" 
-          className={`h-[60px] w-[60px] flex-shrink-0 transition-all duration-200 ${
-            isLoading ? "bg-primary/70" : inputMessage.trim() ? "bg-primary hover:bg-primary/90" : "bg-primary/50"
-          }`}
-          disabled={!inputMessage.trim() || isLoading}
-          aria-label={isLoading ? "Sending message" : "Send message"}
-        >
-          {isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-          ) : (
-            <Send className="h-5 w-5" aria-hidden="true" />
-          )}
-        </Button>
-      </div>
-      <span className="sr-only" id="message-instructions">
-        Type your message and press Enter to send. Use Shift+Enter for a new line.
-      </span>
-    </div>
+      {error && (
+        <p id="message-error" className="text-destructive text-sm mt-1">
+          {error}
+        </p>
+      )}
+    </form>
   );
 };
 

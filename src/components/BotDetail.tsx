@@ -1,15 +1,16 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
   Card, 
   CardContent, 
   CardHeader, 
   CardTitle,
-  CardFooter
+  CardFooter,
+  CardDescription
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import UserPreferencesDialog from "@/components/UserPreferencesDialog";
 import BotInfo from "./bot-detail/BotInfo";
@@ -19,15 +20,26 @@ import NotFoundCard from "./bot-detail/NotFoundCard";
 import BotDetailSkeleton from "./bot-detail/BotDetailSkeleton";
 import { useBotConsultation } from "./bot-detail/useBotConsultation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function BotDetail() {
   const { botName, role } = useParams<{ botName: string; role: string }>();
-  const { bot, messages, isLoading, error, handleSendMessage } = useBotConsultation(botName, role);
+  const { 
+    bot, 
+    messages, 
+    isLoading, 
+    isTyping,
+    error, 
+    retryCount,
+    handleSendMessage,
+    retryLastMessage,
+    clearConversation
+  } = useBotConsultation(botName, role);
   const [isInitializing, setIsInitializing] = useState(true);
   const isMobile = useIsMobile();
 
   // Simulate initial loading state for better UX
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitializing(false);
     }, 800);
@@ -55,6 +67,9 @@ export default function BotDetail() {
     );
   }
 
+  // Determine if we can retry based on whether there are messages and we're not loading
+  const canRetry = messages.length > 0 && !isLoading;
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'items-center justify-between'}`}>
@@ -64,12 +79,32 @@ export default function BotDetail() {
             <span>Back to Advisors</span>
           </Button>
         </Link>
-        <UserPreferencesDialog />
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={clearConversation} disabled={messages.length === 0}>
+                  <span>New Conversation</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Start a new conversation</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <UserPreferencesDialog />
+        </div>
       </div>
       
       <Card>
         <CardHeader className="pb-3">
           <BotInfo bot={bot} />
+          {retryCount > 2 && (
+            <CardDescription className="mt-2 text-amber-500 flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              Having trouble? Try adjusting your question or check your user preferences for this advisor.
+            </CardDescription>
+          )}
         </CardHeader>
       </Card>
       
@@ -104,9 +139,12 @@ export default function BotDetail() {
         <CardFooter className="pt-4 pb-4 border-t">
           <MessageInput 
             botName={bot.name}
-            isLoading={isLoading}
+            isLoading={isLoading || isTyping}
             onSendMessage={handleSendMessage}
+            onRetry={retryLastMessage}
+            onClear={clearConversation}
             error={error}
+            canRetry={canRetry}
           />
         </CardFooter>
       </Card>
