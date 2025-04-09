@@ -1,26 +1,13 @@
 
-import { useCompanyId } from "@/hooks/useCompanyId";
-import { Campaign } from "@/models/campaign";
-import { fetchCompanyCampaigns, createCampaign, updateCampaign, deleteCampaign } from "@/utils/campaignHelpers";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { createCampaign, updateCampaign, deleteCampaign } from "@/utils/campaignHelpers";
 
-export function useCampaigns() {
-  const companyId = useCompanyId();
+/**
+ * Hook for campaign create, update, and delete mutations
+ */
+export function useCampaignMutations(companyId: string | undefined) {
   const queryClient = useQueryClient();
-  
-  // Fetch campaigns
-  const {
-    data: campaigns,
-    isLoading,
-    isError,
-    error,
-    refetch
-  } = useQuery({
-    queryKey: ['campaigns', companyId],
-    queryFn: () => fetchCompanyCampaigns(companyId || ''),
-    enabled: !!companyId,
-  });
   
   // Create campaign
   const createMutation = useMutation({
@@ -87,11 +74,6 @@ export function useCampaigns() {
   });
 
   return {
-    campaigns: campaigns || [],
-    isLoading,
-    isError,
-    error,
-    refetch,
     createCampaign: createMutation.mutate,
     isCreating: createMutation.isPending,
     updateCampaign: updateMutation.mutate,

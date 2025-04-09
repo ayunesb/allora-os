@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { useCampaigns } from "@/hooks/useCampaigns";
+import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
 import CampaignsList from "@/components/campaigns/CampaignsList";
 import CampaignFormDialog, { CampaignFormValues } from "@/components/campaigns/CampaignFormDialog";
 import CampaignHeader from "@/components/campaigns/CampaignHeader";

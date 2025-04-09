@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { BarChart, Mail, Video, Globe, Edit, Trash2 } from "lucide-react";
+import { BarChart, Mail, Video, Globe, Edit, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Campaign } from "@/models/campaign";
