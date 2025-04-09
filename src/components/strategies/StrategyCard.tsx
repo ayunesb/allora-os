@@ -20,9 +20,10 @@ interface StrategyCardProps {
   strategy: Strategy;
   onEdit: (strategyId: string) => void;
   onDelete: (strategyId: string) => void;
+  onView?: () => void; // Added onView as an optional prop
 }
 
-const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete }) => {
+const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete, onView }) => {
   const getRiskColor = (risk: string | null | undefined) => {
     switch(risk) {
       case "High":
@@ -36,8 +37,20 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete 
     }
   };
 
+  // Add click handler to track views when clicking on the card
+  const handleCardClick = () => {
+    if (onView) {
+      onView();
+    }
+  };
+
   return (
-    <div key={strategy.id} className="dashboard-card flex flex-col" data-testid={`strategy-card-${strategy.id}`}>
+    <div 
+      key={strategy.id} 
+      className="dashboard-card flex flex-col cursor-pointer" 
+      data-testid={`strategy-card-${strategy.id}`}
+      onClick={handleCardClick}
+    >
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-xl font-bold">{strategy.title}</h3>
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -56,7 +69,10 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete 
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => onEdit(strategy.id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
+                  onEdit(strategy.id);
+                }}
                 aria-label={`Edit ${strategy.title}`}
               >
                 <Edit className="mr-2 h-4 w-4" />
@@ -77,6 +93,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete 
                   <Button 
                     variant="destructive" 
                     size="sm"
+                    onClick={(e) => e.stopPropagation()} // Prevent card click
                     aria-label={`Delete ${strategy.title}`}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -89,7 +106,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete 
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <AlertDialogContent>
+          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -100,7 +117,10 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete 
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction 
-                onClick={() => onDelete(strategy.id)} 
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
+                  onDelete(strategy.id);
+                }} 
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Delete

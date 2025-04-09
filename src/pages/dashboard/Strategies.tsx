@@ -31,10 +31,8 @@ import {
 import { useStrategyTracking } from "@/hooks/useStrategyTracking";
 import LearningInsights from "@/components/dashboard/LearningInsights";
 
-// Define risk level type to avoid issues
 type RiskLevel = 'Low' | 'Medium' | 'High';
 
-// Define sort options
 type SortOption = 'newest' | 'oldest' | 'alphabetical' | 'risk';
 
 export default function Strategies() {
@@ -67,14 +65,12 @@ export default function Strategies() {
     isLoggedIn
   } = useStrategyTracking();
 
-  // Track filter changes
   useEffect(() => {
     if (isLoggedIn && riskFilter !== 'all') {
       trackStrategyFilter('risk_level', riskFilter);
     }
   }, [riskFilter, isLoggedIn, trackStrategyFilter]);
 
-  // Track sort changes
   useEffect(() => {
     if (isLoggedIn) {
       trackStrategyFilter('sort', sortBy);
@@ -99,9 +95,6 @@ export default function Strategies() {
         description: data.description,
         riskLevel: data.riskLevel
       });
-      
-      // Note: Can't track strategy creation here because we don't have the ID yet
-      // It should be tracked after successful creation in the API
     }
     
     setIsDialogOpen(false);
@@ -138,7 +131,6 @@ export default function Strategies() {
     deleteStrategy(strategyId);
   }, [deleteStrategy, isLoggedIn, trackStrategyDelete]);
 
-  // Filter and sort strategies
   const filteredAndSortedStrategies = useMemo(() => {
     let filtered = [...strategies];
     
@@ -173,7 +165,6 @@ export default function Strategies() {
     });
   }, [strategies, searchQuery, riskFilter, sortBy]);
 
-  // Handle form default values
   const getDefaultValues = useCallback(() => {
     if (editingStrategyId) {
       const strategy = strategies.find(s => s.id === editingStrategyId);
