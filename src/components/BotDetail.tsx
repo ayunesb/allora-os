@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { 
@@ -18,7 +19,8 @@ import {
   Clock,
   Briefcase,
   GraduationCap,
-  Loader2
+  Loader2,
+  Settings
 } from "lucide-react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
@@ -29,6 +31,8 @@ import {
   saveConsultationMessage,
   startNewConsultation
 } from "@/utils/consultation";
+import UserPreferencesDialog from "@/components/UserPreferencesDialog";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 export default function BotDetail() {
   const { botName, role } = useParams<{ botName: string; role: string }>();
@@ -37,6 +41,7 @@ export default function BotDetail() {
   const [consultationId, setConsultationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { preferences } = useUserPreferences();
   
   const bot = botName && role ? getBotByNameAndRole(botName, role) : null;
 
@@ -75,7 +80,15 @@ export default function BotDetail() {
     });
     
     try {
-      const responseContent = await generateBotResponse(botName, role, inputMessage);
+      // Pass user preferences to the response generator
+      const responseContent = await generateBotResponse(
+        botName, 
+        role, 
+        inputMessage, 
+        messages,
+        undefined, // No debate context
+        preferences // Pass user preferences
+      );
       
       const botMessage: ConsultationMessage = {
         type: "bot",
@@ -131,6 +144,7 @@ export default function BotDetail() {
             <span>Back to Advisors</span>
           </Button>
         </Link>
+        <UserPreferencesDialog />
       </div>
       
       <Card>

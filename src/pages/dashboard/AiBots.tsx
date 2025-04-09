@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BotCard from "@/components/BotCard";
 import ExecutiveRoster from "@/components/ExecutiveRoster";
 import ConsultationHistory from "@/components/ConsultationHistory";
+import UserPreferencesDialog from "@/components/UserPreferencesDialog";
 import { executiveBots } from "@/backend/executiveBots";
 import { 
   Tabs, 
@@ -15,7 +17,8 @@ import {
   History, 
   Bot, 
   Search,
-  BadgeInfo
+  BadgeInfo,
+  Settings
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
@@ -66,11 +69,14 @@ export default function AiBots() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">AI Executive Advisors</h1>
-        <p className="text-muted-foreground mt-2">
-          Consult with AI executives for expert business guidance and strategic advice.
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">AI Executive Advisors</h1>
+          <p className="text-muted-foreground mt-2">
+            Consult with AI executives for expert business guidance and strategic advice.
+          </p>
+        </div>
+        <UserPreferencesDialog triggerLabel="Response Settings" />
       </div>
 
       <Tabs defaultValue="bots" value={activeTab} onValueChange={setActiveTab}>

@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { ConsultationMessage } from './types';
 import { botResponses } from './mockResponses';
 import { supabase } from '@/integrations/supabase/client';
+import { UserPreferences } from '@/hooks/useUserPreferences';
 
 export async function saveConsultationMessage(
   consultationId: string,
@@ -26,7 +27,9 @@ export async function generateBotResponse(
   botName: string,
   botRole: string,
   userMessage: string,
-  previousMessages: ConsultationMessage[] = []
+  previousMessages: ConsultationMessage[] = [],
+  debateContext?: any,
+  preferences?: UserPreferences
 ): Promise<string> {
   try {
     let response;
@@ -52,7 +55,9 @@ export async function generateBotResponse(
         body: {
           botName,
           botRole,
-          messages: formattedMessages
+          messages: formattedMessages,
+          debateContext,
+          preferences // Pass user preferences to the API
         }
       });
 

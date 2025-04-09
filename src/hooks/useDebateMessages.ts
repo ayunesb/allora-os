@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { DebateMessage, DebateParticipant } from '@/utils/consultation/types';
 import { useMessageOperations } from './useMessageOperations';
 import { useBotResponses } from './useBotResponses';
+import { useUserPreferences } from './useUserPreferences';
 
 export default function useDebateMessages() {
   const {
@@ -16,6 +17,8 @@ export default function useDebateMessages() {
     voteMessage,
     toggleFavorite
   } = useMessageOperations();
+
+  const { preferences } = useUserPreferences();
 
   const {
     simulateBotResponses
@@ -44,11 +47,11 @@ export default function useDebateMessages() {
     
     addMessage(userMessage);
     
-    // Trigger bot responses with a small delay
+    // Trigger bot responses with a small delay, passing user preferences
     setTimeout(async () => {
-      await simulateBotResponses(participants, topic, riskAppetite, businessPriority);
+      await simulateBotResponses(participants, topic, riskAppetite, businessPriority, preferences);
     }, 1000);
-  }, [addMessage, simulateBotResponses]);
+  }, [addMessage, simulateBotResponses, preferences]);
 
   return {
     messages,

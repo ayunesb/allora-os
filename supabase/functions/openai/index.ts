@@ -19,23 +19,99 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured in Supabase secrets');
     }
 
-    const { prompt, botName, botRole, messages, debateContext } = await req.json();
+    const { 
+      prompt, 
+      botName, 
+      botRole, 
+      messages, 
+      debateContext,
+      preferences 
+    } = await req.json();
 
-    // Construct the system prompt based on the bot info
+    // Construct the system prompt based on bot info and user preferences
     let systemPrompt = "You are a helpful AI assistant.";
     
     if (botName && botRole) {
       systemPrompt = `You are ${botName}, an experienced executive in the role of ${botRole}. 
       You provide expert business advice and strategic insights based on your expertise. 
-      Your responses should be professional, direct, and reflective of your executive position.
-      Keep responses concise (3-4 sentences max) unless specifically asked to elaborate.`;
+      Your responses should be professional, direct, and reflective of your executive position.`;
+      
+      // Add response style preferences
+      if (preferences?.responseStyle) {
+        switch (preferences.responseStyle) {
+          case 'concise':
+            systemPrompt += " Keep your responses very brief and to the point (1-2 sentences max).";
+            break;
+          case 'detailed':
+            systemPrompt += " Provide comprehensive, detailed responses with thorough explanations.";
+            break;
+          case 'balanced':
+            systemPrompt += " Keep responses concise (3-4 sentences) unless specifically asked to elaborate.";
+            break;
+        }
+      } else {
+        systemPrompt += " Keep responses concise (3-4 sentences max) unless specifically asked to elaborate.";
+      }
+      
+      // Add technical level preferences
+      if (preferences?.technicalLevel) {
+        switch (preferences.technicalLevel) {
+          case 'basic':
+            systemPrompt += " Use simple language and avoid industry jargon. Explain concepts in straightforward terms accessible to beginners.";
+            break;
+          case 'advanced':
+            systemPrompt += " Feel free to use advanced industry terminology and sophisticated concepts. The user has extensive domain knowledge.";
+            break;
+          case 'intermediate':
+            systemPrompt += " Use moderate industry terminology with brief explanations when introducing complex concepts.";
+            break;
+        }
+      }
+      
+      // Add sources preference
+      if (preferences?.showSources) {
+        systemPrompt += " Include brief references to relevant business theories, frameworks, or research when appropriate.";
+      }
+      
+      // Add focus area preference
+      if (preferences?.focusArea && preferences.focusArea !== 'general') {
+        systemPrompt += ` Pay special attention to aspects related to ${preferences.focusArea} in your responses.`;
+      }
     }
     
     if (debateContext) {
       systemPrompt = `You are ${botName}, an executive with expertise in ${botRole}. 
       You are participating in a debate on the topic: ${debateContext.topic}.
-      Consider the business context: Risk Appetite: ${debateContext.riskAppetite}, Business Priority: ${debateContext.businessPriority}.
-      Provide your professional perspective on this topic in 2-3 sentences.`;
+      Consider the business context: Risk Appetite: ${debateContext.riskAppetite}, Business Priority: ${debateContext.businessPriority}.`;
+      
+      // Apply user preferences to debate responses
+      if (preferences?.responseStyle) {
+        switch (preferences.responseStyle) {
+          case 'concise':
+            systemPrompt += " Provide your professional perspective in 1-2 concise sentences.";
+            break;
+          case 'detailed':
+            systemPrompt += " Provide your professional perspective with detailed reasoning and examples.";
+            break;
+          case 'balanced':
+            systemPrompt += " Provide your professional perspective in 2-3 sentences.";
+            break;
+        }
+      } else {
+        systemPrompt += " Provide your professional perspective in 2-3 sentences.";
+      }
+      
+      // Add technical level to debate responses
+      if (preferences?.technicalLevel === 'advanced') {
+        systemPrompt += " Don't hesitate to use industry jargon and sophisticated business concepts.";
+      } else if (preferences?.technicalLevel === 'basic') {
+        systemPrompt += " Use accessible language that all participants can understand easily.";
+      }
+      
+      // Add focus area to debate context
+      if (preferences?.focusArea && preferences.focusArea !== 'general') {
+        systemPrompt += ` Emphasize implications for ${preferences.focusArea} in your contribution.`;
+      }
     }
 
     // Prepare conversation history if provided
