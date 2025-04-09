@@ -7,9 +7,12 @@ export default function setup(): void {
   // Reset all mocks before each test
   vi.clearAllMocks();
   
-  // Allow type mocking with vi.mocked() helper
+  // Make sure that mock has all the proper extensions
   vi.mock = vi.fn();
   
   // Set up any global test environment configuration
   global.console.error = vi.fn();
+  
+  // Ensure fetch is mocked
+  global.fetch = vi.fn();
 }
