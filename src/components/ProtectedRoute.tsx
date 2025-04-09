@@ -42,7 +42,7 @@ export default function ProtectedRoute({
   }, [isSessionExpired, user]);
 
   // Handler functions
-  const handleResendVerificationEmail = async () => {
+  const handleResendVerificationEmail = async (): Promise<void> => {
     if (!user?.email) {
       toast.error("Email address is missing");
       return;
@@ -64,7 +64,7 @@ export default function ProtectedRoute({
     }
   };
 
-  const handleSessionRefresh = async () => {
+  const handleSessionRefresh = async (): Promise<void> => {
     setIsRefreshing(true);
     try {
       const success = await refreshSession();
@@ -72,7 +72,6 @@ export default function ProtectedRoute({
         toast.success("Session refreshed successfully");
       } else {
         toast.error("Failed to refresh session. Please log in again.");
-        return <Navigate to="/login" state={{ from: location }} replace />;
       }
     } catch (error) {
       console.error("Error refreshing session:", error);
