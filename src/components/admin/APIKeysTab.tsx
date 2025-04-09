@@ -41,8 +41,10 @@ const APIKeysTab = ({ companyId, initialApiKeys, isLoading }: APIKeysTabProps) =
         .single();
       
       // Prepare the updated details object, preserving existing data
+      // Fix: Ensure currentCompany.details is handled properly whether it's null, undefined or an object
+      const currentDetails = currentCompany?.details || {};
       const updatedDetails = {
-        ...(currentCompany?.details || {}),
+        ...currentDetails,
         api_keys: {
           stripe: stripeKey,
           twilio_sid: twilioSid,
