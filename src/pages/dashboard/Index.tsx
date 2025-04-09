@@ -1,6 +1,6 @@
 
 import { useDashboardData } from "@/hooks/useDashboardData";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import CeoMessage from "@/components/dashboard/CeoMessage";
 import AiRecommendations from "@/components/dashboard/AiRecommendations";
 import StrategyBoard from "@/components/StrategyBoard";
