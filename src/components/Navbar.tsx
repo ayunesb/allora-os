@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // Simple ModeToggle component implementation
 function ModeToggle() {
@@ -67,13 +68,20 @@ export function Navbar({ isLoggedIn = true }) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
   
   // Mock subscription data
   const subscription = { status: "inactive" };
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      setIsSigningOut(true);
+      const result = await signOut();
+      
+      if (result && !result.success) {
+        throw new Error(result.error || "Failed to sign out");
+      }
+      
       toast({
         title: "Signed out",
         description: "You have been signed out successfully.",
@@ -85,6 +93,9 @@ export function Navbar({ isLoggedIn = true }) {
         title: "Error signing out",
         description: error.message,
       });
+      console.error("Sign out error:", error);
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -144,9 +155,14 @@ export function Navbar({ isLoggedIn = true }) {
             </div>
             <SheetTitle>Account</SheetTitle>
             <DropdownMenuSeparator />
-            <Button variant="ghost" className="w-full justify-start" onClick={handleSignOut}>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start" 
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+            >
               <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
+              {isSigningOut ? "Signing out..." : "Sign Out"}
             </Button>
           </SheetContent>
         </Sheet>
@@ -189,8 +205,12 @@ export function Navbar({ isLoggedIn = true }) {
                   <DropdownMenuSeparator />
                 </>
               )}
-              <DropdownMenuItem onClick={handleSignOut}>
-                Sign out
+              <DropdownMenuItem 
+                onClick={handleSignOut}
+                disabled={isSigningOut}
+                className="cursor-pointer"
+              >
+                {isSigningOut ? "Signing out..." : "Sign out"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

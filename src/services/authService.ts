@@ -104,11 +104,15 @@ export async function handleSignUp(email: string, password: string) {
 
 export async function handleSignOut() {
   try {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    
     // Clear any auth related items from storage
     localStorage.removeItem('rememberMe');
+    return { success: true };
   } catch (error) {
     console.error('Error signing out:', error);
+    return { success: false, error: error.message };
   }
 }
 

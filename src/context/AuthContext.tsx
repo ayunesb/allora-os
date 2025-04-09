@@ -76,6 +76,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGitHub = async () => {
     return await handleGitHubSignIn();
   };
+  
+  const signOut = async () => {
+    try {
+      const result = await handleSignOut();
+      if (result.success) {
+        setUser(null);
+        setSession(null);
+      }
+      return result;
+    } catch (error) {
+      console.error('Error in signOut:', error);
+      return { success: false, error: 'Failed to sign out' };
+    }
+  };
 
   const value: AuthContextType = {
     user,
@@ -88,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isSessionExpired,
     signIn: handleSignIn,
     signUp: handleSignUp,
-    signOut: handleSignOut,
+    signOut,
     refreshProfile,
     refreshSession: refreshUserAuth,
     updateUserProfile,

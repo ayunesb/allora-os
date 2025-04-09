@@ -13,7 +13,7 @@ export interface AuthContextType {
   isSessionExpired: boolean;
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
   refreshSession: () => Promise<boolean>;
   updateUserProfile: (data: Partial<Omit<UserProfile, 'id' | 'created_at'>>) => Promise<boolean>;
