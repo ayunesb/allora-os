@@ -101,7 +101,7 @@ export function useFormErrorHandler<T extends FieldValues>(
    */
   const formatClientErrors = useCallback((errors: FieldErrors<T>) => {
     return Object.entries(errors).reduce((acc, [key, value]) => {
-      // Safe access to error message with type checking
+      // Fixed type error by safely accessing the error message
       const message = value?.message;
       acc[key] = typeof message === 'string' ? message : 'Invalid value';
       return acc;

@@ -67,8 +67,8 @@ export function useStrategies() {
   
   const refetch = () => {
     // This would normally fetch data from the API
-    // For now, we'll just reset the loading state
     setIsLoading(true);
+    // Simulate API call with timeout
     setTimeout(() => {
       setIsLoading(false);
     }, 500);

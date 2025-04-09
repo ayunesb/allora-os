@@ -1,3 +1,3 @@
 
 // Re-export the function from the new location
-export { runTestCompanySetup } from '@/utils/company/testCompany';
+export { runTestCompanySetup, getTestCompany, createTestCompany } from '@/utils/company/testCompany';

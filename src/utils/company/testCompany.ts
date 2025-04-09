@@ -272,5 +272,4 @@ export async function runTestCompanySetup(userEmail: string): Promise<CompanyRes
   }
 }
 
-// Export for compatibility with existing code
-export { ensureTestCompanyExists as runTestCompanySetup } from './testCompany';
+// Removed the conflicting export that was causing the build error
