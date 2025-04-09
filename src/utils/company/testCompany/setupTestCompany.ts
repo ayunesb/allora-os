@@ -11,6 +11,7 @@ interface TestCompanySetupResult {
   message: string;
   companyId?: string;
   companyName?: string;
+  error?: string;  // Add explicit error field
 }
 
 interface CompanyBase {
@@ -81,7 +82,8 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     if (!newCompany || !newCompany.id) {
       return {
         success: false,
-        message: 'Failed to create test company'
+        message: 'Failed to create test company',
+        error: 'Company creation returned null'
       };
     }
     
@@ -105,7 +107,8 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
       console.error('Error updating user profile with test company:', profileUpdateError);
       return {
         success: false,
-        message: `Created company but failed to associate with user: ${profileUpdateError.message}`
+        message: `Created company but failed to associate with user: ${profileUpdateError.message}`,
+        error: profileUpdateError.message
       };
     }
     
@@ -120,7 +123,8 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     console.error('Error in test company setup:', error);
     return {
       success: false,
-      message: `Error in test company setup: ${errorMessage}`
+      message: `Error in test company setup: ${errorMessage}`,
+      error: errorMessage
     };
   }
 }
