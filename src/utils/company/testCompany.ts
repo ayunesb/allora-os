@@ -12,9 +12,10 @@ import { Company } from '@/models/company';
  * @returns Promise resolving to a test company or null
  */
 export async function getTestCompany(): Promise<Company | null> {
+  // Using explicit column selection and maybeSingle to avoid deep type instantiation error
   const { data, error } = await supabase
     .from('companies')
-    .select('*')  // Be explicit about selecting all columns
+    .select('id, name, created_at, details, industry')
     .eq('is_test', true)
     .limit(1)
     .maybeSingle();

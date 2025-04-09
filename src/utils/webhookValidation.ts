@@ -4,6 +4,8 @@
  * Provides validation for various webhook service URLs
  */
 
+import { executeAndLogWebhook } from './webhookUtils';
+
 // Type definition for supported webhook services
 export type WebhookType = 'stripe' | 'zapier' | 'github' | 'slack' | 'discord' | 'custom';
 
@@ -87,7 +89,7 @@ export async function testWebhook(
   url: string, 
   type: WebhookType, 
   payload?: Record<string, any>
-): Promise<{ success: boolean; message: string }> {
+): Promise<{ success: boolean; message: string; eventId?: string }> {
   // First validate the URL
   const { isValid, message } = validateWebhookUrl(url, type);
   if (!isValid) {
@@ -108,30 +110,8 @@ export async function testWebhook(
   // Merge with custom payload if provided
   const testPayload = payload ? { ...defaultPayload, ...payload } : defaultPayload;
 
-  try {
-    // Use no-cors mode to avoid CORS issues with external webhook providers
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      mode: 'no-cors',
-      body: JSON.stringify(testPayload),
-    });
-
-    // Since we're using no-cors mode, we won't get a proper response status
-    // We'll assume success but with a note about checking the service
-    return {
-      success: true,
-      message: `Test webhook sent to ${type}. Check your ${type} service to confirm it was received.`
-    };
-  } catch (error) {
-    console.error(`Error testing ${type} webhook:`, error);
-    return {
-      success: false,
-      message: `Failed to send test webhook: ${error instanceof Error ? error.message : 'Unknown error'}`
-    };
-  }
+  // Use our executeAndLogWebhook utility to handle the webhook call and logging
+  return await executeAndLogWebhook(url, testPayload, type, 'test_webhook');
 }
 
 /**
