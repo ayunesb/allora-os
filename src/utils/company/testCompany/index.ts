@@ -4,14 +4,12 @@
  * Provides functionality for creating and managing test companies
  */
 
-import { StandardResponse } from '@/utils/api/standardResponse';
-
 // Re-export all test company functions
 export * from './setupTestCompany';
 export * from './getTestCompany';
 export * from './createTestCompany';
 
-// Export common interfaces
+// Export simplified interfaces
 export interface TestCompany {
   id: string;
   name: string;
@@ -19,10 +17,21 @@ export interface TestCompany {
   industry?: string;
 }
 
-// Simplified setup result with direct properties instead of nested data
-export interface TestCompanySetupResult extends StandardResponse<null> {
+// Simple response types to avoid deep type recursion
+export interface TestCompanyResponse {
+  success: boolean;
+  data: TestCompany | null;
+  message: string;
+  error?: string;
+  errorCode?: string;
+}
+
+// Simplified setup result with direct properties
+export interface TestCompanySetupResult {
+  success: boolean;
+  message: string;
+  error?: string;
+  errorCode?: string;
   companyId?: string;
   companyName?: string;
 }
-
-export type TestCompanyResponse = StandardResponse<TestCompany | null>;

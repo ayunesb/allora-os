@@ -1,7 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { TestCompany, TestCompanyResponse } from './index';
-import { successResponse, errorResponse } from '@/utils/api/standardResponse';
 
 /**
  * Fetches a test company from the database using explicit column selection
@@ -29,15 +28,21 @@ export async function getTestCompany(): Promise<TestCompanyResponse> {
       .maybeSingle();
       
     if (error) {
-      return errorResponse(
-        'Error fetching test company', 
-        error.message,
-        error.code
-      );
+      return {
+        success: false,
+        data: null,
+        message: 'Error fetching test company',
+        error: error.message,
+        errorCode: error.code
+      };
     }
 
     if (!data) {
-      return successResponse(null, 'No test company found');
+      return {
+        success: true,
+        data: null,
+        message: 'No test company found'
+      };
     }
 
     // Explicitly transform to TestCompany type
@@ -48,9 +53,18 @@ export async function getTestCompany(): Promise<TestCompanyResponse> {
       industry: data.industry
     };
 
-    return successResponse(testCompany, 'Test company found');
+    return {
+      success: true,
+      data: testCompany,
+      message: 'Test company found'
+    };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return errorResponse('Unexpected error in getTestCompany', errorMessage);
+    return {
+      success: false,
+      data: null,
+      message: 'Unexpected error in getTestCompany',
+      error: errorMessage
+    };
   }
 }
