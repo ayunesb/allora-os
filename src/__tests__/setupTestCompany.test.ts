@@ -18,19 +18,16 @@ const mockedGetTestCompany = getTestCompany as unknown as typeof getTestCompany 
 const mockedCreateTestCompany = createTestCompany as unknown as typeof createTestCompany & { mockResolvedValue: (value: any) => void };
 
 // Properly typed Supabase mock
-const mockedSupabase = supabase as {
-  from: ReturnType<typeof vi.fn> & {
-    mockReturnValue: (value: {
-      update: ReturnType<typeof vi.fn> & {
-        mockReturnValue: (value: {
-          eq: ReturnType<typeof vi.fn> & {
-            mockResolvedValue: (value: { error: Error | null }) => void
-          }
-        }) => void
-      }
-    }) => void
-  }
-};
+const mockedSupabase = {
+  from: vi.fn().mockReturnValue({
+    update: vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ error: null })
+    })
+  })
+} as unknown as typeof supabase;
+
+// Cast the mock to the real object to make TypeScript happy
+(supabase as unknown as typeof mockedSupabase).from = mockedSupabase.from;
 
 describe('setupTestCompany', () => {
   beforeEach(() => {
@@ -38,7 +35,7 @@ describe('setupTestCompany', () => {
     vi.clearAllMocks();
     
     // Setup mock implementation for supabase
-    (mockedSupabase.from as any).mockReturnValue({
+    mockedSupabase.from.mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null })
       })
@@ -123,7 +120,7 @@ describe('setupTestCompany', () => {
     
     // Verify profile update was called correctly
     expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
-    expect((mockedSupabase.from('profiles').update as any)).toHaveBeenCalledWith({
+    expect(mockedSupabase.from('profiles').update).toHaveBeenCalledWith({
       company_id: 'new-company-123',
       company: 'Test Company - valid',
       email: 'valid@example.com'
@@ -176,7 +173,7 @@ describe('setupTestCompany', () => {
     });
     
     // Mock profile update failure - with proper typing
-    (mockedSupabase.from as any).mockReturnValue({
+    mockedSupabase.from.mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: { message: 'Profile update failed' } })
       })
