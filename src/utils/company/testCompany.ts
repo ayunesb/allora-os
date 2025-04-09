@@ -8,22 +8,14 @@ import { updateCompanyDetails } from './companyUpdate';
  */
 export async function setupTestCompany(email: string): Promise<{ success: boolean; error?: string }> {
   try {
-    let userId: string;
-    
-    // First try the direct query approach with explicit casting to avoid type recursion
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .limit(1)
-      .single();
+    // Use RPC call to get user ID by email to avoid TypeScript recursion issues
+    const { data: userId, error: userError } = await supabase
+      .rpc('get_user_id_by_email', { user_email: email });
       
-    if (error) {
-      console.error("Error finding user:", error);
+    if (userError || !userId) {
+      console.error("Error finding user:", userError);
       return { success: false, error: `User with email ${email} not found` };
     }
-    
-    userId = data.id;
     
     // Set up the test company details
     const result = await updateCompanyDetails(userId, {
