@@ -9,6 +9,9 @@ import {
 // Import routes
 import routes from './routes';
 
+// Import AuthProvider
+import { AuthProvider } from './context/AuthContext';
+
 // Import styles - using the new centralized import
 import './styles/index';
 
@@ -18,6 +21,8 @@ const router = createBrowserRouter(routes);
 // Render the app
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>,
 );
