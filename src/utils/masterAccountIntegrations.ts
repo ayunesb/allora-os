@@ -48,30 +48,18 @@ async function createStripeCustomer(
 ): Promise<{ success: boolean; customerId?: string; error?: string }> {
   try {
     // Call our custom function to create a Stripe customer
-    const response = await fetch('/api/stripe/create-customer', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: companyName,
-        email,
-        metadata: {
-          industry,
-          source: 'allora_platform'
-        }
-      }),
+    const response = await createCustomer(companyName, email, {
+      industry,
+      source: 'allora_platform'
     });
 
-    const result = await response.json();
-    
-    if (!result.success) {
-      throw new Error(result.error || 'Failed to create Stripe customer');
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to create Stripe customer');
     }
     
     return {
       success: true,
-      customerId: result.customerId
+      customerId: response.customerId
     };
   } catch (error: any) {
     console.error('Failed to create Stripe customer:', error);
