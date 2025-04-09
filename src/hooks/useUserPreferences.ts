@@ -51,16 +51,24 @@ export function useUserPreferences() {
           }
           
           if (data) {
-            // Convert database fields to our UserPreferences type
+            // Map database fields to our UserPreferences type with proper type casting
+            const preferredExecs = Array.isArray(data.preferred_executives) 
+              ? data.preferred_executives.map((item: any) => String(item))
+              : [];
+              
+            const favTopics = Array.isArray(data.favorite_topics)
+              ? data.favorite_topics.map((item: any) => String(item))
+              : [];
+              
             setPreferences({
               responseStyle: (data.communication_style as 'concise' | 'balanced' | 'detailed') || defaultPreferences.responseStyle,
-              technicalLevel: (data.technical_level as 'basic' | 'intermediate' | 'advanced') || defaultPreferences.technicalLevel,
-              showSources: data.show_sources || defaultPreferences.showSources,
-              focusArea: (data.focus_area as 'general' | 'strategy' | 'marketing' | 'operations' | 'technology' | 'finance') || defaultPreferences.focusArea,
+              technicalLevel: defaultPreferences.technicalLevel, // Use default as this field isn't in the DB
+              showSources: defaultPreferences.showSources, // Use default as this field isn't in the DB
+              focusArea: defaultPreferences.focusArea, // Use default as this field isn't in the DB
               riskAppetite: (data.risk_appetite as 'low' | 'medium' | 'high') || defaultPreferences.riskAppetite,
-              preferredExecutives: Array.isArray(data.preferred_executives) ? data.preferred_executives : defaultPreferences.preferredExecutives,
-              favoriteTopics: Array.isArray(data.favorite_topics) ? data.favorite_topics : defaultPreferences.favoriteTopics,
-              modelPreference: (data.model_preference as AIModelType) || defaultPreferences.modelPreference
+              preferredExecutives: preferredExecs,
+              favoriteTopics: favTopics,
+              modelPreference: defaultPreferences.modelPreference // Use default as this field isn't in the DB
             });
             return;
           }
@@ -98,18 +106,17 @@ export function useUserPreferences() {
       
       if (user?.id) {
         // Also save to Supabase if user is authenticated
+        // Map our UserPreferences to the DB schema fields
         const { error } = await supabase
           .from('user_preferences')
           .upsert({
             user_id: user.id,
             communication_style: newPreferences.responseStyle,
-            technical_level: newPreferences.technicalLevel,
-            show_sources: newPreferences.showSources,
-            focus_area: newPreferences.focusArea,
             risk_appetite: newPreferences.riskAppetite,
             preferred_executives: newPreferences.preferredExecutives,
             favorite_topics: newPreferences.favoriteTopics,
-            model_preference: newPreferences.modelPreference,
+            // Not saving technical_level, show_sources, focus_area, and model_preference
+            // as they don't exist in the current DB schema
             last_updated: new Date().toISOString()
           }, {
             onConflict: 'user_id'

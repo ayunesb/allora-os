@@ -221,7 +221,7 @@ const BotDebate: React.FC = () => {
                           <Checkbox 
                             checked={participants.some(p => p.name === name)}
                             className="mr-2"
-                            readOnly
+                            // Remove readOnly prop as it's not supported
                           />
                           <span>{name}</span>
                         </div>

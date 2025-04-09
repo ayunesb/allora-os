@@ -21,11 +21,11 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Settings } from 'lucide-react';
-import { 
-  useUserPreferences, 
-  ResponseStyle, 
-  TechnicalLevel 
-} from '@/hooks/useUserPreferences';
+import { useUserPreferences, UserPreferences } from '@/hooks/useUserPreferences';
+
+// Define types locally instead of importing them
+type ResponseStyle = 'concise' | 'balanced' | 'detailed';
+type TechnicalLevel = 'basic' | 'intermediate' | 'advanced';
 
 interface UserPreferencesDialogProps {
   triggerLabel?: string;
@@ -36,23 +36,23 @@ const UserPreferencesDialog: React.FC<UserPreferencesDialogProps> = ({
   triggerLabel = 'Preferences',
   showTriggerIcon = true
 }) => {
-  const { preferences, updatePreferences } = useUserPreferences();
+  const { preferences, updatePreference } = useUserPreferences();
   const [open, setOpen] = React.useState(false);
 
   const handleResponseStyleChange = (value: string) => {
-    updatePreferences({ responseStyle: value as ResponseStyle });
+    updatePreference('responseStyle', value as ResponseStyle);
   };
 
   const handleTechnicalLevelChange = (value: string) => {
-    updatePreferences({ technicalLevel: value as TechnicalLevel });
+    updatePreference('technicalLevel', value as TechnicalLevel);
   };
 
   const handleShowSourcesChange = (checked: boolean) => {
-    updatePreferences({ showSources: checked });
+    updatePreference('showSources', checked);
   };
 
   const handleFocusAreaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updatePreferences({ focusArea: e.target.value });
+    updatePreference('focusArea', e.target.value);
   };
 
   return (
