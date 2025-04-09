@@ -32,7 +32,7 @@ export function AppRoutes() {
       <AuthProvider>
         <Outlet />
       </AuthProvider>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" richColors />
     </>
   );
 }

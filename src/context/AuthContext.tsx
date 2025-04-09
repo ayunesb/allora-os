@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuthState } from '@/hooks/useAuthState';
@@ -9,7 +9,8 @@ import {
   handleSignOut,
   handleGoogleSignIn,
   handleGitHubSignIn,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  refreshSession as refreshSessionFunc
 } from '@/services/authService';
 
 // Create the context
@@ -42,7 +43,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isEmailVerified,
     authError,
     loadUserProfile,
-    refreshSession,
+    refreshSession: refreshAuthStateSession,
+    updateLastActivity,
     setProfile
   } = useAuthState();
 
@@ -101,6 +103,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return false;
   };
 
+  // Combined refresh function
+  const refreshSession = async () => {
+    const result = await refreshSessionFunc();
+    if (result.session) {
+      await refreshAuthStateSession();
+      return true;
+    }
+    return false;
+  };
+
   // Create value object
   const value = {
     user,
@@ -118,6 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resetPassword,
     refreshProfile,
     refreshSession,
+    updateLastActivity,
     setProfile
   };
 

@@ -4,42 +4,13 @@ import type { Database } from '@/integrations/supabase/types';
 import { logger } from '@/utils/loggingService';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
 
-// Standard client for the backend
-export const supabase = createClient<Database>(
-  SUPABASE_CONFIG.url,
-  SUPABASE_CONFIG.anonKey,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
-    }
-  }
-);
+// Re-export the client from the integrations folder for backward compatibility
+import { supabase, getSession, getCurrentUser } from '@/integrations/supabase/client';
+export { supabase, getSession, getCurrentUser };
 
-// Add these helper functions to make the code cleaner elsewhere
-export const getSession = async () => {
-  try {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) {
-      logger.error('Error getting session:', { error });
-    }
-    return { session: data.session, error };
-  } catch (error) {
-    logger.error('Unexpected error getting session:', { error });
-    return { session: null, error };
-  }
-};
-
-export const getCurrentUser = async () => {
-  try {
-    const { data, error } = await supabase.auth.getUser();
-    if (error) {
-      logger.error('Error getting current user:', { error });
-    }
-    return { user: data.user, error };
-  } catch (error) {
-    logger.error('Unexpected error getting current user:', { error });
-    return { user: null, error };
-  }
+// Additional helper functions specific to the backend can be added here
+export const createAdminClient = () => {
+  // This would use the service role key in a real implementation
+  // but for now, just return the regular client
+  return supabase;
 };

@@ -1,4 +1,5 @@
-import { supabase } from '@/backend/supabase';
+
+import { supabase } from '@/integrations/supabase/client';
 
 export async function handleSignIn(email: string, password: string, rememberMe = false) {
   try {

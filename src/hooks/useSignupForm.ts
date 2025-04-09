@@ -7,7 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { calculatePasswordStrength } from "@/components/auth/PasswordStrengthMeter";
 import { useAuth } from "@/context/AuthContext";
-import { supabase, getSession, getCurrentUser } from "@/backend/supabase";
+import { supabase, getSession, getCurrentUser } from '@/integrations/supabase/client';
 
 // Schema definition for signup form validation
 export const signupSchema = z.object({
@@ -102,7 +102,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       
       toast.success("Account created successfully!");
       
-      // Check if email confirmation is required using the function we just exported
+      // Check if email confirmation is required
       const { session } = await getSession();
       
       if (!session) {

@@ -13,7 +13,14 @@ import { AppRoutes } from './routes';
 import './styles/index';
 
 // Create a new QueryClient instance
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // Render the app
 ReactDOM.createRoot(document.getElementById('root')!).render(
