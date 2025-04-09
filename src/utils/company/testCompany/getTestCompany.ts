@@ -45,12 +45,12 @@ export async function getTestCompany(): Promise<TestCompanyResponse> {
       };
     }
 
-    // Explicitly transform to TestCompany type
+    // Explicitly transform to TestCompany type to avoid deep inference
     const testCompany: TestCompany = {
       id: data.id,
       name: data.name,
       created_at: data.created_at,
-      industry: data.industry
+      industry: data.industry || undefined
     };
 
     return {
