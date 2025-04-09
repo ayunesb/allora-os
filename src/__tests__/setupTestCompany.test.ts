@@ -1,0 +1,184 @@
+
+import { runTestCompanySetup } from '@/utils/company/testCompany';
+import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
+import { getTestCompany, createTestCompany } from '@/utils/company/testCompany';
+import { supabase } from '@/backend/supabase';
+
+// Mock the dependencies
+jest.mock('@/utils/users/fetchUsers');
+jest.mock('@/utils/company/testCompany/getTestCompany');
+jest.mock('@/utils/company/testCompany/createTestCompany');
+jest.mock('@/backend/supabase');
+
+// Type the mocks for TypeScript
+const mockedGetUserProfileByEmail = getUserProfileByEmail as jest.MockedFunction<typeof getUserProfileByEmail>;
+const mockedGetTestCompany = getTestCompany as jest.MockedFunction<typeof getTestCompany>;
+const mockedCreateTestCompany = createTestCompany as jest.MockedFunction<typeof createTestCompany>;
+const mockedSupabase = supabase as jest.Mocked<typeof supabase>;
+
+describe('setupTestCompany', () => {
+  beforeEach(() => {
+    // Clear all mocks before each test
+    jest.clearAllMocks();
+    
+    // Default mock implementation for supabase
+    mockedSupabase.from.mockReturnValue({
+      update: jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ error: null })
+      })
+    } as any);
+  });
+
+  it('should validate email format', async () => {
+    // Test with invalid email
+    const result = await runTestCompanySetup('invalid-email');
+    
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('Invalid email format');
+    expect(mockedGetUserProfileByEmail).not.toHaveBeenCalled();
+  });
+
+  it('should fail if user is not found', async () => {
+    // Mock user not found
+    mockedGetUserProfileByEmail.mockResolvedValue(null);
+    
+    const result = await runTestCompanySetup('valid@example.com');
+    
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('No user found');
+    expect(mockedGetUserProfileByEmail).toHaveBeenCalledWith('valid@example.com');
+    expect(mockedGetTestCompany).not.toHaveBeenCalled();
+  });
+
+  it('should return existing company if one exists', async () => {
+    // Mock user found
+    mockedGetUserProfileByEmail.mockResolvedValue({
+      id: 'user-123',
+      email: 'valid@example.com',
+      name: 'Test User',
+      company_id: null,
+      role: 'user',
+      created_at: '2023-01-01'
+    });
+    
+    // Mock existing company found
+    mockedGetTestCompany.mockResolvedValue({
+      id: 'company-123',
+      name: 'Existing Test Company',
+      created_at: '2023-01-01'
+    });
+    
+    const result = await runTestCompanySetup('valid@example.com');
+    
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('already exists');
+    expect(result.companyId).toBe('company-123');
+    expect(result.companyName).toBe('Existing Test Company');
+    expect(mockedCreateTestCompany).not.toHaveBeenCalled();
+  });
+
+  it('should create new company when none exists', async () => {
+    // Mock user found
+    mockedGetUserProfileByEmail.mockResolvedValue({
+      id: 'user-123',
+      email: 'valid@example.com',
+      name: 'Test User',
+      company_id: null,
+      role: 'user',
+      created_at: '2023-01-01'
+    });
+    
+    // Mock no existing company
+    mockedGetTestCompany.mockResolvedValue(null);
+    
+    // Mock company creation success
+    mockedCreateTestCompany.mockResolvedValue({
+      id: 'new-company-123',
+      name: 'Test Company - valid',
+      created_at: '2023-01-01'
+    });
+    
+    const result = await runTestCompanySetup('valid@example.com');
+    
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('Successfully created');
+    expect(result.companyId).toBe('new-company-123');
+    expect(mockedCreateTestCompany).toHaveBeenCalledWith('Test Company - valid');
+    
+    // Verify profile update was called correctly
+    expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
+    expect(mockedSupabase.from().update).toHaveBeenCalledWith({
+      company_id: 'new-company-123',
+      company: 'Test Company - valid',
+      email: 'valid@example.com'
+    });
+  });
+
+  it('should handle company creation failure', async () => {
+    // Mock user found
+    mockedGetUserProfileByEmail.mockResolvedValue({
+      id: 'user-123',
+      email: 'valid@example.com',
+      name: 'Test User',
+      company_id: null,
+      role: 'user',
+      created_at: '2023-01-01'
+    });
+    
+    // Mock no existing company
+    mockedGetTestCompany.mockResolvedValue(null);
+    
+    // Mock company creation failure
+    mockedCreateTestCompany.mockResolvedValue(null);
+    
+    const result = await runTestCompanySetup('valid@example.com');
+    
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('Failed to create test company');
+    expect(mockedSupabase.from).not.toHaveBeenCalled();
+  });
+
+  it('should handle profile update failure', async () => {
+    // Mock user found
+    mockedGetUserProfileByEmail.mockResolvedValue({
+      id: 'user-123',
+      email: 'valid@example.com',
+      name: 'Test User',
+      company_id: null,
+      role: 'user',
+      created_at: '2023-01-01'
+    });
+    
+    // Mock no existing company
+    mockedGetTestCompany.mockResolvedValue(null);
+    
+    // Mock company creation success
+    mockedCreateTestCompany.mockResolvedValue({
+      id: 'new-company-123',
+      name: 'Test Company - valid',
+      created_at: '2023-01-01'
+    });
+    
+    // Mock profile update failure
+    mockedSupabase.from.mockReturnValue({
+      update: jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ error: { message: 'Profile update failed' } })
+      })
+    } as any);
+    
+    const result = await runTestCompanySetup('valid@example.com');
+    
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('Created company but failed to associate with user');
+  });
+
+  it('should handle unexpected errors gracefully', async () => {
+    // Mock user found
+    mockedGetUserProfileByEmail.mockRejectedValue(new Error('Unexpected database error'));
+    
+    const result = await runTestCompanySetup('valid@example.com');
+    
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('Error in test company setup: Unexpected database error');
+  });
+});

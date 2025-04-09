@@ -9,6 +9,11 @@ import { Company } from '@/models/company';
  */
 export async function createTestCompany(name: string): Promise<Partial<Company> | null> {
   try {
+    // Input validation
+    if (!name || typeof name !== 'string') {
+      throw new Error('Invalid company name provided');
+    }
+
     // Using explicit column selection and type assertion to avoid deep type issues
     const { data, error } = await supabase
       .from('companies')
@@ -28,8 +33,8 @@ export async function createTestCompany(name: string): Promise<Partial<Company> 
       return null;
     }
 
-    // Use explicit type assertion without deep inference
-    return data as Partial<Company> | null;
+    // Use explicit type assertion
+    return data as Partial<Company>;
   } catch (error) {
     console.error('Error in createTestCompany:', error);
     return null;

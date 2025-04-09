@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
-import { runTestCompanySetup } from "@/utils/companySetup";
+import { runTestCompanySetup } from "@/utils/company/testCompany";
 import { toast } from "sonner";
 
 export default function Settings() {
@@ -22,7 +22,13 @@ export default function Settings() {
     
     setIsLoading(true);
     try {
-      await runTestCompanySetup(user.email);
+      const result = await runTestCompanySetup(user.email);
+      
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
     } catch (error) {
       console.error("Error in test company setup:", error);
       toast.error("Failed to set up test company");
