@@ -11,6 +11,7 @@ import DashboardBotDetail from "@/pages/dashboard/BotDetail";
 import DashboardCampaigns from "@/pages/dashboard/Campaigns";
 import DashboardLeads from "@/pages/dashboard/Leads";
 import DashboardCalls from "@/pages/dashboard/Calls";
+import DashboardApprovals from "@/pages/dashboard/Approvals";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const dashboardRoutes: RouteObject = {
@@ -60,6 +61,10 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "calls",
       element: <DashboardCalls />,
+    },
+    {
+      path: "approvals",
+      element: <DashboardApprovals />,
     },
   ],
 };
