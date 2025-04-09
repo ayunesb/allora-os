@@ -12,19 +12,20 @@ import { Company } from '@/models/company';
  * @returns Promise resolving to a test company or null
  */
 export async function getTestCompany(): Promise<Partial<Company> | null> {
-  // Using explicit column selection to avoid deep type instantiation error
+  // Using type assertion to avoid deep type instantiation error
   const { data, error } = await supabase
     .from('companies')
     .select('id, name, created_at, industry')
     .eq('is_test', true)
     .limit(1)
-    .maybeSingle();
+    .single();
 
   if (error) {
     console.error('Error fetching test company:', error);
     return null;
   }
 
+  // Use explicit type assertion without deep inference
   return data as Partial<Company> | null;
 }
 
@@ -34,6 +35,7 @@ export async function getTestCompany(): Promise<Partial<Company> | null> {
  * @returns Promise resolving to the created test company or null
  */
 export async function createTestCompany(name: string): Promise<Partial<Company> | null> {
+  // Using type assertion to avoid deep type instantiation error
   const { data, error } = await supabase
     .from('companies')
     .insert([
@@ -45,13 +47,14 @@ export async function createTestCompany(name: string): Promise<Partial<Company> 
       },
     ])
     .select('id, name, created_at, industry')
-    .maybeSingle();
+    .single();
 
   if (error) {
     console.error('Error creating test company:', error);
     return null;
   }
 
+  // Use explicit type assertion without deep inference
   return data as Partial<Company> | null;
 }
 
