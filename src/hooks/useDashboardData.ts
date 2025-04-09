@@ -5,12 +5,17 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { getCompanyDashboardAnalytics } from "@/backend/analyticsService";
 
+// Define a more specific type for company details to avoid excessive type instantiation
+type CompanyDetails = Record<string, any>;
+type RiskAppetiteType = 'low' | 'medium' | 'high';
+type RecommendationType = { title: string; description: string; type: string };
+
 export function useDashboardData() {
   const { profile } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [pendingApprovals, setPendingApprovals] = useState(0);
-  const [aiRecommendations, setAiRecommendations] = useState<{ title: string; description: string; type: string }[]>([]);
-  const [riskAppetite, setRiskAppetite] = useState<'low' | 'medium' | 'high'>('medium');
+  const [aiRecommendations, setAiRecommendations] = useState<RecommendationType[]>([]);
+  const [riskAppetite, setRiskAppetite] = useState<RiskAppetiteType>('medium');
   
   // Fetch company details and recommendations on component mount
   useEffect(() => {
@@ -33,12 +38,12 @@ export function useDashboardData() {
         if (companyError) throw companyError;
         
         // Extract company details and ensure it's an object
-        const companyDetails = companyData?.details as Record<string, any> || {};
+        const companyDetails = companyData?.details as CompanyDetails || {};
         
         // Set risk appetite
         if (companyDetails.riskAppetite && 
             ['low', 'medium', 'high'].includes(companyDetails.riskAppetite)) {
-          setRiskAppetite(companyDetails.riskAppetite as 'low' | 'medium' | 'high');
+          setRiskAppetite(companyDetails.riskAppetite as RiskAppetiteType);
         }
 
         // Fetch company analytics

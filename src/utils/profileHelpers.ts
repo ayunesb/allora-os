@@ -3,6 +3,7 @@ import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { Database } from '@/integrations/supabase/types';
+import { Json } from '@/integrations/supabase/types';
 
 export type UserProfile = {
   id: string;
@@ -21,7 +22,7 @@ export type UserProfile = {
   subscription_plan_id: string | null;
   subscription_expires_at: string | null;
   stripe_customer_id: string | null;
-  personal_api_keys?: Record<string, string> | string | null;
+  personal_api_keys?: Record<string, string> | string | Json | null;
 };
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
@@ -39,7 +40,8 @@ export async function fetchUserProfile(userId: string): Promise<UserProfile | nu
     // Cast the data to ensure it matches the UserProfile type
     return data ? {
       ...data,
-      role: data.role as UserProfile['role']
+      role: data.role as UserProfile['role'],
+      personal_api_keys: data.personal_api_keys as UserProfile['personal_api_keys']
     } : null;
   } catch (error: any) {
     console.error('Error fetching user profile:', error.message);
