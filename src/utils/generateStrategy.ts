@@ -266,6 +266,38 @@ export function generateCustomizedStrategy(
   return strategy;
 }
 
+// Export a simpler version of the strategy generator for basic use cases
+export function generateStrategy(riskLevel: 'Low' | 'Medium' | 'High'): {
+  title: string;
+  description: string;
+  riskLevel: 'Low' | 'Medium' | 'High';
+} {
+  // Choose a template based on risk level
+  let strategyTemplates;
+  switch (riskLevel) {
+    case 'Low':
+      strategyTemplates = lowRiskStrategies;
+      break;
+    case 'Medium':
+      strategyTemplates = mediumRiskStrategies;
+      break;
+    case 'High':
+      strategyTemplates = highRiskStrategies;
+      break;
+    default:
+      strategyTemplates = mediumRiskStrategies;
+  }
+  
+  // Get a random template from the selected risk level
+  const baseTemplate = strategyTemplates[Math.floor(Math.random() * strategyTemplates.length)];
+  
+  return {
+    title: baseTemplate.title,
+    description: baseTemplate.description,
+    riskLevel: riskLevel
+  };
+}
+
 // Helper functions to customize strategy elements
 function customizeTitle(
   baseTitle: string, 
