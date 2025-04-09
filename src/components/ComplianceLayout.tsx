@@ -3,6 +3,7 @@ import React from 'react';
 import { Navbar } from "@/components/Navbar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "react-router-dom";
+import { Shield } from "lucide-react";
 
 interface ComplianceLayoutProps {
   children: React.ReactNode;
@@ -18,7 +19,10 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
       
       <div className="flex-1 container mx-auto px-4 py-16">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Compliance Center</h1>
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold">Compliance Center</h1>
+          </div>
           <p className="text-muted-foreground">
             Manage regulatory compliance, data handling, and audit records
           </p>

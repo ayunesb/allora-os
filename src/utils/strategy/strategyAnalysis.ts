@@ -1,9 +1,10 @@
 
-import { RiskProfile, RiskAssessmentInput } from '../riskEngine';
-import { GeneratedStrategy } from './types';
+import { GeneratedStrategy, KeyAction, StrategyObjective } from './types';
+import { RiskProfile } from '../riskEngine';
+import { RiskAssessmentInput } from '../riskEngine';
 
 /**
- * Analyze a strategy for its strengths, weaknesses, and key success factors
+ * Analyzes the strategy's strengths, weaknesses, and key success factors
  */
 export function analyzeStrategyFactors(
   strategy: GeneratedStrategy,
@@ -13,227 +14,254 @@ export function analyzeStrategyFactors(
   weaknesses: string[];
   keySuccessFactors: string[];
 } {
-  const strengths: string[] = [];
-  const weaknesses: string[] = [];
-  const keySuccessFactors: string[] = [];
-  
-  // Analyze based on risk profile
-  if (riskProfile.level === 'Low') {
-    strengths.push('Lower volatility and more predictable outcomes');
-    strengths.push('Generally requires less resource commitment');
-    weaknesses.push('May miss high-value opportunities');
-    weaknesses.push('Potentially slower growth trajectory');
-    keySuccessFactors.push('Consistent execution and optimization');
-    keySuccessFactors.push('Strong customer retention focus');
-  } else if (riskProfile.level === 'Medium') {
-    strengths.push('Balanced approach to growth and stability');
-    strengths.push('Adaptable to changing market conditions');
-    weaknesses.push('May face resource constraints for multiple initiatives');
-    weaknesses.push('Requires careful prioritization');
-    keySuccessFactors.push('Effective resource allocation');
-    keySuccessFactors.push('Clear go/no-go decision points');
-  } else { // High risk
-    strengths.push('Potential for significant market disruption');
-    strengths.push('Opportunity for outsized returns and growth');
-    weaknesses.push('Higher chance of significant setbacks');
-    weaknesses.push('Typically requires substantial investment');
-    keySuccessFactors.push('Rapid learning and adaptation capability');
-    keySuccessFactors.push('Contingency planning and runway management');
-  }
-  
-  // Analyze based on key actions
-  const highImpactActions = strategy.keyActions.filter(a => a.impact === 'High').length;
-  const longTermActions = strategy.keyActions.filter(a => a.timeframe === 'Long-term').length;
-  
-  if (highImpactActions >= 2) {
-    strengths.push('Multiple high-impact initiatives can drive significant change');
-    weaknesses.push('High-impact actions often require more resources to execute properly');
-    keySuccessFactors.push('Effective change management and organizational alignment');
-  }
-  
-  if (longTermActions >= 2) {
-    strengths.push('Long-term focus builds sustainable competitive advantage');
-    weaknesses.push('Extended time horizon increases exposure to market shifts');
-    keySuccessFactors.push('Maintaining momentum and commitment through leadership changes');
-  }
-  
-  return { strengths, weaknesses, keySuccessFactors };
+  // Identify strengths based on the strategy and risk profile
+  const strengths = [
+    `Aligned with ${riskProfile.level} risk appetite`,
+    `Clear focus on ${strategy.keyObjectives.map(o => o.description).join(', ')}`,
+    `Balanced approach to short and long-term actions`,
+    ...generateStrengthsBasedOnObjectives(strategy.keyObjectives),
+  ];
+
+  // Identify weaknesses based on the strategy
+  const weaknesses = [
+    `May require significant resources for execution`,
+    `Success depends on market conditions staying relatively stable`,
+    `Some initiatives have interdependencies that could cause delays`,
+    ...generateWeaknessesBasedOnActions(strategy.keyActions),
+  ];
+
+  // Identify key success factors
+  const keySuccessFactors = [
+    `Strong team alignment and communication`,
+    `Regular monitoring and adjustment of tactics`,
+    `Sufficient resource allocation to high-priority initiatives`,
+    `Ability to quickly adapt to changing market conditions`,
+    `Clear accountability for key action items`,
+  ];
+
+  return {
+    strengths,
+    weaknesses,
+    keySuccessFactors,
+  };
 }
 
 /**
- * Calculate the implementation complexity score for a strategy
+ * Calculate implementation complexity score (0-100)
  */
 export function calculateImplementationComplexity(
   strategy: GeneratedStrategy,
-  assessment: RiskAssessmentInput
-): { score: number; factors: string[] } {
-  // Calculate complexity score (higher = more complex)
-  let score = 30; // Base complexity
-  const factors: string[] = [];
+  assessmentInput: RiskAssessmentInput
+): {
+  score: number;
+  factors: string[];
+} {
+  // Base complexity starts at 50 (medium)
+  let complexityScore = 50;
   
-  // Add complexity for each action
-  strategy.keyActions.forEach(action => {
-    if (action.impact === 'High') {
-      score += 10;
-      factors.push(`High-impact action: ${action.title}`);
-    }
-    if (action.timeframe === 'Long-term') {
-      score += 10;
-      factors.push(`Long-term initiative: ${action.title}`);
-    }
-  });
+  // Modify based on number of actions
+  complexityScore += strategy.keyActions.length * 3;
   
-  // Add complexity based on assessment factors
-  if (assessment.organizationalReadiness && assessment.organizationalReadiness < 3) {
-    score += 15; // Less ready = more complex
-    factors.push('Lower organizational readiness');
+  // Modify based on action timeframes
+  const longTermActions = strategy.keyActions.filter(a => a.timeframe === 'Long-term').length;
+  complexityScore += longTermActions * 5;
+  
+  // Modify based on organizational readiness
+  if (assessmentInput.organizationalReadiness) {
+    complexityScore -= (assessmentInput.organizationalReadiness - 3) * 10;
   }
   
-  if (assessment.regulatoryConstraints && assessment.regulatoryConstraints > 3) {
-    score += 15; // More constraints = more complex
-    factors.push('Significant regulatory constraints');
+  // Modify based on action impact levels
+  const highImpactActions = strategy.keyActions.filter(a => a.impact === 'High').length;
+  complexityScore += highImpactActions * 5;
+  
+  // Ensure score is within 0-100 range
+  complexityScore = Math.max(0, Math.min(100, complexityScore));
+  
+  // Factors affecting complexity
+  const factors = [
+    `${strategy.keyActions.length} discrete action items to implement`,
+    `${longTermActions} long-term initiatives requiring sustained effort`,
+    `${highImpactActions} high-impact actions requiring significant resources`,
+  ];
+  
+  if (assessmentInput.organizationalReadiness) {
+    factors.push(`Organizational readiness level: ${assessmentInput.organizationalReadiness}/5`);
   }
   
-  if (assessment.marketVolatility && assessment.marketVolatility > 3) {
-    score += 10;
-    factors.push('High market volatility');
-  }
-  
-  if (assessment.competitionIntensity && assessment.competitionIntensity > 3) {
-    score += 10;
-    factors.push('Intense competitive landscape');
-  }
-  
-  // Cap at 100
-  return { 
-    score: Math.min(score, 100),
-    factors
+  return {
+    score: complexityScore,
+    factors,
   };
 }
 
 /**
- * Calculate the competitive advantage score for a strategy
+ * Calculate competitive advantage score (0-100)
  */
 export function calculateCompetitiveAdvantage(
-  strategy: GeneratedStrategy, 
+  strategy: GeneratedStrategy,
   riskProfile: RiskProfile
-): { score: number; factors: string[] } {
-  let score = 50; // Base score
-  const factors: string[] = [];
+): {
+  score: number;
+  factors: string[];
+} {
+  // Base advantage starts at 50 (medium)
+  let advantageScore = 50;
   
-  // Higher risk strategies typically offer more competitive advantage potential
-  if (riskProfile.level === 'High') {
-    score += 20;
-    factors.push('High-risk approach offers greater differentiation potential');
-  } else if (riskProfile.level === 'Medium') {
-    score += 10;
-    factors.push('Balanced risk approach provides moderate differentiation');
+  // Risk profile adjustments
+  switch (riskProfile.level) {
+    case 'High':
+      advantageScore += 15;
+      break;
+    case 'Medium':
+      advantageScore += 5;
+      break;
+    case 'Low':
+      advantageScore -= 5;
+      break;
   }
   
-  // Adjust based on key actions
-  const highImpactActions = strategy.keyActions.filter(a => a.impact === 'High');
-  score += highImpactActions.length * 5;
+  // Adjust based on innovativeness of objectives
+  const innovativeObjectives = strategy.keyObjectives.filter(o => 
+    o.description.toLowerCase().includes('innovat') || 
+    o.description.toLowerCase().includes('disrupt') ||
+    o.description.toLowerCase().includes('transform')
+  ).length;
   
-  if (highImpactActions.length > 0) {
-    factors.push(`${highImpactActions.length} high-impact initiatives enhance competitive position`);
-  }
+  advantageScore += innovativeObjectives * 8;
   
-  // Cap at 100
-  return { 
-    score: Math.min(score, 100),
-    factors
+  // Adjust based on differentiation in actions
+  const differentiatingActions = strategy.keyActions.filter(a =>
+    a.description.toLowerCase().includes('unique') ||
+    a.description.toLowerCase().includes('proprietary') ||
+    a.description.toLowerCase().includes('exclusive')
+  ).length;
+  
+  advantageScore += differentiatingActions * 10;
+  
+  // Ensure score is within 0-100 range
+  advantageScore = Math.max(0, Math.min(100, advantageScore));
+  
+  // Factors affecting advantage
+  const factors = [
+    `${riskProfile.level} risk appetite potentially yielding greater returns`,
+    `${innovativeObjectives} objectives focused on innovation or disruption`,
+    `${differentiatingActions} actions creating unique market positioning`,
+  ];
+  
+  return {
+    score: advantageScore,
+    factors,
   };
 }
 
 /**
- * Estimate time to results for a strategy
+ * Estimate timeframe to results and key milestones
  */
 export function estimateTimeToResults(
-  strategy: GeneratedStrategy, 
+  strategy: GeneratedStrategy,
   riskProfile: RiskProfile
-): { 
-  timeframe: string; 
+): {
+  timeframe: string;
   confidenceLevel: 'Low' | 'Medium' | 'High';
   milestones: { description: string; timeframe: string }[];
 } {
-  // Determine time to results based on strategy and risk
-  const longTermActions = strategy.keyActions.filter(a => a.timeframe === 'Long-term').length;
-  const mediumTermActions = strategy.keyActions.filter(a => a.timeframe === 'Medium-term').length;
-  const shortTermActions = strategy.keyActions.filter(a => a.timeframe === 'Short-term').length;
+  // Analyze action timeframes
+  const shortTermActions = strategy.keyActions.filter(a => a.timeframe === 'Short-term');
+  const mediumTermActions = strategy.keyActions.filter(a => a.timeframe === 'Medium-term');
+  const longTermActions = strategy.keyActions.filter(a => a.timeframe === 'Long-term');
   
+  // Determine overall timeframe
   let timeframe: string;
   let confidenceLevel: 'Low' | 'Medium' | 'High';
-  const milestones: { description: string; timeframe: string }[] = [];
   
-  // More high-risk strategies often take longer for full results
-  if (riskProfile.level === 'High') {
-    timeframe = longTermActions > 0 ? '12-24 months' : '9-18 months';
+  if (longTermActions.length > (shortTermActions.length + mediumTermActions.length)) {
+    timeframe = '12-24 months';
     confidenceLevel = 'Low';
-    
-    if (shortTermActions > 0) {
-      milestones.push({ 
-        description: 'Initial traction indicators', 
-        timeframe: '2-3 months' 
-      });
-    }
-    
-    milestones.push({ 
-      description: 'Early adopter engagement', 
-      timeframe: '4-6 months' 
-    });
-    
-    milestones.push({ 
-      description: 'Preliminary market validation', 
-      timeframe: '6-12 months' 
-    });
-    
-    if (longTermActions > 0) {
-      milestones.push({ 
-        description: 'Full market impact', 
-        timeframe: '18-24 months' 
-      });
-    }
-  } else if (riskProfile.level === 'Medium') {
-    timeframe = mediumTermActions > longTermActions ? '6-12 months' : '9-15 months';
+  } else if (mediumTermActions.length > shortTermActions.length) {
+    timeframe = '6-12 months';
     confidenceLevel = 'Medium';
-    
-    if (shortTermActions > 0) {
-      milestones.push({ 
-        description: 'Initial implementation results', 
-        timeframe: '1-2 months' 
-      });
-    }
-    
-    milestones.push({ 
-      description: 'Measurable performance improvements', 
-      timeframe: '3-6 months' 
-    });
-    
-    if (longTermActions > 0 || mediumTermActions > 0) {
-      milestones.push({ 
-        description: 'Strategic initiative outcomes', 
-        timeframe: '9-12 months' 
-      });
-    }
   } else {
-    timeframe = '3-9 months';
+    timeframe = '3-6 months';
     confidenceLevel = 'High';
-    
-    milestones.push({ 
-      description: 'Process optimizations implemented', 
-      timeframe: '1-2 months' 
-    });
-    
-    milestones.push({ 
-      description: 'Efficiency gains realized', 
-      timeframe: '3-5 months' 
-    });
-    
-    milestones.push({ 
-      description: 'Full implementation complete', 
-      timeframe: '6-9 months' 
-    });
   }
   
-  return { timeframe, confidenceLevel, milestones };
+  // Adjust based on risk profile
+  if (riskProfile.level === 'High') {
+    confidenceLevel = confidenceLevel === 'High' ? 'Medium' : 'Low';
+  } else if (riskProfile.level === 'Low') {
+    confidenceLevel = confidenceLevel === 'Low' ? 'Medium' : 'High';
+  }
+  
+  // Generate key milestones
+  const milestones = [
+    {
+      description: 'Initial implementation of short-term actions',
+      timeframe: '1-2 months'
+    },
+    {
+      description: 'First measurable results from short-term initiatives',
+      timeframe: '3-4 months'
+    },
+    {
+      description: 'Mid-term review and strategy adjustment',
+      timeframe: '6 months'
+    },
+    {
+      description: 'Long-term initiatives showing preliminary results',
+      timeframe: '9-12 months'
+    },
+    {
+      description: 'Full strategy impact assessment',
+      timeframe: '12-18 months'
+    }
+  ];
+  
+  return {
+    timeframe,
+    confidenceLevel,
+    milestones,
+  };
+}
+
+// Helper function to generate strengths based on objectives
+function generateStrengthsBasedOnObjectives(objectives: StrategyObjective[]): string[] {
+  const strengths: string[] = [];
+  
+  if (objectives.some(o => o.description.toLowerCase().includes('grow') || o.description.toLowerCase().includes('expan'))) {
+    strengths.push('Strong focus on growth and expansion');
+  }
+  
+  if (objectives.some(o => o.description.toLowerCase().includes('efficien') || o.description.toLowerCase().includes('cost'))) {
+    strengths.push('Emphasis on operational efficiency');
+  }
+  
+  if (objectives.some(o => o.description.toLowerCase().includes('innovat') || o.description.toLowerCase().includes('new product'))) {
+    strengths.push('Prioritizes innovation and product development');
+  }
+  
+  if (objectives.some(o => o.description.toLowerCase().includes('customer') || o.description.toLowerCase().includes('client'))) {
+    strengths.push('Customer-centric approach');
+  }
+  
+  return strengths;
+}
+
+// Helper function to generate weaknesses based on actions
+function generateWeaknessesBasedOnActions(actions: KeyAction[]): string[] {
+  const weaknesses: string[] = [];
+  
+  if (actions.filter(a => a.impact === 'High').length > 3) {
+    weaknesses.push('May be overly ambitious with too many high-impact initiatives');
+  }
+  
+  if (actions.filter(a => a.timeframe === 'Long-term').length > actions.filter(a => a.timeframe !== 'Long-term').length) {
+    weaknesses.push('Heavy reliance on long-term initiatives may delay tangible results');
+  }
+  
+  if (!actions.some(a => a.description.toLowerCase().includes('technology') || a.description.toLowerCase().includes('digital'))) {
+    weaknesses.push('May lack sufficient focus on technological advancements');
+  }
+  
+  return weaknesses;
 }
