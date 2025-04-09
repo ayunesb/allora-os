@@ -13,6 +13,8 @@ interface ApiKeys {
 interface SecuritySettings {
   twoFactorEnabled: boolean;
   extendedSessionTimeout: boolean;
+  strictContentSecurity: boolean;
+  enhancedApiProtection: boolean;
 }
 
 interface AdminSettingsContextProps {
@@ -37,7 +39,9 @@ const AdminSettingsProvider: React.FC<AdminSettingsProviderProps> = ({ children 
   });
   const [securitySettings, setSecuritySettings] = useState<SecuritySettings>({
     twoFactorEnabled: false,
-    extendedSessionTimeout: false
+    extendedSessionTimeout: false,
+    strictContentSecurity: false,
+    enhancedApiProtection: false
   });
 
   // Fetch the settings data
@@ -122,13 +126,20 @@ const AdminSettingsProvider: React.FC<AdminSettingsProviderProps> = ({ children 
         
         if (response.ok) {
           const securityData = await response.json();
-          setSecuritySettings(securityData);
+          setSecuritySettings({
+            twoFactorEnabled: securityData.twoFactorEnabled || false,
+            extendedSessionTimeout: securityData.extendedSessionTimeout || false,
+            strictContentSecurity: securityData.strictContentSecurity || false,
+            enhancedApiProtection: securityData.enhancedApiProtection || false
+          });
         } else {
           console.error("Error fetching security settings from API");
           // Fallback to default settings
           setSecuritySettings({
             twoFactorEnabled: false,
-            extendedSessionTimeout: false
+            extendedSessionTimeout: false,
+            strictContentSecurity: false,
+            enhancedApiProtection: false
           });
         }
       } catch (error) {
