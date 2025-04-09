@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { saveOnboardingInfo } from "@/utils/onboardingHelper";
+import { saveOnboardingInfo } from "@/utils/onboarding";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { PartialCompanyDetails } from "@/models/companyDetails";

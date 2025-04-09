@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -7,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
-import { checkOnboardingStatus } from "@/utils/onboardingHelper";
+import { checkOnboardingStatus } from "@/utils/onboarding";
 
 export default function DashboardLayout() {
   const { user, isLoading, profile, refreshSession } = useAuth();
