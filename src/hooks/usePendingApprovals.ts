@@ -13,14 +13,14 @@ export function usePendingApprovals() {
         setIsLoading(true);
         
         // Get pending approvals count from user actions table
-        const { data: pendingData, error: pendingError } = await supabase
+        const { count, error } = await supabase
           .from('user_actions')
-          .select('id', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .eq('category', 'approval')
           .eq('metadata->status', 'pending');
           
-        if (pendingError) throw pendingError;
-        setPendingApprovals(pendingData?.length || 0);
+        if (error) throw error;
+        setPendingApprovals(count || 0);
       } catch (error: any) {
         console.error("Error fetching pending approvals:", error);
         toast.error("Failed to load pending approvals");

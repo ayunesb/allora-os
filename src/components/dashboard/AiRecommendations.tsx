@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp } from "lucide-react";
-import { toast } from "sonner";
 
 interface Recommendation {
   title: string;

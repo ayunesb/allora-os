@@ -5,6 +5,7 @@ import { useCompanyDetails } from "./useCompanyDetails";
 import { usePendingApprovals } from "./usePendingApprovals";
 import { useAnalyticsData } from "./useAnalyticsData";
 import { useAiRecommendations, RecommendationType } from "./useAiRecommendations";
+import { useRecommendationApproval } from "./useRecommendationApproval";
 
 export function useDashboardData() {
   const { profile } = useAuth();
@@ -19,8 +20,11 @@ export function useDashboardData() {
   const { 
     aiRecommendations, 
     generateAiRecommendations,
-    handleApproveRecommendation 
+    removeRecommendation
   } = useAiRecommendations(companyDetails, analyticsData, profile, riskAppetite);
+  
+  // Get recommendation approval functionality
+  const { handleApproveRecommendation } = useRecommendationApproval();
   
   // Generate recommendations when we have the data
   useEffect(() => {
@@ -32,11 +36,24 @@ export function useDashboardData() {
   // Overall loading state
   const isLoading = isCompanyLoading || isApprovalsLoading || isAnalyticsLoading;
 
+  // Handle approving a recommendation
+  const handleApprove = async (index: number) => {
+    if (index >= 0 && index < aiRecommendations.length) {
+      const recommendation = aiRecommendations[index];
+      const result = await handleApproveRecommendation(recommendation, index, riskAppetite);
+      
+      if (result >= 0) {
+        // If successful, remove the recommendation from the list
+        removeRecommendation(index);
+      }
+    }
+  };
+
   return {
     isLoading,
     pendingApprovals,
     aiRecommendations,
     riskAppetite,
-    handleApproveRecommendation
+    handleApproveRecommendation: handleApprove
   };
 }
