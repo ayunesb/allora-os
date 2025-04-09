@@ -1,6 +1,17 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { TestCompany, TestCompanyResponse } from './index';
+import { TestCompany } from './index';
+
+/**
+ * Response type with no recursion to avoid type instantiation errors
+ */
+interface SimplifiedResponse {
+  success: boolean;
+  data: TestCompany | null;
+  message: string;
+  error?: string;
+  errorCode?: string;
+}
 
 /**
  * Fetches a test company from the database using explicit column selection
@@ -17,7 +28,7 @@ import { TestCompany, TestCompanyResponse } from './index';
  * 
  * @returns Promise resolving to a standardized response with test company data
  */
-export async function getTestCompany(): Promise<TestCompanyResponse> {
+export async function getTestCompany(): Promise<SimplifiedResponse> {
   try {
     // Use a simpler query approach with explicit column selection
     const { data, error } = await supabase
