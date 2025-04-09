@@ -16,19 +16,19 @@ interface TestCompany {
 export async function getTestCompany(): Promise<TestCompany | null> {
   try {
     // Use a simpler query approach with explicit cast to avoid type inference issues
-    const result = await supabase
+    const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')
       .eq('is_test', true)
       .limit(1)
       .single();
       
-    if (result.error) {
-      console.error('Error fetching test company:', result.error);
+    if (error) {
+      console.error('Error fetching test company:', error);
       return null;
     }
 
-    return result.data as TestCompany;
+    return data as TestCompany;
   } catch (error) {
     console.error('Unexpected error in getTestCompany:', error);
     return null;
