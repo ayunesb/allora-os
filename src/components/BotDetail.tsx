@@ -1,136 +1,30 @@
 
-import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import React from "react";
+import { useParams, Link } from "react-router-dom";
 import { 
   Card, 
   CardContent, 
   CardHeader, 
   CardTitle,
-  CardDescription,
   CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  ArrowLeft, 
-  Send, 
-  Bot, 
-  User, 
-  Clock,
-  Briefcase,
-  GraduationCap,
-  Loader2,
-  Settings
-} from "lucide-react";
-import { format } from "date-fns";
-import { Link } from "react-router-dom";
-import { 
-  ConsultationMessage,
-  getBotByNameAndRole,
-  generateBotResponse,
-  saveConsultationMessage,
-  startNewConsultation
-} from "@/utils/consultation";
+import { ArrowLeft } from "lucide-react";
 import UserPreferencesDialog from "@/components/UserPreferencesDialog";
-import { useUserPreferences } from "@/hooks/useUserPreferences";
+import BotInfo from "./bot-detail/BotInfo";
+import MessageList from "./bot-detail/MessageList";
+import MessageInput from "./bot-detail/MessageInput";
+import NotFoundCard from "./bot-detail/NotFoundCard";
+import { useBotConsultation } from "./bot-detail/useBotConsultation";
 
 export default function BotDetail() {
   const { botName, role } = useParams<{ botName: string; role: string }>();
-  const [messages, setMessages] = useState<ConsultationMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [consultationId, setConsultationId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { preferences } = useUserPreferences();
-  
-  const bot = botName && role ? getBotByNameAndRole(botName, role) : null;
-
-  useEffect(() => {
-    async function initConsultation() {
-      if (botName && role) {
-        const newConsultationId = await startNewConsultation(botName, role);
-        setConsultationId(newConsultationId);
-      }
-    }
-    
-    initConsultation();
-  }, [botName, role]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  async function handleSendMessage() {
-    if (!inputMessage.trim() || !consultationId || !botName || !role) return;
-    
-    setIsLoading(true);
-    
-    const userMessage: ConsultationMessage = {
-      type: "user",
-      content: inputMessage,
-      timestamp: new Date().toISOString()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage("");
-    
-    await saveConsultationMessage(consultationId, {
-      type: "user",
-      content: inputMessage
-    });
-    
-    try {
-      // Pass user preferences to the response generator
-      const responseContent = await generateBotResponse(
-        botName, 
-        role, 
-        inputMessage, 
-        messages,
-        undefined, // No debate context
-        preferences // Pass user preferences
-      );
-      
-      const botMessage: ConsultationMessage = {
-        type: "bot",
-        content: responseContent,
-        timestamp: new Date().toISOString()
-      };
-      
-      setMessages(prev => [...prev, botMessage]);
-      
-      await saveConsultationMessage(consultationId, {
-        type: "bot",
-        content: responseContent
-      });
-    } catch (error) {
-      console.error("Error generating response:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+  const { bot, messages, isLoading, handleSendMessage } = useBotConsultation(botName, role);
 
   if (!bot) {
     return (
       <Card className="max-w-4xl mx-auto">
-        <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
-          <h2 className="text-xl font-semibold mb-2">Advisor not found</h2>
-          <p className="text-muted-foreground mb-4">
-            We couldn't find the executive advisor you're looking for.
-          </p>
-          <Link to="/dashboard/ai-bots">
-            <Button variant="outline" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Advisors</span>
-            </Button>
-          </Link>
-        </CardContent>
+        <NotFoundCard />
       </Card>
     );
   }
@@ -149,22 +43,7 @@ export default function BotDetail() {
       
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Bot className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <CardTitle>{bot.name}</CardTitle>
-              <CardDescription className="flex items-center gap-1 mt-1">
-                <Briefcase className="h-3.5 w-3.5" />
-                <span>{bot.title}</span>
-              </CardDescription>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                <GraduationCap className="h-3.5 w-3.5" />
-                <span>{bot.expertise}</span>
-              </div>
-            </div>
-          </div>
+          <BotInfo bot={bot} />
         </CardHeader>
       </Card>
       
@@ -174,68 +53,15 @@ export default function BotDetail() {
         </CardHeader>
         
         <CardContent className="overflow-y-auto flex-grow pb-0">
-          <div className="space-y-4">
-            {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-center">
-                <Bot className="h-8 w-8 text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">
-                  Start your consultation with {bot.name}
-                </p>
-              </div>
-            ) : (
-              messages.map((message, index) => (
-                <div key={index} className={`flex gap-3 ${message.type === 'bot' ? 'items-start' : 'items-start justify-end'}`}>
-                  {message.type === 'bot' && (
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Bot className="h-4 w-4 text-primary" />
-                    </div>
-                  )}
-                  
-                  <div className={`flex flex-col space-y-1 max-w-[75%] ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-4 py-2 rounded-lg ${message.type === 'bot' ? 'bg-muted' : 'bg-primary text-primary-foreground'}`}>
-                      <p className="text-sm">{message.content}</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>{format(new Date(message.timestamp), "h:mm a")}</span>
-                    </div>
-                  </div>
-                  
-                  {message.type === 'user' && (
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <User className="h-4 w-4 text-primary" />
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+          <MessageList messages={messages} />
         </CardContent>
         
         <CardFooter className="pt-4 pb-4 border-t">
-          <div className="flex items-center gap-2 w-full">
-            <Textarea
-              placeholder={`Ask ${bot.name} anything...`}
-              className="min-h-[60px] flex-grow"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isLoading}
-            />
-            <Button 
-              onClick={handleSendMessage} 
-              size="icon" 
-              className="h-[60px] w-[60px] flex-shrink-0"
-              disabled={!inputMessage.trim() || isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <Send className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
+          <MessageInput 
+            botName={bot.name}
+            isLoading={isLoading}
+            onSendMessage={handleSendMessage}
+          />
         </CardFooter>
       </Card>
     </div>
