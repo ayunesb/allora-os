@@ -40,21 +40,26 @@ const APIKeysTab = ({ companyId, initialApiKeys, isLoading }: APIKeysTabProps) =
         .eq('id', companyId)
         .single();
       
-      // Prepare the updated details object, preserving existing data
-      // Fix: Ensure currentCompany.details is properly handled and explicitly type cast
-      let currentDetails: Record<string, any> = {}; // Explicitly type as a Record to allow spreading
+      // Create an empty object as default
+      const currentDetails: Record<string, any> = {};
       
+      // Only process if currentCompany and details exist
       if (currentCompany && currentCompany.details) {
         // Handle case when details might be a string
         if (typeof currentCompany.details === 'string') {
           try {
-            currentDetails = JSON.parse(currentCompany.details);
+            // Parse JSON string to object
+            const parsedDetails = JSON.parse(currentCompany.details);
+            // Copy properties to currentDetails
+            Object.assign(currentDetails, parsedDetails);
           } catch (e) {
             console.error("Error parsing details JSON:", e);
           }
-        } else if (typeof currentCompany.details === 'object' && currentCompany.details !== null) {
-          // Make sure it's a non-null object before assignment
-          currentDetails = currentCompany.details as Record<string, any>;
+        } 
+        // Handle case when details is an object
+        else if (typeof currentCompany.details === 'object' && currentCompany.details !== null) {
+          // Copy properties to currentDetails
+          Object.assign(currentDetails, currentCompany.details);
         }
       }
       
