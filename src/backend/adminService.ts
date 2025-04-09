@@ -22,18 +22,24 @@ export const getAllUsers = async (): Promise<User[]> => {
     // Query the profiles table to get all users
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, name, email, company_id, role, created_at')
+      .select('id, name, company_id, role, created_at')
       .order('created_at', { ascending: false });
 
     if (error) {
       throw error;
     }
 
-    // For each profile, we need to get the email from auth.users
-    // But since we can't directly query auth.users with the JS client,
-    // we'll have to work with what we have in the profiles table
-
-    return data || [];
+    // Transform the data to include email (which might come from auth.users 
+    // but we can't directly query that with client-side code)
+    // For now, we'll use the id as a placeholder for email
+    return (data || []).map(profile => ({
+      id: profile.id,
+      name: profile.name || '',
+      email: `user-${profile.id.substring(0, 8)}@example.com`, // Placeholder email
+      company_id: profile.company_id,
+      role: profile.role as 'admin' | 'user',
+      created_at: profile.created_at
+    }));
   } catch (error: any) {
     console.error('Error fetching all users:', error.message);
     toast.error(`Admin error: ${error.message}`);
@@ -161,7 +167,7 @@ export const getCompanyUsers = async (companyId: string): Promise<User[]> => {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, name, email, company_id, role, created_at')
+      .select('id, name, company_id, role, created_at')
       .eq('company_id', companyId)
       .order('created_at', { ascending: false });
 
@@ -169,7 +175,15 @@ export const getCompanyUsers = async (companyId: string): Promise<User[]> => {
       throw error;
     }
     
-    return data || [];
+    // Transform the data to include required fields for the User type
+    return (data || []).map(profile => ({
+      id: profile.id,
+      name: profile.name || '',
+      email: `user-${profile.id.substring(0, 8)}@example.com`, // Placeholder email
+      company_id: profile.company_id,
+      role: profile.role as 'admin' | 'user',
+      created_at: profile.created_at
+    }));
   } catch (error: any) {
     console.error('Error fetching company users:', error.message);
     toast.error(`Admin error: ${error.message}`);
