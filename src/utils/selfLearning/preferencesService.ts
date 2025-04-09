@@ -24,8 +24,12 @@ export const getUserPreferences = async (userId: string): Promise<UserPreference
 
     return {
       risk_appetite: data.risk_appetite || 'medium',
-      preferred_executives: Array.isArray(data.preferred_executives) ? data.preferred_executives : [],
-      favorite_topics: Array.isArray(data.favorite_topics) ? data.favorite_topics : [],
+      preferred_executives: Array.isArray(data.preferred_executives) 
+        ? data.preferred_executives.map(item => String(item)) 
+        : [],
+      favorite_topics: Array.isArray(data.favorite_topics) 
+        ? data.favorite_topics.map(item => String(item)) 
+        : [],
       communication_style: data.communication_style || 'balanced',
       activity_peak_times: Array.isArray(data.activity_peak_times) 
         ? data.activity_peak_times.map(time => Number(time)) 
