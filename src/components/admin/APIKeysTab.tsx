@@ -41,8 +41,22 @@ const APIKeysTab = ({ companyId, initialApiKeys, isLoading }: APIKeysTabProps) =
         .single();
       
       // Prepare the updated details object, preserving existing data
-      // Fix: Ensure currentCompany.details is handled properly whether it's null, undefined or an object
-      const currentDetails = currentCompany?.details || {};
+      // Fix: Ensure currentCompany.details is properly handled and explicitly type cast
+      let currentDetails = {};
+      if (currentCompany && currentCompany.details) {
+        // Handle case when details might be a string
+        if (typeof currentCompany.details === 'string') {
+          try {
+            currentDetails = JSON.parse(currentCompany.details);
+          } catch (e) {
+            console.error("Error parsing details JSON:", e);
+            currentDetails = {};
+          }
+        } else if (typeof currentCompany.details === 'object') {
+          currentDetails = currentCompany.details;
+        }
+      }
+      
       const updatedDetails = {
         ...currentDetails,
         api_keys: {
