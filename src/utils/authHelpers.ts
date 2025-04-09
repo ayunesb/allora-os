@@ -1,3 +1,4 @@
+
 import { supabase } from '@/backend/supabase';
 
 export async function resetPassword(email: string): Promise<{ success: boolean; error?: string }> {
@@ -78,7 +79,7 @@ export async function resendVerificationEmail(email: string): Promise<{ success:
       type: 'signup',
       email,
       options: {
-        emailRedirectTo: redirectTo  // Changed from redirectTo to emailRedirectTo
+        emailRedirectTo: redirectTo
       }
     });
 
