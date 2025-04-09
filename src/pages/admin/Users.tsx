@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { inviteUserToCompany } from '@/utils/userManagementHelpers';
+import { toast } from 'sonner';
+import { supabase } from '@/backend/supabase';
 
 export default function AdminUsers() {
   const { users, loadUsers, isLoading, updateUser, deleteUser } = useAdminFunctions();
@@ -20,21 +22,53 @@ export default function AdminUsers() {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'admin' | 'user'>('user');
   const [company, setCompany] = useState('');
+  const [companies, setCompanies] = useState<{id: string, name: string}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
 
   useEffect(() => {
     // Load users when component mounts
     loadUsers();
+    fetchCompanies();
   }, [loadUsers]);
 
+  const fetchCompanies = async () => {
+    setLoadingCompanies(true);
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, name')
+        .order('name');
+      
+      if (error) throw error;
+      
+      setCompanies(data || []);
+      // Set default company if available
+      if (data && data.length > 0) {
+        setCompany(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      toast.error('Failed to load companies');
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
+
   const handleInviteUser = async () => {
-    if (!email) return;
+    if (!email) {
+      toast.error('Email is required');
+      return;
+    }
+    
+    if (!company) {
+      toast.error('Please select a company');
+      return;
+    }
     
     setIsSubmitting(true);
     try {
-      // In a real implementation, we would have a company selection
-      // For now, we'll use a placeholder company ID
-      const success = await inviteUserToCompany(email, company || 'default-company-id', role);
+      const success = await inviteUserToCompany(email, company, role);
       if (success) {
         setOpen(false);
         setEmail('');
@@ -81,6 +115,26 @@ export default function AdminUsers() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="company">Company</Label>
+                <Select 
+                  value={company} 
+                  onValueChange={setCompany}
+                  disabled={loadingCompanies}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingCompanies ? "Loading companies..." : "Select company"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                    ))}
+                    {companies.length === 0 && !loadingCompanies && (
+                      <SelectItem value="no-companies" disabled>No companies available</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="role">User Role</Label>
                 <Select 
                   value={role} 
@@ -100,7 +154,7 @@ export default function AdminUsers() {
               <Button 
                 type="submit" 
                 onClick={handleInviteUser} 
-                disabled={isSubmitting || !email}
+                disabled={isSubmitting || !email || !company}
               >
                 {isSubmitting ? (
                   <>
