@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -47,7 +46,19 @@ export default function AdminLeads() {
         
       if (error) throw error;
       
-      setLeads(data || []);
+      // Type-cast the data to our Lead model
+      const typedLeads: Lead[] = (data || []).map(lead => ({
+        id: lead.id,
+        campaign_id: lead.campaign_id,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        status: lead.status as Lead['status'] || 'new',
+        created_at: lead.created_at,
+        campaigns: lead.campaigns
+      }));
+      
+      setLeads(typedLeads);
     } catch (error: any) {
       console.error('Error loading leads:', error);
       toast.error('Failed to load leads: ' + error.message);
@@ -105,8 +116,27 @@ export default function AdminLeads() {
         
       if (error) throw error;
       
+      // Get the campaign name for the new lead
+      const { data: campaignData } = await supabase
+        .from('campaigns')
+        .select('name')
+        .eq('id', newLead.campaign_id)
+        .single();
+      
+      // Create a typed lead object
+      const newTypedLead: Lead = {
+        id: data.id,
+        campaign_id: data.campaign_id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        status: data.status as Lead['status'],
+        created_at: data.created_at,
+        campaigns: campaignData
+      };
+      
       toast.success('Lead created successfully');
-      setLeads([data, ...leads]);
+      setLeads([newTypedLead, ...leads]);
       setOpenAddDialog(false);
       setNewLead({
         name: '',
@@ -123,7 +153,6 @@ export default function AdminLeads() {
     }
   };
 
-  // Helper function to get the appropriate badge style for different statuses
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'new':

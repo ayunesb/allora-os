@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { User } from '@/models/user';
 import { Company } from '@/models/company';
@@ -18,14 +19,23 @@ export default function useAdminFunctions() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, email, company_id, role, created_at')
+        .select('id, name, company_id, role, created_at')
         .order('created_at', { ascending: false });
 
       if (error) {
         throw error;
       }
 
-      setUsers(data || []);
+      // Map the profiles data to match our User type structure
+      const mappedUsers: User[] = (data || []).map(profile => ({
+        id: profile.id,
+        name: profile.name || '',
+        company_id: profile.company_id,
+        role: (profile.role as 'admin' | 'user') || 'user',
+        created_at: profile.created_at
+      }));
+
+      setUsers(mappedUsers);
     } catch (error: any) {
       console.error('Error loading users:', error);
       toast.error(`Failed to load users: ${error.message}`);
@@ -62,7 +72,7 @@ export default function useAdminFunctions() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, email, company_id, role, created_at')
+        .select('id, name, company_id, role, created_at')
         .eq('company_id', companyId)
         .order('created_at', { ascending: false });
 
@@ -70,7 +80,16 @@ export default function useAdminFunctions() {
         throw error;
       }
       
-      setCompanyUsers(data || []);
+      // Map the profiles data to match our User type structure
+      const mappedUsers: User[] = (data || []).map(profile => ({
+        id: profile.id,
+        name: profile.name || '',
+        company_id: profile.company_id,
+        role: (profile.role as 'admin' | 'user') || 'user',
+        created_at: profile.created_at
+      }));
+      
+      setCompanyUsers(mappedUsers);
       setSelectedCompany(companyId);
     } catch (error: any) {
       console.error('Error loading company users:', error);

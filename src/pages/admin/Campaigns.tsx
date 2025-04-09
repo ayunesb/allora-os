@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -45,7 +44,18 @@ export default function AdminCampaigns() {
         
       if (error) throw error;
       
-      setCampaigns(data || []);
+      // Type-cast the data to our Campaign model
+      const typedCampaigns: Campaign[] = (data || []).map(campaign => ({
+        id: campaign.id,
+        company_id: campaign.company_id,
+        name: campaign.name,
+        platform: campaign.platform || '',
+        budget: campaign.budget || 0,
+        created_at: campaign.created_at,
+        companies: campaign.companies
+      }));
+      
+      setCampaigns(typedCampaigns);
     } catch (error: any) {
       console.error('Error loading campaigns:', error);
       toast.error('Failed to load campaigns: ' + error.message);
@@ -99,13 +109,19 @@ export default function AdminCampaigns() {
         .eq('id', newCampaign.company_id)
         .single();
       
-      const campaignWithCompany = {
-        ...data,
+      // Create a typed campaign object
+      const newTypedCampaign: Campaign = {
+        id: data.id,
+        company_id: data.company_id,
+        name: data.name,
+        platform: data.platform || '',
+        budget: data.budget || 0,
+        created_at: data.created_at,
         companies: companyData
       };
       
       toast.success('Campaign created successfully');
-      setCampaigns([campaignWithCompany, ...campaigns]);
+      setCampaigns([newTypedCampaign, ...campaigns]);
       setOpenAddDialog(false);
       setNewCampaign({
         name: '',
