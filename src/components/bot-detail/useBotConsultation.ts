@@ -56,9 +56,9 @@ export function useBotConsultation(botName?: string, role?: string) {
       // In a real application, we would make an API call here
       // For now, we'll just return a mock response
       const mockResponses = [
-        `Thank you for your message. Based on my analysis and ${preferences.technicalLevel === 'high' ? 'in-depth technical assessment' : 'business expertise'}, I would recommend exploring this further.`,
-        `I've considered your question carefully. ${preferences.responseStyle === 'formal' ? 'My professional assessment indicates' : 'I think'} we should approach this systematically.`,
-        `That's an interesting point. ${preferences.includeSourceCitations ? 'According to recent industry reports (Harvard Business Review, 2024),' : ''} this strategy could yield significant results for your business.`,
+        `Thank you for your message. Based on my analysis and ${preferences.technicalLevel === 'advanced' ? 'in-depth technical assessment' : 'business expertise'}, I would recommend exploring this further.`,
+        `I've considered your question carefully. ${preferences.responseStyle === 'detailed' ? 'My professional assessment indicates' : 'I think'} we should approach this systematically.`,
+        `That's an interesting point. ${preferences.showSources ? 'According to recent industry reports (Harvard Business Review, 2024),' : ''} this strategy could yield significant results for your business.`,
       ];
       
       // Select a random response
