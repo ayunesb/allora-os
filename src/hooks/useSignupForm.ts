@@ -103,9 +103,9 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       toast.success("Account created successfully!");
       
       // Check if email confirmation is required
-      const { session } = await getSession();
+      const sessionResult = await getSession();
       
-      if (!session) {
+      if (!sessionResult.data.session) {
         onSubmitSuccess();
       } else {
         // Always redirect to onboarding after successful signup, not directly to dashboard

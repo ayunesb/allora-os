@@ -75,12 +75,16 @@ export default function AdminCampaigns() {
             .from('leads')
             .select('id', { count: 'exact' })
             .eq('campaign_id', campaign.id);
+          
+          // Safely access the name property from the companies object
+          const companyName = campaign.companies && typeof campaign.companies === 'object' ? 
+            (campaign.companies as { name?: string }).name || 'Unknown' : 'Unknown';
             
           return {
             id: campaign.id,
             name: campaign.name,
             company_id: campaign.company_id,
-            company_name: campaign.companies?.name || 'Unknown',
+            company_name: companyName,
             status_display: 'active' as const, // Default status for UI display only
             leads_count: count || 0,
             created_at: campaign.created_at
