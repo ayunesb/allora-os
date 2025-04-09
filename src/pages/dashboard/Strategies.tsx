@@ -39,13 +39,13 @@ export default function Strategies() {
         id: editingStrategyId, 
         title: data.title, 
         description: data.description, 
-        riskLevel: data.riskLevel as 'Low' | 'Medium' | 'High' 
+        riskLevel: data.riskLevel 
       });
     } else {
       createStrategy({
         title: data.title,
         description: data.description,
-        riskLevel: data.riskLevel as 'Low' | 'Medium' | 'High'
+        riskLevel: data.riskLevel
       });
     }
     
@@ -86,7 +86,7 @@ export default function Strategies() {
     return {
       title: "",
       description: "",
-      riskLevel: "Medium",
+      riskLevel: "Medium" as const,
     };
   }, [editingStrategyId, strategies]);
 

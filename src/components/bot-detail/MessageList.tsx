@@ -111,6 +111,16 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
     return null;
   }
 
+  // Helper function to find the last index that matches a condition
+  const findLastIndex = <T,>(array: T[], predicate: (value: T, index: number, obj: T[]) => boolean): number => {
+    for (let i = array.length - 1; i >= 0; i--) {
+      if (predicate(array[i], i, array)) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
   return (
     <div 
       className="space-y-4 pb-4" 
@@ -121,12 +131,12 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
       {messages.map((message, index) => {
         const isLatestUserMessage = 
           message.sender === "user" && 
-          index === messages.findLastIndex(m => m.sender === "user");
+          index === findLastIndex(messages, m => m.sender === "user");
         
         const isLatestBotMessage = 
           message.sender === "bot" && 
           !message.isTyping && 
-          index === messages.findLastIndex(m => m.sender === "bot" && !m.isTyping);
+          index === findLastIndex(messages, m => m.sender === "bot" && !m.isTyping);
 
         return (
           <MessageItem 
