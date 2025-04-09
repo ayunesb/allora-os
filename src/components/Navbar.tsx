@@ -20,7 +20,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Home, LayoutDashboard, Settings, HelpCircle, LogOut, BarChart3, Sun, Moon } from "lucide-react";
+import {
+  Menu, 
+  Home, 
+  LayoutDashboard, 
+  Settings, 
+  HelpCircle, 
+  LogOut, 
+  BarChart3, 
+  Sun, 
+  Moon,
+  Shield
+} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -93,6 +104,11 @@ export function Navbar({ isLoggedIn = true }) {
       href: "/dashboard/analytics",
       icon: BarChart3,
     },
+    {
+      name: "Compliance",
+      href: "/compliance",
+      icon: Shield,
+    }
   ];
 
   return (
@@ -188,7 +204,7 @@ export function Navbar({ isLoggedIn = true }) {
               to={item.href}
               className={cn(
                 "flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground",
-                location.pathname === item.href
+                location.pathname === item.href || location.pathname.startsWith(`${item.href}/`)
                   ? "bg-secondary text-foreground"
                   : "text-muted-foreground"
               )}
