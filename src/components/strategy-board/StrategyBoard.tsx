@@ -31,7 +31,9 @@ export default function StrategyBoard() {
   
   // Handle retry on error
   const handleRetry = useCallback(() => {
-    refetch?.();
+    if (refetch) {
+      refetch();
+    }
   }, [refetch]);
   
   // Filter and sort strategies
