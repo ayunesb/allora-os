@@ -13,21 +13,25 @@ import { Company } from '@/models/company';
  */
 export async function getTestCompany(): Promise<Partial<Company> | null> {
   try {
-    // Using explicit column selection and explicit type assertion to avoid deep type issues
+    // Using explicit column selection to avoid deep type issues
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')
       .eq('is_test', true)
-      .limit(1)
-      .single();
+      .limit(1);
 
     if (error) {
       console.error('Error fetching test company:', error);
       return null;
     }
 
-    // Use explicit type assertion without deep inference
-    return data as Partial<Company> | null;
+    // Check if we have any data
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    // Use just the first item and explicit type assertion
+    return data[0] as Partial<Company>;
   } catch (error) {
     console.error('Unexpected error in getTestCompany:', error);
     return null;
