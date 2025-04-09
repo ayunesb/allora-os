@@ -75,7 +75,7 @@ export async function inviteUserToCompany(
     const result = await sendEmail({
       to: email,
       subject: 'Invitation to join Allora AI',
-      companyName, // Added missing companyName parameter
+      companyName, // Required parameter
       htmlBody: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #4f46e5;">You've Been Invited!</h2>

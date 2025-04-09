@@ -368,6 +368,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_company_integrations: {
+        Args: { p_company_id: string }
+        Returns: {
+          id: string
+          company_id: string
+          integration_ids: Json
+          created_at: string
+        }[]
+      }
       get_recent_user_actions: {
         Args: { p_user_id: string; p_days: number }
         Returns: {
@@ -402,6 +411,10 @@ export type Database = {
           user_id: string
         }
       }
+      insert_company_integrations: {
+        Args: { p_company_id: string; p_integration_ids: Json }
+        Returns: undefined
+      }
       insert_user_action: {
         Args: {
           p_user_id: string
@@ -412,6 +425,10 @@ export type Database = {
           p_metadata: Json
           p_timestamp: string
         }
+        Returns: undefined
+      }
+      update_company_integrations: {
+        Args: { p_company_id: string; p_integration_ids: Json }
         Returns: undefined
       }
       update_user_preferences: {

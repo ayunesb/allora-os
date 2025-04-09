@@ -1,6 +1,7 @@
 
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
+import { createCustomer } from '@/backend/stripe';
 
 /**
  * Creates integration records for a new company in all master service accounts
@@ -20,7 +21,7 @@ export async function setupCompanyIntegrations(
     
     // 1. Create Stripe customer
     const stripeResult = await createStripeCustomer(companyName, email, industry);
-    if (stripeResult.customerId) {
+    if (stripeResult.success && stripeResult.customerId) {
       integrationIds.stripe_customer_id = stripeResult.customerId;
     }
     
@@ -140,7 +141,23 @@ export async function getCompanyIntegrationIds(
       
     if (error) throw error;
     
-    return data?.integration_ids || null;
+    // Ensure we're returning a Record<string, string> or null
+    if (data?.integration_ids) {
+      const typedIntegrationIds: Record<string, string> = {};
+      
+      // Convert the JSONB data to the expected type
+      if (typeof data.integration_ids === 'object') {
+        Object.entries(data.integration_ids).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            typedIntegrationIds[key] = value;
+          }
+        });
+      }
+      
+      return typedIntegrationIds;
+    }
+    
+    return null;
   } catch (error: any) {
     console.error('Failed to get company integration IDs:', error.message);
     return null;
