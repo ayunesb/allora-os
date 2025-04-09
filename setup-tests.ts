@@ -7,7 +7,7 @@ export default function setup(): void {
   // Reset all mocks before each test
   vi.clearAllMocks();
   
-  // Make sure that mock has all the proper extensions
+  // Make sure that mock has proper extensions
   vi.mock = vi.fn();
   
   // Set up any global test environment configuration

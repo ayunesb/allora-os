@@ -1,8 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-// Define a simple company interface to avoid complex type dependencies
-interface Company {
+/**
+ * Simple Company interface with essential properties
+ * Using a standalone interface avoids deep type inference issues
+ */
+interface TestCompany {
   id: string;
   name: string;
   created_at: string;
@@ -13,9 +16,9 @@ interface Company {
  * Fetches a test company from the database
  * @returns Promise resolving to a test company or null
  */
-export async function getTestCompany(): Promise<Company | null> {
+export async function getTestCompany(): Promise<TestCompany | null> {
   try {
-    // Using a simple approach to querying to avoid complex type issues
+    // Using a simplified approach with explicit column selection to avoid excessive type instantiation
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')
@@ -33,7 +36,7 @@ export async function getTestCompany(): Promise<Company | null> {
       return null;
     }
 
-    // Return with explicit typing
+    // Return with explicit typing to avoid inference issues
     return {
       id: data.id,
       name: data.name,
