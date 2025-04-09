@@ -1,6 +1,6 @@
 
-import { useState, useCallback } from "react";
-import { TrendingUp, Plus, Loader2 } from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+import { TrendingUp, Plus, Loader2, SlidersHorizontal, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStrategies } from "@/hooks/useStrategies";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,10 +15,33 @@ import StrategyCard from "@/components/strategies/StrategyCard";
 import StrategyForm, { StrategyFormValues } from "@/components/strategies/StrategyForm";
 import EmptyState from "@/components/strategies/EmptyState";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// Define risk level type to avoid issues
+type RiskLevel = 'Low' | 'Medium' | 'High';
+
+// Define sort options
+type SortOption = 'newest' | 'oldest' | 'alphabetical' | 'risk';
 
 export default function Strategies() {
   const [editingStrategyId, setEditingStrategyId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [riskFilter, setRiskFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   
   const { 
     strategies, 
@@ -70,6 +93,43 @@ export default function Strategies() {
     deleteStrategy(strategyId);
   }, [deleteStrategy]);
 
+  // Filter and sort strategies
+  const filteredAndSortedStrategies = useMemo(() => {
+    // First, filter strategies
+    let filtered = [...strategies];
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(strategy => 
+        strategy.title.toLowerCase().includes(query) ||
+        (strategy.description && strategy.description.toLowerCase().includes(query))
+      );
+    }
+    
+    if (riskFilter !== 'all') {
+      filtered = filtered.filter(strategy => 
+        strategy.risk_level === riskFilter
+      );
+    }
+    
+    // Then, sort strategies
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'alphabetical':
+          return a.title.localeCompare(b.title);
+        case 'risk':
+          const riskOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
+          return riskOrder[a.risk_level as RiskLevel] - riskOrder[b.risk_level as RiskLevel];
+        default:
+          return 0;
+      }
+    });
+  }, [strategies, searchQuery, riskFilter, sortBy]);
+
   // Handle form default values
   const getDefaultValues = useCallback(() => {
     if (editingStrategyId) {
@@ -118,13 +178,33 @@ export default function Strategies() {
       );
     }
     
-    if (strategies.length === 0) {
+    if (filteredAndSortedStrategies.length === 0) {
+      if (searchQuery || riskFilter !== 'all') {
+        // No results based on filter
+        return (
+          <div className="bg-secondary/40 border border-border/50 rounded-lg p-6 text-center mb-10">
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2">No Results Found</h3>
+            <p className="text-gray-300 mb-6">
+              No strategies match your current filters. Try adjusting your search criteria.
+            </p>
+            <Button variant="outline" onClick={() => {
+              setSearchQuery('');
+              setRiskFilter('all');
+            }}>
+              Clear Filters
+            </Button>
+          </div>
+        );
+      }
+      
+      // No strategies at all
       return <EmptyState onCreateNew={handleNewStrategy} />;
     }
     
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        {strategies.map((strategy) => (
+        {filteredAndSortedStrategies.map((strategy) => (
           <StrategyCard 
             key={strategy.id} 
             strategy={strategy} 
@@ -134,7 +214,7 @@ export default function Strategies() {
         ))}
       </div>
     );
-  }, [isLoading, error, strategies, refetch, handleNewStrategy, handleEditStrategy, handleDeleteStrategy]);
+  }, [isLoading, error, refetch, filteredAndSortedStrategies, searchQuery, riskFilter, handleNewStrategy, handleEditStrategy, handleDeleteStrategy]);
 
   const isAnyActionPending = isCreating || isUpdating || isDeleting;
 
@@ -169,9 +249,71 @@ export default function Strategies() {
         </TooltipProvider>
       </div>
       
-      <p className="text-xl text-gray-300 mb-10">
+      <p className="text-xl text-gray-300 mb-6">
         Allora AI automatically builds full business plans customized to your needs
       </p>
+      
+      {/* Filtering and sorting controls */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-grow">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search strategies..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        <div className="flex gap-2">
+          <Select value={riskFilter} onValueChange={setRiskFilter}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Risk Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Risks</SelectItem>
+              <SelectItem value="Low">Low Risk</SelectItem>
+              <SelectItem value="Medium">Medium Risk</SelectItem>
+              <SelectItem value="High">High Risk</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <SlidersHorizontal className="h-4 w-4" />
+                Sort
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem 
+                onClick={() => setSortBy('newest')} 
+                className={sortBy === 'newest' ? "bg-accent" : ""}
+              >
+                Newest First
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setSortBy('oldest')} 
+                className={sortBy === 'oldest' ? "bg-accent" : ""}
+              >
+                Oldest First
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setSortBy('alphabetical')} 
+                className={sortBy === 'alphabetical' ? "bg-accent" : ""}
+              >
+                Alphabetical
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setSortBy('risk')} 
+                className={sortBy === 'risk' ? "bg-accent" : ""}
+              >
+                By Risk Level
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
       
       {renderContent()}
       

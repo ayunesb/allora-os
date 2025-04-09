@@ -1,10 +1,12 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import { Message } from "./useBotConsultation";
-import { Bot, User, AlertCircle } from "lucide-react";
+import { Bot, User, AlertCircle, Copy, Check } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface MessageListProps {
   messages: Message[];
@@ -20,6 +22,16 @@ const TypingIndicator = () => (
 
 const MessageItem = React.memo(({ message, isLatest }: { message: Message; isLatest: boolean }) => {
   const isUser = message.sender === "user";
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopyContent = () => {
+    if (!message.isTyping) {
+      navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      toast.success("Message copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
   
   return (
     <div
@@ -40,24 +52,43 @@ const MessageItem = React.memo(({ message, isLatest }: { message: Message; isLat
           isUser ? "items-end" : "items-start"
         }`}
       >
-        <div
-          className={cn(
-            "px-4 py-2 rounded-lg transition-all duration-300",
-            isUser
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted",
-            isUser && isLatest && "animate-fadeIn",
-            !isUser && isLatest && !message.isTyping && "animate-slideIn"
-          )}
-          role={isUser ? "complementary" : "article"}
-          aria-label={`${isUser ? "You" : "Advisor"} said`}
-        >
-          {message.isTyping ? (
-            <TypingIndicator />
-          ) : (
-            <div className="whitespace-pre-wrap break-words">{message.content}</div>
+        <div className="relative group">
+          <div
+            className={cn(
+              "px-4 py-2 rounded-lg transition-all duration-300",
+              isUser
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted hover:bg-muted/80",
+              isUser && isLatest && "animate-fadeIn",
+              !isUser && isLatest && !message.isTyping && "animate-slideIn"
+            )}
+            role={isUser ? "complementary" : "article"}
+            aria-label={`${isUser ? "You" : "Advisor"} said`}
+          >
+            {message.isTyping ? (
+              <TypingIndicator />
+            ) : (
+              <div className="whitespace-pre-wrap break-words">{message.content}</div>
+            )}
+          </div>
+          
+          {!isUser && !message.isTyping && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleCopyContent}
+              className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Copy message"
+            >
+              {copied ? (
+                <Check className="h-3 w-3" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </Button>
           )}
         </div>
+        
         <span 
           className="text-xs text-muted-foreground mt-1" 
           aria-label={`Sent at ${format(message.timestamp, 'p')}`}
