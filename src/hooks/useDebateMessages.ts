@@ -7,11 +7,14 @@ import { useBotResponses } from './useBotResponses';
 export default function useDebateMessages() {
   const {
     messages,
+    favorites,
     isLoading,
     setIsLoading,
     setMessages,
     addMessage,
-    addSystemMessage
+    addSystemMessage,
+    voteMessage,
+    toggleFavorite
   } = useMessageOperations();
 
   const {
@@ -34,7 +37,9 @@ export default function useDebateMessages() {
       senderId: 'user',
       content,
       timestamp: new Date(),
-      isUser: true
+      isUser: true,
+      votes: 0,
+      isFavorite: false
     };
     
     addMessage(userMessage);
@@ -47,11 +52,14 @@ export default function useDebateMessages() {
 
   return {
     messages,
+    favorites,
     isLoading,
     setIsLoading,
     setMessages,
     addSystemMessage,
     simulateBotResponses,
     sendUserMessage,
+    voteMessage,
+    toggleFavorite,
   };
 }

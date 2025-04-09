@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useDebateSession from '@/hooks/useDebateSession';
@@ -23,6 +24,8 @@ const DebateContainer: React.FC = () => {
     setDebateTitle,
     setDebateObjective,
     setDebateDuration,
+    voteMessage,
+    toggleFavorite
   } = useDebateSession();
 
   const {
@@ -95,6 +98,8 @@ const DebateContainer: React.FC = () => {
             onGenerateSummary={handleGenerateSummary}
             newMessage={newMessage}
             onNewMessageChange={handleNewMessageChange}
+            onVoteMessage={voteMessage}
+            onToggleFavorite={toggleFavorite}
           />
         </TabsContent>
         

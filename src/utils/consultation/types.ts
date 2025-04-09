@@ -44,6 +44,8 @@ export interface DebateMessage {
   content: string;
   timestamp: Date;
   isUser?: boolean;
+  votes?: number;
+  isFavorite?: boolean;
 }
 
 export interface DebateSession {
@@ -58,6 +60,7 @@ export interface DebateSession {
   company_id: string;
   riskAppetite: 'low' | 'medium' | 'high';
   businessPriority: string;
+  favorites?: string[]; // Array of favorited message IDs
 }
 
 export interface DebateSummary {

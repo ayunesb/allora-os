@@ -19,12 +19,15 @@ export default function useDebateSession() {
   
   const {
     messages,
+    favorites,
     isLoading,
     setIsLoading,
     setMessages,
     addSystemMessage,
     simulateBotResponses,
-    sendUserMessage: sendMessage
+    sendUserMessage: sendMessage,
+    voteMessage,
+    toggleFavorite
   } = useDebateMessages();
   
   const {
@@ -88,6 +91,7 @@ export default function useDebateSession() {
     participants,
     selectedTopic,
     messages,
+    favorites,
     isDebateActive,
     debateTitle,
     debateObjective,
@@ -112,5 +116,7 @@ export default function useDebateSession() {
     setRiskAppetite,
     setBusinessPriority,
     setParticipants,
+    voteMessage,
+    toggleFavorite,
   };
 }
