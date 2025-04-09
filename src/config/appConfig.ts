@@ -14,17 +14,9 @@ const isDevelopment = isBrowser
 
 // Supabase configuration
 export const SUPABASE_CONFIG = {
-  // These values should be set as environment variables in production
-  url: isBrowser ? import.meta.env?.SUPABASE_URL || (isDevelopment ? "https://ofwxyctfzskeeniaaazw.supabase.co" : "") : process?.env?.SUPABASE_URL || "",
-  anonKey: isBrowser ? import.meta.env?.SUPABASE_ANON_KEY || (isDevelopment ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo" : "") : process?.env?.SUPABASE_ANON_KEY || "",
-}
-
-// Add warning about missing environment variables in production
-if (!isDevelopment && (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey)) {
-  console.warn(
-    "WARNING: Supabase environment variables are not set. " +
-    "This is fine for development but should be configured for production."
-  );
+  // These values are set as environment variables in production
+  url: isBrowser ? import.meta.env?.VITE_SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co" : process?.env?.SUPABASE_URL || "",
+  anonKey: isBrowser ? import.meta.env?.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo" : process?.env?.SUPABASE_ANON_KEY || "",
 }
 
 // API configuration
