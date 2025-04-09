@@ -7,6 +7,7 @@ import { resendVerificationEmail } from "@/utils/authHelpers";
 import { AuthLoadingState } from "./auth/AuthLoadingState";
 import { AuthErrorState } from "./auth/AuthErrorState";
 import { VerificationRequiredState } from "./auth/VerificationRequiredState";
+import { checkIfUserIsAdmin } from "@/utils/adminHelper";
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -33,6 +34,8 @@ export default function ProtectedRoute({
   const location = useLocation();
   const [isResending, setIsResending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [adminCheckDone, setAdminCheckDone] = useState(false);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   // Handle session expiration notification
   useEffect(() => {
@@ -43,6 +46,24 @@ export default function ProtectedRoute({
     }
   }, [isSessionExpired, user]);
 
+  // Check admin status directly from the database
+  useEffect(() => {
+    const verifyAdminStatus = async () => {
+      if (user && (adminOnly || roleRequired === 'admin')) {
+        const isAdmin = await checkIfUserIsAdmin();
+        console.log('Admin check result:', isAdmin, 'for user:', user.email);
+        setIsUserAdmin(isAdmin);
+        setAdminCheckDone(true);
+      } else {
+        setAdminCheckDone(true);
+      }
+    };
+
+    if (user && !adminCheckDone) {
+      verifyAdminStatus();
+    }
+  }, [user, adminOnly, roleRequired, adminCheckDone]);
+
   // For development purposes, log auth state
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -51,10 +72,12 @@ export default function ProtectedRoute({
         profile, 
         roleRequired, 
         adminOnly,
-        isLoading
+        isLoading,
+        profileRole: profile?.role,
+        isUserAdmin
       });
     }
-  }, [user, profile, roleRequired, adminOnly, isLoading]);
+  }, [user, profile, roleRequired, adminOnly, isLoading, isUserAdmin]);
 
   // Handler functions
   const handleResendVerificationEmail = async (): Promise<void> => {
@@ -103,7 +126,7 @@ export default function ProtectedRoute({
   };
 
   // Conditional rendering based on auth state
-  if (isLoading) {
+  if (isLoading || !adminCheckDone) {
     return <AuthLoadingState />;
   }
 
@@ -137,8 +160,15 @@ export default function ProtectedRoute({
   }
 
   // Check for admin access if adminOnly is set
-  if ((adminOnly || roleRequired === 'admin') && profile) {
-    const isAdmin = profile.role === 'admin';
+  if ((adminOnly || roleRequired === 'admin')) {
+    // Check admin status directly from database result first
+    if (isUserAdmin) {
+      console.log('Admin access granted via direct database check');
+      return <>{children}</>;
+    }
+    
+    // Fall back to profile check if available
+    const isAdmin = profile?.role === 'admin';
     
     if (!isAdmin) {
       console.log('Access denied: User does not have admin role', profile);
