@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from './pages/Index';
@@ -22,6 +21,7 @@ import Privacy from './pages/Privacy';
 import DashboardLayout from './components/DashboardLayout';
 import AdminLayout from './components/AdminLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import Analytics from './pages/dashboard/Analytics';
 
 // Admin pages
 import AdminIndex from './pages/admin/Index';
@@ -64,6 +64,13 @@ function App() {
           <Route path="/dashboard/ai-bots/:botName/:role" element={<BotDetail />} />
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/settings" element={<Settings />} />
+          <Route path="/dashboard/analytics" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Analytics />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
         </Route>
         
         {/* Admin routes with admin layout */}
