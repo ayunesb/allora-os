@@ -3,11 +3,10 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Use import.meta.env for Vite-based projects to access environment variables
-// These should be set in your deployment environment (Vercel, Netlify, etc.)
-// For local development, they should be in a .env file
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+// Hardcoded values for the Supabase URL and API key
+// In production, these would ideally be environment variables
+const SUPABASE_URL = "https://ofwxyctfzskeeniaaazw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo";
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error(
