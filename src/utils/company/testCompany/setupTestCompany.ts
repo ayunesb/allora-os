@@ -4,7 +4,7 @@ import { getTestCompany } from './getTestCompany';
 import { createTestCompany } from './createTestCompany';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { User } from '@/models/user';
-import { TestCompanySetupResult } from './index';
+import { TestCompanySetupResult, TestCompanySetupData } from './index';
 import { isValidEmail } from '@/utils/validation';
 import { successResponse, errorResponse } from '@/utils/api/standardResponse';
 
@@ -26,7 +26,7 @@ import { successResponse, errorResponse } from '@/utils/api/standardResponse';
 export async function runTestCompanySetup(userEmail: string): Promise<TestCompanySetupResult> {
   // Validate input
   if (!isValidEmail(userEmail)) {
-    return errorResponse(
+    return errorResponse<TestCompanySetupData>(
       'Invalid email format provided',
       'Email validation failed',
       'VALIDATION_ERROR'
@@ -38,7 +38,7 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     const userProfile: User | null = await getUserProfileByEmail(userEmail);
     
     if (!userProfile) {
-      return errorResponse(
+      return errorResponse<TestCompanySetupData>(
         `No user found with email: ${userEmail}`,
         'User lookup failed',
         'USER_NOT_FOUND'
@@ -51,7 +51,7 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     // If a test company exists, return success with details
     if (existingCompanyResponse.success && existingCompanyResponse.data) {
       const existingCompany = existingCompanyResponse.data;
-      return successResponse(
+      return successResponse<TestCompanySetupData>(
         {
           companyId: existingCompany.id,
           companyName: existingCompany.name
@@ -68,7 +68,7 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     const newCompanyResponse = await createTestCompany(companyName);
     
     if (!newCompanyResponse.success || !newCompanyResponse.data) {
-      return errorResponse(
+      return errorResponse<TestCompanySetupData>(
         'Failed to create test company',
         newCompanyResponse.error || 'Company creation returned null',
         'COMPANY_CREATION_FAILED'
@@ -88,14 +88,14 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
       .eq('id', userProfile.id);
       
     if (profileUpdateError) {
-      return errorResponse(
+      return errorResponse<TestCompanySetupData>(
         `Created company but failed to associate with user: ${profileUpdateError.message}`,
         profileUpdateError.message,
         profileUpdateError.code
       );
     }
     
-    return successResponse(
+    return successResponse<TestCompanySetupData>(
       {
         companyId: newCompany.id,
         companyName: newCompany.name
@@ -104,7 +104,7 @@ export async function runTestCompanySetup(userEmail: string): Promise<TestCompan
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return errorResponse(
+    return errorResponse<TestCompanySetupData>(
       `Error in test company setup: ${errorMessage}`,
       errorMessage
     );

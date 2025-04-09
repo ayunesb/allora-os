@@ -20,7 +20,7 @@ import { successResponse, errorResponse } from '@/utils/api/standardResponse';
  */
 export async function getTestCompany(): Promise<TestCompanyResponse> {
   try {
-    // Use a simpler query approach with explicit cast to avoid type inference issues
+    // Use a simpler query approach with explicit column selection
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, created_at, industry')
@@ -40,7 +40,15 @@ export async function getTestCompany(): Promise<TestCompanyResponse> {
       return successResponse(null, 'No test company found');
     }
 
-    return successResponse(data as TestCompany, 'Test company found');
+    // Explicitly convert to TestCompany type to avoid deep inference
+    const testCompany: TestCompany = {
+      id: data.id,
+      name: data.name,
+      created_at: data.created_at,
+      industry: data.industry
+    };
+
+    return successResponse(testCompany, 'Test company found');
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return errorResponse('Unexpected error in getTestCompany', errorMessage);

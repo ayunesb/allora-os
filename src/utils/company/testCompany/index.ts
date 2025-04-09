@@ -24,5 +24,5 @@ export interface TestCompanySetupData {
   companyName?: string;
 }
 
-export type TestCompanySetupResult = StandardResponse<TestCompanySetupData>;
 export type TestCompanyResponse = StandardResponse<TestCompany | null>;
+export type TestCompanySetupResult = StandardResponse<TestCompanySetupData>;

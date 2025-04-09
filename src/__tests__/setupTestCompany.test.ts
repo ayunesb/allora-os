@@ -1,8 +1,10 @@
+
 import { runTestCompanySetup } from '@/utils/company/testCompany';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { getTestCompany } from '@/utils/company/testCompany/getTestCompany';
 import { createTestCompany } from '@/utils/company/testCompany/createTestCompany';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { TestCompany, TestCompanyResponse } from '@/utils/company/testCompany';
 
 // Mock the dependencies
 vi.mock('@/utils/users/fetchUsers');
@@ -65,18 +67,23 @@ describe('setupTestCompany', () => {
     });
     
     // Mock existing company found
-    vi.mocked(getTestCompany).mockResolvedValue({
-      id: 'company-123',
-      name: 'Existing Test Company',
-      created_at: '2023-01-01'
-    });
+    const mockCompanyResponse: TestCompanyResponse = {
+      success: true,
+      message: 'Test company found',
+      data: {
+        id: 'company-123',
+        name: 'Existing Test Company',
+        created_at: '2023-01-01'
+      }
+    };
+    vi.mocked(getTestCompany).mockResolvedValue(mockCompanyResponse);
     
     const result = await runTestCompanySetup('valid@example.com');
     
     expect(result.success).toBe(true);
     expect(result.message).toContain('already exists');
-    expect(result.companyId).toBe('company-123');
-    expect(result.companyName).toBe('Existing Test Company');
+    expect(result.data?.companyId).toBe('company-123');
+    expect(result.data?.companyName).toBe('Existing Test Company');
     expect(vi.mocked(createTestCompany)).not.toHaveBeenCalled();
   });
 
@@ -92,14 +99,24 @@ describe('setupTestCompany', () => {
     });
     
     // Mock no existing company
-    vi.mocked(getTestCompany).mockResolvedValue(null);
+    const noCompanyResponse: TestCompanyResponse = {
+      success: true,
+      message: 'No test company found',
+      data: null
+    };
+    vi.mocked(getTestCompany).mockResolvedValue(noCompanyResponse);
     
     // Mock company creation success
-    vi.mocked(createTestCompany).mockResolvedValue({
-      id: 'new-company-123',
-      name: 'Test Company - valid',
-      created_at: '2023-01-01'
-    });
+    const newCompanyResponse: TestCompanyResponse = {
+      success: true,
+      message: 'Company created',
+      data: {
+        id: 'new-company-123',
+        name: 'Test Company - valid',
+        created_at: '2023-01-01'
+      }
+    };
+    vi.mocked(createTestCompany).mockResolvedValue(newCompanyResponse);
     
     // Create a properly typed mock for from() -> update() -> eq()
     const mockEq = vi.fn().mockResolvedValue({ error: null });
@@ -113,7 +130,7 @@ describe('setupTestCompany', () => {
     
     expect(result.success).toBe(true);
     expect(result.message).toContain('Successfully created');
-    expect(result.companyId).toBe('new-company-123');
+    expect(result.data?.companyId).toBe('new-company-123');
     expect(vi.mocked(createTestCompany)).toHaveBeenCalledWith('Test Company - valid');
     
     // Verify profile update was called correctly
@@ -138,10 +155,21 @@ describe('setupTestCompany', () => {
     });
     
     // Mock no existing company
-    vi.mocked(getTestCompany).mockResolvedValue(null);
+    const noCompanyResponse: TestCompanyResponse = {
+      success: true,
+      message: 'No test company found',
+      data: null
+    };
+    vi.mocked(getTestCompany).mockResolvedValue(noCompanyResponse);
     
     // Mock company creation failure
-    vi.mocked(createTestCompany).mockResolvedValue(null);
+    const failedCompanyResponse: TestCompanyResponse = {
+      success: false,
+      message: 'Failed to create company',
+      data: null,
+      error: 'Database error'
+    };
+    vi.mocked(createTestCompany).mockResolvedValue(failedCompanyResponse);
     
     const result = await runTestCompanySetup('valid@example.com');
     
@@ -162,14 +190,24 @@ describe('setupTestCompany', () => {
     });
     
     // Mock no existing company
-    vi.mocked(getTestCompany).mockResolvedValue(null);
+    const noCompanyResponse: TestCompanyResponse = {
+      success: true,
+      message: 'No test company found',
+      data: null
+    };
+    vi.mocked(getTestCompany).mockResolvedValue(noCompanyResponse);
     
     // Mock company creation success
-    vi.mocked(createTestCompany).mockResolvedValue({
-      id: 'new-company-123',
-      name: 'Test Company - valid',
-      created_at: '2023-01-01'
-    });
+    const newCompanyResponse: TestCompanyResponse = {
+      success: true,
+      message: 'Company created',
+      data: {
+        id: 'new-company-123',
+        name: 'Test Company - valid',
+        created_at: '2023-01-01'
+      }
+    };
+    vi.mocked(createTestCompany).mockResolvedValue(newCompanyResponse);
     
     // Mock profile update failure with proper typing
     const mockEq = vi.fn().mockResolvedValue({ error: { message: 'Profile update failed' } });

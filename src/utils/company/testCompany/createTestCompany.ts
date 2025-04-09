@@ -23,7 +23,11 @@ export async function createTestCompany(name: string): Promise<TestCompanyRespon
   try {
     // Input validation
     if (!isNonEmptyString(name)) {
-      return errorResponse('Invalid company name provided', 'Company name must be a non-empty string', 'VALIDATION_ERROR');
+      return errorResponse(
+        'Invalid company name provided', 
+        'Company name must be a non-empty string', 
+        'VALIDATION_ERROR'
+      );
     }
 
     // Using explicit column selection
@@ -48,8 +52,16 @@ export async function createTestCompany(name: string): Promise<TestCompanyRespon
       );
     }
 
+    // Explicitly convert to TestCompany type to avoid deep inference
+    const testCompany: TestCompany = {
+      id: data.id,
+      name: data.name,
+      created_at: data.created_at,
+      industry: data.industry
+    };
+
     return successResponse(
-      data as TestCompany, 
+      testCompany, 
       `Test company "${name}" created successfully`
     );
   } catch (error) {
