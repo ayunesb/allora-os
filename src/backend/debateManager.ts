@@ -1,4 +1,3 @@
-
 import { executiveBots } from './executiveBots';
 import { formatRoleTitle, getBotExpertise } from '@/utils/consultation';
 import { supabase } from './supabase';
@@ -181,7 +180,9 @@ export const getCompanyDebateSessions = async (companyId: string): Promise<Debat
         ],
         created_at: new Date(Date.now() - 86400000),
         duration: 30,
-        company_id: companyId
+        company_id: companyId,
+        riskAppetite: 'medium',
+        businessPriority: 'growth'
       }
     ];
   } catch (error: any) {
