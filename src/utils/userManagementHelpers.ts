@@ -1,3 +1,4 @@
+
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { User } from '@/models/user';
@@ -138,14 +139,20 @@ export async function removeUserFromCompany(userId: string): Promise<boolean> {
  */
 export async function getUserIdByEmail(email: string): Promise<string | null> {
   try {
-    const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(email);
+    // Fix: Using the correct method getUserById instead of getUserByEmail
+    // We'll need to query the auth users by email in a different way
+    const { data, error } = await supabase
+      .from('auth.users')
+      .select('id')
+      .eq('email', email)
+      .single();
     
-    if (userError || !userData?.user?.id) {
-      console.error('Error finding user by email:', userError);
+    if (error || !data?.id) {
+      console.error('Error finding user by email:', error);
       return null;
     }
     
-    return userData.user.id;
+    return data.id;
   } catch (error) {
     console.error('Unexpected error looking up user by email:', error);
     return null;
@@ -166,9 +173,10 @@ export async function getUserProfileByEmail(email: string): Promise<User | null>
       return null;
     }
     
+    // Explicitly select fields without 'email' since it doesn't exist in the profiles table
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('id, name, company, company_id, role, created_at, email')
+      .select('id, name, company, company_id, role, created_at')
       .eq('id', userId)
       .single();
     
@@ -177,10 +185,19 @@ export async function getUserProfileByEmail(email: string): Promise<User | null>
       return null;
     }
     
+    // Check if we have valid profile data before spreading
+    if (!profileData) {
+      return null;
+    }
+    
+    // Create a User object with the profile data and add the email
     return {
-      ...profileData,
-      email: email,
-      role: profileData.role as User['role']
+      id: profileData.id,
+      name: profileData.name,
+      company_id: profileData.company_id,
+      role: profileData.role as User['role'],
+      created_at: profileData.created_at,
+      email: email // Add the email from the parameter
     };
   } catch (error) {
     console.error('Unexpected error in getUserProfileByEmail:', error);

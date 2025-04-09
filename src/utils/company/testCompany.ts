@@ -12,21 +12,26 @@ import { Company } from '@/models/company';
  * @returns Promise resolving to a test company or null
  */
 export async function getTestCompany(): Promise<Partial<Company> | null> {
-  // Using type assertion to avoid deep type instantiation error
-  const { data, error } = await supabase
-    .from('companies')
-    .select('id, name, created_at, industry')
-    .eq('is_test', true)
-    .limit(1)
-    .single();
+  try {
+    // Using explicit column selection and explicit type assertion to avoid deep type issues
+    const { data, error } = await supabase
+      .from('companies')
+      .select('id, name, created_at, industry')
+      .eq('is_test', true)
+      .limit(1)
+      .single();
 
-  if (error) {
-    console.error('Error fetching test company:', error);
+    if (error) {
+      console.error('Error fetching test company:', error);
+      return null;
+    }
+
+    // Use explicit type assertion without deep inference
+    return data as Partial<Company> | null;
+  } catch (error) {
+    console.error('Unexpected error in getTestCompany:', error);
     return null;
   }
-
-  // Use explicit type assertion without deep inference
-  return data as Partial<Company> | null;
 }
 
 /**
@@ -35,27 +40,32 @@ export async function getTestCompany(): Promise<Partial<Company> | null> {
  * @returns Promise resolving to the created test company or null
  */
 export async function createTestCompany(name: string): Promise<Partial<Company> | null> {
-  // Using type assertion to avoid deep type instantiation error
-  const { data, error } = await supabase
-    .from('companies')
-    .insert([
-      {
-        name,
-        is_test: true,
-        status: 'active',
-        created_at: new Date().toISOString(),
-      },
-    ])
-    .select('id, name, created_at, industry')
-    .single();
+  try {
+    // Using explicit column selection and type assertion to avoid deep type issues
+    const { data, error } = await supabase
+      .from('companies')
+      .insert([
+        {
+          name,
+          is_test: true,
+          status: 'active',
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select('id, name, created_at, industry')
+      .single();
 
-  if (error) {
-    console.error('Error creating test company:', error);
+    if (error) {
+      console.error('Error creating test company:', error);
+      return null;
+    }
+
+    // Use explicit type assertion without deep inference
+    return data as Partial<Company> | null;
+  } catch (error) {
+    console.error('Error in createTestCompany:', error);
     return null;
   }
-
-  // Use explicit type assertion without deep inference
-  return data as Partial<Company> | null;
 }
 
 /**
