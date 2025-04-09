@@ -1,41 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Company } from "@/models/company";
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import useAdminFunctions from '@/hooks/useAdminFunctions';
 import { CompanyTable, CreateCompanyDialog, CompanyHeader } from '@/components/admin/companies';
+import { useCompanyManagement } from '@/hooks/admin';
+import useAdminFunctions from '@/hooks/useAdminFunctions';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminCompanies() {
   const { loadCompanyUsers, setSelectedCompany } = useAdminFunctions();
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { companies, isLoading, loadCompanies } = useCompanyManagement();
   const [openAddDialog, setOpenAddDialog] = useState(false);
 
   useEffect(() => {
     loadCompanies();
-  }, []);
-
-  const loadCompanies = async () => {
-    setIsLoading(true);
-    try {
-      // Get all companies
-      const { data, error } = await supabase
-        .from('companies')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      
-      setCompanies(data || []);
-    } catch (error: any) {
-      console.error('Error loading companies:', error);
-      toast.error('Failed to load companies: ' + error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [loadCompanies]);
 
   const handleCreateCompany = async (companyData: { name: string; industry: string }) => {
     try {
@@ -48,7 +27,8 @@ export default function AdminCompanies() {
       if (error) throw error;
       
       toast.success('Company created successfully');
-      setCompanies([data, ...companies]);
+      // Refresh the companies list
+      loadCompanies();
       setOpenAddDialog(false);
     } catch (error: any) {
       console.error('Error creating company:', error);
