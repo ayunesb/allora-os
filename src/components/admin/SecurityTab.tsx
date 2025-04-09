@@ -14,7 +14,9 @@ interface SecuritySettingsType {
   extendedSessionTimeout: boolean;
 }
 
-const saveSecuritySettings = async (settings: SecuritySettingsType, companyId: string | null) => {
+const saveSecuritySettings = async (params: { settings: SecuritySettingsType, companyId: string | null }): Promise<boolean> => {
+  const { settings, companyId } = params;
+  
   if (!companyId) {
     throw new Error('Company ID is required');
   }
@@ -85,7 +87,7 @@ const SecurityTab = ({ companyId, initialSettings }: SecurityTabProps) => {
       return;
     }
     
-    await execute({ ...settings }, companyId);
+    await execute({ settings, companyId });
   };
 
   return (

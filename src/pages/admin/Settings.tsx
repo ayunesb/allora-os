@@ -1,134 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
-import { supabase } from '@/backend/supabase';
+import AdminSettingsProvider from '@/components/admin/settings/AdminSettingsProvider';
 import APIKeysTab from '@/components/admin/APIKeysTab';
 import WebhooksTab from '@/components/admin/WebhooksTab';
 import SecurityTab from '@/components/admin/SecurityTab';
 import NotificationsTab from '@/components/admin/NotificationsTab';
-import { Loader2 } from 'lucide-react';
 
 export default function AdminSettings() {
-  const [companyId, setCompanyId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [apiKeys, setApiKeys] = useState({
-    stripe: '',
-    twilio_sid: '',
-    twilio_token: '',
-    heygen: ''
-  });
-  const [securitySettings, setSecuritySettings] = useState({
-    twoFactorEnabled: false,
-    extendedSessionTimeout: false
-  });
-
-  // Fetch the current company data to get its ID and settings
-  useEffect(() => {
-    const fetchCompanyData = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
-        
-        // First try to get the company ID from the user's profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('company_id')
-          .eq('id', session.user.id)
-          .single();
-        
-        let currentCompanyId = profileData?.company_id;
-        
-        if (currentCompanyId) {
-          setCompanyId(currentCompanyId);
-          
-          // Now fetch the existing settings if they exist
-          const { data: companyData } = await supabase
-            .from('companies')
-            .select('details')
-            .eq('id', currentCompanyId)
-            .single();
-          
-          if (companyData?.details) {
-            // Handle the case where details might be a string or an object
-            const details = typeof companyData.details === 'string' 
-              ? JSON.parse(companyData.details) 
-              : companyData.details;
-              
-            // Set API keys if they exist
-            if (details.api_keys) {
-              setApiKeys({
-                stripe: details.api_keys.stripe || '',
-                twilio_sid: details.api_keys.twilio_sid || '',
-                twilio_token: details.api_keys.twilio_token || '',
-                heygen: details.api_keys.heygen || ''
-              });
-            }
-            
-            // Set security settings if they exist
-            if (details.security_settings) {
-              setSecuritySettings({
-                twoFactorEnabled: details.security_settings.twoFactorEnabled || false,
-                extendedSessionTimeout: details.security_settings.extendedSessionTimeout || false
-              });
-            }
-          }
-        } else {
-          // If no company is associated, get the first company (for demo purposes)
-          const { data: companies } = await supabase
-            .from('companies')
-            .select('id, details')
-            .limit(1);
-            
-          if (companies && companies.length > 0) {
-            currentCompanyId = companies[0].id;
-            setCompanyId(currentCompanyId);
-            
-            // Load existing settings if they exist
-            if (companies[0].details) {
-              // Handle the case where details might be a string or an object
-              const details = typeof companies[0].details === 'string' 
-                ? JSON.parse(companies[0].details) 
-                : companies[0].details;
-              
-              // Set API keys if they exist  
-              if (details.api_keys) {
-                setApiKeys({
-                  stripe: details.api_keys.stripe || '',
-                  twilio_sid: details.api_keys.twilio_sid || '',
-                  twilio_token: details.api_keys.twilio_token || '',
-                  heygen: details.api_keys.heygen || ''
-                });
-              }
-              
-              // Set security settings if they exist
-              if (details.security_settings) {
-                setSecuritySettings({
-                  twoFactorEnabled: details.security_settings.twoFactorEnabled || false,
-                  extendedSessionTimeout: details.security_settings.extendedSessionTimeout || false
-                });
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching company data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCompanyData();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar isLoggedIn={true} />
@@ -141,37 +21,41 @@ export default function AdminSettings() {
           </p>
         </div>
         
-        <Tabs defaultValue="api-keys">
-          <TabsList className="mb-6">
-            <TabsTrigger value="api-keys">API Keys</TabsTrigger>
-            <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="api-keys">
-            <APIKeysTab 
-              companyId={companyId} 
-              initialApiKeys={apiKeys}
-              isLoading={isLoading}
-            />
-          </TabsContent>
-          
-          <TabsContent value="webhooks">
-            <WebhooksTab />
-          </TabsContent>
-          
-          <TabsContent value="security">
-            <SecurityTab 
-              companyId={companyId}
-              initialSettings={securitySettings}
-            />
-          </TabsContent>
-          
-          <TabsContent value="notifications">
-            <NotificationsTab />
-          </TabsContent>
-        </Tabs>
+        <AdminSettingsProvider>
+          {({ companyId, isLoading, apiKeys, securitySettings }) => (
+            <Tabs defaultValue="api-keys">
+              <TabsList className="mb-6">
+                <TabsTrigger value="api-keys">API Keys</TabsTrigger>
+                <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+                <TabsTrigger value="notifications">Notifications</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="api-keys">
+                <APIKeysTab 
+                  companyId={companyId} 
+                  initialApiKeys={apiKeys}
+                  isLoading={isLoading}
+                />
+              </TabsContent>
+              
+              <TabsContent value="webhooks">
+                <WebhooksTab />
+              </TabsContent>
+              
+              <TabsContent value="security">
+                <SecurityTab 
+                  companyId={companyId}
+                  initialSettings={securitySettings}
+                />
+              </TabsContent>
+              
+              <TabsContent value="notifications">
+                <NotificationsTab />
+              </TabsContent>
+            </Tabs>
+          )}
+        </AdminSettingsProvider>
       </div>
     </div>
   );
