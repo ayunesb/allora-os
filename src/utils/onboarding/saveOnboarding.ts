@@ -1,3 +1,4 @@
+
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { PartialCompanyDetails } from '@/models/companyDetails';
@@ -79,25 +80,52 @@ export async function saveOnboardingInfo(
       
       companyId = profileData.company_id;
     } else {
-      // Skip company creation and just set company name and industry in profile
-      // This is a workaround for RLS policies issues
-      const { error: profileUpdateError } = await supabase
-        .from('profiles')
-        .update({
-          company: companyName,
-          industry: industry,
-          role: 'admin'
-        })
-        .eq('id', userId);
+      // Create a new company with the detailed information
+      const { data: newCompany, error: createError } = await supabase
+        .from('companies')
+        .insert([
+          {
+            name: companyName,
+            industry: industry,
+            details: companyDetails || {}
+          }
+        ])
+        .select('id')
+        .single();
         
-      if (profileUpdateError) {
-        console.error("Profile update error:", profileUpdateError);
-        throw new Error(`Failed to update profile: ${profileUpdateError.message}`);
+      if (createError) {
+        console.error("Company creation error:", createError);
+        // If there's an RLS error or permission issue, fall back to just setting the profile
+        if (createError.code === '42501' || createError.message?.includes('permission')) {
+          console.log("Falling back to profile update only due to permission issue");
+        } else {
+          throw new Error(`Failed to create company: ${createError.message}`);
+        }
+      } else {
+        companyId = newCompany.id;
       }
+    }
+
+    // Update the user's profile with company name, industry, and optionally company_id
+    const updateData: any = {
+      company: companyName,
+      industry: industry,
+      role: 'admin'
+    };
+    
+    // Only add company_id if we successfully created or updated a company
+    if (companyId) {
+      updateData.company_id = companyId;
+    }
+    
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update(updateData)
+      .eq('id', userId);
       
-      // Mark the onboarding as successful even without a company_id
-      // This will allow the user to proceed to the dashboard
-      return { success: true };
+    if (profileUpdateError) {
+      console.error("Profile update error:", profileUpdateError);
+      throw new Error(`Failed to update profile: ${profileUpdateError.message}`);
     }
 
     // Store the business goals (in a real app, you would create a goals table)

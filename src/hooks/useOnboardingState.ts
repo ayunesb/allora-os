@@ -34,7 +34,7 @@ export default function useOnboardingState() {
   }, [profile, step]);
 
   const handleNext = () => {
-    if (step < 5) { // Added an extra step for executive team intro
+    if (step < 6) { // Updated to 6 total steps
       setStep(step + 1);
     } else {
       handleComplete();

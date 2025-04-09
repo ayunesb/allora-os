@@ -5,7 +5,7 @@ import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
 import IndustryForm from "@/components/onboarding/IndustryForm";
 import GoalsForm from "@/components/onboarding/GoalsForm";
 import useOnboardingState from "@/hooks/useOnboardingState";
-import CompanyDetailsSurvey from "@/components/onboarding/CompanyDetailsSurvey";
+import { CompanyDetailsSurvey } from "@/components/onboarding/company-details";
 import RiskProfileForm from "@/components/onboarding/RiskProfileForm";
 import ExecutiveTeamIntro from "@/components/onboarding/ExecutiveTeamIntro";
 import { Button } from "@/components/ui/button";
@@ -74,6 +74,14 @@ export default function Onboarding() {
         );
       case 4:
         return (
+          <CompanyDetailsSurvey
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
+            error={errorMessage}
+          />
+        );
+      case 5:
+        return (
           <RiskProfileForm
             riskAppetite={riskAppetite}
             setRiskAppetite={setRiskAppetite}
@@ -82,18 +90,12 @@ export default function Onboarding() {
             error={errorMessage?.includes("risk") ? errorMessage : undefined}
           />
         );
-      case 5:
+      case 6:
         return (
           <ExecutiveTeamIntro />
         );
       default:
-        return (
-          <CompanyDetailsSurvey
-            companyDetails={companyDetails}
-            updateCompanyDetails={updateCompanyDetails}
-            error={errorMessage}
-          />
-        );
+        return null;
     }
   };
 
@@ -106,8 +108,10 @@ export default function Onboarding() {
       case 3:
         return "Business Goals";
       case 4:
-        return "Strategy Risk Profile";
+        return "Company Details";
       case 5:
+        return "Strategy Risk Profile";
+      case 6:
         return "Your AI Executive Team";
       default:
         return "Business Setup";
@@ -115,8 +119,7 @@ export default function Onboarding() {
   };
 
   const getTotalSteps = () => {
-    // Fixed the logic to correctly return the total number of steps
-    return 5;
+    return 6; // Updated total steps
   };
 
   return (
@@ -140,7 +143,7 @@ export default function Onboarding() {
         onBack={handleBack}
         onNext={handleNext}
         isLoading={isLoading}
-        isLastStep={step === 5}
+        isLastStep={step === 6}
       >
         {getStepContent()}
       </OnboardingLayout>
