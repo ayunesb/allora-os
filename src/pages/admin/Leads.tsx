@@ -49,7 +49,6 @@ export default function AdminLeads() {
     <div className="animate-fadeIn space-y-4 sm:space-y-6">
       <LeadsHeader 
         isMobileView={isMobileView}
-        onAddNewLead={null}  // We're replacing this with the AddLeadDialog
       />
       
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
