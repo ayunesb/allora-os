@@ -6,9 +6,22 @@ import { cn } from "@/lib/utils"
 
 const TooltipProvider = TooltipPrimitive.Provider
 
-const Tooltip = TooltipPrimitive.Root
+const Tooltip = ({ delayDuration = 300, ...props }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root> & { delayDuration?: number }) => (
+  <TooltipPrimitive.Root delayDuration={delayDuration} {...props} />
+)
+Tooltip.displayName = TooltipPrimitive.Root.displayName
 
-const TooltipTrigger = TooltipPrimitive.Trigger
+const TooltipTrigger = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>
+>(({ className, ...props }, ref) => (
+  <TooltipPrimitive.Trigger 
+    ref={ref} 
+    className={cn("focus:outline-none focus-visible:ring-2 focus-visible:ring-primary", className)} 
+    {...props} 
+  />
+))
+TooltipTrigger.displayName = TooltipPrimitive.Trigger.displayName
 
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
