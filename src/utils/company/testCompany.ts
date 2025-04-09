@@ -8,24 +8,25 @@ import { updateCompanyDetails } from './companyUpdate';
  */
 export async function setupTestCompany(email: string): Promise<{ success: boolean; error?: string }> {
   try {
-    // Get the user ID by querying profiles table with email - simplified query approach
-    const { data: profileData, error: profileError } = await supabase
+    // Get the user ID by querying profiles table with email
+    // Using a more straightforward approach to avoid type recursion issues
+    const { data, error } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', email)
       .limit(1);
       
-    if (profileError) {
-      console.error("Error finding user:", profileError);
+    if (error) {
+      console.error("Error finding user:", error);
       return { success: false, error: `User with email ${email} not found` };
     }
     
     // Check if we found the user
-    if (!profileData || profileData.length === 0) {
+    if (!data || data.length === 0) {
       return { success: false, error: `User with email ${email} not found` };
     }
     
-    const userId = profileData[0].id;
+    const userId = data[0].id;
     
     // Set up the test company details
     const result = await updateCompanyDetails(userId, {
