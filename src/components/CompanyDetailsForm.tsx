@@ -10,12 +10,10 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { updateCompanyDetails } from "@/utils/company";
 import { PartialCompanyDetails } from "@/models/companyDetails";
-import { Accordion } from "@/components/ui/accordion";
-import CompanyDetailsSurvey from "@/components/onboarding/CompanyDetailsSurvey";
+import { CompanyDetailsSurvey } from "@/components/onboarding/company-details";
 
 export default function CompanyDetailsForm() {
   const { user, profile, refreshProfile } = useAuth();
