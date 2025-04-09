@@ -4,11 +4,6 @@
  * Provides functionality for creating and managing test companies
  */
 
-// Re-export all test company functions
-export * from './setupTestCompany';
-export * from './getTestCompany';
-export * from './createTestCompany';
-
 // Export simplified interfaces
 export interface TestCompany {
   id: string;
@@ -35,3 +30,30 @@ export interface TestCompanySetupResult {
   companyId?: string;
   companyName?: string;
 }
+
+// Placeholders for test company functions
+export const runTestCompanySetup = async (email: string): Promise<TestCompanySetupResult> => {
+  console.warn('Test company functionality is disabled in production');
+  return {
+    success: false,
+    message: 'Test company functionality is disabled in production'
+  };
+};
+
+export const getTestCompany = async (): Promise<TestCompanyResponse> => {
+  console.warn('Test company functionality is disabled in production');
+  return {
+    success: false,
+    data: null,
+    message: 'Test company functionality is disabled in production'
+  };
+};
+
+export const createTestCompany = async (): Promise<TestCompanyResponse> => {
+  console.warn('Test company functionality is disabled in production');
+  return {
+    success: false,
+    data: null,
+    message: 'Test company functionality is disabled in production'
+  };
+};

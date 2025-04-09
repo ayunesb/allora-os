@@ -23,7 +23,7 @@ export function useCampaignFetch() {
     enabled: !!companyId,
     // Performance optimization settings
     staleTime: 5 * 60 * 1000, // 5 minutes before data is considered stale
-    cacheTime: 10 * 60 * 1000, // 10 minutes before unused data is garbage collected
+    gcTime: 10 * 60 * 1000, // 10 minutes before unused data is garbage collected (renamed from cacheTime)
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
     refetchOnMount: true, // Refetch data when component mounts
   });
