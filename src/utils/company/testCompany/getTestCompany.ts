@@ -45,7 +45,7 @@ export async function getTestCompany(): Promise<TestCompanyResponse> {
       };
     }
 
-    // Explicitly type the returned data to avoid deep inference issues
+    // Explicitly create a new object with only the needed properties
     const testCompany: TestCompany = {
       id: data.id,
       name: data.name,
