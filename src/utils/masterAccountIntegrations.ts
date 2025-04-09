@@ -89,34 +89,33 @@ async function storeIntegrationIds(
   integrationIds: Record<string, string>
 ): Promise<void> {
   try {
-    // First check if a record already exists by running the RPC function
-    const { data, error: fetchError } = await supabase.rpc(
-      'get_company_integrations',
-      { p_company_id: companyId }
-    );
+    // First check if a record already exists
+    const { data, error: fetchError } = await supabase
+      .from('company_integrations')
+      .select('*')
+      .eq('company_id', companyId)
+      .maybeSingle();
       
     if (fetchError) throw fetchError;
     
-    if (data && data.length > 0) {
+    if (data) {
       // Update existing record
-      const { error: updateError } = await supabase.rpc(
-        'update_company_integrations',
-        { 
-          p_company_id: companyId,
-          p_integration_ids: integrationIds
-        }
-      );
+      const { error: updateError } = await supabase
+        .from('company_integrations')
+        .update({ 
+          integration_ids: integrationIds 
+        })
+        .eq('company_id', companyId);
         
       if (updateError) throw updateError;
     } else {
       // Create new record
-      const { error: insertError } = await supabase.rpc(
-        'insert_company_integrations',
-        { 
-          p_company_id: companyId,
-          p_integration_ids: integrationIds
-        }
-      );
+      const { error: insertError } = await supabase
+        .from('company_integrations')
+        .insert({ 
+          company_id: companyId,
+          integration_ids: integrationIds
+        });
         
       if (insertError) throw insertError;
     }
@@ -133,14 +132,15 @@ export async function getCompanyIntegrationIds(
   companyId: string
 ): Promise<Record<string, string> | null> {
   try {
-    const { data, error } = await supabase.rpc(
-      'get_company_integrations',
-      { p_company_id: companyId }
-    );
+    const { data, error } = await supabase
+      .from('company_integrations')
+      .select('integration_ids')
+      .eq('company_id', companyId)
+      .maybeSingle();
       
     if (error) throw error;
     
-    return data?.[0]?.integration_ids || null;
+    return data?.integration_ids || null;
   } catch (error: any) {
     console.error('Failed to get company integration IDs:', error.message);
     return null;
