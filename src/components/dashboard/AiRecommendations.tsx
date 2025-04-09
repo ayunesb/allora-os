@@ -40,7 +40,7 @@ export default function AiRecommendations({ recommendations, onApprove }: AiReco
                 <ThumbsUp className="mr-2 h-4 w-4" />
                 Approve
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" asChild>
                 <Link to={`/dashboard/${rec.type === 'strategy' ? 'strategies' : rec.type === 'campaign' ? 'campaigns' : 'calls'}`}>
                   View Details
                 </Link>

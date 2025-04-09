@@ -49,7 +49,7 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
         <div className="text-sm text-muted-foreground">
           From: <span className="font-medium">Elon Musk, AI CEO</span>
         </div>
-        <Button size="sm" variant="default">
+        <Button size="sm" variant="default" asChild>
           <Link to="/dashboard/ai-bots">Schedule Strategy Meeting</Link>
         </Button>
       </CardFooter>

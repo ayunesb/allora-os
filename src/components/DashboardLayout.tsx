@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -33,7 +32,6 @@ export default function DashboardLayout() {
   const isMobile = breakpoint === 'mobile';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Define the main navigation items
   const navItems = [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Strategies", path: "/dashboard/strategies" },
@@ -44,10 +42,8 @@ export default function DashboardLayout() {
   ];
 
   useEffect(() => {
-    // Check for onboarding status
     const checkUserOnboarding = async () => {
       if (user && !isLoading) {
-        // First check using the helper function for a more reliable check
         const hasCompletedOnboarding = await checkOnboardingStatus(user.id);
         
         if (!hasCompletedOnboarding) {
@@ -60,21 +56,18 @@ export default function DashboardLayout() {
     checkUserOnboarding();
   }, [user, isLoading, profile, navigate]);
 
-  // Handle session refresh
   const handleRefreshSession = async () => {
     toast.info("Refreshing session...");
     await refreshSession();
     toast.success("Session refreshed");
   };
 
-  // Handle sign out
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
     toast.success('You have been logged out');
   };
 
-  // If still loading, show skeleton UI
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -94,22 +87,18 @@ export default function DashboardLayout() {
     );
   }
 
-  // If not logged in, redirect to login
   if (!user) {
     toast.error("Please log in to access this page");
     return <Navigate to="/login" replace />;
   }
 
-  // Session time check
   const sessionTime = user.updated_at ? new Date(user.updated_at).getTime() : 0;
   const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
   const showRefreshButton = sessionTime < thirtyMinutesAgo;
-  
-  // Determine active tab
+
   const getActiveValue = () => {
     if (currentPath === '/dashboard') return '/dashboard';
     
-    // Match the most specific path
     for (const item of navItems) {
       if (currentPath.startsWith(item.path) && item.path !== '/dashboard') {
         return item.path;
@@ -119,7 +108,6 @@ export default function DashboardLayout() {
     return '/dashboard';
   };
 
-  // Render child routes with consistent layout
   return (
     <div className="min-h-screen flex flex-col">
       {showRefreshButton && (
@@ -137,16 +125,14 @@ export default function DashboardLayout() {
         </div>
       )}
       
-      {/* Top Navigation */}
       <div className="bg-card border-b border-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold">Allora AI</h1>
+              <Link to="/dashboard" className="text-xl font-bold">Allora AI</Link>
             </div>
             
             <div className="flex items-center">
-              {/* Mobile Menu */}
               {isMobile ? (
                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                   <SheetTrigger asChild>
@@ -226,9 +212,11 @@ export default function DashboardLayout() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Profile Settings
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard/profile">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Profile Settings
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
