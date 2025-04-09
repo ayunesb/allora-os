@@ -5,6 +5,7 @@ import { useUserProfile } from './useUserProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User, Session } from '@supabase/supabase-js';
+import { logger } from '@/utils/loggingService';
 
 export function useAuthState() {
   const { 
@@ -43,7 +44,7 @@ export function useAuthState() {
         .single();
 
       if (error) {
-        console.error('Error loading user profile:', error);
+        logger.error('Error loading user profile:', { error, userId });
         return;
       }
 
@@ -51,7 +52,7 @@ export function useAuthState() {
         setProfile(data);
       }
     } catch (error) {
-      console.error('Unexpected error loading profile:', error);
+      logger.error('Unexpected error loading profile:', { error, userId });
     } finally {
       setIsProfileLoading(false);
     }
@@ -60,22 +61,27 @@ export function useAuthState() {
   // Set up auth state change listener and initialize auth
   useEffect(() => {
     setAuthError(null);
+    let mounted = true;
     
     // Set up auth state change listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
-        console.log('Auth state change:', event);
+        logger.info('Auth state change:', { event });
         
-        // Update session and user state immediately
+        if (!mounted) return;
+        
+        // Update session and user state immediately - only synchronous operations here
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
         // Use setTimeout to prevent deadlock with Supabase client
         if (newSession?.user) {
           setTimeout(() => {
-            loadUserProfile(newSession.user.id);
+            if (mounted) {
+              loadUserProfile(newSession.user.id);
+            }
           }, 0);
-        } else {
+        } else if (mounted) {
           setProfile(null);
         }
         
@@ -89,13 +95,15 @@ export function useAuthState() {
         } else if (event === 'PASSWORD_RECOVERY') {
           toast.info('Password recovery initiated');
         } else if (event === 'TOKEN_REFRESHED') {
-          console.log('Auth token refreshed');
+          logger.info('Auth token refreshed');
         }
       }
     );
 
     // Then check for existing session
     const initializeAuth = async () => {
+      if (!mounted) return;
+      
       setIsLoading(true);
       try {
         // Get current session
@@ -105,26 +113,35 @@ export function useAuthState() {
           throw sessionError;
         }
         
-        setSession(currentSession);
-        
-        if (currentSession?.user) {
-          setUser(currentSession.user);
-          // Use setTimeout to prevent potential deadlock
-          setTimeout(() => {
-            loadUserProfile(currentSession.user.id);
-          }, 0);
+        if (mounted) {
+          setSession(currentSession);
+          
+          if (currentSession?.user) {
+            setUser(currentSession.user);
+            // Use setTimeout to prevent potential deadlock
+            setTimeout(() => {
+              if (mounted) {
+                loadUserProfile(currentSession.user.id);
+              }
+            }, 0);
+          }
         }
       } catch (error: any) {
-        console.error('Error loading auth:', error);
-        setAuthError('Failed to initialize authentication');
+        logger.error('Error loading auth:', { error });
+        if (mounted) {
+          setAuthError('Failed to initialize authentication');
+        }
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
     
     initializeAuth();
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [setSession, loadUserProfile, setIsLoading]);

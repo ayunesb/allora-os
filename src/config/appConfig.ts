@@ -5,11 +5,11 @@
  */
 
 // Supabase configuration
-// In a production environment, these should be environment variables
-// For the purposes of this audit fix, we're centralizing where these values are defined
+// In a production environment, these are accessed via environment variables
+// For development purposes, they are defined in the Supabase client directly
 export const SUPABASE_CONFIG = {
-  url: "https://ofwxyctfzskeeniaaazw.supabase.co",
-  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo",
+  // The client values are now managed through the Supabase integration
+  // and not hardcoded in this file for security reasons
 }
 
 // API configuration

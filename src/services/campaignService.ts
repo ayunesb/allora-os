@@ -3,6 +3,7 @@ import { Campaign, CampaignCreate, CampaignUpdate } from '@/models/campaign';
 import { apiRequest } from '@/utils/api/apiClient';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
+import { sanitizeFormData } from '@/utils/sanitizers';
 
 export type CampaignCreateInput = CampaignCreate;
 export type CampaignUpdateInput = CampaignUpdate;
@@ -28,7 +29,8 @@ export async function fetchCompanyCampaigns(companyId: string) {
     return response;
   }, {
     errorMessage: 'Failed to load campaigns',
-    showErrorToast: true
+    showErrorToast: true,
+    retry: true
   });
 }
 
@@ -40,15 +42,18 @@ export async function fetchCompanyCampaigns(companyId: string) {
 export async function createCampaign(campaign: CampaignCreateInput) {
   logger.info('Creating new campaign', { campaign });
   
+  // Sanitize input data
+  const sanitizedCampaign = sanitizeFormData(campaign);
+  
   return apiRequest<Campaign>(async () => {
     // Validate campaign data
-    if (!campaign.name || !campaign.company_id) {
+    if (!sanitizedCampaign.name || !sanitizedCampaign.company_id) {
       throw new Error('Campaign name and company ID are required');
     }
     
     const response = await supabase
       .from('campaigns')
-      .insert([campaign])
+      .insert([sanitizedCampaign])
       .select(`
         *,
         companies(name)
@@ -72,14 +77,17 @@ export async function createCampaign(campaign: CampaignCreateInput) {
 export async function updateCampaign(id: string, updates: CampaignUpdateInput) {
   logger.info('Updating campaign', { id, updates });
   
+  // Sanitize input data
+  const sanitizedUpdates = sanitizeFormData(updates);
+  
   return apiRequest<Campaign>(async () => {
-    if (Object.keys(updates).length === 0) {
+    if (Object.keys(sanitizedUpdates).length === 0) {
       throw new Error('No update fields provided');
     }
     
     const response = await supabase
       .from('campaigns')
-      .update(updates)
+      .update(sanitizedUpdates)
       .eq('id', id)
       .select(`
         *,
@@ -91,7 +99,8 @@ export async function updateCampaign(id: string, updates: CampaignUpdateInput) {
   }, {
     showSuccessToast: true,
     successMessage: 'Campaign updated successfully',
-    errorMessage: 'Failed to update campaign'
+    errorMessage: 'Failed to update campaign',
+    retry: true
   });
 }
 
