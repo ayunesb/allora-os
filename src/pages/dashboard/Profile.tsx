@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { updateUserProfile } from "@/utils/profileHelpers";
 import { Skeleton } from "@/components/ui/skeleton";
+import CompanyDetailsForm from "@/components/CompanyDetailsForm";
 
 export default function Profile() {
   const { user, profile, isProfileLoading, refreshProfile } = useAuth();
@@ -69,73 +71,84 @@ export default function Profile() {
       <h1 className="text-3xl font-bold mb-2">Profile Settings</h1>
       <p className="text-muted-foreground mb-8">Manage your account information</p>
 
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Update your personal details</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input 
-                id="name" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                placeholder="Your full name"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                value={user?.email || ""} 
-                disabled 
-                placeholder="Your email address"
-              />
-              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="basic">
+        <TabsList className="mb-4">
+          <TabsTrigger value="basic">Basic Info</TabsTrigger>
+          <TabsTrigger value="company">Company Details</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="basic" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>Update your personal details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input 
+                  id="name" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  placeholder="Your full name"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  value={user?.email || ""} 
+                  disabled 
+                  placeholder="Your email address"
+                />
+                <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Information</CardTitle>
-            <CardDescription>Update your company details</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="company">Company Name</Label>
-              <Input 
-                id="company" 
-                value={company} 
-                onChange={(e) => setCompany(e.target.value)} 
-                placeholder="Your company name"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="industry">Industry</Label>
-              <Input 
-                id="industry" 
-                value={industry} 
-                onChange={(e) => setIndustry(e.target.value)} 
-                placeholder="Your industry"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => navigate("/dashboard")}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleUpdateProfile} 
-              disabled={isUpdating}
-            >
-              {isUpdating ? "Saving..." : "Save Changes"}
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Company Information</CardTitle>
+              <CardDescription>Update your company details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="company">Company Name</Label>
+                <Input 
+                  id="company" 
+                  value={company} 
+                  onChange={(e) => setCompany(e.target.value)} 
+                  placeholder="Your company name"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="industry">Industry</Label>
+                <Input 
+                  id="industry" 
+                  value={industry} 
+                  onChange={(e) => setIndustry(e.target.value)} 
+                  placeholder="Your industry"
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => navigate("/dashboard")}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleUpdateProfile} 
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="company">
+          <CompanyDetailsForm />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

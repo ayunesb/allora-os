@@ -4,6 +4,8 @@ export type CompanyDetails = {
   description: string;
   mission: string;
   vision: string;
+  targetMarket: string;
+  businessType: 'B2B' | 'B2C' | 'Both';
   coreProducts: string[];
   businessModel: string;
   
