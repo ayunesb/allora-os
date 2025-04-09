@@ -139,20 +139,17 @@ export async function removeUserFromCompany(userId: string): Promise<boolean> {
  */
 export async function getUserIdByEmail(email: string): Promise<string | null> {
   try {
-    // Fix: Using the correct method getUserById instead of getUserByEmail
-    // We'll need to query the auth users by email in a different way
-    const { data, error } = await supabase
-      .from('auth.users')
-      .select('id')
-      .eq('email', email)
-      .single();
+    // Can't directly query auth.users table, so we need a different approach
+    // Use the auth API to get user information by email
+    const response = await fetch(`${window.location.origin}/api/get-user-by-email?email=${encodeURIComponent(email)}`);
+    const data = await response.json();
     
-    if (error || !data?.id) {
-      console.error('Error finding user by email:', error);
+    if (!data.success || !data.userId) {
+      console.error('Error finding user by email:', data.error);
       return null;
     }
     
-    return data.id;
+    return data.userId;
   } catch (error) {
     console.error('Unexpected error looking up user by email:', error);
     return null;
@@ -185,7 +182,7 @@ export async function getUserProfileByEmail(email: string): Promise<User | null>
       return null;
     }
     
-    // Check if we have valid profile data before spreading
+    // Check if we have valid profile data before continuing
     if (!profileData) {
       return null;
     }
