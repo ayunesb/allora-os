@@ -1,36 +1,46 @@
 
 import { useState, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
-import { UserProfile, fetchUserProfile } from '@/utils/profileHelpers';
+import { supabase } from '@/backend/supabase';
 
 export function useUserProfile() {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+
+  const updateEmailVerification = useCallback((user: User | null) => {
+    if (user?.email_confirmed_at || user?.confirmed_at) {
+      setIsEmailVerified(true);
+    } else {
+      setIsEmailVerified(false);
+    }
+  }, []);
 
   const loadUserProfile = useCallback(async (userId: string) => {
     if (!userId) return;
     
     setIsProfileLoading(true);
     try {
-      const userProfile = await fetchUserProfile(userId);
-      setProfile(userProfile);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error loading user profile:', error);
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+      }
     } catch (error) {
-      console.error('Error loading user profile:', error);
-      setAuthError('Failed to load user profile data');
+      console.error('Unexpected error loading profile:', error);
     } finally {
       setIsProfileLoading(false);
-    }
-  }, []);
-
-  // Check if email is verified whenever user changes
-  const updateEmailVerification = useCallback((currentUser: User | null) => {
-    if (currentUser) {
-      setIsEmailVerified(currentUser.email_confirmed_at !== null);
-    } else {
-      setIsEmailVerified(false);
     }
   }, []);
 

@@ -1,9 +1,10 @@
 
-import { useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from './useSession';
 import { useUserProfile } from './useUserProfile';
 import { supabase, getSession, getCurrentUser } from '@/backend/supabase';
 import { toast } from 'sonner';
+import { User } from '@supabase/supabase-js';
 
 export function useAuthState() {
   const { 
@@ -16,18 +17,45 @@ export function useAuthState() {
     updateLastActivity
   } = useSession();
 
-  const {
-    user,
-    setUser,
-    profile,
-    setProfile,
-    isProfileLoading,
-    isEmailVerified,
-    authError,
-    setAuthError,
-    loadUserProfile,
-    updateEmailVerification
-  } = useUserProfile();
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const updateEmailVerification = useCallback((user: User | null) => {
+    if (user?.email_confirmed_at || user?.confirmed_at) {
+      setIsEmailVerified(true);
+    } else {
+      setIsEmailVerified(false);
+    }
+  }, []);
+
+  const loadUserProfile = useCallback(async (userId: string) => {
+    if (!userId) return;
+    
+    setIsProfileLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error loading user profile:', error);
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Unexpected error loading profile:', error);
+    } finally {
+      setIsProfileLoading(false);
+    }
+  }, []);
 
   // Set up auth state change listener and initialize auth
   useEffect(() => {
@@ -92,7 +120,7 @@ export function useAuthState() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [setSession, setUser, setProfile, loadUserProfile, setAuthError, setIsLoading]);
+  }, [setSession, loadUserProfile, setAuthError, setIsLoading]);
 
   // Update email verification status whenever user changes
   useEffect(() => {
@@ -112,6 +140,9 @@ export function useAuthState() {
     setSession,
     loadUserProfile,
     updateLastActivity,
-    refreshSession: refreshUserSession
+    refreshSession: refreshUserSession,
+    setProfile,
+    setAuthError,
+    updateEmailVerification
   };
 }
