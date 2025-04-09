@@ -1,30 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import CertificationCard from "./CertificationCard";
-
-const certifications = [
-  {
-    id: "1",
-    title: "GDPR Compliance",
-    validUntil: "Dec 2025",
-    iconUrl: "https://placeholder.svg",
-    alt: "GDPR Certification"
-  },
-  {
-    id: "2",
-    title: "SOC 2 Type II",
-    validUntil: "Oct 2025",
-    iconUrl: "https://placeholder.svg",
-    alt: "SOC 2 Certification"
-  },
-  {
-    id: "3",
-    title: "ISO 27001",
-    validUntil: "Aug 2025",
-    iconUrl: "https://placeholder.svg",
-    alt: "ISO 27001 Certification"
-  }
-];
+import { certifications } from "./mockData";
 
 export default function CertificationsList() {
   return (

@@ -1,49 +1,35 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ReportCard from "./ReportCard";
-
-interface Report {
-  id: string;
-  title: string;
-  date: string;
-  status: "completed" | "scheduled";
-  type: string;
-}
+import { Badge } from "@/components/ui/badge";
+import { type Report } from "./mockData";
 
 interface ReportsListProps {
   reports: Report[];
 }
 
 export default function ReportsList({ reports }: ReportsListProps) {
-  const [activeTab, setActiveTab] = useState("all");
-  
-  const filteredReports = activeTab === "all" 
-    ? reports 
-    : reports.filter(report => report.type === activeTab);
-  
   return (
-    <Tabs defaultValue="all" onValueChange={setActiveTab}>
-      <TabsList>
-        <TabsTrigger value="all">All Reports</TabsTrigger>
-        <TabsTrigger value="quarterly">Quarterly</TabsTrigger>
-        <TabsTrigger value="annual">Annual</TabsTrigger>
-        <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value={activeTab} className="mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredReports.length > 0 ? (
-            filteredReports.map((report) => (
-              <ReportCard key={report.id} report={report} />
-            ))
-          ) : (
-            <p className="col-span-2 text-center text-muted-foreground py-4">
-              No reports found for this category
-            </p>
-          )}
-        </div>
-      </TabsContent>
-    </Tabs>
+    <div className="rounded-md border">
+      <div className="divide-y">
+        {reports.map((report) => (
+          <div key={report.id} className="flex flex-col md:flex-row justify-between p-4 gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium">{report.title}</h3>
+                <Badge variant={report.status === "completed" ? "default" : "outline"}>
+                  {report.status === "completed" ? "Completed" : "Scheduled"}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">{report.type}</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm">{report.date}</span>
+              <button className="text-sm font-medium text-primary hover:underline">
+                {report.status === "completed" ? "Download" : "View details"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
