@@ -3,15 +3,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/backend/supabase";
 import { toast } from "sonner";
 
-// Define a more specific type for company details
+// Define a more specific type for risk appetite
 export type RiskAppetiteType = 'low' | 'medium' | 'high';
 
-// Use a simpler, flatter type structure
+// Use a simplified company details interface
 export interface CompanyDetails {
   riskAppetite?: RiskAppetiteType;
   companySize?: string;
   industry?: string;
-  // Allow additional properties without causing deep instantiation
   [key: string]: any; 
 }
 
@@ -39,40 +38,39 @@ export function useCompanyDetails(companyId?: string) {
           
         if (companyError) throw companyError;
         
-        // Safely extract company details
-        const details = companyData?.details || {};
-        
         // Create a simplified company details object
-        const companyDetailsObj: CompanyDetails = {};
+        const extractedDetails: CompanyDetails = {};
         
-        // Handle risk appetite specifically
-        if (typeof details === 'object' && details !== null) {
-          // Safe type assertion for risk appetite
-          const detailsRiskAppetite = details.riskAppetite as string;
-          if (detailsRiskAppetite && 
-              ['low', 'medium', 'high'].includes(detailsRiskAppetite)) {
-            setRiskAppetite(detailsRiskAppetite as RiskAppetiteType);
-            companyDetailsObj.riskAppetite = detailsRiskAppetite as RiskAppetiteType;
+        // Safely extract data from details
+        if (companyData?.details && typeof companyData.details === 'object' && !Array.isArray(companyData.details)) {
+          const details = companyData.details as Record<string, any>;
+          
+          // Extract specific properties we care about
+          if ('riskAppetite' in details && 
+              typeof details.riskAppetite === 'string' &&
+              ['low', 'medium', 'high'].includes(details.riskAppetite)) {
+            const appetite = details.riskAppetite as RiskAppetiteType;
+            setRiskAppetite(appetite);
+            extractedDetails.riskAppetite = appetite;
           }
           
-          // Extract other properties safely
-          if ('companySize' in details) {
-            companyDetailsObj.companySize = details.companySize as string;
+          if ('companySize' in details && typeof details.companySize === 'string') {
+            extractedDetails.companySize = details.companySize;
           }
           
-          if ('industry' in details) {
-            companyDetailsObj.industry = details.industry as string;
+          if ('industry' in details && typeof details.industry === 'string') {
+            extractedDetails.industry = details.industry;
           }
           
-          // Add any other properties from details
+          // Copy any other properties
           Object.entries(details).forEach(([key, value]) => {
             if (!['riskAppetite', 'companySize', 'industry'].includes(key)) {
-              companyDetailsObj[key] = value;
+              extractedDetails[key] = value;
             }
           });
         }
         
-        setCompanyDetails(companyDetailsObj);
+        setCompanyDetails(extractedDetails);
       } catch (error: any) {
         console.error("Error fetching company details:", error);
         toast.error("Failed to load company information");

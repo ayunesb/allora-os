@@ -12,12 +12,12 @@ export function usePendingApprovals() {
       try {
         setIsLoading(true);
         
-        // Get pending approvals count from user actions table
+        // Use a simpler approach to query pending approvals
         const { count, error } = await supabase
           .from('user_actions')
           .select('*', { count: 'exact', head: true })
           .eq('category', 'approval')
-          .eq('metadata->status', 'pending');
+          .eq('metadata->>status', 'pending');
           
         if (error) throw error;
         setPendingApprovals(count || 0);
