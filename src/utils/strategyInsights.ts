@@ -1,6 +1,6 @@
 
 import { RiskProfile, RiskAssessmentInput, calculateRiskScore } from './riskEngine';
-import { GeneratedStrategy, generateCustomizedStrategy } from './generateStrategy';
+import { GeneratedStrategy, generateCustomizedStrategy } from './strategy';
 
 export type StrategyInsight = {
   id: string;
