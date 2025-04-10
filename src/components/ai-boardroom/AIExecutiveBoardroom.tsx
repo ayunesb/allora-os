@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +44,18 @@ const executives = [
   { name: 'Steve Jobs', role: 'Product Visionary', avatar: '/avatars/steve-jobs.png' },
   { name: 'Sheryl Sandberg', role: 'Operations Expert', avatar: '/avatars/sheryl-sandberg.png' }
 ];
+
+// Helper function to get stance badge
+const getStanceBadge = (stance: 'for' | 'against' | 'neutral') => {
+  switch (stance) {
+    case 'for':
+      return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">In Favor</Badge>;
+    case 'against':
+      return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Against</Badge>;
+    case 'neutral':
+      return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Neutral</Badge>;
+  }
+};
 
 // Generate a debate based on company details
 const generateDebate = (companyIndustry?: string, companyRisk?: string): DebateThread => {
@@ -194,17 +205,6 @@ export default function AIExecutiveBoardroom() {
       .map(part => part[0])
       .join('')
       .toUpperCase();
-  };
-  
-  const getStanceBadge = (stance: 'for' | 'against' | 'neutral') => {
-    switch (stance) {
-      case 'for':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">In Favor</Badge>;
-      case 'against':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Against</Badge>;
-      case 'neutral':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Neutral</Badge>;
-    }
   };
   
   return (
