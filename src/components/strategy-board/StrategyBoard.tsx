@@ -50,7 +50,7 @@ export default function StrategyBoard() {
     
     // Apply risk filter - Handle different risk property names
     if (riskFilter !== 'all') {
-      const strategyRisk = strategy.risk || strategy.risk_level || strategy.riskLevel;
+      const strategyRisk = strategy.risk || strategy.risk_level;
       if (strategyRisk !== riskFilter) {
         return false;
       }
@@ -66,8 +66,8 @@ export default function StrategyBoard() {
         return a.title.localeCompare(b.title);
       case 'risk': {
         const riskOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
-        const riskA = a.risk || a.risk_level || a.riskLevel || 'Medium';
-        const riskB = b.risk || b.risk_level || b.riskLevel || 'Medium';
+        const riskA = a.risk || a.risk_level || 'Medium';
+        const riskB = b.risk || b.risk_level || 'Medium';
         return riskOrder[riskA as 'High' | 'Medium' | 'Low'] - riskOrder[riskB as 'High' | 'Medium' | 'Low'];
       }
       case 'newest':
