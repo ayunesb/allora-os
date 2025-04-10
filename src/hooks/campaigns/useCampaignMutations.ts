@@ -1,12 +1,9 @@
 
 import { useState } from 'react';
 import { createCampaign as createCampaignHelper, updateCampaign as updateCampaignHelper, deleteCampaign as deleteCampaignHelper } from '@/utils/campaignHelpers';
-import { Platform, Campaign } from '@/models/campaign';
+import { Platform, Campaign, CampaignStatus } from '@/models/campaign';
 import { toast } from 'sonner';
 import { triggerBusinessEvent } from '@/lib/zapier';
-
-// Update Campaign model to include 'Approved' status
-type CampaignStatus = 'Draft' | 'Active' | 'Paused' | 'Completed' | 'Approved';
 
 export function useCampaignMutations(companyId: string) {
   const [isCreating, setIsCreating] = useState(false);

@@ -105,10 +105,12 @@ export default function DashboardLeads() {
   // Adapter functions for void returns
   const handleLeadStatusUpdate = async (leadId: string, status: Lead['status']) => {
     await handleStatusUpdate(leadId, status);
+    return; // Explicitly return void
   };
 
   const handleLeadDelete = async (leadId: string) => {
     await handleDelete(leadId);
+    return; // Explicitly return void
   };
 
   return (
@@ -158,8 +160,8 @@ export default function DashboardLeads() {
               sortOrder={sortOrder}
               onSort={toggleSort}
               onViewLead={handleViewLead}
-              onStatusUpdate={handleStatusUpdate}
-              onDelete={handleDelete}
+              onStatusUpdate={handleLeadStatusUpdate}
+              onDelete={handleLeadDelete}
               selectedLeads={selectedLeads}
               onLeadSelect={handleLeadSelect}
               onSelectAll={(isSelected) => handleSelectAll(filteredLeads, isSelected)}

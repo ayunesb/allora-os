@@ -8,13 +8,15 @@ export type ExecutiveBot = string | {
   avatar?: string;
 };
 
+export type CampaignStatus = 'Draft' | 'Active' | 'Paused' | 'Completed' | 'Approved';
+
 export type Campaign = {
   id: string;
   company_id?: string;
   name: string;
   platform: Platform;
   budget?: number;
-  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  status?: CampaignStatus;
   created_at?: string;
   updated_at?: string;
   executiveBot?: ExecutiveBot;
