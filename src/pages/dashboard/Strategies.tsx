@@ -1,7 +1,8 @@
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import StrategyBoard from "@/components/strategy-board/StrategyBoard";
 import { useBreakpoint } from "@/hooks/use-mobile";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function Strategies() {
   const breakpoint = useBreakpoint();
@@ -9,7 +10,9 @@ export default function Strategies() {
   
   return (
     <div className={isMobileView ? "px-0 -mx-4" : ""}>
-      <StrategyBoard />
+      <ErrorBoundary>
+        <StrategyBoard />
+      </ErrorBoundary>
     </div>
   );
 }
