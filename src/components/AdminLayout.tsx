@@ -53,6 +53,14 @@ export default function AdminLayout() {
     { icon: <Rocket size={isMobileView ? 16 : 18} />, label: "Launch Prep", href: "/admin/launch-prep" },
   ];
 
+  // Helper function to check if route is active
+  const isRouteActive = (href) => {
+    if (href === '/admin' && currentPath === '/admin') {
+      return true;
+    }
+    return href !== '/admin' && currentPath.startsWith(href);
+  };
+
   // Mobile menu toggle
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -95,8 +103,8 @@ export default function AdminLayout() {
                 to={item.href}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 text-sm",
-                  currentPath === item.href || currentPath.startsWith(item.href + '/') 
-                    ? "bg-primary/10 text-primary font-medium" 
+                  isRouteActive(item.href)
+                    ? "bg-primary/10 text-primary font-medium border-l-4 border-primary" 
                     : "hover:bg-muted/50"
                 )}
                 onClick={toggleMobileMenu}
@@ -140,7 +148,7 @@ export default function AdminLayout() {
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
                     asChild
-                    isActive={currentPath === item.href || currentPath.startsWith(item.href + '/')}
+                    isActive={isRouteActive(item.href)}
                     tooltip={item.label}
                   >
                     <Link
