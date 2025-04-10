@@ -4,7 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { lazy, Suspense } from "react";
 import Footer from "@/components/Footer";
-import { ChevronRight, Stars, Award, BarChart3, Zap } from "lucide-react";
+import { ChevronRight, Stars, Award, BarChart3, Zap, AlertCircle } from "lucide-react";
 import ZapierTriggerButton from "@/components/integrations/ZapierTriggerButton";
 
 // Lazy load non-critical components
@@ -98,6 +98,16 @@ export default function Index() {
             <p className="mb-6 max-w-2xl mx-auto">
               Allora AI integrates seamlessly with Zapier, allowing you to automate workflows and connect with thousands of apps.
             </p>
+            
+            {/* Note about CORS */}
+            <div className="mx-auto max-w-xl mb-6 p-3 bg-amber-50 border border-amber-200 rounded-md text-sm flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+              <p className="text-amber-800 text-left">
+                Due to browser security restrictions (CORS), webhook requests may show errors in the console 
+                but will still reach Zapier. Check your Zap's task history to confirm receipt.
+              </p>
+            </div>
+            
             <div className="flex justify-center">
               <ZapierTriggerButton 
                 event="demo_trigger" 

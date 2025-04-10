@@ -33,7 +33,7 @@ const ZapierTriggerButton: React.FC<ZapierTriggerButtonProps> = ({
     setIsLoading(true);
     
     try {
-      // Get the webhook URL from localStorage
+      // Get the webhook URL from localStorage with a fallback
       const webhookUrl = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
       
       if (!webhookUrl) {
@@ -56,7 +56,8 @@ const ZapierTriggerButton: React.FC<ZapierTriggerButtonProps> = ({
       if (result.success) {
         toast.success("Zapier workflow triggered successfully");
       } else {
-        toast.error(`Failed to trigger Zapier: ${result.error?.message || "Unknown error"}`);
+        // More user-friendly error message
+        toast.error(`Failed to trigger Zapier: ${result.message || result.error?.message || "Unknown error"}. CORS restrictions may apply.`);
       }
     } catch (error: any) {
       console.error("Error triggering Zapier:", error);

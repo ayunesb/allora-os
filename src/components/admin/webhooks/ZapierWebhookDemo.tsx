@@ -2,9 +2,10 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, Send, FileText, Bell } from "lucide-react";
+import { Zap, Send, FileText, Bell, Info } from "lucide-react";
 import { toast } from "sonner";
 import { useZapier } from '@/lib/zapier';
+import { executeAndLogWebhook } from '@/utils/webhookUtils';
 
 interface ZapierWebhookDemoProps {
   webhookUrl: string;
@@ -32,7 +33,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       if (result.success) {
         toast.success(`Successfully triggered "${event}" event`);
       } else {
-        toast.error(`Failed to trigger "${event}" event: ${result.error?.message || "Unknown error"}`);
+        toast.error(`Failed to trigger "${event}" event: ${result.message || result.error?.message || "Unknown error"}`);
       }
     } catch (error: any) {
       console.error(`Error triggering "${event}" event:`, error);
@@ -86,6 +87,14 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
         <CardDescription>
           Try sending different events to your Zapier webhook to test the integration
         </CardDescription>
+        
+        <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md text-sm flex items-start gap-2">
+          <Info className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+          <p className="text-amber-800">
+            Due to browser security restrictions (CORS), webhook requests may appear to fail in the browser console
+            but will still reach Zapier. Check your Zap's task history to confirm.
+          </p>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

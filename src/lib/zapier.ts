@@ -7,6 +7,7 @@
 import { useSelfLearning } from '@/hooks/useSelfLearning';
 import { ActionCategory } from '@/utils/selfLearning';
 import { sanitizeInput } from '@/utils/sanitizers';
+import { executeAndLogWebhook } from '@/utils/webhookUtils';
 
 // Base function to trigger a Zapier webhook with proper validation
 export const triggerZap = async (event: string, payload: Record<string, any>) => {
@@ -38,7 +39,7 @@ export const triggerZap = async (event: string, payload: Record<string, any>) =>
       return acc;
     }, {} as Record<string, any>);
     
-    // Add metadata
+    // Prepare request body
     const requestBody = {
       event: sanitizedEvent,
       payload: sanitizedPayload,
@@ -46,19 +47,8 @@ export const triggerZap = async (event: string, payload: Record<string, any>) =>
       source: 'Allora AI Platform'
     };
     
-    // Make the request to Zapier
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-    
-    // Validate response
-    if (!response.ok) {
-      throw new Error(`Zapier webhook failed: ${response.status} ${response.statusText}`);
-    }
+    // Use the executeAndLogWebhook utility which handles CORS properly
+    const result = await executeAndLogWebhook(webhookUrl, requestBody, 'zapier', `zapier_${sanitizedEvent}`);
     
     // Track this zapier event in our self-learning system if we have userId
     if (sanitizedPayload.userId) {
@@ -74,7 +64,7 @@ export const triggerZap = async (event: string, payload: Record<string, any>) =>
       });
     }
     
-    return { success: true };
+    return { success: result.success, message: result.message };
   } catch (error: any) {
     console.error("Error triggering Zapier webhook:", error);
     return { success: false, error };
