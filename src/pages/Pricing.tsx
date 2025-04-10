@@ -63,7 +63,7 @@ export default function Pricing() {
   const tiers = [
     {
       title: "Starter",
-      price: "$99",
+      price: "$199",
       description: "Perfect for small businesses and startups",
       features: [
         "Basic AI advisor consultation",
@@ -78,7 +78,7 @@ export default function Pricing() {
     },
     {
       title: "Professional",
-      price: "$299",
+      price: "$699",
       description: "Ideal for growing businesses",
       features: [
         "All Starter features",
