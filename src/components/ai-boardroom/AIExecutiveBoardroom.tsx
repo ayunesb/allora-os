@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MessageSquare, AlertTriangle } from "lucide-react";
+import { Loader2, MessageSquare, AlertTriangle, PlusCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { getExecutiveImage } from "@/utils/ai-executives";
 import { useCompanyDetails } from "@/hooks/useCompanyDetails";
 import { useAuth } from "@/context/AuthContext";
@@ -61,6 +62,20 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
       setError(null);
 
       try {
+        // Check if the table exists
+        const { error: tableCheckError } = await supabase
+          .from('ai_boardroom_debates')
+          .select('id')
+          .limit(1);
+          
+        if (tableCheckError) {
+          // If table doesn't exist, show appropriate message
+          console.error("Table check error:", tableCheckError);
+          setError("AI Boardroom debates functionality is not yet available.");
+          setIsLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase
           .from('ai_boardroom_debates')
           .select('*')
@@ -70,17 +85,18 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
           .single();
 
         if (error) {
-          throw new Error(`Failed to fetch boardroom debate: ${error.message}`);
-        }
-
-        if (data) {
+          if (error.code === 'PGRST116') {
+            // No data found for this company
+            setError("No boardroom debate found for this company. Try starting a new debate.");
+          } else {
+            throw new Error(`Failed to fetch boardroom debate: ${error.message}`);
+          }
+        } else if (data) {
           setTopic(data.topic);
           setSummary(data.summary);
-          setExecutives(data.executives);
-          setDiscussion(data.discussion);
+          setExecutives(data.executives || []);
+          setDiscussion(data.discussion || []);
           setConclusion(data.conclusion);
-        } else {
-          setError("No boardroom debate found for this company.");
         }
       } catch (err: any) {
         console.error("Error fetching boardroom debate:", err);
@@ -92,6 +108,11 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
 
     fetchBoardroomDebate();
   }, [companyId]);
+
+  const handleStartNewDebate = () => {
+    // This function would open a modal or navigate to a debate creation page
+    toast.info("This feature is coming soon!");
+  };
 
   const getExecutiveName = (executiveId: string) => {
     const executive = executives.find(exec => exec.id === executiveId);
@@ -124,6 +145,14 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
           <div className="flex flex-col items-center text-center">
             <AlertTriangle className="h-12 w-12 text-muted-foreground mb-3" />
             <p className="text-sm text-muted-foreground mb-4">{error}</p>
+            <Button 
+              variant="outline" 
+              onClick={handleStartNewDebate}
+              className="mt-2"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Start New Debate
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -155,21 +184,29 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
               <TabsTrigger value="conclusion">Conclusion</TabsTrigger>
             </TabsList>
             <TabsContent value="discussion" className="space-y-4">
-              {discussion.map((item: any, index: number) => (
-                <div key={index} className="flex space-x-4">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={getExecutiveImage(item.speaker)} />
-                    <AvatarFallback>{item.speaker.substring(0, 2)}</AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{item.speaker}</p>
-                    <p className="text-xs text-muted-foreground">{item.message}</p>
+              {discussion.length > 0 ? (
+                discussion.map((item: any, index: number) => (
+                  <div key={index} className="flex space-x-4">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={getExecutiveImage(item.speaker)} />
+                      <AvatarFallback>{item.speaker?.substring(0, 2) || 'EX'}</AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">{item.speaker}</p>
+                      <p className="text-xs text-muted-foreground">{item.message}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">No discussion data available.</p>
+              )}
             </TabsContent>
             <TabsContent value="conclusion">
-              <p className="text-muted-foreground">{conclusion}</p>
+              {conclusion ? (
+                <p className="text-muted-foreground">{conclusion}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">No conclusion data available.</p>
+              )}
             </TabsContent>
           </Tabs>
         </div>

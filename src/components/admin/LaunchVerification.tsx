@@ -3,12 +3,16 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { validateLaunchReadiness } from '@/utils/launchValidator';
-import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { CheckCircle2, AlertCircle, RefreshCw, Database } from 'lucide-react';
+import { addDemoDataButton } from '@/utils/demoData';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LaunchVerification() {
   const [isChecking, setIsChecking] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [isReady, setIsReady] = useState<boolean | null>(null);
+  const [isAddingDemo, setIsAddingDemo] = useState(false);
+  const { profile } = useAuth();
   
   const runChecks = async () => {
     setIsChecking(true);
@@ -21,6 +25,15 @@ export default function LaunchVerification() {
       setIsReady(false);
     } finally {
       setIsChecking(false);
+    }
+  };
+
+  const handleAddDemoData = async () => {
+    setIsAddingDemo(true);
+    try {
+      await addDemoDataButton(profile?.company_id);
+    } finally {
+      setIsAddingDemo(false);
     }
   };
   
@@ -73,13 +86,23 @@ export default function LaunchVerification() {
           </div>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col sm:flex-row gap-2">
         <Button 
           onClick={runChecks} 
           disabled={isChecking}
           className="w-full"
         >
           {isChecking ? 'Checking...' : results ? 'Run Checks Again' : 'Run Pre-Launch Checks'}
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={handleAddDemoData}
+          disabled={isAddingDemo}
+          className="w-full sm:w-auto"
+        >
+          <Database className="mr-2 h-4 w-4" />
+          {isAddingDemo ? 'Adding...' : 'Add Demo Data'}
         </Button>
       </CardFooter>
     </Card>
