@@ -11,11 +11,11 @@ import {
   getUserIdByEmail,
   getUserProfileByEmail,
   updateUserRole,
-  removeUserFromCompany,
-  inviteUserToCompany
+  removeUserFromCompany
 } from './users';
 
-// Import the renamed function
+// Import the inviteUserToCompany function and the renamed function
+import { inviteUserToCompany } from './users/invitations';
 import { assignUserToCompany } from './users/companyUsers';
 
 // Re-export all functions for backward compatibility
@@ -26,6 +26,6 @@ export {
   updateUserRole,
   removeUserFromCompany,
   inviteUserToCompany,
-  // Export the renamed function with the old name for backward compatibility
-  assignUserToCompany as inviteUserToCompany
+  // Also export the legacy function
+  assignUserToCompany
 };
