@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bot_interactions: {
+        Row: {
+          bot_name: string
+          bot_response: string
+          bot_role: string
+          created_at: string | null
+          embedding: string | null
+          id: string
+          metadata: Json | null
+          user_feedback: string | null
+          user_id: string | null
+          user_message: string
+        }
+        Insert: {
+          bot_name: string
+          bot_response: string
+          bot_role: string
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          user_feedback?: string | null
+          user_id?: string | null
+          user_message: string
+        }
+        Update: {
+          bot_name?: string
+          bot_response?: string
+          bot_role?: string
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          user_feedback?: string | null
+          user_id?: string | null
+          user_message?: string
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           budget: number | null
@@ -97,6 +136,103 @@ export type Database = {
           },
         ]
       }
+      debate_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          debate_id: string | null
+          id: string
+          sender: string
+          sender_role: string | null
+          sequence: number
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          debate_id?: string | null
+          id?: string
+          sender: string
+          sender_role?: string | null
+          sequence: number
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          debate_id?: string | null
+          id?: string
+          sender?: string
+          sender_role?: string | null
+          sequence?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_messages_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debate_summaries: {
+        Row: {
+          content: string
+          created_at: string | null
+          debate_id: string | null
+          id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          debate_id?: string | null
+          id?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          debate_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_summaries_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debates: {
+        Row: {
+          context: Json | null
+          created_at: string | null
+          id: string
+          participants: Json
+          status: string | null
+          topic: string
+          user_id: string | null
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          participants: Json
+          status?: string | null
+          topic: string
+          user_id?: string | null
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          participants?: Json
+          status?: string | null
+          topic?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campaign_id: string
@@ -134,6 +270,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      learning_models: {
+        Row: {
+          bot_name: string
+          bot_role: string
+          created_at: string | null
+          id: string
+          negative_feedback_count: number | null
+          positive_feedback_count: number | null
+          topics: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          bot_name: string
+          bot_role: string
+          created_at?: string | null
+          id?: string
+          negative_feedback_count?: number | null
+          positive_feedback_count?: number | null
+          topics?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          bot_name?: string
+          bot_role?: string
+          created_at?: string | null
+          id?: string
+          negative_feedback_count?: number | null
+          positive_feedback_count?: number | null
+          topics?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -330,6 +499,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_feedback: {
+        Row: {
+          bot_name: string
+          bot_role: string
+          comment: string | null
+          created_at: string | null
+          id: string
+          interaction_id: string | null
+          is_positive: boolean
+          message_id: string | null
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          bot_name: string
+          bot_role: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          interaction_id?: string | null
+          is_positive: boolean
+          message_id?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          bot_name?: string
+          bot_role?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          interaction_id?: string | null
+          is_positive?: boolean
+          message_id?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           activity_peak_times: Json | null
@@ -371,6 +579,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
       get_company_integrations: {
         Args: { p_company_id: string }
         Returns: {
@@ -418,6 +630,38 @@ export type Database = {
           user_id: string
         }
       }
+      halfvec_avg: {
+        Args: { "": number[] }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
+      hnsw_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       insert_company_integrations: {
         Args: { p_company_id: string; p_integration_ids: Json }
         Returns: undefined
@@ -433,6 +677,38 @@ export type Database = {
           p_timestamp: string
         }
         Returns: undefined
+      }
+      ivfflat_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: string
+      }
+      sparsevec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
       }
       update_company_integrations: {
         Args: { p_company_id: string; p_integration_ids: Json }
@@ -454,6 +730,30 @@ export type Database = {
           p_last_updated: string
         }
         Returns: undefined
+      }
+      vector_avg: {
+        Args: { "": number[] }
+        Returns: string
+      }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
+      vector_norm: {
+        Args: { "": string }
+        Returns: number
+      }
+      vector_out: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: { "": string }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
       }
     }
     Enums: {

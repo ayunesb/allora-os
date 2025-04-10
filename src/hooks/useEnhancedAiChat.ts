@@ -57,9 +57,13 @@ export function useEnhancedAiChat() {
         const model = await getLearningModel(botName, botRole);
         if (model) {
           // Extract most relevant topic feedback
-          const topics = model.topics || {};
+          const topics = model.topics as Record<string, { positive: number, negative: number }> || {};
           const relevantTopic = Object.entries(topics)
-            .sort((a, b) => (b[1].positive + b[1].negative) - (a[1].positive + a[1].negative))
+            .sort((a, b) => {
+              const [, aFeedback] = a;
+              const [, bFeedback] = b;
+              return (bFeedback.positive + bFeedback.negative) - (aFeedback.positive + aFeedback.negative);
+            })
             .shift();
             
           if (relevantTopic) {
