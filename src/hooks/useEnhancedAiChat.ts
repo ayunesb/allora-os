@@ -6,12 +6,14 @@ import { toast } from 'sonner';
 import { useAiMemory } from './useAiMemory';
 import { useAiLearning } from './useAiLearning';
 import { useUserPreferences } from './useUserPreferences';
+import { useAiModelPreferences, AiModelType } from './useAiModelPreferences';
 
 export function useEnhancedAiChat() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const { preferences } = useUserPreferences();
+  const { preferences: modelPreferences } = useAiModelPreferences();
   const { storeInteraction, getRelevantMemories } = useAiMemory();
   const { getLearningModel } = useAiLearning();
 
@@ -21,7 +23,8 @@ export function useEnhancedAiChat() {
     botRole: string,
     userMessage: string,
     includeRelevantMemory: boolean = true,
-    includeLearningContext: boolean = true
+    includeLearningContext: boolean = true,
+    modelOverride?: AiModelType
   ) => {
     if (!userMessage.trim()) return null;
     setIsLoading(true);
@@ -39,7 +42,7 @@ export function useEnhancedAiChat() {
       
       // Get relevant memories if requested
       let memoryContext = null;
-      if (includeRelevantMemory && user?.id) {
+      if (includeRelevantMemory && user?.id && modelPreferences.enableVectorSearch) {
         const relevantMemories = await getRelevantMemories(userMessage, botName, botRole, 3);
         if (relevantMemories.length > 0) {
           memoryContext = {
@@ -53,7 +56,7 @@ export function useEnhancedAiChat() {
       
       // Get learning context if requested
       let learningFeedback = null;
-      if (includeLearningContext) {
+      if (includeLearningContext && modelPreferences.enableLearning) {
         const model = await getLearningModel(botName, botRole);
         if (model) {
           // Extract most relevant topic feedback
@@ -77,8 +80,11 @@ export function useEnhancedAiChat() {
         }
       }
       
-      // Call the enhanced OpenAI function
-      const { data, error } = await supabase.functions.invoke('openai', {
+      // Determine which model to use
+      const modelToUse = modelOverride || modelPreferences.defaultModel;
+      
+      // Call the enhanced multi-model AI function
+      const { data, error } = await supabase.functions.invoke('multi-model-ai', {
         body: {
           botName,
           botRole,
@@ -86,7 +92,8 @@ export function useEnhancedAiChat() {
           messages: [...messages, userMsg],
           preferences: preferences,
           memoryContext,
-          learningFeedback
+          learningFeedback,
+          modelPreference: modelToUse
         }
       });
       
@@ -96,6 +103,7 @@ export function useEnhancedAiChat() {
       const botMsg = {
         id: `bot-${Date.now()}`,
         content: data.content,
+        model: data.model,
         type: 'assistant',
         sender: botName,
         timestamp: new Date().toISOString()
@@ -110,7 +118,7 @@ export function useEnhancedAiChat() {
           botRole,
           userMessage,
           data.content,
-          { timestamp: new Date().toISOString() }
+          { timestamp: new Date().toISOString(), model: data.model }
         );
       }
       
@@ -122,7 +130,7 @@ export function useEnhancedAiChat() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, messages, preferences, storeInteraction, getRelevantMemories, getLearningModel]);
+  }, [user, messages, preferences, modelPreferences, storeInteraction, getRelevantMemories, getLearningModel]);
 
   // Clear the conversation
   const clearConversation = useCallback(() => {
