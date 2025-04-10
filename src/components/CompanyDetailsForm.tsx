@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { 
   Card, 
@@ -22,13 +22,13 @@ export default function CompanyDetailsForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Load company details when profile changes
-  useState(() => {
+  useEffect(() => {
     if (profile?.company_id) {
       // In a real app, you would fetch the company details from the database
       // For now, we'll just use an empty object
       setCompanyDetails({});
     }
-  });
+  }, [profile]);
 
   const updateCompanyDetailsState = (details: PartialCompanyDetails) => {
     setCompanyDetails({ ...companyDetails, ...details });
@@ -47,6 +47,11 @@ export default function CompanyDetailsForm() {
       // Extract basic info that's required by the API
       const companyName = profile?.company || "";
       const industryName = profile?.industry || "";
+      
+      console.log("Saving company details for user:", user.id);
+      console.log("Company name:", companyName);
+      console.log("Industry:", industryName);
+      console.log("Company details:", companyDetails);
       
       // Provide the bare minimum required fields plus the additionalDetails
       const result = await updateCompanyDetails(user.id, {
