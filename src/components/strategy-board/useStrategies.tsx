@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useCompanyInsights } from "@/hooks/useCompanyInsights";
 import { InsightType } from "@/components/bot-insights/BotInsightCard";
+import { useAuth } from "@/context/AuthContext";
 
 export interface Strategy {
   id: string;
@@ -70,12 +71,23 @@ export function useStrategies() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { insights, isLoading: insightsLoading } = useCompanyInsights();
+  const { profile } = useAuth();
   
   useEffect(() => {
     const fetchStrategies = async () => {
+      if (!profile?.company_id) {
+        // Don't attempt to fetch without a company ID
+        setIsLoading(false);
+        return;
+      }
+      
       setIsLoading(true);
+      setError(null);
       
       try {
+        // In a real implementation, you would fetch from Supabase here
+        // For now we'll use demo data and AI-generated strategies
+        
         // Get strategy insights from AI
         const strategyInsights = insights.filter(insight => insight.type === "strategy" as InsightType);
         
@@ -111,7 +123,7 @@ export function useStrategies() {
         });
       } catch (err: any) {
         console.error("Error fetching strategies:", err);
-        setError(err);
+        setError(new Error(err.message || "Failed to load strategies"));
       } finally {
         setIsLoading(false);
       }
@@ -120,7 +132,7 @@ export function useStrategies() {
     if (!insightsLoading) {
       fetchStrategies();
     }
-  }, [insights, insightsLoading]);
+  }, [insights, insightsLoading, profile?.company_id]);
   
   const refetch = () => {
     // This would normally fetch data from the API
@@ -128,7 +140,8 @@ export function useStrategies() {
     // Simulate API call with timeout
     setTimeout(() => {
       setIsLoading(false);
-    }, 500);
+      setError(null); // Clear any previous errors
+    }, 800);
   };
 
   return { strategies, isLoading, error, refetch };

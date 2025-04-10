@@ -50,6 +50,17 @@
   }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+@keyframes flash {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.5; }
+}
+
 @layer utilities {
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-in-out;
@@ -71,11 +82,27 @@
     animation: bounce-once 0.3s ease-in-out;
   }
   
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+  
+  .animate-flash {
+    animation: flash 0.7s ease-in-out;
+  }
+  
   .transition-all-fast {
     transition: all 0.2s ease;
   }
   
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  .error-card {
+    @apply bg-red-950/10 border-red-300/20 text-red-300 animate-fadeIn;
+  }
+  
+  .retry-button {
+    @apply bg-primary/80 hover:bg-primary transition-colors duration-200 animate-pulse-once;
   }
 }

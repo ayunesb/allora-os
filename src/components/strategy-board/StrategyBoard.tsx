@@ -9,6 +9,8 @@ import EmptyState from "../strategies/EmptyState";
 import { handleApiError } from "@/utils/api/errorHandling";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function StrategyBoard() {
   const { strategies, isLoading, error, refetch } = useStrategies();
@@ -33,6 +35,7 @@ export default function StrategyBoard() {
   
   // Handle retry on error
   const handleRetry = useCallback(() => {
+    toast.info("Retrying...");
     if (refetch) {
       refetch();
     }
@@ -61,6 +64,10 @@ export default function StrategyBoard() {
       case 'risk':
         const riskOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
         return riskOrder[a.risk as 'High' | 'Medium' | 'Low'] - riskOrder[b.risk as 'High' | 'Medium' | 'Low'];
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       default:
         return 0;
     }
@@ -83,11 +90,20 @@ export default function StrategyBoard() {
       />
       
       {error ? (
-        <EmptyState 
-          onCreateNew={handleCreateNew} 
-          error={error.message || "Failed to load strategies"}
-          onRetry={handleRetry}
-        />
+        <div className="bg-secondary/40 border border-destructive/30 rounded-lg p-6 text-center my-8 animate-fadeIn">
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <h3 className="text-xl font-bold mb-2">Error Loading Strategies</h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            {error instanceof Error ? error.message : "Failed to load strategies"}
+          </p>
+          <Button 
+            variant="default"
+            onClick={handleRetry}
+            className="min-w-[120px] animate-pulse-once"
+          >
+            Retry
+          </Button>
+        </div>
       ) : isLoading ? (
         <div className="py-4 sm:py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">

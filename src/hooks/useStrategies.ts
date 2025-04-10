@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuthState } from '@/hooks/useAuthState';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/backend/supabase';
+import { handleApiError } from '@/utils/api/errorHandling';
 
 export function useStrategies() {
   const [strategies, setStrategies] = useState<Strategy[]>([]);
@@ -17,7 +18,7 @@ export function useStrategies() {
   const { profile } = useAuth();
 
   const fetchStrategies = useCallback(async () => {
-    if (!user) {
+    if (!profile?.company_id) {
       setStrategies([]);
       setIsLoading(false);
       return;
@@ -27,10 +28,11 @@ export function useStrategies() {
     setError(null);
 
     try {
+      // Query strategies by company_id instead of user_id
       const { data, error } = await supabase
         .from('strategies')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('company_id', profile.company_id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -39,7 +41,7 @@ export function useStrategies() {
 
       // If there's no data yet, create demo strategies with AI executive attribution
       if (!data || data.length === 0) {
-        const demoStrategies = generateDemoStrategies(user.id, profile?.industry);
+        const demoStrategies = generateDemoStrategies(profile.company_id, profile?.industry);
         setStrategies(demoStrategies);
       } else {
         // Add executive attribution if missing
@@ -58,11 +60,13 @@ export function useStrategies() {
     } catch (err: any) {
       console.error('Error fetching strategies:', err);
       setError(err);
-      toast.error('Failed to load strategies');
+      
+      // Don't show toast for initial load to avoid duplicate error messages
+      // The error state will be displayed in the UI
     } finally {
       setIsLoading(false);
     }
-  }, [user, profile?.industry]);
+  }, [profile?.company_id, profile?.industry]);
 
   const getRandomExecutive = () => {
     const executives = [
@@ -77,7 +81,7 @@ export function useStrategies() {
     return executives[Math.floor(Math.random() * executives.length)];
   };
 
-  const generateDemoStrategies = (userId: string, industry?: string): Strategy[] => {
+  const generateDemoStrategies = (companyId: string, industry?: string): Strategy[] => {
     // Customize demo strategies based on industry
     const industryName = industry || 'Technology';
     
@@ -86,7 +90,7 @@ export function useStrategies() {
         id: 'demo-1',
         title: `${industryName} Market Expansion`,
         description: `Strategically expand into adjacent ${industryName.toLowerCase()} markets where existing capabilities can be leveraged with minimal additional investment.`,
-        user_id: userId,
+        company_id: companyId,
         riskLevel: 'Medium',
         tags: ['growth', 'expansion'],
         created_at: new Date().toISOString(),
@@ -98,7 +102,7 @@ export function useStrategies() {
         id: 'demo-2',
         title: 'Operational Excellence Program',
         description: 'Implement a systematic review of all operational processes to identify and eliminate inefficiencies, reduce costs, and improve quality.',
-        user_id: userId,
+        company_id: companyId,
         riskLevel: 'Low',
         tags: ['operations', 'efficiency'],
         created_at: new Date(Date.now() - 86400000).toISOString(),
@@ -110,7 +114,7 @@ export function useStrategies() {
         id: 'demo-3',
         title: 'Strategic Innovation Initiative',
         description: 'Establish a dedicated innovation lab to explore disruptive technologies and business models that could create new revenue streams.',
-        user_id: userId,
+        company_id: companyId,
         riskLevel: 'High',
         tags: ['innovation', 'growth'],
         created_at: new Date(Date.now() - 172800000).toISOString(),
@@ -125,9 +129,9 @@ export function useStrategies() {
     fetchStrategies();
   }, [fetchStrategies]);
 
-  const createStrategy = useCallback(async (strategyData: Omit<Strategy, 'id' | 'user_id' | 'created_at'>) => {
-    if (!user) {
-      toast.error('You must be logged in to create a strategy');
+  const createStrategy = useCallback(async (strategyData: Omit<Strategy, 'id' | 'created_at'>) => {
+    if (!profile?.company_id) {
+      toast.error('Company profile not found');
       return null;
     }
 
@@ -142,7 +146,7 @@ export function useStrategies() {
         .insert([
           {
             ...strategyData,
-            user_id: user.id,
+            company_id: profile.company_id, // Use company_id instead of user_id
             executiveBot,
             created_at: new Date().toISOString()
           }
@@ -165,16 +169,16 @@ export function useStrategies() {
       return null;
     } catch (err: any) {
       console.error('Error creating strategy:', err);
-      toast.error('Failed to create strategy');
+      handleApiError(err, { customMessage: 'Failed to create strategy' });
       return null;
     } finally {
       setIsCreating(false);
     }
-  }, [user, fetchStrategies]);
+  }, [profile?.company_id, fetchStrategies]);
 
-  const updateStrategy = useCallback(async (strategyId: string, updates: Partial<Omit<Strategy, 'id' | 'user_id' | 'created_at'>>) => {
-    if (!user) {
-      toast.error('You must be logged in to update a strategy');
+  const updateStrategy = useCallback(async (strategyId: string, updates: Partial<Omit<Strategy, 'id' | 'created_at'>>) => {
+    if (!profile?.company_id) {
+      toast.error('Company profile not found');
       return false;
     }
 
@@ -185,7 +189,7 @@ export function useStrategies() {
         .from('strategies')
         .update(updates)
         .eq('id', strategyId)
-        .eq('user_id', user.id);
+        .eq('company_id', profile.company_id); // Filter by company_id instead of user_id
 
       if (error) {
         throw error;
@@ -203,16 +207,16 @@ export function useStrategies() {
       return true;
     } catch (err: any) {
       console.error('Error updating strategy:', err);
-      toast.error('Failed to update strategy');
+      handleApiError(err, { customMessage: 'Failed to update strategy' });
       return false;
     } finally {
       setIsUpdating(false);
     }
-  }, [user]);
+  }, [profile?.company_id]);
 
   const deleteStrategy = useCallback(async (strategyId: string) => {
-    if (!user) {
-      toast.error('You must be logged in to delete a strategy');
+    if (!profile?.company_id) {
+      toast.error('Company profile not found');
       return false;
     }
 
@@ -223,7 +227,7 @@ export function useStrategies() {
         .from('strategies')
         .delete()
         .eq('id', strategyId)
-        .eq('user_id', user.id);
+        .eq('company_id', profile.company_id); // Filter by company_id instead of user_id
 
       if (error) {
         throw error;
@@ -237,12 +241,12 @@ export function useStrategies() {
       return true;
     } catch (err: any) {
       console.error('Error deleting strategy:', err);
-      toast.error('Failed to delete strategy');
+      handleApiError(err, { customMessage: 'Failed to delete strategy' });
       return false;
     } finally {
       setIsDeleting(false);
     }
-  }, [user]);
+  }, [profile?.company_id]);
 
   const refetch = useCallback(() => {
     fetchStrategies();

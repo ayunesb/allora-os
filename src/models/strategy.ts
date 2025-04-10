@@ -3,7 +3,7 @@ export type Strategy = {
   id: string;
   title: string;
   description: string;
-  user_id: string;
+  company_id: string;
   riskLevel: 'Low' | 'Medium' | 'High';
   risk_level?: 'Low' | 'Medium' | 'High'; // For backward compatibility
   tags?: string[];
