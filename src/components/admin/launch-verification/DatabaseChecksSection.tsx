@@ -22,12 +22,12 @@ export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionPro
 
   return (
     <div className="mt-4">
-      <h3 className="text-sm font-medium mb-2">{title}</h3>
+      <h3 className="text-sm font-medium mb-2 text-white">{title}</h3>
       <div className="space-y-2">
         {items.map((item, index) => (
-          <div key={index} className="bg-secondary/20 rounded-md border border-border p-3 text-sm">
+          <div key={index} className="bg-[#1E293B]/80 rounded-md border border-white/10 p-3 text-sm">
             <div className="flex justify-between items-center">
-              <div className="font-medium">
+              <div className="font-medium text-white">
                 {item.name || item.table || `Item ${index + 1}`}
               </div>
               <div className="flex items-center gap-1">
@@ -36,12 +36,12 @@ export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionPro
                 ) : (
                   <AlertCircle className="h-4 w-4 text-amber-500" />
                 )}
-                <span className="text-xs capitalize">{item.status}</span>
+                <span className="text-xs capitalize text-gray-300">{item.status}</span>
               </div>
             </div>
             
             {item.message && (
-              <div className="text-xs text-muted-foreground mt-1">
+              <div className="text-xs text-gray-400 mt-1">
                 {item.message}
               </div>
             )}

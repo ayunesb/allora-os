@@ -14,7 +14,6 @@ import {
   Rocket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import {
@@ -80,7 +79,7 @@ export default function AdminLayout() {
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
-            <span className="font-medium text-sm text-white">Admin Panel</span>
+            <span className="font-medium text-sm text-white">Admin Control Panel</span>
             <div className="w-8"></div> {/* Empty div for alignment */}
           </div>
         </div>
@@ -125,58 +124,38 @@ export default function AdminLayout() {
   }
 
   return (
-    <SidebarProvider defaultOpen={!isMobileView}>
-      <div className="min-h-screen bg-[#0F1729] flex w-full">
-        {/* Using isLoggedIn prop to ensure the Navbar doesn't render dashboard tabs in admin layout */}
-        <Navbar isLoggedIn={false} />
+    <div className="min-h-screen bg-[#0F1729] flex">
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-[260px] bg-[#0F1729] border-r border-white/10 z-30">
+        <div className="p-6">
+          <h1 className="font-bold text-2xl text-white">Admin Control Panel</h1>
+        </div>
         
-        <Sidebar className="bg-[#0F1729] border-r border-white/10 pt-0 w-[260px]">
-          <SidebarHeader>
-            <div className="pt-16 px-4 pb-4">
-              <h2 className="text-xl font-bold mb-2 text-white flex items-center">
-                Admin Control Panel
-                <SidebarTrigger className="ml-auto md:hidden" />
-              </h2>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {adminMenuItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isRouteActive(item.href)}
-                    tooltip={item.label}
-                    className={cn(
-                      "py-2.5",
-                      isRouteActive(item.href) 
-                        ? "bg-[#1E293B] text-white" 
-                        : "text-gray-400 hover:bg-[#1E293B]/50 hover:text-white"
-                    )}
-                  >
-                    <Link
-                      to={item.href}
-                      className={cn(
-                        "flex items-center gap-3 px-4"
-                      )}
-                    >
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter />
-        </Sidebar>
-        
-        <SidebarInset className="bg-[#0F1729] text-white">
-          <div className="p-4 sm:p-6 w-full overflow-x-hidden">
-            <Outlet />
-          </div>
-        </SidebarInset>
+        <div className="flex-1 px-3 py-3">
+          {adminMenuItems.map((item) => (
+            <Link
+              key={item.label}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium mb-1",
+                isRouteActive(item.href)
+                  ? "bg-[#1E293B] text-white" 
+                  : "text-gray-400 hover:bg-[#1E293B]/50 hover:text-white"
+              )}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
-    </SidebarProvider>
+      
+      {/* Main content */}
+      <div className="flex-1 md:ml-[260px]">
+        <div className="p-6 max-w-full">
+          <Outlet />
+        </div>
+      </div>
+    </div>
   );
 }

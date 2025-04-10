@@ -10,7 +10,7 @@ import { adminRoutes } from "./admin-routes";
 import { marketingRoutes } from "./marketing-routes";
 import ZoomCallback from "@/components/integration/ZoomCallback";
 
-// Add NavigationManager to each route
+// Add NavigationManager to each route that isn't the admin routes
 const withNavigationManager = (routes) => {
   return routes.map(route => ({
     ...route,
@@ -23,23 +23,29 @@ const withNavigationManager = (routes) => {
   }));
 };
 
-// Handle special case for dashboard and admin routes which are objects not arrays
-const withNavigationManagerForObject = (routeObj) => ({
-  ...routeObj,
-  element: (
-    <>
-      <NavigationManager />
-      {routeObj.element}
-    </>
-  )
-});
+// Handle special case for dashboard route which is an object not array
+const withNavigationManagerForObject = (routeObj, skipNavManager = false) => {
+  if (skipNavManager) {
+    return routeObj; // Return without NavigationManager for admin routes
+  }
+  
+  return {
+    ...routeObj,
+    element: (
+      <>
+        <NavigationManager />
+        {routeObj.element}
+      </>
+    )
+  };
+};
 
 export const router = createBrowserRouter([
   ...withNavigationManager(publicRoutes),
   withNavigationManagerForObject(dashboardRoutes),
   ...withNavigationManager(onboardingRoutes),
   ...withNavigationManager(authRoutes),
-  withNavigationManagerForObject(adminRoutes),
+  withNavigationManagerForObject(adminRoutes, true), // Skip NavigationManager for admin
   ...withNavigationManager(marketingRoutes),
   {
     path: "/zoom-callback",

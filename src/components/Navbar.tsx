@@ -50,7 +50,7 @@ const getPublicNavItems = () => [
   },
 ];
 
-export function Navbar({ isLoggedIn = false }) {
+export function Navbar({ isLoggedIn = false, isAdminSection = false }) {
   // Get auth context - safely handle not being in context
   let authValues = { signOut: null, user: null, profile: null };
   try {
@@ -71,6 +71,11 @@ export function Navbar({ isLoggedIn = false }) {
   const subscription = { status: "inactive" };
   const navItems = getNavItems();
   const publicNavItems = getPublicNavItems();
+
+  // Don't render if we're in admin section
+  if (isAdminSection || location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const handleSignOut = async () => {
     if (!signOut) return;
