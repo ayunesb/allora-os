@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { onCampaignLaunched, onNewLeadAdded } from '@/utils/zapierEventTriggers';
 import { generateCustomizedStrategy } from '@/utils/strategy/strategyGenerator';
-import { useRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface LaunchButtonProps {
   className?: string;
@@ -16,7 +16,7 @@ export function LaunchButton({ className }: LaunchButtonProps) {
   const [isLaunching, setIsLaunching] = useState(false);
   const [launchStep, setLaunchStep] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const launchFirstCustomerFlow = async () => {
     setIsLaunching(true);
@@ -47,7 +47,11 @@ export function LaunchButton({ className }: LaunchButtonProps) {
       // 2. Generate Launch Strategy
       setLaunchStep('Generating launch strategy...');
       const strategy = generateCustomizedStrategy(
-        { level: 'Medium', score: 65 },
+        { 
+          level: 'Medium', 
+          score: 65,
+          breakdown: {} // Add the missing breakdown property
+        },
         'AI SaaS',
         'Small',
         'Growth'
@@ -128,7 +132,7 @@ export function LaunchButton({ className }: LaunchButtonProps) {
       
       // Wait a moment before redirecting
       setTimeout(() => {
-        router.push(`/admin`);
+        navigate(`/admin`);
       }, 3000);
       
     } catch (error: any) {
