@@ -12,3 +12,25 @@ export interface UserPreferences {
   dashboard_preferences: Record<string, any>;
   last_updated: Date;
 }
+
+/**
+ * Categories for tracking different types of user actions
+ */
+export type ActionCategory = 
+  | 'strategy_feedback'
+  | 'campaign_feedback'
+  | 'script_feedback'
+  | 'script_view'
+  | 'script_usage'
+  | 'strategy_view' 
+  | 'strategy_create' 
+  | 'strategy_update'
+  | 'call_initiate'
+  | 'message_send'
+  | 'bot_consultation'
+  | 'debate_participation'
+  | 'campaign_interaction'
+  | 'lead_conversion'
+  | 'video_generation'
+  | 'page_view'
+  | 'automation'; // For Zapier integrations
