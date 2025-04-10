@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Lead } from '@/models/lead';
 import { handleApiError } from '@/utils/api/errorHandling';
@@ -11,6 +11,8 @@ export const useLeads = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'created_at'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  const queryClient = useQueryClient();
   
   const { 
     data: leads = [], 
@@ -23,7 +25,7 @@ export const useLeads = () => {
       try {
         const { data, error } = await supabase
           .from('leads')
-          .select('*')
+          .select('*, campaigns(name)')
           .order(sortBy, { ascending: sortOrder === 'asc' });
           
         if (error) throw error;
@@ -47,7 +49,7 @@ export const useLeads = () => {
       const success = await updateLeadStatus(leadId, status);
       if (success) {
         toast.success(`Lead status updated to ${status}`);
-        refetch();
+        queryClient.invalidateQueries({ queryKey: ['leads'] });
       }
     } catch (error) {
       handleApiError(error, {
@@ -62,7 +64,7 @@ export const useLeads = () => {
         const success = await deleteLead(leadId);
         if (success) {
           toast.success('Lead deleted successfully');
-          refetch();
+          queryClient.invalidateQueries({ queryKey: ['leads'] });
         }
       } catch (error) {
         handleApiError(error, {
@@ -71,6 +73,29 @@ export const useLeads = () => {
       }
     }
   };
+  
+  // Add lead mutation
+  const addLeadMutation = useMutation({
+    mutationFn: async (leadData: Omit<Lead, 'id' | 'created_at'>) => {
+      const { data, error } = await supabase
+        .from('leads')
+        .insert([leadData])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Lead added successfully');
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    },
+    onError: (error) => {
+      handleApiError(error, {
+        customMessage: 'Failed to add lead'
+      });
+    }
+  });
   
   const toggleSort = (column: 'name' | 'created_at') => {
     if (sortBy === column) {
@@ -98,6 +123,8 @@ export const useLeads = () => {
     toggleSort,
     handleStatusUpdate,
     handleDelete,
+    addLead: addLeadMutation.mutate,
+    isAddingLead: addLeadMutation.isPending,
     refetchLeads: refetch
   };
 };

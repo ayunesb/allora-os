@@ -83,6 +83,62 @@ export type Database = {
           },
         ]
       }
+      communications: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          created_by: string | null
+          ended_at: string | null
+          id: string
+          lead_id: string
+          meeting_link: string | null
+          metadata: Json | null
+          notes: string | null
+          outcome: string | null
+          scheduled_at: string | null
+          status: string
+          type: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          created_by?: string | null
+          ended_at?: string | null
+          id?: string
+          lead_id: string
+          meeting_link?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          outcome?: string | null
+          scheduled_at?: string | null
+          status: string
+          type: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          created_by?: string | null
+          ended_at?: string | null
+          id?: string
+          lead_id?: string
+          meeting_link?: string | null
+          metadata?: Json | null
+          notes?: string | null
+          outcome?: string | null
+          scheduled_at?: string | null
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communications_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           created_at: string
@@ -590,6 +646,17 @@ export type Database = {
           company_id: string
           integration_ids: Json
           created_at: string
+        }[]
+      }
+      get_lead_communication_summary: {
+        Args: { p_lead_id: string }
+        Returns: {
+          lead_id: string
+          total_communications: number
+          last_communication_at: string
+          last_communication_type: string
+          last_communication_status: string
+          scheduled_communications: number
         }[]
       }
       get_recent_user_actions: {
