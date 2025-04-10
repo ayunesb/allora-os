@@ -67,7 +67,7 @@ const ZapierEventDemo: React.FC<ZapierEventDemoProps> = ({ className = "" }) => 
   
   return (
     <div className={`space-y-4 ${className}`}>
-      <Alert variant="warning" className="bg-amber-50 border-amber-200">
+      <Alert variant="default" className="bg-amber-50 border-amber-200">
         <AlertCircle className="h-4 w-4 text-amber-600" />
         <AlertDescription className="text-amber-800">
           Due to browser security restrictions (CORS), webhook requests may show errors
