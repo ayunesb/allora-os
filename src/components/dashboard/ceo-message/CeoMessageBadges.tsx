@@ -4,7 +4,12 @@ import { Clock } from "lucide-react";
 
 export function CeoMessageBadges() {
   // Production-ready time display
-  const timeString = "today";
+  const currentDate = new Date();
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric'
+  }).format(currentDate);
 
   return (
     <div className="flex items-center space-x-2">
@@ -12,7 +17,7 @@ export function CeoMessageBadges() {
         Priority
       </Badge>
       <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">
-        <Clock className="mr-1 h-3 w-3" /> {timeString}
+        <Clock className="mr-1 h-3 w-3" /> {formattedDate}
       </Badge>
     </div>
   );

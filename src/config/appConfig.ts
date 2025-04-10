@@ -51,7 +51,7 @@ export const FEATURES = {
 export const APP_INFO = {
   name: "Allora AI",
   version: "1.0.0",
-  buildDate: "2025-04-10", // Updated to today's date
+  buildDate: "2025-04-10",
   supportEmail: "support@allora-ai.com",
   termsUrl: "/terms",
   privacyUrl: "/privacy",
@@ -62,7 +62,7 @@ export const PERFORMANCE_CONFIG = {
   enablePerformanceMetrics: true,
   logLongTasks: true,
   longTaskThreshold: 50, // ms
-  reportToAnalytics: true, // Set to true for production
+  reportToAnalytics: true,
 }
 
 // Content configuration

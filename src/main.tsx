@@ -19,18 +19,22 @@ const queryClient = new QueryClient({
       retry: 2,
       staleTime: 5 * 60 * 1000, // 5 minutes
       refetchOnWindowFocus: false,
-      // Updated error handling to use the correct API
       meta: {
         onError: (error: Error) => {
-          console.error('Query error:', error);
+          // Silently handle errors in production
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Query error:', error);
+          }
         }
       }
     },
     mutations: {
-      // Updated error handling to use the correct API
       meta: {
         onError: (error: Error) => {
-          console.error('Mutation error:', error);
+          // Silently handle errors in production
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('Mutation error:', error);
+          }
         }
       }
     }
@@ -47,4 +51,3 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
-

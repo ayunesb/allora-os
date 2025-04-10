@@ -24,8 +24,8 @@ export default defineConfig(({ mode }) => ({
     // Output directory
     outDir: 'dist',
     
-    // Enable source maps in production (helps with debugging without impacting performance)
-    sourcemap: true,
+    // Disable source maps in production to avoid the errors with @tanstack/react-query
+    sourcemap: mode !== 'production',
     
     // Configure rollup options
     rollupOptions: {
@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => ({
         // Chunk files to improve caching
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@/components/ui'],
+          ui: ['@/components/ui/button', '@/components/ui/card', '@/components/ui/dialog'],
           admin: ['@/components/admin'],
           dashboard: ['@/components/dashboard'],
         },
