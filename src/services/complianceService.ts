@@ -13,6 +13,21 @@ export interface DocumentVersion {
   autoUpdateEnabled: boolean;
 }
 
+// Map of document IDs to their display names
+export const documentIdToName: Record<string, string> = {
+  "privacy-policy": "Privacy Policy",
+  "terms-of-service": "Terms of Service",
+  "data-processing": "Data Processing Agreement",
+  "breach-notification": "Breach Notification Policy",
+  "cookies": "Cookie Policy",
+  "acceptable-use": "Acceptable Use Policy",
+  "refund": "Refund and Cancellation Policy",
+  "disclaimer": "Disclaimer",
+  "copyright": "Copyright & IP Policy",
+  "security": "Security Policy",
+  "ai-ethics": "AI Ethics and Fair Use Statement",
+};
+
 interface UpdateCheckResult {
   documentsNeedingUpdate: string[];
   latestVersions: Record<string, string>;
@@ -28,16 +43,25 @@ export const checkForDocumentUpdates = async (): Promise<UpdateCheckResult> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        documentsNeedingUpdate: ["terms-of-service", "data-processing"],
+        documentsNeedingUpdate: ["terms-of-service", "data-processing", "privacy-policy", "cookies"],
         latestVersions: {
           "privacy-policy": "v2.4",
           "terms-of-service": "v2.0",
           "data-processing": "v1.3",
-          "breach-notification": "v1.0"
+          "breach-notification": "v1.0",
+          "cookies": "v1.1",
+          "acceptable-use": "v1.0",
+          "refund": "v1.0",
+          "disclaimer": "v1.0",
+          "copyright": "v1.0",
+          "security": "v1.1",
+          "ai-ethics": "v1.0"
         },
         regulatoryChanges: {
           "terms-of-service": ["GDPR Article 13 update", "California Privacy Rights Act"],
-          "data-processing": ["EU SCCs update"]
+          "data-processing": ["EU SCCs update"],
+          "privacy-policy": ["California Consumer Privacy Act updates"],
+          "cookies": ["ePrivacy Directive compliance update"]
         }
       });
     }, 1000);
@@ -55,6 +79,12 @@ export const applyDocumentUpdate = async (documentId: string): Promise<boolean> 
         'admin', // In a real app, this would be the actual user ID
         `Updated document: ${documentId} to latest version`,
         { documentId, updateType: 'manual' }
+      );
+      
+      const documentName = documentIdToName[documentId] || documentId;
+      toast.success(
+        `${documentName} updated successfully`,
+        { description: "The document has been updated to the latest version." }
       );
       
       resolve(true);
