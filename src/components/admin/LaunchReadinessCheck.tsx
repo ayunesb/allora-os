@@ -88,7 +88,7 @@ export default function LaunchReadinessCheck() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl md:text-2xl">Launch Readiness Check</CardTitle>
           <Button 
-            variant="outline" 
+            variant="secondary" 
             size="sm" 
             onClick={performReadinessCheck} 
             disabled={isChecking}
@@ -325,14 +325,14 @@ export default function LaunchReadinessCheck() {
         )}
         
         {readinessStatus.overallStatus === 'warning' && (
-          <Button variant="outline" className="w-full sm:w-auto gap-2">
+          <Button variant="secondary" className="w-full sm:w-auto gap-2">
             <AlertTriangle className="h-4 w-4" />
             Launch with Warnings
           </Button>
         )}
         
         {readinessStatus.overallStatus === 'not_ready' && (
-          <Button variant="outline" className="w-full sm:w-auto gap-2" disabled>
+          <Button variant="secondary" className="w-full sm:w-auto gap-2" disabled>
             <X className="h-4 w-4" />
             Fix Issues to Launch
           </Button>
