@@ -1,3 +1,4 @@
+
 /**
  * Production Launch Cleanup Helper
  * 
@@ -18,7 +19,7 @@ export async function removeTestData() {
     logger.info('Starting test data cleanup process', { process: 'removeTestData' });
     
     // This is a dangerous operation and should be used with caution
-    console.warn('CAUTION: This will remove all test data from the database!');
+    logger.warn('CAUTION: This will remove all test data from the database!', { operation: 'removeTestData' });
     
     // 1. Remove test leads
     const { error: leadsError } = await supabase
@@ -48,6 +49,15 @@ export async function removeTestData() {
       
     if (companiesError) throw companiesError;
     logger.info('Test companies removed successfully', { table: 'companies' });
+    
+    // 4. Remove test strategies
+    const { error: strategiesError } = await supabase
+      .from('strategies')
+      .delete()
+      .like('title', 'Test%');
+      
+    if (strategiesError) throw strategiesError;
+    logger.info('Test strategies removed successfully', { table: 'strategies' });
     
     return { success: true, message: 'Test data removed successfully' };
   } catch (error: any) {
@@ -98,14 +108,14 @@ export async function verifyApiSecrets() {
  * Checklist for final production launch
  */
 export const productionLaunchChecklist = [
-  '✅ Remove all console.log statements',
-  '✅ Remove all TODO comments',
-  '✅ Turn off test modes in API calls',
-  '✅ Ensure all API keys are set in Supabase Edge Functions',
-  '✅ Clean up test data',
-  '✅ Test all critical user flows',
-  '✅ Verify email templates are working',
-  '✅ Check that Stripe payments are processing correctly',
-  '✅ Ensure SMS sending is working',
-  '✅ Test Heygen video generation',
+  'Remove all console.log statements',
+  'Remove all TODO comments',
+  'Turn off test modes in API calls',
+  'Ensure all API keys are set in Supabase Edge Functions',
+  'Clean up test data',
+  'Test all critical user flows',
+  'Verify email templates are working',
+  'Check that Stripe payments are processing correctly',
+  'Ensure SMS sending is working',
+  'Test Heygen video generation',
 ];

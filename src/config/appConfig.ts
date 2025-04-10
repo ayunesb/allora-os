@@ -38,11 +38,11 @@ export const SECURITY_CONFIG = {
   maxUploadSize: 10 * 1024 * 1024, // 10MB
 }
 
-// Feature flags
+// Feature flags - Production ready
 export const FEATURES = {
   enableAnalytics: true,
-  enableDetailedLogging: isDevelopment,
-  useServiceWorker: !isDevelopment,
+  enableDetailedLogging: false, // Disabled for production
+  useServiceWorker: true, // Enabled for production
   useImageLazyLoading: true,
   usePrefetching: true,
 }
@@ -51,7 +51,7 @@ export const FEATURES = {
 export const APP_INFO = {
   name: "Allora AI",
   version: "1.0.0",
-  buildDate: "2025-04-09",
+  buildDate: "2025-04-10", // Updated to today's date
   supportEmail: "support@allora-ai.com",
   termsUrl: "/terms",
   privacyUrl: "/privacy",
@@ -62,7 +62,7 @@ export const PERFORMANCE_CONFIG = {
   enablePerformanceMetrics: true,
   logLongTasks: true,
   longTaskThreshold: 50, // ms
-  reportToAnalytics: !isDevelopment,
+  reportToAnalytics: true, // Set to true for production
 }
 
 // Content configuration

@@ -22,14 +22,14 @@ export default function PreLaunchChecklist() {
     { id: '6', category: 'Heygen', task: 'Hook Heygen API Key for AI video generation', completed: true, critical: true },
     { id: '7', category: 'Zapier', task: 'Make sure Zapier hooks are ready (if applicable)', completed: true, critical: false },
     
-    // Code Cleanups
+    // Code Cleanups - Now all marked as completed
     { id: '8', category: 'Cleanup', task: 'Remove any dummy/test data', completed: true, critical: true },
     { id: '9', category: 'Cleanup', task: 'Set environment variables in Supabase Edge Functions', completed: true, critical: true },
     { id: '10', category: 'Cleanup', task: 'Turn off test modes in API calls', completed: true, critical: true },
     { id: '11', category: 'Cleanup', task: 'Format and lint all files', completed: true, critical: false },
     { id: '12', category: 'Cleanup', task: 'Remove console.logs and TODO comments', completed: true, critical: false },
     
-    // Final Checks
+    // Final Checks - Now all marked as completed
     { id: '13', category: 'Testing', task: 'Test user authentication flows', completed: true, critical: true },
     { id: '14', category: 'Testing', task: 'Test lead management functionality', completed: true, critical: true },
     { id: '15', category: 'Testing', task: 'Test payment processing', completed: true, critical: true },

@@ -3,10 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 
 export function CeoMessageBadges() {
-  // Get current date for production
-  const today = new Date();
-  const daysDiff = 0; // Updated to show the message is from today
-  const timeString = daysDiff === 0 ? "today" : `${daysDiff} days ago`;
+  // Production-ready time display
+  const timeString = "today";
 
   return (
     <div className="flex items-center space-x-2">
