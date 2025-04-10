@@ -87,11 +87,12 @@ export function useDatabaseVerification() {
       ];
       
       for (const func of requiredFunctions) {
+        // Fix the problematic line by using proper string literals and SQL functions
         const { data: funcData, error: funcError } = await supabase
           .from('pg_catalog.pg_proc')
           .select('proname, prosecdef')
           .eq('proname', func)
-          .eq('pronamespace', 'public'::regnamespace);
+          .eq('pronamespace', 'public'); // Removed the ::regnamespace that was causing the error
         
         if (funcError) {
           functionResults.push({
