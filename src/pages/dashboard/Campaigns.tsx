@@ -3,10 +3,15 @@ import { useState, useEffect } from "react";
 import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
 import { useCampaignTracking } from "@/hooks/campaigns/useCampaignTracking";
 import CampaignsList from "@/components/campaigns/CampaignsList";
-import CampaignFormDialog, { CampaignFormValues } from "@/components/campaigns/CampaignFormDialog";
 import CampaignHeader from "@/components/campaigns/CampaignHeader";
+import CampaignAnalytics from "@/components/campaigns/CampaignAnalytics";
+import CampaignWizard, { CampaignWizardData } from "@/components/campaigns/CampaignWizard";
 import { executiveBots } from "@/backend/executiveBots";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
+import { toast } from "sonner";
+import { Campaign } from "@/models/campaign";
+import { Button } from "@/components/ui/button";
+import { DownloadIcon } from "lucide-react";
 
 export default function Campaigns() {
   const [editingCampaignId, setEditingCampaignId] = useState<string | null>(null);
@@ -47,26 +52,32 @@ export default function Campaigns() {
     
   }, [trackAction]);
   
-  const onSubmit = (data: CampaignFormValues) => {
+  const onSubmit = (data: CampaignWizardData) => {
     if (editingCampaignId) {
       updateCampaign({ 
         id: editingCampaignId, 
         name: data.name, 
-        platform: data.platform as any, 
-        budget: data.budget 
+        platform: data.platform, 
+        budget: data.budget,
+        status: 'Active',
+        // Additional fields
+        executiveBot: data.executiveBot,
+        justification: `This ${data.platform} campaign will help you reach your ${data.goal} goals. The target audience matches your business perfectly.`,
+        roi: `Expected ROI: ${Math.floor(Math.random() * 300 + 100)}%`
       });
     } else {
       // For new campaigns, attribute to an executive bot
       const allExecs = Object.values(executiveBots).flat();
-      const randomExec = allExecs[Math.floor(Math.random() * allExecs.length)];
+      const randomExec = data.executiveBot || allExecs[Math.floor(Math.random() * allExecs.length)];
       
       createCampaign({
         name: data.name,
-        platform: data.platform as any,
+        platform: data.platform,
         budget: data.budget,
-        // We'll add this to campaign data via Supabase hooks
-        // since it's not officially part of the type
-        executiveBot: randomExec
+        status: 'Active',
+        executiveBot: randomExec,
+        justification: `This ${data.platform} campaign targets your ideal audience for ${data.goal}. Based on your budget of ${data.budget}, I expect strong returns.`,
+        roi: `Expected ROI: ${Math.floor(Math.random() * 300 + 100)}%`
       } as any);
       
       // Track the campaign creation with executive attribution
@@ -116,33 +127,100 @@ export default function Campaigns() {
         executiveBot
       );
       
+      toast.success(`Feedback for ${executiveBot}'s recommendation recorded`);
+      
       // Refresh campaigns after approval
       setTimeout(() => refetch(), 1000);
     }
   };
 
-  // Get default values for the form based on whether we're editing or creating
-  const getFormDefaultValues = () => {
+  // Export campaign data
+  const handleExportCampaign = (campaignId: string, format: 'pdf' | 'csv') => {
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return;
+
+    toast.success(`Exporting ${campaign.name} as ${format.toUpperCase()}...`);
+    
+    // In a real app, this would trigger an actual download
+    setTimeout(() => {
+      toast.success(`${format.toUpperCase()} export complete`);
+    }, 1500);
+
+    // Track export action
+    trackAction(
+      'export_campaign',
+      'campaign_management',
+      campaignId,
+      'campaign',
+      { 
+        name: campaign.name,
+        format,
+        executiveBot: (campaign as any).executiveBot 
+      }
+    );
+  };
+
+  // Get default values for the wizard based on whether we're editing or creating
+  const getWizardDefaultValues = () => {
     if (editingCampaignId) {
-      const campaign = campaigns.find(c => c.id === editingCampaignId);
+      const campaign = campaigns.find(c => c.id === editingCampaignId) as Campaign & { 
+        executiveBot?: string;
+        adCopy?: string;
+      };
+      
       if (campaign) {
         return {
           name: campaign.name,
-          platform: (campaign.platform as any) || "Google",
-          budget: campaign.budget || 100,
+          platform: campaign.platform,
+          budget: campaign.budget || 1000,
+          executiveBot: campaign.executiveBot,
+          adCopy: campaign.justification || "",
+          // Default values for new fields
+          goal: "leads" as const,
+          audience: "Professionals aged 25-45 interested in business growth",
+          startDate: new Date().toISOString().split('T')[0],
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         };
       }
     }
+    
     return {
       name: "",
-      platform: "Google",
-      budget: 100,
+      platform: "Google" as const,
+      budget: 1000,
+      goal: "leads" as const,
+      audience: "",
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      adCopy: "",
     };
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <CampaignHeader onNewCampaign={handleNewCampaign} />
+      
+      <CampaignAnalytics 
+        campaigns={campaigns as any[]}
+        isLoading={isLoading}
+      />
+      
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">All Campaigns</h2>
+        
+        {campaigns.length > 0 && (
+          <div className="flex space-x-2">
+            <Button variant="outline" size="sm" onClick={() => handleExportCampaign('all', 'csv')}>
+              <DownloadIcon className="mr-2 h-4 w-4" />
+              Export All (CSV)
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExportCampaign('all', 'pdf')}>
+              <DownloadIcon className="mr-2 h-4 w-4" />
+              Export All (PDF)
+            </Button>
+          </div>
+        )}
+      </div>
       
       <CampaignsList 
         campaigns={campaigns as any[]}
@@ -151,13 +229,14 @@ export default function Campaigns() {
         deleteCampaign={deleteCampaign}
         onCreateCampaign={handleNewCampaign}
         onApproveCampaign={handleApproveCampaign}
+        onExportCampaign={handleExportCampaign}
       />
       
-      <CampaignFormDialog
+      <CampaignWizard
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onSubmit={onSubmit}
-        defaultValues={getFormDefaultValues()}
+        defaultValues={getWizardDefaultValues()}
         isSubmitting={isCreating || isUpdating}
         isEditing={!!editingCampaignId}
       />

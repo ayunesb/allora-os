@@ -12,24 +12,23 @@ export function formatCurrency(value: number): string {
 }
 
 /**
- * Format a date to a readable string
+ * Format a number as a percentage
  */
-export function formatDate(date: string | Date): string {
-  if (!date) return '';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  }).format(dateObj);
+export function formatPercent(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  }).format(value);
 }
 
 /**
- * Truncate text with ellipsis
+ * Format a date string into a readable format
  */
-export function truncateText(text: string, maxLength: number = 100): string {
-  if (!text || text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength)}...`;
+export function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
 }

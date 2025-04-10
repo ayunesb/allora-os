@@ -1,75 +1,93 @@
 
-import { useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useSelfLearning } from '@/hooks/useSelfLearning';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { toast } from "sonner";
+import { useSelfLearning } from "@/hooks/useSelfLearning";
+import { useAiMemory } from "@/hooks/useAiMemory";
 
 export function useCampaignTracking() {
-  const { user } = useAuth();
+  const [isTrackingView, setIsTrackingView] = useState(false);
+  const [isTrackingApprove, setIsTrackingApprove] = useState(false);
+  
   const { trackAction } = useSelfLearning();
-  
+  const { storeInteraction } = useAiMemory();
+
   /**
-   * Track when a user views a campaign detail
+   * Track when a user views a campaign's details
    */
-  const trackCampaignView = useCallback((campaignId: string, name: string) => {
-    if (!user?.id) return;
+  const trackCampaignView = async (campaignId: string, campaignName: string) => {
+    setIsTrackingView(true);
     
-    trackAction(
-      'view_campaign',
-      'campaign_view',
-      campaignId,
-      'campaign',
-      { name }
-    );
-  }, [user, trackAction]);
-  
+    try {
+      await trackAction(
+        'view_campaign',
+        'campaign_management',
+        campaignId,
+        'campaign',
+        { 
+          name: campaignName,
+          timestamp: new Date().toISOString()
+        }
+      );
+    } catch (error) {
+      console.error("Error tracking campaign view:", error);
+    } finally {
+      setIsTrackingView(false);
+    }
+  };
+
   /**
-   * Track when a user approves a campaign
+   * Track when a user approves (likes) an AI recommendation on a campaign
    */
-  const trackCampaignApprove = useCallback((campaignId: string, name: string, executiveBot?: string) => {
-    if (!user?.id) return;
+  const trackCampaignApprove = async (campaignId: string, campaignName: string, executiveBot?: string) => {
+    setIsTrackingApprove(true);
     
-    trackAction(
-      'campaign_approve',
-      'campaign_feedback',
-      campaignId,
-      'campaign',
-      { 
-        name,
-        executiveBot,
-        action: 'approve'
+    try {
+      // Track the approval action
+      await trackAction(
+        'approve_campaign_recommendation',
+        'campaign_management',
+        campaignId,
+        'campaign',
+        { 
+          name: campaignName,
+          executiveBot,
+          timestamp: new Date().toISOString()
+        }
+      );
+      
+      // Store the interaction for the bot's memory if we have an executive
+      if (executiveBot) {
+        const botRole = getBotRoleFromName(executiveBot);
+        
+        await storeInteraction(
+          executiveBot,
+          botRole,
+          `What do you think of the ${campaignName} campaign?`,
+          `I recommend proceeding with the ${campaignName} campaign. It aligns well with your business goals.`,
+          { 
+            campaignId,
+            interactionType: 'campaign_recommendation',
+            approved: true
+          }
+        );
       }
-    );
-    
-    toast.success('Campaign approved! Our AI will learn from your preference.');
-  }, [user, trackAction]);
-  
-  /**
-   * Track when a user rejects a campaign
-   */
-  const trackCampaignReject = useCallback((campaignId: string, name: string, executiveBot?: string, reason?: string) => {
-    if (!user?.id) return;
-    
-    trackAction(
-      'campaign_reject',
-      'campaign_feedback',
-      campaignId,
-      'campaign',
-      { 
-        name,
-        executiveBot,
-        reason,
-        action: 'reject' 
-      }
-    );
-    
-    toast.success('Feedback recorded. We\'ll improve our recommendations.');
-  }, [user, trackAction]);
-  
+    } catch (error) {
+      console.error("Error tracking campaign approval:", error);
+    } finally {
+      setIsTrackingApprove(false);
+    }
+  };
+
+  // Helper function to extract bot role from executive name
+  const getBotRoleFromName = (executiveName: string): string => {
+    // In a real app, we would look up the role from the executiveBots mapping
+    return "marketing_advisor";
+  };
+
   return {
     trackCampaignView,
     trackCampaignApprove,
-    trackCampaignReject,
-    isLoggedIn: !!user?.id
+    isTrackingView,
+    isTrackingApprove
   };
 }
