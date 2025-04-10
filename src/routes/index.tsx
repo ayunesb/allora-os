@@ -10,55 +10,44 @@ import { adminRoutes } from "./admin-routes";
 import { marketingRoutes } from "./marketing-routes";
 import ZoomCallback from "@/components/integration/ZoomCallback";
 
-// Wrap layout components with NavigationManager
-const wrapWithNavManager = (element: React.ReactNode) => (
-  <>
-    <NavigationManager />
-    {element}
-  </>
-);
-
-// Modified routes with NavigationManager
-const enhancedPublicRoutes = publicRoutes.map(route => ({
-  ...route,
-  element: wrapWithNavManager(route.element)
-}));
-
-const enhancedOnboardingRoutes = onboardingRoutes.map(route => ({
-  ...route,
-  element: wrapWithNavManager(route.element)
-}));
-
-const enhancedAuthRoutes = authRoutes.map(route => ({
-  ...route,
-  element: wrapWithNavManager(route.element)
-}));
-
-const enhancedMarketingRoutes = marketingRoutes.map(route => ({
-  ...route,
-  element: wrapWithNavManager(route.element)
-}));
-
-// Special handling for dashboard and admin routes which are already objects
-const enhancedDashboardRoutes = {
-  ...dashboardRoutes,
-  element: wrapWithNavManager(dashboardRoutes.element)
+// Add NavigationManager to each route
+const withNavigationManager = (routes) => {
+  return routes.map(route => ({
+    ...route,
+    element: (
+      <>
+        <NavigationManager />
+        {route.element}
+      </>
+    )
+  }));
 };
 
-const enhancedAdminRoutes = {
-  ...adminRoutes,
-  element: wrapWithNavManager(adminRoutes.element)
-};
+// Handle special case for dashboard and admin routes which are objects not arrays
+const withNavigationManagerForObject = (routeObj) => ({
+  ...routeObj,
+  element: (
+    <>
+      <NavigationManager />
+      {routeObj.element}
+    </>
+  )
+});
 
 export const router = createBrowserRouter([
-  ...enhancedPublicRoutes,
-  enhancedDashboardRoutes,
-  ...enhancedOnboardingRoutes,
-  ...enhancedAuthRoutes,
-  enhancedAdminRoutes,
-  ...enhancedMarketingRoutes,
+  ...withNavigationManager(publicRoutes),
+  withNavigationManagerForObject(dashboardRoutes),
+  ...withNavigationManager(onboardingRoutes),
+  ...withNavigationManager(authRoutes),
+  withNavigationManagerForObject(adminRoutes),
+  ...withNavigationManager(marketingRoutes),
   {
     path: "/zoom-callback",
-    element: wrapWithNavManager(<ZoomCallback />),
+    element: (
+      <>
+        <NavigationManager />
+        <ZoomCallback />
+      </>
+    ),
   },
 ]);

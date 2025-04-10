@@ -6,11 +6,9 @@ import { AuthProvider } from "./context/AuthContext";
 
 export function AppRoutes() {
   return (
-    <>
+    <AuthProvider>
       <RouterProvider router={router} />
-      <AuthProvider>
-        <Toaster />
-      </AuthProvider>
-    </>
+      <Toaster />
+    </AuthProvider>
   );
 }

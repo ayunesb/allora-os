@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { BarChart3, Home, ChartBar, Shield, HelpCircle, CreditCard } from "lucide-react";
@@ -51,7 +51,15 @@ const getPublicNavItems = () => [
 ];
 
 export function Navbar({ isLoggedIn = false }) {
-  const { signOut, user, profile } = useAuth();
+  // Get auth context - safely handle not being in context
+  let authValues = { signOut: null, user: null, profile: null };
+  try {
+    authValues = useAuth();
+  } catch (error) {
+    console.log("Auth context not available yet");
+  }
+  
+  const { signOut, user, profile } = authValues;
   const { toast: uiToast } = useToast();
   const [open, setOpen] = useState(false);
   const location = useLocation();
@@ -65,6 +73,8 @@ export function Navbar({ isLoggedIn = false }) {
   const publicNavItems = getPublicNavItems();
 
   const handleSignOut = async () => {
+    if (!signOut) return;
+    
     try {
       setIsSigningOut(true);
       const result = await signOut();

@@ -8,8 +8,6 @@ import Testimonials from "@/components/home/Testimonials";
 import CallToAction from "@/components/home/CallToAction";
 
 export default function Index() {
-  console.log("Rendering Index page with Navbar isLoggedIn=false");
-  
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Explicitly set isLoggedIn to false in public pages */}
