@@ -19,6 +19,43 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Special handling for webhook callbacks from Twilio
+  if (req.url.includes('/status-callback')) {
+    try {
+      const formData = await req.formData();
+      const messageStatus = formData.get('MessageStatus');
+      const messageSid = formData.get('MessageSid');
+      const to = formData.get('To');
+      const from = formData.get('From');
+      
+      console.log(`Received status callback: ${messageStatus} for message ${messageSid}`);
+      
+      // Initialize supabase client with anon key for logging
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      // Log the status update to the database
+      await supabase.from("message_status_logs").insert({
+        message_sid: messageSid,
+        status: messageStatus,
+        to_number: to,
+        from_number: from,
+        received_at: new Date().toISOString(),
+        channel: formData.get('ChannelPrefix') === 'whatsapp' ? 'whatsapp' : 'sms'
+      });
+      
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error) {
+      console.error("Error processing status callback:", error);
+      return new Response(JSON.stringify({ error: "Failed to process callback" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  }
+
   // Get the authorization header
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
@@ -53,7 +90,7 @@ serve(async (req) => {
     }
 
     // Get the request body
-    const { action, to, body, leadId, messageType, callSid } = await req.json();
+    const { action, to, body, leadId, messageType, callSid, channel } = await req.json();
 
     if (action === "send-sms") {
       // Validate request
@@ -66,10 +103,34 @@ serve(async (req) => {
 
       // Format the phone number (ensure it has the + prefix)
       const formattedTo = to.startsWith('+') ? to : `+${to}`;
+      
+      // Determine if this is a WhatsApp message based on the channel parameter
+      const isWhatsApp = channel === 'whatsapp';
+      
+      // Prepare the 'From' parameter - for WhatsApp, prefix with 'whatsapp:'
+      const fromNumber = isWhatsApp 
+        ? `whatsapp:${TWILIO_PHONE_NUMBER}` 
+        : TWILIO_PHONE_NUMBER;
+      
+      // Prepare the 'To' parameter - for WhatsApp, prefix with 'whatsapp:'
+      const toNumber = isWhatsApp 
+        ? `whatsapp:${formattedTo}` 
+        : formattedTo;
+
+      // Get the status callback URL - this should be the URL to this same function
+      const edgeFunctionUrl = new URL(req.url);
+      const statusCallbackUrl = `${edgeFunctionUrl.origin}${edgeFunctionUrl.pathname}/status-callback`;
 
       // Send SMS using Twilio
       const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
       const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+      const formData = new URLSearchParams({
+        From: fromNumber,
+        To: toNumber,
+        Body: body,
+        StatusCallback: statusCallbackUrl
+      });
 
       const twilioResponse = await fetch(twilioEndpoint, {
         method: "POST",
@@ -77,11 +138,7 @@ serve(async (req) => {
           "Content-Type": "application/x-www-form-urlencoded",
           "Authorization": `Basic ${twilioAuthString}`
         },
-        body: new URLSearchParams({
-          From: TWILIO_PHONE_NUMBER,
-          To: formattedTo,
-          Body: body
-        })
+        body: formData
       });
 
       const twilioResult = await twilioResponse.json();
@@ -92,21 +149,22 @@ serve(async (req) => {
           .from("lead_communications")
           .insert([{
             lead_id: leadId,
-            type: "sms",
+            type: isWhatsApp ? "whatsapp" : "sms",
             content: body,
             sent_at: new Date().toISOString(),
             sent_by: user.id
           }]);
           
         if (updateError) {
-          console.error("Error logging SMS communication:", updateError);
+          console.error("Error logging communication:", updateError);
         }
       }
 
       return new Response(JSON.stringify({ 
         success: twilioResponse.ok,
         sid: twilioResult.sid,
-        message: twilioResponse.ok ? "SMS sent successfully" : "Failed to send SMS" 
+        message: twilioResponse.ok ? "Message sent successfully" : "Failed to send message",
+        channel: isWhatsApp ? "whatsapp" : "sms"
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });

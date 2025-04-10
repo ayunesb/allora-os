@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCommunications, CommunicationData } from "@/hooks/useCommunications";
 import { toast } from "sonner";
 import { useLeads } from "@/hooks/admin/useLeads";
+import { sendWhatsApp } from "@/utils/twilioHelpers";
 import { 
   Select, 
   SelectContent, 
@@ -27,6 +28,7 @@ export default function WhatsAppSender({
 }: WhatsAppSenderProps) {
   const [selectedLeadId, setSelectedLeadId] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [isSending, setIsSending] = useState<boolean>(false);
   
   const { leads, isLoading: leadsLoading } = useLeads();
   const { logCommunication, isLoadingMutation } = useCommunications();
@@ -52,33 +54,43 @@ export default function WhatsAppSender({
       return;
     }
     
-    // Format the phone number for WhatsApp by removing any non-digit characters
+    // Format the phone number by removing any non-digit characters
     const formattedNumber = phoneNumber.replace(/[^0-9+]/g, "");
+    setIsSending(true);
     
     try {
-      if (selectedLeadId) {
-        // Log the communication
-        const communicationData: CommunicationData = {
-          type: "whatsapp",
-          status: "completed",
-          notes: message,
-          metadata: { initial_message: message }
-        };
+      // Option 1: Send via Twilio API (backend)
+      const sentViaApi = await sendWhatsApp(formattedNumber, message, selectedLeadId);
+      
+      if (!sentViaApi) {
+        // Option 2: Fallback to opening WhatsApp Web if the API call fails
+        window.open(
+          `https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`,
+          "_blank"
+        );
         
-        await logCommunication(selectedLeadId, communicationData);
+        // Still log the communication even if using the fallback method
+        if (selectedLeadId) {
+          const communicationData: CommunicationData = {
+            type: "whatsapp",
+            status: "completed",
+            notes: message,
+            metadata: { initial_message: message, sent_via: "web_link" }
+          };
+          
+          await logCommunication(selectedLeadId, communicationData);
+        }
       }
       
-      // Open WhatsApp web with the pre-filled message
-      window.open(
-        `https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
-      
-      // Reset the message field
+      // Reset the message field on success
       setMessage("");
+      toast.success("WhatsApp message processed");
+      
     } catch (error) {
       console.error("Error with WhatsApp message:", error);
-      toast.error("Failed to log WhatsApp communication");
+      toast.error("Failed to send WhatsApp message");
+    } finally {
+      setIsSending(false);
     }
   };
   
@@ -125,27 +137,44 @@ export default function WhatsAppSender({
         />
       </div>
       
-      <Button
-        onClick={handleSendMessage}
-        disabled={isLoadingMutation || !phoneNumber || !message}
-        className="w-full"
-      >
-        {isLoadingMutation ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Sending...
-          </>
-        ) : (
-          <>
-            <MessageSquare className="mr-2 h-4 w-4" />
-            Open in WhatsApp
-          </>
-        )}
-      </Button>
+      <div className="flex space-x-2">
+        <Button
+          onClick={handleSendMessage}
+          disabled={isSending || isLoadingMutation || !phoneNumber || !message}
+          className="flex-1"
+        >
+          {isSending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              <Send className="mr-2 h-4 w-4" />
+              Send via Twilio
+            </>
+          )}
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={() => {
+            const formattedNumber = phoneNumber.replace(/[^0-9+]/g, "");
+            window.open(
+              `https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`,
+              "_blank"
+            );
+          }}
+          disabled={!phoneNumber || !message}
+        >
+          <MessageSquare className="mr-2 h-4 w-4" />
+          Open WhatsApp
+        </Button>
+      </div>
       
       <div className="text-xs text-muted-foreground mt-2">
-        <p>This will open WhatsApp Web or the WhatsApp App with a pre-filled message.</p>
-        <p>If a lead is selected, the conversation will be logged in your communication history.</p>
+        <p>You can send WhatsApp messages directly through our Twilio integration or open WhatsApp Web.</p>
+        <p>Status callbacks will be logged to track message delivery status.</p>
       </div>
     </div>
   );
