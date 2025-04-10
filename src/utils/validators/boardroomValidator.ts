@@ -51,23 +51,31 @@ export async function validateExecutiveBoardroom(): Promise<ValidationResult> {
  */
 async function checkBoardroomRlsPolicies(): Promise<ValidationResult> {
   try {
-    // Do a basic check to ensure RLS is enabled (try to access data with a filter)
-    const { error } = await supabase
+    // Check if the table has the rls_enabled column
+    const { data, error } = await supabase
       .from('ai_boardroom_debates')
-      .select('id, company_id')
+      .select('rls_enabled')
       .limit(1);
-    
+      
     if (error && error.message.includes('permission denied')) {
-      // This is expected with RLS, indicates it's working
+      // This suggests RLS is active and working
       return {
         valid: true,
         message: "RLS policies for executive boardroom are properly configured."
       };
     }
     
-    // If we're here, access was granted which may indicate RLS is not fully configured
-    // However, this could also be valid if the user has the right to view all data
-    // Let's do a more specific check for the company ID
+    // If we received data, check if RLS is enabled in the table
+    if (data && data.length > 0) {
+      const rlsEnabled = data[0].rls_enabled;
+      if (rlsEnabled) {
+        return {
+          valid: true,
+          message: "RLS is enabled for the boardroom debates table."
+        };
+      }
+    }
+    
     return { 
       valid: true, 
       message: "RLS appears to be working for the boardroom table." 

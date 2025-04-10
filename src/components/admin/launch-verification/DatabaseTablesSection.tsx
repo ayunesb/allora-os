@@ -22,7 +22,7 @@ export function DatabaseTablesSection({ tables }: DatabaseTablesSectionProps) {
             <span className="font-medium text-gray-300 flex items-center gap-1">
               {table}
               {/* Show a lock icon for tables with RLS enabled */}
-              {result.exists && <Lock className="h-3 w-3 text-green-400" />}
+              {result.exists && result.rls && <Lock className="h-3 w-3 text-green-400" />}
             </span>
             <div className="flex items-center gap-1">
               {result.exists ? (

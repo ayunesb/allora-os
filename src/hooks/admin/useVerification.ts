@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { validateLaunchReadiness } from '@/utils/launchValidator';
 import { 
@@ -8,7 +9,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { addDemoDataButton } from '@/utils/demoData';
-import type { ValidationResultsUI } from '@/components/admin/launch-verification/types';
+import type { ValidationResultsUI, DatabaseTableStatus } from '@/components/admin/launch-verification/types';
 
 export function useVerification(profileCompanyId?: string) {
   const [isChecking, setIsChecking] = useState(false);
@@ -60,11 +61,12 @@ export function useVerification(profileCompanyId?: string) {
       'user_legal_acceptances'
     ];
     
-    const tableResults: Record<string, { exists: boolean, message: string }> = {};
+    const tableResults: Record<string, DatabaseTableStatus> = {};
     
     try {
       for (const table of requiredTables) {
         try {
+          // First check if the table exists
           const { error } = await supabase
             .from(table)
             .select('id')
@@ -74,24 +76,40 @@ export function useVerification(profileCompanyId?: string) {
             if (error.code === '42P01') {
               tableResults[table] = {
                 exists: false,
-                message: `Table '${table}' does not exist in the database`
+                message: `Table '${table}' does not exist in the database`,
+                rls: false
               };
             } else {
+              // If error is not "table doesn't exist", check if it's a permissions error
+              // which would indicate RLS is active
+              const rlsActive = error.message.includes('permission denied');
               tableResults[table] = {
-                exists: false,
-                message: `Error checking table '${table}': ${error.message}`
+                exists: true,
+                message: rlsActive 
+                  ? `Table '${table}' exists with RLS active` 
+                  : `Error checking table '${table}': ${error.message}`,
+                rls: rlsActive
               };
             }
           } else {
+            // Table exists, now check if it has RLS enabled
+            const { data: rlsData, error: rlsError } = await supabase
+              .rpc('check_table_rls', { table_name: table })
+              .single();
+              
+            const hasRls = rlsError ? false : !!rlsData;
+              
             tableResults[table] = {
               exists: true,
-              message: `Table '${table}' exists and is accessible`
+              message: `Table '${table}' exists and is accessible`,
+              rls: hasRls
             };
           }
         } catch (err: any) {
           tableResults[table] = {
             exists: false,
-            message: `Error checking table '${table}': ${err.message}`
+            message: `Error checking table '${table}': ${err.message}`,
+            rls: false
           };
         }
       }

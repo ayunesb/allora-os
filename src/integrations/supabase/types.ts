@@ -62,6 +62,56 @@ export type Database = {
           },
         ]
       }
+      ai_boardroom_debates: {
+        Row: {
+          company_id: string
+          conclusion: string | null
+          created_at: string | null
+          discussion: Json | null
+          executives: Json | null
+          id: string
+          rls_enabled: boolean | null
+          status: string | null
+          summary: string | null
+          topic: string
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          conclusion?: string | null
+          created_at?: string | null
+          discussion?: Json | null
+          executives?: Json | null
+          id?: string
+          rls_enabled?: boolean | null
+          status?: string | null
+          summary?: string | null
+          topic: string
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          conclusion?: string | null
+          created_at?: string | null
+          discussion?: Json | null
+          executives?: Json | null
+          id?: string
+          rls_enabled?: boolean | null
+          status?: string | null
+          summary?: string | null
+          topic?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_boardroom_debates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_interactions: {
         Row: {
           bot_name: string

@@ -1,34 +1,48 @@
 
 export interface DatabaseTableStatus {
   exists: boolean;
-  message: string;
+  message?: string;
+  rls?: boolean;
 }
 
-export interface DatabaseCheckItem {
-  name?: string;
-  table?: string;
-  status: string;
-  message: string;
+export interface PolicyStatus {
+  table: string;
+  exists: boolean;
+  message?: string;
 }
 
-export interface ValidationResult {
-  valid: boolean;
-  message: string;
+export interface FunctionStatus {
+  name: string;
+  exists: boolean;
+  isSecure: boolean;
+  message?: string;
 }
 
 export interface ValidationResultsUI {
-  legalAcceptance?: ValidationResult;
-  apiConnections?: ValidationResult;
-  userAuthentication?: ValidationResult;
-  executiveBoardroom?: ValidationResult;
-  databaseSecurity?: ValidationResult;
-  performanceOptimization?: ValidationResult;
-  // Special structured items
   databaseTables?: Record<string, DatabaseTableStatus>;
-  databaseIndexes?: DatabaseCheckItem[];
-  rlsPolicies?: DatabaseCheckItem[];
-  databaseFunctions?: DatabaseCheckItem[];
+  authentication?: {
+    valid: boolean;
+    message: string;
+  };
+  executive?: {
+    valid: boolean;
+    message: string;
+  };
+  databaseIndexes?: Array<{
+    name?: string;
+    table?: string;
+    status: string;
+    message: string;
+  }>;
+  rlsPolicies?: Array<{
+    table?: string;
+    status: string;
+    message: string;
+  }>;
+  databaseFunctions?: Array<{
+    name?: string;
+    status: string;
+    message: string;
+  }>;
+  [key: string]: any;
 }
-
-// This is the type that was missing (renamed from TableCheckResult)
-export type TableCheckResult = DatabaseTableStatus;
