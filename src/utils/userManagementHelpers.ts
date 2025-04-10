@@ -15,6 +15,9 @@ import {
   inviteUserToCompany
 } from './users';
 
+// Import the renamed function
+import { assignUserToCompany } from './users/companyUsers';
+
 // Re-export all functions for backward compatibility
 export {
   fetchCompanyUsers,
@@ -22,5 +25,7 @@ export {
   getUserProfileByEmail,
   updateUserRole,
   removeUserFromCompany,
-  inviteUserToCompany
+  inviteUserToCompany,
+  // Export the renamed function with the old name for backward compatibility
+  assignUserToCompany as inviteUserToCompany
 };

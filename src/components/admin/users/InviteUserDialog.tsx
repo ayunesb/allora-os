@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, UserPlus } from 'lucide-react';
-import { inviteUserToCompany } from '@/utils/userManagementHelpers';
+import { inviteUserToCompany } from '@/utils/users'; // Import directly from users module
 import { toast } from 'sonner';
 import { useBreakpoint } from '@/hooks/use-mobile';
 
