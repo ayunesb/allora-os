@@ -27,8 +27,16 @@ export interface ValidationResultsUI {
   executiveBoardroom?: ValidationResult;
   databaseSecurity?: ValidationResult;
   performanceOptimization?: ValidationResult;
-  rlsPolicies?: ValidationResult;
-  databaseFunctions?: ValidationResult;
+  rlsPolicies?: Array<{
+    table: string;
+    status: string;
+    message: string;
+  }>;
+  databaseFunctions?: Array<{
+    name: string;
+    status: string;
+    message: string;
+  }>;
   databaseTables?: Record<string, DatabaseTableStatus>;
   databaseIndexes?: Array<{
     name?: string;

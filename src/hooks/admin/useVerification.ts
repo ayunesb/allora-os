@@ -179,10 +179,13 @@ export function useVerification(profileCompanyId?: string) {
         message: rlsResults.message
       }];
       
-      setResults(prev => ({
-        ...prev,
-        rlsPolicies: formattedResults
-      }));
+      setResults(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          rlsPolicies: formattedResults
+        };
+      });
       
       if (rlsResults.valid) {
         toast.success('RLS policies verified successfully');
@@ -209,10 +212,13 @@ export function useVerification(profileCompanyId?: string) {
         message: functionResults.message
       }];
       
-      setResults(prev => ({
-        ...prev,
-        databaseFunctions: formattedResults
-      }));
+      setResults(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          databaseFunctions: formattedResults
+        };
+      });
       
       if (functionResults.valid) {
         toast.success('Database functions verified successfully');
