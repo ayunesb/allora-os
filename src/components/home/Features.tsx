@@ -1,9 +1,7 @@
 
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { Stars, Award, BarChart3 } from "lucide-react";
-
-// Lazy load feature block
-const LazyFeatureBlock = lazy(() => import("@/components/home/FeatureBlock"));
+import FeatureBlock from "@/components/home/FeatureBlock";
 
 // Feature data
 const features = [
@@ -36,17 +34,14 @@ const Features = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
         {features.map((feature, index) => (
-          <Suspense key={index} fallback={
-            <div className="bg-card p-6 rounded-lg border border-border animate-pulse h-48"></div>
-          }>
-            <LazyFeatureBlock
-              emoji={feature.emoji}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              delay={index * 0.2}
-            />
-          </Suspense>
+          <FeatureBlock
+            key={index}
+            emoji={feature.emoji}
+            title={feature.title}
+            description={feature.description}
+            icon={feature.icon}
+            delay={index * 0.2}
+          />
         ))}
       </div>
     </div>
