@@ -9,4 +9,6 @@ export * from './MobileLeadCards';
 export * from './LeadProfileDrawer';
 export * from './LeadScoreBadge';
 export * from './LeadBulkActions';
+export * from './LeadsContent';
+export * from './LeadsErrorState';
 export { AddLeadDialog } from '@/components/admin/leads/AddLeadDialog';
