@@ -10,9 +10,10 @@ import CompanyInfoFields from "./CompanyInfoFields";
 import { useState } from "react";
 import SocialLoginButtons from "./SocialLoginButtons";
 import { Separator } from "@/components/ui/separator";
+import { User } from "@supabase/supabase-js";
 
 interface SignupFormProps {
-  onSubmitSuccess: () => void;
+  onSubmitSuccess: (user: User) => void;
 }
 
 export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {

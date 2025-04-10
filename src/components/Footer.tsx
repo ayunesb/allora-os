@@ -16,6 +16,8 @@ const Footer: React.FC = () => {
           <Link to="/legal/cookies" className="text-[#63B3ED] hover:underline">Cookies</Link>
           <span className="text-white">|</span>
           <Link to="/legal/refund-policy" className="text-[#63B3ED] hover:underline">Refund Policy</Link>
+          <span className="text-white">|</span>
+          <Link to="/legal/messaging-consent" className="text-[#63B3ED] hover:underline">Messaging Consent</Link>
         </div>
       </div>
     </footer>

@@ -5,10 +5,14 @@ import { RocketIcon } from "lucide-react";
 import SignupForm from "@/components/auth/SignupForm";
 import EmailVerificationView from "@/components/auth/EmailVerificationView";
 import SignupLayout from "@/components/auth/SignupLayout";
+import { LegalAcceptanceModal } from "@/components/auth/LegalAcceptanceModal";
+import { User } from "@supabase/supabase-js";
 
 export default function Signup() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [newUser, setNewUser] = useState<User | null>(null);
+  const [showLegalModal, setShowLegalModal] = useState(false);
 
   useEffect(() => {
     // Retrieve email from sessionStorage when component mounts or isSubmitted changes
@@ -18,12 +22,18 @@ export default function Signup() {
     }
   }, [isSubmitted]);
 
-  const handleSubmitSuccess = () => {
-    setIsSubmitted(true);
+  const handleSubmitSuccess = (user: User) => {
+    setNewUser(user);
+    setShowLegalModal(true);
   };
   
   const handleTryAgain = () => {
     setIsSubmitted(false);
+  };
+
+  const handleLegalAcceptance = () => {
+    setShowLegalModal(false);
+    setIsSubmitted(true);
   };
 
   if (isSubmitted) {
@@ -55,6 +65,15 @@ export default function Signup() {
           />
         </CardContent>
       </Card>
+
+      {showLegalModal && newUser && (
+        <LegalAcceptanceModal
+          isOpen={showLegalModal}
+          userId={newUser.id}
+          onClose={() => setShowLegalModal(false)}
+          onAccept={handleLegalAcceptance}
+        />
+      )}
     </SignupLayout>
   );
 }

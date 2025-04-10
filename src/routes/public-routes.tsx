@@ -7,6 +7,7 @@ import Pricing from "@/pages/Pricing";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import RefundPolicy from "@/pages/RefundPolicy";
 import CookiePolicy from "@/pages/CookiePolicy";
+import MessagingConsent from "@/pages/MessagingConsent";
 import LegalDocument from "@/pages/LegalDocument";
 import DevAdminHelper from "@/pages/DevAdminHelper";
 import FAQ from "@/pages/FAQ";
@@ -35,6 +36,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/cookie-policy",
     element: <CookiePolicy />,
+  },
+  {
+    path: "/messaging-consent",
+    element: <MessagingConsent />,
   },
   {
     path: "/faq",

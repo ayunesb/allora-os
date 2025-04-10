@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { calculatePasswordStrength } from "@/components/auth/PasswordStrengthMeter";
 import { useAuth } from "@/context/AuthContext";
 import { supabase, getSession, getCurrentUser } from '@/integrations/supabase/client';
+import { User } from "@supabase/supabase-js";
 
 // Schema definition for signup form validation
 export const signupSchema = z.object({
@@ -46,7 +47,7 @@ export const signupSchema = z.object({
 export type SignupValues = z.infer<typeof signupSchema>;
 
 interface UseSignupFormProps {
-  onSubmitSuccess: () => void;
+  onSubmitSuccess: (user: User) => void;
 }
 
 export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
@@ -94,6 +95,10 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       // Get the current user using the function we just exported
       const { user } = await getCurrentUser();
       
+      if (!user) {
+        throw new Error("Failed to retrieve user information after signup.");
+      }
+      
       if (user && data.company && data.industry) {
         // Save company information and update user profile
         const { saveCompanyInfo } = await import('@/utils/profileHelpers');
@@ -102,15 +107,9 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       
       toast.success("Account created successfully!");
       
-      // Check if email confirmation is required
-      const sessionResult = await getSession();
+      // Pass the user object to the parent component for legal acceptance
+      onSubmitSuccess(user);
       
-      if (!sessionResult.data.session) {
-        onSubmitSuccess();
-      } else {
-        // Always redirect to onboarding after successful signup, not directly to dashboard
-        navigate("/onboarding");
-      }
     } catch (error: any) {
       console.error("Signup error:", error);
       setFormError(error.message || "Failed to create account");

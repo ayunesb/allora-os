@@ -48,6 +48,14 @@ const DocumentList: React.FC = () => {
       path: '/legal/data-processing',
       lastUpdated: 'April 10, 2025',
       updateAvailable: pendingUpdates.includes('data-processing')
+    },
+    {
+      id: 'messaging-consent',
+      name: 'Messaging Consent',
+      version: 'v1.0',
+      path: '/legal/messaging-consent',
+      lastUpdated: 'April 10, 2025',
+      updateAvailable: pendingUpdates.includes('messaging-consent')
     }
   ];
   
