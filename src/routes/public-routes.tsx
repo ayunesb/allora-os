@@ -1,7 +1,6 @@
-
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
+import SignUp from "@/pages/SignUp";
 import ResetPassword from "@/pages/ResetPassword";
 import UpdatePassword from "@/pages/UpdatePassword";
 import Legal from "@/pages/Legal";
@@ -26,7 +25,7 @@ export const publicRoutes: RouteObject[] = [
   },
   {
     path: "/signup",
-    element: <Signup />,
+    element: <SignUp />,
   },
   {
     path: "/reset-password",
