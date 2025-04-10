@@ -1,141 +1,152 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Lightbulb, MessageCircle, Check, X, AlertTriangle } from 'lucide-react';
 import { useExecutiveDebate } from '@/hooks/useExecutiveDebate';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatRoleTitle } from '@/utils/consultation';
+import { ThumbsUp, ThumbsDown, Lightbulb, Users, CheckCircle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function ExecutiveBoardroom() {
+const ExecutiveBoardroom: React.FC = () => {
   const { debateMessages, debateSummary, isLoading } = useExecutiveDebate();
-  
+
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-        
-        <div className="space-y-4 mt-6">
-          {[1, 2, 3].map(i => (
-            <Card key={i} className="bg-background/80">
-              <CardContent className="p-4">
-                <div className="flex gap-4 items-start">
-                  <Skeleton className="h-10 w-10 rounded-full" />
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-1/2 mt-2" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex gap-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
                   <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-1/4" />
-                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-16 w-full" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Executive Boardroom Discussion</h2>
-        <p className="text-muted-foreground">
-          Your AI executive team analyzed your business needs and debated the best strategic approach
-        </p>
-      </div>
-      
-      {/* Executive Debate Messages */}
-      <div className="space-y-4">
-        {debateMessages.map(message => (
-          <Card key={message.id} className="bg-background/80 border-muted/60 hover:border-muted transition-all">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex gap-4 items-start">
-                <Avatar className="h-10 w-10">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl font-bold">Executive Boardroom Debate</CardTitle>
+          <CardDescription>
+            See how our AI executive team analyzed your company's needs and debated the best strategic approach
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {debateMessages.map((message) => (
+              <div key={message.id} className="flex gap-4">
+                <Avatar className="h-12 w-12 border-2 border-background">
                   <AvatarImage src={message.executive.avatar} alt={message.executive.name} />
-                  <AvatarFallback>{message.executive.name[0]}</AvatarFallback>
+                  <AvatarFallback>
+                    {message.executive.name.charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
-                
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{message.executive.name}</span>
-                    <Badge variant="outline" className="text-xs font-normal">
-                      {formatRoleTitle(message.executive.role)}
-                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      ({formatRoleTitle(message.executive.role)})
+                    </span>
                     {message.sentiment === 'positive' && (
-                      <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-200 text-xs">
-                        <Check className="h-3 w-3 mr-1" />
-                        Supportive
-                      </Badge>
+                      <ThumbsUp className="h-3.5 w-3.5 text-green-500" />
                     )}
                     {message.sentiment === 'negative' && (
-                      <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-200 text-xs">
-                        <X className="h-3 w-3 mr-1" />
-                        Concerned
-                      </Badge>
+                      <ThumbsDown className="h-3.5 w-3.5 text-red-500" />
+                    )}
+                    {message.sentiment === 'neutral' && (
+                      <span className="h-3.5 w-3.5 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                        <span className="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
+                      </span>
                     )}
                   </div>
-                  
-                  <p className="text-md text-foreground/90">{message.content}</p>
-                  
-                  <div className="text-xs text-muted-foreground pt-1">
+                  <div className="bg-muted/30 p-3 rounded-lg border border-border/40">
+                    <p className="text-sm">{message.content}</p>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      {/* Debate Summary */}
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {debateSummary && (
-        <Card className="border-amber-200/30 bg-amber-50/10">
-          <CardHeader className="pb-2">
+        <Card>
+          <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-amber-500" />
-              Executive Decision Summary
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <span>Decision Summary</span>
             </CardTitle>
-            <CardDescription>
-              The key findings and decisions from your AI executive team
-            </CardDescription>
           </CardHeader>
-          
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
-                <Check className="h-4 w-4 text-green-500" />
-                Agreed Points
-              </h4>
-              <ul className="list-disc pl-5 space-y-1">
-                {debateSummary.agreedPoints.map((point, index) => (
-                  <li key={index} className="text-sm">{point}</li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-                Points of Discussion
-              </h4>
-              <ul className="list-disc pl-5 space-y-1">
-                {debateSummary.disagreedPoints.map((point, index) => (
-                  <li key={index} className="text-sm">{point}</li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="pt-2">
-              <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
-                <MessageCircle className="h-4 w-4 text-blue-500" />
-                Final Decision
-              </h4>
-              <p className="text-sm">{debateSummary.finalDecision}</p>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-amber-500" />
+                  <h3 className="font-medium">Key Findings</h3>
+                </div>
+                <ul className="space-y-1 pl-6 list-disc">
+                  {debateSummary.keyFindings.map((finding, index) => (
+                    <li key={index} className="text-sm">{finding}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <ThumbsUp className="h-4 w-4 text-green-500" />
+                    <h3 className="font-medium">Points of Agreement</h3>
+                  </div>
+                  <ul className="space-y-1 pl-6 list-disc">
+                    {debateSummary.agreedPoints.map((point, index) => (
+                      <li key={index} className="text-sm">{point}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <ThumbsDown className="h-4 w-4 text-red-500" />
+                    <h3 className="font-medium">Points of Disagreement</h3>
+                  </div>
+                  <ul className="space-y-1 pl-6 list-disc">
+                    {debateSummary.disagreedPoints.map((point, index) => (
+                      <li key={index} className="text-sm">{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-4 border-t pt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <h3 className="font-medium">Final Decision</h3>
+                </div>
+                <p className="text-sm">{debateSummary.finalDecision}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
     </div>
   );
-}
+};
+
+export default ExecutiveBoardroom;

@@ -1,18 +1,20 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useExecutiveDebate } from '@/hooks/useExecutiveDebate';
 import ExecutiveBoardroom from '@/components/ai-debate/ExecutiveBoardroom';
-import { MessageSquare, BookOpen, LineChart } from 'lucide-react';
+import { MessageSquare, BookOpen, LineChart, Briefcase, Sparkles } from 'lucide-react';
 
 export default function BotDebate() {
   return (
     <Card className="max-w-[1200px] mx-auto">
       <CardHeader className="pb-0">
         <CardTitle className="text-2xl font-bold">
-          AI Executive Team Analysis
+          Allora AI Executive Team Analysis
         </CardTitle>
+        <CardDescription>
+          See how our executive team collaborated to create your company's strategic plan
+        </CardDescription>
       </CardHeader>
       
       <CardContent className="pt-6">
@@ -29,6 +31,14 @@ export default function BotDebate() {
             <TabsTrigger value="analysis" className="flex items-center gap-2">
               <LineChart className="h-4 w-4" />
               Market Analysis
+            </TabsTrigger>
+            <TabsTrigger value="innovations" className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              Innovation Ideas
+            </TabsTrigger>
+            <TabsTrigger value="implementation" className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              Implementation Plan
             </TabsTrigger>
           </TabsList>
           
@@ -50,6 +60,24 @@ export default function BotDebate() {
               <h3 className="text-lg font-medium mb-2">Market Analysis</h3>
               <p className="text-muted-foreground">
                 Detailed market analysis and competitive positioning coming soon
+              </p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="innovations">
+            <div className="p-6 text-center">
+              <h3 className="text-lg font-medium mb-2">Innovation Ideas</h3>
+              <p className="text-muted-foreground">
+                Cutting-edge innovation concepts for your business coming soon
+              </p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="implementation">
+            <div className="p-6 text-center">
+              <h3 className="text-lg font-medium mb-2">Implementation Plan</h3>
+              <p className="text-muted-foreground">
+                Step-by-step execution plan for your strategy coming soon
               </p>
             </div>
           </TabsContent>
