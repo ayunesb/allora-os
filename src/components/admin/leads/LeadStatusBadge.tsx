@@ -13,6 +13,7 @@ export const LeadStatusBadge: React.FC<LeadStatusBadgeProps> = ({ status }) => {
       case 'new': return 'bg-blue-500/10 text-blue-500';
       case 'contacted': return 'bg-yellow-500/10 text-yellow-500';
       case 'qualified': return 'bg-green-500/10 text-green-500';
+      case 'client': return 'bg-purple-500/10 text-purple-500';
       case 'closed': return 'bg-gray-500/10 text-gray-500';
       default: return 'bg-blue-500/10 text-blue-500';
     }

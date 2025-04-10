@@ -1,10 +1,9 @@
-
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { lazy, Suspense } from "react";
 import Footer from "@/components/Footer";
-import { ChevronRight, Stars, Award, BarChart3, Zap, AlertCircle, Send } from "lucide-react";
+import { ChevronRight, Stars, Award, BarChart3, Zap, AlertCircle, Send, Users, CreditCard } from "lucide-react";
 import ZapierTriggerButton from "@/components/integrations/ZapierTriggerButton";
 import { BusinessEventType, BusinessEventPayload, triggerBusinessEvent } from "@/lib/zapier";
 import { toast } from "sonner";

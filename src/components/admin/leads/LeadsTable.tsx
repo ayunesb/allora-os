@@ -18,8 +18,8 @@ type LeadsTableProps = {
   sortBy: 'name' | 'created_at';
   sortOrder: 'asc' | 'desc';
   onSort: (column: 'name' | 'created_at') => void;
-  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<void>;
-  onDelete: (leadId: string) => Promise<void>;
+  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<boolean>;
+  onDelete: (leadId: string) => Promise<boolean>;
 };
 
 export const LeadsTable: React.FC<LeadsTableProps> = ({
@@ -30,6 +30,16 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
   onStatusUpdate,
   onDelete
 }) => {
+  // Handle status update with void return to match component props
+  const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
+    await onStatusUpdate(leadId, status);
+  };
+
+  // Handle delete with void return to match component props
+  const handleDelete = async (leadId: string) => {
+    await onDelete(leadId);
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -74,8 +84,8 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
               <TableCell className="text-right">
                 <LeadActions 
                   leadId={lead.id} 
-                  onStatusUpdate={onStatusUpdate} 
-                  onDelete={onDelete} 
+                  onStatusUpdate={handleStatusUpdate} 
+                  onDelete={handleDelete} 
                 />
               </TableCell>
             </TableRow>

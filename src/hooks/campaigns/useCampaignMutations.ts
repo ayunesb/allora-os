@@ -5,6 +5,9 @@ import { Platform, Campaign } from '@/models/campaign';
 import { toast } from 'sonner';
 import { triggerBusinessEvent } from '@/lib/zapier';
 
+// Update Campaign model to include 'Approved' status
+type CampaignStatus = 'Draft' | 'Active' | 'Paused' | 'Completed' | 'Approved';
+
 export function useCampaignMutations(companyId: string) {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -15,7 +18,7 @@ export function useCampaignMutations(companyId: string) {
       name: string;
       platform: Platform;
       budget: number;
-      status?: string;
+      status?: CampaignStatus;
       executiveBot?: string;
       justification?: string;
       roi?: string;
@@ -58,7 +61,7 @@ export function useCampaignMutations(companyId: string) {
   };
 
   const updateCampaign = async (
-    campaignData: Partial<Campaign> & { id: string }
+    campaignData: Partial<Campaign & { status?: CampaignStatus }> & { id: string }
   ) => {
     setIsUpdating(true);
     try {

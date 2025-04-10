@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Lead } from '@/models/lead';
@@ -11,13 +12,13 @@ export function useLeads() {
   const [isAddingLead, setIsAddingLead] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<keyof Lead>('createdAt');
+  const [sortBy, setSortBy] = useState<'name' | 'created_at'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
 
-  const toggleSort = (column: keyof Lead) => {
+  const toggleSort = (column: 'name' | 'created_at') => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -43,8 +44,7 @@ export function useLeads() {
         // Ensure that the data is of type Lead[]
         const typedData: Lead[] = data ? data.map(item => ({
           ...item,
-          createdAt: item.createdAt ? new Date(item.createdAt).toISOString() : undefined,
-          updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : undefined,
+          // We don't need to transform dates anymore, as our model matches DB schema
         })) : [];
         setLeads(typedData);
       }
@@ -66,16 +66,16 @@ export function useLeads() {
 
     try {
       // Ensure required fields are present
-      if (!leadData.name || !leadData.email || !leadData.companyId) {
-        throw new Error("Name, email, and companyId are required to create a lead.");
+      if (!leadData.name || !leadData.email || !leadData.campaign_id) {
+        throw new Error("Name, email, and campaign_id are required to create a lead.");
       }
 
-      // Omit potentially problematic fields and add companyId
-      const { id, createdAt, updatedAt, score, ...safeLeadData } = leadData;
+      // Omit potentially problematic fields and add campaign_id
+      const { id, created_at, ...safeLeadData } = leadData;
       const newLeadData = {
         ...safeLeadData,
-        companyId: safeLeadData.companyId, // Ensure companyId is correctly passed
-        status: safeLeadData.status || 'New', // Set default status if not provided
+        campaign_id: safeLeadData.campaign_id, // Ensure campaign_id is correctly passed
+        status: safeLeadData.status || 'new', // Set default status if not provided
         source: safeLeadData.source || 'Manual Entry',
         score: safeLeadData.score || 0
       };
@@ -100,13 +100,13 @@ export function useLeads() {
           companyId: newLead.companyId,
           name: newLead.name,
           email: newLead.email,
-          company: newLead.company,
+          company: newLead.campaigns?.name,
           title: newLead.title,
           status: newLead.status,
           source: newLead.source || 'Manual Entry',
           phone: newLead.phone,
           score: newLead.score,
-          campaignId: newLead.campaignId,
+          campaignId: newLead.campaign_id,
           timestamp: new Date().toISOString()
         });
         
@@ -137,8 +137,8 @@ export function useLeads() {
       }
       
       // After successful status update, trigger the Zapier business event
-      // Check if the new status is 'Client' which would mean a lead conversion
-      const eventType = newStatus === 'Client' ? 'lead_converted' : 'lead_status_changed';
+      // Check if the new status is 'client' which would mean a lead conversion
+      const eventType = newStatus === 'client' ? 'lead_converted' : 'lead_status_changed';
       
       await triggerBusinessEvent(eventType, {
         entityId: leadId,

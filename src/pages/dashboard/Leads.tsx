@@ -102,11 +102,13 @@ export default function DashboardLeads() {
     );
   }
 
-  // Handle bulk status update
-  const handleBulkStatusChange = async (status: Lead['status']) => {
-    const result = await handleBulkStatusUpdate(status);
-    // We ignore the result here since we're adapting Promise<boolean> to Promise<void>
-    return;
+  // Adapter functions for void returns
+  const handleLeadStatusUpdate = async (leadId: string, status: Lead['status']) => {
+    await handleStatusUpdate(leadId, status);
+  };
+
+  const handleLeadDelete = async (leadId: string) => {
+    await handleDelete(leadId);
   };
 
   return (
@@ -131,7 +133,7 @@ export default function DashboardLeads() {
               {selectedLeads.length > 0 && (
                 <LeadBulkActions 
                   selectedCount={selectedLeads.length} 
-                  onStatusUpdate={handleBulkStatusChange}
+                  onStatusUpdate={handleBulkStatusUpdate}
                 />
               )}
               
@@ -171,8 +173,8 @@ export default function DashboardLeads() {
             <MobileLeadCards 
               leads={filteredLeads}
               onViewLead={handleViewLead}
-              onStatusUpdate={handleStatusUpdate}
-              onDelete={handleDelete}
+              onStatusUpdate={handleLeadStatusUpdate}
+              onDelete={handleLeadDelete}
               getLeadScore={getLeadScore}
               getNextBestAction={getNextBestAction}
             />
@@ -183,8 +185,8 @@ export default function DashboardLeads() {
               open={isDrawerOpen}
               onOpenChange={setIsDrawerOpen}
               lead={selectedLead}
-              onStatusUpdate={handleStatusUpdate}
-              onDelete={handleDelete}
+              onStatusUpdate={handleLeadStatusUpdate}
+              onDelete={handleLeadDelete}
               getLeadScore={getLeadScore}
               getNextBestAction={getNextBestAction}
             />

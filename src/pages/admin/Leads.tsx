@@ -13,6 +13,7 @@ import {
   MobileLeadCards,
   AddLeadDialog 
 } from '@/components/admin/leads';
+import { Lead } from '@/models/lead';
 
 export default function AdminLeads() {
   const breakpoint = useBreakpoint();
@@ -44,6 +45,15 @@ export default function AdminLeads() {
       return data || [];
     }
   });
+
+  // Adapter functions to convert return types
+  const handleLeadStatusUpdate = async (leadId: string, status: Lead['status']) => {
+    await handleStatusUpdate(leadId, status);
+  };
+
+  const handleLeadDelete = async (leadId: string) => {
+    await handleDelete(leadId);
+  };
   
   return (
     <div className="animate-fadeIn space-y-4 sm:space-y-6">
@@ -89,8 +99,8 @@ export default function AdminLeads() {
           {isMobileView && (
             <MobileLeadCards 
               leads={leads}
-              onStatusUpdate={handleStatusUpdate}
-              onDelete={handleDelete}
+              onStatusUpdate={handleLeadStatusUpdate}
+              onDelete={handleLeadDelete}
             />
           )}
         </>

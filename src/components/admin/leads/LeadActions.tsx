@@ -38,6 +38,9 @@ export const LeadActions: React.FC<LeadActionsProps> = ({
         <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'qualified')}>
           Mark as Qualified
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'client')}>
+          Mark as Client
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'closed')}>
           Mark as Closed
         </DropdownMenuItem>
