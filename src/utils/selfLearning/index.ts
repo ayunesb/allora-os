@@ -9,7 +9,6 @@ export * from './types';
 export * from './trackingService';
 export * from './recommendationService';
 export * from './preferencesService';
+export * from './analyticsService';
 
-// Internal services not directly exported to consumers
-// These are used internally by the tracking service
-// export * from './analyticsService';
+// We're no longer using the internal comment since we're now properly exporting analyticsService

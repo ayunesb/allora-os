@@ -6,7 +6,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { UserPreferences } from './types';
-import { getUserPreferences, updateUserPreferences } from './preferencesService';
+import { getUserPreferences } from './preferences/getUserPreferences';
+import { updateUserPreferences } from './preferences/updateUserPreferences';
 
 // Process feedback loop to learn from user actions
 export const processFeedbackLoop = async (userId: string) => {
