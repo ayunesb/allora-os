@@ -3,15 +3,18 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { validateLaunchReadiness } from '@/utils/launchValidator';
-import { CheckCircle2, AlertCircle, RefreshCw, Database } from 'lucide-react';
+import { CheckCircle2, AlertCircle, RefreshCw, Database, ListChecks } from 'lucide-react';
 import { addDemoDataButton } from '@/utils/demoData';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function LaunchVerification() {
   const [isChecking, setIsChecking] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [isReady, setIsReady] = useState<boolean | null>(null);
   const [isAddingDemo, setIsAddingDemo] = useState(false);
+  const [isVerifyingTables, setIsVerifyingTables] = useState(false);
   const { profile } = useAuth();
   
   const runChecks = async () => {
@@ -32,8 +35,87 @@ export default function LaunchVerification() {
     setIsAddingDemo(true);
     try {
       await addDemoDataButton(profile?.company_id);
+      toast.success('Demo data added successfully');
+    } catch (error) {
+      console.error("Error adding demo data:", error);
+      toast.error('Failed to add demo data');
     } finally {
       setIsAddingDemo(false);
+    }
+  };
+  
+  const verifyRequiredTables = async () => {
+    setIsVerifyingTables(true);
+    
+    const requiredTables = [
+      'companies',
+      'profiles',
+      'strategies',
+      'leads',
+      'campaigns',
+      'ai_boardroom_debates',
+      'user_legal_acceptances'
+    ];
+    
+    const tableResults: Record<string, { exists: boolean, message: string }> = {};
+    
+    try {
+      for (const table of requiredTables) {
+        try {
+          // Check if table exists by trying to select from it
+          const { error } = await supabase
+            .from(table)
+            .select('id')
+            .limit(1);
+            
+          if (error) {
+            if (error.code === '42P01') { // Table doesn't exist
+              tableResults[table] = {
+                exists: false,
+                message: `Table '${table}' does not exist in the database`
+              };
+            } else {
+              tableResults[table] = {
+                exists: false,
+                message: `Error checking table '${table}': ${error.message}`
+              };
+            }
+          } else {
+            tableResults[table] = {
+              exists: true,
+              message: `Table '${table}' exists and is accessible`
+            };
+          }
+        } catch (err: any) {
+          tableResults[table] = {
+            exists: false,
+            message: `Error checking table '${table}': ${err.message}`
+          };
+        }
+      }
+      
+      // Display results
+      const missingTables = Object.entries(tableResults)
+        .filter(([_, result]) => !result.exists)
+        .map(([table]) => table);
+        
+      if (missingTables.length === 0) {
+        toast.success('All required database tables exist');
+      } else {
+        toast.error(`Missing tables: ${missingTables.join(', ')}`);
+      }
+      
+      // Add to results
+      setResults(prev => ({
+        ...prev,
+        databaseTables: tableResults
+      }));
+      
+    } catch (error) {
+      console.error("Error verifying tables:", error);
+      toast.error('Failed to verify database tables');
+    } finally {
+      setIsVerifyingTables(false);
     }
   };
   
@@ -52,22 +134,43 @@ export default function LaunchVerification() {
       <CardContent>
         {results && (
           <div className="space-y-3">
-            {Object.entries(results).map(([key, result]: [string, any]) => (
-              <div key={key} className={`p-3 rounded-md ${result.valid ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
-                <div className="flex items-start gap-2">
-                  {result.valid ? 
-                    <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" /> : 
-                    <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
-                  }
-                  <div>
-                    <p className={`font-medium ${result.valid ? 'text-green-700' : 'text-red-700'}`}>
-                      {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                    </p>
-                    <p className={`text-sm ${result.valid ? 'text-green-600' : 'text-red-600'}`}>{result.message}</p>
+            {Object.entries(results).map(([key, result]: [string, any]) => {
+              // Skip databaseTables as we'll display it separately
+              if (key === 'databaseTables') return null;
+              
+              return (
+                <div key={key} className={`p-3 rounded-md ${result.valid ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+                  <div className="flex items-start gap-2">
+                    {result.valid ? 
+                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" /> : 
+                      <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
+                    }
+                    <div>
+                      <p className={`font-medium ${result.valid ? 'text-green-700' : 'text-red-700'}`}>
+                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </p>
+                      <p className={`text-sm ${result.valid ? 'text-green-600' : 'text-red-600'}`}>{result.message}</p>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+            
+            {results.databaseTables && (
+              <div className="p-3 rounded-md bg-secondary/10 border border-border">
+                <h3 className="font-medium mb-2">Database Tables Check</h3>
+                <div className="space-y-1.5">
+                  {Object.entries(results.databaseTables).map(([table, result]: [string, any]) => (
+                    <div key={table} className="flex items-center justify-between text-sm">
+                      <span className="font-medium">{table}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${result.exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {result.exists ? 'Exists' : 'Missing'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
           </div>
         )}
         
@@ -86,11 +189,11 @@ export default function LaunchVerification() {
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex flex-col sm:flex-row gap-2">
+      <CardFooter className="flex flex-wrap gap-2">
         <Button 
           onClick={runChecks} 
           disabled={isChecking}
-          className="w-full"
+          className="w-full sm:w-auto"
         >
           {isChecking ? 'Checking...' : results ? 'Run Checks Again' : 'Run Pre-Launch Checks'}
         </Button>
@@ -103,6 +206,16 @@ export default function LaunchVerification() {
         >
           <Database className="mr-2 h-4 w-4" />
           {isAddingDemo ? 'Adding...' : 'Add Demo Data'}
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={verifyRequiredTables}
+          disabled={isVerifyingTables}
+          className="w-full sm:w-auto"
+        >
+          <ListChecks className="mr-2 h-4 w-4" />
+          {isVerifyingTables ? 'Verifying...' : 'Verify Database Tables'}
         </Button>
       </CardFooter>
     </Card>

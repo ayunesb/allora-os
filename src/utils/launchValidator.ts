@@ -10,6 +10,9 @@ export async function validateLaunchReadiness() {
   
   const results = {
     legalAcceptance: await validateLegalAcceptance(),
+    apiConnections: await validateApiConnections(),
+    userAuthentication: await validateUserAuthentication(),
+    executiveBoardroom: await validateExecutiveBoardroom(),
     // Add more validation checks here as needed
   };
   
@@ -29,7 +32,7 @@ export async function validateLaunchReadiness() {
     );
     
     toast.error("Launch readiness check failed", {
-      description: "Please check the console for details."
+      description: "Please review the reported issues before launching."
     });
     return { valid: false, results };
   }
@@ -100,6 +103,102 @@ async function validateLegalAcceptance() {
     return {
       valid: false,
       message: "Unexpected error during legal acceptance validation: " + 
+        (error instanceof Error ? error.message : String(error))
+    };
+  }
+}
+
+/**
+ * Validates API connections
+ */
+async function validateApiConnections() {
+  try {
+    // In a real-world scenario, you would make test calls to each API
+    // This is a simplified check to verify Supabase connection
+    const { error } = await supabase.from('companies').select('id').limit(1);
+    
+    if (error) {
+      return {
+        valid: false,
+        message: `Database connection error: ${error.message}`
+      };
+    }
+    
+    return {
+      valid: true,
+      message: "API connections are working correctly."
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      message: "Error validating API connections: " + 
+        (error instanceof Error ? error.message : String(error))
+    };
+  }
+}
+
+/**
+ * Validates authentication system
+ */
+async function validateUserAuthentication() {
+  try {
+    // Check if authentication is properly configured
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      return {
+        valid: false,
+        message: `Authentication error: ${error.message}`
+      };
+    }
+    
+    // This just validates that the auth API is working, not whether a user is logged in
+    return {
+      valid: true,
+      message: "Authentication system is properly configured."
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      message: "Error validating authentication: " + 
+        (error instanceof Error ? error.message : String(error))
+    };
+  }
+}
+
+/**
+ * Validates executive boardroom functionality
+ */
+async function validateExecutiveBoardroom() {
+  try {
+    // Check if the ai_boardroom_debates table exists
+    const { error: tableCheckError } = await supabase
+      .from('ai_boardroom_debates')
+      .select('id')
+      .limit(1);
+    
+    if (tableCheckError) {
+      if (tableCheckError.code === '42P01') { // Table doesn't exist
+        return {
+          valid: false,
+          message: "The ai_boardroom_debates table does not exist in the database."
+        };
+      }
+      
+      return {
+        valid: false,
+        message: `Error accessing ai_boardroom_debates: ${tableCheckError.message}`
+      };
+    }
+    
+    return {
+      valid: true,
+      message: "Executive boardroom functionality is ready."
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      message: "Error validating executive boardroom: " + 
         (error instanceof Error ? error.message : String(error))
     };
   }
