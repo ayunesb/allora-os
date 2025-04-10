@@ -1,5 +1,5 @@
+
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { validateLaunchReadiness } from '@/utils/launchValidator';
 import { 
@@ -7,15 +7,17 @@ import {
   validateDatabaseFunctions,
   validatePerformanceOptimization
 } from '@/utils/validators';
-import { CheckCircle2, AlertCircle, RefreshCw, Database, ListChecks, Shield, Zap, Lock, FileCode } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { addDemoDataButton } from '@/utils/demoData';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { VerificationContent, VerificationActions } from './launch-verification';
+import type { ValidationResultsUI } from './launch-verification/types';
 
 export default function LaunchVerification() {
   const [isChecking, setIsChecking] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<ValidationResultsUI | null>(null);
   const [isReady, setIsReady] = useState<boolean | null>(null);
   const [isAddingDemo, setIsAddingDemo] = useState(false);
   const [isVerifyingTables, setIsVerifyingTables] = useState(false);
@@ -226,168 +228,27 @@ export default function LaunchVerification() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {results && (
-          <div className="space-y-3">
-            {Object.entries(results).map(([key, result]: [string, any]) => {
-              if (['databaseTables', 'databaseIndexes', 'rlsPolicies', 'databaseFunctions'].includes(key)) return null;
-              
-              return (
-                <div key={key} className={`p-3 rounded-md ${result.valid ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
-                  <div className="flex items-start gap-2">
-                    {result.valid ? 
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" /> : 
-                      <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
-                    }
-                    <div>
-                      <p className={`font-medium ${result.valid ? 'text-green-700' : 'text-red-700'}`}>
-                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      </p>
-                      <p className={`text-sm ${result.valid ? 'text-green-600' : 'text-red-600'}`}>{result.message}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            
-            {results.databaseTables && (
-              <div className="p-3 rounded-md bg-secondary/10 border border-border">
-                <h3 className="font-medium mb-2">Database Tables Check</h3>
-                <div className="space-y-1.5">
-                  {Object.entries(results.databaseTables).map(([table, result]: [string, any]) => (
-                    <div key={table} className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{table}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${result.exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {result.exists ? 'Exists' : 'Missing'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {results.databaseIndexes && (
-              <div className="p-3 rounded-md bg-secondary/10 border border-border">
-                <h3 className="font-medium mb-2">Database Indexes Check</h3>
-                <div className="space-y-1.5">
-                  {results.databaseIndexes.map((index: any) => (
-                    <div key={index.name} className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{index.tableName}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${index.exists ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {index.exists ? 'Indexed' : 'Not Indexed'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {results.rlsPolicies && (
-              <div className="p-3 rounded-md bg-secondary/10 border border-border">
-                <h3 className="font-medium mb-2">RLS Policies Check</h3>
-                <div className="space-y-1.5">
-                  {results.rlsPolicies.map((policy: any) => (
-                    <div key={policy.table} className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{policy.table}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800`}>
-                        {policy.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {results.databaseFunctions && (
-              <div className="p-3 rounded-md bg-secondary/10 border border-border">
-                <h3 className="font-medium mb-2">Database Functions Check</h3>
-                <div className="space-y-1.5">
-                  {results.databaseFunctions.map((func: any) => (
-                    <div key={func.name} className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{func.name}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800`}>
-                        {func.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-        
-        {!results && !isChecking && (
-          <div className="flex flex-col items-center justify-center py-6">
-            <p className="text-muted-foreground mb-4 text-center">
-              Run a comprehensive check to verify all systems are ready for production
-            </p>
-          </div>
-        )}
-        
-        {isChecking && (
-          <div className="flex flex-col items-center justify-center py-6">
-            <RefreshCw className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Running verification checks...</p>
-          </div>
-        )}
+        <VerificationContent 
+          results={results} 
+          isChecking={isChecking} 
+        />
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-2">
-        <Button 
-          onClick={runChecks} 
-          disabled={isChecking}
-          className="w-full sm:w-auto"
-        >
-          {isChecking ? 'Checking...' : results ? 'Run Checks Again' : 'Run Pre-Launch Checks'}
-        </Button>
-        
-        <Button
-          variant="outline"
-          onClick={handleAddDemoData}
-          disabled={isAddingDemo}
-          className="w-full sm:w-auto"
-        >
-          <Database className="mr-2 h-4 w-4" />
-          {isAddingDemo ? 'Adding...' : 'Add Demo Data'}
-        </Button>
-        
-        <Button
-          variant="outline"
-          onClick={verifyRequiredTables}
-          disabled={isVerifyingTables}
-          className="w-full sm:w-auto"
-        >
-          <ListChecks className="mr-2 h-4 w-4" />
-          {isVerifyingTables ? 'Verifying...' : 'Verify Tables'}
-        </Button>
-        
-        <Button
-          variant="outline"
-          onClick={checkDatabaseIndexes}
-          disabled={isCheckingIndexes}
-          className="w-full sm:w-auto"
-        >
-          <Zap className="mr-2 h-4 w-4" />
-          {isCheckingIndexes ? 'Checking...' : 'Verify Indexes'}
-        </Button>
-        
-        <Button
-          variant="outline"
-          onClick={verifyRLSPolicies}
-          disabled={isVerifyingRLS}
-          className="w-full sm:w-auto"
-        >
-          <Lock className="mr-2 h-4 w-4" />
-          {isVerifyingRLS ? 'Verifying...' : 'Verify RLS'}
-        </Button>
-        
-        <Button
-          variant="outline"
-          onClick={verifyDatabaseFunctions}
-          disabled={isVerifyingFunctions}
-          className="w-full sm:w-auto"
-        >
-          <FileCode className="mr-2 h-4 w-4" />
-          {isVerifyingFunctions ? 'Checking...' : 'Verify Functions'}
-        </Button>
+      <CardFooter>
+        <VerificationActions 
+          isChecking={isChecking}
+          isAddingDemo={isAddingDemo}
+          isVerifyingTables={isVerifyingTables}
+          isCheckingIndexes={isCheckingIndexes}
+          isVerifyingRLS={isVerifyingRLS}
+          isVerifyingFunctions={isVerifyingFunctions}
+          onRunChecks={runChecks}
+          onAddDemoData={handleAddDemoData}
+          onVerifyTables={verifyRequiredTables}
+          onCheckIndexes={checkDatabaseIndexes}
+          onVerifyRLS={verifyRLSPolicies}
+          onVerifyFunctions={verifyDatabaseFunctions}
+          hasResults={results !== null}
+        />
       </CardFooter>
     </Card>
   );
