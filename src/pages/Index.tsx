@@ -51,6 +51,7 @@ const testimonials = [
 export default function Index() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Explicitly set isLoggedIn to false in public pages */}
       <Navbar isLoggedIn={false} />
       
       <main className="flex flex-col items-center flex-grow">

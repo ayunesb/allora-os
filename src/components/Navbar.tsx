@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -117,20 +118,24 @@ export function Navbar({ isLoggedIn = true }) {
           <span className="hidden sm:inline">Allora AI</span>
         </Link>
 
-        {/* Public Navigation for non-logged in users */}
-        {!isLoggedIn && (
-          <div className="hidden md:flex ml-6 space-x-4">
-            {publicNavItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-        )}
+        {/* Public Navigation - Always visible, not conditional on login status */}
+        <div className="hidden md:flex ml-6 space-x-4">
+          <Link 
+            to="/"
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
+            Home
+          </Link>
+          {publicNavItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              {item.name}
+            </Link>
+          ))}
+        </div>
         
         <div className="ml-auto flex items-center space-x-3 sm:space-x-4">
           <ThemeToggle />
