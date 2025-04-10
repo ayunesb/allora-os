@@ -1,17 +1,34 @@
 
-import { CardTitle, CardDescription } from "@/components/ui/card";
-import { CeoMessageBadges } from "./CeoMessageBadges";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/context/AuthContext";
+import { useCeoSelection } from "@/hooks/useCeoSelection";
 
 export function CeoMessageHeader() {
+  const { profile } = useAuth();
+  const { selectedCeo } = useCeoSelection();
+  const companyName = profile?.company || "Your Company";
+  
   return (
-    <div className="flex justify-between">
+    <div className="flex items-start gap-4">
+      <Avatar className="h-12 w-12 border-2 border-primary/20">
+        <AvatarImage 
+          src={`/avatars/${selectedCeo.name.toLowerCase().replace(/\s+/g, '-')}.png`} 
+          alt={selectedCeo.name} 
+        />
+        <AvatarFallback className="bg-primary/10">
+          {selectedCeo.name.charAt(0)}
+        </AvatarFallback>
+      </Avatar>
+      
       <div>
-        <CardTitle className="text-xl">Message from Your AI CEO</CardTitle>
-        <CardDescription>
-          Strategy recommendation based on your company profile
-        </CardDescription>
+        <h3 className="text-xl font-semibold mb-1 flex items-center">
+          Message from Your Virtual CEO
+          <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">AI Generated</span>
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Personalized strategic guidance for {companyName} from {selectedCeo.name}, your AI Executive
+        </p>
       </div>
-      <CeoMessageBadges />
     </div>
   );
 }

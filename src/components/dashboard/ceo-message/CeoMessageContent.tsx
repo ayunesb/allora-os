@@ -1,5 +1,8 @@
 
 import { useAuth } from "@/context/AuthContext";
+import { Badge } from "@/components/ui/badge";
+import { useCeoSelection } from "@/hooks/useCeoSelection";
+import { useCeoMessage } from "@/hooks/useCeoMessage";
 
 interface CeoMessageContentProps {
   riskAppetite: 'low' | 'medium' | 'high';
@@ -7,19 +10,60 @@ interface CeoMessageContentProps {
 
 export function CeoMessageContent({ riskAppetite }: CeoMessageContentProps) {
   const { profile } = useAuth();
+  const { selectedCeo } = useCeoSelection();
+  const { message, isLoading } = useCeoMessage(riskAppetite, profile?.industry, profile?.company);
+  const companyName = profile?.company || "Your Company";
+  
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-4 bg-muted rounded w-3/4"></div>
+        <div className="h-4 bg-muted rounded w-full"></div>
+        <div className="h-4 bg-muted rounded w-5/6"></div>
+        <div className="h-4 bg-muted rounded w-3/4"></div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <p className="mb-4">
-        Based on the information you've provided about {profile?.company || "your company"} during onboarding,
-        I recommend focusing on a <strong>{riskAppetite} risk</strong> growth strategy for the next quarter.
-        Our analysis shows significant opportunity in the {profile?.industry || "your industry"} sector, especially
-        with the current market conditions.
-      </p>
-      <p>
-        I've generated several targeted strategies and campaign ideas that align with your business objectives.
-        Review and approve them below to begin implementation with the help of your AI executive team.
-      </p>
-    </>
+    <div className="space-y-4">
+      <div className="prose prose-sm dark:prose-invert max-w-none">
+        <p className="text-base">
+          {message.greeting} 
+        </p>
+        
+        <p>
+          {message.strategicOverview}
+        </p>
+        
+        <div className="my-4 flex flex-wrap gap-2">
+          {message.tags.map((tag, index) => (
+            <Badge key={index} variant="outline" className="bg-background/50">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+        
+        <p>
+          {message.actionSteps}
+        </p>
+        
+        <p>
+          {message.closingStatement}
+        </p>
+      </div>
+      
+      <div className="pt-4 border-t border-border/40">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">{selectedCeo.name}</span>
+            <span className="text-xs text-muted-foreground">Virtual CEO for {companyName}</span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {new Date().toLocaleDateString()} 
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

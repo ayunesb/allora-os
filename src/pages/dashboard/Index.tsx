@@ -23,13 +23,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen space-y-8">
       <DashboardHeader pendingApprovals={pendingApprovals} />
       
-      {/* CEO Strategy Summary */}
+      {/* CEO Strategy Summary - Now enhanced with AI Executive attribution */}
       <CeoMessage riskAppetite={riskAppetite} />
       
-      {/* AI Recommendations */}
+      {/* AI Recommendations - Now with executive attributions */}
       <AiRecommendations 
         recommendations={aiRecommendations} 
         onApprove={handleApproveRecommendation} 

@@ -1,54 +1,68 @@
 
-import { useCallback } from 'react';
-import { useAuthState } from '@/hooks/useAuthState';
-import { 
-  trackUserAction, 
-  getPersonalizedRecommendations, 
-  getLearningInsights,
-  ActionCategory
-} from '@/utils/selfLearning';
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/backend/supabase";
 
-export const useSelfLearning = () => {
-  const { user } = useAuthState();
+export function useSelfLearning() {
+  const { user } = useAuth();
   
-  const trackAction = useCallback((
+  /**
+   * Track a user action for self-learning
+   */
+  const trackAction = async (
     action: string,
-    category: ActionCategory,
-    entityId?: string,
-    entityType?: string,
-    metadata?: Record<string, any>
+    category: string,
+    entityId: string,
+    entityType: string,
+    metadata: Record<string, any> = {}
   ) => {
-    if (!user?.id) return false;
+    if (!user?.id) return;
     
-    return trackUserAction(
-      user.id,
-      action,
-      category,
-      entityId,
-      entityType,
-      metadata
-    );
-  }, [user?.id]);
-  
-  const getRecommendations = useCallback(async () => {
-    if (!user?.id) return {
-      strategies: [],
-      executives: [],
-      topics: []
-    };
-    
-    return await getPersonalizedRecommendations(user.id);
-  }, [user?.id]);
-  
-  const getInsights = useCallback(async () => {
-    if (!user?.id) return [];
-    
-    return await getLearningInsights(user.id);
-  }, [user?.id]);
+    try {
+      const timestamp = new Date().toISOString();
+      
+      // In a real app, this would be sent to the backend
+      console.log('Tracking user action:', {
+        userId: user.id,
+        action,
+        category,
+        entityId,
+        entityType,
+        metadata,
+        timestamp
+      });
+      
+      // Store in Supabase if available
+      try {
+        await supabase.rpc('insert_user_action', {
+          p_user_id: user.id,
+          p_action: action,
+          p_category: category,
+          p_entity_id: entityId,
+          p_entity_type: entityType,
+          p_metadata: metadata,
+          p_timestamp: timestamp
+        });
+      } catch (error) {
+        // Fallback to local storage if Supabase is not connected
+        const storedActions = JSON.parse(localStorage.getItem('user_actions') || '[]');
+        storedActions.push({
+          userId: user.id,
+          action,
+          category,
+          entityId,
+          entityType,
+          metadata,
+          timestamp
+        });
+        localStorage.setItem('user_actions', JSON.stringify(storedActions));
+      }
+    } catch (error) {
+      console.error('Error tracking user action:', error);
+    }
+  };
   
   return {
     trackAction,
-    getRecommendations,
-    getInsights
+    isLoggedIn: !!user?.id
   };
-};
+}
