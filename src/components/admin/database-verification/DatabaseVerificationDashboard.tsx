@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RefreshCw, Database, Shield, Code } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DatabaseTablesCheck } from './DatabaseTablesCheck';
 import { RlsPoliciesCheck } from './RlsPoliciesCheck';
 import { DatabaseFunctionsCheck } from './DatabaseFunctionsCheck';
 import { DatabaseVerificationResult } from './types';
+import { RefreshCw, Database, Shield, Code } from 'lucide-react';
 
 interface DatabaseVerificationDashboardProps {
   result: DatabaseVerificationResult;
@@ -19,75 +19,66 @@ export function DatabaseVerificationDashboard({
 }: DatabaseVerificationDashboardProps) {
   const { tables, policies, functions, isVerifying } = result;
   
-  const tablesValid = tables.every(table => table.exists);
-  const policiesValid = policies.every(policy => policy.exists);
-  const functionsValid = functions.every(func => func.exists && func.isSecure);
+  const hasTablesData = tables && tables.length > 0;
+  const hasPoliciesData = policies && policies.length > 0;
+  const hasFunctionsData = functions && functions.length > 0;
   
-  const allValid = tablesValid && policiesValid && functionsValid;
-
+  const countIssues = () => {
+    const tableMissing = tables.filter(t => !t.exists).length;
+    const policiesMissing = policies.filter(p => !p.exists).length;
+    const functionIssues = functions.filter(f => !f.exists || !f.isSecure).length;
+    
+    return tableMissing + policiesMissing + functionIssues;
+  };
+  
+  const issueCount = hasTablesData ? countIssues() : 0;
+  
   return (
-    <Card className="border-border/50 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Database Verification
-          {allValid && !isVerifying && 
-            <span className="text-sm font-normal bg-green-500/10 text-green-500 px-2 py-1 rounded-full">
-              All checks passed
-            </span>
-          }
-        </CardTitle>
-        <CardDescription>
-          Verify database tables, RLS policies, and function configurations
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {isVerifying ? (
-          <div className="flex flex-col items-center justify-center py-6">
-            <RefreshCw className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Verifying database configuration...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button 
-                variant="outline" 
-                className="flex items-center justify-center gap-2 h-auto py-3" 
-                onClick={onVerify}
-              >
-                <Database className="h-5 w-5" />
-                <div className="flex flex-col items-start">
-                  <span className="font-medium">Verify All</span>
-                  <span className="text-xs text-muted-foreground">Run comprehensive check</span>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            Database Verification
+          </CardTitle>
+          <CardDescription>
+            Check if your database has all required tables, RLS policies, and functions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              {(hasTablesData || hasPoliciesData || hasFunctionsData) && (
+                <div className="text-sm">
+                  {issueCount === 0 ? (
+                    <span className="text-green-600 font-medium">All checks passed</span>
+                  ) : (
+                    <span className="text-amber-600 font-medium">
+                      {issueCount} {issueCount === 1 ? 'issue' : 'issues'} found
+                    </span>
+                  )}
                 </div>
-              </Button>
-              
-              <div className={`flex items-center justify-center gap-2 rounded-md border py-3 px-4 ${tablesValid ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
-                <Database className={`h-5 w-5 ${tablesValid ? 'text-green-500' : 'text-amber-500'}`} />
-                <div className="flex flex-col items-start">
-                  <span className="font-medium">{tables.length} Tables</span>
-                  <span className="text-xs text-muted-foreground">
-                    {tablesValid ? 'All tables exist' : 'Some tables missing'}
-                  </span>
-                </div>
-              </div>
-              
-              <div className={`flex items-center justify-center gap-2 rounded-md border py-3 px-4 ${policiesValid ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
-                <Shield className={`h-5 w-5 ${policiesValid ? 'text-green-500' : 'text-amber-500'}`} />
-                <div className="flex flex-col items-start">
-                  <span className="font-medium">{policies.length} RLS Policies</span>
-                  <span className="text-xs text-muted-foreground">
-                    {policiesValid ? 'Security policies active' : 'Security policies issues'}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
-            
-            <DatabaseTablesCheck tables={tables} />
-            <RlsPoliciesCheck policies={policies} />
-            <DatabaseFunctionsCheck functions={functions} />
+            <Button onClick={onVerify} disabled={isVerifying}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isVerifying ? 'animate-spin' : ''}`} />
+              {isVerifying ? 'Verifying...' : 'Verify Database'}
+            </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          
+          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying && (
+            <div className="py-8 text-center text-muted-foreground">
+              Click "Verify Database" to check your database configuration
+            </div>
+          )}
+          
+          <div className="space-y-6">
+            {hasTablesData && <DatabaseTablesCheck tables={tables} />}
+            {hasPoliciesData && <RlsPoliciesCheck policies={policies} />}
+            {hasFunctionsData && <DatabaseFunctionsCheck functions={functions} />}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

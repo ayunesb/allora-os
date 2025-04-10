@@ -17,24 +17,17 @@ export function RlsPoliciesCheck({ policies }: RlsPoliciesCheckProps) {
       </div>
       <div className="divide-y divide-border/60">
         {policies.map((policy, index) => (
-          <div key={index} className="px-4 py-3 flex items-center justify-between">
+          <div key={`${policy.table}-${index}`} className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               {policy.exists ? (
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               ) : (
                 <XCircle className="h-5 w-5 text-red-500" />
               )}
-              <div>
-                <span className="font-medium">{policy.table}</span>
-                {policy.name && (
-                  <span className="text-xs text-muted-foreground ml-2">
-                    {policy.name}
-                  </span>
-                )}
-              </div>
+              <span className="font-medium">{policy.table}</span>
             </div>
             <span className={`text-sm ${policy.exists ? 'text-green-600' : 'text-red-600'}`}>
-              {policy.exists ? 'Active' : 'Not Configured'}
+              {policy.exists ? 'Enabled' : 'Disabled'}
             </span>
           </div>
         ))}

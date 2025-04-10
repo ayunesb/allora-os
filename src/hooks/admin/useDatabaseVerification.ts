@@ -2,12 +2,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { 
-  validateDatabaseSecurity, 
-  validateRLSPolicies,
-  validateDatabaseFunctions
-} from '@/utils/validators';
-import { DatabaseVerificationResult } from '@/components/admin/database-verification/types';
+import { DatabaseVerificationResult, DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/components/admin/database-verification/types';
 
 export function useDatabaseVerification() {
   const [verificationResult, setVerificationResult] = useState<DatabaseVerificationResult>({
@@ -17,83 +12,110 @@ export function useDatabaseVerification() {
     isVerifying: false
   });
 
-  const requiredTables = [
-    'profiles',
-    'companies',
-    'strategies', 
-    'leads',
-    'campaigns',
-    'user_legal_acceptances',
-    'communications',
-    'debates'
-  ];
-
-  const requiredPolicies = [
-    { table: 'profiles', name: 'Users can view own profile' },
-    { table: 'companies', name: 'Company members can view' },
-    { table: 'strategies', name: 'Company members can view' },
-    { table: 'leads', name: 'Company members can view' },
-    { table: 'campaigns', name: 'Company members can view' }
-  ];
-
-  const requiredFunctions = [
-    { name: 'update_profile_after_company_creation', isSecurityDefiner: true },
-    { name: 'get_security_settings', isSecurityDefiner: true },
-    { name: 'update_security_settings', isSecurityDefiner: true },
-    { name: 'get_user_preferences', isSecurityDefiner: true },
-    { name: 'update_user_preferences', isSecurityDefiner: true }
-  ];
-
   const verifyDatabaseConfiguration = useCallback(async () => {
     setVerificationResult(prev => ({ ...prev, isVerifying: true }));
     
     try {
-      // 1. Verify tables
-      const tableResults: DatabaseVerificationResult['tables'] = [];
+      // Verify required tables exist
+      const requiredTables = [
+        'profiles', 'companies', 'campaigns', 'strategies', 
+        'leads', 'communications', 'user_preferences'
+      ];
       
-      for (const tableName of requiredTables) {
-        try {
-          const { error } = await supabase
-            .from(tableName)
-            .select('id')
-            .limit(1);
-            
-          tableResults.push({
-            name: tableName,
-            exists: !error,
-            message: error ? `Error: ${error.message}` : `Table exists`
-          });
-        } catch (err: any) {
-          tableResults.push({
-            name: tableName,
+      const tableResults: DatabaseTableStatus[] = [];
+      
+      // Get list of all tables
+      const { data: tablesData, error: tablesError } = await supabase
+        .from('pg_catalog.pg_tables')
+        .select('tablename')
+        .eq('schemaname', 'public');
+      
+      if (tablesError) {
+        throw tablesError;
+      }
+      
+      const existingTables = (tablesData || []).map(t => t.tablename);
+      
+      // Check each required table
+      for (const table of requiredTables) {
+        tableResults.push({
+          name: table,
+          exists: existingTables.includes(table),
+          message: existingTables.includes(table) 
+            ? `Table ${table} exists` 
+            : `Table ${table} is missing`
+        });
+      }
+      
+      // Check for RLS policies
+      const policyResults: PolicyStatus[] = [];
+      const tablesWithRls = ['profiles', 'companies', 'campaigns', 'leads'];
+      
+      for (const table of tablesWithRls) {
+        if (existingTables.includes(table)) {
+          // Check if RLS is enabled
+          const { data: rlsData, error: rlsError } = await supabase
+            .rpc('check_table_rls', { table_name: table });
+          
+          if (rlsError) {
+            policyResults.push({
+              table,
+              exists: false,
+              message: `Error checking RLS for ${table}: ${rlsError.message}`
+            });
+          } else {
+            policyResults.push({
+              table,
+              exists: !!rlsData,
+              message: rlsData ? `RLS enabled for ${table}` : `RLS not enabled for ${table}`
+            });
+          }
+        } else {
+          policyResults.push({
+            table,
             exists: false,
-            message: `Error checking table: ${err.message}`
+            message: `Table ${table} doesn't exist, can't check RLS`
           });
         }
       }
       
-      // 2. Verify RLS policies
-      const rlsResult = await validateRLSPolicies();
-      const databaseSecurityResult = await validateDatabaseSecurity();
+      // Check database functions
+      const functionResults: FunctionStatus[] = [];
+      const requiredFunctions = [
+        'handle_new_user', 
+        'update_profile_after_company_creation'
+      ];
       
-      const policyResults: DatabaseVerificationResult['policies'] = requiredPolicies.map(policy => ({
-        table: policy.table,
-        name: policy.name,
-        exists: rlsResult.valid && databaseSecurityResult.valid,
-        message: rlsResult.valid ? 'Policy exists and is configured correctly' : rlsResult.message
-      }));
-      
-      // 3. Verify functions
-      const functionsResult = await validateDatabaseFunctions();
-      
-      const functionResults: DatabaseVerificationResult['functions'] = requiredFunctions.map(func => ({
-        name: func.name,
-        exists: functionsResult.valid,
-        isSecure: functionsResult.valid,
-        message: functionsResult.valid ? 
-          `Function exists and has proper security settings` : 
-          functionsResult.message
-      }));
+      for (const func of requiredFunctions) {
+        const { data: funcData, error: funcError } = await supabase
+          .from('pg_catalog.pg_proc')
+          .select('proname, prosecdef')
+          .eq('proname', func)
+          .eq('pronamespace', 'public'::regnamespace);
+        
+        if (funcError) {
+          functionResults.push({
+            name: func,
+            exists: false,
+            isSecure: false,
+            message: `Error checking function ${func}: ${funcError.message}`
+          });
+        } else {
+          const exists = (funcData || []).length > 0;
+          const isSecure = exists ? funcData[0].prosecdef : false;
+          
+          functionResults.push({
+            name: func,
+            exists,
+            isSecure,
+            message: exists 
+              ? (isSecure 
+                ? `Function ${func} exists and is SECURITY DEFINER` 
+                : `Function ${func} exists but is NOT SECURITY DEFINER`)
+              : `Function ${func} does not exist`
+          });
+        }
+      }
       
       setVerificationResult({
         tables: tableResults,
@@ -102,16 +124,7 @@ export function useDatabaseVerification() {
         isVerifying: false
       });
       
-      const allValid = 
-        tableResults.every(t => t.exists) && 
-        policyResults.every(p => p.exists) && 
-        functionResults.every(f => f.exists && f.isSecure);
-        
-      if (allValid) {
-        toast.success('Database configuration verified successfully');
-      } else {
-        toast.error('Database configuration has issues that need attention');
-      }
+      toast.success("Database verification completed");
       
     } catch (error: any) {
       console.error('Error during database verification:', error);

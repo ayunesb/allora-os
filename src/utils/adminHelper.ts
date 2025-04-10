@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// The only email allowed to be an admin
+// This email is authorized to be an admin - ADD YOUR EMAIL HERE
 const ADMIN_EMAIL = 'ayunesb@icloud.com';
 
 /**
@@ -22,6 +22,24 @@ export async function setCurrentUserAsAdmin(): Promise<boolean> {
     if (user.email !== ADMIN_EMAIL) {
       toast.error(`Only ${ADMIN_EMAIL} is authorized to be an admin`);
       return false;
+    }
+    
+    // Check if the user already has an admin role
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+      
+    if (profileError) {
+      console.error("Error checking profile:", profileError);
+      throw profileError;
+    }
+
+    // If already admin, return success
+    if (profileData && profileData.role === 'admin') {
+      toast.success("You are already an admin");
+      return true;
     }
     
     // Update the profile role to admin
