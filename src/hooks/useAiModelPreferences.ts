@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useUserPreferences } from './useUserPreferences';
+import { toast } from 'sonner';
 
 export type AiModelType = 
   | 'auto' 
@@ -9,7 +10,7 @@ export type AiModelType =
   | 'claude-3-sonnet-20240229' 
   | 'gemini-1.5-pro';
 
-interface AiModelPreferences {
+export interface AiModelPreferences {
   modelPreference: AiModelType;
   enableDebate: boolean;
   maxDebateParticipants: number;
@@ -26,7 +27,7 @@ const defaultPreferences: AiModelPreferences = {
 };
 
 export function useAiModelPreferences() {
-  const { preferences, updatePreference } = useUserPreferences();
+  const { preferences, updatePreference: updateUserPreference } = useUserPreferences();
   const [modelPreferences, setModelPreferences] = useState<AiModelPreferences>(defaultPreferences);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -41,23 +42,67 @@ export function useAiModelPreferences() {
     });
   }, [preferences]);
   
-  // Update specific preference
-  const updateModelPreference = useCallback((key: keyof AiModelPreferences, value: any) => {
-    setIsLoading(true);
-    updatePreference(key as any, value);
-    setIsLoading(false);
-  }, [updatePreference]);
+  // Update specific preference with error handling
+  const updateModelPreference = useCallback(async (key: keyof AiModelPreferences, value: any) => {
+    try {
+      setIsLoading(true);
+      
+      // Optimistic update - happens immediately
+      setModelPreferences(prev => ({
+        ...prev,
+        [key]: value
+      }));
+      
+      // Actual update - may take time
+      await updateUserPreference(key as any, value);
+      
+      // Success - handled in the component with toast
+    } catch (error) {
+      console.error(`Error updating preference ${key}:`, error);
+      
+      // Revert optimistic update
+      setModelPreferences(prev => ({
+        ...prev,
+        [key]: modelPreferences[key]
+      }));
+      
+      // Show error toast
+      toast.error(`Failed to update ${key}. Please try again.`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [updateUserPreference, modelPreferences]);
 
-  // Backwards compatibility for components expecting updatePreferences
-  const updatePreferences = useCallback((updates: Partial<AiModelPreferences>) => {
-    setIsLoading(true);
-    
-    Object.entries(updates).forEach(([key, value]) => {
-      updatePreference(key as any, value);
-    });
-    
-    setIsLoading(false);
-  }, [updatePreference]);
+  // Batch update multiple preferences
+  const updatePreferences = useCallback(async (updates: Partial<AiModelPreferences>) => {
+    try {
+      setIsLoading(true);
+      
+      // Optimistic update
+      setModelPreferences(prev => ({
+        ...prev,
+        ...updates
+      }));
+      
+      // Process actual updates sequentially
+      for (const [key, value] of Object.entries(updates)) {
+        await updateUserPreference(key as any, value);
+      }
+      
+      // Success
+      toast.success('Preferences updated successfully');
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+      
+      // Show error toast
+      toast.error('Failed to update preferences. Please try again.');
+      
+      // We don't revert the optimistic update here as it would be complex
+      // Instead we'll let the next useEffect sync with the server state
+    } finally {
+      setIsLoading(false);
+    }
+  }, [updateUserPreference]);
   
   return {
     preferences: modelPreferences,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuthState } from './useAuthState';
@@ -29,7 +29,7 @@ const defaultPreferences: UserPreferences = {
   favoriteTopics: [],
   modelPreference: 'auto',
   enableDebate: false,
-  maxDebateParticipants: 0,
+  maxDebateParticipants: 3,
   enableVectorSearch: false,
   enableLearning: false
 };
@@ -38,6 +38,7 @@ export function useUserPreferences() {
   const { user } = useAuthState();
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -72,12 +73,14 @@ export function useUserPreferences() {
               riskAppetite: (data.risk_appetite as 'low' | 'medium' | 'high') || defaultPreferences.riskAppetite,
               preferredExecutives: preferredExecs,
               favoriteTopics: favTopics,
-              modelPreference: defaultPreferences.modelPreference,
-              enableDebate: data.enable_debate || defaultPreferences.enableDebate,
+              modelPreference: (data.model_preference as AIModelType) || defaultPreferences.modelPreference,
+              enableDebate: data.enable_debate !== undefined ? Boolean(data.enable_debate) : defaultPreferences.enableDebate,
               maxDebateParticipants: data.max_debate_participants || defaultPreferences.maxDebateParticipants,
-              enableVectorSearch: data.enable_vector_search || defaultPreferences.enableVectorSearch,
-              enableLearning: data.enable_learning || defaultPreferences.enableLearning
+              enableVectorSearch: data.enable_vector_search !== undefined ? Boolean(data.enable_vector_search) : defaultPreferences.enableVectorSearch,
+              enableLearning: data.enable_learning !== undefined ? Boolean(data.enable_learning) : defaultPreferences.enableLearning
             });
+            
+            setLastSyncTime(new Date());
             return;
           }
         }
@@ -85,6 +88,7 @@ export function useUserPreferences() {
         const savedPreferences = localStorage.getItem('userPreferences');
         if (savedPreferences) {
           setPreferences(JSON.parse(savedPreferences));
+          setLastSyncTime(new Date());
         }
       } catch (error) {
         console.error('Error loading preferences:', error);
@@ -117,6 +121,7 @@ export function useUserPreferences() {
             risk_appetite: newPreferences.riskAppetite,
             preferred_executives: newPreferences.preferredExecutives,
             favorite_topics: newPreferences.favoriteTopics,
+            model_preference: newPreferences.modelPreference,
             enable_debate: newPreferences.enableDebate,
             max_debate_participants: newPreferences.maxDebateParticipants,
             enable_vector_search: newPreferences.enableVectorSearch,
@@ -131,6 +136,8 @@ export function useUserPreferences() {
         }
       }
       
+      setLastSyncTime(new Date());
+      
       toast.success('Preferences saved successfully');
     } catch (error) {
       console.error('Error saving preferences:', error);
@@ -140,20 +147,32 @@ export function useUserPreferences() {
     }
   };
 
-  const updatePreference = (key: keyof UserPreferences, value: any) => {
-    const newPreferences = { ...preferences, [key]: value };
-    savePreferences(newPreferences);
-  };
+  const updatePreference = useCallback(async (key: keyof UserPreferences, value: any) => {
+    try {
+      const newPreferences = { ...preferences, [key]: value };
+      await savePreferences(newPreferences);
+    } catch (error) {
+      console.error(`Error updating preference ${key}:`, error);
+      toast.error(`Failed to update ${key}`);
+    }
+  }, [preferences, savePreferences]);
 
-  const resetPreferences = () => {
-    savePreferences(defaultPreferences);
-  };
+  const resetPreferences = useCallback(async () => {
+    try {
+      await savePreferences(defaultPreferences);
+      toast.success('Preferences reset to defaults');
+    } catch (error) {
+      console.error('Error resetting preferences:', error);
+      toast.error('Failed to reset preferences');
+    }
+  }, [savePreferences]);
 
   return {
     preferences,
     isLoading,
     savePreferences,
     updatePreference,
-    resetPreferences
+    resetPreferences,
+    lastSyncTime
   };
 }
