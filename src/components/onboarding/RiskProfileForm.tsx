@@ -9,16 +9,18 @@ import { Slider } from "@/components/ui/slider";
 type RiskProfileFormProps = {
   riskAppetite: 'low' | 'medium' | 'high';
   setRiskAppetite: (risk: 'low' | 'medium' | 'high') => void;
-  executiveTeamEnabled: boolean;
-  setExecutiveTeamEnabled: (enabled: boolean) => void;
+  executiveTeamEnabled?: boolean;
+  setExecutiveTeamEnabled?: (enabled: boolean) => void;
+  companyName?: string;
   error?: string;
 }
 
 export default function RiskProfileForm({ 
   riskAppetite, 
-  setRiskAppetite, 
+  setRiskAppetite,
   executiveTeamEnabled,
   setExecutiveTeamEnabled,
+  companyName,
   error 
 }: RiskProfileFormProps) {
   return (

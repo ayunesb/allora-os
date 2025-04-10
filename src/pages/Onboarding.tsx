@@ -203,6 +203,8 @@ export default function Onboarding() {
           <RiskProfileForm
             riskAppetite={riskAppetite}
             setRiskAppetite={setRiskAppetite}
+            executiveTeamEnabled={executiveTeamEnabled}
+            setExecutiveTeamEnabled={setExecutiveTeamEnabled}
             companyName={companyName}
           />
         );
@@ -226,7 +228,7 @@ export default function Onboarding() {
   
   return (
     <OnboardingLayout
-      currentStep={step}
+      step={step}
       totalSteps={6}
       onNext={isLastStep ? handleComplete : handleNext}
       onBack={handleBack}
@@ -234,6 +236,8 @@ export default function Onboarding() {
       isBackDisabled={step === 1 || isOnboardingLoading || isCompleting}
       nextLabel={isLastStep ? "Complete Setup" : "Continue"}
       isLoading={isOnboardingLoading || isCompleting}
+      isLastStep={isLastStep}
+      title="Allora AI Setup"
     >
       {getStepContent()}
     </OnboardingLayout>

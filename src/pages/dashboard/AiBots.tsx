@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import BotCard from "@/components/BotCard";
 import ExecutiveRoster from "@/components/ExecutiveRoster";
@@ -34,13 +33,11 @@ import {
 } from "@/components/ui/select";
 import { 
   Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle
+  CardContent
 } from "@/components/ui/card";
 import { formatRoleTitle, getBotExpertise } from "@/utils/consultation";
 import { useBreakpoint } from "@/hooks/use-mobile";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AiBots() {
   const [activeTab, setActiveTab] = useState("boardroom");
@@ -49,6 +46,8 @@ export default function AiBots() {
   const [selectedBot, setSelectedBot] = useState<any>(null);
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  const { profile } = useAuth();
+  const companyId = profile?.company_id || null;
 
   const allBots = Object.entries(executiveBots).flatMap(([role, names]) => 
     names.map(name => ({
@@ -70,7 +69,6 @@ export default function AiBots() {
     return matchesSearch && matchesRole;
   });
 
-  // Handle selecting a bot to chat with
   const handleSelectBot = (bot: any) => {
     setSelectedBot(bot);
     setActiveTab("chat");
@@ -117,7 +115,7 @@ export default function AiBots() {
         </TabsList>
 
         <TabsContent value="boardroom">
-          <AIExecutiveBoardroom />
+          <AIExecutiveBoardroom companyId={companyId} />
         </TabsContent>
 
         <TabsContent value="bots">

@@ -14,26 +14,36 @@ import { Progress } from "@/components/ui/progress";
 
 type OnboardingLayoutProps = {
   children: ReactNode;
-  title: string;
-  step: number;
+  step?: number;
+  currentStep?: number;
   totalSteps: number;
   onBack?: () => void;
   onNext: () => void;
+  isNextDisabled?: boolean;
+  isBackDisabled?: boolean;
+  nextLabel?: string;
   isLoading: boolean;
-  isLastStep: boolean;
+  isLastStep?: boolean;
+  title?: string;
 };
 
 export default function OnboardingLayout({
   children,
-  title,
   step,
+  currentStep,
   totalSteps,
   onBack,
   onNext,
+  isNextDisabled,
+  isBackDisabled,
+  nextLabel,
   isLoading,
-  isLastStep
+  isLastStep,
+  title = "Allora AI Setup"
 }: OnboardingLayoutProps) {
-  const progressPercentage = (step / totalSteps) * 100;
+  // Use either step or currentStep (for backward compatibility)
+  const activeStep = step || currentStep || 1;
+  const progressPercentage = (activeStep / totalSteps) * 100;
   
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -44,7 +54,7 @@ export default function OnboardingLayout({
           </div>
           <CardTitle className="text-2xl">{title}</CardTitle>
           <CardDescription>
-            Let's set up your business profile (Step {step} of {totalSteps})
+            Let's set up your business profile (Step {activeStep} of {totalSteps})
           </CardDescription>
           <Progress value={progressPercentage} className="mt-4" />
         </CardHeader>
@@ -54,11 +64,11 @@ export default function OnboardingLayout({
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          {step > 1 && onBack ? (
+          {activeStep > 1 && onBack ? (
             <Button 
               variant="outline" 
               onClick={onBack} 
-              disabled={isLoading}
+              disabled={isLoading || isBackDisabled}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -69,7 +79,7 @@ export default function OnboardingLayout({
           )}
           <Button 
             onClick={onNext} 
-            disabled={isLoading}
+            disabled={isLoading || isNextDisabled}
             className="gap-2"
           >
             {isLoading ? (
@@ -79,7 +89,7 @@ export default function OnboardingLayout({
               </>
             ) : (
               <>
-                {isLastStep ? "Complete Setup" : "Next Step"}
+                {nextLabel || (isLastStep ? "Complete Setup" : "Next Step")}
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
