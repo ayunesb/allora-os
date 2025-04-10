@@ -5,8 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatRoleTitle } from "@/utils/consultation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Play, Lightbulb } from "lucide-react";
+import { Download, Play, Lightbulb, User, Phone, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { useCompanyInsights } from "@/hooks/useCompanyInsights";
 
 interface Bot {
   name: string;
@@ -26,6 +27,7 @@ interface AiCallScriptProps {
   primaryBot: Bot;
   collaborators: Collaborator[];
   onUse: (scriptId: string, title: string) => void;
+  type?: 'call' | 'message';
 }
 
 export default function AiCallScript({
@@ -35,8 +37,12 @@ export default function AiCallScript({
   duration,
   primaryBot,
   collaborators,
-  onUse
+  onUse,
+  type = 'call'
 }: AiCallScriptProps) {
+  const { getDetailedInsight } = useCompanyInsights();
+  const detailedInsight = getDetailedInsight(id);
+  
   const handleDownload = () => {
     toast.info("Preparing call script for download...");
     // In a real app, this would download the script as PDF or text
@@ -46,12 +52,21 @@ export default function AiCallScript({
   };
   
   return (
-    <Card className="dashboard-card border-amber-200/50 transition-all hover:shadow-md">
+    <Card className="dashboard-card border-amber-200/50 transition-all hover:shadow-md overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start mb-2">
           <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-200">
             <Lightbulb className="mr-1.5 h-3.5 w-3.5" />
             AI Generated
+          </Badge>
+          
+          <Badge variant={type === 'call' ? 'outline' : 'secondary'} className="text-xs">
+            {type === 'call' ? (
+              <Phone className="mr-1.5 h-3.5 w-3.5" />
+            ) : (
+              <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            {type === 'call' ? 'Call Script' : 'Message Template'}
           </Badge>
         </div>
         <h3 className="text-xl font-bold mb-4">{title}</h3>
@@ -85,6 +100,20 @@ export default function AiCallScript({
             <span className="text-green-400">Ready</span>
           </div>
         </div>
+        
+        {detailedInsight?.keyPoints && detailedInsight.keyPoints.length > 0 && (
+          <div className="mt-3 mb-2">
+            <h4 className="text-sm font-medium mb-2">Key Elements:</h4>
+            <ul className="text-xs space-y-1">
+              {detailedInsight.keyPoints.map((point, idx) => (
+                <li key={idx} className="flex items-start gap-1.5">
+                  <span className="text-amber-500 mt-0.5">•</span>
+                  <span className="text-muted-foreground">{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         
         {collaborators.length > 0 && (
           <div className="mt-4 border-t pt-3">

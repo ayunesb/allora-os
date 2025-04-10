@@ -1,5 +1,7 @@
 
 import { useState, useEffect } from "react";
+import { useCompanyInsights } from "@/hooks/useCompanyInsights";
+import { InsightType } from "@/components/bot-insights/BotInsightCard";
 
 export interface Strategy {
   id: string;
@@ -8,6 +10,9 @@ export interface Strategy {
   risk: string;
   risk_level?: string;
   created_at: string;
+  aiGenerated?: boolean;
+  primaryBot?: any;
+  collaborators?: any[];
 }
 
 export function useStrategies() {
@@ -62,8 +67,60 @@ export function useStrategies() {
     }
   ]);
   
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { insights, isLoading: insightsLoading } = useCompanyInsights();
+  
+  useEffect(() => {
+    const fetchStrategies = async () => {
+      setIsLoading(true);
+      
+      try {
+        // Get strategy insights from AI
+        const strategyInsights = insights.filter(insight => insight.type === "strategy" as InsightType);
+        
+        // Convert insights to strategy format
+        const aiGeneratedStrategies = strategyInsights.map(insight => {
+          let riskLevel = "Medium";
+          
+          // Extract risk level from description if possible
+          if (insight.description.includes("high-risk") || insight.description.includes("High risk")) {
+            riskLevel = "High";
+          } else if (insight.description.includes("low-risk") || insight.description.includes("Low risk")) {
+            riskLevel = "Low";
+          }
+          
+          return {
+            id: `ai-${insight.id}`,
+            title: insight.title,
+            description: insight.description,
+            risk: riskLevel,
+            risk_level: riskLevel,
+            created_at: insight.createdAt.toISOString(),
+            aiGenerated: true,
+            primaryBot: insight.primaryBot,
+            collaborators: insight.collaborators
+          };
+        });
+        
+        // Combine AI strategies with existing ones
+        setStrategies(prev => {
+          const existingIds = new Set(prev.map(s => s.id));
+          const newAiStrategies = aiGeneratedStrategies.filter(s => !existingIds.has(s.id));
+          return [...newAiStrategies, ...prev];
+        });
+      } catch (err: any) {
+        console.error("Error fetching strategies:", err);
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (!insightsLoading) {
+      fetchStrategies();
+    }
+  }, [insights, insightsLoading]);
   
   const refetch = () => {
     // This would normally fetch data from the API

@@ -20,14 +20,10 @@ export default function Calls() {
   const [isCallingLoading, setIsCallingLoading] = useState(false);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [activeTab, setActiveTab] = useState("scripts");
-  const { scripts, isLoading: scriptsLoading } = useCallScripts();
+  const { callScripts, messageScripts, isLoading: scriptsLoading } = useCallScripts();
 
   const { user } = useAuthState();
   const { trackAction } = useSelfLearning();
-
-  // Separate AI-generated and regular scripts
-  const aiScripts = scripts.filter(script => 'aiGenerated' in script);
-  const regularScripts = scripts.filter(script => !('aiGenerated' in script));
 
   const handleCall = async () => {
     if (!phoneNumber.trim()) {
@@ -133,10 +129,14 @@ export default function Calls() {
       </p>
       
       <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid grid-cols-2">
+        <TabsList className="grid w-full md:w-auto grid-cols-3">
           <TabsTrigger value="scripts">
             <FileText className="mr-2 h-4 w-4" />
             Call Scripts
+          </TabsTrigger>
+          <TabsTrigger value="messages">
+            <SendIcon className="mr-2 h-4 w-4" />
+            Message Templates
           </TabsTrigger>
           <TabsTrigger value="dialer">
             <PhoneCall className="mr-2 h-4 w-4" />
@@ -145,81 +145,142 @@ export default function Calls() {
         </TabsList>
         
         <TabsContent value="scripts" className="space-y-6">
-          {/* AI-generated scripts */}
-          {aiScripts.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold mb-4">AI-Generated Scripts</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {aiScripts.map((script: any) => (
-                  <AiCallScript
-                    key={script.id}
-                    id={script.id}
-                    title={script.title}
-                    target={script.target}
-                    duration={script.duration}
-                    primaryBot={script.primaryBot}
-                    collaborators={script.collaborators}
-                    onUse={handleUseScript}
-                  />
-                ))}
-              </div>
+          {/* Call Scripts */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold mb-4">AI Generated Call Scripts</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {callScripts.filter(script => script.aiGenerated).map((script: any) => (
+                <AiCallScript
+                  key={script.id}
+                  id={script.id}
+                  title={script.title}
+                  target={script.target}
+                  duration={script.duration}
+                  primaryBot={script.primaryBot}
+                  collaborators={script.collaborators}
+                  onUse={handleUseScript}
+                  type="call"
+                />
+              ))}
             </div>
-          )}
-          
-          {/* Regular scripts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {regularScripts.map((script) => (
-              <div key={script.id} className="dashboard-card">
-                <h3 className="text-xl font-bold mb-4">{script.title}</h3>
-                
-                <div className="space-y-2 mb-6">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Target:</span>
-                    <span>{script.target}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Duration:</span>
-                    <span>{script.duration}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Status:</span>
-                    <span className={script.status === "Ready" ? "text-green-400" : "text-amber-400"}>
-                      {script.status}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex space-x-2">
-                  {script.status === "Ready" ? (
-                    <>
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handleUseScript(script.id, script.title)}>
-                        <Play className="mr-2 h-4 w-4" />
-                        Use
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
-                    </>
-                  ) : (
-                    <Button disabled variant="outline" size="sm" className="w-full">
-                      Coming Soon
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
           </div>
           
-          <div className="bg-secondary/40 border border-border/50 rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Generate New Call Script</h2>
-            <p className="text-gray-300 mb-4">
-              Our AI will create a persuasive cold call script tailored to your target audience.
-            </p>
-            <Button className="allora-button">
-              <FileText className="mr-2 h-4 w-4" />
-              Create New Script
-            </Button>
+          {/* Regular Scripts */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Standard Call Scripts</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {callScripts.filter(script => !script.aiGenerated).map((script) => (
+                <div key={script.id} className="dashboard-card">
+                  <h3 className="text-xl font-bold mb-4">{script.title}</h3>
+                  
+                  <div className="space-y-2 mb-6">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Target:</span>
+                      <span>{script.target}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Duration:</span>
+                      <span>{script.duration}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Status:</span>
+                      <span className={script.status === "Ready" ? "text-green-400" : "text-amber-400"}>
+                        {script.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    {script.status === "Ready" ? (
+                      <>
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => handleUseScript(script.id, script.title)}>
+                          <Play className="mr-2 h-4 w-4" />
+                          Use
+                        </Button>
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                      </>
+                    ) : (
+                      <Button disabled variant="outline" size="sm" className="w-full">
+                        Coming Soon
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="messages" className="space-y-6">
+          {/* Message Templates */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold mb-4">AI Generated Message Templates</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {messageScripts.filter(script => script.aiGenerated).map((script: any) => (
+                <AiCallScript
+                  key={script.id}
+                  id={script.id}
+                  title={script.title}
+                  target={script.target}
+                  duration={script.duration}
+                  primaryBot={script.primaryBot}
+                  collaborators={script.collaborators}
+                  onUse={handleUseScript}
+                  type="message"
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Regular Messages */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Standard Message Templates</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {messageScripts.filter(script => !script.aiGenerated).map((script) => (
+                <div key={script.id} className="dashboard-card">
+                  <h3 className="text-xl font-bold mb-4">{script.title}</h3>
+                  
+                  <div className="space-y-2 mb-6">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Target:</span>
+                      <span>{script.target}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Duration:</span>
+                      <span>{script.duration}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Status:</span>
+                      <span className={script.status === "Ready" ? "text-green-400" : "text-amber-400"}>
+                        {script.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    {script.status === "Ready" ? (
+                      <>
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => handleUseScript(script.id, script.title)}>
+                          <Play className="mr-2 h-4 w-4" />
+                          Use
+                        </Button>
+                        <Button variant="outline" size="sm" className="flex-1">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                      </>
+                    ) : (
+                      <Button disabled variant="outline" size="sm" className="w-full">
+                        Coming Soon
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </TabsContent>
         

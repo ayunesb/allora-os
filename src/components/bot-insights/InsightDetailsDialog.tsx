@@ -1,20 +1,19 @@
 
-import React from "react";
+import React from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogClose
 } from "@/components/ui/dialog";
-import { BotInsight } from "./BotInsightCard";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { formatRoleTitle } from "@/utils/consultation";
-import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { ExternalLink } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Check, X, Minus, ArrowRight } from 'lucide-react';
+import { BotInsight } from './BotInsightCard';
+import { formatRoleTitle } from '@/utils/consultation';
+import { useCompanyInsights, InsightContributor } from '@/hooks/useCompanyInsights';
 
 interface InsightDetailsDialogProps {
   insight: BotInsight | null;
@@ -22,109 +21,128 @@ interface InsightDetailsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function InsightDetailsDialog({ 
-  insight, 
-  open, 
-  onOpenChange 
+export default function InsightDetailsDialog({
+  insight,
+  open,
+  onOpenChange
 }: InsightDetailsDialogProps) {
-  if (!insight) return null;
+  const { getDetailedInsight } = useCompanyInsights();
   
-  // Get route based on insight type
-  const getRoute = () => {
-    switch (insight.type) {
-      case "strategy":
-        return "/dashboard/strategies";
-      case "campaign":
-        return "/dashboard/campaigns";
-      case "call_script":
-        return "/dashboard/calls";
-      default:
-        return "/dashboard";
-    }
-  };
+  if (!insight) {
+    return null;
+  }
+  
+  const detailedInsight = getDetailedInsight(insight.id);
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <div className="mb-2">
-            <Badge>{insight.type.replace('_', ' ').toUpperCase()}</Badge>
-          </div>
-          <DialogTitle className="text-xl">{insight.title}</DialogTitle>
-          <DialogDescription className="pt-2">
-            Generated {new Date(insight.createdAt).toLocaleDateString()} by our AI executive team
+          <DialogTitle>{insight.title}</DialogTitle>
+          <DialogDescription>
+            AI Executive Team Recommendation
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6">
-          <p className="text-base text-foreground">{insight.description}</p>
-          
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold">Primary Author</h3>
-            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-md">
-              <Avatar>
-                <AvatarImage 
-                  src={insight.primaryBot.avatar} 
-                  alt={insight.primaryBot.name} 
-                />
-                <AvatarFallback>{insight.primaryBot.name[0]}</AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="font-medium">{insight.primaryBot.name}</div>
-                <div className="text-sm text-muted-foreground">
+        <div className="space-y-6 mt-4">
+          {/* Primary Executive */}
+          <div className="flex items-start gap-3">
+            <Avatar className="h-12 w-12">
+              <AvatarImage 
+                src={insight.primaryBot.avatar} 
+                alt={insight.primaryBot.name} 
+              />
+              <AvatarFallback>{insight.primaryBot.name[0]}</AvatarFallback>
+            </Avatar>
+            
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-medium">{insight.primaryBot.name}</h3>
+                <Badge variant="outline">
                   {formatRoleTitle(insight.primaryBot.role)}
-                </div>
+                </Badge>
               </div>
+              
+              <p className="text-sm text-muted-foreground">
+                {`Primary contributor to this ${insight.type} recommendation`}
+              </p>
             </div>
           </div>
           
-          {insight.collaborators.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold">Collaborators</h3>
-              <div className="space-y-2">
-                {insight.collaborators.map((collaborator, index) => (
-                  <div 
-                    key={index} 
-                    className="flex items-center justify-between p-2 border-b border-muted last:border-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-7 w-7">
-                        <AvatarFallback>{collaborator.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="text-sm font-medium">{collaborator.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {formatRoleTitle(collaborator.role)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-xs italic text-muted-foreground">
-                      {collaborator.contribution}
-                    </div>
-                  </div>
+          <Separator />
+          
+          {/* Executive Summary */}
+          {detailedInsight?.executiveSummary && (
+            <div>
+              <h4 className="font-medium mb-2">Executive Summary</h4>
+              <p className="text-sm">{detailedInsight.executiveSummary}</p>
+            </div>
+          )}
+          
+          {/* Key Points */}
+          {detailedInsight?.keyPoints && detailedInsight.keyPoints.length > 0 && (
+            <div>
+              <h4 className="font-medium mb-2">Key Points</h4>
+              <ul className="space-y-2">
+                {detailedInsight.keyPoints.map((point, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <ArrowRight className="h-4 w-4 mt-0.5 text-blue-500 shrink-0" />
+                    <span className="text-sm">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {/* Detailed Description */}
+          <div>
+            <h4 className="font-medium mb-2">Detailed Reasoning</h4>
+            <p className="text-sm">{detailedInsight?.reasoning || insight.description}</p>
+          </div>
+          
+          {/* Contributors */}
+          {detailedInsight?.contributors && detailedInsight.contributors.length > 0 && (
+            <div>
+              <h4 className="font-medium mb-3">Contributing Executives</h4>
+              <div className="space-y-3">
+                {detailedInsight.contributors.map((contributor, index) => (
+                  <ContributorItem key={index} contributor={contributor} />
                 ))}
               </div>
             </div>
           )}
-          
-          <div className="border-t pt-4 flex justify-between items-center">
-            <DialogClose asChild>
-              <Button variant="outline">Close</Button>
-            </DialogClose>
-            
-            <Button asChild>
-              <Link to={getRoute()}>
-                <ExternalLink className="mr-1.5 h-4 w-4" />
-                View in {insight.type === "strategy" 
-                  ? "Strategies" 
-                  : insight.type === "campaign" 
-                    ? "Campaigns" 
-                    : "Calls"}
-              </Link>
-            </Button>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ContributorItem({ contributor }: { contributor: InsightContributor }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5">
+        {contributor.opinion === 'positive' && (
+          <Check className="h-4 w-4 text-green-500" />
+        )}
+        {contributor.opinion === 'negative' && (
+          <X className="h-4 w-4 text-red-500" />
+        )}
+        {contributor.opinion === 'neutral' && (
+          <Minus className="h-4 w-4 text-yellow-500" />
+        )}
+      </div>
+      
+      <div>
+        <div className="flex items-center gap-1.5">
+          <span className="font-medium text-sm">{contributor.name}</span>
+          <span className="text-xs text-muted-foreground">
+            ({formatRoleTitle(contributor.role)})
+          </span>
+        </div>
+        <p className="text-xs mt-0.5 text-muted-foreground">
+          {contributor.contribution}
+        </p>
+      </div>
+    </div>
   );
 }

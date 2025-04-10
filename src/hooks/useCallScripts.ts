@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useCompanyInsights } from "./useCompanyInsights";
 import { InsightType } from "@/components/bot-insights/BotInsightCard";
+import { useAuth } from "@/context/AuthContext";
 
 export interface CallScript {
   id: string;
@@ -10,12 +11,17 @@ export interface CallScript {
   duration: string;
   status: "Ready" | "In Progress";
   content?: string;
+  type?: 'call' | 'message';
+  aiGenerated?: boolean;
+  primaryBot?: any;
+  collaborators?: any[];
 }
 
 export function useCallScripts() {
   const [scripts, setScripts] = useState<CallScript[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { insights, isLoading: insightsLoading } = useCompanyInsights();
+  const { profile } = useAuth();
 
   useEffect(() => {
     const loadScripts = async () => {
@@ -29,16 +35,21 @@ export function useCallScripts() {
             title: "B2B SaaS Introduction",
             target: "Tech Startups",
             duration: "2-3 min",
-            status: "Ready"
+            status: "Ready",
+            type: 'call'
           },
           {
             id: "script-2",
             title: "Follow-up Script",
             target: "Previous Contacts",
             duration: "1-2 min",
-            status: "Ready"
+            status: "Ready",
+            type: 'message'
           }
         ];
+        
+        const companyName = profile?.company || "Your Company";
+        const industry = profile?.industry || "Technology";
         
         // Add AI-generated scripts from insights
         const callScriptInsights = insights.filter(insight => insight.type === "call_script" as InsightType);
@@ -52,11 +63,26 @@ export function useCallScripts() {
           content: insight.description,
           aiGenerated: true,
           primaryBot: insight.primaryBot,
-          collaborators: insight.collaborators
+          collaborators: insight.collaborators,
+          type: 'call' as const
+        }));
+        
+        // Generate complementary message scripts
+        const messageScripts: CallScript[] = aiGeneratedScripts.map(script => ({
+          id: `${script.id}-message`,
+          title: `Follow-up for: ${script.title}`,
+          target: script.target,
+          duration: "1-2 min",
+          status: "Ready",
+          content: `Follow-up message template for ${script.title}, targeting ${industry} prospects.`,
+          aiGenerated: true,
+          primaryBot: script.primaryBot,
+          collaborators: script.collaborators,
+          type: 'message' as const
         }));
         
         // Combine scripts
-        setScripts([...aiGeneratedScripts, ...defaultScripts]);
+        setScripts([...aiGeneratedScripts, ...messageScripts, ...defaultScripts]);
       } catch (error) {
         console.error("Error loading call scripts:", error);
       } finally {
@@ -67,7 +93,20 @@ export function useCallScripts() {
     if (!insightsLoading) {
       loadScripts();
     }
-  }, [insights, insightsLoading]);
+  }, [insights, insightsLoading, profile]);
   
-  return { scripts, isLoading };
+  const getCallScripts = () => {
+    return scripts.filter(script => script.type === 'call');
+  };
+  
+  const getMessageScripts = () => {
+    return scripts.filter(script => script.type === 'message');
+  };
+  
+  return { 
+    scripts, 
+    callScripts: getCallScripts(),
+    messageScripts: getMessageScripts(),
+    isLoading 
+  };
 }
