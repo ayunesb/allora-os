@@ -45,8 +45,16 @@ export const publicRoutes: RouteObject[] = [
     element: <Privacy />,
   },
   {
+    path: "/legal/cookies",
+    element: <LegalDocument />,
+  },
+  {
     path: "/cookies",
     element: <CookiePolicy />,
+  },
+  {
+    path: "/legal/refund-policy",
+    element: <LegalDocument />,
   },
   {
     path: "/refund",

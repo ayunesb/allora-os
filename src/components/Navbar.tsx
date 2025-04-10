@@ -10,13 +10,6 @@ import MobileNavigation from "./navigation/MobileNavigation";
 import { toast } from "sonner";
 import { useBreakpoint } from "@/hooks/use-mobile";
 
-// Logo component
-const Logo = ({ className }: { className?: string }) => (
-  <div className={cn("rounded-full bg-primary/10 p-1", className)}>
-    <BarChart3 className="h-5 w-5 text-primary" />
-  </div>
-);
-
 // Navigation items definition with better icons
 const getNavItems = () => [
   {
@@ -96,12 +89,17 @@ export function Navbar({ isLoggedIn = true }) {
             ['xs', 'mobile'].includes(breakpoint) ? "text-xl" : "text-2xl",
             ['xs', 'mobile'].includes(breakpoint) ? "ml-2" : "ml-auto"
           )}
-          to="/dashboard"
+          to="/"
         >
-          <Logo className={cn(
-            ['xs', 'mobile'].includes(breakpoint) ? "h-5 w-5 mr-2" : "h-6 w-6 mr-2"
-          )} />
-          <span>Allora AI</span>
+          <img 
+            src="/lovable-uploads/fa68c49e-02d3-4f17-b128-a5b8f6f1665b.png" 
+            alt="Allora AI Logo" 
+            className={cn(
+              "mr-2",
+              ['xs', 'mobile'].includes(breakpoint) ? "h-8" : "h-10"
+            )} 
+          />
+          <span className="hidden sm:inline">Allora AI</span>
         </Link>
         
         <div className="ml-auto flex items-center space-x-3 sm:space-x-4">

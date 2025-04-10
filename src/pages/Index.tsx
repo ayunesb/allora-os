@@ -34,6 +34,14 @@ export default function Index() {
       
       <main className="container mx-auto px-4 py-12 md:py-24 flex flex-col items-center text-center flex-grow">
         <div className="max-w-3xl mb-12">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/lovable-uploads/fa68c49e-02d3-4f17-b128-a5b8f6f1665b.png" 
+              alt="Allora AI Logo" 
+              className="h-32 mb-6"
+            />
+          </div>
+          
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             <span className="text-primary">Allora AI</span> - Your AI Business Acceleration Platform
           </h1>
