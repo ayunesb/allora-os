@@ -1,6 +1,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/backend/supabase";
+import { getLearningInsights, getPersonalizedRecommendations } from "@/utils/selfLearning";
 
 export function useSelfLearning() {
   const { user } = useAuth();
@@ -61,8 +62,62 @@ export function useSelfLearning() {
     }
   };
   
+  /**
+   * Get learning insights based on user behavior
+   */
+  const getInsights = async () => {
+    if (!user?.id) {
+      return getDefaultInsights();
+    }
+    
+    try {
+      // In a real app, this would call the backend service
+      return await getLearningInsights(user.id);
+    } catch (error) {
+      console.error('Error getting insights:', error);
+      return getDefaultInsights();
+    }
+  };
+  
+  /**
+   * Get personalized recommendations based on user behavior
+   */
+  const getRecommendations = async () => {
+    if (!user?.id) {
+      return {
+        strategies: [],
+        executives: [],
+        topics: []
+      };
+    }
+    
+    try {
+      // In a real app, this would call the backend service
+      return await getPersonalizedRecommendations(user.id);
+    } catch (error) {
+      console.error('Error getting recommendations:', error);
+      return {
+        strategies: [],
+        executives: [],
+        topics: []
+      };
+    }
+  };
+  
+  // Default insights for when data is unavailable
+  const getDefaultInsights = () => {
+    return [
+      { title: 'Behavioral Pattern', value: 'No data', description: 'Your most common interaction with the platform' },
+      { title: 'Risk Appetite', value: 'medium', description: 'Based on your strategy selections and decisions' },
+      { title: 'Learning Progress', value: '0/10', description: 'How well we understand your preferences' },
+      { title: 'Usage Pattern', value: 'No pattern', description: 'When you tend to use the platform most' }
+    ];
+  };
+  
   return {
     trackAction,
+    getInsights,
+    getRecommendations,
     isLoggedIn: !!user?.id
   };
 }

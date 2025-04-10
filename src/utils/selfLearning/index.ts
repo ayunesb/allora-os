@@ -8,8 +8,8 @@
 export * from './types';
 export * from './trackingService';
 export * from './recommendationService';
+export * from './preferencesService';
 
 // Internal services not directly exported to consumers
 // These are used internally by the tracking service
 // export * from './analyticsService';
-// export * from './preferencesService';
