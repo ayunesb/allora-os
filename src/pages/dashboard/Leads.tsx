@@ -110,7 +110,7 @@ export default function DashboardLeads() {
   };
 
   return (
-    <div className="animate-fadeIn space-y-6">
+    <div className={`animate-fadeIn space-y-6 ${isMobileView ? "px-0" : ""}`}>
       <LeadsHeader isMobileView={isMobileView} />
       
       {isLoading ? (
@@ -119,7 +119,7 @@ export default function DashboardLeads() {
         <LeadsEmptyState />
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <div className={`flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center ${isMobileView ? "px-4" : ""}`}>
             <LeadFilterBar 
               searchQuery={searchQuery} 
               onSearchChange={setSearchQuery} 

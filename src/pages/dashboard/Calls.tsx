@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { useAuthState } from "@/hooks/useAuthState";
 import { useCallScripts } from "@/hooks/useCallScripts";
 import { useCommunications } from "@/hooks/useCommunications";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 // Import the components
 import CallsHeader from "@/components/calls/CallsHeader";
@@ -29,6 +31,8 @@ export default function Calls() {
 
   const { user } = useAuthState();
   const { trackAction } = useSelfLearning();
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
 
   useEffect(() => {
     if (user?.id) {
@@ -71,14 +75,14 @@ export default function Calls() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className={`container mx-auto ${isMobileView ? 'px-1 py-2' : 'px-4 py-6'}`}>
       <CallsHeader />
       
       <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <CallTabs activeTab={activeTab} onTabChange={handleTabChange} />
         
         <TabsContent value="timeline" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6">
             <div className="lg:col-span-2">
               <CommunicationTimeline 
                 upcomingCommunications={upcomingCommunications}

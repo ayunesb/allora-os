@@ -16,7 +16,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const currentPath = location.pathname;
   const breakpoint = useBreakpoint();
-  const isMobile = breakpoint === 'mobile';
+  const isMobile = ['xs', 'mobile'].includes(breakpoint);
   
   const {
     navItems,
@@ -46,23 +46,27 @@ export default function DashboardLayout() {
       <DashboardHeader />
       
       <div className="bg-card border-b border-border sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-2">
+        <div className={`container mx-auto ${isMobile ? 'px-2 py-1' : 'px-4 py-2'}`}>
           <div className="flex items-center justify-between">            
-            <div className="flex items-center">
+            <div className="flex items-center w-full">
               {isMobile ? (
-                <MobileNavDrawer 
-                  navItems={navItems}
-                  currentPath={currentPath}
-                  open={mobileMenuOpen}
-                  onOpenChange={setMobileMenuOpen}
-                  onNavigateToProfile={handleNavigateToProfile}
-                  onSignOut={handleSignOut}
-                />
+                <div className="flex justify-between w-full items-center">
+                  <MobileNavDrawer 
+                    navItems={navItems}
+                    currentPath={currentPath}
+                    open={mobileMenuOpen}
+                    onOpenChange={setMobileMenuOpen}
+                    onNavigateToProfile={handleNavigateToProfile}
+                    onSignOut={handleSignOut}
+                  />
+                  <UserDropdown onSignOut={handleSignOut} />
+                </div>
               ) : (
-                <DashboardTabs navItems={navItems} />
+                <>
+                  <DashboardTabs navItems={navItems} />
+                  <UserDropdown onSignOut={handleSignOut} />
+                </>
               )}
-
-              <UserDropdown onSignOut={handleSignOut} />
             </div>
           </div>
         </div>
@@ -70,7 +74,7 @@ export default function DashboardLayout() {
       
       <div className="flex flex-1">
         <main className="flex-1">
-          <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+          <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
             <Outlet />
           </div>
         </main>

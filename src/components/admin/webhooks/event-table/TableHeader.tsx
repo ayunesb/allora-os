@@ -12,8 +12,8 @@ export const EventTableHeader: React.FC = () => {
       <TableRow>
         <TableHead className="w-8"></TableHead>
         <TableHead>Event Type</TableHead>
-        <TableHead>Webhook</TableHead>
-        <TableHead>Time</TableHead>
+        <TableHead className={isMobileView ? "hidden md:table-cell" : ""}>Webhook</TableHead>
+        <TableHead className={isMobileView ? "hidden sm:table-cell" : ""}>Time</TableHead>
         <TableHead>Status</TableHead>
         <TableHead className="hidden md:table-cell">Response</TableHead>
         <TableHead className={isMobileView ? "w-8" : ""}></TableHead>
