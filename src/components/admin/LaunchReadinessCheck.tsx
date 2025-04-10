@@ -104,7 +104,7 @@ export default function LaunchReadinessCheck() {
       </CardHeader>
       
       <CardContent className="space-y-6">
-        <Alert variant="outline" className={`${overallStatusClasses} border`}>
+        <Alert variant="default" className={`${overallStatusClasses} border`}>
           <div className="flex items-center gap-2">
             {readinessStatus.overallStatus === 'ready' ? (
               <ShieldCheck className="h-5 w-5" />
