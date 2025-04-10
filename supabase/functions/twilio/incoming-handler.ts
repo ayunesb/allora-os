@@ -1,5 +1,5 @@
 
-import { supabase } from "./supabase-client";
+import { supabase } from "./supabase-client.ts";
 
 // Define the human style responder functionality directly in this file
 // (instead of importing from a path that doesn't exist in the edge function context)
