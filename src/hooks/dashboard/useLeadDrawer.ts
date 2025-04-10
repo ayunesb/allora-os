@@ -11,6 +11,10 @@ export function useLeadDrawer() {
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Add aliases for compatibility with the existing code
+  const selectedLead = activeLead;
+  const isDrawerOpen = isOpen;
+
   const openDrawer = useCallback((lead?: Lead) => {
     if (lead) {
       setActiveLead(lead);
@@ -32,6 +36,12 @@ export function useLeadDrawer() {
       setIsCreating(false);
     }, 300); // Delay to allow close animation
   }, []);
+
+  // Add the handleViewLead function as an alias for openDrawer
+  const handleViewLead = openDrawer;
+
+  // Add the setIsDrawerOpen function as an alias for setIsOpen
+  const setIsDrawerOpen = setIsOpen;
 
   const startEditing = useCallback(() => {
     setIsEditing(true);
@@ -121,6 +131,11 @@ export function useLeadDrawer() {
     cancelEditing,
     handleStatusChange,
     handleDeleteLead,
-    handleCreateLead
+    handleCreateLead,
+    // Add the new aliases to the return object
+    selectedLead,
+    isDrawerOpen,
+    handleViewLead,
+    setIsDrawerOpen
   };
 }

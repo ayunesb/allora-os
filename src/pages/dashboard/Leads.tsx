@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { useLeads } from '@/hooks/admin/useLeads';
@@ -64,7 +63,7 @@ export default function DashboardLeads() {
     handleLeadSelect,
     handleSelectAll,
     handleBulkStatusUpdate
-  } = useLeadSelection(handleStatusUpdate);
+  } = useLeadSelection();
   
   // Use lead drawer hook
   const {

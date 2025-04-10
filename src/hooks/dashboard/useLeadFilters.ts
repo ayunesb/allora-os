@@ -19,9 +19,16 @@ export function useLeadFilters(initialLeads: Lead[] = []) {
     startDate: undefined,
     endDate: undefined
   });
+  // Add activeFilter state to track the active filter tab
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   const updateFilters = useCallback((newFilters: Partial<FilterCriteria>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
+    
+    // Update activeFilter if status is changing
+    if (newFilters.status) {
+      setActiveFilter(newFilters.status);
+    }
   }, []);
 
   const resetFilters = useCallback(() => {
@@ -32,6 +39,7 @@ export function useLeadFilters(initialLeads: Lead[] = []) {
       startDate: undefined,
       endDate: undefined
     });
+    setActiveFilter('all');
   }, []);
 
   const filteredLeads = useMemo(() => {
@@ -106,6 +114,9 @@ export function useLeadFilters(initialLeads: Lead[] = []) {
     updateFilters,
     resetFilters,
     filteredLeads,
-    filterStats
+    filterStats,
+    // Add the new properties to the return object
+    activeFilter,
+    setActiveFilter
   };
 }

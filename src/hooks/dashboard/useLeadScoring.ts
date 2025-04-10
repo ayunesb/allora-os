@@ -95,6 +95,38 @@ export function useLeadScoring({ initialSettings }: UseLeadScoringProps = {}) {
       .slice(0, count);
   }, [scoreLeads]);
 
+  // Add the missing getLeadScore function
+  const getLeadScore = useCallback((lead: Lead): 'hot' | 'warm' | 'cold' => {
+    const score = calculateLeadScore(lead);
+    if (score >= 70) return 'hot';
+    if (score >= 40) return 'warm';
+    return 'cold';
+  }, [calculateLeadScore]);
+
+  // Add the missing getNextBestAction function
+  const getNextBestAction = useCallback((lead: Lead): string => {
+    const score = getLeadScore(lead);
+    const status = lead.status;
+
+    if (score === 'hot') {
+      if (status === 'new') return 'Schedule a discovery call';
+      if (status === 'contacted') return 'Send a detailed proposal';
+      if (status === 'qualified') return 'Schedule a product demo';
+      if (status === 'proposal') return 'Follow up on the proposal';
+      if (status === 'negotiation') return 'Close the deal';
+      return 'Upsell additional services';
+    } else if (score === 'warm') {
+      if (status === 'new') return 'Send an introductory email';
+      if (status === 'contacted') return 'Share relevant case studies';
+      if (status === 'qualified') return 'Invite to a webinar';
+      return 'Nurture with periodic check-ins';
+    } else {
+      if (status === 'new') return 'Add to the newsletter list';
+      if (status === 'contacted') return 'Share valuable content';
+      return 'Keep in the nurture campaign';
+    }
+  }, [getLeadScore]);
+
   return {
     calculateLeadScore,
     scoreLeads,
@@ -102,6 +134,9 @@ export function useLeadScoring({ initialSettings }: UseLeadScoringProps = {}) {
     getLeadsByScore,
     getTopLeads,
     settings,
-    setSettings
+    setSettings,
+    // Add the new functions to the return object
+    getLeadScore,
+    getNextBestAction
   };
 }
