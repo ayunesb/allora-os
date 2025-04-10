@@ -5,6 +5,7 @@ import CeoMessage from "@/components/dashboard/CeoMessage";
 import AiRecommendations from "@/components/dashboard/AiRecommendations";
 import QuickAccess from "@/components/dashboard/QuickAccess";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
+import { StrategyDisplay } from "@/components/dashboard/StrategyDisplay";
 
 export default function Dashboard() {
   // This doesn't need to change as we're maintaining the same API
@@ -25,10 +26,13 @@ export default function Dashboard() {
     <div className="min-h-screen space-y-8">
       <DashboardHeader pendingApprovals={pendingApprovals} />
       
-      {/* CEO Strategy Summary - Now enhanced with AI Executive attribution */}
+      {/* CEO Strategy Summary */}
       <CeoMessage riskAppetite={riskAppetite} />
       
-      {/* AI Recommendations - Now with executive attributions */}
+      {/* AI-Generated Strategies Section */}
+      <StrategyDisplay />
+      
+      {/* AI Recommendations */}
       <AiRecommendations 
         recommendations={aiRecommendations} 
         onApprove={handleApproveRecommendation} 
