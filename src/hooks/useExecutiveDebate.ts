@@ -94,7 +94,7 @@ export function useExecutiveDebate() {
         {
           id: '3',
           sender: 'Satya Nadella',
-          content: 'We need to consider how this fits into our digital transformation goals. I suggest we build in quarterly reassessment points to ensure we're adapting to market changes.',
+          content: "We need to consider how this fits into our digital transformation goals. I suggest we build in quarterly reassessment points to ensure we're adapting to market changes.",
           timestamp: new Date(Date.now() - 180000),
           executive: {
             name: 'Satya Nadella',
