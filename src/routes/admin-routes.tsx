@@ -9,6 +9,8 @@ import AdminLeads from "@/pages/admin/Leads";
 import AdminAnalytics from "@/pages/admin/Analytics";
 import AdminSettings from "@/pages/admin/Settings";
 import LaunchPrep from "@/pages/admin/LaunchPrep";
+import LaunchCheck from "@/pages/admin/LaunchCheck";
+import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const adminRoutes: RouteObject = {
@@ -50,6 +52,14 @@ export const adminRoutes: RouteObject = {
     {
       path: "launch-prep",
       element: <LaunchPrep />,
+    },
+    {
+      path: "launch-check",
+      element: <LaunchCheck />,
+    },
+    {
+      path: "database-verification",
+      element: <DatabaseVerification />,
     },
   ],
 };
