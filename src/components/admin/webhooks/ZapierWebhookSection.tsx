@@ -74,10 +74,7 @@ const ZapierWebhookSection = ({
       
       {/* Show demo section only when webhook URL is valid */}
       {zapierWebhook && isZapierWebhookValid && (
-        <>
-          <ZapierEventDemo className="mt-6" />
-          <ZapierWebhookDemo webhookUrl={zapierWebhook} />
-        </>
+        <ZapierWebhookDemo webhookUrl={zapierWebhook} />
       )}
     </div>
   );

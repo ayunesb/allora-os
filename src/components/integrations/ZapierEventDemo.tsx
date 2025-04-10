@@ -2,8 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { AlertCircle, Zap } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Zap } from "lucide-react";
 import { onNewLeadAdded, onStrategyApproved } from '@/utils/zapierEventTriggers';
 
 interface ZapierEventDemoProps {
@@ -19,7 +18,6 @@ const ZapierEventDemo: React.FC<ZapierEventDemoProps> = ({ className = "" }) => 
     setIsLeadLoading(true);
     
     try {
-      // Use the new standardized event system
       const result = await onNewLeadAdded({
         company: "Allora AI Sample Company",
         leadName: "John Smith",
@@ -45,7 +43,6 @@ const ZapierEventDemo: React.FC<ZapierEventDemoProps> = ({ className = "" }) => 
     setIsStrategyLoading(true);
     
     try {
-      // Use the new standardized event system
       const result = await onStrategyApproved({
         company: "Allora AI Sample Company",
         strategyTitle: "Expand to International Markets",
@@ -67,15 +64,6 @@ const ZapierEventDemo: React.FC<ZapierEventDemoProps> = ({ className = "" }) => 
   
   return (
     <div className={`space-y-4 ${className}`}>
-      <Alert variant="default" className="bg-amber-50 border-amber-200">
-        <AlertCircle className="h-4 w-4 text-amber-600" />
-        <AlertDescription className="text-amber-800">
-          Due to browser security restrictions (CORS), webhook requests may show errors
-          in the console but will still reach Zapier. Check your Zap's task history to confirm
-          receipt.
-        </AlertDescription>
-      </Alert>
-      
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Button 
           variant="default" 

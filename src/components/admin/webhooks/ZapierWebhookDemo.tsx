@@ -2,10 +2,9 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, Send, FileText, Bell, Info, GitBranch, Users, CreditCard, BarChart } from "lucide-react";
+import { Zap, Send, FileText, Bell, GitBranch, Users, CreditCard, BarChart } from "lucide-react";
 import { toast } from "sonner";
 import { useZapier, BusinessEventType, BusinessEventPayload } from '@/lib/zapier';
-import { executeAndLogWebhook } from '@/utils/webhookUtils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ZapierWebhookDemoProps {
@@ -182,14 +181,6 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
         <CardDescription>
           Test and demonstrate business events with your Zapier webhook
         </CardDescription>
-        
-        <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md text-sm flex items-start gap-2">
-          <Info className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-          <p className="text-amber-800">
-            Due to browser security restrictions (CORS), webhook requests may appear to fail in the browser console
-            but will still reach Zapier. Check your Zap's task history to confirm.
-          </p>
-        </div>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="business" value={activeTab} onValueChange={setActiveTab}>
