@@ -9,9 +9,9 @@ const Footer: React.FC = () => {
         <img src="/lovable-uploads/fa68c49e-02d3-4f17-b128-a5b8f6f1665b.png" alt="Allora AI Logo" className="h-16 mb-4" />
         <p className="mb-4">© 2025 Allora AI. All Rights Reserved.</p>
         <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
-          <Link to="/legal" className="text-[#63B3ED] hover:underline">Terms</Link>
+          <Link to="/legal/terms-of-service" className="text-[#63B3ED] hover:underline">Terms</Link>
           <span className="text-white">|</span>
-          <Link to="/privacy" className="text-[#63B3ED] hover:underline">Privacy</Link>
+          <Link to="/legal/privacy-policy" className="text-[#63B3ED] hover:underline">Privacy</Link>
           <span className="text-white">|</span>
           <Link to="/legal/cookies" className="text-[#63B3ED] hover:underline">Cookies</Link>
           <span className="text-white">|</span>

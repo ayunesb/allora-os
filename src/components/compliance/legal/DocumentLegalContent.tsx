@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,57 +47,65 @@ export default function DocumentLegalContent() {
       title: "Terms of Service",
       content: (
         <div className="prose dark:prose-invert max-w-none">
-          <h2>1. Introduction</h2>
-          <p>
-            Welcome to Allora AI. These Terms of Service govern your use of our website, products, and services.
-            By accessing or using our services, you agree to be bound by these Terms.
-          </p>
-
-          <h2>2. Use of Services</h2>
-          <p>
-            Our platform provides AI-powered business strategy tools and insights. You agree to use these services only
-            for lawful purposes and in accordance with these Terms.
-          </p>
-
-          <h2>3. User Accounts</h2>
-          <p>
-            When you create an account with us, you must provide accurate and complete information. You are responsible
-            for safeguarding your account credentials and for all activities that occur under your account.
-          </p>
-
-          <h2>4. Privacy Policy</h2>
-          <p>
-            Your use of our services is also governed by our Privacy Policy, which can be found <Link to="/privacy">here</Link>.
-          </p>
-
-          <h2>5. Intellectual Property</h2>
-          <p>
-            Our services and content are protected by copyright, trademark, and other intellectual property laws.
-            You may not reproduce, distribute, or create derivative works without our permission.
-          </p>
-
-          <h2>6. Termination</h2>
-          <p>
-            We may terminate or suspend your account and access to our services at our sole discretion, without notice,
-            for conduct that we believe violates these Terms or is harmful to other users, us, or third parties.
-          </p>
-
+          <p className="text-sm">Effective Date: April 10, 2025</p>
+          
+          <p>Welcome to Allora AI ("Company", "we", "our", "us"). These Terms govern your use of our website, mobile app, APIs, and services (collectively, the "Services").</p>
+          
+          <h2>1. Acceptance of Terms</h2>
+          <p>By accessing or using the Services, you agree to these Terms. If you do not agree, do not use the Services.</p>
+          
+          <h2>2. Services Provided</h2>
+          <p>Allora AI provides AI-powered business strategy generation, lead generation, automated communications (including WhatsApp, SMS, Email), campaign management, and CRM workflows.</p>
+          
+          <h2>3. User Obligations</h2>
+          <ul>
+            <li>You must provide accurate account information.</li>
+            <li>You are responsible for all activity under your account.</li>
+            <li>You must obtain explicit consent before sending communications to leads via Email, WhatsApp, SMS, or Zapier workflows.</li>
+            <li>You agree to comply with all applicable privacy, consumer protection, and marketing laws (including GDPR, CCPA, TCPA, and CAN-SPAM).</li>
+          </ul>
+          
+          <h2>4. Subscription Payments and Refunds</h2>
+          <ul>
+            <li>Allora AI offers monthly subscription plans via Stripe.</li>
+            <li>No refunds are offered after service activation.</li>
+            <li>Subscription fees auto-renew unless canceled with 3 business days notice.</li>
+            <li>Upgrades are automatically triggered when usage exceeds plan limits.</li>
+          </ul>
+          
+          <h2>5. Use of APIs and Integrations</h2>
+          <ul>
+            <li>Your use of external APIs (Stripe, Twilio, Postmark, Heygen, Shopify, Zapier) is subject to each provider's terms.</li>
+            <li>You must not misuse third-party services connected through Allora AI.</li>
+          </ul>
+          
+          <h2>6. Intellectual Property</h2>
+          <ul>
+            <li>Allora AI owns all rights to platform software, branding, and materials.</li>
+            <li>You may not copy, modify, reverse-engineer, or distribute our services.</li>
+          </ul>
+          
           <h2>7. Limitation of Liability</h2>
-          <p>
-            To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special,
-            consequential, or punitive damages resulting from your use or inability to use our services.
-          </p>
-
-          <h2>8. Changes to Terms</h2>
-          <p>
-            We may modify these Terms at any time. It is your responsibility to review these Terms periodically.
-            Your continued use of our services after any changes indicates your acceptance of the modified Terms.
-          </p>
-
-          <h2>9. Contact Us</h2>
-          <p>
-            If you have any questions about these Terms, please contact us at support@alloraai.com.
-          </p>
+          <ul>
+            <li>To the maximum extent permitted by law, Allora AI is not liable for indirect, special, or consequential damages.</li>
+            <li>Our total liability is capped at the amount you paid us in the last 3 months.</li>
+          </ul>
+          
+          <h2>8. Indemnification</h2>
+          <p>You agree to defend and indemnify Allora AI against claims arising from your use of our services or violation of these Terms.</p>
+          
+          <h2>9. Dispute Resolution</h2>
+          <ul>
+            <li>Disputes will be resolved through binding arbitration in California, USA.</li>
+            <li>You waive the right to participate in class actions.</li>
+          </ul>
+          
+          <h2>10. Changes to Terms</h2>
+          <p>We may modify these Terms. Changes become effective immediately upon posting.</p>
+          
+          <h2>11. Contact</h2>
+          <p>For legal questions, contact:<br />
+          📧 <a href="mailto:support@all-or-a.com">support@all-or-a.com</a></p>
         </div>
       ),
     },
@@ -104,82 +113,111 @@ export default function DocumentLegalContent() {
       title: "Privacy Policy",
       content: (
         <div className="prose dark:prose-invert max-w-none">
-          <h2>1. Introduction</h2>
-          <p>
-            At Allora AI, your privacy is a top priority. This Privacy Policy explains how we collect, use, and protect your information.
-          </p>
-
-          <h2>2. Information We Collect</h2>
+          <p className="text-sm">Effective Date: April 10, 2025</p>
+          
+          <p>Allora AI ("Company", "we", "our", "us") respects your privacy.</p>
+          
+          <h2>1. Data We Collect</h2>
           <ul>
-            <li>Personal Information: Name, email, company, payment info.</li>
-            <li>Account Information: Login credentials, preferences.</li>
-            <li>Usage Data: Pages visited, features used.</li>
-            <li>Device Data: IP address, browser type, device info.</li>
+            <li>Personal data: Name, Email, Company Info, Phone Number.</li>
+            <li>Business Data: Campaigns, Leads, CRM actions.</li>
+            <li>Communications Data: WhatsApp messages, SMS, Emails, Zapier Events.</li>
+            <li>Payment Information: Handled securely via Stripe.</li>
           </ul>
-
-          <h2>3. How We Use Your Information</h2>
-          <p>We use your information to:</p>
+          
+          <h2>2. How We Use Data</h2>
           <ul>
-            <li>Provide and personalize services.</li>
-            <li>Communicate with you.</li>
-            <li>Improve and secure our services.</li>
+            <li>To deliver AI strategies and campaigns.</li>
+            <li>To send communications via Email, WhatsApp, SMS.</li>
+            <li>To automate workflows via APIs (Zapier, Shopify, Postmark, Twilio).</li>
           </ul>
-
-          <h2>4. Sharing of Information</h2>
-          <p>
-            We do not sell your personal information. We may share it with service providers (e.g., Supabase, Stripe, Twilio).
-          </p>
-
-          <h2>5. Your Rights</h2>
-          <p>
-            You may request to access, correct, or delete your data.
-          </p>
-
-          <h2>6. Data Security</h2>
-          <p>
-            We use technical and organizational measures to protect your data.
-          </p>
-
-          <h2>7. Cookies</h2>
-          <p>
-            See our <Link to="/cookies">Cookie Policy</Link> for information on how we use cookies.
-          </p>
-
-          <h2>8. Changes to Privacy Policy</h2>
-          <p>
-            We may update this policy and will notify users of significant changes.
-          </p>
-
-          <h2>9. Contact</h2>
-          <p>
-            If you have any questions, contact us at support@alloraai.com.
-          </p>
+          
+          <h2>3. Sharing of Data</h2>
+          <ul>
+            <li>We share data with service providers under strict confidentiality (Stripe, Twilio, Zapier, etc.).</li>
+            <li>We do not sell your personal data.</li>
+          </ul>
+          
+          <h2>4. Data Retention</h2>
+          <p>Data is kept as long as necessary for services, or as legally required.</p>
+          
+          <h2>5. Data Security</h2>
+          <ul>
+            <li>We use encryption, firewalls, and secure servers.</li>
+            <li>No system can guarantee 100% security.</li>
+          </ul>
+          
+          <h2>6. Your Rights</h2>
+          <ul>
+            <li>You have the right to access, correct, or delete your data.</li>
+            <li>You can withdraw consent at any time.</li>
+          </ul>
+          
+          <h2>7. International Transfers</h2>
+          <p>Data may be transferred outside your country in compliance with applicable laws.</p>
+          
+          <h2>8. Contact</h2>
+          <p>For privacy questions, contact:<br />
+          📧 <a href="mailto:support@all-or-a.com">support@all-or-a.com</a></p>
         </div>
       ),
     },
-    // Additional documents could be added here
     "cookies": {
       title: "Cookie Policy",
       content: (
         <div className="prose dark:prose-invert max-w-none">
-          <h2>1. Introduction</h2>
-          <p>Allora AI uses cookies to enhance your browsing experience.</p>
+          <p className="text-sm">Effective Date: April 10, 2025</p>
           
-          <h2>2. What Are Cookies?</h2>
-          <p>Cookies are small data files stored on your device to help websites operate efficiently.</p>
+          <p>We use cookies and similar tracking technologies to improve your experience.</p>
           
-          <h2>3. How We Use Cookies</h2>
+          <h2>1. Types of Cookies</h2>
           <ul>
-            <li>Essential Cookies: Authentication and security.</li>
-            <li>Analytics Cookies: Understanding user behavior.</li>
-            <li>Marketing Cookies: Personalized advertising.</li>
+            <li><strong>Essential Cookies:</strong> Required for basic functionality.</li>
+            <li><strong>Analytics Cookies:</strong> Used for usage tracking (Google Analytics).</li>
+            <li><strong>Marketing Cookies:</strong> Used for retargeting ads (if enabled).</li>
           </ul>
           
-          <h2>4. Managing Cookies</h2>
-          <p>You can control cookies through your browser settings.</p>
+          <h2>2. Managing Cookies</h2>
+          <ul>
+            <li>You can opt out of non-essential cookies using our Cookie Consent Manager.</li>
+            <li>You may disable cookies in your browser settings.</li>
+          </ul>
+          
+          <h2>3. Third-Party Cookies</h2>
+          <p>We use third-party services that may place cookies on your device, including:</p>
+          <ul>
+            <li>Google Analytics</li>
+            <li>Stripe</li>
+            <li>Other analytics and marketing tools</li>
+          </ul>
+          
+          <h2>4. Contact</h2>
+          <p>For questions about our Cookie Policy, contact:<br />
+          📧 <a href="mailto:support@all-or-a.com">support@all-or-a.com</a></p>
+        </div>
+      ),
+    },
+    "refund-policy": {
+      title: "Cancellation & Refund Policy",
+      content: (
+        <div className="prose dark:prose-invert max-w-none">
+          <p className="text-sm">Effective Date: April 10, 2025</p>
+          
+          <h2>1. Cancellation Policy</h2>
+          <p>Subscriptions may be canceled by providing at least 3 business days notice prior to renewal.</p>
+          
+          <h2>2. Refund Policy</h2>
+          <p>No refunds are provided after service activation.</p>
+          
+          <h2>3. Upgrades</h2>
+          <p>Upgrades will automatically be processed when usage thresholds are exceeded.</p>
+          
+          <h2>4. Downgrade</h2>
+          <p>You may downgrade your subscription before the next billing cycle. Changes will be applied at the start of the next billing period.</p>
           
           <h2>5. Contact</h2>
-          <p>For any questions, email support@alloraai.com.</p>
+          <p>For questions about our Cancellation & Refund Policy, contact:<br />
+          📧 <a href="mailto:support@all-or-a.com">support@all-or-a.com</a></p>
         </div>
       ),
     },
@@ -187,12 +225,14 @@ export default function DocumentLegalContent() {
       title: "Data Processing Agreement",
       content: (
         <div className="prose dark:prose-invert max-w-none">
+          <p className="text-sm">Effective Date: April 10, 2025</p>
+          
           <p>
             Allora AI processes personal data on behalf of users in compliance with GDPR and related regulations.
             We implement security measures, engage subprocessors under strict terms, and protect user rights.
           </p>
           <p>
-            Contact support@alloraai.com for a signed copy.
+            Contact support@all-or-a.com for a signed copy.
           </p>
         </div>
       ),
@@ -255,7 +295,7 @@ export default function DocumentLegalContent() {
             </CardHeader>
             <CardContent>
               {documents[documentId].content}
-              <p className="text-sm text-muted-foreground mt-8">Last updated: April 9, 2025</p>
+              <p className="text-sm text-muted-foreground mt-8">Last updated: April 10, 2025</p>
             </CardContent>
           </Card>
           

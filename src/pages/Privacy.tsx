@@ -2,6 +2,6 @@
 import { Navigate } from 'react-router-dom';
 
 export default function Privacy() {
-  // Redirect to the new document page using the document ID
+  // Redirect to the privacy policy page
   return <Navigate to="/legal/privacy-policy" replace />;
 }
