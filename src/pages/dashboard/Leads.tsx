@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { useLeads } from '@/hooks/admin/useLeads';
+import { useCampaigns } from '@/hooks/campaigns';
 import { Lead } from '@/models/lead';
 import {
   LeadsHeader,
@@ -24,6 +25,9 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function DashboardLeads() {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  
+  // Get campaign data
+  const { campaigns: campaignData } = useCampaigns();
   
   const {
     leads,
@@ -103,6 +107,12 @@ export default function DashboardLeads() {
     return 'Make introduction call';
   };
 
+  // Format campaigns data for the AddLeadDialog component
+  const formattedCampaigns = campaignData.map(campaign => ({
+    id: campaign.id,
+    name: campaign.name
+  }));
+
   return (
     <div className="animate-fadeIn space-y-6">
       <LeadsHeader isMobileView={isMobileView} />
@@ -137,6 +147,7 @@ export default function DashboardLeads() {
               <AddLeadDialog 
                 onLeadAdded={refetchLeads}
                 isMobileView={isMobileView}
+                campaigns={formattedCampaigns}
               />
             </div>
           </div>
