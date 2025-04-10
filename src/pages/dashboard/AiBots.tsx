@@ -1,10 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import BotCard from "@/components/BotCard";
 import ExecutiveRoster from "@/components/ExecutiveRoster";
 import ConsultationHistory from "@/components/ConsultationHistory";
 import UserPreferencesDialog from "@/components/UserPreferencesDialog";
+import BotChatPanel from "@/components/bot-chat/BotChatPanel";
 import { executiveBots } from "@/backend/executiveBots";
 import { 
   Tabs, 
@@ -18,7 +18,8 @@ import {
   Bot, 
   Search,
   BadgeInfo,
-  Settings
+  Settings,
+  MessageSquare
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
@@ -38,10 +39,11 @@ import {
 import { formatRoleTitle, getBotExpertise } from "@/utils/consultation";
 
 export default function AiBots() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("bots");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [selectedBot, setSelectedBot] = useState<any>(null);
+  const [showChat, setShowChat] = useState(false);
 
   const allBots = Object.entries(executiveBots).flatMap(([role, names]) => 
     names.map(name => ({
@@ -63,8 +65,15 @@ export default function AiBots() {
     return matchesSearch && matchesRole;
   });
 
-  const handleConsult = (bot: any) => {
-    navigate(`/dashboard/ai-bots/${encodeURIComponent(bot.name)}/${bot.role}`);
+  // Handle selecting a bot and showing the chat
+  const handleSelectBot = (bot: any) => {
+    setSelectedBot(bot);
+    setShowChat(true);
+  };
+
+  // Close the chat panel
+  const handleCloseChat = () => {
+    setShowChat(false);
   };
 
   return (
@@ -84,6 +93,10 @@ export default function AiBots() {
           <TabsTrigger value="bots" className="flex items-center gap-2">
             <Bot className="h-4 w-4" />
             <span>Executive Advisors</span>
+          </TabsTrigger>
+          <TabsTrigger value="chat" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            <span>AI Chat</span>
           </TabsTrigger>
           <TabsTrigger value="roster" className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
@@ -139,11 +152,19 @@ export default function AiBots() {
                 <BotCard 
                   key={`${bot.role}-${bot.name}`} 
                   bot={bot}
-                  onConsult={() => handleConsult(bot)}
+                  onSelect={() => handleSelectBot(bot)}
                 />
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="chat">
+          <BotChatPanel 
+            selectedBot={selectedBot} 
+            onSelectBot={setSelectedBot} 
+            allBots={allBots} 
+          />
         </TabsContent>
 
         <TabsContent value="roster">

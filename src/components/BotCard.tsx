@@ -1,7 +1,6 @@
 
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MessageSquare, GraduationCap, Briefcase } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { GraduationCap, Briefcase } from "lucide-react";
 
 type BotCardProps = {
   bot: {
@@ -11,12 +10,15 @@ type BotCardProps = {
     avatar: string;
     role: string;
   };
-  onConsult: () => void;
+  onSelect: () => void;
 };
 
-export default function BotCard({ bot, onConsult }: BotCardProps) {
+export default function BotCard({ bot, onSelect }: BotCardProps) {
   return (
-    <Card className="overflow-hidden flex flex-col h-full transition-all hover:shadow-md">
+    <Card 
+      className="overflow-hidden flex flex-col h-full transition-all hover:shadow-md hover:border-primary/50 cursor-pointer"
+      onClick={onSelect}
+    >
       <div className="relative pb-[56.25%] h-0 overflow-hidden bg-gradient-to-br from-primary/30 to-primary/10">
         <img 
           src={bot.avatar || `/avatars/${bot.role}.png`} 
@@ -44,17 +46,6 @@ export default function BotCard({ bot, onConsult }: BotCardProps) {
           <p>{bot.specialty}</p>
         </div>
       </CardContent>
-      
-      <CardFooter className="pt-2">
-        <Button 
-          onClick={onConsult}
-          className="w-full flex items-center justify-center gap-2"
-          variant="default"
-        >
-          <MessageSquare className="h-4 w-4" />
-          <span>Consult</span>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

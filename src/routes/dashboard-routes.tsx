@@ -7,7 +7,6 @@ import DashboardAnalytics from "@/pages/dashboard/Analytics";
 import DashboardSettings from "@/pages/dashboard/Settings";
 import DashboardProfile from "@/pages/dashboard/Profile";
 import DashboardAiBots from "@/pages/dashboard/AiBots";
-import DashboardBotDetail from "@/pages/dashboard/BotDetail";
 import DashboardCampaigns from "@/pages/dashboard/Campaigns";
 import DashboardLeads from "@/pages/dashboard/Leads";
 import DashboardCalls from "@/pages/dashboard/Calls";
@@ -45,10 +44,6 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "ai-bots",
       element: <DashboardAiBots />,
-    },
-    {
-      path: "ai-bots/:botId",
-      element: <DashboardBotDetail />,
     },
     {
       path: "campaigns",
