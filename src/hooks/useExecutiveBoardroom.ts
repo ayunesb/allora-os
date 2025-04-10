@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
@@ -51,7 +50,6 @@ export default function useExecutiveBoardroom() {
   const { profile } = useAuth();
   const { preferences } = useUserPreferences();
   
-  // Initialize with default executives
   useEffect(() => {
     const defaultExecutives = [
       'Elon Musk',
@@ -60,7 +58,6 @@ export default function useExecutiveBoardroom() {
       'Warren Buffett',
       'Sheryl Sandberg'
     ].slice(0, 5).map((name, index) => {
-      // Find role for this executive
       const role = Object.entries(executiveBots).find(([_, names]) => 
         names.includes(name)
       )?.[0] || 'ceo';
@@ -78,7 +75,6 @@ export default function useExecutiveBoardroom() {
     setParticipants(defaultExecutives);
   }, []);
   
-  // Generate suggested topics based on user's company industry
   useEffect(() => {
     if (profile?.industry) {
       generateSuggestedTopic(profile.industry);
@@ -98,8 +94,6 @@ export default function useExecutiveBoardroom() {
   
   const generateSuggestedTopic = async (industry: string) => {
     try {
-      // This would connect to an AI service in a real implementation
-      // For now, we'll use industry-specific mock topics
       const mockTopics: Record<string, string[]> = {
         'Technology': [
           'AI implementation for customer service automation',
@@ -146,7 +140,6 @@ export default function useExecutiveBoardroom() {
     setDebateSummary(null);
     
     try {
-      // Save debate session to database
       const { data, error } = await supabase
         .from('debates')
         .insert({
@@ -155,7 +148,7 @@ export default function useExecutiveBoardroom() {
           participants: participants.map(p => ({ name: p.name, role: p.role })),
           context: {
             industry: profile?.industry || 'Technology',
-            riskAppetite: preferences?.risk_appetite || 'medium'
+            riskAppetite: preferences?.riskAppetite || 'medium'
           }
         })
         .select('id')
@@ -165,7 +158,6 @@ export default function useExecutiveBoardroom() {
       
       setSessionId(data.id);
       
-      // Simulate initial system message
       const initialMessage: DebateMessage = {
         id: `msg-${Date.now()}-system`,
         sender: 'System',
@@ -179,7 +171,6 @@ export default function useExecutiveBoardroom() {
       
       setMessages([initialMessage]);
       
-      // Simulate executive responses with staggered timing
       setTimeout(() => {
         simulateExecutiveResponses(topic);
       }, 1500);
@@ -192,7 +183,7 @@ export default function useExecutiveBoardroom() {
   }, [participants, profile, preferences]);
   
   const simulateExecutiveResponses = async (topic: string) => {
-    const riskAppetite = preferences?.risk_appetite || 'medium';
+    const riskAppetite = preferences?.riskAppetite || 'medium';
     const responses: DebateMessage[] = [];
     
     try {
@@ -200,7 +191,6 @@ export default function useExecutiveBoardroom() {
         const exec = participants[i];
         await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1500));
         
-        // In a real implementation, this would call an API
         const response = generateMockResponse(exec, topic, riskAppetite);
         
         responses.push({
@@ -214,16 +204,13 @@ export default function useExecutiveBoardroom() {
           isFavorite: false
         });
         
-        // Add to messages as they come in to create a real-time effect
         setMessages(prev => [...prev, responses[responses.length - 1]]);
         
-        // Sometimes generate a thought reaction from another executive
         if (Math.random() > 0.5 && i > 0) {
           generateThoughtReaction(exec, participants[i-1], topic);
         }
       }
       
-      // After all executives have responded, generate some debate interactions
       setTimeout(() => {
         simulateDebateInteractions(topic, responses);
       }, 2000);
@@ -237,7 +224,6 @@ export default function useExecutiveBoardroom() {
   
   const simulateDebateInteractions = async (topic: string, previousResponses: DebateMessage[]) => {
     try {
-      // Simulate executives disagreeing or challenging each other
       for (let i = 0; i < 3; i++) {
         await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
         
@@ -265,7 +251,6 @@ export default function useExecutiveBoardroom() {
         
         setMessages(prev => [...prev, challengeMessage]);
         
-        // Generate thought bubbles from other executives
         const observersIndices = Array.from(Array(participants.length).keys())
           .filter(idx => idx !== challengerIndex && idx !== respondentIndex);
         
@@ -275,10 +260,9 @@ export default function useExecutiveBoardroom() {
           generateThoughtReaction(challenger, observer, topic);
         }
         
-        // Let the respondent reply to the challenge
         await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1500));
         
-        const response = generateMockResponse(respondent, challenge, preferences?.risk_appetite || 'medium');
+        const response = generateMockResponse(respondent, challenge, preferences?.riskAppetite || 'medium');
         
         const responseMessage: DebateMessage = {
           id: `msg-${Date.now()}-${respondent.id}-response`,
@@ -294,7 +278,6 @@ export default function useExecutiveBoardroom() {
         setMessages(prev => [...prev, responseMessage]);
       }
       
-      // After debate interactions, simulate voting and summary
       setTimeout(() => {
         generateExecutiveVotes(topic);
         generateDebateSummary(topic);
@@ -330,7 +313,6 @@ export default function useExecutiveBoardroom() {
     
     setReactions(prev => [...prev, reaction]);
     
-    // Remove the thought bubble after a few seconds
     setTimeout(() => {
       setReactions(prev => prev.filter(r => r !== reaction));
     }, 4000);
@@ -346,9 +328,8 @@ export default function useExecutiveBoardroom() {
       const isBold = ['ceo', 'strategy', 'cmo'].includes(exec.role);
       const isConservative = ['cfo', 'chro', 'coo'].includes(exec.role);
       
-      // Factor in risk appetite from user preferences
-      const userRiskIsBold = preferences?.risk_appetite === 'high';
-      const userRiskIsCautious = preferences?.risk_appetite === 'low';
+      const userRiskIsBold = preferences?.riskAppetite === 'high';
+      const userRiskIsCautious = preferences?.riskAppetite === 'low';
       
       let choice: 'option_a' | 'option_b';
       
@@ -357,7 +338,6 @@ export default function useExecutiveBoardroom() {
       } else if (userRiskIsCautious && !isBold) {
         choice = 'option_b';
       } else {
-        // Add some randomness but weighted by executive personality
         choice = Math.random() < (isBold ? 0.8 : isConservative ? 0.2 : 0.5) ? 'option_a' : 'option_b';
       }
       
@@ -374,7 +354,6 @@ export default function useExecutiveBoardroom() {
     
     setVotes(newVotes);
     
-    // Add a system message about voting results
     const votesForA = newVotes.filter(v => v.choice === 'option_a').length;
     const votesForB = newVotes.filter(v => v.choice === 'option_b').length;
     
@@ -399,7 +378,6 @@ export default function useExecutiveBoardroom() {
   };
   
   const generateDebateSummary = (topic: string) => {
-    // In a real implementation, this would use an AI service
     const summary: DebateSummary = {
       winningStrategy: votes.filter(v => v.choice === 'option_a').length > 
                       votes.filter(v => v.choice === 'option_b').length ?
@@ -429,7 +407,6 @@ export default function useExecutiveBoardroom() {
     
     setDebateSummary(summary);
     
-    // Add a summary message
     const summaryMessage: DebateMessage = {
       id: `msg-${Date.now()}-summary`,
       sender: 'System',
@@ -455,14 +432,12 @@ export default function useExecutiveBoardroom() {
     
     setMessages(prev => [...prev, summaryMessage]);
     
-    // Suggest next topic
     setTimeout(() => {
       generateNextTopicSuggestion(topic);
     }, 2000);
   };
   
   const generateNextTopicSuggestion = (currentTopic: string) => {
-    // In a real implementation, this would use an AI service based on the debate content
     const suggestions = [
       `Want to brainstorm your go-to-market strategy for this initiative?`,
       `Should we discuss the operational requirements for implementing this strategy?`,
@@ -473,7 +448,6 @@ export default function useExecutiveBoardroom() {
     
     const suggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
     
-    // Add a suggestion message
     const suggestionMessage: DebateMessage = {
       id: `msg-${Date.now()}-suggestion`,
       sender: 'System',
@@ -487,11 +461,9 @@ export default function useExecutiveBoardroom() {
     
     setMessages(prev => [...prev, suggestionMessage]);
     
-    // Show toast notification
     toast.info('New Debate Suggestion Ready!');
   };
   
-  // Mock response generator
   const generateMockResponse = (executive: DebateParticipant, topic: string, riskAppetite: string): string => {
     const responses = {
       ceo: {
@@ -539,21 +511,19 @@ export default function useExecutiveBoardroom() {
     }
     
     try {
-      // Save the winning strategy to the database
       const { data, error } = await supabase
         .from('strategies')
         .insert({
           title: `Strategy for ${debateTopic}`,
           description: debateSummary.winningStrategy,
           company_id: profile.company_id,
-          risk_level: preferences?.risk_appetite || 'Medium'
+          risk_level: preferences?.riskAppetite || 'Medium'
         })
         .select('id')
         .single();
         
       if (error) throw error;
       
-      // Update the debate with the strategy ID
       await supabase
         .from('debates')
         .update({ status: 'completed' })
@@ -579,7 +549,6 @@ export default function useExecutiveBoardroom() {
     setDebateSummary(null);
     setSessionId(null);
     
-    // Generate a new suggested topic
     if (profile?.industry) {
       generateSuggestedTopic(profile.industry);
     }
