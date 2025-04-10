@@ -5,13 +5,23 @@ import ComplianceAuditLogs from "@/pages/compliance/AuditLogs";
 import ComplianceDataPolicies from "@/pages/compliance/DataPolicies";
 import ComplianceReports from "@/pages/compliance/Reports";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { ComplianceProvider } from "@/context/ComplianceContext";
+
+// Wrap all compliance routes with the ComplianceProvider
+const ComplianceWrapper = ({ children }: { children: React.ReactNode }) => (
+  <ComplianceProvider>
+    {children}
+  </ComplianceProvider>
+);
 
 export const complianceRoutes: RouteObject[] = [
   {
     path: "/compliance",
     element: (
       <ProtectedRoute>
-        <ComplianceOverview />
+        <ComplianceWrapper>
+          <ComplianceOverview />
+        </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
@@ -19,7 +29,9 @@ export const complianceRoutes: RouteObject[] = [
     path: "/compliance/audit-logs",
     element: (
       <ProtectedRoute>
-        <ComplianceAuditLogs />
+        <ComplianceWrapper>
+          <ComplianceAuditLogs />
+        </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
@@ -27,7 +39,9 @@ export const complianceRoutes: RouteObject[] = [
     path: "/compliance/data-policies",
     element: (
       <ProtectedRoute>
-        <ComplianceDataPolicies />
+        <ComplianceWrapper>
+          <ComplianceDataPolicies />
+        </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
@@ -35,7 +49,9 @@ export const complianceRoutes: RouteObject[] = [
     path: "/compliance/reports",
     element: (
       <ProtectedRoute>
-        <ComplianceReports />
+        <ComplianceWrapper>
+          <ComplianceReports />
+        </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
