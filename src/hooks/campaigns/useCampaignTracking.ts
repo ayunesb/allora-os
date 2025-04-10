@@ -63,7 +63,7 @@ export function useCampaignTracking() {
       }
     );
     
-    toast.success('Feedback recorded. We'll improve our recommendations.');
+    toast.success('Feedback recorded. We\'ll improve our recommendations.');
   }, [user, trackAction]);
   
   return {

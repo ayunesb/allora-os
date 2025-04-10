@@ -73,7 +73,7 @@ export function useCallScriptTracking() {
     
     toast.success(isPositive 
       ? 'Thanks for your positive feedback!' 
-      : 'Feedback recorded. We'll improve our scripts.');
+      : 'Feedback recorded. We\'ll improve our scripts.');
   }, [user, trackAction]);
   
   return {
