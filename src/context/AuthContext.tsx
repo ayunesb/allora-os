@@ -6,7 +6,6 @@ import {
   handleSignIn, 
   handleSignUp, 
   handleSignOut,
-  handleGoogleSignIn,
   handleGitHubSignIn,
   sendPasswordResetEmail,
   refreshSession as refreshSessionFunc
@@ -75,11 +74,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Google sign in
-  const signInWithGoogle = async () => {
-    return await handleGoogleSignIn();
-  };
-
   // GitHub sign in
   const signInWithGitHub = async () => {
     return await handleGitHubSignIn();
@@ -121,7 +115,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signIn,
     signUp,
     signOut,
-    signInWithGoogle,
     signInWithGitHub,
     resetPassword,
     refreshProfile,

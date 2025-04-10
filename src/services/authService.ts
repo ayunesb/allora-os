@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export async function handleSignIn(email: string, password: string, rememberMe = false) {
@@ -28,28 +27,6 @@ export async function handleSignIn(email: string, password: string, rememberMe =
     return { 
       success: false, 
       error: error.message || 'Failed to sign in' 
-    };
-  }
-}
-
-export async function handleGoogleSignIn() {
-  try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/login`
-      }
-    });
-
-    if (error) {
-      throw error;
-    }
-
-    return { success: true };
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || 'Failed to sign in with Google'
     };
   }
 }
