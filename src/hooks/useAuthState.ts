@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -15,6 +14,18 @@ export type Profile = {
   last_activity?: string;
   created_at?: string;
   updated_at?: string;
+  name?: string;
+  company?: string;
+  phone?: string;
+  location?: string;
+  website?: string;
+  bio?: string;
+  personal_api_keys?: Record<string, string> | string | null;
+  industry?: string;
+  stripe_customer_id?: string;
+  subscription_status?: string;
+  subscription_plan_id?: string;
+  subscription_expires_at?: string;
 };
 
 export function useAuthState() {
