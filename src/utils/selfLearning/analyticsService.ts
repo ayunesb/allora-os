@@ -53,18 +53,18 @@ export const processFeedbackLoop = async (userId: string) => {
 // Analyze user behavior to determine preferences
 export const analyzeUserBehavior = (
   actions: any[], 
-  currentPreferences?: UserPreferences
+  currentPreferences?: any
 ): Partial<UserPreferences> | null => {
   if (!actions.length) return null;
   
   // Initialize preferences with current values or defaults
   const preferences: Partial<UserPreferences> = {
-    risk_appetite: currentPreferences?.risk_appetite || 'medium',
-    preferred_executives: currentPreferences?.preferred_executives || [],
-    favorite_topics: currentPreferences?.favorite_topics || [],
-    communication_style: currentPreferences?.communication_style || 'balanced',
-    activity_peak_times: currentPreferences?.activity_peak_times || [],
-    dashboard_preferences: currentPreferences?.dashboard_preferences || {},
+    risk_appetite: currentPreferences?.riskAppetite || 'medium',
+    preferred_executives: currentPreferences?.favoriteExecutives || [],
+    favorite_topics: currentPreferences?.topCategories || [],
+    communication_style: 'balanced',
+    activity_peak_times: [],
+    dashboard_preferences: {},
     last_updated: new Date()
   };
   

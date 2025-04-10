@@ -11,7 +11,7 @@ import { logger } from '@/utils/loggingService';
 
 export interface CampaignFormData {
   name: string;
-  platform: string;
+  platform: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Email' | 'Other';
   budget: number;
   company_id: string;
 }
