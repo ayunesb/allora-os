@@ -59,7 +59,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Sign up function
   const signUp = async (email: string, password: string) => {
-    return await handleSignUp(email, password);
+    const result = await handleSignUp(email, password);
+    
+    if (result.success && result.user) {
+      // If we have a user object, load their profile
+      await loadUserProfile(result.user.id);
+      return { success: true, user: result.user };
+    } else {
+      return { success: false, error: result.error };
+    }
   };
 
   // Sign out function

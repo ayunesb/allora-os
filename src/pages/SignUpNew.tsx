@@ -13,6 +13,7 @@ export default function Signup() {
   const [userEmail, setUserEmail] = useState("");
   const [newUser, setNewUser] = useState<User | null>(null);
   const [showLegalModal, setShowLegalModal] = useState(false);
+  const [signupError, setSignupError] = useState<string | null>(null);
 
   useEffect(() => {
     // Retrieve email from sessionStorage when component mounts or isSubmitted changes
@@ -23,12 +24,19 @@ export default function Signup() {
   }, [isSubmitted]);
 
   const handleSubmitSuccess = (user: User) => {
+    if (!user) {
+      setSignupError("Failed to retrieve user information after signup.");
+      return;
+    }
+    
     setNewUser(user);
     setShowLegalModal(true);
+    setSignupError(null);
   };
   
   const handleTryAgain = () => {
     setIsSubmitted(false);
+    setSignupError(null);
   };
 
   const handleLegalAcceptance = () => {
@@ -60,6 +68,18 @@ export default function Signup() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {signupError && (
+            <div className="bg-destructive/10 border border-destructive rounded-md p-3 mb-4 text-sm text-destructive">
+              <p>{signupError}</p>
+              <button 
+                onClick={handleTryAgain}
+                className="text-primary hover:underline mt-1 text-sm"
+              >
+                Try again
+              </button>
+            </div>
+          )}
+          
           <SignupForm 
             onSubmitSuccess={handleSubmitSuccess} 
           />

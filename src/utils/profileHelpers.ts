@@ -7,22 +7,28 @@ import { Json } from '@/integrations/supabase/types';
 
 export type UserProfile = {
   id: string;
-  name: string;
-  company: string;
-  company_id: string | null;
-  industry: string;
-  role: 'admin' | 'user';
-  created_at: string;
-  avatar_url: string | null;
-  phone: string | null;
-  location: string | null;
-  website: string | null;
-  bio: string | null;
-  subscription_status: string | null;
-  subscription_plan_id: string | null;
-  subscription_expires_at: string | null;
-  stripe_customer_id: string | null;
+  user_id: string;
+  email?: string;
+  username?: string;
+  full_name?: string;
+  avatar_url?: string;
+  company_id?: string | null;
+  role?: string;
+  last_activity?: string;
+  created_at?: string;
+  updated_at?: string;
+  name?: string;
+  company?: string;
+  phone?: string;
+  location?: string;
+  website?: string;
+  bio?: string;
   personal_api_keys?: Record<string, string> | string | Json | null;
+  industry?: string;
+  stripe_customer_id?: string;
+  subscription_status?: string;
+  subscription_plan_id?: string;
+  subscription_expires_at?: string;
 };
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
@@ -84,6 +90,11 @@ export async function saveCompanyInfo(
   try {
     console.log("Creating company for user:", userId, companyName, industry);
     
+    if (!userId) {
+      console.error("Cannot save company info: missing user ID");
+      return false;
+    }
+    
     // First, check if the user already has a company_id
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -94,7 +105,20 @@ export async function saveCompanyInfo(
     if (profileError && profileError.code !== 'PGRST116') {
       // PGRST116 is "no rows returned" - not an error in this case
       console.error("Profile fetch error:", profileError);
-      throw profileError;
+      
+      // Try to create a profile if it doesn't exist
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          company: companyName,
+          industry
+        });
+        
+      if (insertError) {
+        console.error("Failed to create profile:", insertError);
+        return false;
+      }
     }
     
     // If user already has a company, update it instead of creating new

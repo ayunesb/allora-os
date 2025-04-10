@@ -1,4 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 export async function handleSignIn(email: string, password: string, rememberMe = false) {
   try {
@@ -71,7 +73,10 @@ export async function handleSignUp(email: string, password: string) {
       throw error;
     }
 
-    return { success: true };
+    return { 
+      success: true, 
+      user: data.user 
+    };
   } catch (error: any) {
     return { 
       success: false, 

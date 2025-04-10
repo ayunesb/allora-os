@@ -7,7 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { calculatePasswordStrength } from "@/components/auth/PasswordStrengthMeter";
 import { useAuth } from "@/context/AuthContext";
-import { supabase, getSession, getCurrentUser } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { User } from "@supabase/supabase-js";
 
 // Schema definition for signup form validation
@@ -87,29 +87,39 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
             type: "manual", 
             message: "Email already in use" 
           });
+          setIsLoading(false);
           return;
         }
         throw new Error(signUpResult.error);
       }
-      
-      // Get the current user using the function we just exported
-      const { user } = await getCurrentUser();
-      
-      if (!user) {
-        throw new Error("Failed to retrieve user information after signup.");
+
+      // Store user metadata for profile creation
+      if (signUpResult.user) {
+        // Update user metadata with name and company info
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: {
+            name: data.name,
+            company: data.company || '',
+            industry: data.industry || ''
+          }
+        });
+
+        if (updateError) {
+          console.error("Error updating user metadata:", updateError);
+        }
+
+        // Once the user is created, save company information to profiles table
+        if (data.company && data.industry) {
+          const { saveCompanyInfo } = await import('@/utils/profileHelpers');
+          await saveCompanyInfo(signUpResult.user.id, data.company, data.industry);
+        }
+        
+        toast.success("Account created successfully!");
+        onSubmitSuccess(signUpResult.user);
+        return;
       }
       
-      if (user && data.company && data.industry) {
-        // Save company information and update user profile
-        const { saveCompanyInfo } = await import('@/utils/profileHelpers');
-        await saveCompanyInfo(user.id, data.company, data.industry);
-      }
-      
-      toast.success("Account created successfully!");
-      
-      // Pass the user object to the parent component for legal acceptance
-      onSubmitSuccess(user);
-      
+      throw new Error("Failed to retrieve user information after signup.");
     } catch (error: any) {
       console.error("Signup error:", error);
       setFormError(error.message || "Failed to create account");
