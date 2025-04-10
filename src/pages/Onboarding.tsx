@@ -14,6 +14,7 @@ import { LogOut, RefreshCw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { checkOnboardingStatus } from "@/utils/onboarding";
+import { completeOnboarding } from "@/utils/onboarding/completeOnboarding"; 
 import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
 
 export default function Onboarding() {
@@ -37,10 +38,11 @@ export default function Onboarding() {
     toggleGoal
   } = useOnboardingState();
 
-  const { user, signOut, isLoading: isAuthLoading, hasInitialized } = useAuth();
+  const { user, signOut, isLoading: isAuthLoading, hasInitialized, profile } = useAuth();
   const navigate = useNavigate();
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   // Check if user has already completed onboarding
   useEffect(() => {
@@ -101,6 +103,35 @@ export default function Onboarding() {
 
   const handleRefresh = () => {
     window.location.reload();
+  };
+
+  const handleComplete = async () => {
+    if (!user || !profile?.company_id) {
+      toast.error("Missing user information. Please try again.");
+      return;
+    }
+
+    setIsCompleting(true);
+    
+    try {
+      const result = await completeOnboarding(
+        user.id, 
+        profile.company_id, 
+        industry
+      );
+      
+      if (result.success) {
+        toast.success("Onboarding completed! Welcome to Allora AI.");
+        navigate("/dashboard");
+      } else {
+        throw new Error(result.error || "Failed to complete onboarding");
+      }
+    } catch (error: any) {
+      console.error("Error completing onboarding:", error);
+      toast.error(error.message || "An error occurred during onboarding");
+    } finally {
+      setIsCompleting(false);
+    }
   };
 
   // Show loading state
@@ -165,7 +196,6 @@ export default function Onboarding() {
           <CompanyDetailsSurvey
             companyDetails={companyDetails}
             updateCompanyDetails={updateCompanyDetails}
-            error={errorMessage}
           />
         );
       case 5:
@@ -173,68 +203,39 @@ export default function Onboarding() {
           <RiskProfileForm
             riskAppetite={riskAppetite}
             setRiskAppetite={setRiskAppetite}
-            executiveTeamEnabled={executiveTeamEnabled}
-            setExecutiveTeamEnabled={setExecutiveTeamEnabled}
-            error={errorMessage?.includes("risk") ? errorMessage : undefined}
+            companyName={companyName}
           />
         );
       case 6:
         return (
-          <ExecutiveTeamIntro />
+          <ExecutiveTeamIntro
+            executiveTeamEnabled={executiveTeamEnabled}
+            setExecutiveTeamEnabled={setExecutiveTeamEnabled}
+            riskAppetite={riskAppetite}
+            companyName={companyName}
+            onComplete={handleComplete}
+            isLoading={isCompleting}
+          />
         );
       default:
-        return null;
+        return <div>Unknown step</div>;
     }
   };
 
-  const getStepTitle = () => {
-    switch (step) {
-      case 1:
-        return "Company Information";
-      case 2:
-        return "Industry Details";
-      case 3:
-        return "Business Goals";
-      case 4:
-        return "Company Details";
-      case 5:
-        return "Strategy Risk Profile";
-      case 6:
-        return "Your AI Executive Team";
-      default:
-        return "Business Setup";
-    }
-  };
-
-  const getTotalSteps = () => {
-    return 6;
-  };
-
+  const isLastStep = step === 6;
+  
   return (
-    <div className="min-h-screen bg-background">
-      <div className="absolute top-4 right-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSignOut}
-          className="flex items-center gap-2"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </Button>
-      </div>
-
-      <OnboardingLayout
-        title={getStepTitle()}
-        step={step}
-        totalSteps={getTotalSteps()}
-        onBack={handleBack}
-        onNext={handleNext}
-        isLoading={isOnboardingLoading}
-        isLastStep={step === 6}
-      >
-        {getStepContent()}
-      </OnboardingLayout>
-    </div>
+    <OnboardingLayout
+      currentStep={step}
+      totalSteps={6}
+      onNext={isLastStep ? handleComplete : handleNext}
+      onBack={handleBack}
+      isNextDisabled={isOnboardingLoading || isCompleting}
+      isBackDisabled={step === 1 || isOnboardingLoading || isCompleting}
+      nextLabel={isLastStep ? "Complete Setup" : "Continue"}
+      isLoading={isOnboardingLoading || isCompleting}
+    >
+      {getStepContent()}
+    </OnboardingLayout>
   );
 }
