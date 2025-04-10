@@ -9,6 +9,7 @@ import {
   CheckCircle2 
 } from "lucide-react";
 import { toast } from "sonner";
+import { useCompliance } from "@/context/ComplianceContext";
 
 interface DocumentVersion {
   id: string;
@@ -21,6 +22,15 @@ interface DocumentVersion {
 }
 
 export default function DocumentVersionTracker() {
+  const { 
+    pendingUpdates, 
+    checkForUpdates, 
+    applyUpdate, 
+    setAutoUpdate,
+    isCheckingUpdates,
+    lastChecked
+  } = useCompliance();
+  
   const [documents, setDocuments] = useState<DocumentVersion[]>([
     {
       id: "privacy-policy",
@@ -36,7 +46,7 @@ export default function DocumentVersionTracker() {
       name: "Terms of Service",
       currentVersion: "v1.9",
       lastUpdated: "2025-01-10",
-      status: "update-available",
+      status: pendingUpdates.includes("terms-of-service") ? "update-available" : "current",
       nextUpdateDue: "2025-04-10",
       autoUpdatesEnabled: true
     },
@@ -45,7 +55,7 @@ export default function DocumentVersionTracker() {
       name: "Data Processing Agreement",
       currentVersion: "v1.2",
       lastUpdated: "2024-11-05",
-      status: "outdated",
+      status: pendingUpdates.includes("data-processing") ? "update-available" : "outdated",
       nextUpdateDue: "2025-02-05",
       autoUpdatesEnabled: false
     },
@@ -60,18 +70,17 @@ export default function DocumentVersionTracker() {
     }
   ]);
 
-  // Simulating checking for updates
+  // Update document statuses when pendingUpdates changes
   useEffect(() => {
-    const checkForUpdates = () => {
-      console.log("Checking for document updates...");
-      // In a real app, this would be an API call to check for updates
-    };
-    
-    checkForUpdates();
-    const interval = setInterval(checkForUpdates, 3600000); // Check every hour
-    
-    return () => clearInterval(interval);
-  }, []);
+    setDocuments(prevDocs => 
+      prevDocs.map(doc => ({
+        ...doc,
+        status: pendingUpdates.includes(doc.id) 
+          ? "update-available" 
+          : doc.status === "update-available" ? "current" : doc.status
+      }))
+    );
+  }, [pendingUpdates]);
 
   const getStatusBadge = (status: DocumentVersion["status"]) => {
     switch (status) {
@@ -87,39 +96,41 @@ export default function DocumentVersionTracker() {
   };
 
   const handleAutoUpdate = (docId: string) => {
-    setDocuments(docs => 
-      docs.map(doc => 
-        doc.id === docId 
-          ? { 
-              ...doc, 
-              status: "current", 
-              lastUpdated: new Date().toISOString().split('T')[0],
-              currentVersion: incrementVersion(doc.currentVersion),
-              nextUpdateDue: getNextUpdateDue()
-            } 
-          : doc
-      )
-    );
-    
-    toast.success(`Document updated automatically`, {
-      description: `Latest version has been applied.`
+    // Call the context method to apply the update
+    applyUpdate(docId).then(() => {
+      // Update local state after successful update
+      setDocuments(docs => 
+        docs.map(doc => 
+          doc.id === docId 
+            ? { 
+                ...doc, 
+                status: "current", 
+                lastUpdated: new Date().toISOString().split('T')[0],
+                currentVersion: incrementVersion(doc.currentVersion),
+                nextUpdateDue: getNextUpdateDue()
+              } 
+            : doc
+        )
+      );
     });
   };
 
   const toggleAutoUpdates = (docId: string) => {
-    setDocuments(docs => 
-      docs.map(doc => 
-        doc.id === docId 
-          ? { ...doc, autoUpdatesEnabled: !doc.autoUpdatesEnabled } 
-          : doc
-      )
-    );
-    
     const doc = documents.find(d => d.id === docId);
-    const status = !doc?.autoUpdatesEnabled ? "enabled" : "disabled";
+    if (!doc) return;
     
-    toast.info(`Auto-updates ${status}`, {
-      description: `Auto-updates have been ${status} for ${doc?.name}.`
+    const newStatus = !doc.autoUpdatesEnabled;
+    
+    // Call the context method to set auto-update preference
+    setAutoUpdate(docId, newStatus).then(() => {
+      // Update local state after successful toggle
+      setDocuments(docs => 
+        docs.map(d => 
+          d.id === docId 
+            ? { ...d, autoUpdatesEnabled: newStatus } 
+            : d
+        )
+      );
     });
   };
 
@@ -143,15 +154,18 @@ export default function DocumentVersionTracker() {
         <Button 
           variant="outline" 
           size="sm"
-          onClick={() => {
-            toast.success("Checked for updates", {
-              description: "All documents are up to date with latest regulations."
-            });
-          }}
+          onClick={() => checkForUpdates()}
+          disabled={isCheckingUpdates}
         >
-          Check for Updates
+          {isCheckingUpdates ? "Checking..." : "Check for Updates"}
         </Button>
       </div>
+      
+      {lastChecked && (
+        <p className="text-sm text-muted-foreground mb-4">
+          Last checked: {lastChecked.toLocaleString()}
+        </p>
+      )}
       
       <div className="space-y-4">
         {documents.map(doc => (
@@ -191,7 +205,7 @@ export default function DocumentVersionTracker() {
               </div>
               
               <div className="flex flex-wrap gap-2 ml-auto">
-                {doc.status !== "current" && (
+                {doc.status === "update-available" && (
                   <Button 
                     size="sm" 
                     onClick={() => handleAutoUpdate(doc.id)}

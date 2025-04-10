@@ -54,7 +54,7 @@ export const applyDocumentUpdate = async (documentId: string): Promise<boolean> 
       logComplianceChange(
         'admin', // In a real app, this would be the actual user ID
         `Updated document: ${documentId} to latest version`,
-        { documentId, updateType: 'automatic' }
+        { documentId, updateType: 'manual' }
       );
       
       resolve(true);

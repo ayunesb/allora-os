@@ -9,22 +9,18 @@ import CertificationsList from "@/components/compliance/reports/CertificationsLi
 import DocumentVersionTracker from "@/components/compliance/reports/DocumentVersionTracker";
 import { complianceReports } from "@/components/compliance/reports/mockData";
 import { useState } from "react";
-import { toast } from "sonner";
+import { useCompliance } from "@/context/ComplianceContext";
 
 export default function ComplianceReports() {
   const [activeTab, setActiveTab] = useState("reports");
-  const [isUpdating, setIsUpdating] = useState(false);
+  const { 
+    applyAllUpdates, 
+    pendingUpdates, 
+    isApplyingUpdate 
+  } = useCompliance();
 
   const handleUpdateAll = () => {
-    setIsUpdating(true);
-    
-    // Simulate update process
-    setTimeout(() => {
-      setIsUpdating(false);
-      toast.success("All documents updated", {
-        description: "Legal documents are now up-to-date with the latest regulations."
-      });
-    }, 2000);
+    applyAllUpdates();
   };
 
   return (
@@ -41,10 +37,15 @@ export default function ComplianceReports() {
             <Button 
               variant="outline"
               onClick={handleUpdateAll}
-              disabled={isUpdating}
+              disabled={isApplyingUpdate || pendingUpdates.length === 0}
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isUpdating ? "animate-spin" : ""}`} />
-              {isUpdating ? "Updating..." : "Update All Documents"}
+              <RefreshCw className={`mr-2 h-4 w-4 ${isApplyingUpdate ? "animate-spin" : ""}`} />
+              {isApplyingUpdate ? "Updating..." : "Update All Documents"}
+              {pendingUpdates.length > 0 && !isApplyingUpdate && (
+                <span className="ml-1 text-xs bg-amber-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                  {pendingUpdates.length}
+                </span>
+              )}
             </Button>
             <Button>
               <FileText className="mr-2 h-4 w-4" />

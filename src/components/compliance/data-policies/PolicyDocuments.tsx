@@ -2,10 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { toast } from "sonner";
+import { useCompliance } from "@/context/ComplianceContext";
 
 interface PolicyDocument {
   id: string;
@@ -17,9 +17,11 @@ interface PolicyDocument {
 }
 
 export default function PolicyDocuments() {
+  const { pendingUpdates, applyUpdate, isApplyingUpdate } = useCompliance();
+  
   const [documents, setDocuments] = useState<PolicyDocument[]>([
     {
-      id: "privacy",
+      id: "privacy-policy",
       name: "Privacy Policy",
       version: "v2.3",
       path: "/privacy",
@@ -27,23 +29,23 @@ export default function PolicyDocuments() {
       updateAvailable: false
     },
     {
-      id: "terms",
+      id: "terms-of-service",
       name: "Terms of Service",
       version: "v1.9",
       path: "/legal",
       lastUpdated: "2025-02-10",
-      updateAvailable: true
+      updateAvailable: false
     },
     {
-      id: "dpa",
+      id: "data-processing",
       name: "Data Processing Agreement",
       version: "v1.2",
       path: "/legal/data-processing",
       lastUpdated: "2024-11-05",
-      updateAvailable: true
+      updateAvailable: false
     },
     {
-      id: "breach",
+      id: "breach-notification",
       name: "Breach Notification Policy",
       version: "v1.0",
       path: "/legal/breach-notification",
@@ -52,13 +54,23 @@ export default function PolicyDocuments() {
     }
   ]);
 
+  // Update document statuses when pendingUpdates changes
+  useEffect(() => {
+    setDocuments(prevDocs => 
+      prevDocs.map(doc => ({
+        ...doc,
+        updateAvailable: pendingUpdates.includes(doc.id)
+      }))
+    );
+  }, [pendingUpdates]);
+
   const [updatingDocId, setUpdatingDocId] = useState<string | null>(null);
 
   const handleUpdateDocument = (docId: string) => {
     setUpdatingDocId(docId);
     
-    // Simulate update process
-    setTimeout(() => {
+    // Use the applyUpdate function from the ComplianceContext
+    applyUpdate(docId).then(() => {
       setDocuments(docs => 
         docs.map(doc => 
           doc.id === docId 
@@ -73,11 +85,7 @@ export default function PolicyDocuments() {
       );
       
       setUpdatingDocId(null);
-      
-      toast.success("Document updated", {
-        description: "The document has been updated to the latest version."
-      });
-    }, 1500);
+    });
   };
 
   const incrementVersion = (version: string): string => {
@@ -114,7 +122,7 @@ export default function PolicyDocuments() {
                       size="sm" 
                       className="text-amber-500 border-amber-500"
                       onClick={() => handleUpdateDocument(doc.id)}
-                      disabled={updatingDocId === doc.id}
+                      disabled={updatingDocId === doc.id || isApplyingUpdate}
                     >
                       <RefreshCw className={`h-4 w-4 mr-1 ${updatingDocId === doc.id ? "animate-spin" : ""}`} />
                       {updatingDocId === doc.id ? "Updating..." : "Update"}
