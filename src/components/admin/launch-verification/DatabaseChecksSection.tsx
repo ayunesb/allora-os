@@ -1,17 +1,10 @@
 
 import React from 'react';
-
-interface CheckItem {
-  name: string;
-  status: string;
-  message?: string;
-  tableName?: string;
-  exists?: boolean;
-}
+import { DatabaseCheckItem } from './types';
 
 interface DatabaseChecksSectionProps {
   title: string;
-  items: CheckItem[];
+  items: DatabaseCheckItem[];
 }
 
 export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionProps) {

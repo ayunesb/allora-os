@@ -12,3 +12,11 @@ export interface TableCheckResult {
   exists: boolean;
   message: string;
 }
+
+export interface DatabaseCheckItem {
+  name: string;
+  status: string;
+  message?: string;
+  tableName?: string;
+  exists?: boolean;
+}
