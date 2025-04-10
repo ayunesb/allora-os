@@ -7,6 +7,13 @@ import {
 } from '@/services/campaignService';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface CampaignFormData {
+  name: string;
+  platform: string;
+  budget: number;
+  company_id: string;
+}
+
 export function useCampaignOperations(companyId: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -15,7 +22,6 @@ export function useCampaignOperations(companyId: string) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch all campaigns for the company
   const fetchCampaigns = async () => {
     setIsLoading(true);
     setError(null);
@@ -40,7 +46,6 @@ export function useCampaignOperations(companyId: string) {
     }
   };
 
-  // Fetch a single campaign by ID
   const fetchCampaign = async (id: string) => {
     try {
       const campaign = await getCampaign(id);
@@ -52,7 +57,6 @@ export function useCampaignOperations(companyId: string) {
     }
   };
 
-  // Create a new campaign
   const createNewCampaign = async (data: CampaignCreate) => {
     setIsCreating(true);
     setError(null);
@@ -71,7 +75,6 @@ export function useCampaignOperations(companyId: string) {
         throw new Error(response.error || 'Failed to create campaign');
       }
       
-      // Refresh the campaigns list
       await fetchCampaigns();
       
       return { success: true, campaignId: response.campaignId };
@@ -85,7 +88,6 @@ export function useCampaignOperations(companyId: string) {
     }
   };
 
-  // Update an existing campaign
   const updateCampaign = async (id: string, data: CampaignUpdate) => {
     setIsUpdating(true);
     setError(null);
@@ -98,7 +100,6 @@ export function useCampaignOperations(companyId: string) {
       
       if (error) throw error;
       
-      // Refresh the campaigns list
       await fetchCampaigns();
       
       toast.success('Campaign updated successfully');
@@ -113,7 +114,6 @@ export function useCampaignOperations(companyId: string) {
     }
   };
 
-  // Delete a campaign
   const deleteCampaign = async (id: string) => {
     setIsDeleting(true);
     setError(null);
@@ -126,7 +126,6 @@ export function useCampaignOperations(companyId: string) {
       
       if (error) throw error;
       
-      // Refresh the campaigns list
       await fetchCampaigns();
       
       toast.success('Campaign deleted successfully');

@@ -1,7 +1,7 @@
 
 import { RouteObject } from "react-router-dom";
 import Login from "@/pages/Login";
-import SignUp from "@/pages/SignUp";
+import Signup from "@/pages/Signup";
 import ResetPassword from "@/pages/ResetPassword";
 import EmailConfirm from "@/pages/EmailConfirm";
 import VerifyOtp from "@/pages/VerifyOtp";
@@ -15,7 +15,7 @@ export const authRoutes: RouteObject[] = [
   },
   {
     path: "/signup",
-    element: <SignUp />,
+    element: <Signup />,
   },
   {
     path: "/reset-password",

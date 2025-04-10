@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,6 @@ import {
   Plus, 
   RefreshCcw, 
   Facebook, 
-  TiktokLogo, 
   CheckCircle,
   Clock,
   PauseCircle
