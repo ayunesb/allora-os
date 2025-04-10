@@ -1,14 +1,16 @@
 
-import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '@/backend/supabase';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from 'react';
+import { useUserPreferences } from './useUserPreferences';
 
-export type AiModelType = 'gpt-4o-mini' | 'gpt-4o' | 'claude-3-sonnet-20240229' | 'claude-3-opus-20240229' | 'gemini-1.5-pro';
+export type AiModelType = 
+  | 'auto' 
+  | 'gpt-4o-mini' 
+  | 'gpt-4o' 
+  | 'claude-3-sonnet-20240229' 
+  | 'gemini-1.5-pro';
 
-export interface AiModelPreferences {
-  defaultModel: AiModelType;
-  alternativeModels: AiModelType[];
+interface AiModelPreferences {
+  modelPreference: AiModelType;
   enableDebate: boolean;
   maxDebateParticipants: number;
   enableVectorSearch: boolean;
@@ -16,121 +18,35 @@ export interface AiModelPreferences {
 }
 
 const defaultPreferences: AiModelPreferences = {
-  defaultModel: 'gpt-4o-mini',
-  alternativeModels: ['gpt-4o', 'claude-3-sonnet-20240229', 'gemini-1.5-pro'],
-  enableDebate: true,
+  modelPreference: 'auto',
+  enableDebate: false,
   maxDebateParticipants: 3,
-  enableVectorSearch: true,
-  enableLearning: true
+  enableVectorSearch: false,
+  enableLearning: false
 };
 
 export function useAiModelPreferences() {
-  const { user } = useAuth();
-  const [preferences, setPreferences] = useState<AiModelPreferences>(defaultPreferences);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Fetch user's model preferences
-  const fetchPreferences = useCallback(async () => {
-    if (!user?.id) return;
-    setIsLoading(true);
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" which is expected for new users
-        throw error;
-      }
-      
-      if (data && data.ai_model_preferences) {
-        setPreferences(data.ai_model_preferences as AiModelPreferences);
-      }
-    } catch (error) {
-      console.error('Error fetching AI model preferences:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
-
-  // Update user's model preferences
-  const updatePreferences = useCallback(async (newPreferences: Partial<AiModelPreferences>) => {
-    if (!user?.id) {
-      toast.error('You must be logged in to save preferences');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      // Get current preferences first
-      const { data: existingData, error: fetchError } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-      
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-      
-      const updatedPreferences = {
-        ...preferences,
-        ...newPreferences
-      };
-      
-      setPreferences(updatedPreferences);
-      
-      let error;
-      
-      if (existingData) {
-        // Update existing record
-        const result = await supabase
-          .from('user_preferences')
-          .update({
-            ai_model_preferences: updatedPreferences,
-            last_updated: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-        
-        error = result.error;
-      } else {
-        // Insert new record
-        const result = await supabase
-          .from('user_preferences')
-          .insert({
-            user_id: user.id,
-            ai_model_preferences: updatedPreferences,
-            last_updated: new Date().toISOString()
-          });
-        
-        error = result.error;
-      }
-      
-      if (error) throw error;
-      
-      toast.success('AI model preferences updated');
-    } catch (error) {
-      console.error('Error updating AI model preferences:', error);
-      toast.error('Failed to update preferences');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user, preferences]);
-
-  // Load preferences on mount
+  const { preferences, updatePreference } = useUserPreferences();
+  const [modelPreferences, setModelPreferences] = useState<AiModelPreferences>(defaultPreferences);
+  
+  // Initialize from user preferences
   useEffect(() => {
-    if (user?.id) {
-      fetchPreferences();
-    }
-  }, [user, fetchPreferences]);
-
+    setModelPreferences({
+      modelPreference: preferences.modelPreference || defaultPreferences.modelPreference,
+      enableDebate: preferences.enableDebate || defaultPreferences.enableDebate,
+      maxDebateParticipants: preferences.maxDebateParticipants || defaultPreferences.maxDebateParticipants,
+      enableVectorSearch: preferences.enableVectorSearch || defaultPreferences.enableVectorSearch,
+      enableLearning: preferences.enableLearning || defaultPreferences.enableLearning
+    });
+  }, [preferences]);
+  
+  // Update specific preference
+  const updateModelPreference = useCallback((key: keyof AiModelPreferences, value: any) => {
+    updatePreference(key, value);
+  }, [updatePreference]);
+  
   return {
-    preferences,
-    updatePreferences,
-    isLoading,
-    resetToDefaults: () => updatePreferences(defaultPreferences)
+    preferences: modelPreferences,
+    updatePreference: updateModelPreference
   };
 }
