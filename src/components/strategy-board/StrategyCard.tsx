@@ -1,11 +1,8 @@
 
 import React from "react";
 import { Strategy } from "@/models/strategy";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Clock, MessageSquare, FileDown, Edit } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Edit, MessageSquare, FileDown, CheckCircle, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface StrategyCardProps {
@@ -15,8 +12,10 @@ interface StrategyCardProps {
 }
 
 export default function StrategyCard({ strategy, onDebate, onExport }: StrategyCardProps) {
-  // Calculate a mock progress for demonstration
-  const progress = strategy.status === 'Completed' ? 100 : Math.floor(Math.random() * 80) + 10;
+  // Progress calculation
+  const progress = strategy.progress !== undefined 
+    ? strategy.progress 
+    : Math.floor(Math.random() * 80) + 10;
   
   // Format the date
   const updatedDate = new Date(strategy.updated_at || strategy.created_at);
@@ -25,113 +24,93 @@ export default function StrategyCard({ strategy, onDebate, onExport }: StrategyC
   // Get risk data
   const risk = strategy.risk || strategy.risk_level || 'Medium';
   
-  // Render badge based on risk level
-  const getRiskBadge = () => {
+  // Risk badge color
+  const getRiskBadgeColor = () => {
     switch (risk) {
       case 'High':
-        return <Badge variant="destructive" className="font-medium">High Risk</Badge>;
+        return 'bg-red-700 text-white';
       case 'Medium':
-        return <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 font-medium">Medium Risk</Badge>;
+        return 'bg-amber-500 text-white';
       case 'Low':
-        return <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 font-medium">Low Risk</Badge>;
+        return 'bg-green-700 text-white';
       default:
-        return <Badge variant="secondary">Unknown Risk</Badge>;
+        return 'bg-blue-600 text-white';
     }
-  };
-  
-  // Render status badge
-  const getStatusBadge = () => {
-    if (strategy.status === 'Completed') {
-      return (
-        <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1 font-medium">
-          <CheckCircle className="h-3 w-3" />
-          Completed
-        </Badge>
-      );
-    }
-    
-    return (
-      <Badge variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30 flex items-center gap-1 font-medium">
-        <Clock className="h-3 w-3" />
-        In Progress
-      </Badge>
-    );
   };
   
   return (
-    <Card className="group overflow-hidden border border-white/10 shadow-xl bg-black/40 backdrop-blur-lg transition-all duration-300 hover:shadow-md hover:border-white/20 hover:-translate-y-1">
-      <CardHeader className="pb-2 relative">
-        <div className="flex flex-wrap gap-2 mb-1">
-          {getRiskBadge()}
-          {getStatusBadge()}
+    <div className="group bg-[#0f1526] border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/10">
+      <div className="p-5">
+        {/* Status badges */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          <span className={`px-4 py-1 rounded-full text-sm font-medium ${getRiskBadgeColor()}`}>
+            {risk} Risk
+          </span>
+          
+          <div className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-blue-900/40 border border-blue-800/50 text-blue-300">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            In Progress
+          </div>
         </div>
         
-        <h3 className="text-xl font-bold text-white group-hover:text-primary-foreground transition-colors duration-300 line-clamp-2">
-          {strategy.title}
-        </h3>
+        {/* Title */}
+        <h3 className="text-xl font-bold mb-2 text-white">{strategy.title}</h3>
         
-        {strategy.executiveBot && (
-          <div className="text-xs text-muted-foreground">
-            Proposed by {strategy.executiveBot}
-          </div>
-        )}
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        <p className="text-sm text-gray-300 line-clamp-2">
-          {strategy.description}
+        {/* Proposed by */}
+        <p className="text-sm text-gray-400 mb-3">
+          Proposed by {strategy.executiveBot || 'AI Executive Team'}
         </p>
         
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="text-muted-foreground">{progress}%</span>
+        {/* Description */}
+        <p className="text-sm text-gray-300 mb-6 line-clamp-2">
+          {strategy.description || 'No description provided.'}
+        </p>
+        
+        {/* Progress bar */}
+        <div className="mb-6">
+          <div className="flex justify-between text-sm text-gray-400 mb-1">
+            <span>Progress</span>
+            <span>{progress}%</span>
           </div>
-          <Progress value={progress} className="h-1.5" />
+          <Progress value={progress} className="h-2 bg-gray-800" />
         </div>
-      </CardContent>
-      
-      <CardFooter className="flex flex-col space-y-4 pt-2">
-        <div className="text-xs text-muted-foreground w-full flex justify-between">
+        
+        {/* Footer */}
+        <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
           <span>Updated {timeAgo}</span>
           <span>{strategy.impact || 'Medium'} Impact</span>
         </div>
         
-        <div className="flex gap-2 w-full">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 bg-white/5 border-white/10 hover:bg-white/10 transition-colors"
+        {/* Action buttons */}
+        <div className="flex gap-2">
+          <button 
             onClick={(e) => {
               e.stopPropagation();
               onDebate();
             }}
+            className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 flex-1 transition-colors"
           >
-            <MessageSquare className="mr-2 h-4 w-4" />
+            <MessageSquare className="h-4 w-4" />
             Debate
-          </Button>
+          </button>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            className="border border-white/10 hover:bg-white/10 transition-colors"
+          <button
             onClick={(e) => {
               e.stopPropagation();
               onExport();
             }}
+            className="flex items-center justify-center py-2 px-3 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 transition-colors"
           >
             <FileDown className="h-4 w-4" />
-          </Button>
+          </button>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            className="border border-white/10 hover:bg-white/10 transition-colors"
+          <button
+            className="flex items-center justify-center py-2 px-3 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 transition-colors"
           >
             <Edit className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

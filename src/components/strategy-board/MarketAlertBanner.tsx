@@ -24,7 +24,7 @@ export default function MarketAlertBanner({ alerts, onDismiss }: MarketAlertBann
       {alerts.map((alert) => (
         <div 
           key={alert.id}
-          className="relative flex items-center gap-3 p-4 bg-amber-950/20 border border-amber-500/30 rounded-lg text-amber-100"
+          className="relative flex items-center gap-3 p-4 bg-amber-900/20 border border-amber-800/30 rounded-lg text-amber-100"
         >
           <Bell className="h-5 w-5 text-amber-400 flex-shrink-0 animate-pulse" />
           <div className="flex-1">
@@ -42,7 +42,7 @@ export default function MarketAlertBanner({ alerts, onDismiss }: MarketAlertBann
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="text-xs border-amber-500/50 bg-amber-950/30 hover:bg-amber-900/40 text-amber-300"
+                className="text-xs border-amber-700 bg-amber-900/30 hover:bg-amber-800/40 text-amber-300"
                 asChild
               >
                 <a href={alert.link} target="_blank" rel="noopener noreferrer">

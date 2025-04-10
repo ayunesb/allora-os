@@ -87,7 +87,7 @@ export default function StrategyWizardModal({
           risk: riskAppetite,
           risk_level: riskAppetite,
           executiveBot: getRandomExecutive(),
-          impact: riskAppetite === 'High' ? 'Very High' : 'High',
+          impact: 'High' as 'High',
           timeframe: riskAppetite === 'Low' ? '6-12 months' : '3-6 months',
           progress: 0,
           status: 'Draft'
@@ -109,7 +109,7 @@ export default function StrategyWizardModal({
           risk: riskAppetite,
           risk_level: riskAppetite,
           executiveBot: getRandomExecutive(),
-          impact: riskAppetite === 'Low' ? 'Medium' : 'High',
+          impact: riskAppetite === 'Low' ? 'Medium' as 'Medium' : 'High' as 'High',
           timeframe: riskAppetite === 'High' ? '3-4 months' : '8-12 months',
           progress: 0,
           status: 'Draft'
@@ -152,10 +152,10 @@ export default function StrategyWizardModal({
   
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-black/80 backdrop-blur-xl border border-white/10">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-[#0f1526] border border-gray-800 text-white">
         <DialogHeader>
-          <DialogTitle>AI Strategy Wizard</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-bold">AI Strategy Wizard</DialogTitle>
+          <DialogDescription className="text-gray-400">
             {currentStep === 1 
               ? "Let our AI help you create a powerful growth strategy for your business."
               : "Choose the strategy that best fits your needs or go back to refine your inputs."}
@@ -165,37 +165,37 @@ export default function StrategyWizardModal({
         {currentStep === 1 ? (
           <div className="space-y-5 py-2">
             <div className="space-y-2">
-              <Label htmlFor="goal">What is your primary business goal?</Label>
+              <Label htmlFor="goal" className="text-gray-300">What is your primary business goal?</Label>
               <Input
                 id="goal"
                 placeholder="e.g., Increase market share, Expand to new regions, Launch a new product"
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
-                className="bg-black/30 border-white/10"
+                className="bg-gray-800/50 border-gray-700 text-white placeholder-gray-500"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="market">What market or industry are you focusing on?</Label>
+              <Label htmlFor="market" className="text-gray-300">What market or industry are you focusing on?</Label>
               <Input
                 id="market"
                 placeholder="e.g., SaaS, Retail, Healthcare, Financial Services"
                 value={market}
                 onChange={(e) => setMarket(e.target.value)}
-                className="bg-black/30 border-white/10"
+                className="bg-gray-800/50 border-gray-700 text-white placeholder-gray-500"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="risk">What is your risk appetite?</Label>
+              <Label htmlFor="risk" className="text-gray-300">What is your risk appetite?</Label>
               <Select
                 value={riskAppetite}
                 onValueChange={(value) => setRiskAppetite(value as "Low" | "Medium" | "High")}
               >
-                <SelectTrigger id="risk" className="bg-black/30 border-white/10">
+                <SelectTrigger id="risk" className="bg-gray-800/50 border-gray-700 text-white">
                   <SelectValue placeholder="Select risk level" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-800 border-gray-700 text-white">
                   <SelectItem value="Low">
                     <div className="flex items-center">
                       <span className="h-2 w-2 rounded-full bg-green-500 mr-2"></span> Low Risk
@@ -214,9 +214,9 @@ export default function StrategyWizardModal({
                 </SelectContent>
               </Select>
               
-              <div className="flex items-start gap-2 mt-2 p-2 border border-white/10 rounded-md bg-white/5">
+              <div className="flex items-start gap-2 mt-2 p-2 border border-amber-800/30 rounded-md bg-amber-900/20">
                 <AlertTriangle className="h-5 w-5 text-amber-400 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-amber-300">
                   {riskAppetite === "Low" && "Low risk strategies prioritize stability and predictable outcomes with minimal chance of setbacks."}
                   {riskAppetite === "Medium" && "Medium risk strategies balance opportunity and safety, accepting moderate uncertainty for good reward potential."}
                   {riskAppetite === "High" && "High risk strategies pursue maximum growth and disruption, accepting significant uncertainty for exceptional potential returns."}
@@ -225,21 +225,21 @@ export default function StrategyWizardModal({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="budget">What is your approximate budget? (Optional)</Label>
+              <Label htmlFor="budget" className="text-gray-300">What is your approximate budget? (Optional)</Label>
               <Input
                 id="budget"
                 placeholder="e.g., $5,000, $50,000, $250,000+"
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
-                className="bg-black/30 border-white/10"
+                className="bg-gray-800/50 border-gray-700 text-white placeholder-gray-500"
               />
             </div>
           </div>
         ) : (
           <div className="space-y-6 py-2">
-            <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/30 rounded-md">
-              <LightbulbIcon className="h-5 w-5 text-primary" />
-              <p className="text-sm">Our AI has generated these strategies based on your inputs. Select one to implement.</p>
+            <div className="flex items-center gap-2 p-3 bg-blue-900/20 border border-blue-800/30 rounded-md">
+              <LightbulbIcon className="h-5 w-5 text-blue-400" />
+              <p className="text-sm text-blue-200">Our AI has generated these strategies based on your inputs. Select one to implement.</p>
             </div>
             
             <div className="space-y-4">
@@ -248,33 +248,33 @@ export default function StrategyWizardModal({
                   key={index}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
                     selectedStrategyIndex === index
-                      ? 'border-primary bg-primary/10'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10'
+                      ? 'border-purple-500 bg-purple-900/20'
+                      : 'border-gray-700 bg-gray-800/30 hover:bg-gray-700/30'
                   }`}
                   onClick={() => setSelectedStrategyIndex(index)}
                 >
                   <div className="flex justify-between mb-2">
-                    <h3 className="font-medium">{strategy.title}</h3>
+                    <h3 className="font-medium text-white">{strategy.title}</h3>
                     {selectedStrategyIndex === index && (
-                      <Check className="h-5 w-5 text-primary" />
+                      <Check className="h-5 w-5 text-purple-400" />
                     )}
                   </div>
                   
-                  <p className="text-sm text-muted-foreground mb-3">{strategy.description}</p>
+                  <p className="text-sm text-gray-300 mb-3">{strategy.description}</p>
                   
                   <div className="flex flex-wrap gap-2 text-xs">
                     <div className={`px-2 py-1 rounded-full 
-                      ${strategy.risk === 'Low' ? 'bg-green-500/20 text-green-300' : 
-                        strategy.risk === 'Medium' ? 'bg-amber-500/20 text-amber-300' : 
-                        'bg-red-500/20 text-red-300'}`}>
+                      ${strategy.risk === 'Low' ? 'bg-green-900/40 text-green-300' : 
+                        strategy.risk === 'Medium' ? 'bg-amber-800/40 text-amber-300' : 
+                        'bg-red-900/40 text-red-300'}`}>
                       {strategy.risk} Risk
                     </div>
                     
-                    <div className="px-2 py-1 rounded-full bg-blue-500/20 text-blue-300">
+                    <div className="px-2 py-1 rounded-full bg-blue-900/40 text-blue-300">
                       {strategy.impact} Impact
                     </div>
                     
-                    <div className="px-2 py-1 rounded-full bg-purple-500/20 text-purple-300">
+                    <div className="px-2 py-1 rounded-full bg-purple-900/40 text-purple-300">
                       {strategy.timeframe}
                     </div>
                   </div>
@@ -305,7 +305,7 @@ export default function StrategyWizardModal({
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep(1)}
-                className="sm:w-auto w-full border-white/10"
+                className="sm:w-auto w-full border-gray-700 text-white bg-transparent hover:bg-gray-800"
                 disabled={isGenerating}
               >
                 Back

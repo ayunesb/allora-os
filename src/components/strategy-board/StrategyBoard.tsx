@@ -3,10 +3,8 @@ import React, { useState, useCallback, useEffect } from "react";
 import { useStrategies } from "@/hooks/useStrategies";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { toast } from "sonner";
-import { AlertCircle, RefreshCw, Plus, FileDown, Bell } from "lucide-react";
+import { Plus, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import StrategyHeader from "./StrategyHeader";
-import StrategyFilters from "./StrategyFilters";
 import StrategyGrid from "./StrategyGrid";
 import EmptyState from "./EmptyState";
 import LoadingState from "./LoadingState";
@@ -32,7 +30,7 @@ export default function StrategyBoard() {
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   
   // Executive debate integration
-  const { generateDebate, debate, isGeneratingDebate, debateMessages, debateSummary, isLoading: isDebateLoading } = useExecutiveDebate();
+  const { generateDebate, debate, isGeneratingDebate } = useExecutiveDebate();
   
   // Market alerts integration
   const { alerts, checkForAlerts } = useMarketAlerts();
@@ -110,55 +108,101 @@ export default function StrategyBoard() {
   });
   
   return (
-    <div className="space-y-6 animate-fadeIn px-3 sm:px-4 md:px-6 bg-background/80 min-h-screen">
-      <StrategyHeader 
-        title="📈 Your Growth Strategies" 
-        subtitle="Built by your AI Executive Team. Ready to dominate your market."
-      >
-        <Button 
-          onClick={handleCreateNew} 
-          className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 transition-all duration-300"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Create New Strategy
-        </Button>
+    <div className="min-h-screen bg-[#0c0f1f] text-white p-6 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <div className="mb-4 md:mb-0">
+            <h1 className="text-3xl md:text-4xl font-bold">📈 Your Growth Strategies</h1>
+            <p className="text-gray-400 mt-2">
+              Built by your AI Executive Team. Ready to dominate your market.
+            </p>
+          </div>
+          
+          <div className="flex gap-3">
+            <Button 
+              onClick={handleCreateNew} 
+              className="bg-purple-600 hover:bg-purple-700 transition-all"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Strategy
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="hidden md:flex border-gray-700 bg-gray-800/50 hover:bg-gray-700/50"
+              onClick={() => toast.info("Exporting all strategies...")}
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Export All
+            </Button>
+          </div>
+        </div>
         
-        <Button 
-          variant="outline" 
-          className="hidden sm:flex ml-2 transition-all duration-300 hover:bg-accent/20"
-          onClick={() => toast.info("Coming soon: Batch export of strategies")}
-        >
-          <FileDown className="mr-2 h-4 w-4" />
-          Export All
-        </Button>
-      </StrategyHeader>
-      
-      {alerts.length > 0 && (
-        <MarketAlertBanner alerts={alerts} />
-      )}
-      
-      <StrategyFilters
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        riskFilter={riskFilter}
-        setRiskFilter={setRiskFilter}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-      />
-      
-      {error ? (
-        <ErrorState error={error} onRetry={handleRetry} />
-      ) : isLoading ? (
-        <LoadingState isMobile={isMobile} />
-      ) : sortedStrategies.length === 0 ? (
-        <EmptyState onCreateNew={handleCreateNew} />
-      ) : (
-        <StrategyGrid 
-          strategies={sortedStrategies} 
-          onDebate={handleDebateStrategy}
-          onExport={handleExportPDF}
-        />
-      )}
+        {alerts.length > 0 && (
+          <MarketAlertBanner alerts={alerts} />
+        )}
+        
+        {/* Filters Section */}
+        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-lg p-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Search strategies..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full py-2 px-4 pl-10 bg-gray-800/70 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+              <svg className="absolute left-3 top-3 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            
+            <div className="flex gap-3">
+              <select
+                value={riskFilter}
+                onChange={(e) => setRiskFilter(e.target.value)}
+                className="py-2 px-4 bg-gray-800/70 border border-gray-700 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-purple-500"
+              >
+                <option value="all">All Risks</option>
+                <option value="Low">Low Risk</option>
+                <option value="Medium">Medium Risk</option>
+                <option value="High">High Risk</option>
+              </select>
+              
+              <button
+                className="py-2 px-4 bg-gray-800/70 border border-gray-700 rounded-lg text-white flex items-center gap-2 hover:bg-gray-700/70 transition-colors"
+                onClick={() => {
+                  // Implement sorting functionality
+                  const nextSort = sortBy === 'newest' ? 'oldest' : 'newest';
+                  setSortBy(nextSort);
+                }}
+              >
+                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                </svg>
+                Sort
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Content Section */}
+        {error ? (
+          <ErrorState error={error} onRetry={handleRetry} />
+        ) : isLoading ? (
+          <LoadingState isMobile={isMobile} />
+        ) : sortedStrategies.length === 0 ? (
+          <EmptyState onCreateNew={handleCreateNew} />
+        ) : (
+          <StrategyGrid 
+            strategies={sortedStrategies} 
+            onDebate={handleDebateStrategy}
+            onExport={handleExportPDF}
+          />
+        )}
+      </div>
       
       {/* Strategy Wizard Modal */}
       <StrategyWizardModal 
