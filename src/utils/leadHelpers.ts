@@ -1,4 +1,3 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { Lead, LeadStatus } from '@/models/lead';
@@ -92,4 +91,35 @@ export async function createLead(leadData: Omit<Lead, 'id' | 'created_at'>): Pro
     });
     return null;
   }
+}
+
+// Example function using LeadStatus
+export function getStatusColor(status: LeadStatus): string {
+  switch (status) {
+    case 'new':
+      return 'blue';
+    case 'contacted':
+      return 'orange';
+    case 'qualified':
+      return 'green';
+    case 'proposal':
+      return 'purple';
+    case 'negotiation':
+      return 'yellow';
+    case 'closed':
+      return 'emerald';
+    case 'lost':
+      return 'red';
+    default:
+      return 'gray';
+  }
+}
+
+// Other lead helper functions
+export function formatLeadData(lead: Lead) {
+  return {
+    ...lead,
+    status: lead.status || 'new',
+    campaignName: lead.campaigns?.name || 'Unknown Campaign'
+  };
 }
