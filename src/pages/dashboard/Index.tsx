@@ -7,6 +7,7 @@ import QuickAccess from "@/components/dashboard/QuickAccess";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import { StrategyDisplay } from "@/components/dashboard/StrategyDisplay";
 import WelcomeVideo from "@/components/dashboard/WelcomeVideo";
+import { UpcomingZoomMeeting } from "@/components/dashboard/UpcomingZoomMeeting";
 
 export default function Dashboard() {
   // This doesn't need to change as we're maintaining the same API
@@ -29,6 +30,9 @@ export default function Dashboard() {
       
       {/* Welcome Video - New addition */}
       <WelcomeVideo />
+      
+      {/* Upcoming Zoom Meeting - New addition */}
+      <UpcomingZoomMeeting />
       
       {/* CEO Strategy Summary */}
       <CeoMessage riskAppetite={riskAppetite} />

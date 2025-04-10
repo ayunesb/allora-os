@@ -192,6 +192,103 @@ export type Database = {
           },
         ]
       }
+      company_zoom_integrations: {
+        Row: {
+          access_token: string
+          company_id: string
+          created_at: string
+          id: string
+          is_connected: boolean
+          refresh_token: string
+          scope: string | null
+          token_expires_at: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          company_id: string
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          refresh_token: string
+          scope?: string | null
+          token_expires_at: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_connected?: boolean
+          refresh_token?: string
+          scope?: string | null
+          token_expires_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_zoom_integrations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_zoom_meetings: {
+        Row: {
+          agenda: string | null
+          company_id: string
+          created_at: string
+          duration: number
+          id: string
+          join_url: string
+          password: string | null
+          start_time: string
+          status: string
+          topic: string
+          updated_at: string
+          zoom_meeting_id: string
+        }
+        Insert: {
+          agenda?: string | null
+          company_id: string
+          created_at?: string
+          duration?: number
+          id?: string
+          join_url: string
+          password?: string | null
+          start_time: string
+          status?: string
+          topic: string
+          updated_at?: string
+          zoom_meeting_id: string
+        }
+        Update: {
+          agenda?: string | null
+          company_id?: string
+          created_at?: string
+          duration?: number
+          id?: string
+          join_url?: string
+          password?: string | null
+          start_time?: string
+          status?: string
+          topic?: string
+          updated_at?: string
+          zoom_meeting_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_zoom_meetings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debate_messages: {
         Row: {
           content: string

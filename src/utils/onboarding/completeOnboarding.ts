@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -22,7 +21,10 @@ export async function completeOnboarding(userId: string, companyId: string, indu
     // 4. Assign WhatsApp number and launch campaign (if available)
     assignWhatsAppNumberAndLaunchCampaign(userId, companyId);
     
-    // 5. Update user status to "onboarded"
+    // 5. Schedule strategy review Zoom meeting (48 hours from now)
+    scheduleStrategyReviewMeeting(companyId);
+    
+    // 6. Update user status to "onboarded"
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ onboarding_completed_at: new Date().toISOString() })
@@ -122,5 +124,66 @@ async function assignWhatsAppNumberAndLaunchCampaign(userId: string, companyId: 
   } catch (error) {
     console.error('Failed to assign WhatsApp number:', error);
     // Don't stop the onboarding process if WhatsApp assignment fails
+  }
+}
+
+async function scheduleStrategyReviewMeeting(companyId: string) {
+  try {
+    // Get company information
+    const { data: company, error: companyError } = await supabase
+      .from('companies')
+      .select('name')
+      .eq('id', companyId)
+      .single();
+      
+    if (companyError || !company) {
+      console.error('Error fetching company data:', companyError);
+      return;
+    }
+    
+    // Check if company has Zoom integration
+    const { data: zoomIntegration } = await supabase
+      .from('company_zoom_integrations')
+      .select('*')
+      .eq('company_id', companyId)
+      .eq('is_connected', true)
+      .single();
+    
+    if (!zoomIntegration) {
+      console.log('Company does not have Zoom integration, skipping meeting creation');
+      return;
+    }
+    
+    // Calculate meeting time (48 hours from now)
+    const meetingDate = new Date();
+    meetingDate.setHours(meetingDate.getHours() + 48);
+    
+    // Round to nearest half hour
+    const minutes = meetingDate.getMinutes();
+    meetingDate.setMinutes(minutes < 30 ? 30 : 0);
+    if (minutes >= 30) {
+      meetingDate.setHours(meetingDate.getHours() + 1);
+    }
+    
+    // Create meeting via edge function
+    const response = await supabase.functions.invoke('zoom', {
+      body: {
+        action: 'create-meeting',
+        companyId,
+        topic: `${company.name} - Strategy Review Call`,
+        startTime: meetingDate.toISOString(),
+        duration: 60,
+        agenda: "Review your Allora AI Executive Strategy and Campaign Plans.",
+      }
+    });
+    
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    
+    console.log('Strategy review Zoom meeting scheduled successfully');
+  } catch (error) {
+    console.error('Failed to schedule strategy review meeting:', error);
+    // Don't stop onboarding process if meeting creation fails
   }
 }
