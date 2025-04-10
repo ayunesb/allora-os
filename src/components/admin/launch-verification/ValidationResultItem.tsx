@@ -1,14 +1,16 @@
 
 import React from 'react';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
-import { ValidationResult } from './types';
 
-interface ValidationResultItemProps {
+interface ValidationResultProps {
   name: string;
-  result: ValidationResult;
+  result: {
+    valid: boolean;
+    message: string;
+  };
 }
 
-export function ValidationResultItem({ name, result }: ValidationResultItemProps) {
+export function ValidationResultItem({ name, result }: ValidationResultProps) {
   return (
     <div 
       className={`p-3 rounded-md ${
