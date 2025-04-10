@@ -6,6 +6,7 @@ import ConsultationHistory from "@/components/ConsultationHistory";
 import UserPreferencesDialog from "@/components/UserPreferencesDialog";
 import BotChatPanel from "@/components/bot-chat/BotChatPanel";
 import BotInsightsSection from "@/components/bot-insights/BotInsightsSection";
+import AIExecutiveBoardroom from "@/components/ai-boardroom/AIExecutiveBoardroom";
 import { executiveBots } from "@/backend/executiveBots";
 import { 
   Tabs, 
@@ -41,7 +42,7 @@ import {
 import { formatRoleTitle, getBotExpertise } from "@/utils/consultation";
 
 export default function AiBots() {
-  const [activeTab, setActiveTab] = useState("bots");
+  const [activeTab, setActiveTab] = useState("boardroom");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [selectedBot, setSelectedBot] = useState<any>(null);
@@ -76,16 +77,20 @@ export default function AiBots() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI Executive Advisors</h1>
+          <h1 className="text-3xl font-bold tracking-tight">AI Executive Boardroom</h1>
           <p className="text-muted-foreground mt-2">
-            Consult with AI executives for expert business guidance and strategic advice.
+            Your virtual boardroom with world-class AI executives for strategic business guidance.
           </p>
         </div>
         <UserPreferencesDialog triggerLabel="Response Settings" />
       </div>
 
-      <Tabs defaultValue="bots" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="boardroom" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
+          <TabsTrigger value="boardroom" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            <span>Executive Boardroom</span>
+          </TabsTrigger>
           <TabsTrigger value="bots" className="flex items-center gap-2">
             <Bot className="h-4 w-4" />
             <span>Executive Advisors</span>
@@ -107,6 +112,10 @@ export default function AiBots() {
             <span>Consultation History</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="boardroom">
+          <AIExecutiveBoardroom />
+        </TabsContent>
 
         <TabsContent value="bots">
           <div className="mb-6 flex flex-col md:flex-row gap-4">
