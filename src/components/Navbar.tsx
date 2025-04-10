@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -34,6 +35,18 @@ const getNavItems = () => [
   }
 ];
 
+// Public navigation items
+const getPublicNavItems = () => [
+  {
+    name: "Pricing",
+    href: "/pricing",
+  },
+  {
+    name: "FAQ",
+    href: "/faq",
+  },
+];
+
 export function Navbar({ isLoggedIn = true }) {
   const { signOut, user, profile } = useAuth();
   const { toast: uiToast } = useToast();
@@ -46,6 +59,7 @@ export function Navbar({ isLoggedIn = true }) {
   // Mock subscription data
   const subscription = { status: "inactive" };
   const navItems = getNavItems();
+  const publicNavItems = getPublicNavItems();
 
   const handleSignOut = async () => {
     try {
@@ -76,7 +90,7 @@ export function Navbar({ isLoggedIn = true }) {
         <MobileNavigation 
           isOpen={open}
           setIsOpen={setOpen}
-          navItems={navItems}
+          navItems={isLoggedIn ? navItems : publicNavItems}
           onSignOut={handleSignOut}
           isSigningOut={isSigningOut}
           userName={profile?.name}
@@ -101,17 +115,43 @@ export function Navbar({ isLoggedIn = true }) {
           />
           <span className="hidden sm:inline">Allora AI</span>
         </Link>
+
+        {/* Public Navigation for non-logged in users */}
+        {!isLoggedIn && (
+          <div className="hidden md:flex ml-6 space-x-4">
+            {publicNavItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        )}
         
         <div className="ml-auto flex items-center space-x-3 sm:space-x-4">
           <ThemeToggle />
-          <UserMenu 
-            avatarUrl={profile?.avatar_url} 
-            name={profile?.name}
-            email={user?.email}
-            onSignOut={handleSignOut}
-            isSigningOut={isSigningOut}
-            hasActiveSubscription={subscription?.status === "active"}
-          />
+          {isLoggedIn ? (
+            <UserMenu 
+              avatarUrl={profile?.avatar_url} 
+              name={profile?.name}
+              email={user?.email}
+              onSignOut={handleSignOut}
+              isSigningOut={isSigningOut}
+              hasActiveSubscription={subscription?.status === "active"}
+            />
+          ) : (
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/signup">Sign up</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       
@@ -137,5 +177,8 @@ export function Navbar({ isLoggedIn = true }) {
     </div>
   );
 }
+
+// Add the Button import that we're using in the public navigation
+import { Button } from "@/components/ui/button";
 
 export default Navbar;

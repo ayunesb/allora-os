@@ -4,73 +4,143 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { lazy, Suspense } from "react";
 import Footer from "@/components/Footer";
+import { ChevronRight, Stars, Award, BarChart3 } from "lucide-react";
 
 // Lazy load non-critical components
 const LazyFeatureBlock = lazy(() => import("@/components/home/FeatureBlock"));
+const LazyTestimonial = lazy(() => import("@/components/home/Testimonial"));
 
 // Feature data
 const features = [
   {
     emoji: "🚀",
     title: "AI Strategy Generation",
-    description: "Get personalized business strategies created by our AI executive team."
+    description: "Get personalized business strategies created by our AI executive team.",
+    icon: <Stars className="h-6 w-6 text-primary" />
   },
   {
     emoji: "💼",
     title: "Virtual Executive Team",
-    description: "Access the expertise of AI personas modeled after top executives."
+    description: "Access the expertise of AI personas modeled after top executives.",
+    icon: <Award className="h-6 w-6 text-primary" />
   },
   {
     emoji: "📊",
     title: "Lead Management",
-    description: "Track and nurture leads with our AI-powered CRM tools."
+    description: "Track and nurture leads with our AI-powered CRM tools.",
+    icon: <BarChart3 className="h-6 w-6 text-primary" />
+  }
+];
+
+// Testimonial data
+const testimonials = [
+  {
+    quote: "Allora AI transformed our business strategy overnight. The executive insights were game-changing for our growth.",
+    author: "Sarah Johnson",
+    role: "CEO, TechInnovate",
+    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d"
+  },
+  {
+    quote: "Working with the AI executive team feels like having a board of directors in my pocket. Incredible value for startups.",
+    author: "Michael Chen",
+    role: "Founder, Growth Ventures",
+    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e"
   }
 ];
 
 export default function Index() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+      <Navbar isLoggedIn={false} />
       
-      <main className="container mx-auto px-4 py-12 md:py-24 flex flex-col items-center text-center flex-grow">
-        <div className="max-w-3xl mb-12">
-          <div className="flex justify-center mb-6">
+      <main className="flex flex-col items-center flex-grow">
+        {/* Hero Section - Enhanced with better visual hierarchy */}
+        <div className="w-full bg-gradient-to-b from-[#0A0A23] to-background py-12 md:py-20">
+          <div className="container mx-auto px-4 flex flex-col items-center text-center">
             <img 
               src="/lovable-uploads/fa68c49e-02d3-4f17-b128-a5b8f6f1665b.png" 
               alt="Allora AI Logo" 
-              className="h-32 mb-6"
+              className="h-28 md:h-32 mb-8 animate-fadeIn"
             />
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="text-primary">Allora AI</span> - Your AI Business Acceleration Platform
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Launch. Grow. Dominate. The Future of Business is Here.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild>
-              <Link to="/signup">Get Started</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
+            
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white animate-slideIn">
+              <span className="text-primary">Allora AI</span> - Your AI Business Acceleration Platform
+            </h1>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto animate-slideIn" style={{animationDelay: '0.2s'}}>
+              Launch. Grow. Dominate. The Future of Business is Here.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slideIn" style={{animationDelay: '0.4s'}}>
+              <Button size="lg" className="group transition-all duration-300 px-6 py-6" asChild>
+                <Link to="/signup" className="flex items-center gap-2">
+                  Get Started 
+                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="border-primary/60 hover:border-primary px-6 py-6" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+            </div>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mt-16">
-          {features.map((feature, index) => (
-            <Suspense key={index} fallback={
-              <div className="bg-card p-6 rounded-lg border border-border animate-pulse h-48"></div>
-            }>
-              <LazyFeatureBlock
-                emoji={feature.emoji}
-                title={feature.title}
-                description={feature.description}
-              />
-            </Suspense>
-          ))}
+        {/* Features Section - Enhanced visual appeal */}
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+            Powerful AI Business Tools
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {features.map((feature, index) => (
+              <Suspense key={index} fallback={
+                <div className="bg-card p-6 rounded-lg border border-border animate-pulse h-48"></div>
+              }>
+                <LazyFeatureBlock
+                  emoji={feature.emoji}
+                  title={feature.title}
+                  description={feature.description}
+                  icon={feature.icon}
+                  delay={index * 0.2}
+                />
+              </Suspense>
+            ))}
+          </div>
+        </div>
+        
+        {/* Testimonials Section - Added for social proof */}
+        <div className="w-full bg-secondary/30 py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+              What Our Clients Say
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {testimonials.map((testimonial, index) => (
+                <Suspense key={index} fallback={
+                  <div className="bg-card p-6 rounded-lg border border-border animate-pulse h-48"></div>
+                }>
+                  <LazyTestimonial
+                    quote={testimonial.quote}
+                    author={testimonial.author}
+                    role={testimonial.role}
+                    avatar={testimonial.avatar}
+                    delay={index * 0.2}
+                  />
+                </Suspense>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Final CTA Section */}
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h2 className="text-3xl font-bold mb-6">Ready to Transform Your Business?</h2>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Join thousands of businesses using Allora AI to create winning strategies and accelerate growth.
+          </p>
+          <Button size="lg" className="px-8" asChild>
+            <Link to="/signup">Start Your Free Trial</Link>
+          </Button>
         </div>
       </main>
 
