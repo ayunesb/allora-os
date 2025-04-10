@@ -15,21 +15,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { executiveBots } from "@/backend/executiveBots";
 import { useToast } from "@/components/ui/use-toast";
 import { scrollToBottom } from "@/utils/scrollHelpers";
-
-interface DebateMessage {
-  id: string;
-  sender: string;
-  content: string;
-  avatar?: string;
-  role?: string;
-}
-
-interface DebateSession {
-  id: string;
-  strategyId: string;
-  messages: DebateMessage[];
-  consensus?: string;
-}
+import { DebateSession, DebateMessage } from "@/hooks/useExecutiveDebate";
 
 interface ExecutiveDebateModalProps {
   isOpen: boolean;
@@ -74,29 +60,49 @@ export default function ExecutiveDebateModal({
         id: '1',
         sender: executives[0],
         content: `I see tremendous potential in the "${strategy.title}" strategy. The market is ready for this approach, and if executed well, we could see significant gains in both market share and revenue. However, we must be prepared to iterate rapidly based on customer feedback.`,
-        avatar: getExecutivePhoto(executives[0]),
-        role: 'CEO'
+        timestamp: new Date(Date.now() - 300000),
+        executive: {
+          name: executives[0],
+          role: 'CEO',
+          avatar: getExecutivePhoto(executives[0])
+        },
+        sentiment: 'positive'
       },
       {
         id: '2',
         sender: executives[1],
         content: `While I agree with the general direction, I have concerns about the operational efficiency. Have we thoroughly analyzed the resource requirements? I'd recommend a phased implementation approach to minimize disruption to our core business activities.`,
-        avatar: getExecutivePhoto(executives[1]),
-        role: 'COO'
+        timestamp: new Date(Date.now() - 240000),
+        executive: {
+          name: executives[1],
+          role: 'COO',
+          avatar: getExecutivePhoto(executives[1])
+        },
+        sentiment: 'neutral'
       },
       {
         id: '3',
         sender: executives[2],
         content: `From a financial perspective, this ${risk.toLowerCase()}-risk strategy requires careful cash flow management. I've run the numbers, and we'll need to achieve at least a 15% ROI within the first year to justify the investment. Let's ensure we have robust metrics in place.`,
-        avatar: getExecutivePhoto(executives[2]),
-        role: 'CFO'
+        timestamp: new Date(Date.now() - 180000),
+        executive: {
+          name: executives[2],
+          role: 'CFO',
+          avatar: getExecutivePhoto(executives[2])
+        },
+        sentiment: 'negative'
       },
       {
         id: '4',
         sender: executives[0],
         content: `Those are valid points. What if we allocate an initial 20% of the proposed budget for a pilot program? This would allow us to test key assumptions while limiting our exposure.`,
-        avatar: getExecutivePhoto(executives[0]),
-        role: 'CEO'
+        timestamp: new Date(Date.now() - 120000),
+        executive: {
+          name: executives[0],
+          role: 'CEO',
+          avatar: getExecutivePhoto(executives[0])
+        },
+        sentiment: 'positive'
       },
     ];
   };
@@ -219,7 +225,7 @@ export default function ExecutiveDebateModal({
                         className={`flex ${isEven ? 'flex-row' : 'flex-row-reverse'} gap-3 max-w-[80%]`}
                       >
                         <Avatar className="h-10 w-10 border-2 border-primary/30">
-                          <AvatarImage src={message.avatar || getExecutivePhoto(message.sender)} alt={message.sender} />
+                          <AvatarImage src={message.executive.avatar} alt={message.sender} />
                           <AvatarFallback>{message.sender[0]}</AvatarFallback>
                         </Avatar>
                         
@@ -239,7 +245,7 @@ export default function ExecutiveDebateModal({
                               ${isEven ? 'justify-start' : 'justify-end'}`}
                           >
                             <span className="font-medium">{message.sender}</span>
-                            <span className="opacity-70">({message.role || getExecutiveRole(message.sender)})</span>
+                            <span className="opacity-70">({message.executive.role || getExecutiveRole(message.sender)})</span>
                           </div>
                         </div>
                       </div>

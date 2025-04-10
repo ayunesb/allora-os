@@ -1,77 +1,70 @@
 
-import React, { useState } from "react";
-import { Bell, X, ArrowRight } from "lucide-react";
+import React from "react";
+import { Bell, XCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-interface MarketAlert {
+interface Alert {
   id: string;
-  title: string;
-  description: string;
-  relatedStrategyId?: string;
-  severity: 'low' | 'medium' | 'high';
+  message: string;
+  link?: string;
+  linkText?: string;
+  affectedStrategies?: string[];
 }
 
 interface MarketAlertBannerProps {
-  alerts: MarketAlert[];
+  alerts: Alert[];
+  onDismiss?: (id: string) => void;
 }
 
-export default function MarketAlertBanner({ alerts }: MarketAlertBannerProps) {
-  const [currentAlertIndex, setCurrentAlertIndex] = useState(0);
-  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
-  
-  const visibleAlerts = alerts.filter(alert => !dismissedAlerts.has(alert.id));
-  
-  if (visibleAlerts.length === 0) {
-    return null;
-  }
-  
-  const currentAlert = visibleAlerts[currentAlertIndex];
-  
-  const handleDismiss = () => {
-    setDismissedAlerts(prev => new Set([...prev, currentAlert.id]));
-    
-    // If there are more alerts, move to the next one
-    if (currentAlertIndex < visibleAlerts.length - 1) {
-      setCurrentAlertIndex(prev => prev + 1);
-    }
-  };
-  
-  // Get alert style based on severity
-  const getAlertStyle = () => {
-    switch (currentAlert.severity) {
-      case 'high':
-        return "border-red-500/30 bg-red-500/10";
-      case 'medium':
-        return "border-amber-500/30 bg-amber-500/10";
-      case 'low':
-        return "border-blue-500/30 bg-blue-500/10";
-      default:
-        return "border-primary/30 bg-primary/10";
-    }
-  };
+export default function MarketAlertBanner({ alerts, onDismiss }: MarketAlertBannerProps) {
+  if (!alerts || alerts.length === 0) return null;
   
   return (
-    <Alert className={`backdrop-blur-md flex items-center gap-4 ${getAlertStyle()}`}>
-      <Bell className="h-5 w-5 text-amber-400 animate-pulse" />
-      <div className="flex-1">
-        <AlertTitle className="text-white">{currentAlert.title}</AlertTitle>
-        <AlertDescription className="text-muted-foreground">
-          {currentAlert.description}
-        </AlertDescription>
-      </div>
-      
-      <div className="flex gap-2">
-        {currentAlert.relatedStrategyId && (
-          <Button variant="outline" size="sm" className="hidden sm:flex">
-            View Strategy <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        )}
-        
-        <Button variant="ghost" size="sm" onClick={handleDismiss} className="text-muted-foreground">
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-    </Alert>
+    <div className="mb-6 animate-fadeIn">
+      {alerts.map((alert) => (
+        <div 
+          key={alert.id}
+          className="relative flex items-center gap-3 p-4 bg-amber-950/20 border border-amber-500/30 rounded-lg text-amber-100"
+        >
+          <Bell className="h-5 w-5 text-amber-400 flex-shrink-0 animate-pulse" />
+          <div className="flex-1">
+            <p className="font-medium">
+              🔔 Market Alert: {alert.message}
+            </p>
+            {alert.affectedStrategies && alert.affectedStrategies.length > 0 && (
+              <p className="text-sm text-amber-300/70 mt-1">
+                Affected strategies: {alert.affectedStrategies.join(', ')}
+              </p>
+            )}
+          </div>
+          <div className="flex gap-2 items-center">
+            {alert.link && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs border-amber-500/50 bg-amber-950/30 hover:bg-amber-900/40 text-amber-300"
+                asChild
+              >
+                <a href={alert.link} target="_blank" rel="noopener noreferrer">
+                  {alert.linkText || "Learn more"}
+                  <ExternalLink className="ml-1 h-3 w-3" />
+                </a>
+              </Button>
+            )}
+            {onDismiss && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-amber-300 hover:text-amber-100 hover:bg-amber-950/50 h-8 w-8 p-0"
+                onClick={() => onDismiss(alert.id)}
+              >
+                <span className="sr-only">Dismiss</span>
+                <XCircle className="h-5 w-5" />
+              </Button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

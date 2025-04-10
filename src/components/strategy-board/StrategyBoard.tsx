@@ -32,7 +32,7 @@ export default function StrategyBoard() {
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   
   // Executive debate integration
-  const { generateDebate, debate, isGeneratingDebate } = useExecutiveDebate();
+  const { generateDebate, debate, isGeneratingDebate, debateMessages, debateSummary, isLoading: isDebateLoading } = useExecutiveDebate();
   
   // Market alerts integration
   const { alerts, checkForAlerts } = useMarketAlerts();

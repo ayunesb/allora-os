@@ -1,7 +1,7 @@
 
 import React from "react";
+import { RocketLaunch, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Plus, Sparkles } from "lucide-react";
 
 interface EmptyStateProps {
   onCreateNew: () => void;
@@ -9,27 +9,20 @@ interface EmptyStateProps {
 
 export default function EmptyState({ onCreateNew }: EmptyStateProps) {
   return (
-    <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-lg p-8 sm:p-12 text-center my-8 animate-fadeIn shadow-xl">
-      <div className="bg-purple-600/20 p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-        <TrendingUp className="h-8 w-8 text-purple-400" />
+    <div className="flex flex-col items-center justify-center p-8 border border-white/10 bg-black/40 rounded-lg backdrop-blur-sm animate-fadeIn">
+      <div className="bg-primary/20 p-3 rounded-full mb-4">
+        <RocketLaunch className="h-8 w-8 text-primary" />
       </div>
       
-      <h3 className="text-2xl sm:text-3xl font-bold mb-3 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-        No strategies yet
-      </h3>
+      <h3 className="text-xl font-bold mb-2">No strategies yet</h3>
       
-      <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-        Let's build your future empire and dominate your market with AI-powered strategic planning.
+      <p className="text-muted-foreground text-center mb-6 max-w-md">
+        Let's build your future empire 🚀 Create your first growth strategy with help from your AI Executive Team.
       </p>
       
-      <Button 
-        onClick={onCreateNew}
-        size="lg"
-        className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 transition-all duration-300 group"
-      >
-        <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
-        <span>Create First Strategy</span>
-        <Sparkles className="ml-2 h-5 w-5 text-yellow-300 animate-pulse" />
+      <Button onClick={onCreateNew} className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600">
+        <Plus className="mr-2 h-4 w-4" />
+        Create Your First Strategy
       </Button>
     </div>
   );

@@ -1,55 +1,62 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 
 interface MarketAlert {
   id: string;
-  title: string;
-  description: string;
-  relatedStrategyId?: string;
-  severity: 'low' | 'medium' | 'high';
+  message: string;
+  link?: string;
+  linkText?: string;
+  affectedStrategies?: string[];
 }
 
 export function useMarketAlerts() {
   const [alerts, setAlerts] = useState<MarketAlert[]>([]);
   
-  // Mock alerts data - in a real implementation, these would come from an API
-  const mockAlerts: MarketAlert[] = [
-    {
-      id: 'alert-1',
-      title: 'Market Alert: AI Breakthrough',
-      description: 'Recent advancements in AI may impact your expansion strategy. Consider updating your plan to incorporate these technologies.',
-      relatedStrategyId: 'demo-1',
-      severity: 'medium'
-    },
-    {
-      id: 'alert-2',
-      title: 'Economic Shift: Interest Rate Changes',
-      description: 'The central bank has announced a rate change that could affect your financial planning. Review your operational strategy accordingly.',
-      relatedStrategyId: 'demo-2',
-      severity: 'high'
-    }
-  ];
-  
-  const checkForAlerts = useCallback(() => {
-    // Simulate API call with 20% chance of new alerts
-    const hasAlerts = Math.random() < 0.2;
-    
-    if (hasAlerts) {
-      // Select a random number of alerts (1 or 2)
-      const numAlerts = Math.floor(Math.random() * 2) + 1;
-      setAlerts(mockAlerts.slice(0, numAlerts));
-    } else {
-      setAlerts([]);
+  const checkForAlerts = useCallback(async () => {
+    try {
+      // In a real implementation, this would call an API to get market alerts
+      // For now, we'll use mock data
+      
+      // Simulate a delay for API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // ~25% chance of getting an alert
+      if (Math.random() > 0.75) {
+        const mockAlerts: MarketAlert[] = [
+          {
+            id: `alert-${Date.now()}`,
+            message: "Consider updating your Expansion Strategy in light of recent AI industry developments.",
+            link: "https://example.com/ai-trends",
+            linkText: "View AI Trend Report",
+            affectedStrategies: ["Market Expansion", "Digital Transformation"]
+          }
+        ];
+        
+        setAlerts(mockAlerts);
+      }
+    } catch (error) {
+      console.error("Error checking for market alerts:", error);
     }
   }, []);
   
   const dismissAlert = useCallback((alertId: string) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    setAlerts(current => current.filter(alert => alert.id !== alertId));
+    toast.success("Alert dismissed");
   }, []);
+  
+  useEffect(() => {
+    checkForAlerts();
+    
+    // In a real app, set up a polling interval or websocket connection
+    const interval = setInterval(checkForAlerts, 30 * 60 * 1000); // Check every 30 minutes
+    
+    return () => clearInterval(interval);
+  }, [checkForAlerts]);
   
   return {
     alerts,
-    checkForAlerts,
-    dismissAlert
+    dismissAlert,
+    checkForAlerts
   };
 }
