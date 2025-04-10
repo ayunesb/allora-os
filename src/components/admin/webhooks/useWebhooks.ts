@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { useZapier } from '@/lib/zapier';
@@ -141,6 +142,11 @@ export const useWebhooks = () => {
     handleTestWebhook('custom', customWebhook, isCustomWebhookValid);
   };
 
+  // Add the missing handleTestStripeWebhook method
+  const handleTestStripeWebhook = (isStripeWebhookValid: boolean | null) => {
+    handleTestWebhook('stripe', stripeWebhook, isStripeWebhookValid);
+  };
+
   return {
     // Basic webhooks
     stripeWebhook,
@@ -166,6 +172,8 @@ export const useWebhooks = () => {
     handleTestZapierWebhook,
     handleTestGithubWebhook,
     handleTestSlackWebhook,
-    handleTestCustomWebhook
+    handleTestCustomWebhook,
+    handleTestStripeWebhook  // Add the new handler to the returned object
   };
 };
+
