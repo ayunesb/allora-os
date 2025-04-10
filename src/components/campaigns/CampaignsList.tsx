@@ -1,125 +1,161 @@
-import { useState } from "react";
-import { BarChart, Mail, Video, Globe, Edit, Trash2, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Campaign } from "@/models/campaign";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-type CampaignsListProps = {
+import React from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash2, PlusCircle, Lightbulb } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCompanyInsights } from "@/hooks/useCompanyInsights";
+import { InsightType } from "@/components/bot-insights/BotInsightCard";
+import { Badge } from "@/components/ui/badge";
+
+interface Campaign {
+  id: string;
+  name: string;
+  platform: string;
+  budget: number;
+}
+
+interface CampaignsListProps {
   campaigns: Campaign[];
   isLoading: boolean;
   handleEditCampaign: (id: string) => void;
   deleteCampaign: (id: string) => void;
   onCreateCampaign: () => void;
-};
+}
 
 export default function CampaignsList({ 
   campaigns, 
   isLoading, 
   handleEditCampaign, 
-  deleteCampaign, 
+  deleteCampaign,
   onCreateCampaign 
 }: CampaignsListProps) {
-  const getPlatformIcon = (platform: string) => {
-    switch (platform) {
-      case 'Google':
-        return <Globe className="h-5 w-5" />;
-      case 'Facebook':
-      case 'Instagram':
-        return <Video className="h-5 w-5" />;
-      case 'LinkedIn':
-      case 'TikTok':
-      default:
-        return <Mail className="h-5 w-5" />;
-    }
-  };
-
+  // Get AI-generated campaign insights
+  const { insights, isLoading: insightsLoading } = useCompanyInsights();
+  const campaignInsights = insights.filter(insight => insight.type === "campaign" as InsightType);
+  
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[1, 2, 3].map((_, index) => (
-          <div key={index} className="dashboard-card">
-            <Skeleton className="h-10 w-10 rounded-full mb-4" />
-            <Skeleton className="h-6 w-3/4 mb-2" />
-            <Skeleton className="h-4 w-1/2 mb-4" />
-            <Skeleton className="h-10 w-full" />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="h-[220px]">
+            <CardHeader className="pb-2">
+              <Skeleton className="h-5 w-3/4 mb-1" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-2/3" />
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Skeleton className="h-9 w-20" />
+              <Skeleton className="h-9 w-20" />
+            </CardFooter>
+          </Card>
         ))}
       </div>
     );
   }
-  
-  if (campaigns.length === 0) {
+
+  if (campaigns.length === 0 && campaignInsights.length === 0) {
     return (
-      <div className="bg-secondary/40 border border-border/50 rounded-lg p-6 text-center mb-10">
-        <BarChart className="h-12 w-12 text-primary mx-auto mb-4" />
-        <h3 className="text-xl font-bold mb-2">No Campaigns Yet</h3>
-        <p className="text-gray-300 mb-6">
-          Create your first marketing campaign to promote your business.
-        </p>
-        <Button onClick={onCreateCampaign} className="allora-button">
-          <Plus className="mr-2 h-4 w-4" />
-          Create First Campaign
-        </Button>
-      </div>
+      <Card className="text-center py-16">
+        <CardContent>
+          <div className="flex flex-col items-center space-y-4">
+            <PlusCircle className="h-12 w-12 text-muted-foreground" />
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold">No campaigns yet</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Create your first campaign to start tracking your marketing efforts.
+              </p>
+            </div>
+            <Button onClick={onCreateCampaign}>
+              Create Campaign
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
-  
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {campaigns.map((campaign) => (
-        <div key={campaign.id} className="dashboard-card flex flex-col">
-          <div className="flex items-center mb-4">
-            <div className="bg-primary/20 rounded-full p-2 mr-3">
-              {getPlatformIcon(campaign.platform || 'Google')}
-            </div>
-            <span className="text-sm font-medium text-gray-300">
-              {campaign.platform || 'Digital'}
-            </span>
-          </div>
-          
-          <h3 className="text-xl font-bold mb-2">{campaign.name}</h3>
-          <p className="text-gray-400 text-sm mb-4">Budget: ${campaign.budget || 0}</p>
-          
-          <div className="mt-auto flex justify-between">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => handleEditCampaign(campaign.id)}
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Button>
-            
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your
-                    campaign "{campaign.name}".
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={() => deleteCampaign(campaign.id)} 
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+    <div className="space-y-8">
+      {/* User Created Campaigns */}
+      {campaigns.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold">Your Campaigns</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {campaigns.map((campaign) => (
+              <Card key={campaign.id}>
+                <CardHeader>
+                  <CardTitle className="text-lg">{campaign.name}</CardTitle>
+                  <CardDescription>Platform: {campaign.platform}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p><span className="font-medium">Budget:</span> ${campaign.budget}</p>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleEditCampaign(campaign.id)}
                   >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => deleteCampaign(campaign.id)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
                     Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         </div>
-      ))}
+      )}
+      
+      {/* AI Recommended Campaigns */}
+      {campaignInsights.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="text-amber-500 h-5 w-5" />
+            <h3 className="text-xl font-semibold">AI Campaign Recommendations</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {campaignInsights.map((insight) => (
+              <Card key={insight.id} className="border-amber-200/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-200">
+                      AI Recommendation
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">{insight.title}</CardTitle>
+                  <CardDescription className="flex items-center mt-1 text-xs">
+                    Recommended by: {insight.primaryBot.name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{insight.description}</p>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button 
+                    size="sm"
+                    onClick={onCreateCampaign}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create from Template
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

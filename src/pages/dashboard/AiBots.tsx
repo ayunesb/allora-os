@@ -5,6 +5,7 @@ import ExecutiveRoster from "@/components/ExecutiveRoster";
 import ConsultationHistory from "@/components/ConsultationHistory";
 import UserPreferencesDialog from "@/components/UserPreferencesDialog";
 import BotChatPanel from "@/components/bot-chat/BotChatPanel";
+import BotInsightsSection from "@/components/bot-insights/BotInsightsSection";
 import { executiveBots } from "@/backend/executiveBots";
 import { 
   Tabs, 
@@ -19,7 +20,8 @@ import {
   Search,
   BadgeInfo,
   Settings,
-  MessageSquare
+  MessageSquare,
+  Lightbulb
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
@@ -88,6 +90,10 @@ export default function AiBots() {
             <Bot className="h-4 w-4" />
             <span>Executive Advisors</span>
           </TabsTrigger>
+          <TabsTrigger value="insights" className="flex items-center gap-2">
+            <Lightbulb className="h-4 w-4" />
+            <span>AI Insights</span>
+          </TabsTrigger>
           <TabsTrigger value="chat" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             <span>AI Chat</span>
@@ -151,6 +157,10 @@ export default function AiBots() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="insights">
+          <BotInsightsSection />
         </TabsContent>
 
         <TabsContent value="chat">

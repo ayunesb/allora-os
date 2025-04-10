@@ -6,6 +6,7 @@ import { usePendingApprovals } from "./usePendingApprovals";
 import { useAnalyticsData } from "./useAnalyticsData";
 import { useAiRecommendations, RecommendationType } from "./useAiRecommendations";
 import { useRecommendationApproval } from "./useRecommendationApproval";
+import { useCompanyInsights } from "./useCompanyInsights";
 
 export function useDashboardData() {
   const { profile } = useAuth();
@@ -15,6 +16,9 @@ export function useDashboardData() {
   const { isLoading: isCompanyLoading, riskAppetite, companyDetails } = useCompanyDetails(companyId);
   const { isLoading: isApprovalsLoading, pendingApprovals } = usePendingApprovals();
   const { isLoading: isAnalyticsLoading, analyticsData } = useAnalyticsData(companyId);
+  
+  // Get company insights for strategic recommendations
+  const { insights, isLoading: isInsightsLoading } = useCompanyInsights();
   
   // Get AI recommendations
   const { 
@@ -34,7 +38,7 @@ export function useDashboardData() {
   }, [isCompanyLoading, isAnalyticsLoading, analyticsData]);
   
   // Overall loading state
-  const isLoading = isCompanyLoading || isApprovalsLoading || isAnalyticsLoading;
+  const isLoading = isCompanyLoading || isApprovalsLoading || isAnalyticsLoading || isInsightsLoading;
 
   // Handle approving a recommendation
   const handleApprove = async (index: number) => {
@@ -53,6 +57,7 @@ export function useDashboardData() {
     isLoading,
     pendingApprovals,
     aiRecommendations,
+    insights,
     riskAppetite,
     handleApproveRecommendation: handleApprove
   };

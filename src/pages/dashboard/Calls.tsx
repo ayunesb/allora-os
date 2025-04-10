@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Phone, Play, Download, FileText, PhoneCall, User, Loader2, Send as SendIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,8 @@ import { toast } from "sonner";
 import { makeCall } from "@/utils/callHelpers";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { useAuthState } from "@/hooks/useAuthState";
+import { useCallScripts } from "@/hooks/useCallScripts";
+import AiCallScript from "@/components/calls/AiCallScript";
 
 export default function Calls() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -17,30 +20,14 @@ export default function Calls() {
   const [isCallingLoading, setIsCallingLoading] = useState(false);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [activeTab, setActiveTab] = useState("scripts");
+  const { scripts, isLoading: scriptsLoading } = useCallScripts();
 
   const { user } = useAuthState();
   const { trackAction } = useSelfLearning();
 
-  const callScripts = [
-    {
-      title: "B2B SaaS Introduction",
-      target: "Tech Startups",
-      duration: "2-3 min",
-      status: "Ready",
-    },
-    {
-      title: "Follow-up Script",
-      target: "Previous Contacts",
-      duration: "1-2 min",
-      status: "Ready",
-    },
-    {
-      title: "Enterprise Solution Pitch",
-      target: "Fortune 500",
-      duration: "4-5 min",
-      status: "In Progress",
-    },
-  ];
+  // Separate AI-generated and regular scripts
+  const aiScripts = scripts.filter(script => 'aiGenerated' in script);
+  const regularScripts = scripts.filter(script => !('aiGenerated' in script));
 
   const handleCall = async () => {
     if (!phoneNumber.trim()) {
@@ -120,14 +107,14 @@ export default function Calls() {
     }
   };
 
-  const handleUseScript = (scriptTitle: string) => {
+  const handleUseScript = (scriptId: string, scriptTitle: string) => {
     if (user?.id) {
       trackAction(
         'use_script',
         'strategy_view',
         scriptTitle,
         'call_script',
-        { scriptTitle }
+        { scriptId, scriptTitle }
       );
     }
     
@@ -158,9 +145,31 @@ export default function Calls() {
         </TabsList>
         
         <TabsContent value="scripts" className="space-y-6">
+          {/* AI-generated scripts */}
+          {aiScripts.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold mb-4">AI-Generated Scripts</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {aiScripts.map((script: any) => (
+                  <AiCallScript
+                    key={script.id}
+                    id={script.id}
+                    title={script.title}
+                    target={script.target}
+                    duration={script.duration}
+                    primaryBot={script.primaryBot}
+                    collaborators={script.collaborators}
+                    onUse={handleUseScript}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Regular scripts */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {callScripts.map((script, index) => (
-              <div key={index} className="dashboard-card">
+            {regularScripts.map((script) => (
+              <div key={script.id} className="dashboard-card">
                 <h3 className="text-xl font-bold mb-4">{script.title}</h3>
                 
                 <div className="space-y-2 mb-6">
@@ -183,7 +192,7 @@ export default function Calls() {
                 <div className="flex space-x-2">
                   {script.status === "Ready" ? (
                     <>
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handleUseScript(script.title)}>
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handleUseScript(script.id, script.title)}>
                         <Play className="mr-2 h-4 w-4" />
                         Use
                       </Button>
