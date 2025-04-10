@@ -1,16 +1,15 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PieChart, BarChart, LineChart, Pie, Bar, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from "recharts";
-import { Brain, TrendingUp, Calendar, Activity, BarChart3, PieChart as PieChartIcon, Users, Target } from "lucide-react";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
-import StatsCard from "@/components/analytics/StatsCard";
-import AnalyticsChart from "@/components/analytics/AnalyticsChart";
-import InteractionTimeline from "@/components/analytics/InteractionTimeline";
-import RiskAppetiteDistribution from "@/components/analytics/RiskAppetiteDistribution";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+// Import our new components
+import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
+import AnalyticsInsightCards from "@/components/analytics/AnalyticsInsightCards";
+import OverviewTabContent from "@/components/analytics/OverviewTabContent";
+import BehaviorTabContent from "@/components/analytics/BehaviorTabContent";
+import RecommendationsTabContent from "@/components/analytics/RecommendationsTabContent";
 
 export default function Analytics() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -43,7 +42,6 @@ export default function Analytics() {
       ]);
       
       // Generate some mock activity data for the timeline
-      // This could be replaced with actual user action data in the future
       const mockActivityData = generateMockActivityData();
       
       setAnalyticsData({
@@ -99,9 +97,6 @@ export default function Analytics() {
     }
   }
 
-  // Colors for charts
-  const COLORS = ["#8B5CF6", "#EC4899", "#F97316", "#10B981"];
-
   // Prepare data for the interaction timeline
   const timelineData = analyticsData.activityData
     .reduce((acc: any[], item: any) => {
@@ -130,40 +125,13 @@ export default function Analytics() {
 
   return (
     <div className="animate-fadeIn space-y-6">
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center">
-          <BarChart3 className="h-8 w-8 text-primary mr-3" />
-          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-        </div>
-        <Button 
-          variant="outline" 
-          onClick={fetchAnalyticsData}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? "Refreshing..." : "Refresh Data"}
-        </Button>
-      </div>
+      <AnalyticsHeader isRefreshing={isRefreshing} onRefresh={fetchAnalyticsData} />
 
       <p className="text-xl text-gray-300 mb-6">
         Track your usage patterns and see how Allora AI learns from your actions
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {analyticsData.insights.map((insight: any, index: number) => (
-          <StatsCard
-            key={index}
-            title={insight.title}
-            value={insight.value}
-            description={insight.description}
-            icon={
-              insight.title === "Behavioral Pattern" ? Brain :
-              insight.title === "Risk Appetite" ? TrendingUp :
-              insight.title === "Learning Progress" ? Activity :
-              Calendar
-            }
-          />
-        ))}
-      </div>
+      <AnalyticsInsightCards insights={analyticsData.insights} />
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-3 mb-6">
@@ -173,127 +141,22 @@ export default function Analytics() {
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AnalyticsChart 
-              title="Activity Over Time"
-              description="Your platform usage in the last 30 days"
-              chartType="line"
-              data={timelineData}
-              dataKeys={["count"]}
-              colors={["#8B5CF6"]}
-              xAxisDataKey="date"
-            />
-            
-            <AnalyticsChart 
-              title="Activity Type Distribution"
-              description="Breakdown of your different interactions"
-              chartType="pie"
-              data={activityTypeData}
-              dataKeys={["value"]}
-              colors={COLORS}
-              nameKey="name"
-            />
-          </div>
+          <OverviewTabContent
+            timelineData={timelineData}
+            activityTypeData={activityTypeData}
+          />
         </TabsContent>
         
         <TabsContent value="behavior" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RiskAppetiteDistribution data={riskData} />
-            <InteractionTimeline data={analyticsData.activityData} />
-          </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Target className="mr-2 h-5 w-5 text-primary" />
-                Learning Progress
-              </CardTitle>
-              <CardDescription>
-                How the AI system is adapting to your preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {analyticsData.insights.length > 0 ? (
-                  <ul className="space-y-2">
-                    {analyticsData.insights.map((insight: any, index: number) => (
-                      <li key={index} className="flex justify-between p-2 border-b border-border/30">
-                        <span className="font-medium">{insight.title}</span>
-                        <span className="text-primary">{insight.value}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted-foreground text-center py-4">
-                    Continue using the platform to generate learning insights
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <BehaviorTabContent
+            insights={analyticsData.insights}
+            riskData={riskData}
+            activityData={analyticsData.activityData}
+          />
         </TabsContent>
         
         <TabsContent value="recommendations" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUp className="mr-2 h-5 w-5 text-primary" />
-                Personalized Recommendations
-              </CardTitle>
-              <CardDescription>
-                Based on your usage patterns and preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Recommended Strategies</h3>
-                  {analyticsData.recommendations.strategies.length > 0 ? (
-                    <ul className="space-y-2">
-                      {analyticsData.recommendations.strategies.map((strategy: any, index: number) => (
-                        <li key={index} className="p-3 bg-accent/30 rounded-md">
-                          <div className="font-medium">{strategy.title}</div>
-                          <div className="text-sm text-muted-foreground">{strategy.description}</div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-muted-foreground">No strategy recommendations yet</p>
-                  )}
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Preferred Topics</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {analyticsData.recommendations.topics.length > 0 ? (
-                      analyticsData.recommendations.topics.map((topic: string, index: number) => (
-                        <div key={index} className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm">
-                          {topic}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground">No topic preferences detected yet</p>
-                    )}
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Preferred Executives</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {analyticsData.recommendations.executives.length > 0 ? (
-                      analyticsData.recommendations.executives.map((executive: string, index: number) => (
-                        <div key={index} className="px-3 py-1 bg-secondary/40 rounded-full text-sm">
-                          {executive}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground">No executive preferences detected yet</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <RecommendationsTabContent recommendations={analyticsData.recommendations} />
         </TabsContent>
       </Tabs>
     </div>
