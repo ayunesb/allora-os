@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { validateLaunchReadiness } from '@/utils/launchValidator';
 import { 
@@ -126,15 +125,15 @@ export function useVerification(profileCompanyId?: string) {
     try {
       const indexResults = await validatePerformanceOptimization();
       
-      const formattedResults = {
+      const formattedResults = [{
         name: 'Performance Optimization',
         status: indexResults.valid ? 'verified' : 'issues',
         message: indexResults.message
-      };
+      }];
       
       setResults(prev => ({
         ...prev,
-        databaseIndexes: [formattedResults]
+        databaseIndexes: formattedResults
       }));
       
       if (indexResults.valid) {
@@ -156,15 +155,15 @@ export function useVerification(profileCompanyId?: string) {
     try {
       const rlsResults = await validateRLSPolicies();
       
-      const formattedResults = {
+      const formattedResults = [{
         table: 'All tables',
         status: rlsResults.valid ? 'verified' : 'issues',
         message: rlsResults.message
-      };
+      }];
       
       setResults(prev => ({
         ...prev,
-        rlsPolicies: [formattedResults]
+        rlsPolicies: formattedResults
       }));
       
       if (rlsResults.valid) {
@@ -186,15 +185,15 @@ export function useVerification(profileCompanyId?: string) {
     try {
       const functionResults = await validateDatabaseFunctions();
       
-      const formattedResults = {
+      const formattedResults = [{
         name: 'Database Functions',
         status: functionResults.valid ? 'verified' : 'issues',
         message: functionResults.message
-      };
+      }];
       
       setResults(prev => ({
         ...prev,
-        databaseFunctions: [formattedResults]
+        databaseFunctions: formattedResults
       }));
       
       if (functionResults.valid) {

@@ -1,27 +1,50 @@
 
 import React from 'react';
-import { DatabaseCheckItem } from './types';
+import { AlertCircle, CheckCircle } from 'lucide-react';
+
+interface DatabaseCheckItem {
+  name?: string;
+  table?: string;
+  status: string;
+  message: string;
+}
 
 interface DatabaseChecksSectionProps {
   title: string;
-  items: DatabaseCheckItem[];
+  items: DatabaseCheckItem[] | null | undefined;
 }
 
 export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionProps) {
-  if (!items || items.length === 0) return null;
-  
+  // If items is null, undefined, or not an array, render nothing or placeholder
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="p-3 rounded-md bg-secondary/10 border border-border">
-      <h3 className="font-medium mb-2">{title}</h3>
-      <div className="space-y-1.5">
-        {items.map((item) => (
-          <div key={item.name} className="flex items-center justify-between text-sm">
-            <span className="font-medium">{item.tableName || item.name}</span>
-            <span className={`px-2 py-0.5 rounded-full text-xs ${
-              item.exists === false ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-            }`}>
-              {item.status}
-            </span>
+    <div className="mt-4">
+      <h3 className="text-sm font-medium mb-2">{title}</h3>
+      <div className="space-y-2">
+        {items.map((item, index) => (
+          <div key={index} className="bg-secondary/20 rounded-md border border-border p-3 text-sm">
+            <div className="flex justify-between items-center">
+              <div className="font-medium">
+                {item.name || item.table || `Item ${index + 1}`}
+              </div>
+              <div className="flex items-center gap-1">
+                {item.status === 'verified' || item.status === 'ready' ? (
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 text-amber-500" />
+                )}
+                <span className="text-xs capitalize">{item.status}</span>
+              </div>
+            </div>
+            
+            {item.message && (
+              <div className="text-xs text-muted-foreground mt-1">
+                {item.message}
+              </div>
+            )}
           </div>
         ))}
       </div>

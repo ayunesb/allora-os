@@ -43,17 +43,17 @@ export function VerificationContent({ results, isChecking }: VerificationContent
       
       <DatabaseChecksSection 
         title="Database Indexes Check" 
-        items={results.databaseIndexes || []} 
+        items={Array.isArray(results.databaseIndexes) ? results.databaseIndexes : null} 
       />
       
       <DatabaseChecksSection 
         title="RLS Policies Check" 
-        items={results.rlsPolicies || []} 
+        items={Array.isArray(results.rlsPolicies) ? results.rlsPolicies : null} 
       />
       
       <DatabaseChecksSection 
         title="Database Functions Check" 
-        items={results.databaseFunctions || []} 
+        items={Array.isArray(results.databaseFunctions) ? results.databaseFunctions : null} 
       />
     </div>
   );
