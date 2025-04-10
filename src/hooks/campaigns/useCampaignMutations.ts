@@ -1,91 +1,132 @@
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { createCampaign, updateCampaign, deleteCampaign } from "@/utils/campaignHelpers";
-import { Platform } from "@/models/campaign";
+import { useState } from 'react';
+import { createCampaign as createCampaignHelper, updateCampaign as updateCampaignHelper, deleteCampaign as deleteCampaignHelper } from '@/utils/campaignHelpers';
+import { Platform, Campaign } from '@/models/campaign';
+import { toast } from 'sonner';
+import { triggerBusinessEvent } from '@/lib/zapier';
 
-/**
- * Hook for campaign create, update, and delete mutations
- */
-export function useCampaignMutations(companyId: string | undefined) {
-  const queryClient = useQueryClient();
-  
-  // Create campaign
-  const createMutation = useMutation({
-    mutationFn: (newCampaign: { 
-      name: string; 
+export function useCampaignMutations(companyId: string) {
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const createCampaign = async (
+    campaignData: {
+      name: string;
       platform: Platform;
       budget: number;
-      [key: string]: any;
-    }) => {
-      if (!companyId) throw new Error("No company ID available");
-      return createCampaign(
+      status?: string;
+      executiveBot?: string;
+      justification?: string;
+      roi?: string;
+    }
+  ) => {
+    setIsCreating(true);
+    try {
+      const result = await createCampaignHelper(
         companyId,
-        newCampaign.name,
-        newCampaign.platform,
-        newCampaign.budget
+        campaignData.name,
+        campaignData.platform,
+        campaignData.budget
       );
-    },
-    onSuccess: () => {
-      toast.success("Campaign created successfully");
-      queryClient.invalidateQueries({ queryKey: ['campaigns', companyId] });
-    },
-    onError: (error: any) => {
+      
+      if (result) {
+        // Trigger the Zapier business event for campaign creation
+        await triggerBusinessEvent('campaign_created', {
+          companyId,
+          entityId: result.id,
+          entityType: 'campaign',
+          name: result.name,
+          platform: result.platform,
+          budget: result.budget,
+          status: result.status || 'Draft',
+          botName: campaignData.executiveBot || 'Marketing AI',
+          timestamp: new Date().toISOString()
+        });
+        
+        console.log('Campaign created and Zapier event triggered', result);
+        return result;
+      }
+      return null;
+    } catch (error: any) {
       toast.error(`Failed to create campaign: ${error.message}`);
+      console.error('Error creating campaign:', error);
+      return null;
+    } finally {
+      setIsCreating(false);
     }
-  });
-  
-  // Update campaign
-  const updateMutation = useMutation({
-    mutationFn: (updatedCampaign: { 
-      id: string; 
-      name?: string; 
-      platform?: Platform;
-      budget?: number;
-      [key: string]: any;
-    }) => {
-      return updateCampaign(
-        updatedCampaign.id,
-        {
-          name: updatedCampaign.name,
-          platform: updatedCampaign.platform,
-          budget: updatedCampaign.budget,
-          status: updatedCampaign.status,
-          executiveBot: updatedCampaign.executiveBot,
-          justification: updatedCampaign.justification,
-          roi: updatedCampaign.roi
-        }
-      );
-    },
-    onSuccess: () => {
-      toast.success("Campaign updated successfully");
-      queryClient.invalidateQueries({ queryKey: ['campaigns', companyId] });
-    },
-    onError: (error: any) => {
+  };
+
+  const updateCampaign = async (
+    campaignData: Partial<Campaign> & { id: string }
+  ) => {
+    setIsUpdating(true);
+    try {
+      const { id, ...updates } = campaignData;
+      
+      // Special tracking for campaign approval events
+      const isApprovalEvent = updates.status === 'Approved' || updates.status === 'Active';
+      
+      const success = await updateCampaignHelper(id, updates);
+      
+      if (success) {
+        // Determine the appropriate event type
+        const eventType = isApprovalEvent ? 'campaign_approved' : 'campaign_updated';
+        
+        // Trigger the Zapier business event for campaign update/approval
+        await triggerBusinessEvent(eventType, {
+          companyId,
+          entityId: id,
+          entityType: 'campaign',
+          ...updates,
+          timestamp: new Date().toISOString()
+        });
+        
+        console.log(`Campaign ${eventType} and Zapier event triggered`, { id, ...updates });
+        return true;
+      }
+      return false;
+    } catch (error: any) {
       toast.error(`Failed to update campaign: ${error.message}`);
+      console.error('Error updating campaign:', error);
+      return false;
+    } finally {
+      setIsUpdating(false);
     }
-  });
-  
-  // Delete campaign
-  const deleteMutation = useMutation({
-    mutationFn: (campaignId: string) => {
-      return deleteCampaign(campaignId);
-    },
-    onSuccess: () => {
-      toast.success("Campaign deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ['campaigns', companyId] });
-    },
-    onError: (error: any) => {
+  };
+
+  const deleteCampaign = async (id: string) => {
+    setIsDeleting(true);
+    try {
+      const success = await deleteCampaignHelper(id);
+      
+      if (success) {
+        // Trigger the Zapier business event for campaign deletion
+        await triggerBusinessEvent('campaign_deleted', {
+          companyId,
+          entityId: id,
+          entityType: 'campaign',
+          timestamp: new Date().toISOString()
+        });
+        
+        return true;
+      }
+      return false;
+    } catch (error: any) {
       toast.error(`Failed to delete campaign: ${error.message}`);
+      console.error('Error deleting campaign:', error);
+      return false;
+    } finally {
+      setIsDeleting(false);
     }
-  });
+  };
 
   return {
-    createCampaign: createMutation.mutate,
-    isCreating: createMutation.isPending,
-    updateCampaign: updateMutation.mutate,
-    isUpdating: updateMutation.isPending,
-    deleteCampaign: deleteMutation.mutate,
-    isDeleting: deleteMutation.isPending
+    createCampaign,
+    isCreating,
+    updateCampaign,
+    isUpdating,
+    deleteCampaign,
+    isDeleting
   };
 }

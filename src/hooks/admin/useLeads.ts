@@ -1,122 +1,190 @@
-
-import { useState, useEffect } from 'react';
-import { toast } from "sonner";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { Lead } from '@/models/lead';
-import { handleApiError } from '@/utils/api/errorHandling';
-import { updateLeadStatus, deleteLead } from '@/utils/leadHelpers';
+import { supabase } from '@/backend/supabase';
+import { useDebounce } from '@/hooks/useDebounce';
+import { triggerBusinessEvent } from '@/lib/zapier';
 
-export const useLeads = () => {
+export function useLeads() {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAddingLead, setIsAddingLead] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'created_at'>('created_at');
+  const [sortBy, setSortBy] = useState<keyof Lead>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  
-  const queryClient = useQueryClient();
-  
-  const { 
-    data: leads = [], 
-    isLoading, 
-    error, 
-    refetch 
-  } = useQuery({
-    queryKey: ['leads', sortBy, sortOrder],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('leads')
-          .select('*, campaigns(name)')
-          .order(sortBy, { ascending: sortOrder === 'asc' });
-          
-        if (error) throw error;
-        return data || [];
-      } catch (error) {
-        throw error;
-      }
-    }
-  });
-  
-  useEffect(() => {
-    if (error) {
-      handleApiError(error, {
-        customMessage: 'Failed to load leads data'
-      });
-    }
-  }, [error]);
-  
-  const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
-    try {
-      const success = await updateLeadStatus(leadId, status);
-      if (success) {
-        toast.success(`Lead status updated to ${status}`);
-        queryClient.invalidateQueries({ queryKey: ['leads'] });
-      }
-    } catch (error) {
-      handleApiError(error, {
-        customMessage: 'Failed to update lead status'
-      });
-    }
-  };
-  
-  const handleDelete = async (leadId: string) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      try {
-        const success = await deleteLead(leadId);
-        if (success) {
-          toast.success('Lead deleted successfully');
-          queryClient.invalidateQueries({ queryKey: ['leads'] });
-        }
-      } catch (error) {
-        handleApiError(error, {
-          customMessage: 'Failed to delete lead'
-        });
-      }
-    }
-  };
-  
-  // Add lead mutation
-  const addLeadMutation = useMutation({
-    mutationFn: async (leadData: Omit<Lead, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
-        .from('leads')
-        .insert([leadData])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast.success('Lead added successfully');
-      queryClient.invalidateQueries({ queryKey: ['leads'] });
-    },
-    onError: (error) => {
-      handleApiError(error, {
-        customMessage: 'Failed to add lead'
-      });
-    }
-  });
-  
-  const toggleSort = (column: 'name' | 'created_at') => {
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+
+  const toggleSort = (column: keyof Lead) => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       setSortBy(column);
-      setSortOrder('desc');
+      setSortOrder('asc');
+    }
+  };
+
+  const refetchLeads = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .ilike('name', `%${debouncedSearchQuery}%`)
+        .order(sortBy, { ascending: sortOrder === 'asc' });
+
+      if (error) {
+        setError(error);
+        toast.error(`Error fetching leads: ${error.message}`);
+      } else {
+        // Ensure that the data is of type Lead[]
+        const typedData: Lead[] = data ? data.map(item => ({
+          ...item,
+          createdAt: item.createdAt ? new Date(item.createdAt).toISOString() : undefined,
+          updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : undefined,
+        })) : [];
+        setLeads(typedData);
+      }
+    } catch (err: any) {
+      setError(err);
+      toast.error(`Unexpected error fetching leads: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [debouncedSearchQuery, sortBy, sortOrder]);
+
+  useEffect(() => {
+    refetchLeads();
+  }, [refetchLeads]);
+
+  const addLead = async (leadData: Partial<Lead>) => {
+    setIsAddingLead(true);
+    setError(null);
+
+    try {
+      // Ensure required fields are present
+      if (!leadData.name || !leadData.email || !leadData.companyId) {
+        throw new Error("Name, email, and companyId are required to create a lead.");
+      }
+
+      // Omit potentially problematic fields and add companyId
+      const { id, createdAt, updatedAt, score, ...safeLeadData } = leadData;
+      const newLeadData = {
+        ...safeLeadData,
+        companyId: safeLeadData.companyId, // Ensure companyId is correctly passed
+        status: safeLeadData.status || 'New', // Set default status if not provided
+        source: safeLeadData.source || 'Manual Entry',
+        score: safeLeadData.score || 0
+      };
+
+      const { data: newLead, error } = await supabase
+        .from('leads')
+        .insert([newLeadData])
+        .select()
+        .single();
+
+      if (error) {
+        setError(error);
+        toast.error(`Failed to create lead: ${error.message}`);
+        return null;
+      }
+      
+      // After successful lead creation, trigger the Zapier business event
+      if (newLead) {
+        await triggerBusinessEvent('lead_created', {
+          entityId: newLead.id,
+          entityType: 'lead',
+          companyId: newLead.companyId,
+          name: newLead.name,
+          email: newLead.email,
+          company: newLead.company,
+          title: newLead.title,
+          status: newLead.status,
+          source: newLead.source || 'Manual Entry',
+          phone: newLead.phone,
+          score: newLead.score,
+          campaignId: newLead.campaignId,
+          timestamp: new Date().toISOString()
+        });
+        
+        console.log('Lead created and Zapier event triggered', newLead);
+      }
+      
+      return newLead;
+    } catch (error: any) {
+      setError(error);
+      toast.error(`Failed to create lead: ${error.message}`);
+      return null;
+    } finally {
+      setIsAddingLead(false);
+      refetchLeads(); // Refresh leads after adding
     }
   };
   
-  const filteredLeads = searchQuery.trim() === '' 
-    ? leads 
-    : leads.filter(lead => 
-        lead.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        lead.email?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const handleStatusUpdate = async (leadId: string, newStatus: Lead['status']) => {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ status: newStatus })
+        .eq('id', leadId);
+      
+      if (error) {
+        toast.error(`Failed to update status: ${error.message}`);
+        return false;
+      }
+      
+      // After successful status update, trigger the Zapier business event
+      // Check if the new status is 'Client' which would mean a lead conversion
+      const eventType = newStatus === 'Client' ? 'lead_converted' : 'lead_status_changed';
+      
+      await triggerBusinessEvent(eventType, {
+        entityId: leadId,
+        entityType: 'lead',
+        status: newStatus,
+        previousStatus: leads.find(l => l.id === leadId)?.status,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`Lead status changed to ${newStatus} and Zapier event triggered`, { leadId, status: newStatus });
+      
+      refetchLeads(); // Refresh leads after status update
+      toast.success('Lead status updated successfully');
+      return true;
+    } catch (error: any) {
+      toast.error(`Failed to update lead status: ${error.message}`);
+      return false;
+    }
+  };
   
+  const handleDelete = async (leadId: string) => {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', leadId);
+      
+      if (error) {
+        toast.error(`Failed to delete lead: ${error.message}`);
+        return false;
+      }
+      
+      refetchLeads(); // Refresh leads after deletion
+      toast.success('Lead deleted successfully');
+      return true;
+    } catch (error: any) {
+      toast.error(`Failed to delete lead: ${error.message}`);
+      return false;
+    }
+  };
+
   return {
-    leads: filteredLeads,
+    leads,
     isLoading,
-    error, // Explicitly expose the error property
+    isAddingLead,
+    error,
     searchQuery,
     setSearchQuery,
     sortBy,
@@ -124,8 +192,7 @@ export const useLeads = () => {
     toggleSort,
     handleStatusUpdate,
     handleDelete,
-    addLead: addLeadMutation.mutate,
-    isAddingLead: addLeadMutation.isPending,
-    refetchLeads: refetch
+    addLead,
+    refetchLeads
   };
-};
+}

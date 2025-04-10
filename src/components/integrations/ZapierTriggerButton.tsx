@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useZapier } from '@/lib/zapier';
+import { useZapier, BusinessEventType, BusinessEventPayload } from '@/lib/zapier';
 
 interface ZapierTriggerButtonProps {
   event: string;
@@ -14,6 +14,7 @@ interface ZapierTriggerButtonProps {
   className?: string;
   entityId?: string;
   entityType?: string;
+  autoTrigger?: boolean; // New prop to indicate if this should auto-trigger on mount
 }
 
 const ZapierTriggerButton: React.FC<ZapierTriggerButtonProps> = ({
@@ -24,20 +25,32 @@ const ZapierTriggerButton: React.FC<ZapierTriggerButtonProps> = ({
   size = "default",
   className = "",
   entityId,
-  entityType
+  entityType,
+  autoTrigger = false
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { triggerWorkflow } = useZapier();
+  const { triggerWorkflow, triggerBusinessEvent } = useZapier();
   
-  const handleTrigger = async () => {
-    setIsLoading(true);
+  // Auto-trigger effect
+  React.useEffect(() => {
+    if (autoTrigger) {
+      handleTrigger(true);
+    }
+  }, [autoTrigger, event]);
+  
+  const handleTrigger = async (silent = false) => {
+    if (isLoading) return; // Prevent multiple triggers
+    
+    if (!silent) {
+      setIsLoading(true);
+    }
     
     try {
       // Get the webhook URL from localStorage with a fallback
       const webhookUrl = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
       
       if (!webhookUrl) {
-        toast.error("Zapier webhook URL not configured");
+        if (!silent) toast.error("Zapier webhook URL not configured");
         return;
       }
       
@@ -54,25 +67,32 @@ const ZapierTriggerButton: React.FC<ZapierTriggerButtonProps> = ({
       );
       
       if (result.success) {
-        toast.success("Zapier workflow triggered successfully");
+        if (!silent) toast.success("Zapier workflow triggered successfully");
+        console.log(`Zapier workflow triggered: ${event}`);
       } else {
         // More user-friendly error message
-        toast.error(`Failed to trigger Zapier: ${result.message || result.error?.message || "Unknown error"}. CORS restrictions may apply.`);
+        if (!silent) toast.error(`Failed to trigger Zapier: ${result.message || result.error?.message || "Unknown error"}. CORS restrictions may apply.`);
+        console.warn(`Failed to trigger Zapier: ${result.message || result.error?.message || "Unknown error"}`);
       }
     } catch (error: any) {
       console.error("Error triggering Zapier:", error);
-      toast.error(`Error: ${error.message || "Failed to trigger Zapier"}`);
+      if (!silent) toast.error(`Error: ${error.message || "Failed to trigger Zapier"}`);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
+  
+  // If autoTrigger is true and no button is needed, return null
+  if (autoTrigger && label === null) {
+    return null;
+  }
   
   return (
     <Button 
       variant={variant}
       size={size}
       className={className}
-      onClick={handleTrigger}
+      onClick={() => handleTrigger()}
       disabled={isLoading}
     >
       {isLoading ? (
