@@ -1,0 +1,25 @@
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Footer: React.FC = () => {
+  return (
+    <footer className="bg-[#0A0A23] text-white py-8 px-4">
+      <div className="container mx-auto flex flex-col items-center">
+        <img src="/logo.png" alt="Allora AI Logo" className="h-12 mb-4" />
+        <p className="mb-4">© 2025 Allora AI. All Rights Reserved.</p>
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
+          <Link to="/legal" className="text-[#63B3ED] hover:underline">Terms</Link>
+          <span className="text-white">|</span>
+          <Link to="/privacy" className="text-[#63B3ED] hover:underline">Privacy</Link>
+          <span className="text-white">|</span>
+          <Link to="/legal/cookies" className="text-[#63B3ED] hover:underline">Cookies</Link>
+          <span className="text-white">|</span>
+          <Link to="/legal/refund-policy" className="text-[#63B3ED] hover:underline">Refund Policy</Link>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

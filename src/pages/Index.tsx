@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { lazy, Suspense } from "react";
+import Footer from "@/components/Footer";
 
 // Lazy load non-critical components
 const LazyFeatureBlock = lazy(() => import("@/components/home/FeatureBlock"));
@@ -28,10 +29,10 @@ const features = [
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-12 md:py-24 flex flex-col items-center text-center">
+      <main className="container mx-auto px-4 py-12 md:py-24 flex flex-col items-center text-center flex-grow">
         <div className="max-w-3xl mb-12">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             <span className="text-primary">Allora AI</span> - Your AI Business Acceleration Platform
@@ -63,16 +64,9 @@ export default function Index() {
             </Suspense>
           ))}
         </div>
-        
-        <div className="mt-24 text-center">
-          <p className="text-muted-foreground">
-            © 2025 Allora AI | 
-            <Link to="/legal" className="mx-2 hover:underline">Legal</Link> | 
-            <Link to="/privacy" className="mx-2 hover:underline">Privacy</Link> | 
-            <Link to="/admin" className="mx-2 hover:underline">Admin</Link>
-          </p>
-        </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

@@ -6,6 +6,8 @@ import ResetPassword from "@/pages/ResetPassword";
 import UpdatePassword from "@/pages/UpdatePassword";
 import Legal from "@/pages/Legal";
 import Privacy from "@/pages/Privacy";
+import CookiePolicy from "@/pages/CookiePolicy";
+import RefundPolicy from "@/pages/RefundPolicy";
 import LegalDocument from "@/pages/LegalDocument";
 import FAQ from "@/pages/FAQ";
 import Pricing from "@/pages/Pricing";
@@ -41,6 +43,14 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/privacy",
     element: <Privacy />,
+  },
+  {
+    path: "/cookies",
+    element: <CookiePolicy />,
+  },
+  {
+    path: "/refund",
+    element: <RefundPolicy />,
   },
   {
     path: "/legal/:documentId",
