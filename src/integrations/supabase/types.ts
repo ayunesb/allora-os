@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ad_platform_connections: {
+        Row: {
+          access_token: string
+          ad_account_id: string
+          company_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          platform: string
+          refresh_token: string | null
+          scopes: string[] | null
+          token_expires_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          ad_account_id: string
+          company_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          platform: string
+          refresh_token?: string | null
+          scopes?: string[] | null
+          token_expires_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          ad_account_id?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          platform?: string
+          refresh_token?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_platform_connections_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_interactions: {
         Row: {
           bot_name: string
@@ -48,30 +101,110 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_creatives: {
+        Row: {
+          call_to_action: string | null
+          campaign_id: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          call_to_action?: string | null
+          campaign_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          call_to_action?: string | null
+          campaign_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_creatives_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
+          ad_platform: string | null
           budget: number | null
           company_id: string
           created_at: string
+          creatives: Json | null
+          deployment_status: string | null
           id: string
+          last_synced_at: string | null
+          management_fee: number | null
           name: string
+          payment_status: string | null
+          performance_metrics: Json | null
           platform: string | null
+          platform_specific_id: string | null
+          platform_status: string | null
+          stripe_payment_id: string | null
+          targeting: Json | null
+          total_amount: number | null
         }
         Insert: {
+          ad_platform?: string | null
           budget?: number | null
           company_id: string
           created_at?: string
+          creatives?: Json | null
+          deployment_status?: string | null
           id?: string
+          last_synced_at?: string | null
+          management_fee?: number | null
           name: string
+          payment_status?: string | null
+          performance_metrics?: Json | null
           platform?: string | null
+          platform_specific_id?: string | null
+          platform_status?: string | null
+          stripe_payment_id?: string | null
+          targeting?: Json | null
+          total_amount?: number | null
         }
         Update: {
+          ad_platform?: string | null
           budget?: number | null
           company_id?: string
           created_at?: string
+          creatives?: Json | null
+          deployment_status?: string | null
           id?: string
+          last_synced_at?: string | null
+          management_fee?: number | null
           name?: string
+          payment_status?: string | null
+          performance_metrics?: Json | null
           platform?: string | null
+          platform_specific_id?: string | null
+          platform_status?: string | null
+          stripe_payment_id?: string | null
+          targeting?: Json | null
+          total_amount?: number | null
         }
         Relationships: [
           {
