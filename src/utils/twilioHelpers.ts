@@ -55,3 +55,53 @@ export async function sendBulkSMS(body: string, messageType: 'all' | 'new' | 'co
 export async function sendBulkWhatsApp(body: string, messageType: 'all' | 'new' | 'contacted' | 'qualified' | 'closed') {
   return sendBulkSMS(body, messageType, 'whatsapp');
 }
+
+export async function getWhatsAppTemplates() {
+  try {
+    const { data, error } = await supabase.functions.invoke('twilio', {
+      body: { action: 'get-whatsapp-templates' }
+    });
+
+    if (error) throw error;
+    
+    return data.templates || [];
+  } catch (error: any) {
+    toast.error(`Error fetching WhatsApp templates: ${error.message}`);
+    return [];
+  }
+}
+
+export async function sendWhatsAppTemplate(to: string, templateName: string, variables: Record<string, string>, leadId?: string) {
+  try {
+    const { data, error } = await supabase.functions.invoke('twilio', {
+      body: { action: 'send-whatsapp-template', to, templateName, variables, leadId }
+    });
+
+    if (error) throw error;
+    
+    if (data.success) {
+      toast.success('WhatsApp template sent successfully');
+      return true;
+    } else {
+      throw new Error(data.message || 'Failed to send WhatsApp template');
+    }
+  } catch (error: any) {
+    toast.error(`WhatsApp template error: ${error.message}`);
+    return false;
+  }
+}
+
+export async function trackMessageStatus(messageSid: string) {
+  try {
+    const { data, error } = await supabase.functions.invoke('twilio', {
+      body: { action: 'get-message-status', messageSid }
+    });
+
+    if (error) throw error;
+    
+    return data.status || 'unknown';
+  } catch (error: any) {
+    console.error(`Error tracking message status: ${error.message}`);
+    return 'error';
+  }
+}

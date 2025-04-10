@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -6,6 +7,7 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID") || "";
 const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN") || "";
 const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER") || "";
+const TWILIO_WHATSAPP_NUMBER = Deno.env.get("TWILIO_WHATSAPP_NUMBER") || TWILIO_PHONE_NUMBER; // Fallback to regular phone number
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -56,6 +58,66 @@ serve(async (req) => {
     }
   }
 
+  // Handle incoming WhatsApp messages
+  if (req.url.includes('/incoming-whatsapp')) {
+    try {
+      const formData = await req.formData();
+      const from = formData.get('From') || '';
+      const body = formData.get('Body') || '';
+      const messageSid = formData.get('MessageSid') || '';
+      const numMedia = formData.get('NumMedia') || '0';
+      const mediaContentType = formData.get('MediaContentType0') || '';
+      const mediaUrl = formData.get('MediaUrl0') || '';
+      
+      console.log(`Received WhatsApp message from ${from}: ${body}`);
+      
+      // Initialize supabase client with anon key for logging
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      // Log the incoming message
+      await supabase.from("incoming_messages").insert({
+        message_sid: messageSid,
+        from_number: from.toString().replace('whatsapp:', ''),
+        body: body.toString(),
+        received_at: new Date().toISOString(),
+        channel: 'whatsapp',
+        has_media: numMedia !== '0',
+        media_type: mediaContentType?.toString() || null,
+        media_url: mediaUrl?.toString() || null
+      });
+      
+      // Return a TwiML response
+      return new Response(
+        `<?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+          <Message>Thank you for contacting Allora AI. We'll respond shortly.</Message>
+        </Response>`,
+        {
+          status: 200,
+          headers: { 
+            "Content-Type": "text/xml",
+            ...corsHeaders
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Error processing incoming WhatsApp message:", error);
+      return new Response(
+        `<?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+          <Message>Sorry, we couldn't process your message. Please try again later.</Message>
+        </Response>`,
+        {
+          status: 200,
+          headers: { 
+            "Content-Type": "text/xml",
+            ...corsHeaders
+          }
+        }
+      );
+    }
+  }
+
   // Get the authorization header
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
@@ -90,7 +152,7 @@ serve(async (req) => {
     }
 
     // Get the request body
-    const { action, to, body, leadId, messageType, callSid, channel } = await req.json();
+    const { action, to, body, leadId, messageType, callSid, channel, templateName, variables } = await req.json();
 
     if (action === "send-sms") {
       // Validate request
@@ -109,7 +171,7 @@ serve(async (req) => {
       
       // Prepare the 'From' parameter - for WhatsApp, prefix with 'whatsapp:'
       const fromNumber = isWhatsApp 
-        ? `whatsapp:${TWILIO_PHONE_NUMBER}` 
+        ? `whatsapp:${TWILIO_WHATSAPP_NUMBER || TWILIO_PHONE_NUMBER}` 
         : TWILIO_PHONE_NUMBER;
       
       // Prepare the 'To' parameter - for WhatsApp, prefix with 'whatsapp:'
@@ -165,6 +227,136 @@ serve(async (req) => {
         sid: twilioResult.sid,
         message: twilioResponse.ok ? "Message sent successfully" : "Failed to send message",
         channel: isWhatsApp ? "whatsapp" : "sms"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    else if (action === "send-whatsapp-template") {
+      // Validate request
+      if (!to || !templateName) {
+        return new Response(JSON.stringify({ error: "Missing required fields" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Format the phone number (ensure it has the + prefix)
+      const formattedTo = to.startsWith('+') ? to : `+${to}`;
+      
+      // Construct the template parameters
+      const templateParams = variables || {};
+      
+      // Get the status callback URL
+      const edgeFunctionUrl = new URL(req.url);
+      const statusCallbackUrl = `${edgeFunctionUrl.origin}${edgeFunctionUrl.pathname}/status-callback`;
+      
+      // Send WhatsApp template using Twilio
+      const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+      const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+      
+      // Create form data with template content
+      const formData = new URLSearchParams({
+        From: `whatsapp:${TWILIO_WHATSAPP_NUMBER || TWILIO_PHONE_NUMBER}`,
+        To: `whatsapp:${formattedTo}`,
+        StatusCallback: statusCallbackUrl
+      });
+      
+      // Add template information
+      formData.append("ContentSid", templateName);
+      
+      // Add template variables
+      for (const [key, value] of Object.entries(templateParams)) {
+        formData.append(`ContentVariables`, JSON.stringify({ [key]: value }));
+      }
+      
+      const twilioResponse = await fetch(twilioEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Basic ${twilioAuthString}`
+        },
+        body: formData
+      });
+
+      const twilioResult = await twilioResponse.json();
+      
+      // Log template message to database if we have a leadId
+      if (leadId) {
+        const { error: updateError } = await supabase
+          .from("lead_communications")
+          .insert([{
+            lead_id: leadId,
+            type: "whatsapp",
+            content: `Template: ${templateName}`,
+            sent_at: new Date().toISOString(),
+            sent_by: user.id,
+            metadata: { template: templateName, variables: templateParams }
+          }]);
+          
+        if (updateError) {
+          console.error("Error logging template communication:", updateError);
+        }
+      }
+      
+      return new Response(JSON.stringify({ 
+        success: twilioResponse.ok,
+        sid: twilioResult.sid,
+        message: twilioResponse.ok ? "WhatsApp template sent successfully" : "Failed to send WhatsApp template" 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    else if (action === "get-whatsapp-templates") {
+      // Fetch WhatsApp templates from Twilio
+      const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Content.json?ContentType=template`;
+      const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+      
+      const twilioResponse = await fetch(twilioEndpoint, {
+        method: "GET",
+        headers: {
+          "Authorization": `Basic ${twilioAuthString}`
+        }
+      });
+
+      const twilioResult = await twilioResponse.json();
+      
+      return new Response(JSON.stringify({ 
+        success: twilioResponse.ok,
+        templates: twilioResult.contents || []
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    else if (action === "get-message-status") {
+      // Validate request
+      if (!callSid) {
+        return new Response(JSON.stringify({ error: "Missing required message SID" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Get message status from Twilio
+      const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages/${callSid}.json`;
+      const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+      const twilioResponse = await fetch(twilioEndpoint, {
+        method: "GET",
+        headers: {
+          "Authorization": `Basic ${twilioAuthString}`
+        }
+      });
+
+      const twilioResult = await twilioResponse.json();
+
+      return new Response(JSON.stringify({ 
+        success: twilioResponse.ok,
+        status: twilioResult.status || "unknown",
+        error_code: twilioResult.error_code,
+        error_message: twilioResult.error_message
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
