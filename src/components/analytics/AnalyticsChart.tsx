@@ -1,12 +1,29 @@
 
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, BarChart, LineChart, Pie, Bar, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from "recharts";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  RadialBar,
+  RadialBarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts";
 
 interface AnalyticsChartProps {
   title: string;
   description: string;
-  chartType: "pie" | "bar" | "line";
+  chartType: "line" | "area" | "bar" | "pie" | "radialBar";
   data: any[];
   dataKeys: string[];
   colors: string[];
@@ -21,11 +38,72 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   data,
   dataKeys,
   colors,
-  xAxisDataKey = "name",
+  xAxisDataKey,
   nameKey = "name"
 }) => {
   const renderChart = () => {
     switch (chartType) {
+      case "line":
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey={xAxisDataKey} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              {dataKeys.map((key, index) => (
+                <Line
+                  key={key}
+                  type="monotone"
+                  dataKey={key}
+                  stroke={colors[index % colors.length]}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        );
+      case "area":
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey={xAxisDataKey} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              {dataKeys.map((key, index) => (
+                <Area
+                  key={key}
+                  type="monotone"
+                  dataKey={key}
+                  fill={colors[index % colors.length]}
+                  stroke={colors[index % colors.length]}
+                />
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
+        );
+      case "bar":
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey={xAxisDataKey} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              {dataKeys.map((key, index) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  fill={colors[index % colors.length]}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        );
       case "pie":
         return (
           <ResponsiveContainer width="100%" height={300}>
@@ -34,12 +112,12 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                 data={data}
                 cx="50%"
                 cy="50%"
-                labelLine={false}
-                outerRadius={100}
+                labelLine={true}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={80}
                 fill="#8884d8"
                 dataKey={dataKeys[0]}
                 nameKey={nameKey}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
@@ -50,66 +128,53 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
             </PieChart>
           </ResponsiveContainer>
         );
-      
-      case "bar":
+      case "radialBar":
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-              <XAxis dataKey={xAxisDataKey} />
-              <YAxis />
+            <RadialBarChart 
+              cx="50%" 
+              cy="50%" 
+              innerRadius="10%" 
+              outerRadius="80%" 
+              barSize={20} 
+              data={data}
+            >
+              <RadialBar
+                label={{ position: 'insideStart', fill: '#fff' }}
+                background
+                dataKey={dataKeys[0]}
+                nameKey={nameKey}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                ))}
+              </RadialBar>
+              <Legend
+                iconSize={10}
+                layout="vertical"
+                verticalAlign="middle"
+                wrapperStyle={{
+                  top: '50%',
+                  right: 0,
+                  transform: 'translate(0, -50%)',
+                  lineHeight: '24px',
+                }}
+              />
               <Tooltip />
-              <Legend />
-              {dataKeys.map((key, index) => (
-                <Bar key={key} dataKey={key} fill={colors[index % colors.length]} />
-              ))}
-            </BarChart>
+            </RadialBarChart>
           </ResponsiveContainer>
         );
-      
-      case "line":
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-              <XAxis dataKey={xAxisDataKey} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              {dataKeys.map((key, index) => (
-                <Line 
-                  key={key} 
-                  type="monotone" 
-                  dataKey={key} 
-                  stroke={colors[index % colors.length]} 
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
-        );
-      
       default:
-        return <div>Unsupported chart type</div>;
+        return <div>Chart type not supported</div>;
     }
   };
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="pb-2">
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1 flex items-center justify-center">
-        {data.length > 0 ? (
-          renderChart()
-        ) : (
-          <div className="text-center text-muted-foreground py-10">
-            No data available
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="space-y-2">
+      {title && <h3 className="text-lg font-medium">{title}</h3>}
+      {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      {renderChart()}
+    </div>
   );
 };
 
