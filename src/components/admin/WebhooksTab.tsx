@@ -30,7 +30,8 @@ const WebhooksTab = () => {
     handleTestZapierWebhook,
     handleTestGithubWebhook,
     handleTestSlackWebhook,
-    handleTestCustomWebhook
+    handleTestCustomWebhook,
+    handleTestStripeWebhook
   } = useWebhooks();
 
   // Validation hooks
@@ -110,6 +111,7 @@ const WebhooksTab = () => {
             onGithubWebhookChange={handleGithubWebhookChange}
             onSlackWebhookChange={handleSlackWebhookChange}
             onCustomWebhookChange={handleCustomWebhookChange}
+            onTestStripeWebhook={() => handleTestStripeWebhook(isStripeWebhookValid)}
             onTestZapierWebhook={() => handleTestZapierWebhook(isZapierWebhookValid)}
             onTestGithubWebhook={() => handleTestGithubWebhook(isGithubWebhookValid)}
             onTestSlackWebhook={() => handleTestSlackWebhook(isSlackWebhookValid)}

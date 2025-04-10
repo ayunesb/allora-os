@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Save, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -29,6 +29,7 @@ interface WebhookConfigTabProps {
   onTestGithubWebhook: () => void;
   onTestSlackWebhook: () => void;
   onTestCustomWebhook: () => void;
+  onTestStripeWebhook: () => void;
   onSave: () => void;
   isSaving: boolean;
   testingWebhook: string | null;
@@ -55,6 +56,7 @@ const WebhookConfigTab: React.FC<WebhookConfigTabProps> = ({
   onTestGithubWebhook,
   onTestSlackWebhook,
   onTestCustomWebhook,
+  onTestStripeWebhook,
   onSave,
   isSaving,
   testingWebhook,
@@ -84,7 +86,7 @@ const WebhookConfigTab: React.FC<WebhookConfigTabProps> = ({
         stripeWebhook={stripeWebhook}
         onStripeWebhookChange={onStripeWebhookChange}
         isTestLoading={testingWebhook === 'stripe' && testLoading}
-        onTestWebhook={() => {}} // Stripe testing not implemented
+        onTestWebhook={onTestStripeWebhook}
         isValid={isStripeWebhookValid}
       />
       

@@ -1,19 +1,29 @@
 
 import React from 'react';
 import { Webhook } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import WebhookInput from './WebhookInput';
 import { useWebhookValidation } from './useWebhookValidation';
 
 interface StripeWebhookSectionProps {
   stripeWebhook: string;
   onStripeWebhookChange: (value: string) => void;
+  onTestWebhook: () => void;
+  isTestLoading: boolean;
+  isValid?: boolean | null;
 }
 
 const StripeWebhookSection = ({ 
   stripeWebhook, 
-  onStripeWebhookChange 
+  onStripeWebhookChange,
+  onTestWebhook,
+  isTestLoading,
+  isValid: externalIsValid
 }: StripeWebhookSectionProps) => {
-  const { isValid: isStripeWebhookValid, validationMessage, validateUrl } = useWebhookValidation('stripe');
+  const { isValid: internalIsValid, validationMessage, validateUrl } = useWebhookValidation('stripe');
+  
+  // Use external isValid if provided, otherwise use internal validation
+  const isStripeWebhookValid = externalIsValid !== undefined ? externalIsValid : internalIsValid;
 
   // Handle input change
   const handleStripeWebhookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +51,24 @@ const StripeWebhookSection = ({
         validationMessage={validationMessage}
         description="Enter the URL where Stripe should send webhook events. This is used for payment processing."
       />
+
+      <div className="flex gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onTestWebhook}
+          disabled={isTestLoading || !stripeWebhook || isStripeWebhookValid !== true}
+        >
+          {isTestLoading ? "Testing..." : "Test Webhook"}
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => window.open("https://stripe.com/docs/webhooks", "_blank")}
+        >
+          Stripe Documentation
+        </Button>
+      </div>
     </div>
   );
 };
