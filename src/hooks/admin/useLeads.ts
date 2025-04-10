@@ -116,6 +116,7 @@ export const useLeads = () => {
   return {
     leads: filteredLeads,
     isLoading,
+    error, // Explicitly expose the error property
     searchQuery,
     setSearchQuery,
     sortBy,

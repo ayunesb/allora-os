@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserPlus, FileImport } from 'lucide-react';
+import { UserPlus, Upload } from 'lucide-react';
 import { AddLeadDialog } from '@/components/admin/leads/AddLeadDialog';
 import { useCampaigns } from '@/hooks/campaigns';
 
@@ -40,7 +40,7 @@ export const LeadsEmptyState: React.FC = () => {
           isMobileView={false}
         />
         <Button variant="outline" className="gap-2">
-          <FileImport className="h-4 w-4" />
+          <Upload className="h-4 w-4" />
           Import from CSV
         </Button>
       </CardFooter>

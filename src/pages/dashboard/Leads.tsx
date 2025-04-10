@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { useLeads } from '@/hooks/admin/useLeads';
 import { useCampaigns } from '@/hooks/campaigns';
@@ -16,11 +16,12 @@ import {
   LeadBulkActions,
   AddLeadDialog
 } from '@/components/dashboard/leads';
-import { Sheet } from '@/components/ui/sheet';
-import { toast } from "sonner";
+import { useLeadScoring } from '@/hooks/dashboard/useLeadScoring';
+import { useLeadFilters } from '@/hooks/dashboard/useLeadFilters';
+import { useLeadSelection } from '@/hooks/dashboard/useLeadSelection';
+import { useLeadDrawer } from '@/hooks/dashboard/useLeadDrawer';
 import { Button } from '@/components/ui/button';
-import { UploadCloud, Plus, AlertCircle } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UploadCloud, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function DashboardLeads() {
@@ -30,6 +31,7 @@ export default function DashboardLeads() {
   // Get campaign data
   const { campaigns: campaignData, isLoading: isCampaignsLoading } = useCampaigns();
   
+  // Use the refactored lead data hook
   const {
     leads,
     isLoading,
@@ -43,77 +45,40 @@ export default function DashboardLeads() {
     addLead,
     isAddingLead,
     refetchLeads,
-    error
+    error: leadsError
   } = useLeads();
   
-  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  // Extract AI scoring logic to a custom hook
+  const { getLeadScore, getNextBestAction } = useLeadScoring();
+  
+  // Use lead filtering hook
+  const {
+    activeFilter,
+    setActiveFilter,
+    filteredLeads
+  } = useLeadFilters(leads);
+  
+  // Use lead selection hook
+  const {
+    selectedLeads,
+    handleLeadSelect,
+    handleSelectAll,
+    handleBulkStatusUpdate
+  } = useLeadSelection(handleStatusUpdate);
+  
+  // Use lead drawer hook
+  const {
+    selectedLead,
+    isDrawerOpen,
+    handleViewLead,
+    setIsDrawerOpen
+  } = useLeadDrawer();
   
   // Refresh data on mount
   useEffect(() => {
     refetchLeads();
   }, [refetchLeads]);
   
-  const handleLeadSelect = (leadId: string, isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedLeads(prev => [...prev, leadId]);
-    } else {
-      setSelectedLeads(prev => prev.filter(id => id !== leadId));
-    }
-  };
-  
-  const handleSelectAll = (isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedLeads(leads.map(lead => lead.id));
-    } else {
-      setSelectedLeads([]);
-    }
-  };
-  
-  const handleViewLead = (lead: Lead) => {
-    setSelectedLead(lead);
-    setIsDrawerOpen(true);
-  };
-  
-  const handleBulkStatusUpdate = async (status: Lead['status']) => {
-    if (selectedLeads.length === 0) return;
-    
-    try {
-      // Update status for each selected lead
-      await Promise.all(selectedLeads.map(id => handleStatusUpdate(id, status)));
-      
-      toast.success(`Updated ${selectedLeads.length} leads to ${status}`);
-      setSelectedLeads([]);
-    } catch (error) {
-      toast.error('Failed to update leads');
-      console.error(error);
-    }
-  };
-  
-  const filteredLeads = activeFilter === 'all' 
-    ? leads 
-    : leads.filter(lead => lead.status === activeFilter);
-  
-  const getAILeadScore = (lead: Lead): 'hot' | 'warm' | 'cold' => {
-    // This would be replaced with actual AI-based scoring in a real implementation
-    // For now, simple demo logic based on status
-    if (lead.status === 'qualified') return 'hot';
-    if (lead.status === 'contacted') return 'warm';
-    return 'cold';
-  };
-  
-  const getNextBestAction = (lead: Lead): string => {
-    // Simplified logic for demo purposes
-    // In real implementation, this would use AI to analyze lead behavior
-    const score = getAILeadScore(lead);
-    
-    if (score === 'hot') return 'Schedule Zoom call';
-    if (score === 'warm') return 'Send WhatsApp offer';
-    return 'Make introduction call';
-  };
-
   // Format campaigns data for the AddLeadDialog component
   const formattedCampaigns = campaignData.map(campaign => ({
     id: campaign.id,
@@ -121,7 +86,7 @@ export default function DashboardLeads() {
   }));
 
   // Handle case when there's an error
-  if (error) {
+  if (leadsError) {
     return (
       <div className="animate-fadeIn space-y-6">
         <LeadsHeader isMobileView={isMobileView} />
@@ -188,8 +153,8 @@ export default function DashboardLeads() {
               onDelete={handleDelete}
               selectedLeads={selectedLeads}
               onLeadSelect={handleLeadSelect}
-              onSelectAll={handleSelectAll}
-              getLeadScore={getAILeadScore}
+              onSelectAll={(isSelected) => handleSelectAll(filteredLeads, isSelected)}
+              getLeadScore={getLeadScore}
               getNextBestAction={getNextBestAction}
             />
           )}
@@ -201,7 +166,7 @@ export default function DashboardLeads() {
               onViewLead={handleViewLead}
               onStatusUpdate={handleStatusUpdate}
               onDelete={handleDelete}
-              getLeadScore={getAILeadScore}
+              getLeadScore={getLeadScore}
               getNextBestAction={getNextBestAction}
             />
           )}
@@ -213,7 +178,7 @@ export default function DashboardLeads() {
               lead={selectedLead}
               onStatusUpdate={handleStatusUpdate}
               onDelete={handleDelete}
-              getLeadScore={getAILeadScore}
+              getLeadScore={getLeadScore}
               getNextBestAction={getNextBestAction}
             />
           )}
