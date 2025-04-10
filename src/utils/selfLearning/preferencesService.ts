@@ -1,4 +1,3 @@
-
 import { supabase } from "@/backend/supabase";
 import { UserPreferences } from './types';
 
