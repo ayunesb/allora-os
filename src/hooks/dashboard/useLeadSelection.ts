@@ -1,47 +1,59 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Lead } from '@/models/lead';
-import { toast } from 'sonner';
 
-export const useLeadSelection = (handleStatusUpdate: (id: string, status: Lead['status']) => Promise<void>) => {
+export function useLeadSelection() {
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  
-  const handleLeadSelect = (leadId: string, isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedLeads(prev => [...prev, leadId]);
+  const [isSelectAll, setIsSelectAll] = useState(false);
+
+  const toggleSelectLead = useCallback((leadId: string) => {
+    setSelectedLeads(prev => {
+      if (prev.includes(leadId)) {
+        return prev.filter(id => id !== leadId);
+      } else {
+        return [...prev, leadId];
+      }
+    });
+  }, []);
+
+  const selectAllLeads = useCallback((leads: Lead[]) => {
+    const allLeadIds = leads.map(lead => lead.id);
+    setSelectedLeads(allLeadIds);
+    setIsSelectAll(true);
+  }, []);
+
+  const deselectAllLeads = useCallback(() => {
+    setSelectedLeads([]);
+    setIsSelectAll(false);
+  }, []);
+
+  const toggleSelectAll = useCallback((leads: Lead[]) => {
+    if (selectedLeads.length === leads.length) {
+      deselectAllLeads();
     } else {
-      setSelectedLeads(prev => prev.filter(id => id !== leadId));
+      selectAllLeads(leads);
     }
-  };
-  
-  const handleSelectAll = (allLeads: Lead[], isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedLeads(allLeads.map(lead => lead.id));
-    } else {
-      setSelectedLeads([]);
-    }
-  };
-  
-  const handleBulkStatusUpdate = async (status: Lead['status']) => {
-    if (selectedLeads.length === 0) return;
-    
-    try {
-      // Update status for each selected lead
-      await Promise.all(selectedLeads.map(id => handleStatusUpdate(id, status)));
-      
-      toast.success(`Updated ${selectedLeads.length} leads to ${status}`);
-      setSelectedLeads([]);
-    } catch (error) {
-      toast.error('Failed to update leads');
-      console.error(error);
-    }
-  };
+  }, [selectedLeads, selectAllLeads, deselectAllLeads]);
+
+  const isLeadSelected = useCallback((leadId: string) => {
+    return selectedLeads.includes(leadId);
+  }, [selectedLeads]);
+
+  const getSelectedLeads = useCallback((allLeads: Lead[]) => {
+    return allLeads.filter(lead => selectedLeads.includes(lead.id));
+  }, [selectedLeads]);
+
+  const selectedCount = selectedLeads.length;
 
   return {
     selectedLeads,
-    handleLeadSelect,
-    handleSelectAll,
-    handleBulkStatusUpdate,
-    clearSelection: () => setSelectedLeads([])
+    selectedCount,
+    isSelectAll,
+    toggleSelectLead,
+    selectAllLeads,
+    deselectAllLeads,
+    toggleSelectAll,
+    isLeadSelected,
+    getSelectedLeads
   };
-};
+}

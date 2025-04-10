@@ -1,36 +1,111 @@
 
-import { useState, useMemo } from 'react';
-import { Lead } from '@/models/lead';
+import { useState, useCallback, useMemo } from 'react';
+import { Lead, LeadStatus } from '@/models/lead';
 
-export const useLeadFilters = (leads: Lead[]) => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [activeFilter, setActiveFilter] = useState<string>('all');
-  
-  // Apply filters to leads
+type FilterCriteria = {
+  status?: LeadStatus | 'all';
+  search?: string;
+  campaignId?: string;
+  startDate?: Date;
+  endDate?: Date;
+};
+
+export function useLeadFilters(initialLeads: Lead[] = []) {
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [filters, setFilters] = useState<FilterCriteria>({
+    status: 'all',
+    search: '',
+    campaignId: undefined,
+    startDate: undefined,
+    endDate: undefined
+  });
+
+  const updateFilters = useCallback((newFilters: Partial<FilterCriteria>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setFilters({
+      status: 'all',
+      search: '',
+      campaignId: undefined,
+      startDate: undefined,
+      endDate: undefined
+    });
+  }, []);
+
   const filteredLeads = useMemo(() => {
-    // First apply status filter
-    const statusFiltered = activeFilter === 'all' 
-      ? leads 
-      : leads.filter(lead => lead.status === activeFilter);
+    return leads.filter(lead => {
+      // Filter by status
+      if (filters.status && filters.status !== 'all' && lead.status !== filters.status) {
+        return false;
+      }
+
+      // Filter by search term
+      if (filters.search && filters.search.trim() !== '') {
+        const searchTerm = filters.search.toLowerCase();
+        const nameMatch = lead.name.toLowerCase().includes(searchTerm);
+        const emailMatch = lead.email?.toLowerCase().includes(searchTerm) || false;
+        const phoneMatch = lead.phone?.toLowerCase().includes(searchTerm) || false;
+        
+        if (!nameMatch && !emailMatch && !phoneMatch) {
+          return false;
+        }
+      }
+
+      // Filter by campaign
+      if (filters.campaignId && lead.campaign_id !== filters.campaignId) {
+        return false;
+      }
+
+      // Filter by date range
+      if (filters.startDate || filters.endDate) {
+        const leadDate = new Date(lead.created_at);
+        
+        if (filters.startDate && leadDate < filters.startDate) {
+          return false;
+        }
+        
+        if (filters.endDate) {
+          const endDatePlus1 = new Date(filters.endDate);
+          endDatePlus1.setDate(endDatePlus1.getDate() + 1);
+          
+          if (leadDate >= endDatePlus1) {
+            return false;
+          }
+        }
+      }
+
+      // If it passes all filters, include it
+      return true;
+    });
+  }, [leads, filters]);
+
+  const filterStats = useMemo(() => {
+    const total = leads.length;
+    const filtered = filteredLeads.length;
+    const statusCounts: Record<string, number> = {};
     
-    // Then apply search filter if there's a query
-    if (searchQuery.trim() === '') {
-      return statusFiltered;
-    }
+    // Count leads by status
+    leads.forEach(lead => {
+      statusCounts[lead.status] = (statusCounts[lead.status] || 0) + 1;
+    });
     
-    const query = searchQuery.toLowerCase();
-    return statusFiltered.filter(lead => 
-      lead.name.toLowerCase().includes(query) || 
-      (lead.email && lead.email.toLowerCase().includes(query)) ||
-      (lead.phone && lead.phone.toLowerCase().includes(query))
-    );
-  }, [leads, searchQuery, activeFilter]);
+    return {
+      total,
+      filtered,
+      percentageShown: total > 0 ? Math.round((filtered / total) * 100) : 0,
+      statusCounts
+    };
+  }, [leads, filteredLeads]);
 
   return {
-    searchQuery,
-    setSearchQuery,
-    activeFilter,
-    setActiveFilter,
-    filteredLeads
+    leads,
+    setLeads,
+    filters,
+    updateFilters,
+    resetFilters,
+    filteredLeads,
+    filterStats
   };
-};
+}
