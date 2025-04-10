@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
   dashboardRoutes,
   ...onboardingRoutes,
   ...authRoutes,
-  ...adminRoutes,
+  adminRoutes, // This was causing the issue - adminRoutes is already an object, not an array
   ...marketingRoutes,
   {
     path: "/zoom-callback",
