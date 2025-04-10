@@ -6,6 +6,7 @@
  */
 
 import { supabase } from '@/backend/supabase';
+import { logger } from '@/utils/loggingService';
 
 /**
  * Removes test data from the database
@@ -13,6 +14,9 @@ import { supabase } from '@/backend/supabase';
  */
 export async function removeTestData() {
   try {
+    // Log the start of the cleanup process
+    logger.info('Starting test data cleanup process', { process: 'removeTestData' });
+    
     // This is a dangerous operation and should be used with caution
     console.warn('CAUTION: This will remove all test data from the database!');
     
@@ -24,6 +28,7 @@ export async function removeTestData() {
       .like('email', 'test%');
       
     if (leadsError) throw leadsError;
+    logger.info('Test leads removed successfully', { table: 'leads' });
     
     // 2. Remove test campaigns
     const { error: campaignsError } = await supabase
@@ -32,6 +37,7 @@ export async function removeTestData() {
       .like('name', 'Test%');
       
     if (campaignsError) throw campaignsError;
+    logger.info('Test campaigns removed successfully', { table: 'campaigns' });
     
     // 3. Remove test companies (but keep the ones created by test company setup feature)
     const { error: companiesError } = await supabase
@@ -41,10 +47,11 @@ export async function removeTestData() {
       .is('details->>created_for_user', null);
       
     if (companiesError) throw companiesError;
+    logger.info('Test companies removed successfully', { table: 'companies' });
     
     return { success: true, message: 'Test data removed successfully' };
   } catch (error: any) {
-    console.error('Error removing test data:', error.message);
+    logger.error('Error removing test data:', { error: error.message });
     return { success: false, error: error.message };
   }
 }
@@ -62,19 +69,27 @@ export async function verifyApiSecrets() {
   ];
   
   try {
-    // Note: In a browser context, we can't directly check if environment variables are set
-    // This is just a helper to remind developers what to check
-    
-    console.info('Please verify these secrets are set in your Supabase Edge Functions:');
-    requiredSecrets.forEach(secret => {
-      console.info(`- ${secret}`);
+    // Check if we can retrieve the secrets from Supabase
+    const { data, error } = await supabase.functions.invoke('verify-secrets', {
+      body: { secrets: requiredSecrets },
     });
+    
+    if (error) throw error;
+    
+    if (data && data.missingSecrets && data.missingSecrets.length > 0) {
+      return {
+        success: false,
+        message: `Missing required secrets: ${data.missingSecrets.join(', ')}`,
+        missingSecrets: data.missingSecrets
+      };
+    }
     
     return { 
       success: true, 
-      message: 'Please check your Supabase dashboard to ensure all secrets are set' 
+      message: 'All required API secrets are properly configured'
     };
   } catch (error: any) {
+    logger.error('Error verifying API secrets:', { error: error.message });
     return { success: false, error: error.message };
   }
 }

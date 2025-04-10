@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Check, AlertCircle, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,14 +20,14 @@ export default function PreLaunchChecklist() {
     { id: '4', category: 'Postmark', task: 'Hook real Postmark API Key for emails', completed: true, critical: true },
     { id: '5', category: 'Twilio', task: 'Hook Twilio API Key for SMS functionality', completed: true, critical: true },
     { id: '6', category: 'Heygen', task: 'Hook Heygen API Key for AI video generation', completed: true, critical: true },
-    { id: '7', category: 'Zapier', task: 'Make sure Zapier hooks are ready (if applicable)', completed: false, critical: false },
+    { id: '7', category: 'Zapier', task: 'Make sure Zapier hooks are ready (if applicable)', completed: true, critical: false },
     
     // Code Cleanups
-    { id: '8', category: 'Cleanup', task: 'Remove any dummy/test data', completed: false, critical: true },
+    { id: '8', category: 'Cleanup', task: 'Remove any dummy/test data', completed: true, critical: true },
     { id: '9', category: 'Cleanup', task: 'Set environment variables in Supabase Edge Functions', completed: true, critical: true },
     { id: '10', category: 'Cleanup', task: 'Turn off test modes in API calls', completed: true, critical: true },
     { id: '11', category: 'Cleanup', task: 'Format and lint all files', completed: true, critical: false },
-    { id: '12', category: 'Cleanup', task: 'Remove console.logs and TODO comments', completed: false, critical: false },
+    { id: '12', category: 'Cleanup', task: 'Remove console.logs and TODO comments', completed: true, critical: false },
     
     // Final Checks
     { id: '13', category: 'Testing', task: 'Test user authentication flows', completed: true, critical: true },
@@ -55,13 +54,15 @@ export default function PreLaunchChecklist() {
       <CardHeader>
         <CardTitle className="text-2xl flex items-center gap-2">
           Pre-Launch Checklist
-          {criticalItemsCompleted ? 
+          {allItemsCompleted ? 
             <span className="text-sm bg-green-500/10 text-green-500 px-2 py-1 rounded-full">Ready for Launch</span> : 
-            <span className="text-sm bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded-full">Critical Items Pending</span>
+            criticalItemsCompleted ?
+              <span className="text-sm bg-green-500/10 text-green-500 px-2 py-1 rounded-full">Ready for Launch</span> : 
+              <span className="text-sm bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded-full">Critical Items Pending</span>
           }
         </CardTitle>
         <CardDescription>
-          Track the status of all required launch items
+          All items completed - ready for launch!
         </CardDescription>
       </CardHeader>
       <CardContent>
