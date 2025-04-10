@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Campaign } from '@/models/campaign';
 import { 
@@ -107,7 +106,7 @@ const CampaignTable = ({
                 {campaign.platform}
               </Badge>
             </TableCell>
-            <TableCell>{formatCurrency(campaign.budget)}</TableCell>
+            <TableCell>{formatCurrency(campaign.budget || 0)}</TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -5,6 +5,7 @@ export type Strategy = {
   description: string;
   user_id: string;
   riskLevel: 'Low' | 'Medium' | 'High';
+  risk_level?: 'Low' | 'Medium' | 'High'; // For backward compatibility
   tags?: string[];
   created_at: string;
   updated_at?: string;

@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import {
@@ -27,12 +26,25 @@ export default function Strategies() {
     error,
     createStrategy, 
     isCreating,
-    updateStrategy,
+    updateStrategy: rawUpdateStrategy,
     isUpdating,
     deleteStrategy,
     isDeleting,
     refetch
   } = useStrategies();
+
+  const updateStrategy = useCallback((data: { 
+    id: string; 
+    title?: string; 
+    description?: string; 
+    riskLevel?: 'Low' | 'Medium' | 'High'; 
+  }) => {
+    return rawUpdateStrategy(data.id, {
+      title: data.title,
+      description: data.description,
+      risk_level: data.riskLevel
+    });
+  }, [rawUpdateStrategy]);
 
   const {
     trackStrategyView,

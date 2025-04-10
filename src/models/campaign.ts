@@ -12,4 +12,9 @@ export type Campaign = {
   justification?: string;
   roi?: string;
   target_audience?: string;
+  companies?: { name: string; };
 };
+
+// These were missing and referenced in campaignService.ts
+export type CampaignCreate = Omit<Campaign, 'id' | 'created_at' | 'updated_at'>;
+export type CampaignUpdate = Partial<Omit<Campaign, 'id' | 'created_at'>>;

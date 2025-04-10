@@ -64,8 +64,10 @@ export default function Campaigns() {
         name: data.name,
         platform: data.platform as any,
         budget: data.budget,
+        // We'll add this to campaign data via Supabase hooks
+        // since it's not officially part of the type
         executiveBot: randomExec
-      });
+      } as any);
       
       // Track the campaign creation with executive attribution
       trackAction(
@@ -105,10 +107,13 @@ export default function Campaigns() {
   const handleApproveCampaign = (campaignId: string) => {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
+      // Cast campaign to any to access executiveBot property which is added dynamically
+      const executiveBot = (campaign as any).executiveBot;
+      
       trackCampaignApprove(
         campaignId, 
         campaign.name, 
-        campaign.executiveBot
+        executiveBot
       );
       
       // Refresh campaigns after approval
@@ -140,7 +145,7 @@ export default function Campaigns() {
       <CampaignHeader onNewCampaign={handleNewCampaign} />
       
       <CampaignsList 
-        campaigns={campaigns}
+        campaigns={campaigns as any[]}
         isLoading={isLoading}
         handleEditCampaign={handleEditCampaign}
         deleteCampaign={deleteCampaign}

@@ -38,7 +38,7 @@ export function useStrategyFilters(strategies: Strategy[]) {
     
     if (riskFilter !== 'all') {
       filtered = filtered.filter(strategy => 
-        strategy.risk_level === riskFilter
+        (strategy.riskLevel === riskFilter || strategy.risk_level === riskFilter)
       );
     }
     
@@ -52,7 +52,9 @@ export function useStrategyFilters(strategies: Strategy[]) {
           return a.title.localeCompare(b.title);
         case 'risk':
           const riskOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
-          return riskOrder[a.risk_level as RiskLevel] - riskOrder[b.risk_level as RiskLevel];
+          const riskA = a.riskLevel || a.risk_level || 'Medium';
+          const riskB = b.riskLevel || b.risk_level || 'Medium';
+          return riskOrder[riskA as RiskLevel] - riskOrder[riskB as RiskLevel];
         default:
           return 0;
       }

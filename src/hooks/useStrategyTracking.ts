@@ -80,12 +80,51 @@ export function useStrategyTracking() {
       { action: 'delete' }
     );
   }, [user, trackAction]);
+
+  /**
+   * Track when a user updates a strategy
+   */
+  const trackStrategyUpdate = useCallback((strategyId: string, title: string, riskLevel?: string) => {
+    if (!user?.id) return;
+    
+    trackAction(
+      'update_strategy',
+      'strategy_management',
+      strategyId,
+      'strategy',
+      { 
+        title,
+        riskLevel,
+        action: 'update' 
+      }
+    );
+  }, [user, trackAction]);
+  
+  /**
+   * Track when a user applies a filter
+   */
+  const trackStrategyFilter = useCallback((filterType: string, filterValue: string) => {
+    if (!user?.id) return;
+    
+    trackAction(
+      'filter_strategies',
+      'strategy_interaction',
+      filterType,
+      'filter',
+      { 
+        filterType,
+        filterValue 
+      }
+    );
+  }, [user, trackAction]);
   
   return {
     trackStrategyView,
     trackStrategyApprove,
     trackStrategyReject,
     trackStrategyDelete,
+    trackStrategyUpdate,
+    trackStrategyFilter,
     isLoggedIn: !!user?.id
   };
 }

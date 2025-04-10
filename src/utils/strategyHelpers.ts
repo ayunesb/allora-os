@@ -1,3 +1,4 @@
+
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { Strategy } from '@/models/strategy';
@@ -19,7 +20,7 @@ export async function fetchCompanyStrategies(companyId: string): Promise<Strateg
     // Cast the data to ensure it matches the Strategy type
     return (data || []).map(strategy => ({
       ...strategy,
-      risk_level: strategy.risk_level as Strategy['risk_level']
+      riskLevel: strategy.risk_level as Strategy['riskLevel']
     }));
   } catch (error: any) {
     console.error('Error fetching strategies:', error.message);
@@ -42,7 +43,7 @@ export async function fetchStrategy(strategyId: string): Promise<Strategy | null
     // Cast the data to ensure it matches the Strategy type
     return data ? {
       ...data,
-      risk_level: data.risk_level as Strategy['risk_level']
+      riskLevel: data.risk_level as Strategy['riskLevel']
     } : null;
   } catch (error: any) {
     console.error('Error fetching strategy:', error.message);

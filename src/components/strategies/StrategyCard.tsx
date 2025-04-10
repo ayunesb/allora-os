@@ -47,6 +47,9 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
     }
   };
 
+  // Use riskLevel property, with fallback to risk_level for backward compatibility
+  const riskLevel = strategy.riskLevel || strategy.risk_level || "Medium";
+
   return (
     <div 
       key={strategy.id} 
@@ -57,9 +60,9 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onEdit, onDelete,
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3 sm:mb-4">
         <h3 className="text-lg sm:text-xl font-bold">{strategy.title}</h3>
         <span className={`self-start sm:self-auto px-3 py-1 rounded-full text-xs font-medium ${
-          getRiskColor(strategy.risk_level)
+          getRiskColor(riskLevel)
         }`}>
-          {strategy.risk_level || "Medium"} Risk
+          {riskLevel} Risk
         </span>
       </div>
       

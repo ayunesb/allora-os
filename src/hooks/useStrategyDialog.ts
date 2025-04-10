@@ -57,7 +57,7 @@ export function useStrategyDialog({ strategies, createStrategy, updateStrategy }
         return {
           title: strategy.title,
           description: strategy.description || "",
-          riskLevel: (strategy.risk_level as 'Low' | 'Medium' | 'High') || "Medium",
+          riskLevel: (strategy.riskLevel || strategy.risk_level || "Medium") as 'Low' | 'Medium' | 'High',
         };
       }
     }
