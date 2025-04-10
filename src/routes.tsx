@@ -10,12 +10,14 @@ import { adminRoutes } from "./routes/admin-routes";
 import { complianceRoutes } from "./routes/compliance-routes";
 import { AuthProvider } from "./context/AuthContext";
 import App from "./App";
+import NotFound from "./pages/NotFound";
 
 // Combine all route configurations
 const routes: RouteObject[] = [
   {
     path: "/",
     element: <App />,
+    errorElement: <NotFound />,
     children: [
       ...publicRoutes,
       dashboardRoutes,

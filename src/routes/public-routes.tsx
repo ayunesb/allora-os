@@ -17,7 +17,6 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/",
     element: <Index />,
-    errorElement: <NotFound />,
   },
   {
     path: "/login",
@@ -59,4 +58,8 @@ export const publicRoutes: RouteObject[] = [
     path: "/dev-admin-helper",
     element: <DevAdminHelper />,
   },
+  {
+    path: "*",
+    element: <NotFound />,
+  }
 ];

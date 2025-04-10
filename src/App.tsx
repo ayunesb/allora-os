@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // This component is now primarily a wrapper for the new routing system
 function App() {
@@ -13,7 +14,9 @@ function App() {
   // The actual routing is now handled in src/routes.tsx
   return (
     <div className="min-h-screen bg-background">
-      <Outlet />
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
     </div>
   );
 }
