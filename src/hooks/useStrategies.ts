@@ -91,6 +91,7 @@ export function useStrategies() {
         title: `${industryName} Market Expansion`,
         description: `Strategically expand into adjacent ${industryName.toLowerCase()} markets where existing capabilities can be leveraged with minimal additional investment.`,
         company_id: companyId,
+        risk: 'Medium',
         riskLevel: 'Medium',
         tags: ['growth', 'expansion'],
         created_at: new Date().toISOString(),
@@ -103,6 +104,7 @@ export function useStrategies() {
         title: 'Operational Excellence Program',
         description: 'Implement a systematic review of all operational processes to identify and eliminate inefficiencies, reduce costs, and improve quality.',
         company_id: companyId,
+        risk: 'Low',
         riskLevel: 'Low',
         tags: ['operations', 'efficiency'],
         created_at: new Date(Date.now() - 86400000).toISOString(),
@@ -115,6 +117,7 @@ export function useStrategies() {
         title: 'Strategic Innovation Initiative',
         description: 'Establish a dedicated innovation lab to explore disruptive technologies and business models that could create new revenue streams.',
         company_id: companyId,
+        risk: 'High',
         riskLevel: 'High',
         tags: ['innovation', 'growth'],
         created_at: new Date(Date.now() - 172800000).toISOString(),
@@ -141,12 +144,17 @@ export function useStrategies() {
       // Add executive attribution if not provided
       const executiveBot = strategyData.executiveBot || getRandomExecutive();
       
+      // Ensure both risk and riskLevel are set for compatibility
+      const riskValue = strategyData.risk || strategyData.riskLevel || strategyData.risk_level || 'Medium';
+      
       const { data, error } = await supabase
         .from('strategies')
         .insert([
           {
             ...strategyData,
-            company_id: profile.company_id, // Use company_id instead of user_id
+            company_id: profile.company_id,
+            risk: riskValue,
+            riskLevel: riskValue,
             executiveBot,
             created_at: new Date().toISOString()
           }
@@ -185,11 +193,18 @@ export function useStrategies() {
     setIsUpdating(true);
 
     try {
+      // Ensure risk field is updated when riskLevel changes
+      if (updates.riskLevel && !updates.risk) {
+        updates.risk = updates.riskLevel;
+      } else if (updates.risk && !updates.riskLevel) {
+        updates.riskLevel = updates.risk;
+      }
+
       const { error } = await supabase
         .from('strategies')
         .update(updates)
         .eq('id', strategyId)
-        .eq('company_id', profile.company_id); // Filter by company_id instead of user_id
+        .eq('company_id', profile.company_id);
 
       if (error) {
         throw error;
@@ -262,6 +277,6 @@ export function useStrategies() {
     isUpdating,
     deleteStrategy,
     isDeleting,
-    refetch
+    refetch: fetchStrategies
   };
 }

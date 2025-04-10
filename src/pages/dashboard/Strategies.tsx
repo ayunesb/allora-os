@@ -40,7 +40,8 @@ export default function Strategies() {
     return rawUpdateStrategy(data.id, {
       title: data.title,
       description: data.description,
-      risk_level: data.riskLevel
+      riskLevel: data.riskLevel,
+      risk: data.riskLevel // Ensure both fields are updated
     });
   }, [rawUpdateStrategy]);
 
@@ -60,6 +61,21 @@ export default function Strategies() {
     filteredAndSortedStrategies
   } = useStrategyFilters(strategies);
 
+  // Wrapper for createStrategy to match the interface expected by useStrategyDialog
+  const createStrategyWrapper = useCallback((data: { 
+    title: string; 
+    description: string; 
+    riskLevel: 'Low' | 'Medium' | 'High'; 
+  }) => {
+    return createStrategy({
+      title: data.title,
+      description: data.description,
+      risk: data.riskLevel,
+      riskLevel: data.riskLevel,
+      company_id: '' // Will be replaced by the actual company_id in the hook
+    });
+  }, [createStrategy]);
+
   const {
     editingStrategyId,
     isDialogOpen,
@@ -70,7 +86,7 @@ export default function Strategies() {
     getDefaultValues
   } = useStrategyDialog({
     strategies,
-    createStrategy,
+    createStrategy: createStrategyWrapper,
     updateStrategy
   });
   
