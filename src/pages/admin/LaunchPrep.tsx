@@ -1,6 +1,7 @@
 
 import React from 'react';
 import PreLaunchChecklist from '@/components/admin/PreLaunchChecklist';
+import LaunchVerification from '@/components/admin/LaunchVerification';
 import { removeTestData, verifyApiSecrets } from '@/utils/cleanupForProduction';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -61,8 +62,11 @@ export default function LaunchPrep() {
           Verify API Secrets
         </Button>
       </div>
-      
-      <PreLaunchChecklist />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LaunchVerification />
+        <PreLaunchChecklist />
+      </div>
       
       <div className="space-y-4 mt-8">
         <h2 className="text-xl font-semibold">API Connections Status</h2>
