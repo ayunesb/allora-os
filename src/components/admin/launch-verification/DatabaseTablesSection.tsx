@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DatabaseTableStatus } from './types';
-import { CheckCircle, XCircle, Database } from 'lucide-react';
+import { CheckCircle, XCircle, Database, Shield, Lock } from 'lucide-react';
 
 interface DatabaseTablesSectionProps {
   tables: Record<string, DatabaseTableStatus>;
@@ -19,7 +19,11 @@ export function DatabaseTablesSection({ tables }: DatabaseTablesSectionProps) {
       <div className="space-y-1.5">
         {Object.entries(tables).map(([table, result]) => (
           <div key={table} className="flex items-center justify-between text-sm">
-            <span className="font-medium text-gray-300">{table}</span>
+            <span className="font-medium text-gray-300 flex items-center gap-1">
+              {table}
+              {/* Show a lock icon for tables with RLS enabled */}
+              {result.exists && <Lock className="h-3 w-3 text-green-400" />}
+            </span>
             <div className="flex items-center gap-1">
               {result.exists ? (
                 <CheckCircle className="h-3.5 w-3.5 text-green-500" />

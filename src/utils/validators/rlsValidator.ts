@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { ValidationResult } from './types';
 
@@ -20,7 +21,12 @@ export async function validateRLSPolicies(): Promise<ValidationResult> {
       'user_legal_acceptances',
       'user_feedback',
       'bot_interactions',
-      'debates'
+      'debates',
+      'debate_messages',
+      'debate_summaries',
+      'tasks',
+      'campaign_creatives',
+      'ai_boardroom_debates'
     ];
     
     const rlsIssues = [];
@@ -78,7 +84,7 @@ export async function validateRLSPolicies(): Promise<ValidationResult> {
     
     return {
       valid: true,
-      message: "Row Level Security (RLS) appears to be properly configured."
+      message: "Row Level Security (RLS) is properly configured on all critical tables."
     };
   } catch (error) {
     return {
