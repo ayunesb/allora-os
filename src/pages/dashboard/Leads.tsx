@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { useLeads } from '@/hooks/admin/useLeads';
 import { useCampaigns } from '@/hooks/campaigns';
@@ -19,15 +19,16 @@ import {
 import { Sheet } from '@/components/ui/sheet';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { UploadCloud, Plus } from 'lucide-react';
+import { UploadCloud, Plus, AlertCircle } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function DashboardLeads() {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
   // Get campaign data
-  const { campaigns: campaignData } = useCampaigns();
+  const { campaigns: campaignData, isLoading: isCampaignsLoading } = useCampaigns();
   
   const {
     leads,
@@ -41,13 +42,19 @@ export default function DashboardLeads() {
     handleDelete,
     addLead,
     isAddingLead,
-    refetchLeads
+    refetchLeads,
+    error
   } = useLeads();
   
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  
+  // Refresh data on mount
+  useEffect(() => {
+    refetchLeads();
+  }, [refetchLeads]);
   
   const handleLeadSelect = (leadId: string, isSelected: boolean) => {
     if (isSelected) {
@@ -112,6 +119,23 @@ export default function DashboardLeads() {
     id: campaign.id,
     name: campaign.name
   }));
+
+  // Handle case when there's an error
+  if (error) {
+    return (
+      <div className="animate-fadeIn space-y-6">
+        <LeadsHeader isMobileView={isMobileView} />
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error loading leads</AlertTitle>
+          <AlertDescription>
+            There was a problem loading your leads data. Please try refreshing the page or contact support.
+          </AlertDescription>
+        </Alert>
+        <Button onClick={() => refetchLeads()}>Retry</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fadeIn space-y-6">
