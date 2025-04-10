@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { MessageSquare, Send, Loader2, Template } from "lucide-react";
+import { MessageSquare, Send, Loader2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +42,6 @@ export default function WhatsAppSender({
   const { leads, isLoading: leadsLoading } = useLeads();
   const { logCommunication, isLoadingMutation } = useCommunications();
   
-  // Fetch WhatsApp templates on component mount
   useEffect(() => {
     async function fetchTemplates() {
       setIsLoadingTemplates(true);
@@ -81,22 +79,18 @@ export default function WhatsAppSender({
       return;
     }
     
-    // Format the phone number by removing any non-digit characters
     const formattedNumber = phoneNumber.replace(/[^0-9+]/g, "");
     setIsSending(true);
     
     try {
-      // Send via Twilio API (backend)
       const sentViaApi = await sendWhatsApp(formattedNumber, message, selectedLeadId);
       
       if (!sentViaApi) {
-        // Fallback to opening WhatsApp Web if the API call fails
         window.open(
           `https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`,
           "_blank"
         );
         
-        // Still log the communication even if using the fallback method
         if (selectedLeadId) {
           const communicationData: CommunicationData = {
             type: "whatsapp",
@@ -109,7 +103,6 @@ export default function WhatsAppSender({
         }
       }
       
-      // Reset the message field on success
       setMessage("");
       toast.success("WhatsApp message processed");
       
@@ -132,12 +125,10 @@ export default function WhatsAppSender({
       return;
     }
     
-    // Format the phone number by removing any non-digit characters
     const formattedNumber = phoneNumber.replace(/[^0-9+]/g, "");
     setIsSending(true);
     
     try {
-      // Send template via Twilio API
       const sentViaApi = await sendWhatsAppTemplate(
         formattedNumber, 
         selectedTemplate, 
@@ -156,7 +147,6 @@ export default function WhatsAppSender({
         await logCommunication(selectedLeadId, communicationData);
       }
       
-      // Reset the template selection on success
       setSelectedTemplate("");
       setTemplateVariables({});
       
@@ -279,8 +269,6 @@ export default function WhatsAppSender({
             <div className="space-y-2 border p-3 rounded-md bg-muted/20">
               <h4 className="font-medium">Template Variables</h4>
               
-              {/* This is a simplified version - in a real app, you'd need to 
-                  dynamically render inputs based on the selected template's variables */}
               <div className="space-y-2">
                 <Label htmlFor="variable-1">Name</Label>
                 <Input
@@ -321,7 +309,7 @@ export default function WhatsAppSender({
               </>
             ) : (
               <>
-                <Template className="mr-2 h-4 w-4" />
+                <FileText className="mr-2 h-4 w-4" />
                 Send Template
               </>
             )}
