@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { CommunicationData } from "@/hooks/useCommunications";
+import { CommunicationData } from "@/hooks/communications";
 import { sendWhatsApp } from "@/utils/twilioHelpers";
 
 interface DirectMessageTabProps {
   phoneNumber: string;
   selectedLeadId: string;
-  onMessageSent: (communicationData: CommunicationData) => Promise<void>;
+  onMessageSent: (communicationData: CommunicationData) => Promise<any>;
   isLoadingMutation: boolean;
 }
 

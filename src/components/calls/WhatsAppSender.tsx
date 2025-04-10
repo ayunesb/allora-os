@@ -56,6 +56,13 @@ export default function WhatsAppSender({
     }
   };
   
+  // Create a wrapper function to ensure correct parameter passing
+  const handleMessageSent = async (communicationData: any) => {
+    if (selectedLeadId) {
+      await logCommunication(selectedLeadId, communicationData);
+    }
+  };
+  
   return (
     <div className="space-y-4">
       <LeadSelector 
@@ -85,7 +92,7 @@ export default function WhatsAppSender({
           <DirectMessageTab 
             phoneNumber={phoneNumber}
             selectedLeadId={selectedLeadId}
-            onMessageSent={logCommunication}
+            onMessageSent={handleMessageSent}
             isLoadingMutation={isLoadingMutation}
           />
         </TabsContent>
@@ -96,7 +103,7 @@ export default function WhatsAppSender({
             selectedLeadId={selectedLeadId}
             templates={templates}
             isLoadingTemplates={isLoadingTemplates}
-            onMessageSent={logCommunication}
+            onMessageSent={handleMessageSent}
             isLoadingMutation={isLoadingMutation}
           />
         </TabsContent>

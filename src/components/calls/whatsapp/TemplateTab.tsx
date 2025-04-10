@@ -14,7 +14,7 @@ interface TemplateTabProps {
   selectedLeadId: string;
   templates: any[];
   isLoadingTemplates: boolean;
-  onMessageSent: (leadId: string, communicationData: CommunicationData) => Promise<any>;
+  onMessageSent: (communicationData: CommunicationData) => Promise<any>;
   isLoadingMutation: boolean;
 }
 
@@ -52,7 +52,7 @@ export default function TemplateTab({
         selectedLeadId
       );
       
-      if (sentViaApi && selectedLeadId) {
+      if (sentViaApi) {
         const communicationData: CommunicationData = {
           type: "whatsapp",
           status: "completed",
