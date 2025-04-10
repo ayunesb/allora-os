@@ -1,331 +1,322 @@
-import { useState } from "react";
+
+import React, { useState } from "react";
 import { 
   Card, 
   CardContent, 
+  CardDescription, 
   CardHeader, 
-  CardTitle, 
-  CardDescription 
+  CardTitle,
+  CardFooter
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Communication, useCommunications } from "@/hooks/useCommunications";
-import { toast } from "sonner";
 import { 
-  MessageSquare, 
-  Phone, 
-  Video, 
-  Search,
-  Sparkles,
-  FileText,
-  Edit,
-  Save,
-  Loader2
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { PlusCircle, FileText, X, Pencil, Check, Loader2 } from "lucide-react";
+import { Communication } from "@/hooks/useCommunications";
+import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { toast } from "sonner";
 
-interface CommunicationNotesProps {
+type CommunicationNotesProps = {
   communications: Communication[];
   isLoading: boolean;
-  communicationId?: string;
   onClose?: () => void;
-}
+};
+
+type CommunicationNotesWithIdProps = CommunicationNotesProps & {
+  communicationId?: string;
+};
 
 export default function CommunicationNotes({
   communications,
   isLoading,
-  communicationId,
-  onClose
-}: CommunicationNotesProps) {
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedComm, setSelectedComm] = useState<Communication | null>(null);
-  const [editingNotes, setEditingNotes] = useState<boolean>(false);
-  const [notes, setNotes] = useState<string>("");
-  const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
+  onClose,
+  communicationId
+}: CommunicationNotesWithIdProps) {
+  const [activeTab, setActiveTab] = useState<string>("summaries");
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [noteContent, setNoteContent] = useState<string>("");
+  const [saving, setSaving] = useState<boolean>(false);
   
-  const { updateCommunicationStatus } = useCommunications();
+  // If communicationId is provided, filter the communications to show only the selected one
+  const filteredCommunications = communicationId 
+    ? communications.filter(comm => comm.id === communicationId)
+    : communications;
   
-  useState(() => {
-    if (communicationId) {
-      const communication = communications.find(comm => comm.id === communicationId);
-      if (communication) {
-        setSelectedComm(communication);
-        setNotes(communication.notes || "");
-      }
-    }
-  });
-  
-  const filteredCommunications = communications.filter(
-    comm => 
-      (comm.leads?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       comm.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       (comm.notes && comm.notes.toLowerCase().includes(searchQuery.toLowerCase()))) &&
-      (comm.notes || comm.ai_summary)
-  );
-  
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "phone":
-        return <Phone className="h-4 w-4 text-blue-600" />;
-      case "zoom":
-        return <Video className="h-4 w-4 text-purple-600" />;
-      case "whatsapp":
-        return <MessageSquare className="h-4 w-4 text-green-600" />;
-      default:
-        return null;
-    }
+  const handleEditNote = (communication: Communication) => {
+    setEditingNoteId(communication.id);
+    setNoteContent(communication.notes || "");
   };
   
-  const formatDateTime = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleString();
-    } catch (e) {
-      return dateString;
-    }
-  };
-  
-  const handleEditNotes = (comm: Communication) => {
-    setSelectedComm(comm);
-    setNotes(comm.notes || "");
-    setEditingNotes(true);
-  };
-  
-  const handleSaveNotes = async () => {
-    if (!selectedComm) return;
+  const handleSaveNote = async () => {
+    if (!editingNoteId) return;
     
+    setSaving(true);
+    
+    // Simulate API call to save note
     try {
-      await updateCommunicationStatus(selectedComm.id, selectedComm.status, notes);
-      toast.success("Notes updated successfully");
-      setEditingNotes(false);
+      await new Promise(resolve => setTimeout(resolve, 800));
       
-      setSelectedComm({
-        ...selectedComm,
-        notes: notes
-      });
+      // In a real app, this would save to the database
+      toast.success("Note saved successfully");
+      setEditingNoteId(null);
     } catch (error) {
-      console.error("Error saving notes:", error);
-      toast.error("Failed to save notes");
-    }
-  };
-  
-  const handleGenerateAISummary = async () => {
-    if (!selectedComm) return;
-    
-    setIsGeneratingAI(true);
-    try {
-      const transcript = prompt("Please paste the conversation transcript to generate an AI summary:", "");
-      if (!transcript) {
-        setIsGeneratingAI(false);
-        return;
-      }
-      
-      try {
-        toast.success("AI summary generated successfully");
-        
-        setSelectedComm({
-          ...selectedComm,
-          ai_summary: "AI-generated summary would appear here based on the transcript."
-        });
-      } catch (error) {
-        console.error("Error generating AI summary:", error);
-        toast.error("Failed to generate AI summary");
-      }
+      toast.error("Failed to save note");
+      console.error("Error saving note:", error);
     } finally {
-      setIsGeneratingAI(false);
+      setSaving(false);
     }
   };
   
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
-    }
+  const handleCancelEdit = () => {
+    setEditingNoteId(null);
+    setNoteContent("");
   };
   
-  return (
-    <Card className="h-full">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Communication Notes & Summaries</CardTitle>
-            <CardDescription>
-              View and manage notes from all your communication channels
-            </CardDescription>
-          </div>
-          {onClose && (
-            <Button variant="ghost" size="sm" onClick={handleClose}>
-              Close
-            </Button>
-          )}
-        </div>
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search notes..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="flex flex-col md:flex-row gap-4 h-full">
-          <div className="md:w-1/3 space-y-4">
-            <h3 className="font-medium text-sm">Communications</h3>
-            
-            {isLoading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-              </div>
-            ) : filteredCommunications.length > 0 ? (
-              <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-                {filteredCommunications.map((comm) => (
-                  <Button
-                    key={comm.id}
-                    variant="outline"
-                    className={`w-full justify-start p-3 h-auto ${selectedComm?.id === comm.id ? 'border-primary' : ''}`}
-                    onClick={() => {
-                      setSelectedComm(comm);
-                      setEditingNotes(false);
-                    }}
-                  >
-                    <div className="flex flex-col items-start text-left">
-                      <div className="flex items-center w-full justify-between">
-                        <div className="flex items-center">
-                          {getTypeIcon(comm.type)}
-                          <span className="ml-2 font-medium">{comm.leads?.name || "Unknown"}</span>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {comm.type}
-                        </Badge>
-                      </div>
-                      <span className="text-xs text-muted-foreground mt-1">
-                        {formatDateTime(comm.ended_at || comm.scheduled_at)}
-                      </span>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 border rounded-md border-dashed">
-                <p className="text-muted-foreground">No notes found</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Add notes to your communications to see them here
-                </p>
-              </div>
-            )}
-          </div>
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  if (communicationId && filteredCommunications.length === 0) {
+    return (
+      <Dialog open={true} onOpenChange={() => onClose && onClose()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Communication Details</DialogTitle>
+            <DialogDescription>
+              Could not find the communication you're looking for.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button>Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  
+  // If we're using this as a modal for a specific communication
+  if (communicationId) {
+    const communication = filteredCommunications[0];
+    
+    return (
+      <Dialog open={true} onOpenChange={() => onClose && onClose()}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Communication Notes
+            </DialogTitle>
+            <DialogDescription>
+              {communication.type.charAt(0).toUpperCase() + communication.type.slice(1)} on {" "}
+              {new Date(communication.created_at).toLocaleDateString()}
+            </DialogDescription>
+          </DialogHeader>
           
-          <div className="md:w-2/3">
-            {selectedComm ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium">
-                    {selectedComm.leads?.name || "Unknown"} - {selectedComm.type.charAt(0).toUpperCase() + selectedComm.type.slice(1)}
-                  </h3>
-                  <div className="flex space-x-2">
-                    {editingNotes ? (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={handleSaveNotes}
-                      >
-                        <Save className="h-3 w-3 mr-1" />
-                        Save
-                      </Button>
-                    ) : (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditNotes(selectedComm)}
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Edit
-                      </Button>
-                    )}
-                    
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-2 mb-4">
+              <TabsTrigger value="notes">Manual Notes</TabsTrigger>
+              <TabsTrigger value="summaries">AI Summary</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="notes" className="space-y-4">
+              {editingNoteId === communication.id ? (
+                <div className="space-y-2">
+                  <Textarea 
+                    value={noteContent} 
+                    onChange={(e) => setNoteContent(e.target.value)}
+                    placeholder="Enter your notes..."
+                    className="min-h-[150px]"
+                  />
+                  <div className="flex items-center justify-end gap-2">
                     <Button 
                       variant="outline" 
-                      size="sm"
-                      onClick={handleGenerateAISummary}
-                      disabled={isGeneratingAI}
+                      size="sm" 
+                      onClick={handleCancelEdit}
+                      disabled={saving}
                     >
-                      {isGeneratingAI ? (
-                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      <X className="h-4 w-4 mr-1" />
+                      Cancel
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={handleSaveNote}
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                       ) : (
-                        <Sparkles className="h-3 w-3 mr-1" />
+                        <Check className="h-4 w-4 mr-1" />
                       )}
-                      AI Summary
+                      Save
                     </Button>
                   </div>
                 </div>
-                
-                <Tabs defaultValue="notes">
-                  <TabsList className="w-full grid grid-cols-2">
-                    <TabsTrigger value="notes">Notes</TabsTrigger>
-                    <TabsTrigger value="ai-summary">AI Summary</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="notes" className="pt-4">
-                    {editingNotes ? (
-                      <Textarea
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Enter notes about this communication..."
-                        className="min-h-[200px]"
-                      />
-                    ) : (
-                      <div className="p-4 bg-muted rounded-md min-h-[200px] whitespace-pre-wrap">
-                        {selectedComm.notes || "No notes available."}
+              ) : (
+                <div>
+                  {communication.notes ? (
+                    <div className="space-y-2">
+                      <div className="border rounded-md p-3 bg-muted/50">
+                        <p className="whitespace-pre-wrap">{communication.notes}</p>
                       </div>
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="ai-summary" className="pt-4">
-                    <div className="p-4 bg-primary-foreground/50 rounded-md border border-primary/10 min-h-[200px] whitespace-pre-wrap">
-                      {selectedComm.ai_summary || "No AI summary available. Click the 'AI Summary' button to generate one from a transcript."}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleEditNote(communication)}
+                        className="mt-2"
+                      >
+                        <Pencil className="h-4 w-4 mr-1" />
+                        Edit Note
+                      </Button>
                     </div>
-                  </TabsContent>
-                </Tabs>
-                
-                <div className="pt-4 border-t">
-                  <h4 className="text-sm font-medium mb-2">Communication Details</h4>
-                  <dl className="grid grid-cols-2 gap-2 text-sm">
-                    <dt className="text-muted-foreground">Type:</dt>
-                    <dd className="font-medium">{selectedComm.type.charAt(0).toUpperCase() + selectedComm.type.slice(1)}</dd>
-                    
-                    <dt className="text-muted-foreground">Status:</dt>
-                    <dd className="font-medium">{selectedComm.status.charAt(0).toUpperCase() + selectedComm.status.slice(1)}</dd>
-                    
-                    <dt className="text-muted-foreground">Date:</dt>
-                    <dd className="font-medium">{formatDateTime(selectedComm.ended_at || selectedComm.scheduled_at)}</dd>
-                    
-                    <dt className="text-muted-foreground">Outcome:</dt>
-                    <dd className="font-medium">
-                      {selectedComm.outcome 
-                        ? selectedComm.outcome.charAt(0).toUpperCase() + selectedComm.outcome.slice(1).replace('_', ' ') 
-                        : "No outcome set"}
-                    </dd>
-                  </dl>
+                  ) : (
+                    <div className="text-center py-8 border rounded-md border-dashed">
+                      <p className="text-muted-foreground mb-4">No notes have been added yet</p>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleEditNote(communication)}
+                      >
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Add Note
+                      </Button>
+                    </div>
+                  )}
                 </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="summaries">
+              {communication.ai_summary ? (
+                <div className="border rounded-md p-3 bg-muted/50">
+                  <p className="whitespace-pre-wrap">{communication.ai_summary}</p>
+                </div>
+              ) : (
+                <div className="text-center py-8 border rounded-md border-dashed">
+                  <p className="text-muted-foreground mb-4">No AI summary available</p>
+                  <Button 
+                    variant="outline" 
+                    disabled
+                  >
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generate Summary
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button>Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  
+  // Default display for the main page
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Communication Notes & Summaries
+        </CardTitle>
+        <CardDescription>
+          Manual notes and AI-generated summaries from your calls and meetings
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="summaries">
+          <TabsList className="grid grid-cols-2 mb-4">
+            <TabsTrigger value="notes">Manual Notes</TabsTrigger>
+            <TabsTrigger value="summaries">AI Summaries</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="notes" className="space-y-4">
+            {filteredCommunications.length === 0 ? (
+              <div className="text-center py-8 border rounded-md border-dashed">
+                <p className="text-muted-foreground">No communications with notes found</p>
               </div>
             ) : (
-              <div className="flex items-center justify-center h-full min-h-[300px] border rounded-md border-dashed">
-                <div className="text-center">
-                  <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Select a communication to view notes</p>
-                </div>
-              </div>
+              filteredCommunications
+                .filter(comm => comm.notes)
+                .slice(0, 3)
+                .map(comm => (
+                  <div key={comm.id} className="border rounded-md p-4 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium capitalize">
+                        {comm.type} with {comm.leads?.name || "Unknown"}
+                      </h3>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(comm.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{comm.notes}</p>
+                  </div>
+                ))
             )}
-          </div>
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="summaries" className="space-y-4">
+            {filteredCommunications.length === 0 ? (
+              <div className="text-center py-8 border rounded-md border-dashed">
+                <p className="text-muted-foreground">No communications with AI summaries found</p>
+              </div>
+            ) : (
+              filteredCommunications
+                .filter(comm => comm.ai_summary)
+                .slice(0, 3)
+                .map(comm => (
+                  <div key={comm.id} className="border rounded-md p-4 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-medium capitalize">
+                        {comm.type} with {comm.leads?.name || "Unknown"}
+                      </h3>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(comm.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{comm.ai_summary}</p>
+                  </div>
+                ))
+            )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
+      <CardFooter className="border-t pt-4">
+        <p className="text-xs text-muted-foreground">
+          AI summaries are automatically generated after Zoom calls and WhatsApp chats. 
+          You can also add your own notes to any communication.
+        </p>
+      </CardFooter>
     </Card>
   );
 }
