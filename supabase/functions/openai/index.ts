@@ -25,16 +25,33 @@ serve(async (req) => {
       botRole, 
       messages, 
       debateContext,
-      preferences 
+      preferences,
+      memoryContext,
+      learningFeedback
     } = await req.json();
 
-    // Construct the system prompt based on bot info and user preferences
+    // Construct the system prompt based on bot info, user preferences and memory
     let systemPrompt = "You are a helpful AI assistant.";
+    
+    // Include memory context if provided
+    let memoryPrompt = "";
+    if (memoryContext && memoryContext.previousInteractions) {
+      memoryPrompt = `\n\nRELEVANT HISTORY AND CONTEXT:\n${memoryContext.previousInteractions.join("\n")}\n\n`;
+      
+      if (memoryContext.userPreferences) {
+        memoryPrompt += `USER PREFERENCES: ${JSON.stringify(memoryContext.userPreferences)}\n\n`;
+      }
+      
+      if (memoryContext.companyData) {
+        memoryPrompt += `COMPANY CONTEXT: ${JSON.stringify(memoryContext.companyData)}\n\n`;
+      }
+    }
     
     if (botName && botRole) {
       systemPrompt = `You are ${botName}, an experienced executive in the role of ${botRole}. 
       You provide expert business advice and strategic insights based on your expertise. 
-      Your responses should be professional, direct, and reflective of your executive position.`;
+      Your responses should be professional, direct, and reflective of your executive position.
+      ${memoryPrompt}`;
       
       // Add response style preferences
       if (preferences?.responseStyle) {
@@ -77,12 +94,28 @@ serve(async (req) => {
       if (preferences?.focusArea && preferences.focusArea !== 'general') {
         systemPrompt += ` Pay special attention to aspects related to ${preferences.focusArea} in your responses.`;
       }
+      
+      // Add learning feedback if available
+      if (learningFeedback) {
+        systemPrompt += `\n\nLEARNING FEEDBACK: User has previously ${learningFeedback.positive ? 'liked' : 'disliked'} advice about ${learningFeedback.topic}. Adjust your recommendations accordingly.`;
+      }
     }
     
     if (debateContext) {
       systemPrompt = `You are ${botName}, an executive with expertise in ${botRole}. 
       You are participating in a debate on the topic: ${debateContext.topic}.
-      Consider the business context: Risk Appetite: ${debateContext.riskAppetite}, Business Priority: ${debateContext.businessPriority}.`;
+      Consider the business context: Risk Appetite: ${debateContext.riskAppetite}, Business Priority: ${debateContext.businessPriority}.
+      ${memoryPrompt}`;
+      
+      // If this is a multi-agent debate, specify the role and expectations
+      if (debateContext.isMultiAgentDebate) {
+        systemPrompt += `\n\nIMPORTANT: You are one of several AI executives in this conversation. You should:
+        1. Stay focused on your expertise as ${botRole}
+        2. Consider other executives' perspectives when they've spoken
+        3. Politely disagree when appropriate based on your domain expertise
+        4. Look for ways to build on others' ideas
+        5. Your goal is to help reach the best possible business decision through collaborative debate`;
+      }
       
       // Apply user preferences to debate responses
       if (preferences?.responseStyle) {
@@ -118,7 +151,8 @@ serve(async (req) => {
     const conversationMessages = messages && messages.length > 0 
       ? messages.map(msg => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
-          content: msg.content
+          content: msg.content,
+          name: msg.sender ? msg.sender.replace(/\s+/g, '_').toLowerCase() : undefined
         }))
       : [];
 
@@ -133,7 +167,10 @@ serve(async (req) => {
       fullMessages.push({ role: 'user', content: prompt });
     }
 
-    console.log('Sending to OpenAI:', JSON.stringify(fullMessages));
+    console.log('Sending to OpenAI:', JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: fullMessages.map(m => ({ role: m.role, content: m.content.substring(0, 50) + '...' }))
+    }));
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -150,7 +187,7 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    console.log('OpenAI response:', data);
+    console.log('OpenAI response status:', data.choices ? 'Success' : 'Error');
 
     if (data.error) {
       throw new Error(`OpenAI API error: ${data.error.message}`);
@@ -160,7 +197,10 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       content: generatedText,
-      usage: data.usage
+      usage: data.usage,
+      botName,
+      botRole,
+      timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
