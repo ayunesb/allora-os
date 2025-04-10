@@ -3,7 +3,6 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import CeoMessage from "@/components/dashboard/CeoMessage";
 import AiRecommendations from "@/components/dashboard/AiRecommendations";
-import StrategyBoard from "@/components/StrategyBoard";
 import QuickAccess from "@/components/dashboard/QuickAccess";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 
@@ -34,9 +33,6 @@ export default function Dashboard() {
         recommendations={aiRecommendations} 
         onApprove={handleApproveRecommendation} 
       />
-      
-      {/* Strategy Board */}
-      <StrategyBoard />
       
       {/* Quick Access Links */}
       <QuickAccess />
