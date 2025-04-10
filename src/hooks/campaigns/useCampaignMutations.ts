@@ -4,6 +4,7 @@ import { createCampaign as createCampaignHelper, updateCampaign as updateCampaig
 import { Platform, Campaign, CampaignStatus } from '@/models/campaign';
 import { toast } from 'sonner';
 import { triggerBusinessEvent } from '@/lib/zapier';
+import { onCampaignLaunched } from '@/utils/zapierEventTriggers';
 
 export function useCampaignMutations(companyId: string) {
   const [isCreating, setIsCreating] = useState(false);
@@ -31,7 +32,7 @@ export function useCampaignMutations(companyId: string) {
       );
       
       if (result) {
-        // Trigger the Zapier business event for campaign creation
+        // Original business event trigger for backward compatibility
         await triggerBusinessEvent('campaign_created', {
           companyId,
           entityId: result.id,
@@ -44,7 +45,18 @@ export function useCampaignMutations(companyId: string) {
           timestamp: new Date().toISOString()
         });
         
-        console.log('Campaign created and Zapier event triggered', result);
+        // If the campaign is created with Active status, treat it as launched
+        if (campaignData.status === 'Active') {
+          await onCampaignLaunched({
+            campaignId: result.id,
+            companyId: companyId,
+            campaignTitle: result.name,
+            platform: result.platform,
+            owner: campaignData.executiveBot || 'Marketing AI'
+          });
+        }
+        
+        console.log('Campaign created and Zapier events triggered', result);
         return result;
       }
       return null;
@@ -67,13 +79,18 @@ export function useCampaignMutations(companyId: string) {
       // Special tracking for campaign approval events
       const isApprovalEvent = updates.status === 'Approved' || updates.status === 'Active';
       
+      // Get the original campaign to check if status is changing from non-active to active
+      const isActivationEvent = 
+        updates.status === 'Active' && 
+        (await getCurrentCampaignStatus(id)) !== 'Active';
+      
       const success = await updateCampaignHelper(id, updates);
       
       if (success) {
         // Determine the appropriate event type
         const eventType = isApprovalEvent ? 'campaign_approved' : 'campaign_updated';
         
-        // Trigger the Zapier business event for campaign update/approval
+        // Original business event trigger for backward compatibility
         await triggerBusinessEvent(eventType, {
           companyId,
           entityId: id,
@@ -82,7 +99,20 @@ export function useCampaignMutations(companyId: string) {
           timestamp: new Date().toISOString()
         });
         
-        console.log(`Campaign ${eventType} and Zapier event triggered`, { id, ...updates });
+        // If campaign is being activated, trigger the campaign launched event
+        if (isActivationEvent && campaignData.name) {
+          await onCampaignLaunched({
+            campaignId: id,
+            companyId: companyId,
+            campaignTitle: campaignData.name,
+            platform: campaignData.platform || 'unknown',
+            owner: typeof campaignData.executiveBot === 'string' 
+              ? campaignData.executiveBot 
+              : (campaignData.executiveBot?.name || 'Marketing AI')
+          });
+        }
+        
+        console.log(`Campaign ${eventType} and Zapier events triggered`, { id, ...updates });
         return true;
       }
       return false;
@@ -94,6 +124,29 @@ export function useCampaignMutations(companyId: string) {
       setIsUpdating(false);
     }
   };
+
+  // Helper function to get current campaign status
+  async function getCurrentCampaignStatus(campaignId: string): Promise<CampaignStatus | undefined> {
+    try {
+      const campaign = await fetchCampaign(campaignId);
+      return campaign?.status;
+    } catch (error) {
+      console.error("Error getting campaign status:", error);
+      return undefined;
+    }
+  }
+  
+  // Helper function to fetch a single campaign
+  async function fetchCampaign(campaignId: string): Promise<Campaign | null> {
+    try {
+      const response = await fetch(`/api/campaigns/${campaignId}`);
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching campaign:", error);
+      return null;
+    }
+  }
 
   const deleteCampaign = async (id: string) => {
     setIsDeleting(true);

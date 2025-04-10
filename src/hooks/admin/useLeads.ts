@@ -1,10 +1,10 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Lead } from '@/models/lead';
+import { Lead, LeadStatus } from '@/models/lead';
 import { supabase } from '@/backend/supabase';
 import { useDebounce } from '@/hooks/useDebounce';
 import { triggerBusinessEvent } from '@/lib/zapier';
+import { onNewLeadAdded, onNewClientSignup } from '@/utils/zapierEventTriggers';
 
 export function useLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -41,10 +41,8 @@ export function useLeads() {
         setError(error);
         toast.error(`Error fetching leads: ${error.message}`);
       } else {
-        // Ensure that the data is of type Lead[]
         const typedData: Lead[] = data ? data.map(item => ({
           ...item,
-          // We don't need to transform dates anymore, as our model matches DB schema
         })) : [];
         setLeads(typedData);
       }
@@ -65,17 +63,15 @@ export function useLeads() {
     setError(null);
 
     try {
-      // Ensure required fields are present
       if (!leadData.name || !leadData.email || !leadData.campaign_id) {
         throw new Error("Name, email, and campaign_id are required to create a lead.");
       }
 
-      // Omit potentially problematic fields and add campaign_id
       const { id, created_at, ...safeLeadData } = leadData;
       const newLeadData = {
         ...safeLeadData,
-        campaign_id: safeLeadData.campaign_id, // Ensure campaign_id is correctly passed
-        status: safeLeadData.status || 'new', // Set default status if not provided
+        campaign_id: safeLeadData.campaign_id,
+        status: safeLeadData.status || 'new',
         source: safeLeadData.source || 'Manual Entry',
         score: safeLeadData.score || 0
       };
@@ -92,7 +88,6 @@ export function useLeads() {
         return null;
       }
       
-      // After successful lead creation, trigger the Zapier business event
       if (newLead) {
         await triggerBusinessEvent('lead_created', {
           entityId: newLead.id,
@@ -101,7 +96,6 @@ export function useLeads() {
           name: newLead.name,
           email: newLead.email,
           company: newLead.campaigns?.name,
-          title: newLead.title,
           status: newLead.status,
           source: newLead.source || 'Manual Entry',
           phone: newLead.phone,
@@ -110,7 +104,14 @@ export function useLeads() {
           timestamp: new Date().toISOString()
         });
         
-        console.log('Lead created and Zapier event triggered', newLead);
+        await onNewLeadAdded({
+          company: newLead.companyId || 'unknown',
+          leadName: newLead.name,
+          source: newLead.source || 'Manual Entry',
+          leadId: newLead.id
+        });
+        
+        console.log('Lead created and Zapier events triggered', newLead);
       }
       
       return newLead;
@@ -120,10 +121,10 @@ export function useLeads() {
       return null;
     } finally {
       setIsAddingLead(false);
-      refetchLeads(); // Refresh leads after adding
+      refetchLeads();
     }
   };
-  
+
   const handleStatusUpdate = async (leadId: string, newStatus: Lead['status']) => {
     try {
       const { error } = await supabase
@@ -136,21 +137,29 @@ export function useLeads() {
         return false;
       }
       
-      // After successful status update, trigger the Zapier business event
-      // Check if the new status is 'client' which would mean a lead conversion
+      const existingLead = leads.find(l => l.id === leadId);
+      
       const eventType = newStatus === 'client' ? 'lead_converted' : 'lead_status_changed';
       
       await triggerBusinessEvent(eventType, {
         entityId: leadId,
         entityType: 'lead',
         status: newStatus,
-        previousStatus: leads.find(l => l.id === leadId)?.status,
+        previousStatus: existingLead?.status,
         timestamp: new Date().toISOString()
       });
       
-      console.log(`Lead status changed to ${newStatus} and Zapier event triggered`, { leadId, status: newStatus });
+      if (newStatus === 'client' && existingLead) {
+        await onNewClientSignup({
+          companyName: existingLead.companyId || 'unknown',
+          clientName: existingLead.name,
+          clientId: existingLead.id
+        });
+      }
       
-      refetchLeads(); // Refresh leads after status update
+      console.log(`Lead status changed to ${newStatus} and Zapier events triggered`, { leadId, status: newStatus });
+      
+      refetchLeads();
       toast.success('Lead status updated successfully');
       return true;
     } catch (error: any) {
@@ -158,7 +167,7 @@ export function useLeads() {
       return false;
     }
   };
-  
+
   const handleDelete = async (leadId: string) => {
     try {
       const { error } = await supabase
@@ -171,7 +180,7 @@ export function useLeads() {
         return false;
       }
       
-      refetchLeads(); // Refresh leads after deletion
+      refetchLeads();
       toast.success('Lead deleted successfully');
       return true;
     } catch (error: any) {

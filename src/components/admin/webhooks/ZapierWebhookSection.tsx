@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import WebhookInput from './WebhookInput';
 import { useWebhookValidation } from './useWebhookValidation';
 import ZapierWebhookDemo from './ZapierWebhookDemo';
+import ZapierEventDemo from '@/components/integrations/ZapierEventDemo';
 
 interface ZapierWebhookSectionProps {
   zapierWebhook: string;
@@ -26,6 +27,11 @@ const ZapierWebhookSection = ({
     const value = e.target.value;
     onZapierWebhookChange(value);
     validateUrl(value);
+    
+    // Also store in localStorage for the automatic event system
+    if (value) {
+      localStorage.setItem('zapier_webhook_url', value);
+    }
   };
 
   return (
@@ -68,7 +74,10 @@ const ZapierWebhookSection = ({
       
       {/* Show demo section only when webhook URL is valid */}
       {zapierWebhook && isZapierWebhookValid && (
-        <ZapierWebhookDemo webhookUrl={zapierWebhook} />
+        <>
+          <ZapierEventDemo className="mt-6" />
+          <ZapierWebhookDemo webhookUrl={zapierWebhook} />
+        </>
       )}
     </div>
   );

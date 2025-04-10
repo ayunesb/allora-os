@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useSelfLearning } from '@/hooks/useSelfLearning';
 import { toast } from 'sonner';
+import { onStrategyApproved } from '@/utils/zapierEventTriggers';
 
 export function useStrategyTracking() {
   const { user } = useAuth();
@@ -40,6 +41,13 @@ export function useStrategyTracking() {
         action: 'approve'
       }
     );
+    
+    // Trigger Zapier event when a strategy is approved
+    onStrategyApproved({
+      company: user.id,
+      strategyTitle: title,
+      suggestedBy: executiveBot || 'AI Executive'
+    });
     
     toast.success('Strategy approved! Our AI will learn from your preference.');
   }, [user, trackAction]);
