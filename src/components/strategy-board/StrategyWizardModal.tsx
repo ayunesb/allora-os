@@ -80,7 +80,7 @@ export default function StrategyWizardModal({
       };
       
       // Mock generated strategies
-      const mockStrategies = [
+      const mockStrategies: Partial<Strategy>[] = [
         {
           title: `${market} Market Expansion Strategy`,
           description: `Strategically enter the ${market} market with a focused value proposition targeting specific customer segments. This approach will ${goal.toLowerCase()} through careful market positioning and competitive differentiation.`,
@@ -98,7 +98,7 @@ export default function StrategyWizardModal({
           risk: riskAppetite,
           risk_level: riskAppetite,
           executiveBot: getRandomExecutive(),
-          impact: 'High',
+          impact: 'High' as 'High',
           timeframe: '6-9 months',
           progress: 0,
           status: 'Draft'
