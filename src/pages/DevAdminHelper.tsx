@@ -1,128 +1,124 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, ShieldAlert, ShieldCheck, AlertCircle } from "lucide-react";
-import { setCurrentUserAsAdmin, checkIfUserIsAdmin } from "@/utils/adminHelper";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { Navigate } from 'react-router-dom';
-import { Alert, AlertDescription } from "@/components/ui/alert";
-
-// The admin email that's allowed
-const ADMIN_EMAIL = 'ayunesb@icloud.com';
+import { Shield, Database, User } from "lucide-react";
 
 export default function DevAdminHelper() {
-  const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Check admin status on load
+  const [email, setEmail] = useState("ayunesb@icloud.com");
+  const [loading, setLoading] = useState(false);
+  const [currentRole, setCurrentRole] = useState<string | null>(null);
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const checkAdmin = async () => {
-      if (user) {
-        const adminStatus = await checkIfUserIsAdmin();
-        setIsAdmin(adminStatus);
-      }
-      setIsChecking(false);
-    };
-    
-    checkAdmin();
-  }, [user]);
-  
-  const handleSetAsAdmin = async () => {
-    setIsLoading(true);
-    setError(null);
+    if (profile) {
+      setCurrentRole(profile.role);
+    }
+  }, [profile]);
+
+  const makeUserAdmin = async () => {
+    setLoading(true);
     try {
-      if (user?.email !== ADMIN_EMAIL) {
-        setError(`Only ${ADMIN_EMAIL} is authorized to be an admin`);
-        return;
-      }
+      const { error } = await supabase
+        .from("profiles")
+        .update({ role: "admin" })
+        .eq("id", user?.id);
+
+      if (error) throw error;
+      toast.success("User role updated to admin");
+      setCurrentRole("admin");
       
-      await setCurrentUserAsAdmin();
-      setIsAdmin(true);
-    } catch (err) {
-      setError("An unexpected error occurred");
-      console.error(err);
+      // Navigate to admin page after a short delay
+      setTimeout(() => {
+        navigate("/admin");
+      }, 1500);
+    } catch (error: any) {
+      console.error("Error updating user role:", error);
+      toast.error(`Failed to update role: ${error.message}`);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
-  
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  const isAuthorizedEmail = user.email === ADMIN_EMAIL;
-  
+
+  const runDatabaseChecks = () => {
+    navigate("/admin/database-verification");
+  };
+
   return (
-    <div className="container mx-auto max-w-md py-12">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-amber-500" />
-            Development Admin Helper
-          </CardTitle>
-          <CardDescription>
-            This utility helps authorized users become an admin for the platform.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          
-          {isChecking ? (
-            <div className="flex justify-center py-4">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            </div>
-          ) : isAdmin ? (
-            <div className="bg-green-50 p-4 rounded-md border border-green-200 flex items-center gap-3">
-              <ShieldCheck className="h-6 w-6 text-green-500" />
-              <div>
-                <p className="font-medium text-green-700">You are an admin</p>
-                <p className="text-sm text-green-600">You can now access all admin features</p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-amber-50 p-4 rounded-md border border-amber-200">
-              <p className="text-amber-700">You are not currently an admin.</p>
-              {isAuthorizedEmail ? (
-                <p className="text-sm text-amber-600 mt-1">Your email is authorized. Click the button below to set yourself as an admin.</p>
-              ) : (
-                <p className="text-sm text-amber-600 mt-1">Only {ADMIN_EMAIL} is authorized to be an admin.</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button 
-            onClick={handleSetAsAdmin} 
-            disabled={isLoading || isAdmin || !isAuthorizedEmail} 
-            className="w-full"
-          >
-            {isLoading ? (
+    <div className="container mx-auto py-10">
+      <div className="max-w-md mx-auto space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Development Admin Helper
+            </CardTitle>
+            <CardDescription>
+              Tools to help with development and testing of admin features
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {user ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Setting as Admin...
+                <div className="bg-muted/40 p-3 rounded-md">
+                  <div className="text-sm text-muted-foreground mb-1">Current User</div>
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    <span className="font-medium">{user.email}</span>
+                  </div>
+                  <div className="text-sm mt-2">
+                    Role: <span className="font-semibold">{currentRole || "loading..."}</span>
+                    {currentRole === "admin" && (
+                      <span className="ml-2 text-green-500 text-xs">(Admin access granted)</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <Button 
+                    onClick={makeUserAdmin} 
+                    className="w-full"
+                    disabled={loading || currentRole === "admin"}
+                  >
+                    {loading ? "Updating..." : currentRole === "admin" ? "Already Admin" : "Make Me Admin"}
+                  </Button>
+                </div>
               </>
-            ) : isAdmin ? (
-              <>
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                Already an Admin
-              </>
-            ) : !isAuthorizedEmail ? (
-              "Unauthorized Email"
             ) : (
-              "Set Myself as Admin"
+              <div className="text-center py-4 text-muted-foreground">
+                Please log in to use this tool
+              </div>
             )}
-          </Button>
-        </CardFooter>
-      </Card>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              onClick={runDatabaseChecks}
+              className="w-full"
+              disabled={!user}
+            >
+              <Database className="h-4 w-4 mr-2" />
+              Run Database Verification
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/admin")} 
+              className="w-full"
+              disabled={!user || currentRole !== "admin"}
+            >
+              Go to Admin Dashboard
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }

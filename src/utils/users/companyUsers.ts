@@ -3,7 +3,7 @@ import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 
 /**
- * Removes a user from a company
+ * Removes a user from a company by updating their company_id to null
  * @param userId The ID of the user to remove
  * @returns Boolean indicating success
  */
@@ -18,10 +18,63 @@ export async function removeUserFromCompany(userId: string): Promise<boolean> {
       throw error;
     }
 
-    toast.success('User removed from company successfully');
+    toast.success('User removed from company');
     return true;
   } catch (error: any) {
-    toast.error(`Failed to remove user from company: ${error.message}`);
+    console.error('Error removing user from company:', error.message);
+    toast.error(`Failed to remove user: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Invites a user to join a company and assigns them a role
+ * @param userEmail The email of the user to invite
+ * @param companyId The company ID to assign the user to
+ * @param role The role to assign to the user
+ * @returns Boolean indicating success
+ */
+export async function inviteUserToCompany(
+  userEmail: string,
+  companyId: string,
+  role: 'admin' | 'user' = 'user'
+): Promise<boolean> {
+  try {
+    // This is a simplified version for the demo
+    // In production, you would send an email invitation
+    const { data: userData, error: userError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', userEmail)
+      .single();
+    
+    if (userError) {
+      if (userError.code === 'PGRST116') {
+        toast.error(`User with email ${userEmail} not found`);
+      } else {
+        toast.error(`Error finding user: ${userError.message}`);
+      }
+      return false;
+    }
+    
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ 
+        company_id: companyId,
+        role
+      })
+      .eq('id', userData.id);
+    
+    if (updateError) {
+      toast.error(`Failed to update user: ${updateError.message}`);
+      return false;
+    }
+    
+    toast.success('User successfully added to company');
+    return true;
+  } catch (error: any) {
+    console.error('Error inviting user to company:', error);
+    toast.error(`Failed to invite user: ${error.message}`);
     return false;
   }
 }

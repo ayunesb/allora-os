@@ -1,94 +1,72 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-
-// This email is authorized to be an admin - ADD YOUR EMAIL HERE
-const ADMIN_EMAIL = 'ayunesb@icloud.com';
 
 /**
- * Helper function to set the current user as an admin
- * This is useful for development and testing purposes
- */
-export async function setCurrentUserAsAdmin(): Promise<boolean> {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("You must be logged in to become an admin");
-      return false;
-    }
-    
-    // Check if the user has the authorized email
-    if (user.email !== ADMIN_EMAIL) {
-      toast.error(`Only ${ADMIN_EMAIL} is authorized to be an admin`);
-      return false;
-    }
-    
-    // Check if the user already has an admin role
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-      
-    if (profileError) {
-      console.error("Error checking profile:", profileError);
-      throw profileError;
-    }
-
-    // If already admin, return success
-    if (profileData && profileData.role === 'admin') {
-      toast.success("You are already an admin");
-      return true;
-    }
-    
-    // Update the profile role to admin
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role: 'admin' })
-      .eq('id', user.id);
-      
-    if (error) {
-      console.error("Error setting user as admin:", error);
-      toast.error("Failed to set user as admin: " + error.message);
-      return false;
-    }
-    
-    toast.success("You are now an admin. Please refresh the page.");
-    return true;
-    
-  } catch (error) {
-    console.error("Error in setCurrentUserAsAdmin:", error);
-    toast.error("An unexpected error occurred");
-    return false;
-  }
-}
-
-/**
- * Check if the current user is an admin
+ * Checks if the current logged-in user has admin role
+ * @returns Promise resolving to boolean indicating if user is admin
  */
 export async function checkIfUserIsAdmin(): Promise<boolean> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) {
-      return false;
-    }
+    if (!user) return false;
     
     const { data, error } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
-      
-    if (error || !data) {
+    
+    if (error) {
+      console.error('Error checking admin status:', error);
       return false;
     }
     
-    return data.role === 'admin';
-    
+    return data?.role === 'admin';
   } catch (error) {
-    console.error("Error in checkIfUserIsAdmin:", error);
+    console.error('Unexpected error during admin check:', error);
+    return false;
+  }
+}
+
+/**
+ * Grants admin privileges to a user by email
+ * @param email Email of the user to make admin
+ * @returns Promise resolving to boolean indicating success
+ */
+export async function grantAdminPrivileges(email: string): Promise<boolean> {
+  try {
+    // First, try to find the user by email
+    const { data: userData, error: userError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .single();
+    
+    if (userError) {
+      console.error('Error finding user by email:', userError);
+      return false;
+    }
+    
+    if (!userData) {
+      console.error('No user found with email:', email);
+      return false;
+    }
+    
+    // Update the user's role to admin
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ role: 'admin' })
+      .eq('id', userData.id);
+    
+    if (updateError) {
+      console.error('Error updating user role:', updateError);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Unexpected error during admin privilege grant:', error);
     return false;
   }
 }
