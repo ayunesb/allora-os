@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { useZapier } from '@/lib/zapier';
@@ -24,7 +23,7 @@ export const useWebhooks = () => {
   // Load webhooks from localStorage on mount
   useEffect(() => {
     const savedStripeWebhook = localStorage.getItem('stripe_webhook_url');
-    const savedZapierWebhook = localStorage.getItem('zapier_webhook_url');
+    const savedZapierWebhook = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
     const savedGithubWebhook = localStorage.getItem('github_webhook_url');
     const savedSlackWebhook = localStorage.getItem('slack_webhook_url');
     const savedCustomWebhook = localStorage.getItem('custom_webhook_url');

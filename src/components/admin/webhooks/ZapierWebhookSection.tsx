@@ -4,6 +4,7 @@ import { Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WebhookInput from './WebhookInput';
 import { useWebhookValidation } from './useWebhookValidation';
+import ZapierWebhookDemo from './ZapierWebhookDemo';
 
 interface ZapierWebhookSectionProps {
   zapierWebhook: string;
@@ -64,6 +65,11 @@ const ZapierWebhookSection = ({
           Zapier Documentation
         </Button>
       </div>
+      
+      {/* Show demo section only when webhook URL is valid */}
+      {zapierWebhook && isZapierWebhookValid && (
+        <ZapierWebhookDemo webhookUrl={zapierWebhook} />
+      )}
     </div>
   );
 };

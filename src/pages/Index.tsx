@@ -4,7 +4,8 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { lazy, Suspense } from "react";
 import Footer from "@/components/Footer";
-import { ChevronRight, Stars, Award, BarChart3 } from "lucide-react";
+import { ChevronRight, Stars, Award, BarChart3, Zap } from "lucide-react";
+import ZapierTriggerButton from "@/components/integrations/ZapierTriggerButton";
 
 // Lazy load non-critical components
 const LazyFeatureBlock = lazy(() => import("@/components/home/FeatureBlock"));
@@ -83,6 +84,31 @@ export default function Index() {
               <Button size="lg" variant="outline" className="border-primary/60 hover:border-primary px-6 py-6" asChild>
                 <Link to="/login">Login</Link>
               </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Zapier Integration Demo */}
+        <div className="w-full bg-primary/10 py-8 mt-8">
+          <div className="container mx-auto px-4 text-center">
+            <div className="flex items-center justify-center mb-4">
+              <Zap className="h-8 w-8 text-primary mr-2" />
+              <h2 className="text-2xl font-bold">Zapier Integration</h2>
+            </div>
+            <p className="mb-6 max-w-2xl mx-auto">
+              Allora AI integrates seamlessly with Zapier, allowing you to automate workflows and connect with thousands of apps.
+            </p>
+            <div className="flex justify-center">
+              <ZapierTriggerButton 
+                event="demo_trigger" 
+                label="Try Zapier Integration" 
+                variant="outline"
+                size="lg"
+                payload={{
+                  source: "homepage_demo",
+                  demo_user: "visitor"
+                }}
+              />
             </div>
           </div>
         </div>
