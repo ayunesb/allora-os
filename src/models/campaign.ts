@@ -1,9 +1,11 @@
 
+export type Platform = 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Twitter' | 'Email' | 'Other';
+
 export type Campaign = {
   id: string;
   company_id?: string;
   name: string;
-  platform: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Email' | 'Other';
+  platform: Platform;
   budget?: number;
   status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
   created_at?: string;
@@ -24,6 +26,10 @@ export type Campaign = {
   startDate?: string;
   endDate?: string;
   healthScore?: 'good' | 'warning' | 'critical';
+  // For AI-generated campaigns
+  aiGenerated?: boolean;
+  description?: string;
+  collaborators?: any[];
 };
 
 // These were missing and referenced in campaignService.ts

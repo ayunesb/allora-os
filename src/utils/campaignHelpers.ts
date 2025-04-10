@@ -1,7 +1,7 @@
 
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
-import { Campaign } from '@/models/campaign';
+import { Campaign, Platform } from '@/models/campaign';
 
 export async function fetchCompanyCampaigns(companyId: string): Promise<Campaign[]> {
   try {
@@ -18,7 +18,7 @@ export async function fetchCompanyCampaigns(companyId: string): Promise<Campaign
     // Cast the data to ensure it matches the Campaign type
     return (data || []).map(campaign => ({
       ...campaign,
-      platform: campaign.platform as Campaign['platform']
+      platform: campaign.platform as Platform
     }));
   } catch (error: any) {
     console.error('Error fetching campaigns:', error.message);
@@ -41,7 +41,7 @@ export async function fetchCampaign(campaignId: string): Promise<Campaign | null
     // Cast the data to ensure it matches the Campaign type
     return data ? {
       ...data,
-      platform: data.platform as Campaign['platform']
+      platform: data.platform as Platform
     } : null;
   } catch (error: any) {
     console.error('Error fetching campaign:', error.message);
@@ -52,7 +52,7 @@ export async function fetchCampaign(campaignId: string): Promise<Campaign | null
 export async function createCampaign(
   companyId: string,
   name: string,
-  platform: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok',
+  platform: Platform,
   budget: number
 ): Promise<Campaign | null> {
   try {
@@ -77,7 +77,7 @@ export async function createCampaign(
     // Cast the data to ensure it matches the Campaign type
     return data ? {
       ...data,
-      platform: data.platform as Campaign['platform']
+      platform: data.platform as Platform
     } : null;
   } catch (error: any) {
     toast.error(`Failed to create campaign: ${error.message}`);

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCompanyInsights } from "../useCompanyInsights";
 import { InsightType } from "@/components/bot-insights/BotInsightCard";
-import { Campaign } from "@/models/campaign";
+import { Campaign, Platform } from "@/models/campaign";
 import { fetchCompanyCampaigns } from "@/utils/campaignHelpers";
 import { toast } from "sonner";
 
@@ -43,26 +43,29 @@ export function useCampaignFetch() {
             justification: campaign.justification || getRandomJustification(campaign),
             // Add a status if one doesn't exist
             status: campaign.status || getRandomStatus(),
-          };
+          } as Campaign;
         });
         
         // Get campaigns from AI insights to augment the Supabase data
         const campaignInsights = insights.filter(insight => insight.type === "campaign" as InsightType);
         
         // Convert insights to campaign format
-        const aiGeneratedCampaigns = campaignInsights.map((insight, index) => ({
-          id: `ai-${insight.id}`,
-          name: insight.title,
-          platform: getRandomPlatform(index),
-          budget: getRandomBudget(2500, 10000),
-          description: insight.description,
-          aiGenerated: true,
-          executiveBot: insight.primaryBot,
-          collaborators: insight.collaborators,
-          justification: insight.description,
-          status: "Draft",
-          healthScore: "good",
-        }));
+        const aiGeneratedCampaigns = campaignInsights.map((insight, index) => {
+          const platform = getRandomPlatform(index);
+          return {
+            id: `ai-${insight.id}`,
+            name: insight.title,
+            platform,
+            budget: getRandomBudget(2500, 10000),
+            description: insight.description,
+            aiGenerated: true,
+            executiveBot: insight.primaryBot,
+            collaborators: insight.collaborators,
+            justification: insight.description,
+            status: "Draft" as const,
+            healthScore: "good" as const,
+          } as Campaign;
+        });
         
         // Combine all sources
         setCampaigns([...processedCampaigns, ...aiGeneratedCampaigns]);
@@ -106,8 +109,8 @@ export function useCampaignFetch() {
 }
 
 // Helper function to get a random platform
-function getRandomPlatform(index: number): Campaign["platform"] {
-  const platforms: Campaign["platform"][] = ["Google", "LinkedIn", "Facebook", "Instagram", "TikTok", "Email"];
+function getRandomPlatform(index: number): Platform {
+  const platforms: Platform[] = ["Google", "LinkedIn", "Facebook", "Instagram", "TikTok", "Email", "Twitter"];
   return platforms[index % platforms.length];
 }
 

@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createCampaign, updateCampaign, deleteCampaign } from "@/utils/campaignHelpers";
+import { Platform } from "@/models/campaign";
 
 /**
  * Hook for campaign create, update, and delete mutations
@@ -13,8 +14,9 @@ export function useCampaignMutations(companyId: string | undefined) {
   const createMutation = useMutation({
     mutationFn: (newCampaign: { 
       name: string; 
-      platform: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok';
+      platform: Platform;
       budget: number;
+      [key: string]: any;
     }) => {
       if (!companyId) throw new Error("No company ID available");
       return createCampaign(
@@ -38,15 +40,20 @@ export function useCampaignMutations(companyId: string | undefined) {
     mutationFn: (updatedCampaign: { 
       id: string; 
       name?: string; 
-      platform?: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok';
+      platform?: Platform;
       budget?: number;
+      [key: string]: any;
     }) => {
       return updateCampaign(
         updatedCampaign.id,
         {
           name: updatedCampaign.name,
           platform: updatedCampaign.platform,
-          budget: updatedCampaign.budget
+          budget: updatedCampaign.budget,
+          status: updatedCampaign.status,
+          executiveBot: updatedCampaign.executiveBot,
+          justification: updatedCampaign.justification,
+          roi: updatedCampaign.roi
         }
       );
     },

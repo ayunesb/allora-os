@@ -9,7 +9,7 @@ import CampaignWizard, { CampaignWizardData } from "@/components/campaigns/Campa
 import { executiveBots } from "@/backend/executiveBots";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { toast } from "sonner";
-import { Campaign } from "@/models/campaign";
+import { Campaign, Platform } from "@/models/campaign";
 import { Button } from "@/components/ui/button";
 import { DownloadIcon } from "lucide-react";
 
@@ -78,7 +78,7 @@ export default function Campaigns() {
         executiveBot: randomExec,
         justification: `This ${data.platform} campaign targets your ideal audience for ${data.goal}. Based on your budget of ${data.budget}, I expect strong returns.`,
         roi: `Expected ROI: ${Math.floor(Math.random() * 300 + 100)}%`
-      } as any);
+      });
       
       // Track the campaign creation with executive attribution
       trackAction(
@@ -118,16 +118,13 @@ export default function Campaigns() {
   const handleApproveCampaign = (campaignId: string) => {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
-      // Cast campaign to any to access executiveBot property which is added dynamically
-      const executiveBot = (campaign as any).executiveBot;
-      
       trackCampaignApprove(
         campaignId, 
         campaign.name, 
-        executiveBot
+        campaign.executiveBot
       );
       
-      toast.success(`Feedback for ${executiveBot}'s recommendation recorded`);
+      toast.success(`Feedback for ${campaign.executiveBot}'s recommendation recorded`);
       
       // Refresh campaigns after approval
       setTimeout(() => refetch(), 1000);
@@ -155,7 +152,7 @@ export default function Campaigns() {
       { 
         name: campaign.name,
         format,
-        executiveBot: (campaign as any).executiveBot 
+        executiveBot: campaign.executiveBot 
       }
     );
   };
@@ -163,17 +160,14 @@ export default function Campaigns() {
   // Get default values for the wizard based on whether we're editing or creating
   const getWizardDefaultValues = () => {
     if (editingCampaignId) {
-      const campaign = campaigns.find(c => c.id === editingCampaignId) as Campaign & { 
-        executiveBot?: string;
-        adCopy?: string;
-      };
+      const campaign = campaigns.find(c => c.id === editingCampaignId);
       
       if (campaign) {
         return {
           name: campaign.name,
-          platform: campaign.platform,
+          platform: campaign.platform as Platform,
           budget: campaign.budget || 1000,
-          executiveBot: campaign.executiveBot,
+          executiveBot: typeof campaign.executiveBot === 'string' ? campaign.executiveBot : undefined,
           adCopy: campaign.justification || "",
           // Default values for new fields
           goal: "leads" as const,
@@ -201,7 +195,7 @@ export default function Campaigns() {
       <CampaignHeader onNewCampaign={handleNewCampaign} />
       
       <CampaignAnalytics 
-        campaigns={campaigns as any[]}
+        campaigns={campaigns}
         isLoading={isLoading}
       />
       
@@ -223,7 +217,7 @@ export default function Campaigns() {
       </div>
       
       <CampaignsList 
-        campaigns={campaigns as any[]}
+        campaigns={campaigns}
         isLoading={isLoading}
         handleEditCampaign={handleEditCampaign}
         deleteCampaign={deleteCampaign}

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Campaign } from "@/models/campaign";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DownloadIcon, Edit, Facebook, Linkedin, Mail, MoreHorizontal, ThumbsDown, ThumbsUp, Trash2, TrendingDown, TrendingUp, Twitter } from "lucide-react";
+import { DownloadIcon, Edit, Facebook, Linkedin, Mail, MoreHorizontal, ThumbsDown, ThumbsUp, Trash2, Twitter } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -95,6 +95,22 @@ export default function CampaignCard({
     onFeedback(campaign.id, isPositive);
   };
 
+  // Safely get avatar name for URL
+  const getAvatarName = () => {
+    if (!campaign.executiveBot) return '';
+    return typeof campaign.executiveBot === 'string' 
+      ? campaign.executiveBot.toLowerCase().replace(/\s+/g, '-')
+      : '';
+  };
+
+  // Safely get avatar initials
+  const getAvatarInitials = () => {
+    if (!campaign.executiveBot) return '';
+    return typeof campaign.executiveBot === 'string'
+      ? campaign.executiveBot.charAt(0)
+      : '';
+  };
+
   return (
     <Card className="overflow-hidden border-l-4 border-l-primary">
       <CardHeader className="pb-2">
@@ -142,8 +158,8 @@ export default function CampaignCard({
           {campaign.executiveBot && (
             <div className="ml-auto flex items-center">
               <Avatar className="h-5 w-5 mr-1">
-                <AvatarImage src={`/avatars/${campaign.executiveBot.toLowerCase().replace(/\s+/g, '-')}.png`} />
-                <AvatarFallback>{campaign.executiveBot.charAt(0)}</AvatarFallback>
+                <AvatarImage src={`/avatars/${getAvatarName()}.png`} />
+                <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
               </Avatar>
               <span className="text-xs">AI Managed</span>
             </div>
@@ -218,8 +234,8 @@ export default function CampaignCard({
             <div className="flex items-start">
               {campaign.executiveBot && (
                 <Avatar className="h-7 w-7 mr-2">
-                  <AvatarImage src={`/avatars/${campaign.executiveBot.toLowerCase().replace(/\s+/g, '-')}.png`} />
-                  <AvatarFallback>{campaign.executiveBot.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={`/avatars/${getAvatarName()}.png`} />
+                  <AvatarFallback>{getAvatarInitials()}</AvatarFallback>
                 </Avatar>
               )}
               <div>
