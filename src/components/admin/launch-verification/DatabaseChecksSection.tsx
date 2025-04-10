@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Shield } from 'lucide-react';
 
 interface DatabaseCheckItem {
   name?: string;
@@ -15,7 +15,7 @@ interface DatabaseChecksSectionProps {
 }
 
 export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionProps) {
-  // If items is null, undefined, or not an array, render nothing or placeholder
+  // If items is null, undefined, or not an array, render nothing
   if (!items || !Array.isArray(items) || items.length === 0) {
     return null;
   }
@@ -27,7 +27,8 @@ export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionPro
         {items.map((item, index) => (
           <div key={index} className="bg-[#1E293B]/80 rounded-md border border-white/10 p-3 text-sm">
             <div className="flex justify-between items-center">
-              <div className="font-medium text-white">
+              <div className="font-medium text-white flex items-center gap-1.5">
+                {title.includes('RLS') && <Shield className="h-3.5 w-3.5 text-blue-400" />}
                 {item.name || item.table || `Item ${index + 1}`}
               </div>
               <div className="flex items-center gap-1">

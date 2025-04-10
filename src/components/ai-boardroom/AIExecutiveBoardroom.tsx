@@ -62,20 +62,7 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
       setError(null);
 
       try {
-        // Check if the table exists
-        const { error: tableCheckError } = await supabase
-          .from('ai_boardroom_debates')
-          .select('id')
-          .limit(1);
-          
-        if (tableCheckError) {
-          // If table doesn't exist, show appropriate message
-          console.error("Table check error:", tableCheckError);
-          setError("AI Boardroom debates functionality is not yet available.");
-          setIsLoading(false);
-          return;
-        }
-
+        // Check if the table exists and we have access
         const { data, error } = await supabase
           .from('ai_boardroom_debates')
           .select('*')
@@ -88,15 +75,18 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
           if (error.code === 'PGRST116') {
             // No data found for this company
             setError("No boardroom debate found for this company. Try starting a new debate.");
+          } else if (error.code === '42P01') {
+            // Table doesn't exist
+            setError("Executive boardroom functionality is not available. The required database table is missing.");
           } else {
             throw new Error(`Failed to fetch boardroom debate: ${error.message}`);
           }
         } else if (data) {
           setTopic(data.topic);
-          setSummary(data.summary);
+          setSummary(data.summary || '');
           setExecutives(data.executives || []);
           setDiscussion(data.discussion || []);
-          setConclusion(data.conclusion);
+          setConclusion(data.conclusion || '');
         }
       } catch (err: any) {
         console.error("Error fetching boardroom debate:", err);

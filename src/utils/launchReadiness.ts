@@ -106,14 +106,23 @@ export async function checkLaunchReadiness(): Promise<LaunchReadinessStatus> {
 
     // 2. Check database tables exist
     try {
-      const { count, error } = await supabase
-        .from('companies')
-        .select('*', { count: 'exact', head: true });
-      
-      if (error) throw error;
+      // Check for the ai_boardroom_debates table explicitly
+      const { error: boardroomTableError } = await supabase
+        .from('ai_boardroom_debates')
+        .select('id', { count: 'exact', head: true });
+        
+      if (boardroomTableError) {
+        console.error('Boardroom table check error:', boardroomTableError);
+        // If the table doesn't exist, aiDebate feature is not ready
+        if (boardroomTableError.code === '42P01') {
+          status.features.aiDebate = false; 
+        }
+      } else {
+        status.features.aiDebate = true;
+      }
       
       // Check for other essential tables
-      const tables = ['profiles', 'strategies', 'campaigns', 'debates'];
+      const tables = ['profiles', 'strategies', 'campaigns', 'companies'];
       let allTablesExist = true;
       
       for (const table of tables) {
@@ -144,7 +153,6 @@ export async function checkLaunchReadiness(): Promise<LaunchReadinessStatus> {
     status.features.onboarding = true; // We have Onboarding.tsx
     status.features.strategies = true; // We have strategies section
     status.features.campaigns = true; // We have campaigns functionality
-    status.features.aiDebate = true; // We have AI debate features
     status.features.welcomeVideo = true; // We have welcome video component
     status.features.billing = true; // We have billing functionality
     
@@ -160,12 +168,12 @@ export async function checkLaunchReadiness(): Promise<LaunchReadinessStatus> {
     
     if (status.database.status === 'ready' && 
         apiReadiness >= 4 && 
-        featuresReady >= 5 && 
+        featuresReady >= 6 && 
         complianceReady >= 3) {
       status.overallStatus = 'ready';
     } else if (status.database.status === 'ready' && 
               apiReadiness >= 3 && 
-              featuresReady >= 4) {
+              featuresReady >= 5) {
       status.overallStatus = 'warning';
     } else {
       status.overallStatus = 'not_ready';
