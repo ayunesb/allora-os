@@ -4,7 +4,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { useAuthState } from "@/hooks/useAuthState";
 import { useCallScripts } from "@/hooks/useCallScripts";
-import { useCommunications } from "@/hooks/useCommunications";
+import { useCommunications } from "@/hooks/communications";
 import { useBreakpoint } from "@/hooks/use-mobile";
 
 // Import the components

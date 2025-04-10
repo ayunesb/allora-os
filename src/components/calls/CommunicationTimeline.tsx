@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, Phone, MessageSquare, VideoIcon } from "lucide-react";
-import { Communication } from "@/hooks/useCommunications";
+import { Communication } from "@/hooks/communications";
 import CommunicationItem from "./CommunicationItem";
 import { Skeleton } from "@/components/ui/skeleton";
 

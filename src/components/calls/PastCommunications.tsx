@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   Card, 
@@ -6,7 +7,7 @@ import {
   CardTitle, 
   CardDescription 
 } from "@/components/ui/card";
-import { Communication } from "@/hooks/useCommunications";
+import { Communication } from "@/hooks/communications";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { 

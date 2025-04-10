@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { CommunicationData } from "@/hooks/useCommunications";
+import { CommunicationData } from "@/hooks/communications";
 import { sendWhatsAppTemplate } from "@/utils/twilioHelpers";
 
 interface TemplateTabProps {
@@ -14,7 +14,7 @@ interface TemplateTabProps {
   selectedLeadId: string;
   templates: any[];
   isLoadingTemplates: boolean;
-  onMessageSent: (communicationData: CommunicationData) => Promise<void>;
+  onMessageSent: (leadId: string, communicationData: CommunicationData) => Promise<any>;
   isLoadingMutation: boolean;
 }
 

@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
-import { Communication } from "@/hooks/useCommunications";
+import { Communication } from "@/hooks/communications";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -9,7 +8,6 @@ import {
   Phone, 
   Video, 
   MessageSquare,
-
   Calendar, 
   ChevronDown, 
   ChevronUp, 
@@ -20,7 +18,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { useCommunications } from "@/hooks/useCommunications";
+import { useCommunications } from "@/hooks/communications";
 import AddCommunicationNotes from "./AddCommunicationNotes";
 import CommunicationStatusSelector from "./CommunicationStatusSelector";
 

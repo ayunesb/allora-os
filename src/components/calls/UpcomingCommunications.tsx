@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -7,7 +6,7 @@ import {
   CardTitle, 
   CardDescription 
 } from "@/components/ui/card";
-import { Communication } from "@/hooks/useCommunications";
+import { Communication } from "@/hooks/communications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -30,7 +29,7 @@ import {
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCommunications } from "@/hooks/useCommunications";
+import { useCommunications } from "@/hooks/communications";
 
 interface UpcomingCommunicationsProps {
   communications: Communication[];

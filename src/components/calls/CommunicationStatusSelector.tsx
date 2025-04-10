@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CommunicationOutcome } from "@/hooks/useCommunications";
-import { useCommunications } from "@/hooks/useCommunications";
+import { CommunicationOutcome } from "@/hooks/communications";
+import { useCommunications } from "@/hooks/communications";
 import {
   Select,
   SelectContent,
