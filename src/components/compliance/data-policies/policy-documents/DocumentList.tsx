@@ -1,50 +1,72 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DocumentItem from './DocumentItem';
+import { useCompliance } from "@/context/ComplianceContext";
 
 const DocumentList: React.FC = () => {
+  const { pendingUpdates, isApplyingUpdate, applyUpdate } = useCompliance();
+  const [updatingDocId, setUpdatingDocId] = useState<string | null>(null);
+
   const documents = [
     {
       id: 'terms-of-service',
-      title: 'Terms of Service',
+      name: 'Terms of Service',
+      version: 'v2.0',
+      path: '/legal/terms-of-service',
       lastUpdated: 'April 10, 2025',
-      status: 'current',
+      updateAvailable: pendingUpdates.includes('terms-of-service')
     },
     {
       id: 'privacy-policy',
-      title: 'Privacy Policy',
+      name: 'Privacy Policy',
+      version: 'v2.4',
+      path: '/legal/privacy-policy',
       lastUpdated: 'April 10, 2025',
-      status: 'current',
+      updateAvailable: pendingUpdates.includes('privacy-policy')
     },
     {
       id: 'cookies',
-      title: 'Cookie Policy',
+      name: 'Cookie Policy',
+      version: 'v1.1',
+      path: '/legal/cookies',
       lastUpdated: 'April 10, 2025',
-      status: 'current',
+      updateAvailable: pendingUpdates.includes('cookies')
     },
     {
       id: 'refund-policy',
-      title: 'Cancellation & Refund Policy',
+      name: 'Cancellation & Refund Policy',
+      version: 'v1.0',
+      path: '/legal/refund-policy',
       lastUpdated: 'April 10, 2025',
-      status: 'current',
+      updateAvailable: pendingUpdates.includes('refund-policy')
     },
     {
       id: 'data-processing',
-      title: 'Data Processing Agreement',
+      name: 'Data Processing Agreement',
+      version: 'v1.3',
+      path: '/legal/data-processing',
       lastUpdated: 'April 10, 2025',
-      status: 'current',
+      updateAvailable: pendingUpdates.includes('data-processing')
     }
   ];
   
+  const handleUpdateDocument = async (docId: string) => {
+    setUpdatingDocId(docId);
+    await applyUpdate(docId);
+    setUpdatingDocId(null);
+  };
+
   return (
-    <div className="space-y-3">
+    <ul className="space-y-3">
       {documents.map((doc) => (
-        <Link to={`/legal/${doc.id}`} key={doc.id}>
-          <DocumentItem document={doc} />
-        </Link>
+        <DocumentItem
+          key={doc.id}
+          document={doc}
+          updatingDocId={updatingDocId}
+        />
       ))}
-    </div>
+    </ul>
   );
 };
 
