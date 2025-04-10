@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { BarChart3, Home, ChartBar, Shield } from "lucide-react";
+import { BarChart3, Home, ChartBar, Shield, HelpCircle, CreditCard } from "lucide-react";
 import ThemeToggle from "./navigation/ThemeToggle";
 import UserMenu from "./navigation/UserMenu";
 import MobileNavigation from "./navigation/MobileNavigation";
@@ -40,10 +39,12 @@ const getPublicNavItems = () => [
   {
     name: "Pricing",
     href: "/pricing",
+    icon: ({ className }: { className?: string }) => <CreditCard className={className} />,
   },
   {
     name: "FAQ",
     href: "/faq",
+    icon: ({ className }: { className?: string }) => <HelpCircle className={className} />,
   },
 ];
 
