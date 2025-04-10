@@ -1,33 +1,20 @@
 
-import React from "react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatRoleTitle } from "@/utils/consultation";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Play, Lightbulb, User, Phone, MessageSquare } from "lucide-react";
-import { toast } from "sonner";
-import { useCompanyInsights } from "@/hooks/useCompanyInsights";
-
-interface Bot {
-  name: string;
-  role: string;
-  avatar?: string;
-}
-
-interface Collaborator extends Bot {
-  contribution: string;
-}
+import { Download, Play } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useCallScriptTracking } from "@/hooks/useCallScriptTracking";
+import AiCallScriptFeedback from "./AiCallScriptFeedback";
 
 interface AiCallScriptProps {
   id: string;
   title: string;
   target: string;
   duration: string;
-  primaryBot: Bot;
-  collaborators: Collaborator[];
-  onUse: (scriptId: string, title: string) => void;
-  type?: 'call' | 'message';
+  primaryBot: any;
+  collaborators?: any[];
+  onUse: (id: string, title: string) => void;
+  type: 'call' | 'message';
 }
 
 export default function AiCallScript({
@@ -36,111 +23,85 @@ export default function AiCallScript({
   target,
   duration,
   primaryBot,
-  collaborators,
+  collaborators = [],
   onUse,
-  type = 'call'
+  type
 }: AiCallScriptProps) {
-  const { getDetailedInsight } = useCompanyInsights();
-  const detailedInsight = getDetailedInsight(id);
+  const { trackScriptUse, trackScriptView } = useCallScriptTracking();
   
-  const handleDownload = () => {
-    toast.info("Preparing call script for download...");
-    // In a real app, this would download the script as PDF or text
-    setTimeout(() => {
-      toast.success("Call script downloaded successfully");
-    }, 1500);
+  const handleUse = () => {
+    trackScriptUse(id, title, type, primaryBot);
+    onUse(id, title);
   };
   
+  // Track view when component renders
+  React.useEffect(() => {
+    trackScriptView(id, title, type);
+  }, [id, title, type, trackScriptView]);
+  
   return (
-    <Card className="dashboard-card border-amber-200/50 transition-all hover:shadow-md overflow-hidden">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start mb-2">
-          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-200">
-            <Lightbulb className="mr-1.5 h-3.5 w-3.5" />
-            AI Generated
-          </Badge>
-          
-          <Badge variant={type === 'call' ? 'outline' : 'secondary'} className="text-xs">
-            {type === 'call' ? (
-              <Phone className="mr-1.5 h-3.5 w-3.5" />
-            ) : (
-              <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
-            )}
+    <div className="border rounded-lg p-4 bg-card h-full flex flex-col">
+      <div className="flex gap-3 items-start mb-3">
+        <Avatar className="h-10 w-10 border border-primary/20">
+          <AvatarImage src={`/avatars/${primaryBot.name.toLowerCase().replace(/\s+/g, '-')}.png`} alt={primaryBot.name} />
+          <AvatarFallback>{primaryBot.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        
+        <div>
+          <h3 className="font-semibold mb-1 pr-6">{title}</h3>
+          <Badge variant="outline" className="bg-primary/5">
             {type === 'call' ? 'Call Script' : 'Message Template'}
           </Badge>
         </div>
-        <h3 className="text-xl font-bold mb-4">{title}</h3>
-        
-        <div className="flex items-center gap-2 mb-3">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={primaryBot.avatar} alt={primaryBot.name} />
-            <AvatarFallback>{primaryBot.name[0]}</AvatarFallback>
-          </Avatar>
-          <div className="text-sm">
-            <span className="font-medium">{primaryBot.name}</span>
-            <span className="text-muted-foreground ml-1 text-xs">
-              ({formatRoleTitle(primaryBot.role)})
-            </span>
-          </div>
-        </div>
-      </CardHeader>
+      </div>
       
-      <CardContent className="pb-3">
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between">
-            <span className="text-gray-400">Target:</span>
-            <span>{target}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Duration:</span>
-            <span>{duration}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Status:</span>
-            <span className="text-green-400">Ready</span>
-          </div>
+      <div className="space-y-2 mb-4 text-sm flex-grow">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Created by:</span>
+          <span className="font-medium">{primaryBot.name}</span>
         </div>
         
-        {detailedInsight?.keyPoints && detailedInsight.keyPoints.length > 0 && (
-          <div className="mt-3 mb-2">
-            <h4 className="text-sm font-medium mb-2">Key Elements:</h4>
-            <ul className="text-xs space-y-1">
-              {detailedInsight.keyPoints.map((point, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <span className="text-amber-500 mt-0.5">•</span>
-                  <span className="text-muted-foreground">{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Target:</span>
+          <span>{target}</span>
+        </div>
+        
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Duration:</span>
+          <span>{duration}</span>
+        </div>
         
         {collaborators.length > 0 && (
-          <div className="mt-4 border-t pt-3">
-            <div className="text-xs text-muted-foreground mb-1">Contributors:</div>
-            <div className="flex flex-wrap gap-1">
-              {collaborators.map((collaborator, idx) => (
-                <Badge variant="secondary" key={idx} className="text-xs">
-                  {collaborator.name}
+          <div>
+            <span className="text-muted-foreground block mb-1">Collaborated with:</span>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {collaborators.map((bot, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {bot.name}
                 </Badge>
               ))}
             </div>
           </div>
         )}
-      </CardContent>
+      </div>
       
-      <CardFooter className="pt-3">
-        <div className="flex space-x-2 w-full">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => onUse(id, title)}>
-            <Play className="mr-2 h-4 w-4" />
-            Use
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1" onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+      <div className="flex space-x-2 mt-auto">
+        <Button variant="default" size="sm" className="flex-1" onClick={handleUse}>
+          <Play className="mr-2 h-4 w-4" />
+          Use
+        </Button>
+        <Button variant="outline" size="sm" className="flex-1">
+          <Download className="mr-2 h-4 w-4" />
+          Download
+        </Button>
+      </div>
+      
+      <AiCallScriptFeedback 
+        id={id} 
+        title={title} 
+        type={type} 
+        primaryBot={primaryBot} 
+      />
+    </div>
   );
 }

@@ -1,69 +1,91 @@
 
 import { useCallback } from 'react';
-import { useSelfLearning } from './useSelfLearning';
-import { useAuthState } from './useAuthState';
+import { useAuth } from '@/context/AuthContext';
+import { useSelfLearning } from '@/hooks/useSelfLearning';
+import { toast } from 'sonner';
 
 export function useStrategyTracking() {
+  const { user } = useAuth();
   const { trackAction } = useSelfLearning();
-  const { user } = useAuthState();
-
+  
+  /**
+   * Track when a user views a strategy detail
+   */
   const trackStrategyView = useCallback((strategyId: string, title: string) => {
+    if (!user?.id) return;
+    
     trackAction(
-      'strategy_viewed',
+      'view_strategy',
       'strategy_view',
       strategyId,
       'strategy',
       { title }
     );
-  }, [trackAction]);
-
-  const trackStrategyCreate = useCallback((strategyId: string, title: string, riskLevel: string) => {
+  }, [user, trackAction]);
+  
+  /**
+   * Track when a user approves a strategy
+   */
+  const trackStrategyApprove = useCallback((strategyId: string, title: string, executiveBot?: string) => {
+    if (!user?.id) return;
+    
     trackAction(
-      'strategy_created',
-      'strategy_create',
+      'strategy_approve',
+      'strategy_feedback',
       strategyId,
       'strategy',
-      { title, risk_level: riskLevel }
+      { 
+        title,
+        executiveBot,
+        action: 'approve'
+      }
     );
-  }, [trackAction]);
+    
+    toast.success('Strategy approved! Our AI will learn from your preference.');
+  }, [user, trackAction]);
   
-  const trackStrategyUpdate = useCallback((strategyId: string, title: string, riskLevel?: string) => {
+  /**
+   * Track when a user rejects a strategy
+   */
+  const trackStrategyReject = useCallback((strategyId: string, title: string, executiveBot?: string, reason?: string) => {
+    if (!user?.id) return;
+    
     trackAction(
-      'strategy_updated',
-      'strategy_update',
+      'strategy_reject',
+      'strategy_feedback',
       strategyId,
       'strategy',
-      { title, risk_level: riskLevel }
+      { 
+        title,
+        executiveBot,
+        reason,
+        action: 'reject' 
+      }
     );
-  }, [trackAction]);
+    
+    toast.success('Feedback recorded. We'll improve our recommendations.');
+  }, [user, trackAction]);
   
+  /**
+   * Track when a user deletes a strategy
+   */
   const trackStrategyDelete = useCallback((strategyId: string) => {
+    if (!user?.id) return;
+    
     trackAction(
-      'strategy_deleted',
-      'strategy_update',
+      'delete_strategy',
+      'strategy_management',
       strategyId,
-      'strategy'
+      'strategy',
+      { action: 'delete' }
     );
-  }, [trackAction]);
-  
-  const trackStrategyFilter = useCallback((filterType: string, value: string) => {
-    trackAction(
-      'strategy_filtered',
-      'strategy_view',
-      undefined,
-      'filter',
-      { filter_type: filterType, value }
-    );
-  }, [trackAction]);
-
-  const isLoggedIn = !!user?.id;
+  }, [user, trackAction]);
   
   return {
     trackStrategyView,
-    trackStrategyCreate,
-    trackStrategyUpdate,
+    trackStrategyApprove,
+    trackStrategyReject,
     trackStrategyDelete,
-    trackStrategyFilter,
-    isLoggedIn
+    isLoggedIn: !!user?.id
   };
 }
