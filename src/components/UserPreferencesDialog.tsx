@@ -1,171 +1,96 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+
+import { useState } from "react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, MessageSquare, Brain, Sliders } from 'lucide-react';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import ModelPreferences from './ai-settings/ModelPreferences';
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { Settings } from "lucide-react";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import AIModelPreferences from "./preferences/AIModelPreferences";
+import ResponseStylePreferences from "./preferences/ResponseStylePreferences";
+import LearningPreferences from "./preferences/LearningPreferences";
 
-export default function UserPreferencesDialog() {
-  const { preferences, updatePreferences, isLoading } = useUserPreferences();
+interface UserPreferencesDialogProps {
+  triggerLabel?: string;
+}
+
+export default function UserPreferencesDialog({ triggerLabel }: UserPreferencesDialogProps) {
   const [open, setOpen] = useState(false);
+  const { preferences, isLoading, savePreferences, updatePreference, resetPreferences } = useUserPreferences();
 
-  const handleResponseStyleChange = (value: string) => {
-    updatePreferences({ responseStyle: value });
-  };
-
-  const handleTechnicalLevelChange = (value: string) => {
-    updatePreferences({ technicalLevel: value });
-  };
-
-  const handleFocusAreaChange = (value: string) => {
-    updatePreferences({ focusArea: value });
-  };
-
-  const handleShowSourcesChange = (checked: boolean) => {
-    updatePreferences({ showSources: checked });
+  const handleSave = async () => {
+    await savePreferences(preferences);
+    setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="h-8 w-8">
+        <Button variant="outline" className="flex items-center gap-2">
           <Settings className="h-4 w-4" />
-          <span className="sr-only">Preferences</span>
+          {triggerLabel || "Preferences"}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Advisor Preferences</DialogTitle>
-          <DialogDescription>
-            Customize how AI advisors respond to your questions
-          </DialogDescription>
+          <DialogTitle>AI Response Preferences</DialogTitle>
         </DialogHeader>
-
-        <Tabs defaultValue="response" className="mt-4">
-          <TabsList className="grid grid-cols-3">
-            <TabsTrigger value="response" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span>Response Style</span>
-            </TabsTrigger>
-            <TabsTrigger value="content" className="flex items-center gap-2">
-              <Sliders className="h-4 w-4" />
-              <span>Content</span>
-            </TabsTrigger>
-            <TabsTrigger value="models" className="flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              <span>AI Models</span>
-            </TabsTrigger>
+        
+        <Tabs defaultValue="models" className="mt-4">
+          <TabsList className="mb-4">
+            <TabsTrigger value="models">AI Models</TabsTrigger>
+            <TabsTrigger value="style">Response Style</TabsTrigger>
+            <TabsTrigger value="learning">Learning</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="response" className="space-y-4 pt-4">
-            <div>
-              <h3 className="text-sm font-medium mb-3">Response Length</h3>
-              <RadioGroup 
-                value={preferences?.responseStyle || 'balanced'} 
-                onValueChange={handleResponseStyleChange}
-                className="flex flex-col space-y-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="concise" id="concise" />
-                  <Label htmlFor="concise" className="font-normal">Concise (1-2 sentences)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="balanced" id="balanced" />
-                  <Label htmlFor="balanced" className="font-normal">Balanced (3-4 sentences)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="detailed" id="detailed" />
-                  <Label htmlFor="detailed" className="font-normal">Detailed (comprehensive explanations)</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-medium mb-3">Technical Level</h3>
-              <RadioGroup 
-                value={preferences?.technicalLevel || 'intermediate'} 
-                onValueChange={handleTechnicalLevelChange}
-                className="flex flex-col space-y-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="basic" id="basic" />
-                  <Label htmlFor="basic" className="font-normal">Basic (simple language, avoid jargon)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="intermediate" id="intermediate" />
-                  <Label htmlFor="intermediate" className="font-normal">Intermediate (moderate terminology)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="advanced" id="advanced" />
-                  <Label htmlFor="advanced" className="font-normal">Advanced (industry terminology)</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="content" className="space-y-4 pt-4">
-            <div>
-              <h3 className="text-sm font-medium mb-3">Focus Area</h3>
-              <Select 
-                value={preferences?.focusArea || 'general'} 
-                onValueChange={handleFocusAreaChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select focus area" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="general">General Business Advice</SelectItem>
-                  <SelectItem value="strategy">Strategy & Planning</SelectItem>
-                  <SelectItem value="operations">Operations & Efficiency</SelectItem>
-                  <SelectItem value="marketing">Marketing & Growth</SelectItem>
-                  <SelectItem value="finance">Finance & Investment</SelectItem>
-                  <SelectItem value="technology">Technology & Innovation</SelectItem>
-                  <SelectItem value="leadership">Leadership & Management</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-muted-foreground mt-1">
-                Advisors will emphasize this area in their responses
-              </p>
-            </div>
-            
-            <div className="flex items-center justify-between pt-2">
-              <div>
-                <Label htmlFor="show-sources" className="text-sm font-medium">
-                  Include Sources & Frameworks
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Advisors will reference business theories and frameworks
-                </p>
-              </div>
-              <Switch 
-                id="show-sources" 
-                checked={preferences?.showSources || false}
-                onCheckedChange={handleShowSourcesChange}
-              />
-            </div>
-          </TabsContent>
-          
           <TabsContent value="models">
-            <ModelPreferences />
+            <AIModelPreferences 
+              preferences={preferences} 
+              updatePreference={updatePreference} 
+            />
+          </TabsContent>
+          
+          <TabsContent value="style">
+            <ResponseStylePreferences 
+              preferences={preferences} 
+              updatePreference={updatePreference} 
+            />
+          </TabsContent>
+          
+          <TabsContent value="learning">
+            <LearningPreferences 
+              preferences={preferences} 
+              updatePreference={updatePreference} 
+            />
           </TabsContent>
         </Tabs>
-
-        <DialogFooter>
-          <Button onClick={() => setOpen(false)} disabled={isLoading}>
-            Save Preferences
+        
+        <DialogFooter className="mt-6">
+          <Button
+            variant="outline"
+            onClick={() => {
+              resetPreferences();
+              setOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave} 
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save Preferences"}
           </Button>
         </DialogFooter>
       </DialogContent>

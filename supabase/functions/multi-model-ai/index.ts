@@ -1,11 +1,52 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.36.0";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
+// CORS headers for browser requests
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Get environment variables
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+
+// Model endpoints and configurations
+const AI_MODELS = {
+  'gpt-4o-mini': {
+    provider: 'openai',
+    endpoint: 'https://api.openai.com/v1/chat/completions',
+    defaultTemp: 0.7,
+    defaultMaxTokens: 800,
+  },
+  'gpt-4o': {
+    provider: 'openai',
+    endpoint: 'https://api.openai.com/v1/chat/completions',
+    defaultTemp: 0.7,
+    defaultMaxTokens: 1000,
+  },
+  'claude-3-sonnet-20240229': {
+    provider: 'anthropic',
+    endpoint: 'https://api.anthropic.com/v1/messages',
+    defaultTemp: 0.7,
+    defaultMaxTokens: 1000,
+  },
+  'claude-3-opus-20240229': {
+    provider: 'anthropic',
+    endpoint: 'https://api.anthropic.com/v1/messages',
+    defaultTemp: 0.5,
+    defaultMaxTokens: 1200,
+  },
+  'gemini-1.5-pro': {
+    provider: 'google',
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
+    defaultTemp: 0.7,
+    defaultMaxTokens: 1000,
+  }
+};
+
+// Main function to handle requests
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -13,269 +54,281 @@ serve(async (req) => {
   }
 
   try {
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Parse request body
+    const { action, modelName, messages, botName, botRole, debateContext, preferences } = await req.json();
     
-    if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY is not configured in Supabase secrets');
-    }
-
-    const { 
-      prompt, 
-      botName, 
-      botRole, 
-      messages, 
-      debateContext,
-      preferences,
-      memoryContext,
-      learningFeedback,
-      modelPreference
-    } = await req.json();
-
-    // Determine which AI model to use based on preference or default to OpenAI
-    const modelToUse = modelPreference || 'gpt-4o';
-    console.log(`Using AI model: ${modelToUse}`);
-
-    if (modelToUse.startsWith('claude') && !ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY is required for Claude models');
-    }
-
-    if (modelToUse.startsWith('gemini') && !GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is required for Gemini models');
-    }
-
-    // Construct the system prompt based on bot info, user preferences and memory
-    let systemPrompt = "You are a helpful AI assistant.";
+    // Set default model if not provided 
+    const model = modelName || 'gpt-4o-mini';
     
-    // Include memory context if provided
-    let memoryPrompt = "";
-    if (memoryContext && memoryContext.previousInteractions) {
-      memoryPrompt = `\n\nRELEVANT HISTORY AND CONTEXT:\n${memoryContext.previousInteractions.join("\n")}\n\n`;
-      
-      if (memoryContext.userPreferences) {
-        memoryPrompt += `USER PREFERENCES: ${JSON.stringify(memoryContext.userPreferences)}\n\n`;
-      }
-      
-      if (memoryContext.companyData) {
-        memoryPrompt += `COMPANY CONTEXT: ${JSON.stringify(memoryContext.companyData)}\n\n`;
-      }
+    // Make sure the model is supported
+    if (!AI_MODELS[model]) {
+      throw new Error(`Unsupported model: ${model}`);
     }
     
-    if (botName && botRole) {
-      systemPrompt = `You are ${botName}, an experienced executive in the role of ${botRole}. 
-      You provide expert business advice and strategic insights based on your expertise. 
-      Your responses should be professional, direct, and reflective of your executive position.
-      ${memoryPrompt}`;
-      
-      // Add response style preferences
-      if (preferences?.responseStyle) {
-        switch (preferences.responseStyle) {
-          case 'concise':
-            systemPrompt += " Keep your responses very brief and to the point (1-2 sentences max).";
-            break;
-          case 'detailed':
-            systemPrompt += " Provide comprehensive, detailed responses with thorough explanations.";
-            break;
-          case 'balanced':
-            systemPrompt += " Keep responses concise (3-4 sentences) unless specifically asked to elaborate.";
-            break;
-        }
-      } else {
-        systemPrompt += " Keep responses concise (3-4 sentences max) unless specifically asked to elaborate.";
-      }
-      
-      // Add technical level preferences
-      if (preferences?.technicalLevel) {
-        switch (preferences.technicalLevel) {
-          case 'basic':
-            systemPrompt += " Use simple language and avoid industry jargon. Explain concepts in straightforward terms accessible to beginners.";
-            break;
-          case 'advanced':
-            systemPrompt += " Feel free to use advanced industry terminology and sophisticated concepts. The user has extensive domain knowledge.";
-            break;
-          case 'intermediate':
-            systemPrompt += " Use moderate industry terminology with brief explanations when introducing complex concepts.";
-            break;
-        }
-      }
-      
-      // Add sources preference
-      if (preferences?.showSources) {
-        systemPrompt += " Include brief references to relevant business theories, frameworks, or research when appropriate.";
-      }
-      
-      // Add focus area preference
-      if (preferences?.focusArea && preferences.focusArea !== 'general') {
-        systemPrompt += ` Pay special attention to aspects related to ${preferences.focusArea} in your responses.`;
-      }
-      
-      // Add learning feedback if available
-      if (learningFeedback) {
-        systemPrompt += `\n\nLEARNING FEEDBACK: User has previously ${learningFeedback.positive ? 'liked' : 'disliked'} advice about ${learningFeedback.topic}. Adjust your recommendations accordingly.`;
-      }
-    }
+    // Get model config
+    const modelConfig = AI_MODELS[model];
     
-    if (debateContext) {
-      systemPrompt = `You are ${botName}, an executive with expertise in ${botRole}. 
-      You are participating in a debate on the topic: ${debateContext.topic}.
-      Consider the business context: Risk Appetite: ${debateContext.riskAppetite}, Business Priority: ${debateContext.businessPriority}.
-      ${memoryPrompt}`;
+    // Track usage for monitoring
+    await trackUsage(supabase, botName, botRole, model);
+
+    switch(action) {
+      case 'debate':
+        return await handleDebate(req, supabase, modelConfig, botName, botRole, messages, debateContext, preferences);
       
-      // If this is a multi-agent debate, specify the role and expectations
-      if (debateContext.isMultiAgentDebate) {
-        systemPrompt += `\n\nIMPORTANT: You are one of several AI executives in this conversation. You should:
-        1. Stay focused on your expertise as ${botRole}
-        2. Consider other executives' perspectives when they've spoken
-        3. Politely disagree when appropriate based on your domain expertise
-        4. Look for ways to build on others' ideas
-        5. Your goal is to help reach the best possible business decision through collaborative debate`;
-      }
-      
-      // Apply user preferences to debate responses
-      if (preferences?.responseStyle) {
-        switch (preferences.responseStyle) {
-          case 'concise':
-            systemPrompt += " Provide your professional perspective in 1-2 concise sentences.";
-            break;
-          case 'detailed':
-            systemPrompt += " Provide your professional perspective with detailed reasoning and examples.";
-            break;
-          case 'balanced':
-            systemPrompt += " Provide your professional perspective in 2-3 sentences.";
-            break;
-        }
-      } else {
-        systemPrompt += " Provide your professional perspective in 2-3 sentences.";
-      }
-      
-      // Add technical level to debate responses
-      if (preferences?.technicalLevel === 'advanced') {
-        systemPrompt += " Don't hesitate to use industry jargon and sophisticated business concepts.";
-      } else if (preferences?.technicalLevel === 'basic') {
-        systemPrompt += " Use accessible language that all participants can understand easily.";
-      }
-      
-      // Add focus area to debate context
-      if (preferences?.focusArea && preferences.focusArea !== 'general') {
-        systemPrompt += ` Emphasize implications for ${preferences.focusArea} in your contribution.`;
-      }
+      case 'generate':
+      default:
+        return await handleGenerate(req, supabase, modelConfig, botName, botRole, messages, debateContext, preferences);
     }
-
-    // Prepare conversation history if provided
-    const conversationMessages = messages && messages.length > 0 
-      ? messages.map(msg => ({
-          role: msg.type === 'user' ? 'user' : 'assistant',
-          content: msg.content,
-          name: msg.sender ? msg.sender.replace(/\s+/g, '_').toLowerCase() : undefined
-        }))
-      : [];
-
-    // Add the system message at the beginning
-    const fullMessages = [
-      { role: 'system', content: systemPrompt },
-      ...conversationMessages
-    ];
-
-    // If this is a single prompt (not a conversation), add it as the user message
-    if (prompt && (!messages || messages.length === 0)) {
-      fullMessages.push({ role: 'user', content: prompt });
-    }
-
-    let response;
-    let generatedText;
-    
-    // Based on the model preference, choose the appropriate API
-    if (modelToUse.startsWith('claude')) {
-      // Call Anthropic Claude API
-      response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: modelToUse, // claude-3-opus-20240229, claude-3-sonnet-20240229, etc.
-          max_tokens: 1024,
-          messages: fullMessages.map(msg => ({
-            role: msg.role === 'system' ? 'user' : msg.role,
-            content: msg.content
-          })),
-          system: systemPrompt, // Claude has a separate system parameter
-        }),
-      });
-      
-      const claudeData = await response.json();
-      if (claudeData.error) {
-        throw new Error(`Claude API error: ${claudeData.error.message}`);
-      }
-      generatedText = claudeData.content[0].text;
-      
-    } else if (modelToUse.startsWith('gemini')) {
-      // Call Google Gemini API
-      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: fullMessages.map(msg => ({
-            role: msg.role === 'system' ? 'user' : msg.role,
-            parts: [{ text: msg.content }]
-          })),
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1024,
-          },
-        }),
-      });
-      
-      const geminiData = await response.json();
-      if (geminiData.error) {
-        throw new Error(`Gemini API error: ${geminiData.error.message}`);
-      }
-      generatedText = geminiData.candidates[0].content.parts[0].text;
-      
-    } else {
-      // Default to OpenAI
-      response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: modelToUse,
-          messages: fullMessages,
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
-      });
-      
-      const openaiData = await response.json();
-      if (openaiData.error) {
-        throw new Error(`OpenAI API error: ${openaiData.error.message}`);
-      }
-      generatedText = openaiData.choices[0].message.content;
-    }
-
-    console.log(`Generated response using ${modelToUse}`);
-
-    return new Response(JSON.stringify({ 
-      content: generatedText,
-      model: modelToUse,
-      botName,
-      botRole,
-      timestamp: new Date().toISOString()
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
-    console.error('Error in multi-model AI function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Error in multi-model-ai function:', error);
+    
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+        success: false
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });
+
+// Track model usage
+async function trackUsage(supabase, botName, botRole, model) {
+  try {
+    await supabase.from('model_usage').insert({
+      bot_name: botName || 'unspecified',
+      bot_role: botRole || 'unspecified',
+      model: model,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    // Just log the error but don't fail the request if tracking fails
+    console.error('Error tracking model usage:', err);
+  }
+}
+
+// Handle debate scenario with multiple agents
+async function handleDebate(req, supabase, modelConfig, botName, botRole, messages, debateContext, preferences) {
+  const participants = debateContext?.participants || [];
+  const topic = debateContext?.topic || 'business strategy';
+  const responses = [];
+  
+  // Generate a response from each participant
+  for (const participant of participants) {
+    // Create a system message that defines this participant's role
+    const systemMessage = {
+      role: 'system',
+      content: `You are ${participant.name}, a ${participant.role} executive participating in a boardroom debate.
+      Topic: ${topic}
+      Provide your expert perspective on this topic, considering your background in ${participant.specialty || participant.role}.
+      Be concise but insightful. You may respectfully disagree with other executives when appropriate based on your expertise.`
+    };
+    
+    // Format messages for this participant
+    const formattedMessages = [
+      systemMessage,
+      ...messages.map(m => ({
+        role: m.type, // 'user' or 'bot'
+        content: m.content,
+        name: m.sender ? m.sender.replace(/\s+/g, '_').toLowerCase() : undefined
+      }))
+    ];
+    
+    // Generate response for this participant
+    const response = await callModel(
+      modelConfig,
+      formattedMessages,
+      preferences?.temperature || modelConfig.defaultTemp,
+      preferences?.maxTokens || modelConfig.defaultMaxTokens
+    );
+    
+    responses.push({
+      participant: participant,
+      content: response
+    });
+  }
+  
+  return new Response(
+    JSON.stringify({
+      success: true,
+      responses: responses
+    }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+// Handle standard generation request
+async function handleGenerate(req, supabase, modelConfig, botName, botRole, messages, debateContext, preferences) {
+  // Create a system message based on the bot's role
+  const systemMessage = {
+    role: 'system',
+    content: `You are ${botName || 'an AI assistant'}, a ${botRole || 'helpful assistant'}.
+    ${preferences?.detailedResponses ? 'Provide detailed, thorough answers with examples and explanations.' : 'Be concise and to the point in your responses.'}
+    ${preferences?.technicalLevel === 'advanced' ? 'Use technical terminology appropriate for experts.' : 'Use simple language that is easy to understand.'}
+    ${preferences?.showSources ? 'Cite sources and explain your reasoning when possible.' : ''}`
+  };
+  
+  // Format messages for the API
+  const formattedMessages = [
+    systemMessage,
+    ...messages.map(m => ({
+      role: m.type, // 'user' or 'bot'
+      content: m.content
+    }))
+  ];
+  
+  // Call the selected AI model
+  const response = await callModel(
+    modelConfig,
+    formattedMessages, 
+    preferences?.temperature || modelConfig.defaultTemp,
+    preferences?.maxTokens || modelConfig.defaultMaxTokens
+  );
+  
+  return new Response(
+    JSON.stringify({
+      success: true,
+      content: response,
+      model: modelConfig
+    }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+// Call the AI model based on provider
+async function callModel(modelConfig, messages, temperature, maxTokens) {
+  const { provider, endpoint } = modelConfig;
+  
+  switch(provider) {
+    case 'openai':
+      return await callOpenAI(endpoint, messages, temperature, maxTokens);
+    case 'anthropic':
+      return await callAnthropic(endpoint, messages, temperature, maxTokens);
+    case 'google':
+      return await callGoogle(endpoint, messages, temperature, maxTokens);
+    default:
+      throw new Error(`Unsupported AI provider: ${provider}`);
+  }
+}
+
+// Call OpenAI API
+async function callOpenAI(endpoint, messages, temperature, maxTokens) {
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: messages[0].model || 'gpt-4o-mini',
+        messages: messages,
+        temperature: temperature,
+        max_tokens: maxTokens,
+      }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      console.error('OpenAI API error:', data.error);
+      throw new Error(`OpenAI API error: ${data.error.message}`);
+    }
+    
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error('Error calling OpenAI:', error);
+    throw error;
+  }
+}
+
+// Call Anthropic API (Claude)
+async function callAnthropic(endpoint, messages, temperature, maxTokens) {
+  try {
+    // Convert messages to Anthropic format
+    const systemMessage = messages.find(m => m.role === 'system')?.content || '';
+    const filteredMessages = messages.filter(m => m.role !== 'system');
+    
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'x-api-key': Deno.env.get('ANTHROPIC_API_KEY'),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: "claude-3-sonnet-20240229",
+        system: systemMessage,
+        messages: filteredMessages.map(m => ({
+          role: m.role === 'bot' ? 'assistant' : m.role,
+          content: m.content
+        })),
+        temperature: temperature,
+        max_tokens: maxTokens,
+      }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      console.error('Anthropic API error:', data.error);
+      throw new Error(`Anthropic API error: ${data.error.message}`);
+    }
+    
+    return data.content[0].text;
+  } catch (error) {
+    console.error('Error calling Anthropic:', error);
+    throw error;
+  }
+}
+
+// Call Google API (Gemini)
+async function callGoogle(endpoint, messages, temperature, maxTokens) {
+  try {
+    // Convert messages to Google format
+    const systemMessage = messages.find(m => m.role === 'system')?.content || '';
+    const userMessages = messages.filter(m => m.role !== 'system');
+    
+    const response = await fetch(`${endpoint}?key=${Deno.env.get('GOOGLE_AI_KEY')}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: systemMessage + "\n\n" + userMessages.map(m => 
+                `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`
+              ).join("\n\n") }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: temperature,
+          maxOutputTokens: maxTokens,
+        }
+      }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      console.error('Google AI API error:', data.error);
+      throw new Error(`Google AI API error: ${data.error.message}`);
+    }
+    
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error calling Google AI:', error);
+    throw error;
+  }
+}
