@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { WebhookEvent } from '../useWebhookHistory';
 
 export const useWebhookHistoryFilters = (webhookEvents: WebhookEvent[], pageSize = 10) => {
@@ -40,7 +40,7 @@ export const useWebhookHistoryFilters = (webhookEvents: WebhookEvent[], pageSize
   };
 
   // Reset to first page when filters change
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, typeFilter]);
 
