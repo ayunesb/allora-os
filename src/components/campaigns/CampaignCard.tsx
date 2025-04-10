@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Campaign } from "@/models/campaign";
+import { Campaign, ExecutiveBot } from "@/models/campaign";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DownloadIcon, Edit, Facebook, Linkedin, Mail, MoreHorizontal, ThumbsDown, ThumbsUp, Trash2, Twitter } from "lucide-react";
@@ -35,7 +34,6 @@ export default function CampaignCard({
 }: CampaignCardProps) {
   const [isLiked, setIsLiked] = useState<boolean | null>(null);
 
-  // Get platform icon
   const getPlatformIcon = () => {
     switch (campaign.platform) {
       case 'Facebook':
@@ -51,7 +49,6 @@ export default function CampaignCard({
     }
   };
 
-  // Get status color
   const getStatusColor = () => {
     switch (campaign.status) {
       case 'Active':
@@ -66,7 +63,6 @@ export default function CampaignCard({
     }
   };
 
-  // Generate mock metrics
   const getMetrics = () => {
     const budget = campaign.budget || 1000;
     const clicks = Math.floor(budget * 0.5 * (Math.random() + 0.5));
@@ -89,26 +85,42 @@ export default function CampaignCard({
 
   const metrics = getMetrics();
 
-  // Handle like/dislike
   const handleFeedback = (isPositive: boolean) => {
     setIsLiked(isPositive);
     onFeedback(campaign.id, isPositive);
   };
 
-  // Safely get avatar name for URL
   const getAvatarName = () => {
     if (!campaign.executiveBot) return '';
-    return typeof campaign.executiveBot === 'string' 
-      ? campaign.executiveBot.toLowerCase().replace(/\s+/g, '-')
-      : '';
+    
+    if (typeof campaign.executiveBot === 'string') {
+      return campaign.executiveBot.toLowerCase().replace(/\s+/g, '-');
+    } else if (campaign.executiveBot.name) {
+      return campaign.executiveBot.name.toLowerCase().replace(/\s+/g, '-');
+    }
+    return '';
   };
 
-  // Safely get avatar initials
   const getAvatarInitials = () => {
     if (!campaign.executiveBot) return '';
-    return typeof campaign.executiveBot === 'string'
-      ? campaign.executiveBot.charAt(0)
-      : '';
+    
+    if (typeof campaign.executiveBot === 'string') {
+      return campaign.executiveBot.charAt(0);
+    } else if (campaign.executiveBot.name) {
+      return campaign.executiveBot.name.charAt(0);
+    }
+    return '';
+  };
+
+  const getExecutiveName = (): string => {
+    if (!campaign.executiveBot) return '';
+    
+    if (typeof campaign.executiveBot === 'string') {
+      return campaign.executiveBot;
+    } else if (campaign.executiveBot.name) {
+      return campaign.executiveBot.name;
+    }
+    return '';
   };
 
   return (
@@ -168,7 +180,6 @@ export default function CampaignCard({
       </CardHeader>
       
       <CardContent className="pb-3">
-        {/* Progress */}
         <div className="mb-4">
           <div className="flex justify-between text-xs mb-1">
             <span>Campaign Progress</span>
@@ -177,7 +188,6 @@ export default function CampaignCard({
           <Progress value={metrics.progress} className="h-2" />
         </div>
         
-        {/* Metrics */}
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Leads:</span>
@@ -197,7 +207,6 @@ export default function CampaignCard({
           </div>
         </div>
         
-        {/* Health status */}
         <div className="mt-4 flex items-center">
           <TooltipProvider>
             <Tooltip>
@@ -228,7 +237,6 @@ export default function CampaignCard({
           </span>
         </div>
         
-        {/* AI Recommendation */}
         {campaign.justification && (
           <div className="mt-4 p-3 bg-primary/5 border border-primary/10 rounded-md">
             <div className="flex items-start">
@@ -243,11 +251,10 @@ export default function CampaignCard({
                 <div className="flex items-center mt-2">
                   {campaign.executiveBot && (
                     <span className="text-xs text-muted-foreground mr-2">
-                      — {campaign.executiveBot}
+                      — {getExecutiveName()}
                     </span>
                   )}
                   
-                  {/* Feedback buttons */}
                   {isLiked === null && (
                     <div className="flex items-center ml-auto">
                       <Button 

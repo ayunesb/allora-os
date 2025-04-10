@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
 import { useCampaignTracking } from "@/hooks/campaigns/useCampaignTracking";
@@ -36,12 +35,9 @@ export default function Campaigns() {
   
   const { trackAction } = useSelfLearning();
   
-  // Attribute campaigns to AI executives if they don't have attribution
   useEffect(() => {
-    // Get all executive names flattened into an array
     const allExecs = Object.values(executiveBots).flat();
     
-    // Track page view
     trackAction(
       'view_page',
       'page_view',
@@ -49,7 +45,6 @@ export default function Campaigns() {
       'page',
       { page: 'campaigns' }
     );
-    
   }, [trackAction]);
   
   const onSubmit = (data: CampaignWizardData) => {
@@ -60,13 +55,11 @@ export default function Campaigns() {
         platform: data.platform, 
         budget: data.budget,
         status: 'Active',
-        // Additional fields
         executiveBot: data.executiveBot,
         justification: `This ${data.platform} campaign will help you reach your ${data.goal} goals. The target audience matches your business perfectly.`,
         roi: `Expected ROI: ${Math.floor(Math.random() * 300 + 100)}%`
       });
     } else {
-      // For new campaigns, attribute to an executive bot
       const allExecs = Object.values(executiveBots).flat();
       const randomExec = data.executiveBot || allExecs[Math.floor(Math.random() * allExecs.length)];
       
@@ -80,7 +73,6 @@ export default function Campaigns() {
         roi: `Expected ROI: ${Math.floor(Math.random() * 300 + 100)}%`
       });
       
-      // Track the campaign creation with executive attribution
       trackAction(
         'create_campaign',
         'campaign_management',
@@ -104,7 +96,6 @@ export default function Campaigns() {
       setEditingCampaignId(campaignId);
       setIsDialogOpen(true);
       
-      // Track campaign edit action
       trackCampaignView(campaignId, campaign.name);
     }
   };
@@ -114,7 +105,6 @@ export default function Campaigns() {
     setIsDialogOpen(true);
   };
   
-  // Handle campaign approval (AI learning feedback)
   const handleApproveCampaign = (campaignId: string) => {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
@@ -126,24 +116,20 @@ export default function Campaigns() {
       
       toast.success(`Feedback for ${campaign.executiveBot}'s recommendation recorded`);
       
-      // Refresh campaigns after approval
       setTimeout(() => refetch(), 1000);
     }
   };
 
-  // Export campaign data
   const handleExportCampaign = (campaignId: string, format: 'pdf' | 'csv') => {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (!campaign) return;
 
     toast.success(`Exporting ${campaign.name} as ${format.toUpperCase()}...`);
     
-    // In a real app, this would trigger an actual download
     setTimeout(() => {
       toast.success(`${format.toUpperCase()} export complete`);
     }, 1500);
 
-    // Track export action
     trackAction(
       'export_campaign',
       'campaign_management',
@@ -157,19 +143,24 @@ export default function Campaigns() {
     );
   };
 
-  // Get default values for the wizard based on whether we're editing or creating
   const getWizardDefaultValues = () => {
     if (editingCampaignId) {
       const campaign = campaigns.find(c => c.id === editingCampaignId);
       
       if (campaign) {
+        let execName: string | undefined = undefined;
+        if (campaign.executiveBot) {
+          execName = typeof campaign.executiveBot === 'string' 
+            ? campaign.executiveBot 
+            : campaign.executiveBot.name;
+        }
+        
         return {
           name: campaign.name,
-          platform: campaign.platform as Platform,
+          platform: campaign.platform,
           budget: campaign.budget || 1000,
-          executiveBot: typeof campaign.executiveBot === 'string' ? campaign.executiveBot : undefined,
+          executiveBot: execName,
           adCopy: campaign.justification || "",
-          // Default values for new fields
           goal: "leads" as const,
           audience: "Professionals aged 25-45 interested in business growth",
           startDate: new Date().toISOString().split('T')[0],
@@ -180,7 +171,7 @@ export default function Campaigns() {
     
     return {
       name: "",
-      platform: "Google" as const,
+      platform: "Google" as Platform,
       budget: 1000,
       goal: "leads" as const,
       audience: "",

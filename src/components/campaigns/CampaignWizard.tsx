@@ -34,11 +34,12 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, CheckCircle, ChevronRight, Clock, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/utils/formatters";
 import { executiveBots } from "@/backend/executiveBots";
+import { Platform } from "@/models/campaign";
 
 // Define campaign form data type
 export interface CampaignWizardData {
   name: string;
-  platform: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Email';
+  platform: Platform;
   budget: number;
   goal: 'leads' | 'awareness' | 'sales' | 'traffic' | 'engagement';
   audience: string;

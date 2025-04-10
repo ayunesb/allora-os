@@ -1,6 +1,13 @@
 
 export type Platform = 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Twitter' | 'Email' | 'Other';
 
+// Define an ExecutiveBot type that can be either a string or an object
+export type ExecutiveBot = string | {
+  name: string;
+  role?: string;
+  avatar?: string;
+};
+
 export type Campaign = {
   id: string;
   company_id?: string;
@@ -10,7 +17,7 @@ export type Campaign = {
   status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
   created_at?: string;
   updated_at?: string;
-  executiveBot?: string;
+  executiveBot?: ExecutiveBot;
   justification?: string;
   roi?: string;
   target_audience?: string;

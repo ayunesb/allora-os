@@ -1,7 +1,6 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
-import { Campaign, Platform } from '@/models/campaign';
+import { Campaign, Platform, ExecutiveBot } from '@/models/campaign';
 
 export async function fetchCompanyCampaigns(companyId: string): Promise<Campaign[]> {
   try {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCompanyInsights } from "../useCompanyInsights";
@@ -52,6 +51,8 @@ export function useCampaignFetch() {
         // Convert insights to campaign format
         const aiGeneratedCampaigns = campaignInsights.map((insight, index) => {
           const platform = getRandomPlatform(index);
+          const executiveBot = insight.primaryBot || getRandomExecutive();
+          
           return {
             id: `ai-${insight.id}`,
             name: insight.title,
@@ -59,7 +60,7 @@ export function useCampaignFetch() {
             budget: getRandomBudget(2500, 10000),
             description: insight.description,
             aiGenerated: true,
-            executiveBot: insight.primaryBot,
+            executiveBot,
             collaborators: insight.collaborators,
             justification: insight.description,
             status: "Draft" as const,
