@@ -38,7 +38,7 @@ export function useCampaignTracking() {
   /**
    * Track when a user approves (likes) an AI recommendation on a campaign
    */
-  const trackCampaignApprove = async (campaignId: string, campaignName: string, executiveBot?: string) => {
+  const trackCampaignApprove = async (campaignId: string, campaignName: string, executiveBot: string) => {
     setIsTrackingApprove(true);
     
     try {

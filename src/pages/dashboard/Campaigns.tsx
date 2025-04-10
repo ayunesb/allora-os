@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
 import { useCampaignTracking } from "@/hooks/campaigns/useCampaignTracking";
@@ -8,7 +9,7 @@ import CampaignWizard, { CampaignWizardData } from "@/components/campaigns/Campa
 import { executiveBots } from "@/backend/executiveBots";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { toast } from "sonner";
-import { Campaign, Platform } from "@/models/campaign";
+import { Campaign, Platform, ExecutiveBot } from "@/models/campaign";
 import { Button } from "@/components/ui/button";
 import { DownloadIcon } from "lucide-react";
 
@@ -61,6 +62,7 @@ export default function Campaigns() {
       });
     } else {
       const allExecs = Object.values(executiveBots).flat();
+      // Fixed: Use the provided executiveBot name if available, otherwise get random exec name
       const randomExec = data.executiveBot || allExecs[Math.floor(Math.random() * allExecs.length)];
       
       createCampaign({
@@ -81,7 +83,8 @@ export default function Campaigns() {
         { 
           name: data.name,
           platform: data.platform,
-          executiveBot: randomExec 
+          // Fixed: Ensure we pass a string for tracking, not an object
+          executiveBot: typeof randomExec === 'string' ? randomExec : randomExec.name
         }
       );
     }
@@ -108,13 +111,18 @@ export default function Campaigns() {
   const handleApproveCampaign = (campaignId: string) => {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
+      // Fixed: Extract string name from executiveBot if it's an object
+      const execBotName = typeof campaign.executiveBot === 'string' 
+        ? campaign.executiveBot 
+        : campaign.executiveBot?.name || '';
+      
       trackCampaignApprove(
         campaignId, 
         campaign.name, 
-        campaign.executiveBot
+        execBotName
       );
       
-      toast.success(`Feedback for ${campaign.executiveBot}'s recommendation recorded`);
+      toast.success(`Feedback for ${execBotName}'s recommendation recorded`);
       
       setTimeout(() => refetch(), 1000);
     }
@@ -130,6 +138,11 @@ export default function Campaigns() {
       toast.success(`${format.toUpperCase()} export complete`);
     }, 1500);
 
+    // Fixed: Extract string name from executiveBot if it's an object
+    const execBotName = typeof campaign.executiveBot === 'string' 
+      ? campaign.executiveBot 
+      : campaign.executiveBot?.name || '';
+
     trackAction(
       'export_campaign',
       'campaign_management',
@@ -138,7 +151,7 @@ export default function Campaigns() {
       { 
         name: campaign.name,
         format,
-        executiveBot: campaign.executiveBot 
+        executiveBot: execBotName
       }
     );
   };
