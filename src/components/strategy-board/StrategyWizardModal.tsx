@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Dialog, 
@@ -66,7 +65,7 @@ export default function StrategyWizardModal({
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const mockStrategies = [
+  const mockStrategies: Partial<Strategy>[] = [
     {
       title: "Market Expansion: Digital Channels",
       description: "Expand market reach through optimized digital channels, focusing on targeted social media campaigns and performance marketing for the core demographic. Implement data-driven decision making at each phase.",
