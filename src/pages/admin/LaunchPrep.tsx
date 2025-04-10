@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PreLaunchChecklist from '@/components/admin/PreLaunchChecklist';
 import LaunchVerification from '@/components/admin/LaunchVerification';
@@ -34,6 +33,24 @@ export default function LaunchPrep() {
       toast.error(`Error verifying API secrets: ${error.message}`);
     }
   };
+
+  React.useEffect(() => {
+    localStorage.setItem('lovable-badge-hidden', 'true');
+    
+    const removeBadge = () => {
+      const badges = document.querySelectorAll('[class*="lovable-badge"], [id*="lovable-badge"], [data-lovable]');
+      badges.forEach(badge => {
+        if (badge instanceof HTMLElement) {
+          badge.style.display = 'none';
+        }
+      });
+    };
+    
+    removeBadge();
+    const interval = setInterval(removeBadge, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="animate-fadeIn space-y-4 sm:space-y-6">

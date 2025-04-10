@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Rocket, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -18,7 +18,28 @@ export function LaunchButton({ className }: LaunchButtonProps) {
   const [isComplete, setIsComplete] = useState(false);
   const navigate = useNavigate();
 
+  // Hide Lovable badge on component mount
+  useEffect(() => {
+    // Set flag in localStorage
+    localStorage.setItem('lovable-badge-hidden', 'true');
+    
+    // Also try to find and hide any badge elements
+    const removeBadge = () => {
+      const badges = document.querySelectorAll('[class*="lovable-badge"], [id*="lovable-badge"], [data-lovable]');
+      badges.forEach(badge => {
+        if (badge instanceof HTMLElement) {
+          badge.style.display = 'none';
+        }
+      });
+    };
+    
+    removeBadge();
+  }, []);
+  
   const launchFirstCustomerFlow = async () => {
+    // Hide the Lovable badge when launching
+    localStorage.setItem('lovable-badge-hidden', 'true');
+    
     setIsLaunching(true);
     
     try {
