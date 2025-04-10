@@ -28,7 +28,7 @@ interface LeadsContentProps {
   sortBy: 'name' | 'created_at';
   sortOrder: 'asc' | 'desc';
   toggleSort: (column: 'name' | 'created_at') => void;
-  getLeadScore: (score: number) => 'hot' | 'warm' | 'cold';
+  getLeadScore: (lead: Lead) => 'hot' | 'warm' | 'cold';
   getNextBestAction: (lead: Lead) => string;
   campaigns: Array<{ id: string; name: string }>;
 }

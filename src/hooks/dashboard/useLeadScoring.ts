@@ -95,7 +95,7 @@ export function useLeadScoring({ initialSettings }: UseLeadScoringProps = {}) {
       .slice(0, count);
   }, [scoreLeads]);
 
-  // Add the missing getLeadScore function
+  // Update to make sure the getLeadScore function accepts a Lead object
   const getLeadScore = useCallback((lead: Lead): 'hot' | 'warm' | 'cold' => {
     const score = calculateLeadScore(lead);
     if (score >= 70) return 'hot';
@@ -103,7 +103,7 @@ export function useLeadScoring({ initialSettings }: UseLeadScoringProps = {}) {
     return 'cold';
   }, [calculateLeadScore]);
 
-  // Add the missing getNextBestAction function
+  // Make sure the getNextBestAction function accepts a Lead object
   const getNextBestAction = useCallback((lead: Lead): string => {
     const score = getLeadScore(lead);
     const status = lead.status;
@@ -135,7 +135,6 @@ export function useLeadScoring({ initialSettings }: UseLeadScoringProps = {}) {
     getTopLeads,
     settings,
     setSettings,
-    // Add the new functions to the return object
     getLeadScore,
     getNextBestAction
   };
