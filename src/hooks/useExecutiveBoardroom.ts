@@ -118,7 +118,7 @@ export default function useExecutiveBoardroom() {
         ],
         'Retail': [
           'Omnichannel integration strategy',
-          'Competing with Amazon's logistics advantage',
+          'Competing with Amazon\'s logistics advantage',
           'Balancing brick-and-mortar with e-commerce expansion'
         ]
       };
