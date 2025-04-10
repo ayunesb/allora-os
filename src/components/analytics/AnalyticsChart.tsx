@@ -143,10 +143,12 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                 label={{ position: 'insideStart', fill: '#fff' }}
                 background
                 dataKey={dataKeys[0]}
-                nameKey={nameKey}
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={colors[index % colors.length]} 
+                  />
                 ))}
               </RadialBar>
               <Legend
@@ -158,6 +160,10 @@ const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
                   right: 0,
                   transform: 'translate(0, -50%)',
                   lineHeight: '24px',
+                }}
+                formatter={(value, entry, index) => {
+                  // Display the name from our data instead
+                  return data[index % data.length][nameKey];
                 }}
               />
               <Tooltip />
