@@ -2,6 +2,7 @@
 import React from 'react';
 import PreLaunchChecklist from '@/components/admin/PreLaunchChecklist';
 import LaunchVerification from '@/components/admin/LaunchVerification';
+import { LaunchButton } from '@/components/admin/launch-verification/LaunchButton';
 import { removeTestData, verifyApiSecrets } from '@/utils/cleanupForProduction';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -61,6 +62,16 @@ export default function LaunchPrep() {
           <CheckCircle2 className="h-4 w-4" />
           Verify API Secrets
         </Button>
+      </div>
+
+      <div className="bg-primary-foreground border border-border/80 rounded-xl p-6">
+        <h2 className="text-xl font-semibold mb-4">Launch Allora AI</h2>
+        <p className="text-muted-foreground mb-6">
+          Ready to go live? With one click, initiate Allora AI by creating a self-demo experience 
+          with sample data to showcase the platform's capabilities.
+        </p>
+        
+        <LaunchButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
