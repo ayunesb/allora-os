@@ -1,3 +1,4 @@
+
 import { ReactNode, useState, useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -28,13 +29,29 @@ export default function ProtectedRoute({
     isEmailVerified, 
     refreshSession, 
     authError,
-    isSessionExpired
+    isSessionExpired,
+    hasInitialized
   } = useAuth();
+  
   const location = useLocation();
   const [isResending, setIsResending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [adminCheckDone, setAdminCheckDone] = useState(false);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+
+  // Set a timeout to avoid infinite loading
+  useEffect(() => {
+    let timer: number;
+    if (isLoading && !loadingTimeout) {
+      timer = window.setTimeout(() => {
+        setLoadingTimeout(true);
+      }, 10000); // 10 seconds loading timeout
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isLoading, loadingTimeout]);
 
   useEffect(() => {
     if (isSessionExpired && user) {
@@ -47,19 +64,24 @@ export default function ProtectedRoute({
   useEffect(() => {
     const verifyAdminStatus = async () => {
       if (user && (adminOnly || roleRequired === 'admin')) {
-        const isAdmin = await checkIfUserIsAdmin();
-        console.log('Admin check result:', isAdmin, 'for user:', user.email);
-        setIsUserAdmin(isAdmin);
-        setAdminCheckDone(true);
+        try {
+          const isAdmin = await checkIfUserIsAdmin();
+          console.log('Admin check result:', isAdmin, 'for user:', user.email);
+          setIsUserAdmin(isAdmin);
+          setAdminCheckDone(true);
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+          setAdminCheckDone(true); // Continue even on error
+        }
       } else {
         setAdminCheckDone(true);
       }
     };
 
-    if (user && !adminCheckDone) {
+    if (user && !adminCheckDone && hasInitialized) {
       verifyAdminStatus();
     }
-  }, [user, adminOnly, roleRequired, adminCheckDone]);
+  }, [user, adminOnly, roleRequired, adminCheckDone, hasInitialized]);
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -69,11 +91,13 @@ export default function ProtectedRoute({
         roleRequired, 
         adminOnly,
         isLoading,
+        hasInitialized,
         profileRole: profile?.role,
-        isUserAdmin
+        isUserAdmin,
+        loadingTimeout
       });
     }
-  }, [user, profile, roleRequired, adminOnly, isLoading, isUserAdmin]);
+  }, [user, profile, roleRequired, adminOnly, isLoading, isUserAdmin, hasInitialized, loadingTimeout]);
 
   const handleResendVerificationEmail = async (): Promise<void> => {
     if (!user?.email) {
@@ -120,8 +144,20 @@ export default function ProtectedRoute({
     }
   };
 
-  if (isLoading || !adminCheckDone) {
+  // Show loading state but with timeout protection
+  if (isLoading && !loadingTimeout) {
     return <AuthLoadingState />;
+  }
+
+  // If loading took too long, give user the option to retry or navigate back
+  if (loadingTimeout && isLoading) {
+    return (
+      <AuthErrorState 
+        error="Loading took too long. There might be an issue with the connection." 
+        onRetry={handleSessionRefresh} 
+        isRetrying={isRefreshing} 
+      />
+    );
   }
 
   if (authError) {
@@ -136,14 +172,14 @@ export default function ProtectedRoute({
     return <Navigate to="/login" state={{ from: location, expired: true }} replace />;
   }
 
-  if (!user) {
+  if (!user && hasInitialized) {
     toast.error("Please log in to access this page", {
       description: "This page requires authentication."
     });
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requireVerified && !isEmailVerified) {
+  if (requireVerified && !isEmailVerified && hasInitialized) {
     return <VerificationRequiredState 
       onRefresh={async (): Promise<void> => {
         await refreshSession();
@@ -153,7 +189,7 @@ export default function ProtectedRoute({
     />;
   }
 
-  if ((adminOnly || roleRequired === 'admin')) {
+  if ((adminOnly || roleRequired === 'admin') && hasInitialized) {
     if (isUserAdmin) {
       console.log('Admin access granted via direct database check');
       return <>{children}</>;
@@ -169,7 +205,7 @@ export default function ProtectedRoute({
       return <Navigate to="/dashboard" replace />;
     }
   }
-  else if (roleRequired && profile) {
+  else if (roleRequired && profile && hasInitialized) {
     const hasRequiredRole = profile.role === roleRequired || 
                            (roleRequired === 'user' && profile.role === 'admin');
     

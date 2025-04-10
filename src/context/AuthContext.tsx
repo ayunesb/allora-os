@@ -45,7 +45,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadUserProfile,
     refreshSession: refreshAuthStateSession,
     updateLastActivity,
-    setProfile
+    setProfile,
+    hasInitialized
   } = useAuthState();
 
   // Sign in function
@@ -131,7 +132,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshProfile,
     refreshSession,
     updateLastActivity,
-    setProfile
+    setProfile,
+    hasInitialized
   };
 
   return (

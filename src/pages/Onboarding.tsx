@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
@@ -10,10 +10,11 @@ import { CompanyDetailsSurvey } from "@/components/onboarding/company-details";
 import RiskProfileForm from "@/components/onboarding/RiskProfileForm";
 import ExecutiveTeamIntro from "@/components/onboarding/ExecutiveTeamIntro";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, RefreshCw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { checkOnboardingStatus } from "@/utils/onboarding";
+import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
 
 export default function Onboarding() {
   const {
@@ -29,36 +30,107 @@ export default function Onboarding() {
     setRiskAppetite,
     executiveTeamEnabled,
     setExecutiveTeamEnabled,
-    isLoading,
+    isLoading: isOnboardingLoading,
     errorMessage,
     handleNext,
     handleBack,
     toggleGoal
   } = useOnboardingState();
 
-  const { user, signOut } = useAuth();
+  const { user, signOut, isLoading: isAuthLoading, hasInitialized } = useAuth();
   const navigate = useNavigate();
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Check if user has already completed onboarding
   useEffect(() => {
-    if (!user) return;
-
+    let isMounted = true;
+    
     const checkStatus = async () => {
-      const isCompleted = await checkOnboardingStatus(user.id);
-      if (isCompleted) {
-        toast.info("You've already completed onboarding");
-        navigate("/dashboard");
+      if (!user && retryCount < 3) {
+        // Wait a bit and retry if user is not loaded yet
+        setTimeout(() => {
+          if (isMounted) {
+            setRetryCount(prev => prev + 1);
+          }
+        }, 1500);
+        return;
+      }
+      
+      if (!user) {
+        if (hasInitialized) {
+          // If we've fully initialized and still don't have a user, redirect to login
+          toast.error("You must be logged in to complete onboarding");
+          navigate("/login");
+        }
+        return;
+      }
+
+      try {
+        const isCompleted = await checkOnboardingStatus(user.id);
+        if (isCompleted && isMounted) {
+          toast.info("You've already completed onboarding");
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        console.error("Error checking onboarding status:", error);
+      } finally {
+        if (isMounted) {
+          setIsCheckingStatus(false);
+        }
       }
     };
 
     checkStatus();
-  }, [user, navigate]);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [user, navigate, retryCount, hasInitialized]);
 
   const handleSignOut = async () => {
-    await signOut();
-    toast.success("You have been logged out");
-    navigate("/login");
+    try {
+      await signOut();
+      toast.success("You have been logged out");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Failed to sign out. Please try again.");
+    }
   };
+
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
+  // Show loading state
+  if (isAuthLoading || isCheckingStatus) {
+    return <AuthLoadingState />;
+  }
+
+  // If we've retried 3 times and still no user, show refresh button
+  if (retryCount >= 3 && !user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="bg-card border rounded-lg shadow-lg p-6 max-w-md w-full">
+          <h2 className="text-xl font-semibold mb-4">Authentication Issue</h2>
+          <p className="text-muted-foreground mb-6">
+            There was a problem loading your account information. This might be due to a temporary connection issue.
+          </p>
+          <div className="flex gap-4 justify-end">
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </Button>
+            <Button onClick={handleRefresh}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh page
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const getStepContent = () => {
     switch (step) {
@@ -158,7 +230,7 @@ export default function Onboarding() {
         totalSteps={getTotalSteps()}
         onBack={handleBack}
         onNext={handleNext}
-        isLoading={isLoading}
+        isLoading={isOnboardingLoading}
         isLastStep={step === 6}
       >
         {getStepContent()}

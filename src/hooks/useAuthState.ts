@@ -12,8 +12,8 @@ export function useAuthState() {
     session, 
     setSession, 
     isSessionExpired, 
-    isLoading, 
-    setIsLoading,
+    isLoading: isSessionLoading, 
+    setIsLoading: setIsSessionLoading,
     refreshSession: refreshUserSession,
     updateLastActivity
   } = useSession();
@@ -23,6 +23,7 @@ export function useAuthState() {
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const updateEmailVerification = useCallback((user: User | null) => {
     if (user?.email_confirmed_at || user?.confirmed_at) {
@@ -33,7 +34,7 @@ export function useAuthState() {
   }, []);
 
   const loadUserProfile = useCallback(async (userId: string) => {
-    if (!userId) return;
+    if (!userId) return null;
     
     setIsProfileLoading(true);
     try {
@@ -45,14 +46,17 @@ export function useAuthState() {
 
       if (error) {
         logger.error('Error loading user profile:', { error, userId });
-        return;
+        return null;
       }
 
       if (data) {
         setProfile(data);
+        return data;
       }
+      return null;
     } catch (error) {
       logger.error('Unexpected error loading profile:', { error, userId });
+      return null;
     } finally {
       setIsProfileLoading(false);
     }
@@ -65,22 +69,20 @@ export function useAuthState() {
     
     // Set up auth state change listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
+      async (event, newSession) => {
         logger.info('Auth state change:', { event });
         
         if (!mounted) return;
         
         // Only perform synchronous operations inside the main callback
-        // This prevents potential deadlocks with the Supabase client
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
-        // Defer any asynchronous operations with setTimeout
-        // This breaks the potential deadlock by pushing the operation to the next event loop tick
+        // Load profile on auth change
         if (newSession?.user) {
-          setTimeout(() => {
+          setTimeout(async () => {
             if (mounted) {
-              loadUserProfile(newSession.user.id);
+              await loadUserProfile(newSession.user.id);
             }
           }, 0);
         } else if (mounted) {
@@ -94,19 +96,15 @@ export function useAuthState() {
           toast.success('Welcome back!');
         } else if (event === 'USER_UPDATED') {
           toast.success('Your profile has been updated');
-        } else if (event === 'PASSWORD_RECOVERY') {
-          toast.info('Password recovery initiated');
-        } else if (event === 'TOKEN_REFRESHED') {
-          logger.info('Auth token refreshed');
         }
       }
     );
 
-    // Then check for existing session
+    // Initialize auth - only once
     const initializeAuth = async () => {
       if (!mounted) return;
       
-      setIsLoading(true);
+      setIsSessionLoading(true);
       try {
         // Get current session
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
@@ -120,12 +118,7 @@ export function useAuthState() {
           
           if (currentSession?.user) {
             setUser(currentSession.user);
-            // Use setTimeout to prevent potential deadlock
-            setTimeout(() => {
-              if (mounted) {
-                loadUserProfile(currentSession.user.id);
-              }
-            }, 0);
+            await loadUserProfile(currentSession.user.id);
           }
         }
       } catch (error: any) {
@@ -135,23 +128,29 @@ export function useAuthState() {
         }
       } finally {
         if (mounted) {
-          setIsLoading(false);
+          setIsSessionLoading(false);
+          setHasInitialized(true);
         }
       }
     };
     
-    initializeAuth();
+    // Only initialize once
+    if (!hasInitialized) {
+      initializeAuth();
+    }
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [setSession, loadUserProfile, setIsLoading]);
+  }, [setSession, loadUserProfile, setIsSessionLoading, hasInitialized]);
 
   // Update email verification status whenever user changes
   useEffect(() => {
     updateEmailVerification(user);
   }, [user, updateEmailVerification]);
+
+  const isLoading = isSessionLoading || (isProfileLoading && !!user);
 
   return {
     user,
@@ -169,6 +168,7 @@ export function useAuthState() {
     refreshSession: refreshUserSession,
     setProfile,
     setAuthError,
-    updateEmailVerification
+    updateEmailVerification,
+    hasInitialized
   };
 }
