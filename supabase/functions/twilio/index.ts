@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -69,28 +68,24 @@ serve(async (req) => {
       const mediaContentType = formData.get('MediaContentType0') || '';
       const mediaUrl = formData.get('MediaUrl0') || '';
       
-      console.log(`Received WhatsApp message from ${from}: ${body}`);
+      // Import the incoming handler
+      const { handleIncomingWhatsApp } = await import('./incoming-handler.ts');
       
-      // Initialize supabase client with anon key for logging
-      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // Generate a human-like response
+      const aiResponse = await handleIncomingWhatsApp(
+        from.toString(),
+        body.toString(),
+        messageSid.toString(),
+        numMedia.toString(),
+        mediaContentType?.toString(),
+        mediaUrl?.toString()
+      );
       
-      // Log the incoming message
-      await supabase.from("incoming_messages").insert({
-        message_sid: messageSid,
-        from_number: from.toString().replace('whatsapp:', ''),
-        body: body.toString(),
-        received_at: new Date().toISOString(),
-        channel: 'whatsapp',
-        has_media: numMedia !== '0',
-        media_type: mediaContentType?.toString() || null,
-        media_url: mediaUrl?.toString() || null
-      });
-      
-      // Return a TwiML response
+      // Return a TwiML response with the AI-generated human-like response
       return new Response(
         `<?xml version="1.0" encoding="UTF-8"?>
         <Response>
-          <Message>Thank you for contacting Allora AI. We'll respond shortly.</Message>
+          <Message>${aiResponse}</Message>
         </Response>`,
         {
           status: 200,
@@ -105,7 +100,7 @@ serve(async (req) => {
       return new Response(
         `<?xml version="1.0" encoding="UTF-8"?>
         <Response>
-          <Message>Sorry, we couldn't process your message. Please try again later.</Message>
+          <Message>Thanks for your message. I'll get back to you shortly.</Message>
         </Response>`,
         {
           status: 200,

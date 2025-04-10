@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { useStrategies } from "@/hooks/useStrategies";
 import { Strategy } from "@/models/strategy";
-import { Loader2, Brain } from "lucide-react";
+import { Loader2, Brain, TrendingUp, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
