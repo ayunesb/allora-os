@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useBreakpoint } from "@/hooks/use-mobile";
+import { createCheckoutSession } from '@/utils/stripeHelpers';
+import { toast } from 'sonner';
 
 const PricingTier = ({ 
   title, 
@@ -13,19 +15,40 @@ const PricingTier = ({
   description, 
   features, 
   buttonText, 
+  priceId,
   buttonVariant = "default", 
-  popular = false
+  popular = false,
+  emoji = "✅"
 }: { 
   title: string;
   price: string;
   description: string;
   features: string[];
   buttonText: string;
+  priceId?: string;
   buttonVariant?: "default" | "outline" | "secondary";
   popular?: boolean;
+  emoji?: string;
 }) => {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  
+  const handleSubscribe = async () => {
+    if (!priceId) {
+      toast.info("Please contact sales for this plan");
+      return;
+    }
+    
+    try {
+      const success = await createCheckoutSession(priceId);
+      if (!success) {
+        toast.error("Failed to create checkout session");
+      }
+    } catch (error) {
+      console.error("Error creating checkout:", error);
+      toast.error("An error occurred. Please try again later.");
+    }
+  };
   
   return (
     <Card className={`flex flex-col ${popular ? 'border-primary shadow-lg' : ''}`}>
@@ -46,18 +69,24 @@ const PricingTier = ({
         <ul className="space-y-3">
           {features.map((feature, i) => (
             <li key={i} className="flex items-start">
-              <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+              <span className="mr-2 text-primary">{emoji}</span>
               <span className={`${isMobileView ? "text-xs" : "text-sm"}`}>{feature}</span>
             </li>
           ))}
         </ul>
       </CardContent>
       <CardFooter className={isMobileView ? "px-4 py-3" : undefined}>
-        <Button variant={buttonVariant} className="w-full">
-          <Link to="/signup" className="w-full">
+        {priceId ? (
+          <Button variant={buttonVariant} className="w-full" onClick={handleSubscribe}>
             {buttonText}
-          </Link>
-        </Button>
+          </Button>
+        ) : (
+          <Button variant={buttonVariant} className="w-full">
+            <Link to="/signup" className="w-full">
+              {buttonText}
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
@@ -72,50 +101,56 @@ export default function Pricing() {
     {
       title: "Starter",
       price: "$199",
-      description: "Perfect for small businesses and startups",
+      description: "Ideal for solopreneurs and small teams",
       features: [
-        "Basic AI advisor consultation",
-        "Monthly strategic insights",
-        "Business health analytics",
-        "Email support",
-        "Up to 3 team members"
-      ],
-      buttonText: "Start Free Trial",
-      buttonVariant: "outline" as const,
-      popular: false
-    },
-    {
-      title: "Professional",
-      price: "$699",
-      description: "Ideal for growing businesses",
-      features: [
-        "All Starter features",
-        "Unlimited AI consultations",
-        "Weekly strategic insights",
-        "Custom growth strategies",
-        "Priority support",
-        "Up to 10 team members"
+        "Basic AI Strategy",
+        "Campaign Proposals",
+        "500 leads/month",
+        "WhatsApp Notifications",
+        "Email support"
       ],
       buttonText: "Get Started",
+      buttonVariant: "outline" as const,
+      popular: false,
+      emoji: "✨",
+      priceId: "price_starter" // Replace with actual Stripe price ID
+    },
+    {
+      title: "Growth",
+      price: "$499",
+      description: "Perfect for scaling startups and agencies",
+      features: [
+        "Full AI Executive Board",
+        "Unlimited Strategies",
+        "2,000 leads/month",
+        "AI Bot Debates",
+        "WhatsApp + Email Campaigns",
+        "Priority support"
+      ],
+      buttonText: "Join Growth Plan",
       buttonVariant: "default" as const,
-      popular: true
+      popular: true,
+      emoji: "🚀",
+      priceId: "price_growth" // Replace with actual Stripe price ID
     },
     {
       title: "Enterprise",
-      price: "Custom",
-      description: "For established businesses with complex needs",
+      price: "$999",
+      description: "For large teams and established companies",
       features: [
-        "All Professional features",
-        "Dedicated account manager",
-        "Custom AI model training",
-        "API access",
-        "Advanced analytics dashboard",
-        "Unlimited team members",
+        "Everything from Growth plan",
+        "Shopify AI Integrations",
+        "Custom Zapier Automations",
+        "AI Video Creation",
+        "10,000 leads/month",
+        "Dedicated API Access",
         "24/7 premium support"
       ],
       buttonText: "Contact Sales",
       buttonVariant: "secondary" as const,
-      popular: false
+      popular: false,
+      emoji: "🏢",
+      priceId: undefined // Enterprise typically requires contacting sales
     }
   ];
 
@@ -126,10 +161,10 @@ export default function Pricing() {
       <div className="flex-1 container mx-auto px-4 py-8 md:py-16">
         <div className="text-center mb-8 md:mb-16">
           <h1 className={`${isMobileView ? "text-2xl" : "text-4xl"} font-bold mb-4`}>
-            Simple, Transparent Pricing
+            Choose Your Executive Plan
           </h1>
           <p className={`${isMobileView ? "text-base" : "text-xl"} text-muted-foreground max-w-2xl mx-auto`}>
-            Choose the plan that's right for your business. All plans include a 14-day free trial.
+            Scale your business with AI-powered strategies and tools. All plans include a 14-day money-back guarantee.
           </p>
         </div>
         
@@ -157,15 +192,15 @@ export default function Pricing() {
               </p>
             </div>
             <div>
-              <h3 className="font-medium mb-2">Is there a long-term contract?</h3>
-              <p className={`text-muted-foreground ${isMobileView ? "text-sm" : ""}`}>
-                No, all our plans are month-to-month with no long-term commitment required.
-              </p>
-            </div>
-            <div>
               <h3 className="font-medium mb-2">What payment methods do you accept?</h3>
               <p className={`text-muted-foreground ${isMobileView ? "text-sm" : ""}`}>
                 We accept all major credit cards, PayPal, and for Enterprise plans, we can also arrange invoicing.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium mb-2">Is there a limit on API usage?</h3>
+              <p className={`text-muted-foreground ${isMobileView ? "text-sm" : ""}`}>
+                Each plan includes specified limits for leads, messages, and other resources. If you need more, you can upgrade to a higher plan or contact us for custom pricing.
               </p>
             </div>
           </div>
