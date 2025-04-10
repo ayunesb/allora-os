@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuthState } from '@/hooks/useAuthState';
 import { 
@@ -32,8 +31,6 @@ interface AuthProviderProps {
 
 // Auth provider component
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const navigate = useNavigate();
-  
   const { 
     user, 
     session, 
@@ -71,8 +68,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const result = await handleSignOut();
     
     if (result.success) {
-      // Navigate is now safe to use here since we're in the router context
-      navigate('/login');
       return { success: true };
     } else {
       toast.error(result.error || 'Failed to sign out');
