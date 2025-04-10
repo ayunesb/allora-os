@@ -10,6 +10,7 @@ import UserMenu from "./navigation/UserMenu";
 import MobileNavigation from "./navigation/MobileNavigation";
 import { toast } from "sonner";
 import { useBreakpoint } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 
 // Navigation items definition with better icons
 const getNavItems = () => [
@@ -49,7 +50,7 @@ const getPublicNavItems = () => [
   },
 ];
 
-export function Navbar({ isLoggedIn = true }) {
+export function Navbar({ isLoggedIn = false }) {
   const { signOut, user, profile } = useAuth();
   const { toast: uiToast } = useToast();
   const [open, setOpen] = useState(false);
@@ -183,8 +184,5 @@ export function Navbar({ isLoggedIn = true }) {
     </div>
   );
 }
-
-// Add the Button import that we're using in the public navigation
-import { Button } from "@/components/ui/button";
 
 export default Navbar;

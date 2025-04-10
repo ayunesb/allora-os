@@ -72,6 +72,8 @@ export default function Login() {
     );
   }
 
+  console.log("Rendering Login page with Navbar isLoggedIn=false");
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Explicitly set isLoggedIn to false */}
