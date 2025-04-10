@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { useLeads } from '@/hooks/admin/useLeads';
@@ -101,6 +102,13 @@ export default function DashboardLeads() {
     );
   }
 
+  // Handle bulk status update
+  const handleBulkStatusChange = async (status: Lead['status']) => {
+    const result = await handleBulkStatusUpdate(status);
+    // We ignore the result here since we're adapting Promise<boolean> to Promise<void>
+    return;
+  };
+
   return (
     <div className="animate-fadeIn space-y-6">
       <LeadsHeader isMobileView={isMobileView} />
@@ -123,7 +131,7 @@ export default function DashboardLeads() {
               {selectedLeads.length > 0 && (
                 <LeadBulkActions 
                   selectedCount={selectedLeads.length} 
-                  onStatusUpdate={handleBulkStatusUpdate}
+                  onStatusUpdate={handleBulkStatusChange}
                 />
               )}
               
