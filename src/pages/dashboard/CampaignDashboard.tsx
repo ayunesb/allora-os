@@ -1,7 +1,8 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Plus, 
@@ -9,7 +10,9 @@ import {
   Facebook, 
   CheckCircle,
   Clock,
-  PauseCircle
+  PauseCircle,
+  CreditCard,
+  BarChart3
 } from 'lucide-react';
 import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import { useCampaigns } from '@/hooks/campaigns';
