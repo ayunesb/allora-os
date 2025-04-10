@@ -2,14 +2,15 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Phone, Video, MessageSquare } from "lucide-react";
+import { Phone, Video, MessageSquare, Sparkles } from "lucide-react";
 import ZoomScheduler from "./ZoomScheduler";
 import WhatsAppSender from "./WhatsAppSender";
 import PhoneDialer from "./PhoneDialer";
+import AiScriptGenerator from "./AiScriptGenerator";
 
 export default function CommunicationActions() {
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [activeTab, setActiveTab] = useState<"phone" | "zoom" | "whatsapp">("phone");
+  const [activeTab, setActiveTab] = useState<"phone" | "zoom" | "whatsapp" | "ai">("phone");
   
   return (
     <Card className="h-full">
@@ -19,7 +20,7 @@ export default function CommunicationActions() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="phone" value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="phone" className="flex items-center space-x-1">
               <Phone className="h-4 w-4" />
               <span>Call</span>
@@ -31,6 +32,10 @@ export default function CommunicationActions() {
             <TabsTrigger value="whatsapp" className="flex items-center space-x-1">
               <MessageSquare className="h-4 w-4" />
               <span>WhatsApp</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="flex items-center space-x-1">
+              <Sparkles className="h-4 w-4" />
+              <span>AI</span>
             </TabsTrigger>
           </TabsList>
           
@@ -50,6 +55,10 @@ export default function CommunicationActions() {
               phoneNumber={phoneNumber} 
               onPhoneNumberChange={setPhoneNumber}
             />
+          </TabsContent>
+          
+          <TabsContent value="ai">
+            <AiScriptGenerator />
           </TabsContent>
         </Tabs>
       </CardContent>

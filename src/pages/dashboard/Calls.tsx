@@ -14,6 +14,8 @@ import CommunicationTimeline from "@/components/calls/CommunicationTimeline";
 import UpcomingCommunications from "@/components/calls/UpcomingCommunications";
 import PastCommunications from "@/components/calls/PastCommunications";
 import CommunicationActions from "@/components/calls/CommunicationActions";
+import AiZoomAssistant from "@/components/calls/AiZoomAssistant";
+import CommunicationAnalytics from "@/components/calls/CommunicationAnalytics";
 
 export default function Calls() {
   const [activeTab, setActiveTab] = useState("timeline");
@@ -140,6 +142,31 @@ export default function Calls() {
             onUseScript={handleUseScript}
             type="message"
             isAiSection={false}
+          />
+        </TabsContent>
+        
+        <TabsContent value="zoom" className="space-y-6">
+          <AiZoomAssistant />
+        </TabsContent>
+        
+        <TabsContent value="ai-assistant" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <CommunicationNotes 
+                communications={[...upcomingCommunications, ...pastCommunications]}
+                isLoading={communicationsLoading}
+              />
+            </div>
+            <div>
+              <AiScriptGenerator />
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="analytics" className="space-y-6">
+          <CommunicationAnalytics 
+            communications={pastCommunications}
+            isLoading={communicationsLoading}
           />
         </TabsContent>
       </Tabs>

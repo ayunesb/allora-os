@@ -6,7 +6,9 @@ import {
   Phone, 
   Clock, 
   History,
-  VideoIcon
+  VideoIcon,
+  Sparkles,
+  BarChart
 } from "lucide-react";
 
 interface CallTabsProps {
@@ -16,7 +18,7 @@ interface CallTabsProps {
 
 export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
   return (
-    <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
+    <TabsList className="grid w-full grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
       <TabsTrigger 
         value="timeline" 
         onClick={() => onTabChange("timeline")}
@@ -65,10 +67,28 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="zoom" 
         onClick={() => onTabChange("zoom")}
-        className="hidden lg:flex items-center space-x-2"
+        className="flex items-center space-x-2"
       >
         <VideoIcon className="h-4 w-4" />
         <span className="hidden md:inline">Zoom Tools</span>
+      </TabsTrigger>
+      
+      <TabsTrigger 
+        value="ai-assistant" 
+        onClick={() => onTabChange("ai-assistant")}
+        className="flex items-center space-x-2"
+      >
+        <Sparkles className="h-4 w-4" />
+        <span className="hidden md:inline">AI Assistant</span>
+      </TabsTrigger>
+      
+      <TabsTrigger 
+        value="analytics" 
+        onClick={() => onTabChange("analytics")}
+        className="flex items-center space-x-2"
+      >
+        <BarChart className="h-4 w-4" />
+        <span className="hidden md:inline">Analytics</span>
       </TabsTrigger>
     </TabsList>
   );
