@@ -34,10 +34,10 @@ export function useAiModelPreferences() {
   useEffect(() => {
     setModelPreferences({
       modelPreference: (preferences.modelPreference as AiModelType) || defaultPreferences.modelPreference,
-      enableDebate: Boolean(preferences.enableDebate) || defaultPreferences.enableDebate,
-      maxDebateParticipants: Number(preferences.maxDebateParticipants) || defaultPreferences.maxDebateParticipants,
-      enableVectorSearch: Boolean(preferences.enableVectorSearch) || defaultPreferences.enableVectorSearch,
-      enableLearning: Boolean(preferences.enableLearning) || defaultPreferences.enableLearning
+      enableDebate: preferences.enableDebate === undefined ? defaultPreferences.enableDebate : Boolean(preferences.enableDebate),
+      maxDebateParticipants: preferences.maxDebateParticipants === undefined ? defaultPreferences.maxDebateParticipants : Number(preferences.maxDebateParticipants),
+      enableVectorSearch: preferences.enableVectorSearch === undefined ? defaultPreferences.enableVectorSearch : Boolean(preferences.enableVectorSearch),
+      enableLearning: preferences.enableLearning === undefined ? defaultPreferences.enableLearning : Boolean(preferences.enableLearning)
     });
   }, [preferences]);
   

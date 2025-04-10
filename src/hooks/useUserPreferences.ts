@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -14,6 +13,10 @@ export type UserPreferences = {
   preferredExecutives: string[];
   favoriteTopics: string[];
   modelPreference: AIModelType;
+  enableDebate?: boolean;
+  maxDebateParticipants?: number;
+  enableVectorSearch?: boolean;
+  enableLearning?: boolean;
 };
 
 const defaultPreferences: UserPreferences = {
@@ -24,7 +27,11 @@ const defaultPreferences: UserPreferences = {
   riskAppetite: 'medium',
   preferredExecutives: [],
   favoriteTopics: [],
-  modelPreference: 'auto'
+  modelPreference: 'auto',
+  enableDebate: false,
+  maxDebateParticipants: 0,
+  enableVectorSearch: false,
+  enableLearning: false
 };
 
 export function useUserPreferences() {
@@ -32,14 +39,12 @@ export function useUserPreferences() {
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load user preferences from database or localStorage
   useEffect(() => {
     const loadPreferences = async () => {
       setIsLoading(true);
       
       try {
         if (user?.id) {
-          // Try to load from Supabase if user is authenticated
           const { data, error } = await supabase
             .from('user_preferences')
             .select('*')
@@ -51,7 +56,6 @@ export function useUserPreferences() {
           }
           
           if (data) {
-            // Map database fields to our UserPreferences type with proper type casting
             const preferredExecs = Array.isArray(data.preferred_executives) 
               ? data.preferred_executives.map((item: any) => String(item))
               : [];
@@ -62,26 +66,28 @@ export function useUserPreferences() {
               
             setPreferences({
               responseStyle: (data.communication_style as 'concise' | 'balanced' | 'detailed') || defaultPreferences.responseStyle,
-              technicalLevel: defaultPreferences.technicalLevel, // Use default as this field isn't in the DB
-              showSources: defaultPreferences.showSources, // Use default as this field isn't in the DB
-              focusArea: defaultPreferences.focusArea, // Use default as this field isn't in the DB
+              technicalLevel: defaultPreferences.technicalLevel,
+              showSources: defaultPreferences.showSources,
+              focusArea: defaultPreferences.focusArea,
               riskAppetite: (data.risk_appetite as 'low' | 'medium' | 'high') || defaultPreferences.riskAppetite,
               preferredExecutives: preferredExecs,
               favoriteTopics: favTopics,
-              modelPreference: defaultPreferences.modelPreference // Use default as this field isn't in the DB
+              modelPreference: defaultPreferences.modelPreference,
+              enableDebate: data.enable_debate || defaultPreferences.enableDebate,
+              maxDebateParticipants: data.max_debate_participants || defaultPreferences.maxDebateParticipants,
+              enableVectorSearch: data.enable_vector_search || defaultPreferences.enableVectorSearch,
+              enableLearning: data.enable_learning || defaultPreferences.enableLearning
             });
             return;
           }
         }
         
-        // Fall back to localStorage if no Supabase data
         const savedPreferences = localStorage.getItem('userPreferences');
         if (savedPreferences) {
           setPreferences(JSON.parse(savedPreferences));
         }
       } catch (error) {
         console.error('Error loading preferences:', error);
-        // Fall back to localStorage on error
         const savedPreferences = localStorage.getItem('userPreferences');
         if (savedPreferences) {
           setPreferences(JSON.parse(savedPreferences));
@@ -94,19 +100,15 @@ export function useUserPreferences() {
     loadPreferences();
   }, [user?.id]);
 
-  // Save preferences to database or localStorage
   const savePreferences = async (newPreferences: UserPreferences) => {
     setIsLoading(true);
     
     try {
       setPreferences(newPreferences);
       
-      // Always save to localStorage as backup
       localStorage.setItem('userPreferences', JSON.stringify(newPreferences));
       
       if (user?.id) {
-        // Also save to Supabase if user is authenticated
-        // Map our UserPreferences to the DB schema fields
         const { error } = await supabase
           .from('user_preferences')
           .upsert({
@@ -115,8 +117,10 @@ export function useUserPreferences() {
             risk_appetite: newPreferences.riskAppetite,
             preferred_executives: newPreferences.preferredExecutives,
             favorite_topics: newPreferences.favoriteTopics,
-            // Not saving technical_level, show_sources, focus_area, and model_preference
-            // as they don't exist in the current DB schema
+            enable_debate: newPreferences.enableDebate,
+            max_debate_participants: newPreferences.maxDebateParticipants,
+            enable_vector_search: newPreferences.enableVectorSearch,
+            enable_learning: newPreferences.enableLearning,
             last_updated: new Date().toISOString()
           }, {
             onConflict: 'user_id'
@@ -136,13 +140,11 @@ export function useUserPreferences() {
     }
   };
 
-  // Update a single preference
   const updatePreference = (key: keyof UserPreferences, value: any) => {
     const newPreferences = { ...preferences, [key]: value };
     savePreferences(newPreferences);
   };
 
-  // Reset preferences to defaults
   const resetPreferences = () => {
     savePreferences(defaultPreferences);
   };
