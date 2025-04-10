@@ -43,7 +43,6 @@ export default function AiBots() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [selectedBot, setSelectedBot] = useState<any>(null);
-  const [showChat, setShowChat] = useState(false);
 
   const allBots = Object.entries(executiveBots).flatMap(([role, names]) => 
     names.map(name => ({
@@ -65,15 +64,10 @@ export default function AiBots() {
     return matchesSearch && matchesRole;
   });
 
-  // Handle selecting a bot and showing the chat
+  // Handle selecting a bot to chat with
   const handleSelectBot = (bot: any) => {
     setSelectedBot(bot);
-    setShowChat(true);
-  };
-
-  // Close the chat panel
-  const handleCloseChat = () => {
-    setShowChat(false);
+    setActiveTab("chat");
   };
 
   return (
