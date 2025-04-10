@@ -81,7 +81,7 @@ export function useEnhancedAiChat() {
       }
       
       // Determine which model to use
-      const modelToUse = modelOverride || modelPreferences.defaultModel;
+      const modelToUse = modelOverride || modelPreferences.modelPreference;
       
       // Call the enhanced multi-model AI function
       const { data, error } = await supabase.functions.invoke('multi-model-ai', {

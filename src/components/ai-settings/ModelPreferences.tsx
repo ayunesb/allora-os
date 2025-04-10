@@ -12,7 +12,7 @@ export default function ModelPreferences() {
   const { preferences, updatePreferences, isLoading } = useAiModelPreferences();
   
   const handleModelChange = (value: string) => {
-    updatePreferences({ defaultModel: value as AiModelType });
+    updatePreferences({ modelPreference: value as AiModelType });
   };
   
   const handleParticipantChange = (value: number[]) => {
@@ -46,20 +46,19 @@ export default function ModelPreferences() {
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="defaultModel">Default AI Model</Label>
+            <Label htmlFor="modelPreference">Default AI Model</Label>
             <Select 
-              value={preferences.defaultModel} 
+              value={preferences.modelPreference} 
               onValueChange={handleModelChange}
               disabled={isLoading}
             >
-              <SelectTrigger id="defaultModel" className="w-full">
+              <SelectTrigger id="modelPreference" className="w-full">
                 <SelectValue placeholder="Select AI model" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="gpt-4o-mini">OpenAI GPT-4o Mini (Fast)</SelectItem>
                 <SelectItem value="gpt-4o">OpenAI GPT-4o (Powerful)</SelectItem>
                 <SelectItem value="claude-3-sonnet-20240229">Anthropic Claude 3 Sonnet</SelectItem>
-                <SelectItem value="claude-3-opus-20240229">Anthropic Claude 3 Opus (Premium)</SelectItem>
                 <SelectItem value="gemini-1.5-pro">Google Gemini 1.5 Pro</SelectItem>
               </SelectContent>
             </Select>
