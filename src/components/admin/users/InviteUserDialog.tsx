@@ -70,40 +70,40 @@ export const InviteUserDialog = ({ companies, loadingCompanies, onSuccess }: Inv
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className={isMobileView ? "w-full" : "touch-target"}>
+        <Button className={`${isMobileView ? "w-full" : ""} bg-[#5A67D8] hover:bg-[#4C5BC7] text-white`}>
           <UserPlus className="mr-2 h-4 w-4" />
           Add New User
         </Button>
       </DialogTrigger>
-      <DialogContent className={isMobileView ? "w-[calc(100%-32px)] p-4" : "sm:max-w-md"}>
+      <DialogContent className={`${isMobileView ? "w-[calc(100%-32px)] p-4" : "sm:max-w-md"} bg-[#1A1F2C] text-white border-white/10`}>
         <DialogHeader>
           <DialogTitle>Invite New User</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-400">
             Send an invitation email to add a new user to the platform.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email" className="text-gray-300">Email Address</Label>
             <Input 
               id="email" 
               placeholder="user@example.com" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full"
+              className="w-full bg-[#0F1729] border-white/10 text-white"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="company">Company</Label>
+            <Label htmlFor="company" className="text-gray-300">Company</Label>
             <Select 
               value={company} 
               onValueChange={setCompany}
               disabled={loadingCompanies}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-[#0F1729] border-white/10 text-white">
                 <SelectValue placeholder={loadingCompanies ? "Loading companies..." : "Select company"} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#1A1F2C] border-white/10 text-white">
                 {companies.map((company) => (
                   <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
                 ))}
@@ -114,15 +114,15 @@ export const InviteUserDialog = ({ companies, loadingCompanies, onSuccess }: Inv
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">User Role</Label>
+            <Label htmlFor="role" className="text-gray-300">User Role</Label>
             <Select 
               value={role} 
               onValueChange={(value) => setRole(value as 'admin' | 'user')}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-[#0F1729] border-white/10 text-white">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#1A1F2C] border-white/10 text-white">
                 <SelectItem value="user">User</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
@@ -134,7 +134,7 @@ export const InviteUserDialog = ({ companies, loadingCompanies, onSuccess }: Inv
             type="submit" 
             onClick={handleInviteUser} 
             disabled={isSubmitting || !email || !company}
-            className={isMobileView ? "w-full" : "w-full sm:w-auto"}
+            className={`${isMobileView ? "w-full" : "w-full sm:w-auto"} bg-[#5A67D8] hover:bg-[#4C5BC7] text-white`}
           >
             {isSubmitting ? (
               <>

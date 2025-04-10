@@ -68,19 +68,19 @@ export default function AdminLayout() {
 
   if (isMobileView) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-[#0F1729]">
         {/* Mobile Navbar */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b shadow-sm">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-[#0F1729] border-b border-white/10 shadow-sm">
           <div className="flex items-center justify-between p-3">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8"
+              className="h-8 w-8 text-white"
               onClick={toggleMobileMenu}
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
-            <span className="font-medium text-sm">Admin Panel</span>
+            <span className="font-medium text-sm text-white">Admin Panel</span>
             <div className="w-8"></div> {/* Empty div for alignment */}
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function AdminLayout() {
         
         {/* Mobile sidebar */}
         <div 
-          className={`fixed top-14 left-0 bottom-0 z-50 w-64 bg-background border-r transform transition-transform duration-200 ease-in-out overflow-y-auto ${
+          className={`fixed top-14 left-0 bottom-0 z-50 w-64 bg-[#0F1729] border-r border-white/10 transform transition-transform duration-200 ease-in-out overflow-y-auto ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
@@ -104,8 +104,8 @@ export default function AdminLayout() {
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 text-sm",
                   isRouteActive(item.href)
-                    ? "bg-primary/10 text-primary font-medium border-l-4 border-primary" 
-                    : "hover:bg-muted/50"
+                    ? "bg-[#1E293B] text-white font-medium border-l-4 border-[#5A67D8]" 
+                    : "text-gray-400 hover:bg-[#1E293B]/50 hover:text-white"
                 )}
                 onClick={toggleMobileMenu}
               >
@@ -126,18 +126,15 @@ export default function AdminLayout() {
 
   return (
     <SidebarProvider defaultOpen={!isMobileView}>
-      <div className="min-h-screen bg-background flex w-full">
+      <div className="min-h-screen bg-[#0F1729] flex w-full">
         {/* Using isLoggedIn prop to ensure the Navbar doesn't render dashboard tabs in admin layout */}
         <Navbar isLoggedIn={false} />
         
-        <Sidebar>
+        <Sidebar className="bg-[#0F1729] border-r border-white/10 pt-0 w-[260px]">
           <SidebarHeader>
-            <div className={cn(
-              "flex items-center", 
-              "pt-16 px-2"
-            )}>
-              <h2 className="text-lg font-semibold mb-2 flex items-center">
-                <span>Admin Control Panel</span>
+            <div className="pt-16 px-4 pb-4">
+              <h2 className="text-xl font-bold mb-2 text-white flex items-center">
+                Admin Control Panel
                 <SidebarTrigger className="ml-auto md:hidden" />
               </h2>
             </div>
@@ -150,11 +147,17 @@ export default function AdminLayout() {
                     asChild
                     isActive={isRouteActive(item.href)}
                     tooltip={item.label}
+                    className={cn(
+                      "py-2.5",
+                      isRouteActive(item.href) 
+                        ? "bg-[#1E293B] text-white" 
+                        : "text-gray-400 hover:bg-[#1E293B]/50 hover:text-white"
+                    )}
                   >
                     <Link
                       to={item.href}
                       className={cn(
-                        "flex items-center gap-3"
+                        "flex items-center gap-3 px-4"
                       )}
                     >
                       {item.icon}
@@ -168,7 +171,7 @@ export default function AdminLayout() {
           <SidebarFooter />
         </Sidebar>
         
-        <SidebarInset>
+        <SidebarInset className="bg-[#0F1729] text-white">
           <div className="p-4 sm:p-6 w-full overflow-x-hidden">
             <Outlet />
           </div>

@@ -50,16 +50,16 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 animate-fadeIn">
+    <div className="animate-fadeIn">
       <UserManagementHeader 
         companies={companies} 
         loadingCompanies={loadingCompanies} 
         onUserAdded={loadUsers}
       />
       
-      <Card className={`border-primary/10 shadow-md ${isMobileView ? 'p-2' : ''}`}>
+      <Card className={`border-white/10 shadow-md ${isMobileView ? 'p-2' : ''} bg-[#111827]`}>
         <CardHeader className={`${isMobileView ? 'px-3 py-3 pb-1' : 'pb-2'}`}>
-          <CardTitle className={isMobileView ? 'text-lg' : ''}>User Accounts</CardTitle>
+          <CardTitle className={`${isMobileView ? 'text-lg' : ''} text-white`}>User Accounts</CardTitle>
         </CardHeader>
         <CardContent className={isMobileView ? 'p-3' : ''}>
           {isLoading ? (
