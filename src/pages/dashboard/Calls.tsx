@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
@@ -16,6 +15,8 @@ import PastCommunications from "@/components/calls/PastCommunications";
 import CommunicationActions from "@/components/calls/CommunicationActions";
 import AiZoomAssistant from "@/components/calls/AiZoomAssistant";
 import CommunicationAnalytics from "@/components/calls/CommunicationAnalytics";
+import CommunicationNotes from "@/components/calls/CommunicationNotes";
+import AiScriptGenerator from "@/components/calls/AiScriptGenerator";
 
 export default function Calls() {
   const [activeTab, setActiveTab] = useState("timeline");

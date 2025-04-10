@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -38,6 +37,7 @@ import {
 import { useLeads } from "@/hooks/admin/useLeads";
 import { toast } from "sonner";
 import { useCommunications } from "@/hooks/useCommunications";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AiZoomAssistant() {
   const [activeTab, setActiveTab] = useState<"assistant" | "upload" | "scripts">("assistant");
@@ -52,7 +52,6 @@ export default function AiZoomAssistant() {
   const { leads, isLoading: leadsLoading } = useLeads();
   const { pastCommunications, generateAISummary } = useCommunications();
   
-  // Filter for past Zoom meetings
   const pastZoomMeetings = pastCommunications.filter(
     comm => comm.type === "zoom" && comm.status === "completed"
   );
@@ -70,7 +69,6 @@ export default function AiZoomAssistant() {
                       ${selectedLead ? `with ${selectedLead.name} from ${selectedLead.company || 'their company'}` : ''}. 
                       The agenda should include an introduction, main discussion points, and action items/next steps.`;
       
-      // Call the OpenAI function to generate the agenda
       const { data, error } = await supabase.functions.invoke('openai', {
         body: {
           prompt,
@@ -122,10 +120,8 @@ export default function AiZoomAssistant() {
     setIsSubmitting(true);
     
     try {
-      // Create a new Zoom meeting with AI assistant (would involve the Zoom API)
       toast.success("Meeting with AI assistant created successfully");
       
-      // Reset form fields
       setMeetingTitle("");
       setMeetingAgenda("");
       setMeetingPoints("");

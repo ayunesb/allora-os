@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -208,6 +207,7 @@ export default function PastCommunications({
           <CommunicationNotes
             communicationId={viewingNotes}
             communications={communications}
+            isLoading={isLoading}
             onClose={() => setViewingNotes(null)}
           />
         )}

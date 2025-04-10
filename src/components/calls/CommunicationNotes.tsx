@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -31,11 +30,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface CommunicationNotesProps {
   communications: Communication[];
   isLoading: boolean;
+  communicationId?: string;
+  onClose?: () => void;
 }
 
 export default function CommunicationNotes({
   communications,
-  isLoading
+  isLoading,
+  communicationId,
+  onClose
 }: CommunicationNotesProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedComm, setSelectedComm] = useState<Communication | null>(null);
@@ -44,6 +47,16 @@ export default function CommunicationNotes({
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
   
   const { updateCommunicationStatus } = useCommunications();
+  
+  useState(() => {
+    if (communicationId) {
+      const communication = communications.find(comm => comm.id === communicationId);
+      if (communication) {
+        setSelectedComm(communication);
+        setNotes(communication.notes || "");
+      }
+    }
+  });
   
   const filteredCommunications = communications.filter(
     comm => 
@@ -89,7 +102,6 @@ export default function CommunicationNotes({
       toast.success("Notes updated successfully");
       setEditingNotes(false);
       
-      // Update the selected communication in our local state
       setSelectedComm({
         ...selectedComm,
         notes: notes
@@ -111,12 +123,9 @@ export default function CommunicationNotes({
         return;
       }
       
-      // Call the function to generate AI summary
       try {
-        // This would typically call an API or edge function to generate the summary
         toast.success("AI summary generated successfully");
         
-        // Update the selected communication in our local state
         setSelectedComm({
           ...selectedComm,
           ai_summary: "AI-generated summary would appear here based on the transcript."
@@ -130,13 +139,28 @@ export default function CommunicationNotes({
     }
   };
   
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+  
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Communication Notes & Summaries</CardTitle>
-        <CardDescription>
-          View and manage notes from all your communication channels
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Communication Notes & Summaries</CardTitle>
+            <CardDescription>
+              View and manage notes from all your communication channels
+            </CardDescription>
+          </div>
+          {onClose && (
+            <Button variant="ghost" size="sm" onClick={handleClose}>
+              Close
+            </Button>
+          )}
+        </div>
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
