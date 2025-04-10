@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  BarChart3, 
-  CreditCard, 
   Plus, 
   RefreshCcw, 
   Facebook, 
@@ -12,14 +11,12 @@ import {
   Clock,
   PauseCircle
 } from 'lucide-react';
+import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import { useCampaigns } from '@/hooks/campaigns';
 import { Campaign } from '@/models/campaign';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { syncCampaignData } from '@/services/campaignService';
 import { toast } from 'sonner';
 import { getAdPlatformConnections } from '@/services/adPlatformService';
-import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 export default function CampaignDashboard() {
   const navigate = useNavigate();
