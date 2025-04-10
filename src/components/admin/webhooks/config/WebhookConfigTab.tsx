@@ -1,6 +1,13 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Save, Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+
+// Update import paths for the webhook sections
 import StripeWebhookSection from '../StripeWebhookSection';
 import ZapierWebhookSection from '../ZapierWebhookSection';
 import GitHubWebhookSection from '../GitHubWebhookSection';
@@ -56,60 +63,89 @@ const WebhookConfigTab: React.FC<WebhookConfigTabProps> = ({
   isZapierWebhookValid,
   isGithubWebhookValid,
   isSlackWebhookValid,
-  isCustomWebhookValid
+  isCustomWebhookValid,
 }) => {
-  const isTestingZapier = testingWebhook === 'zapier';
-  const isTestingGithub = testingWebhook === 'github';
-  const isTestingSlack = testingWebhook === 'slack';
-  const isTestingCustom = testingWebhook === 'custom';
+  const { toast } = useToast();
+  const [isAutomaticEventsEnabled, setIsAutomaticEventsEnabled] = React.useState(localStorage.getItem('automatic_events_enabled') === 'true');
+
+  const handleAutomaticEventsToggle = (checked: boolean) => {
+    setIsAutomaticEventsEnabled(checked);
+    localStorage.setItem('automatic_events_enabled', String(checked));
+    
+    toast({
+      title: "Automatic Events",
+      description: checked ? "Automatic event triggering enabled." : "Automatic event triggering disabled.",
+    })
+  };
 
   return (
     <div className="space-y-6">
-      <StripeWebhookSection 
+      <StripeWebhookSection
         stripeWebhook={stripeWebhook}
         onStripeWebhookChange={onStripeWebhookChange}
+        isTestLoading={testingWebhook === 'stripe' && testLoading}
+        onTestWebhook={() => {}} // Stripe testing not implemented
+        isValid={isStripeWebhookValid}
       />
       
-      <ZapierWebhookSection 
+      <ZapierWebhookSection
         zapierWebhook={zapierWebhook}
         onZapierWebhookChange={onZapierWebhookChange}
         onTestWebhook={onTestZapierWebhook}
-        isTestLoading={testLoading && isTestingZapier}
+        isTestLoading={testingWebhook === 'zapier' && testLoading}
       />
       
-      <GitHubWebhookSection 
+      <GitHubWebhookSection
         githubWebhook={githubWebhook}
         onGithubWebhookChange={onGithubWebhookChange}
         onTestWebhook={onTestGithubWebhook}
-        isTestLoading={testLoading && isTestingGithub}
+        isTestLoading={testingWebhook === 'github' && testLoading}
       />
       
-      <SlackWebhookSection 
+      <SlackWebhookSection
         slackWebhook={slackWebhook}
         onSlackWebhookChange={onSlackWebhookChange}
         onTestWebhook={onTestSlackWebhook}
-        isTestLoading={testLoading && isTestingSlack}
+        isTestLoading={testingWebhook === 'slack' && testLoading}
       />
       
-      <CustomWebhookSection 
+      <CustomWebhookSection
         customWebhook={customWebhook}
         onCustomWebhookChange={onCustomWebhookChange}
         onTestWebhook={onTestCustomWebhook}
-        isTestLoading={testLoading && isTestingCustom}
-        webhookName="Custom"
+        isTestLoading={testingWebhook === 'custom' && testLoading}
       />
       
-      <Button 
-        onClick={onSave} 
-        disabled={isSaving || 
-          (isStripeWebhookValid === false) || 
-          (isZapierWebhookValid === false) ||
-          (isGithubWebhookValid === false) ||
-          (isSlackWebhookValid === false) ||
-          (isCustomWebhookValid === false)
-        }
-      >
-        {isSaving ? "Saving..." : "Save Webhook Settings"}
+      <Card>
+        <CardHeader>
+          <CardTitle>Automatic Event Triggering</CardTitle>
+          <CardDescription>
+            Enable or disable automatic triggering of business events to Zapier.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="automatic-events">Enable Automatic Events</Label>
+            <Switch 
+              id="automatic-events" 
+              checked={isAutomaticEventsEnabled}
+              onCheckedChange={handleAutomaticEventsToggle}
+            />
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Button onClick={onSave} disabled={isSaving}>
+        {isSaving ? (
+          <>
+            Saving <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+          </>
+        ) : (
+          <>
+            <Save className="mr-2 h-4 w-4" />
+            Save Changes
+          </>
+        )}
       </Button>
     </div>
   );

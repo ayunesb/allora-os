@@ -4,8 +4,7 @@ import { Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WebhookInput from './WebhookInput';
 import { useWebhookValidation } from './useWebhookValidation';
-import ZapierWebhookDemo from './ZapierWebhookDemo';
-import ZapierEventDemo from '@/components/integrations/ZapierEventDemo';
+import ZapierWebhookDemo from './zapier-demo/ZapierWebhookDemo';
 
 interface ZapierWebhookSectionProps {
   zapierWebhook: string;
