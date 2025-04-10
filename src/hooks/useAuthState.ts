@@ -1,174 +1,149 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from './useSession';
-import { useUserProfile } from './useUserProfile';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { User, Session } from '@supabase/supabase-js';
-import { logger } from '@/utils/loggingService';
+
+export type Profile = {
+  id: string;
+  user_id: string;
+  email?: string;
+  username?: string;
+  full_name?: string;
+  avatar_url?: string;
+  company_id?: string;
+  role?: string;
+  last_activity?: string;
+  created_at?: string;
+  updated_at?: string;
+};
 
 export function useAuthState() {
-  const { 
-    session, 
-    setSession, 
-    isSessionExpired, 
-    isLoading: isSessionLoading, 
-    setIsLoading: setIsSessionLoading,
-    refreshSession: refreshUserSession,
-    updateLastActivity
-  } = useSession();
-
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [isProfileLoading, setIsProfileLoading] = useState(false);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  const updateEmailVerification = useCallback((user: User | null) => {
-    if (user?.email_confirmed_at || user?.confirmed_at) {
-      setIsEmailVerified(true);
-    } else {
-      setIsEmailVerified(false);
-    }
-  }, []);
+  // Check if email is verified
+  const isEmailVerified = user?.email_confirmed_at != null || false;
 
-  const loadUserProfile = useCallback(async (userId: string) => {
-    if (!userId) return null;
+  // Refresh session
+  const refreshSession = async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+      return true;
+    } catch (error) {
+      console.error('Error refreshing session:', error);
+      setAuthError('Failed to refresh session');
+      return false;
+    }
+  };
+
+  // Load user profile
+  const loadUserProfile = async (userId: string) => {
+    if (!userId) return;
     
     setIsProfileLoading(true);
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+        .eq('user_id', userId)
+        .single();
 
-      if (error) {
-        logger.error('Error loading user profile:', { error, userId });
-        return null;
-      }
-
+      if (error) throw error;
+      
       if (data) {
-        setProfile(data);
-        return data;
+        setProfile(data as Profile);
+      } else {
+        setProfile(null);
       }
-      return null;
     } catch (error) {
-      logger.error('Unexpected error loading profile:', { error, userId });
-      return null;
+      console.error('Error loading user profile:', error);
     } finally {
       setIsProfileLoading(false);
     }
-  }, []);
+  };
 
-  // Set up auth state change listener and initialize auth
-  useEffect(() => {
-    setAuthError(null);
-    let mounted = true;
+  // Update last activity
+  const updateLastActivity = async () => {
+    if (!user?.id || !profile?.id) return;
     
-    // Set up auth state change listener first
+    try {
+      const now = new Date().toISOString();
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ last_activity: now })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
+      setProfile(prev => prev ? { ...prev, last_activity: now } : null);
+    } catch (error) {
+      console.error('Error updating last activity:', error);
+    }
+  };
+
+  // Auth state listener
+  useEffect(() => {
+    setIsLoading(true);
+    
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        logger.info('Auth state change:', { event });
+      (event, session) => {
+        // Handle auth state changes
+        setSession(session);
+        setUser(session?.user ?? null);
         
-        if (!mounted) return;
-        
-        // Only perform synchronous operations inside the main callback
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        
-        // Load profile on auth change
-        if (newSession?.user) {
-          setTimeout(async () => {
-            if (mounted) {
-              await loadUserProfile(newSession.user.id);
-            }
+        if (session?.user) {
+          // Load user profile on auth change
+          setTimeout(() => {
+            loadUserProfile(session.user.id);
           }, 0);
-        } else if (mounted) {
+        } else {
           setProfile(null);
-        }
-        
-        // Show appropriate notifications for auth events
-        if (event === 'SIGNED_OUT') {
-          toast.info('You have been signed out');
-        } else if (event === 'SIGNED_IN') {
-          toast.success('Welcome back!');
-        } else if (event === 'USER_UPDATED') {
-          toast.success('Your profile has been updated');
         }
       }
     );
 
-    // Initialize auth - only once
-    const initializeAuth = async () => {
-      if (!mounted) return;
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
       
-      setIsSessionLoading(true);
-      try {
-        // Get current session
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          throw sessionError;
-        }
-        
-        if (mounted) {
-          setSession(currentSession);
-          
-          if (currentSession?.user) {
-            setUser(currentSession.user);
-            await loadUserProfile(currentSession.user.id);
-          }
-        }
-      } catch (error: any) {
-        logger.error('Error loading auth:', { error });
-        if (mounted) {
-          setAuthError('Failed to initialize authentication');
-        }
-      } finally {
-        if (mounted) {
-          setIsSessionLoading(false);
-          setHasInitialized(true);
-        }
+      if (session?.user) {
+        loadUserProfile(session.user.id);
       }
-    };
-    
-    // Only initialize once
-    if (!hasInitialized) {
-      initializeAuth();
-    }
+      
+      setIsLoading(false);
+      setHasInitialized(true);
+    });
 
+    // Cleanup
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
-  }, [setSession, loadUserProfile, setIsSessionLoading, hasInitialized]);
-
-  // Update email verification status whenever user changes
-  useEffect(() => {
-    updateEmailVerification(user);
-  }, [user, updateEmailVerification]);
-
-  const isLoading = isSessionLoading || (isProfileLoading && !!user);
+  }, []);
 
   return {
     user,
     session,
-    isLoading,
     profile,
+    isLoading,
     isProfileLoading,
     isEmailVerified,
     authError,
-    isSessionExpired,
-    setUser,
-    setSession,
     loadUserProfile,
+    refreshSession,
     updateLastActivity,
-    refreshSession: refreshUserSession,
     setProfile,
-    setAuthError,
-    updateEmailVerification,
     hasInitialized
   };
 }

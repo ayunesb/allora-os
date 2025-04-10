@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
@@ -80,7 +80,7 @@ hideLovableBadge();
 // Wrap the app with our providers
 function WrappedApp() {
   // Hide badge on component mount
-  useEffect(() => {
+  React.useEffect(() => {
     hideLovableBadge();
   }, []);
 
