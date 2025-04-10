@@ -12,5 +12,5 @@ export * from "./APIKeysTab";
 export * from "./NotificationsTab";
 export * from "./PreLaunchChecklist";
 export * from "./SecurityTab";
-export * from "./WebhooksTab";
+export { default as WebhooksTab } from "./WebhooksTab";
 export * from "./settings/AdminSettingsProvider";
