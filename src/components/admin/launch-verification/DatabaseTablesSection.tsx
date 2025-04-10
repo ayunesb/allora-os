@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { TableCheckResult } from './types';
+import { DatabaseTableStatus } from './types';
 
 interface DatabaseTablesSectionProps {
-  tables: Record<string, TableCheckResult>;
+  tables: Record<string, DatabaseTableStatus>;
 }
 
 export function DatabaseTablesSection({ tables }: DatabaseTablesSectionProps) {
