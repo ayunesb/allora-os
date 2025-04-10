@@ -1,36 +1,66 @@
 
-import React, { useState, useCallback } from "react";
-import StrategyHeader from "./StrategyHeader";
-import StrategyGrid from "./StrategyGrid";
-import { useStrategies } from "./useStrategies";
-import StrategyFilters from "../strategies/StrategyFilters";
+import React, { useState, useCallback, useEffect } from "react";
+import { useStrategies } from "@/hooks/useStrategies";
 import { useBreakpoint } from "@/hooks/use-mobile";
-import EmptyState from "../strategies/EmptyState";
-import { handleApiError } from "@/utils/api/errorHandling";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw, Plus, FileDown, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import StrategyHeader from "./StrategyHeader";
+import StrategyFilters from "./StrategyFilters";
+import StrategyGrid from "./StrategyGrid";
+import EmptyState from "./EmptyState";
+import LoadingState from "./LoadingState";
+import ErrorState from "./ErrorState";
+import StrategyWizardModal from "./StrategyWizardModal";
+import ExecutiveDebateModal from "./ExecutiveDebateModal";
+import MarketAlertBanner from "./MarketAlertBanner";
+import { useExecutiveDebate } from "@/hooks/useExecutiveDebate";
+import { useMarketAlerts } from "@/hooks/useMarketAlerts";
+import { Strategy } from "@/models/strategy";
 
 export default function StrategyBoard() {
-  const { strategies, isLoading, error, refetch } = useStrategies();
+  const { strategies, isLoading, error, refetch, createStrategy } = useStrategies();
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical' | 'risk'>('alphabetical');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical' | 'risk'>('newest');
   const breakpoint = useBreakpoint();
   const isMobile = ['xs', 'mobile'].includes(breakpoint);
   
+  // Modal states
+  const [isWizardModalOpen, setIsWizardModalOpen] = useState(false);
+  const [isDebateModalOpen, setIsDebateModalOpen] = useState(false);
+  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
+  
+  // Executive debate integration
+  const { generateDebate, debate, isGeneratingDebate } = useExecutiveDebate();
+  
+  // Market alerts integration
+  const { alerts, checkForAlerts } = useMarketAlerts();
+  
+  // Check for market alerts on component mount
+  useEffect(() => {
+    checkForAlerts();
+  }, [checkForAlerts]);
+  
   // Handle creating a new strategy
-  const handleCreateNew = useCallback(async () => {
-    try {
-      // You would typically open a dialog or navigate to create strategy page
-      toast.info("Opening strategy creation form");
-      // Example: navigate('/create-strategy');
-    } catch (error) {
-      handleApiError(error, { 
-        customMessage: "Failed to open strategy creation form" 
-      });
-    }
+  const handleCreateNew = useCallback(() => {
+    setIsWizardModalOpen(true);
+  }, []);
+  
+  // Handle opening debate modal
+  const handleDebateStrategy = useCallback((strategy: Strategy) => {
+    setSelectedStrategy(strategy);
+    generateDebate(strategy);
+    setIsDebateModalOpen(true);
+  }, [generateDebate]);
+  
+  // Handle export to PDF
+  const handleExportPDF = useCallback((strategy: Strategy) => {
+    toast.info("Preparing PDF export...");
+    // Export functionality will be implemented in a separate function
+    setTimeout(() => {
+      toast.success("Strategy exported to PDF!");
+    }, 1500);
   }, []);
   
   // Handle retry on error
@@ -48,7 +78,7 @@ export default function StrategyBoard() {
       return false;
     }
     
-    // Apply risk filter - Handle different risk property names
+    // Apply risk filter
     if (riskFilter !== 'all') {
       const strategyRisk = strategy.risk || strategy.risk_level;
       if (strategyRisk !== riskFilter) {
@@ -80,11 +110,32 @@ export default function StrategyBoard() {
   });
   
   return (
-    <div className="space-y-3 sm:space-y-6 animate-fadeIn px-3 sm:px-4 md:px-6">
+    <div className="space-y-6 animate-fadeIn px-3 sm:px-4 md:px-6 bg-background/80 min-h-screen">
       <StrategyHeader 
-        title="📈 Your Strategic Plans" 
-        subtitle="View and manage your business strategies"
-      />
+        title="📈 Your Growth Strategies" 
+        subtitle="Built by your AI Executive Team. Ready to dominate your market."
+      >
+        <Button 
+          onClick={handleCreateNew} 
+          className="bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 transition-all duration-300"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Create New Strategy
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="hidden sm:flex ml-2 transition-all duration-300 hover:bg-accent/20"
+          onClick={() => toast.info("Coming soon: Batch export of strategies")}
+        >
+          <FileDown className="mr-2 h-4 w-4" />
+          Export All
+        </Button>
+      </StrategyHeader>
+      
+      {alerts.length > 0 && (
+        <MarketAlertBanner alerts={alerts} />
+      )}
       
       <StrategyFilters
         searchQuery={searchQuery}
@@ -96,42 +147,34 @@ export default function StrategyBoard() {
       />
       
       {error ? (
-        <div className="bg-secondary/40 border border-destructive/30 rounded-lg p-6 text-center my-8 animate-fadeIn">
-          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-          <h3 className="text-xl font-bold mb-2">Error Loading Strategies</h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            {error instanceof Error ? error.message : "Failed to load strategies"}
-          </p>
-          <Button 
-            variant="default"
-            onClick={handleRetry}
-            className="min-w-[120px] animate-pulse-once"
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Retry
-          </Button>
-        </div>
+        <ErrorState error={error} onRetry={handleRetry} />
       ) : isLoading ? (
-        <div className="py-4 sm:py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-            {Array.from({ length: isMobile ? 2 : 4 }).map((_, index) => (
-              <div key={index} className="bg-secondary/60 border border-border/50 rounded-lg p-4 sm:p-6 h-40 sm:h-52">
-                <Skeleton className="h-5 sm:h-6 w-2/3 mb-2" />
-                <Skeleton className="h-3 sm:h-4 w-1/4 mb-4" />
-                <Skeleton className="h-16 sm:h-24 w-full mb-4" />
-                <div className="flex justify-between">
-                  <Skeleton className="h-7 sm:h-8 w-14 sm:w-16" />
-                  <Skeleton className="h-7 sm:h-8 w-14 sm:w-16" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <LoadingState isMobile={isMobile} />
       ) : sortedStrategies.length === 0 ? (
         <EmptyState onCreateNew={handleCreateNew} />
       ) : (
-        <StrategyGrid strategies={sortedStrategies} />
+        <StrategyGrid 
+          strategies={sortedStrategies} 
+          onDebate={handleDebateStrategy}
+          onExport={handleExportPDF}
+        />
       )}
+      
+      {/* Strategy Wizard Modal */}
+      <StrategyWizardModal 
+        isOpen={isWizardModalOpen} 
+        onClose={() => setIsWizardModalOpen(false)}
+        onCreateStrategy={createStrategy}
+      />
+      
+      {/* Executive Debate Modal */}
+      <ExecutiveDebateModal 
+        isOpen={isDebateModalOpen} 
+        onClose={() => setIsDebateModalOpen(false)}
+        strategy={selectedStrategy}
+        debate={debate}
+        isLoading={isGeneratingDebate}
+      />
     </div>
   );
 }

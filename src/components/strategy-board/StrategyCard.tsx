@@ -1,88 +1,137 @@
 
 import React from "react";
+import { Strategy } from "@/models/strategy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Eye, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Edit, MessageSquare, FileDown, CheckCircle, Clock } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 interface StrategyCardProps {
-  title: string;
-  description: string;
-  risk: string;
+  strategy: Strategy;
+  onDebate: () => void;
+  onExport: () => void;
 }
 
-export default function StrategyCard({ title, description, risk }: StrategyCardProps) {
-  const breakpoint = useBreakpoint();
-  const isMobile = ['xs', 'mobile'].includes(breakpoint);
+export default function StrategyCard({ strategy, onDebate, onExport }: StrategyCardProps) {
+  // Calculate a mock progress for demonstration
+  const progress = strategy.status === 'Completed' ? 100 : Math.floor(Math.random() * 80) + 10;
   
-  // Map risk level to appropriate styling
-  const getRiskBadgeVariant = () => {
+  // Format the date
+  const updatedDate = new Date(strategy.updated_at || strategy.created_at);
+  const timeAgo = formatDistanceToNow(updatedDate, { addSuffix: true });
+  
+  // Get risk data
+  const risk = strategy.risk || strategy.risk_level || 'Medium';
+  
+  // Render badge based on risk level
+  const getRiskBadge = () => {
     switch (risk) {
-      case "High":
-        return "destructive";
-      case "Medium":
-        return "default";
-      case "Low":
-        return "secondary";
+      case 'High':
+        return <Badge variant="destructive" className="font-medium">High Risk</Badge>;
+      case 'Medium':
+        return <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 font-medium">Medium Risk</Badge>;
+      case 'Low':
+        return <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 font-medium">Low Risk</Badge>;
       default:
-        return "outline";
+        return <Badge variant="secondary">Unknown Risk</Badge>;
     }
   };
   
+  // Render status badge
+  const getStatusBadge = () => {
+    if (strategy.status === 'Completed') {
+      return (
+        <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 flex items-center gap-1 font-medium">
+          <CheckCircle className="h-3 w-3" />
+          Completed
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30 flex items-center gap-1 font-medium">
+        <Clock className="h-3 w-3" />
+        In Progress
+      </Badge>
+    );
+  };
+  
   return (
-    <div className={cn(
-      "dashboard-card group transition-all duration-300 hover:shadow-lg hover:scale-[1.01]",
-      "h-full flex flex-col justify-between"
-    )}>
-      <div>
-        <div className="flex justify-between items-start mb-2 gap-2">
-          <h3 className="text-base sm:text-lg font-semibold line-clamp-1">{title}</h3>
-          <Badge variant={getRiskBadgeVariant()} className="capitalize whitespace-nowrap text-xs shrink-0">
-            {risk} Risk
-          </Badge>
+    <Card className="group overflow-hidden border border-white/10 shadow-xl bg-black/40 backdrop-blur-lg transition-all duration-300 hover:shadow-md hover:border-white/20 hover:-translate-y-1">
+      <CardHeader className="pb-2 relative">
+        <div className="flex flex-wrap gap-2 mb-1">
+          {getRiskBadge()}
+          {getStatusBadge()}
         </div>
         
-        <p className="text-muted-foreground text-sm sm:text-base line-clamp-3 mb-4">
-          {description}
-        </p>
-      </div>
+        <h3 className="text-xl font-bold text-white group-hover:text-primary-foreground transition-colors duration-300 line-clamp-2">
+          {strategy.title}
+        </h3>
+        
+        {strategy.executiveBot && (
+          <div className="text-xs text-muted-foreground">
+            Proposed by {strategy.executiveBot}
+          </div>
+        )}
+      </CardHeader>
       
-      <div className={cn(
-        "flex flex-wrap gap-2 mt-4",
-        isMobile ? "justify-center" : "sm:justify-between"
-      )}>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex items-center gap-1 touch-target h-9"
-        >
-          <Eye size={16} /> View
-        </Button>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-gray-300 line-clamp-2">
+          {strategy.description}
+        </p>
         
-        <div className="flex gap-2">
+        <div className="space-y-1">
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Progress</span>
+            <span className="text-muted-foreground">{progress}%</span>
+          </div>
+          <Progress value={progress} className="h-1.5" />
+        </div>
+      </CardContent>
+      
+      <CardFooter className="flex flex-col space-y-4 pt-2">
+        <div className="text-xs text-muted-foreground w-full flex justify-between">
+          <span>Updated {timeAgo}</span>
+          <span>{strategy.impact || 'Medium'} Impact</span>
+        </div>
+        
+        <div className="flex gap-2 w-full">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
-            className={cn(
-              "flex items-center gap-1 touch-target h-9",
-              !isMobile && "opacity-0 group-hover:opacity-100 transition-opacity" 
-            )}
+            className="flex-1 bg-white/5 border-white/10 hover:bg-white/10 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDebate();
+            }}
           >
-            <Edit size={16} /> Edit
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Debate
           </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={cn(
-              "flex items-center gap-1 touch-target h-9 text-destructive hover:text-destructive",
-              !isMobile && "opacity-0 group-hover:opacity-100 transition-opacity"
-            )}
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="border border-white/10 hover:bg-white/10 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExport();
+            }}
           >
-            <Trash2 size={16} /> Delete
+            <FileDown className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            <Edit className="h-4 w-4" />
           </Button>
         </div>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }

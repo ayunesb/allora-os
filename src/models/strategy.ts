@@ -15,5 +15,6 @@ export type Strategy = {
   timeframe?: string;
   expectedROI?: string;
   successMetrics?: string[];
-  status?: 'Draft' | 'Active' | 'Completed';
+  status?: 'Draft' | 'In Progress' | 'Completed';
+  progress?: number;
 };
