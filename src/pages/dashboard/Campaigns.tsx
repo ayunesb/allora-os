@@ -63,7 +63,7 @@ export default function Campaigns() {
     } else {
       const allExecs = Object.values(executiveBots).flat();
       // Fixed: Use the provided executiveBot name if available, otherwise get random exec name
-      const randomExec = data.executiveBot || allExecs[Math.floor(Math.random() * allExecs.length)];
+      const randomExec: string = data.executiveBot || allExecs[Math.floor(Math.random() * allExecs.length)];
       
       createCampaign({
         name: data.name,
@@ -83,8 +83,8 @@ export default function Campaigns() {
         { 
           name: data.name,
           platform: data.platform,
-          // Fixed: Ensure we pass a string for tracking, not an object
-          executiveBot: typeof randomExec === 'string' ? randomExec : randomExec.name
+          // Fixed the type issues with executiveBot
+          executiveBot: randomExec
         }
       );
     }
