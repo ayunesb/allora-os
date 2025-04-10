@@ -1,19 +1,15 @@
 
-import Index from "@/pages/Index";
-import Login from "@/pages/Login";
-import SignUpNew from "@/pages/SignUpNew";
-import ResetPassword from "@/pages/ResetPassword";
-import UpdatePassword from "@/pages/UpdatePassword";
-import Legal from "@/pages/Legal";
-import Privacy from "@/pages/Privacy";
-import CookiePolicy from "@/pages/CookiePolicy";
-import RefundPolicy from "@/pages/RefundPolicy";
-import LegalDocument from "@/pages/LegalDocument";
-import FAQ from "@/pages/FAQ";
-import Pricing from "@/pages/Pricing";
-import NotFound from "@/pages/NotFound";
-import DevAdminHelper from "@/pages/DevAdminHelper";
 import { RouteObject } from "react-router-dom";
+import Index from "@/pages/Index";
+import Privacy from "@/pages/Privacy";
+import Legal from "@/pages/Legal";
+import Pricing from "@/pages/Pricing";
+import CheckoutSuccess from "@/pages/CheckoutSuccess";
+import RefundPolicy from "@/pages/RefundPolicy";
+import CookiePolicy from "@/pages/CookiePolicy";
+import LegalDocument from "@/pages/LegalDocument";
+import DevAdminHelper from "@/pages/DevAdminHelper";
+import FAQ from "@/pages/FAQ";
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -21,63 +17,39 @@ export const publicRoutes: RouteObject[] = [
     element: <Index />,
   },
   {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/signup",
-    element: <SignUpNew />,
-  },
-  {
-    path: "/reset-password",
-    element: <ResetPassword />,
-  },
-  {
-    path: "/update-password",
-    element: <UpdatePassword />,
-  },
-  {
-    path: "/legal",
-    element: <Legal />,
+    path: "/pricing",
+    element: <Pricing />,
   },
   {
     path: "/privacy",
     element: <Privacy />,
   },
   {
-    path: "/legal/cookies",
-    element: <LegalDocument />,
+    path: "/legal",
+    element: <Legal />,
   },
   {
-    path: "/cookies",
-    element: <CookiePolicy />,
-  },
-  {
-    path: "/legal/refund-policy",
-    element: <LegalDocument />,
-  },
-  {
-    path: "/refund",
+    path: "/refund-policy",
     element: <RefundPolicy />,
   },
   {
-    path: "/legal/:documentId",
-    element: <LegalDocument />,
+    path: "/cookie-policy",
+    element: <CookiePolicy />,
   },
   {
     path: "/faq",
     element: <FAQ />,
   },
   {
-    path: "/pricing",
-    element: <Pricing />,
+    path: "/legal/:documentId",
+    element: <LegalDocument />,
   },
   {
     path: "/dev-admin-helper",
     element: <DevAdminHelper />,
   },
   {
-    path: "*",
-    element: <NotFound />,
-  }
+    path: "/checkout-success",
+    element: <CheckoutSuccess />,
+  },
 ];
