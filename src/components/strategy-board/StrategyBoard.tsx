@@ -9,7 +9,7 @@ import EmptyState from "../strategies/EmptyState";
 import { handleApiError } from "@/utils/api/errorHandling";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function StrategyBoard() {
@@ -48,9 +48,12 @@ export default function StrategyBoard() {
       return false;
     }
     
-    // Apply risk filter
-    if (riskFilter !== 'all' && strategy.risk !== riskFilter) {
-      return false;
+    // Apply risk filter - Handle different risk property names
+    if (riskFilter !== 'all') {
+      const strategyRisk = strategy.risk || strategy.riskLevel || strategy.risk_level;
+      if (strategyRisk !== riskFilter) {
+        return false;
+      }
     }
     
     return true;
@@ -61,9 +64,12 @@ export default function StrategyBoard() {
     switch (sortBy) {
       case 'alphabetical':
         return a.title.localeCompare(b.title);
-      case 'risk':
+      case 'risk': {
         const riskOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
-        return riskOrder[a.risk as 'High' | 'Medium' | 'Low'] - riskOrder[b.risk as 'High' | 'Medium' | 'Low'];
+        const riskA = a.risk || a.riskLevel || a.risk_level || 'Medium';
+        const riskB = b.risk || b.riskLevel || b.risk_level || 'Medium';
+        return riskOrder[riskA as 'High' | 'Medium' | 'Low'] - riskOrder[riskB as 'High' | 'Medium' | 'Low'];
+      }
       case 'newest':
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       case 'oldest':
@@ -101,6 +107,7 @@ export default function StrategyBoard() {
             onClick={handleRetry}
             className="min-w-[120px] animate-pulse-once"
           >
+            <RefreshCw className="mr-2 h-4 w-4" />
             Retry
           </Button>
         </div>

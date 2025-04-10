@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import {
@@ -8,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import StrategyForm from "@/components/strategies/StrategyForm";
-import LearningInsights from "@/components/dashboard/LearningInsights";
 import { useStrategies } from "@/hooks/useStrategies";
 import { useStrategyTracking } from "@/hooks/useStrategyTracking";
 import { useStrategyFilters } from "@/hooks/useStrategyFilters";
@@ -18,8 +18,6 @@ import StrategyFilters from "@/components/strategies/StrategyFilters";
 import StrategyContent from "@/components/strategies/StrategyContent";
 
 export default function Strategies() {
-  const [showInsights, setShowInsights] = useState(true);
-  
   const { 
     strategies, 
     isLoading, 
@@ -89,26 +87,14 @@ export default function Strategies() {
     deleteStrategy(strategyId);
   }, [deleteStrategy, isLoggedIn, trackStrategyDelete]);
 
-  const toggleInsights = useCallback(() => {
-    setShowInsights(prev => !prev);
-  }, []);
-
   const isAnyActionPending = isCreating || isUpdating || isDeleting;
 
   return (
     <div className="animate-fadeIn">
       <StrategyHeader 
         onNewStrategy={handleNewStrategy}
-        onToggleInsights={toggleInsights}
-        showInsights={showInsights}
         isAnyActionPending={isAnyActionPending}
       />
-      
-      {showInsights && (
-        <div className="mb-6">
-          <LearningInsights />
-        </div>
-      )}
       
       <StrategyFilters
         searchQuery={searchQuery}

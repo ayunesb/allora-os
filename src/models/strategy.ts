@@ -4,8 +4,9 @@ export type Strategy = {
   title: string;
   description: string;
   company_id: string;
-  riskLevel: 'Low' | 'Medium' | 'High';
-  risk_level?: 'Low' | 'Medium' | 'High'; // For backward compatibility
+  risk: 'Low' | 'Medium' | 'High'; // Primary field
+  riskLevel?: 'Low' | 'Medium' | 'High'; // For backward compatibility
+  risk_level?: 'Low' | 'Medium' | 'High'; // For backward compatibility with DB
   tags?: string[];
   created_at: string;
   updated_at?: string;
