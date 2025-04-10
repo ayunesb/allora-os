@@ -1,4 +1,9 @@
 
+// Update the component to use the proper field names based on our Campaign model
+// Replace ad_platform with platform where needed
+// Make sure to handle performance_metrics correctly
+// Properly handle last_synced_at
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Campaign } from "@/models/campaign";
 import { ArrowUpRight, ArrowDownRight, RefreshCcw } from "lucide-react";

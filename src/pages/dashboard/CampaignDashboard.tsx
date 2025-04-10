@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { syncCampaignData } from '@/services/campaignService';
 import { toast } from 'sonner';
 import { getAdPlatformConnections } from '@/services/adPlatformService';
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 export default function CampaignDashboard() {
   const navigate = useNavigate();
@@ -154,7 +154,7 @@ export default function CampaignDashboard() {
     }
     
     if (platform === 'tiktok') {
-      return <TiktokLogo className="h-5 w-5" />;
+      return <TikTokIcon className="h-5 w-5" />;
     }
     
     return null;
@@ -277,7 +277,7 @@ export default function CampaignDashboard() {
                 <Facebook className="h-8 w-8 text-blue-600" />
               )}
               {campaigns.some(c => c.ad_platform === 'tiktok') && (
-                <TiktokLogo className="h-8 w-8" />
+                <TikTokIcon className="h-8 w-8" />
               )}
               {!campaigns.some(c => c.ad_platform === 'meta') && !campaigns.some(c => c.ad_platform === 'tiktok') && (
                 "None"

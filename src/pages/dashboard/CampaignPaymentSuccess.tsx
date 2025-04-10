@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { CheckCircle, ChevronRight, RefreshCcw } from 'lucide-react';
 import { checkCampaignPaymentStatus, deployCampaign, getCampaign } from '@/services/campaignService';
 import { Campaign } from '@/models/campaign';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function CampaignPaymentSuccess() {
   const [searchParams] = useSearchParams();

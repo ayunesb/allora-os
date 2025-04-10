@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,7 +27,8 @@ import { createCampaign, createCampaignCheckout } from '@/services/campaignServi
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { Label } from '../ui/label';
-import { Facebook, TiktokLogo } from 'lucide-react';
+import { Facebook } from "lucide-react";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 // Form schema definition
 const formSchema = z.object({
@@ -224,7 +224,7 @@ export default function CampaignCreateForm() {
                       </SelectItem>
                       <SelectItem value="tiktok">
                         <div className="flex items-center">
-                          <TiktokLogo className="mr-2 h-4 w-4" />
+                          <TikTokIcon className="mr-2 h-4 w-4" />
                           TikTok
                         </div>
                       </SelectItem>

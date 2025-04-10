@@ -1,16 +1,14 @@
-
-import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Facebook, TiktokLogo, Check, ArrowRight } from "lucide-react";
-import { initiateMetaAuth, initiateTikTokAuth } from '@/services/adPlatformService';
-import { Skeleton } from '../ui/skeleton';
+import { Facebook, RefreshCcw } from "lucide-react";
+import { initiateMetaAuth, initiateTikTokAuth } from "@/services/adPlatformService";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 interface ConnectPlatformsCardProps {
   metaConnected: boolean;
   tiktokConnected: boolean;
   isLoading: boolean;
-  onProceed?: () => void;
+  onProceed: () => void;
 }
 
 export default function ConnectPlatformsCard({
@@ -19,105 +17,93 @@ export default function ConnectPlatformsCard({
   isLoading,
   onProceed
 }: ConnectPlatformsCardProps) {
-  const [isConnecting, setIsConnecting] = useState<'meta' | 'tiktok' | null>(null);
-
-  const handleConnectMeta = async () => {
-    setIsConnecting('meta');
-    await initiateMetaAuth();
-    // The page will redirect, so no need to set loading to false
+  const handleMetaConnect = async () => {
+    try {
+      await initiateMetaAuth();
+    } catch (error) {
+      console.error('Meta auth initiation failed:', error);
+    }
   };
 
-  const handleConnectTikTok = async () => {
-    setIsConnecting('tiktok');
-    await initiateTikTokAuth();
-    // The page will redirect, so no need to set loading to false
+  const handleTikTokConnect = async () => {
+    try {
+      await initiateTikTokAuth();
+    } catch (error) {
+      console.error('TikTok auth initiation failed:', error);
+    }
   };
-
-  const canProceed = metaConnected || tiktokConnected;
-
-  if (isLoading) {
-    return (
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <Skeleton className="h-8 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-5/6" />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </CardContent>
-        <CardFooter>
-          <Skeleton className="h-10 w-32" />
-        </CardFooter>
-      </Card>
-    );
-  }
 
   return (
-    <Card className="w-full max-w-2xl">
-      <CardHeader>
-        <CardTitle>Connect Your Ad Accounts</CardTitle>
+    <Card>
+      <CardHeader className="space-y-1">
+        <CardTitle>Connect Ad Platforms</CardTitle>
         <CardDescription>
-          Connect your Meta (Facebook/Instagram) and/or TikTok ad accounts to enable 
-          automated campaign deployment.
+          Connect your Meta and TikTok ad accounts to start creating campaigns
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="space-y-4">
-        <Button
-          variant={metaConnected ? "outline" : "default"}
-          className={`w-full h-14 justify-between ${metaConnected ? 'border-green-500' : ''}`}
-          onClick={handleConnectMeta}
-          disabled={metaConnected || isConnecting !== null}
-        >
-          <div className="flex items-center">
-            <Facebook className="mr-2 h-5 w-5 text-blue-600" />
-            <span>Meta (Facebook/Instagram)</span>
+      <CardContent className="grid gap-4">
+        <div className="grid gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Facebook className="mr-2 h-4 w-4 text-blue-600" />
+              <span>Meta (Facebook/Instagram)</span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleMetaConnect}
+              disabled={metaConnected || isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : metaConnected ? (
+                'Connected'
+              ) : (
+                'Connect'
+              )}
+            </Button>
           </div>
-          
-          {metaConnected ? (
-            <span className="flex items-center text-green-500">
-              <Check className="mr-1 h-4 w-4" />
-              Connected
-            </span>
-          ) : (
-            <span>Connect Account</span>
-          )}
-        </Button>
-
-        <Button
-          variant={tiktokConnected ? "outline" : "default"}
-          className={`w-full h-14 justify-between ${tiktokConnected ? 'border-green-500' : ''}`}
-          onClick={handleConnectTikTok}
-          disabled={tiktokConnected || isConnecting !== null}
-        >
-          <div className="flex items-center">
-            <TiktokLogo className="mr-2 h-5 w-5" />
-            <span>TikTok</span>
+        </div>
+        
+        <div className="grid gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <TikTokIcon className="mr-2 h-4 w-4" />
+              <span>TikTok</span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleTikTokConnect}
+              disabled={tiktokConnected || isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : tiktokConnected ? (
+                'Connected'
+              ) : (
+                'Connect'
+              )}
+            </Button>
           </div>
-          
-          {tiktokConnected ? (
-            <span className="flex items-center text-green-500">
-              <Check className="mr-1 h-4 w-4" />
-              Connected
-            </span>
-          ) : (
-            <span>Connect Account</span>
-          )}
-        </Button>
+        </div>
       </CardContent>
       
       <CardFooter>
-        {onProceed && (
-          <Button 
-            onClick={onProceed} 
-            disabled={!canProceed}
-            className="ml-auto"
-          >
-            Proceed to Campaign Creation
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        )}
+        <Button 
+          className="w-full" 
+          onClick={onProceed}
+          disabled={!metaConnected && !tiktokConnected}
+        >
+          Proceed to Create Campaign
+        </Button>
       </CardFooter>
     </Card>
   );

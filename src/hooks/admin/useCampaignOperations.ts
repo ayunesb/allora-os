@@ -1,167 +1,157 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import { Campaign } from "@/models/campaign";
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Campaign, CampaignCreate, CampaignUpdate } from '@/models/campaign';
 import { 
-  fetchCompanyCampaigns, 
-  createCampaign as createCampaignService,
-  CampaignCreateInput
+  createCampaign,
+  getCampaign
 } from '@/services/campaignService';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/loggingService';
 
-export interface CampaignFormData {
-  name: string;
-  platform: 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Email' | 'Other';
-  budget: number;
-  company_id: string;
-}
-
-export const useCampaignOperations = () => {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [companies, setCompanies] = useState<{id: string, name: string}[]>([]);
+export function useCampaignOperations(companyId: string) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [error, setError] = useState<string | null>(null);
-  
-  // Form state
-  const [newCampaign, setNewCampaign] = useState<CampaignFormData>({
-    name: '',
-    platform: 'Email',
-    budget: 0,
-    company_id: ''
-  });
 
-  // Load initial data
-  useEffect(() => {
-    loadCampaigns();
-    loadCompanies();
-  }, []);
-
-  // Load campaigns with proper error handling
-  const loadCampaigns = async (companyId: string = '') => {
+  // Fetch all campaigns for the company
+  const fetchCampaigns = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const { data, error, status } = await fetchCompanyCampaigns(companyId);
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('company_id', companyId)
+        .order('created_at', { ascending: false });
       
-      if (status === 'error' && error) {
-        logger.error('Failed to load campaigns', { error, companyId });
-        setError(error.message);
-      } else if (data) {
-        setCampaigns(data);
-        logger.info('Campaigns loaded successfully', { count: data.length });
-      }
+      if (error) throw error;
+      
+      setCampaigns(data || []);
+      return data;
     } catch (err: any) {
-      logger.error('Unexpected error loading campaigns', { error: err });
-      setError(err.message || 'An unexpected error occurred');
+      console.error('Error fetching campaigns:', err);
+      setError(err.message || 'Failed to fetch campaigns');
+      return [];
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Load companies
-  const loadCompanies = useCallback(async () => {
+  // Fetch a single campaign by ID
+  const fetchCampaign = async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from('companies')
-        .select('id, name')
-        .order('name');
-        
-      if (error) {
-        logger.error('Error loading companies', { error });
-        throw error;
-      }
-      
-      setCompanies(data || []);
-      logger.info('Companies loaded successfully', { count: data?.length || 0 });
-      
-      // Set default company if available and none selected
-      if (data && data.length > 0 && !newCampaign.company_id) {
-        setNewCampaign(prev => ({ ...prev, company_id: data[0].id }));
-      }
-    } catch (error: any) {
-      logger.error('Error loading companies', { error });
-      console.error('Error loading companies:', error);
+      const campaign = await getCampaign(id);
+      return campaign;
+    } catch (err: any) {
+      console.error('Error fetching campaign:', err);
+      setError(err.message || 'Failed to fetch campaign');
+      return null;
     }
-  }, [newCampaign.company_id]);
+  };
 
-  // Update form data
-  const updateFormData = useCallback((data: Partial<CampaignFormData>) => {
-    setNewCampaign(prev => ({ ...prev, ...data }));
-  }, []);
-
-  // Create campaign with validation
-  const createCampaign = async () => {
-    // Validate required fields
-    if (!newCampaign.name) {
-      setError('Campaign name is required');
-      return false;
-    }
-    
-    if (!newCampaign.company_id) {
-      setError('Company is required');
-      return false;
-    }
-    
-    setIsSubmitting(true);
+  // Create a new campaign
+  const createNewCampaign = async (data: CampaignCreate) => {
+    setIsCreating(true);
     setError(null);
     
     try {
-      // Parse budget as number
-      const budget = typeof newCampaign.budget === 'string' 
-        ? parseFloat(newCampaign.budget as unknown as string) 
-        : newCampaign.budget;
-        
-      const campaignData: CampaignCreateInput = {
-        name: newCampaign.name,
-        platform: newCampaign.platform,
-        budget: isNaN(budget) ? 0 : budget,
-        company_id: newCampaign.company_id
-      };
+      const response = await createCampaign({
+        name: data.name,
+        platform: data.platform || 'meta',
+        budget: data.budget || 0,
+        targeting: data.targeting || {},
+        creatives: data.creatives || [],
+        company_id: companyId
+      });
       
-      const { data, error, status } = await createCampaignService(campaignData);
-      
-      if (status === 'error' && error) {
-        setError(error.message);
-        logger.error('Failed to create campaign', { error, campaignData });
-        return false;
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to create campaign');
       }
       
-      if (data) {
-        // Add the new campaign to the list
-        setCampaigns(prevCampaigns => [data, ...prevCampaigns]);
-        
-        // Reset form
-        setNewCampaign({
-          name: '',
-          platform: 'Email',
-          budget: 0,
-          company_id: newCampaign.company_id // Keep the same company selected
-        });
-        
-        logger.info('Campaign created successfully', { id: data.id });
-      }
+      // Refresh the campaigns list
+      await fetchCampaigns();
       
-      return true;
+      return { success: true, campaignId: response.campaignId };
     } catch (err: any) {
-      logger.error('Unexpected error creating campaign', { error: err });
-      setError(err.message || 'An unexpected error occurred');
-      return false;
+      console.error('Error creating campaign:', err);
+      setError(err.message || 'Failed to create campaign');
+      toast.error(`Failed to create campaign: ${err.message || 'Unknown error'}`);
+      return { success: false, error: err.message || 'Failed to create campaign' };
     } finally {
-      setIsSubmitting(false);
+      setIsCreating(false);
+    }
+  };
+
+  // Update an existing campaign
+  const updateCampaign = async (id: string, data: CampaignUpdate) => {
+    setIsUpdating(true);
+    setError(null);
+    
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .update(data)
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      // Refresh the campaigns list
+      await fetchCampaigns();
+      
+      toast.success('Campaign updated successfully');
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error updating campaign:', err);
+      setError(err.message || 'Failed to update campaign');
+      toast.error(`Failed to update campaign: ${err.message || 'Unknown error'}`);
+      return { success: false, error: err.message || 'Failed to update campaign' };
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Delete a campaign
+  const deleteCampaign = async (id: string) => {
+    setIsDeleting(true);
+    setError(null);
+    
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      // Refresh the campaigns list
+      await fetchCampaigns();
+      
+      toast.success('Campaign deleted successfully');
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error deleting campaign:', err);
+      setError(err.message || 'Failed to delete campaign');
+      toast.error(`Failed to delete campaign: ${err.message || 'Unknown error'}`);
+      return { success: false, error: err.message || 'Failed to delete campaign' };
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return {
     campaigns,
-    companies,
     isLoading,
-    isSubmitting,
+    isCreating,
+    isUpdating,
+    isDeleting,
     error,
-    newCampaign,
-    updateFormData,
-    createCampaign,
-    refreshCampaigns: loadCampaigns
+    fetchCampaigns,
+    fetchCampaign,
+    createCampaign: createNewCampaign,
+    updateCampaign,
+    deleteCampaign
   };
-};
+}

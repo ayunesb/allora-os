@@ -39,6 +39,39 @@ export type Campaign = {
   aiGenerated?: boolean;
   description?: string;
   collaborators?: any[];
+  // Added fields for our new functionality
+  ad_platform?: 'meta' | 'tiktok';
+  deployment_status?: 'pending' | 'ready' | 'deployed';
+  platform_status?: string;
+  payment_status?: 'pending' | 'paid';
+  platform_specific_id?: string;
+  management_fee?: number;
+  total_amount?: number;
+  performance_metrics?: {
+    impressions?: number;
+    clicks?: number;
+    ctr?: string;
+    spend?: string;
+    conversions?: number;
+    cpa?: string;
+    video_views?: number;
+  };
+  targeting?: {
+    audience?: string;
+    location?: string;
+    interests?: string[];
+    age_range?: string;
+    gender?: string;
+  };
+  creatives?: Array<{
+    title?: string;
+    description?: string;
+    image_url?: string;
+    video_url?: string;
+    call_to_action?: string;
+  }>;
+  last_synced_at?: string;
+  stripe_payment_id?: string;
 };
 
 // These were missing and referenced in campaignService.ts

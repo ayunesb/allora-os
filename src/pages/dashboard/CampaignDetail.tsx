@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +11,9 @@ import {
   Facebook, 
   RefreshCcw,
   Share2, 
-  TiktokLogo, 
   Users 
 } from 'lucide-react';
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 import { toast } from 'sonner';
 import { getCampaign, syncCampaignData, deployCampaign } from '@/services/campaignService';
 import { Campaign } from '@/models/campaign';
@@ -170,7 +169,7 @@ export default function CampaignDetail() {
             {campaign.ad_platform === 'meta' ? (
               <Facebook className="h-4 w-4 mr-1 text-blue-600" />
             ) : (
-              <TiktokLogo className="h-4 w-4 mr-1" />
+              <TikTokIcon className="h-4 w-4 mr-1" />
             )}
             <span>{campaign.ad_platform === 'meta' ? 'Meta Ads' : 'TikTok Ads'}</span>
           </div>
@@ -204,18 +203,18 @@ export default function CampaignDetail() {
             <CardDescription>Budget</CardDescription>
             <CardTitle className="text-2xl flex items-center">
               <DollarSign className="h-5 w-5 mr-1 text-green-500" />
-              ${campaign.budget.toLocaleString()}
+              ${campaign.budget?.toLocaleString()}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-sm">
               <div className="flex justify-between mb-1">
                 <span className="text-muted-foreground">Management Fee:</span>
-                <span>${campaign.management_fee.toLocaleString()}</span>
+                <span>${campaign.management_fee?.toLocaleString()}</span>
               </div>
               <div className="flex justify-between font-medium">
                 <span className="text-muted-foreground">Total Amount:</span>
-                <span>${campaign.total_amount.toLocaleString()}</span>
+                <span>${campaign.total_amount?.toLocaleString()}</span>
               </div>
             </div>
           </CardContent>
@@ -257,7 +256,7 @@ export default function CampaignDetail() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Date Created:</span>
-                <span>{new Date(campaign.created_at).toLocaleDateString()}</span>
+                <span>{new Date(campaign.created_at || '').toLocaleDateString()}</span>
               </div>
             </div>
           </CardContent>
@@ -284,9 +283,9 @@ export default function CampaignDetail() {
           <div>
             <h3 className="font-medium mb-2">Ad Creative</h3>
             <div className="bg-muted p-4 rounded-md">
-              <h4 className="font-medium">{campaign.creatives[0]?.title || 'No title'}</h4>
+              <h4 className="font-medium">{campaign.creatives?.[0]?.title || 'No title'}</h4>
               <p className="text-muted-foreground mt-1">
-                {campaign.creatives[0]?.description || 'No description'}
+                {campaign.creatives?.[0]?.description || 'No description'}
               </p>
             </div>
           </div>
