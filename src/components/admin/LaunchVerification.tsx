@@ -1,8 +1,12 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { validateLaunchReadiness } from '@/utils/launchValidator';
+import { 
+  validateRLSPolicies,
+  validateDatabaseFunctions,
+  validatePerformanceOptimization
+} from '@/utils/validators';
 import { CheckCircle2, AlertCircle, RefreshCw, Database, ListChecks, Shield, Zap, Lock, FileCode } from 'lucide-react';
 import { addDemoDataButton } from '@/utils/demoData';
 import { useAuth } from '@/context/AuthContext';
@@ -122,37 +126,25 @@ export default function LaunchVerification() {
   const checkDatabaseIndexes = async () => {
     setIsCheckingIndexes(true);
     
-    const requiredIndexes = [
-      'idx_ad_platform_connections_company_id',
-      'idx_ad_platform_connections_user_id',
-      'idx_bot_interactions_user_id',
-      'idx_campaign_creatives_campaign_id',
-      'idx_campaigns_company_id',
-      'idx_communications_lead_id',
-      'idx_communications_created_by',
-      'idx_debate_messages_debate_id',
-      'idx_debate_summaries_debate_id',
-      'idx_leads_campaign_id',
-      'idx_profiles_company_id',
-      'idx_strategies_company_id',
-      'idx_tasks_strategy_id',
-      'idx_user_feedback_interaction_id',
-      'idx_user_feedback_user_id'
-    ];
-    
     try {
-      const indexResults = requiredIndexes.map(index => ({
-        name: index,
-        exists: true,
-        tableName: index.split('_').slice(1, -1).join('_')
-      }));
+      const indexResults = await validatePerformanceOptimization();
+      
+      const formattedResults = {
+        name: 'Performance Optimization',
+        status: indexResults.valid ? 'verified' : 'issues',
+        message: indexResults.message
+      };
       
       setResults(prev => ({
         ...prev,
-        databaseIndexes: indexResults
+        databaseIndexes: [formattedResults]
       }));
       
-      toast.success('Database indexes verified successfully');
+      if (indexResults.valid) {
+        toast.success('Database indexes verified successfully');
+      } else {
+        toast.error(indexResults.message);
+      }
     } catch (error) {
       console.error("Error checking indexes:", error);
       toast.error('Failed to verify database indexes');
@@ -165,29 +157,24 @@ export default function LaunchVerification() {
     setIsVerifyingRLS(true);
     
     try {
-      const criticalTables = [
-        'profiles',
-        'companies',
-        'strategies',
-        'campaigns',
-        'leads',
-        'communications',
-        'user_actions',
-        'user_preferences'
-      ];
+      const rlsResults = await validateRLSPolicies();
       
-      const rlsResults = criticalTables.map(table => ({
-        table,
-        status: 'verified',
-        message: `RLS policies in place for ${table}`
-      }));
+      const formattedResults = {
+        table: 'All tables',
+        status: rlsResults.valid ? 'verified' : 'issues',
+        message: rlsResults.message
+      };
       
       setResults(prev => ({
         ...prev,
-        rlsPolicies: rlsResults
+        rlsPolicies: [formattedResults]
       }));
       
-      toast.success('RLS policies verified successfully');
+      if (rlsResults.valid) {
+        toast.success('RLS policies verified successfully');
+      } else {
+        toast.error(rlsResults.message);
+      }
     } catch (error) {
       console.error("Error verifying RLS policies:", error);
       toast.error('Failed to verify RLS policies');
@@ -200,28 +187,24 @@ export default function LaunchVerification() {
     setIsVerifyingFunctions(true);
     
     try {
-      const functionsToCheck = [
-        'update_user_preferences',
-        'get_user_preferences',
-        'get_lead_communication_summary',
-        'insert_user_action',
-        'get_security_settings',
-        'update_security_settings',
-        'update_profile_after_company_creation'
-      ];
+      const functionResults = await validateDatabaseFunctions();
       
-      const functionResults = functionsToCheck.map(func => ({
-        name: func,
-        status: 'verified', 
-        message: `Function ${func} appears to be properly secured`
-      }));
+      const formattedResults = {
+        name: 'Database Functions',
+        status: functionResults.valid ? 'verified' : 'issues',
+        message: functionResults.message
+      };
       
       setResults(prev => ({
         ...prev,
-        databaseFunctions: functionResults
+        databaseFunctions: [formattedResults]
       }));
       
-      toast.success('Database functions verified successfully');
+      if (functionResults.valid) {
+        toast.success('Database functions verified successfully');
+      } else {
+        toast.error(functionResults.message);
+      }
     } catch (error) {
       console.error("Error verifying database functions:", error);
       toast.error('Failed to verify database functions');
