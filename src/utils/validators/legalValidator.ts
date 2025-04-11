@@ -64,9 +64,9 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
     
     // Try to remove test record regardless of whether it was inserted
     if (insertData && insertData.length > 0) {
-      // Fix: Use Promise handling properly for the deletion operation
+      // Fix: Use proper Promise handling for the deletion operation
       // This runs asynchronously and we don't need to wait for it
-      void supabase
+      supabase
         .from('user_legal_acceptances')
         .delete()
         .eq('user_id', testUserId)
