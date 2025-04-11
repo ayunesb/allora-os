@@ -6,6 +6,9 @@ import Hero from "@/components/home/Hero";
 import Features from "@/components/home/Features";
 import Testimonials from "@/components/home/Testimonials";
 import CallToAction from "@/components/home/CallToAction";
+import TrustBadges from "@/components/home/TrustBadges";
+import InteractiveDemo from "@/components/home/InteractiveDemo";
+import OutcomeShowcase from "@/components/home/OutcomeShowcase";
 
 export default function Index() {
   return (
@@ -16,6 +19,15 @@ export default function Index() {
       <main className="flex flex-col items-center flex-grow">
         {/* Hero Section */}
         <Hero />
+        
+        {/* Trust Badges Section */}
+        <TrustBadges />
+        
+        {/* Interactive Demo Section */}
+        <InteractiveDemo />
+        
+        {/* Outcome Showcase Section */}
+        <OutcomeShowcase />
         
         {/* Features Section */}
         <Features />
