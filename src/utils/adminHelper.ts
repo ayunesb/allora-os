@@ -56,9 +56,43 @@ export async function checkRlsEnabled(tableName: string): Promise<boolean> {
       return false;
     }
     
-    return !!data?.rls_enabled;
+    // Fix the type issue by explicitly typing the data
+    const typedData = data as { rls_enabled: boolean };
+    return !!typedData.rls_enabled;
   } catch (err) {
     console.error(`Exception checking RLS for ${tableName}:`, err);
+    return false;
+  }
+}
+
+/**
+ * Checks if the current user has admin privileges
+ */
+export async function checkIfUserIsAdmin(): Promise<boolean> {
+  try {
+    // First get the current user's auth info
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session || !session.user) {
+      console.error('No active session found when checking admin status');
+      return false;
+    }
+    
+    // Then check if the user's profile has the admin role
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+    
+    if (profileError) {
+      console.error('Error checking admin status:', profileError);
+      return false;
+    }
+    
+    return profileData?.role === 'admin';
+  } catch (err) {
+    console.error('Exception in checkIfUserIsAdmin:', err);
     return false;
   }
 }

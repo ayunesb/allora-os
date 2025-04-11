@@ -967,6 +967,12 @@ export type Database = {
         Args: { "": string } | { "": unknown }
         Returns: unknown
       }
+      check_rls_enabled: {
+        Args: { table_name: string }
+        Returns: {
+          rls_enabled: boolean
+        }[]
+      }
       get_company_integrations: {
         Args: { p_company_id: string }
         Returns: {
