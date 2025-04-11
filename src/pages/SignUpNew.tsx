@@ -7,6 +7,7 @@ import EmailVerificationView from "@/components/auth/EmailVerificationView";
 import SignupLayout from "@/components/auth/SignupLayout";
 import { LegalAcceptanceModal } from "@/components/auth/LegalAcceptanceModal";
 import { User } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -14,6 +15,7 @@ export default function Signup() {
   const [newUser, setNewUser] = useState<User | null>(null);
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [signupError, setSignupError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Retrieve email from sessionStorage when component mounts or isSubmitted changes
@@ -42,6 +44,14 @@ export default function Signup() {
   const handleLegalAcceptance = () => {
     setShowLegalModal(false);
     setIsSubmitted(true);
+    
+    // After legal acceptance and email verification view, navigate to onboarding
+    // This is a fallback, as the actual navigation should happen in EmailVerificationView
+    setTimeout(() => {
+      if (newUser) {
+        navigate("/onboarding");
+      }
+    }, 2000);
   };
 
   if (isSubmitted) {

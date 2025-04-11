@@ -6,6 +6,7 @@ import ResetPassword from "@/pages/ResetPassword";
 import EmailConfirm from "@/pages/EmailConfirm";
 import VerifyOtp from "@/pages/VerifyOtp";
 import TiktokCallback from "@/components/auth/TiktokCallback";
+import UpdatePassword from "@/pages/UpdatePassword";
 
 export const authRoutes: RouteObject[] = [
   {
@@ -27,6 +28,10 @@ export const authRoutes: RouteObject[] = [
   {
     path: "/verify-otp",
     element: <VerifyOtp />,
+  },
+  {
+    path: "/update-password",
+    element: <UpdatePassword />,
   },
   {
     path: "/auth/tiktok/callback",

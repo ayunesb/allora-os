@@ -10,6 +10,7 @@ import {
   sendPasswordResetEmail,
   refreshSession as refreshSessionFunc
 } from '@/services/authService';
+import { navigate } from '@/utils/navigation';
 
 // Create the context
 export const AuthContext = createContext<any>(null);
@@ -64,6 +65,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (result.success && result.user) {
       // If we have a user object, load their profile
       await loadUserProfile(result.user.id);
+      console.log("User signed up successfully, redirecting to onboarding soon");
+      
+      // Set a flag in sessionStorage to indicate this is a new user
+      sessionStorage.setItem('newUserSignup', 'true');
+      
       return { success: true, user: result.user };
     } else {
       return { success: false, error: result.error };
@@ -111,6 +117,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     return false;
   };
+
+  // Check for new user signup and redirect to onboarding
+  useEffect(() => {
+    const isNewUser = sessionStorage.getItem('newUserSignup') === 'true';
+    
+    if (isNewUser && user && !isLoading) {
+      console.log("New user detected, navigating to onboarding");
+      navigate('/onboarding');
+      sessionStorage.removeItem('newUserSignup');
+    }
+  }, [user, isLoading]);
 
   // Create value object
   const value = {

@@ -115,6 +115,8 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
         }
         
         toast.success("Account created successfully!");
+        
+        // Call onSubmitSuccess to trigger the parent component's success handler
         onSubmitSuccess(signUpResult.user);
         return;
       }
