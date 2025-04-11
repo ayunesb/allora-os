@@ -9,7 +9,7 @@ export const devRoutes: RouteObject[] = [
     element: <DevAdminHelper />,
   },
   {
-    path: "/dev-admin",
+    path: "/admin-check",
     element: <DevHelperRedirect />,
   }
 ];

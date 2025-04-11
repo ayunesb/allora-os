@@ -61,6 +61,7 @@ export default function ProtectedRoute({
     }
   }, [isSessionExpired, user]);
 
+  // Check admin status directly from the database
   useEffect(() => {
     const verifyAdminStatus = async () => {
       if (user && (adminOnly || roleRequired === 'admin')) {
