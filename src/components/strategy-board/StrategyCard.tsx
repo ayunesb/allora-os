@@ -99,9 +99,11 @@ export default function StrategyCard({ strategy, onDebate, onExport }: StrategyC
               e.stopPropagation();
               onExport();
             }}
-            className="flex items-center justify-center py-2 px-3 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 transition-colors"
+            className="flex items-center justify-center gap-1 py-2 px-3 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 transition-colors"
+            title="Export to PDF"
           >
             <FileDown className="h-4 w-4" />
+            PDF
           </button>
           
           <button

@@ -3,9 +3,11 @@ import { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { useStrategies } from "@/hooks/useStrategies";
 import { Strategy } from "@/models/strategy";
-import { Loader2, Brain, TrendingUp, ArrowUpRight } from "lucide-react";
+import { Loader2, Brain, TrendingUp, ArrowUpRight, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { exportStrategyToPdf } from "@/utils/strategy/pdfExport";
+import { toast } from "sonner";
 
 export function StrategyDisplay() {
   const { strategies, isLoading, error, refetch } = useStrategies();
@@ -18,6 +20,20 @@ export function StrategyDisplay() {
   
   const navigateToStrategies = () => {
     navigate("/dashboard/strategies");
+  };
+  
+  const handleExportPDF = (strategy: Strategy) => {
+    toast.info("Preparing PDF export...");
+    
+    setTimeout(() => {
+      try {
+        exportStrategyToPdf(strategy);
+        toast.success("Strategy exported to PDF!");
+      } catch (error) {
+        console.error("Error exporting strategy:", error);
+        toast.error("Failed to export strategy. Please try again.");
+      }
+    }, 1000);
   };
   
   if (isLoading) {
@@ -63,14 +79,18 @@ export function StrategyDisplay() {
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {displayStrategies.map((strategy: Strategy) => (
-          <StrategyCard key={strategy.id} strategy={strategy} />
+          <StrategyCard 
+            key={strategy.id} 
+            strategy={strategy} 
+            onExport={() => handleExportPDF(strategy)}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function StrategyCard({ strategy }: { strategy: Strategy }) {
+function StrategyCard({ strategy, onExport }: { strategy: Strategy; onExport: () => void }) {
   // Determine a color based on risk level
   const getRiskColor = (risk: string | undefined) => {
     switch (risk?.toLowerCase()) {
@@ -112,11 +132,20 @@ function StrategyCard({ strategy }: { strategy: Strategy }) {
           </div>
         )}
       </CardContent>
-      <CardFooter className="border-t pt-4">
+      <CardFooter className="border-t pt-4 flex justify-between">
         <div className="flex items-center text-sm text-muted-foreground">
           <Brain className="h-4 w-4 mr-2" />
           <span>Proposed by: <span className="font-medium">{strategy.executiveBot || 'AI Executive Team'}</span></span>
         </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8 px-2 text-muted-foreground hover:text-foreground"
+          onClick={onExport}
+        >
+          <FileDown className="h-4 w-4 mr-1" />
+          PDF
+        </Button>
       </CardFooter>
     </Card>
   );

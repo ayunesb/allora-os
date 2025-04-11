@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { useStrategies } from "@/hooks/useStrategies";
 import { useBreakpoint } from "@/hooks/use-mobile";
@@ -15,6 +14,7 @@ import MarketAlertBanner from "./MarketAlertBanner";
 import { useExecutiveDebate } from "@/hooks/useExecutiveDebate";
 import { useMarketAlerts } from "@/hooks/useMarketAlerts";
 import { Strategy } from "@/models/strategy";
+import { exportStrategyToPdf, exportAllStrategiesToPdf } from "@/utils/strategy/pdfExport";
 
 export default function StrategyBoard() {
   const { strategies, isLoading, error, refetch, createStrategy } = useStrategies();
@@ -55,11 +55,37 @@ export default function StrategyBoard() {
   // Handle export to PDF
   const handleExportPDF = useCallback((strategy: Strategy) => {
     toast.info("Preparing PDF export...");
-    // Export functionality will be implemented in a separate function
+    
     setTimeout(() => {
-      toast.success("Strategy exported to PDF!");
-    }, 1500);
+      try {
+        exportStrategyToPdf(strategy);
+        toast.success("Strategy exported to PDF!");
+      } catch (error) {
+        console.error("Error exporting strategy:", error);
+        toast.error("Failed to export strategy. Please try again.");
+      }
+    }, 1000);
   }, []);
+  
+  // Handle export all to PDF
+  const handleExportAllPDF = useCallback(() => {
+    if (!strategies || strategies.length === 0) {
+      toast.error("No strategies to export");
+      return;
+    }
+    
+    toast.info("Exporting all strategies...");
+    
+    setTimeout(() => {
+      try {
+        exportAllStrategiesToPdf(strategies);
+        toast.success("All strategies exported to PDF!");
+      } catch (error) {
+        console.error("Error exporting all strategies:", error);
+        toast.error("Failed to export strategies. Please try again.");
+      }
+    }, 1500);
+  }, [strategies]);
   
   // Handle retry on error
   const handleRetry = useCallback(() => {
@@ -131,7 +157,7 @@ export default function StrategyBoard() {
             <Button 
               variant="outline" 
               className="hidden md:flex border-gray-700 bg-gray-800/50 hover:bg-gray-700/50"
-              onClick={() => toast.info("Exporting all strategies...")}
+              onClick={handleExportAllPDF}
             >
               <FileDown className="mr-2 h-4 w-4" />
               Export All
