@@ -11,12 +11,19 @@ export const generateBotResponse = async (
   businessPriority: string = 'growth'
 ): Promise<string> => {
   try {
-    // Call the OpenAI edge function
-    const { data, error } = await supabase.functions.invoke('openai', {
+    // Call the multi-model-ai edge function
+    const { data, error } = await supabase.functions.invoke('multi-model-ai', {
       body: {
+        action: 'generate',
+        modelName: 'gpt-4o-mini',
         botName: bot.name,
         botRole: bot.role,
-        prompt: `As a ${bot.title} executive, what is your perspective on ${topic}?`,
+        messages: [
+          {
+            type: 'user',
+            content: `As a ${bot.title} executive, what is your perspective on ${topic}?`
+          }
+        ],
         debateContext: {
           topic,
           riskAppetite,
@@ -35,7 +42,7 @@ export const generateBotResponse = async (
 
     return data.content;
   } catch (error) {
-    console.error('Error calling OpenAI API, falling back to mock data:', error);
+    console.error('Error calling AI API, falling back to mock data:', error);
     
     // Fall back to mock responses if the API call fails
     const botResponses = {

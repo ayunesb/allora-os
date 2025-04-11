@@ -32,8 +32,10 @@ export function useBotResponses(
         
         try {
           // Call the OpenAI edge function
-          const { data, error } = await supabase.functions.invoke('openai', {
+          const { data, error } = await supabase.functions.invoke('multi-model-ai', {
             body: {
+              action: 'debate',
+              modelName: 'gpt-4o-mini',
               botName: participant.name,
               botRole: participant.title,
               debateContext,
@@ -42,7 +44,7 @@ export function useBotResponses(
           });
           
           if (error) {
-            console.error('Error calling OpenAI API:', error);
+            console.error('Error calling AI API:', error);
             throw error;
           }
           
@@ -68,8 +70,27 @@ export function useBotResponses(
           
           addMessage(message);
         } catch (error) {
-          // Fallback to mock response if API fails
-          const fallbackContent = `As ${participant.name}, I recommend focusing on ${topic} by implementing a structured approach that balances innovation with stability.${preferences?.showSources ? `\n\nRationale: My recommendation is based on extensive experience in ${participant.specialty}, considering the ${riskAppetite} risk profile and ${businessPriority} priority.` : ''}`;
+          // Create varied fallback responses based on the executive's role
+          let fallbackContent = '';
+          
+          // Personalized fallback responses based on executive role
+          if (participant.role === 'ceo') {
+            fallbackContent = `Looking at ${topic} from a strategic viewpoint, I believe we need to balance both acquisition and retention efforts, but with a slight emphasis on ${businessPriority === 'growth' ? 'acquisition to fuel our growth trajectory' : 'retention to stabilize our revenue'}. Innovation will be key regardless of which path we prioritize.`;
+          } else if (participant.role === 'cfo') {
+            fallbackContent = `From a financial perspective, ${topic} requires careful analysis of customer lifetime value. For a ${riskAppetite} risk profile, I'd recommend ${riskAppetite === 'high' ? 'investing more in acquisition despite higher CAC' : riskAppetite === 'low' ? 'focusing on retention which typically offers better ROI' : 'a balanced approach with clear metrics for both strategies'}.`;
+          } else if (participant.role === 'coo') {
+            fallbackContent = `Operationally speaking, our approach to ${topic} must consider our current resource allocation. With our ${businessPriority} priority, we should ${businessPriority === 'growth' ? 'build scalable acquisition channels while maintaining basic retention efforts' : 'optimize our customer journey to maximize retention while still acquiring new customers strategically'}.`;
+          } else if (participant.role === 'cio' || participant.role === 'cto') {
+            fallbackContent = `From a technology standpoint, our data infrastructure should support both aspects of ${topic}. I recommend investing in analytics that can identify which customers are most valuable to retain while also optimizing our acquisition funnel with A/B testing and personalization technologies.`;
+          } else if (participant.role === 'cmo') {
+            fallbackContent = `Marketing should approach ${topic} by segmenting our audience carefully. We should develop distinct strategies for acquisition versus retention, with appropriate content and channels for each. For a ${riskAppetite} risk profile, we should ${riskAppetite === 'high' ? 'experiment with new acquisition channels' : 'optimize our existing marketing mix'}.`;
+          } else {
+            fallbackContent = `Regarding ${topic}, we need to consider both strategies but align them with our ${businessPriority} business priority. For a company with a ${riskAppetite} risk appetite, I'd suggest a ${riskAppetite === 'high' ? 'more aggressive' : riskAppetite === 'low' ? 'more conservative' : 'balanced'} approach.`;
+          }
+          
+          if (preferences?.showSources) {
+            fallbackContent += `\n\nRationale: My recommendation is based on extensive experience in ${participant.specialty || participant.role}, considering the ${riskAppetite} risk profile and ${businessPriority} priority.`;
+          }
           
           const fallbackMessage: DebateMessage = {
             id: `msg-${Date.now()}-${participant.id}`,
