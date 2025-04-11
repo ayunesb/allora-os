@@ -1,4 +1,10 @@
 
+import { 
+  botSpecialSkills, 
+  botOutputLocations, 
+  botExampleActions 
+} from '@/backend/executiveBots';
+
 export const formatRoleTitle = (role: string): string => {
   switch (role) {
     // C-Suite
@@ -211,8 +217,6 @@ export const formatRoleTitle = (role: string): string => {
 };
 
 export const getBotExpertise = (role: string): string => {
-  const { botSpecialSkills } = require('@/backend/executiveBots');
-  
   // Use the specialized skills if available
   if (botSpecialSkills && botSpecialSkills[role]) {
     return botSpecialSkills[role];
@@ -312,8 +316,6 @@ export const getBotExpertise = (role: string): string => {
 };
 
 export const getBotOutputLocation = (role: string): string => {
-  const { botOutputLocations } = require('@/backend/executiveBots');
-  
   if (botOutputLocations && botOutputLocations[role]) {
     return botOutputLocations[role];
   }
@@ -339,8 +341,6 @@ export const getBotOutputLocation = (role: string): string => {
 };
 
 export const getBotExampleAction = (role: string): string => {
-  const { botExampleActions } = require('@/backend/executiveBots');
-  
   if (botExampleActions && botExampleActions[role]) {
     return botExampleActions[role];
   }
