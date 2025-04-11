@@ -9,7 +9,7 @@ export function useOnboardingValidation() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const { user, profile, refreshProfile } = useAuth();
 
-  const handleComplete = async () => {
+  const handleComplete = async (): Promise<boolean> => {
     setValidationError(null);
     setIsCompleting(true);
     

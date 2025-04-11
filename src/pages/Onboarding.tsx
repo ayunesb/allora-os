@@ -55,6 +55,7 @@ export default function Onboarding() {
     if (success) {
       navigate("/dashboard");
     }
+    return Promise.resolve();
   };
 
   if (isAuthLoading || isCheckingStatus) {
