@@ -1,10 +1,21 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DatabaseVerificationDashboard } from '@/components/admin/database-verification';
 import { useDatabaseVerification } from '@/hooks/admin/useDatabaseVerification';
+import { AlertCircle } from 'lucide-react';
 
 export default function DatabaseVerification() {
   const { verificationResult, verifyDatabaseConfiguration } = useDatabaseVerification();
+
+  // Run verification automatically when page loads
+  useEffect(() => {
+    if (verificationResult.tables.length === 0 && 
+        verificationResult.policies.length === 0 && 
+        verificationResult.functions.length === 0 && 
+        !verificationResult.isVerifying) {
+      verifyDatabaseConfiguration();
+    }
+  }, [verificationResult, verifyDatabaseConfiguration]);
 
   return (
     <div className="animate-fadeIn space-y-6">
@@ -27,8 +38,24 @@ export default function DatabaseVerification() {
           <li>Verify that Row Level Security (RLS) policies are properly configured</li>
           <li>Check that database functions use SECURITY DEFINER and have proper search_path settings</li>
           <li>Ensure database indexes are set up for optimal performance</li>
+          <li>If issues persist after running SQL migrations, try refreshing the browser cache</li>
         </ul>
       </div>
+      
+      {verificationResult.tables.some(t => !t.exists) && (
+        <div className="p-4 rounded-md bg-amber-50 border border-amber-200">
+          <div className="flex gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-amber-800">Missing Database Tables</h3>
+              <p className="text-amber-700 text-sm mt-1">
+                Some required tables are missing from your database. Please check the Supabase project 
+                and ensure all required tables are created with the correct schema.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

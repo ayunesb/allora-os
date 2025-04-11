@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DatabaseTablesCheck } from './DatabaseTablesCheck';
 import { RlsPoliciesCheck } from './RlsPoliciesCheck';
 import { DatabaseFunctionsCheck } from './DatabaseFunctionsCheck';
 import { DatabaseVerificationResult } from './types';
-import { RefreshCw, Database, Shield, Code } from 'lucide-react';
+import { RefreshCw, Database, Shield, Code, AlertTriangle } from 'lucide-react';
 
 interface DatabaseVerificationDashboardProps {
   result: DatabaseVerificationResult;
@@ -22,6 +22,13 @@ export function DatabaseVerificationDashboard({
   const hasTablesData = tables && tables.length > 0;
   const hasPoliciesData = policies && policies.length > 0;
   const hasFunctionsData = functions && functions.length > 0;
+  
+  // Run verification automatically when component mounts
+  useEffect(() => {
+    if (!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying) {
+      onVerify();
+    }
+  }, [hasTablesData, hasPoliciesData, hasFunctionsData, isVerifying, onVerify]);
   
   const countIssues = () => {
     const tableMissing = tables.filter(t => !t.exists).length;
@@ -66,9 +73,31 @@ export function DatabaseVerificationDashboard({
             </Button>
           </div>
           
+          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && isVerifying && (
+            <div className="py-8 text-center">
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-muted-foreground">Checking database configuration...</p>
+            </div>
+          )}
+          
           {!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying && (
             <div className="py-8 text-center text-muted-foreground">
               Click "Verify Database" to check your database configuration
+            </div>
+          )}
+          
+          {issueCount > 0 && (
+            <div className="mb-6 p-4 border border-amber-200 bg-amber-50 rounded-md">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-medium text-amber-800">Database Configuration Issues Detected</h3>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Your Supabase database is missing required tables, policies, or functions. 
+                    Please run the SQL setup script from the setup documentation to fix these issues.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
           

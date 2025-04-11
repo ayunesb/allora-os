@@ -21,12 +21,16 @@ export function useDatabaseVerification() {
     setVerificationResult(prev => ({ ...prev, isVerifying: true }));
     
     try {
+      console.log('Starting database verification process...');
+      
       // Run all verification checks in parallel for better performance
       const [tables, policies, functions] = await Promise.all([
         verifyDatabaseTables(),
         verifyRlsPolicies(),
         verifyDatabaseFunctions()
       ]);
+      
+      console.log('Verification results:', { tables, policies, functions });
       
       // Update state with all results
       setVerificationResult({
@@ -39,7 +43,17 @@ export function useDatabaseVerification() {
       // Display user-friendly messages based on results
       displayVerificationResults(tables, policies, functions);
       
-      toast.success("Database verification completed");
+      // Count issues
+      const issuesCount = 
+        tables.filter(t => !t.exists).length +
+        policies.filter(p => !p.exists).length +
+        functions.filter(f => !f.exists || !f.isSecure).length;
+      
+      if (issuesCount === 0) {
+        toast.success("Database verification completed - All checks passed");
+      } else {
+        toast.error(`Database verification completed - ${issuesCount} issues found`);
+      }
       
     } catch (error: any) {
       console.error('Error during database verification:', error);

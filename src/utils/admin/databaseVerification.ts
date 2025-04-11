@@ -6,7 +6,6 @@ import {
   PolicyStatus, 
   FunctionStatus 
 } from '@/components/admin/database-verification/types';
-import { checkTableExists, checkRlsEnabled } from '@/utils/adminHelper';
 
 /**
  * Verifies the existence of required database tables
@@ -14,15 +13,22 @@ import { checkTableExists, checkRlsEnabled } from '@/utils/adminHelper';
 export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
   const requiredTables = [
     'profiles', 'companies', 'campaigns', 'strategies', 
-    'leads', 'communications', 'user_preferences'
+    'leads', 'communications', 'user_preferences', 'ai_boardroom_debates'
   ];
   
   const tableResults: DatabaseTableStatus[] = [];
   
   for (const tableName of requiredTables) {
     try {
-      // Use the helper function to check if table exists
-      const exists = await checkTableExists(tableName);
+      // Check if table exists by attempting to query it
+      const { error } = await supabase
+        .from('information_schema.tables')
+        .select('table_name')
+        .eq('table_schema', 'public')
+        .eq('table_name', tableName)
+        .maybeSingle();
+      
+      const exists = !error;
       
       tableResults.push({
         name: tableName,
@@ -30,6 +36,7 @@ export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
         message: exists ? `Table ${tableName} exists` : `Table ${tableName} is missing`
       });
     } catch (err: any) {
+      console.error(`Error checking table ${tableName}:`, err);
       tableResults.push({
         name: tableName,
         exists: false,
@@ -45,15 +52,20 @@ export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
  * Verifies that RLS policies are properly configured for critical tables
  */
 export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
-  const tablesWithRls = ['profiles', 'companies', 'campaigns', 'leads'];
+  const tablesWithRls = ['profiles', 'companies', 'campaigns', 'strategies', 'leads', 'communications', 'user_preferences'];
   const policyResults: PolicyStatus[] = [];
   
   for (const table of tablesWithRls) {
     try {
       // First verify the table exists
-      const tableExists = await checkTableExists(table);
+      const { data: tableData, error: tableError } = await supabase
+        .from('information_schema.tables')
+        .select('table_name')
+        .eq('table_schema', 'public')
+        .eq('table_name', table)
+        .maybeSingle();
         
-      if (!tableExists) {
+      if (tableError || !tableData) {
         policyResults.push({
           table,
           exists: false,
@@ -63,16 +75,20 @@ export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
       }
       
       // Check if RLS is enabled for the table
-      const hasRls = await checkRlsEnabled(table);
+      const { data: rlsData, error: rlsError } = await supabase
+        .rpc('check_rls_enabled', { table_name: table });
+      
+      const hasRls = rlsData && rlsData.length > 0 && rlsData[0]?.rls_enabled;
         
       policyResults.push({
         table,
         exists: hasRls,
         message: hasRls 
           ? `RLS is enabled for ${table}` 
-          : `RLS appears to be disabled for ${table}`
+          : `RLS is disabled for ${table}`
       });
     } catch (err: any) {
+      console.error(`Error checking RLS for ${table}:`, err);
       policyResults.push({
         table,
         exists: false,
@@ -94,9 +110,9 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
   ];
   const functionResults: FunctionStatus[] = [];
   
-  // Query information_schema.routines for functions
   for (const funcName of requiredFunctions) {
     try {
+      // Query information_schema.routines for functions
       const { data, error } = await supabase
         .from('information_schema.routines')
         .select('routine_name, security_type')
@@ -104,6 +120,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
         .eq('routine_name', funcName);
         
       if (error) {
+        console.error(`Error checking function ${funcName}:`, error);
         functionResults.push({
           name: funcName,
           exists: false,
@@ -126,6 +143,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
         });
       }
     } catch (err: any) {
+      console.error(`Error checking function ${funcName}:`, err);
       functionResults.push({
         name: funcName,
         exists: false,
