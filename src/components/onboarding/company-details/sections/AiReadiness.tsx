@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowRight } from "lucide-react";
 import { SectionProps } from "../types";
 
 export function AiReadiness({
@@ -16,7 +16,8 @@ export function AiReadiness({
   newItem,
   setNewItem,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  onNext
 }: SectionProps) {
   return (
     <AccordionItem value="ai">
@@ -66,6 +67,13 @@ export function AiReadiness({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={onNext} className="gap-2">
+            Continue to Financial Overview
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </AccordionContent>
     </AccordionItem>

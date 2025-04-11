@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowRight } from "lucide-react";
 import { SectionProps } from "../types";
 
 export function MarketingSales({
@@ -15,7 +15,8 @@ export function MarketingSales({
   newItem,
   setNewItem,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  onNext
 }: SectionProps) {
   return (
     <AccordionItem value="marketing">
@@ -109,6 +110,13 @@ export function MarketingSales({
             value={companyDetails.pricingStrategy || ''}
             onChange={(e) => handleTextChange('pricingStrategy', e.target.value)}
           />
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={onNext} className="gap-2">
+            Continue to AI/Automation Readiness
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </AccordionContent>
     </AccordionItem>

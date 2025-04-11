@@ -6,11 +6,14 @@ import {
 } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 import { SectionProps } from "../types";
 
 export function FinancialOverview({
   companyDetails,
-  handleTextChange
+  handleTextChange,
+  onNext
 }: SectionProps) {
   return (
     <AccordionItem value="financial">
@@ -49,6 +52,13 @@ export function FinancialOverview({
             value={companyDetails.runway || ''}
             onChange={(e) => handleTextChange('runway', e.target.value)}
           />
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={onNext} className="gap-2">
+            Continue to Strategic Goals
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </AccordionContent>
     </AccordionItem>

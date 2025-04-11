@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SectionProps } from "../types";
 
@@ -17,7 +17,8 @@ export function ProductTechnology({
   newItem,
   setNewItem,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  onNext
 }: SectionProps) {
   return (
     <AccordionItem value="product">
@@ -100,6 +101,13 @@ export function ProductTechnology({
             value={companyDetails.rdPipeline || ''}
             onChange={(e) => handleTextChange('rdPipeline', e.target.value)}
           />
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={onNext} className="gap-2">
+            Continue to Team & Leadership
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </AccordionContent>
     </AccordionItem>

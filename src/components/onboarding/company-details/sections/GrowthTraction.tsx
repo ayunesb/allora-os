@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowRight } from "lucide-react";
 import { SectionProps } from "../types";
 
 export function GrowthTraction({
@@ -15,7 +15,8 @@ export function GrowthTraction({
   newItem,
   setNewItem,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  onNext
 }: SectionProps) {
   return (
     <AccordionItem value="growth">
@@ -87,6 +88,13 @@ export function GrowthTraction({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={onNext} className="gap-2">
+            Continue to Product & Technology
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </AccordionContent>
     </AccordionItem>

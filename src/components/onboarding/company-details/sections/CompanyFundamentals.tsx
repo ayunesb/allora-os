@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowRight } from "lucide-react";
 import { SectionProps } from "../types";
 
 export function CompanyFundamentals({
@@ -18,7 +18,8 @@ export function CompanyFundamentals({
   newItem,
   setNewItem,
   addToArray,
-  removeFromArray
+  removeFromArray,
+  onNext
 }: SectionProps) {
   return (
     <AccordionItem value="fundamentals">
@@ -139,6 +140,13 @@ export function CompanyFundamentals({
             value={companyDetails.businessModel || ''}
             onChange={(e) => handleTextChange('businessModel', e.target.value)}
           />
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={onNext} className="gap-2">
+            Continue to Market Analysis
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </AccordionContent>
     </AccordionItem>

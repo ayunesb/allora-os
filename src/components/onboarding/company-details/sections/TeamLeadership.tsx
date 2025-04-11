@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowRight } from "lucide-react";
 import { SectionProps } from "../types";
 
 export function TeamLeadership({
@@ -17,7 +17,8 @@ export function TeamLeadership({
   setNewItem,
   addToArray,
   removeFromArray,
-  handleNumberChange
+  handleNumberChange,
+  onNext
 }: SectionProps) {
   return (
     <AccordionItem value="team">
@@ -44,7 +45,7 @@ export function TeamLeadership({
             type="number"
             placeholder="Number of employees"
             value={companyDetails.teamSize || ''}
-            onChange={(e) => handleNumberChange('teamSize', e.target.value)}
+            onChange={(e) => handleNumberChange && handleNumberChange('teamSize', e.target.value)}
           />
         </div>
         
@@ -79,6 +80,13 @@ export function TeamLeadership({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="flex justify-end mt-4">
+          <Button onClick={onNext} className="gap-2">
+            Continue to Marketing & Sales
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </AccordionContent>
     </AccordionItem>

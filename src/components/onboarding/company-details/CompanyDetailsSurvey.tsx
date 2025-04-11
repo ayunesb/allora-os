@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { PartialCompanyDetails } from "@/models/companyDetails";
 import { 
   Accordion,
@@ -21,6 +21,9 @@ export default function CompanyDetailsSurvey({
   error,
   onNext 
 }: CompanyDetailsSurveyProps) {
+  
+  // State to control the open accordion items
+  const [openSections, setOpenSections] = useState<string[]>(['fundamentals']);
   
   // Generic handler for updating string fields
   const handleTextChange = (field: keyof PartialCompanyDetails, value: string) => {
@@ -64,6 +67,40 @@ export default function CompanyDetailsSurvey({
     }
   };
 
+  // Array with the order of sections
+  const sectionOrder = [
+    'fundamentals',
+    'market',
+    'growth',
+    'product',
+    'team',
+    'marketing',
+    'ai',
+    'financial',
+    'goals',
+    'special'
+  ];
+
+  // Function to navigate to the next section
+  const navigateToNextSection = (currentSection: string) => {
+    const currentIndex = sectionOrder.indexOf(currentSection);
+    if (currentIndex < sectionOrder.length - 1) {
+      const nextSection = sectionOrder[currentIndex + 1];
+      setOpenSections([nextSection]);
+      
+      // Scroll to the next section
+      setTimeout(() => {
+        const element = document.querySelector(`[data-value="${nextSection}"]`);
+        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      // If we're at the last section, call the onNext prop
+      if (onNext) {
+        onNext();
+      }
+    }
+  };
+
   // Common props for all section components
   const sectionProps = {
     companyDetails,
@@ -73,7 +110,8 @@ export default function CompanyDetailsSurvey({
     addToArray,
     removeFromArray,
     handleTextChange,
-    handleNumberChange
+    handleNumberChange,
+    onNext: (section: string) => navigateToNextSection(section)
   };
 
   return (
@@ -84,16 +122,21 @@ export default function CompanyDetailsSurvey({
         The more information you provide, the more tailored our insights will be.
       </p>
       
-      <Accordion type="multiple" className="w-full">
-        <Sections.CompanyFundamentals {...sectionProps} />
-        <Sections.MarketAnalysis {...sectionProps} />
-        <Sections.GrowthTraction {...sectionProps} />
-        <Sections.ProductTechnology {...sectionProps} />
-        <Sections.TeamLeadership {...sectionProps} />
-        <Sections.MarketingSales {...sectionProps} />
-        <Sections.AiReadiness {...sectionProps} />
-        <Sections.FinancialOverview {...sectionProps} />
-        <Sections.StrategicGoals {...sectionProps} />
+      <Accordion 
+        type="multiple" 
+        className="w-full"
+        value={openSections}
+        onValueChange={setOpenSections}
+      >
+        <Sections.CompanyFundamentals {...sectionProps} onNext={() => navigateToNextSection('fundamentals')} />
+        <Sections.MarketAnalysis {...sectionProps} onNext={() => navigateToNextSection('market')} />
+        <Sections.GrowthTraction {...sectionProps} onNext={() => navigateToNextSection('growth')} />
+        <Sections.ProductTechnology {...sectionProps} onNext={() => navigateToNextSection('product')} />
+        <Sections.TeamLeadership {...sectionProps} onNext={() => navigateToNextSection('team')} />
+        <Sections.MarketingSales {...sectionProps} onNext={() => navigateToNextSection('marketing')} />
+        <Sections.AiReadiness {...sectionProps} onNext={() => navigateToNextSection('ai')} />
+        <Sections.FinancialOverview {...sectionProps} onNext={() => navigateToNextSection('financial')} />
+        <Sections.StrategicGoals {...sectionProps} onNext={() => navigateToNextSection('goals')} />
         <Sections.SpecialInfo {...sectionProps} />
       </Accordion>
       
