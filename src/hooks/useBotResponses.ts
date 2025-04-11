@@ -1,8 +1,8 @@
 
 import { useCallback } from 'react';
 import { DebateMessage, DebateParticipant } from '@/utils/consultation/types';
-import { supabase } from '@/integrations/supabase/client';
-import { UserPreferences } from './useUserPreferences';
+import { generateBotResponse } from '@/backend/debate/botResponseGenerator';
+import { toast } from 'sonner';
 
 export function useBotResponses(
   addMessage: (message: DebateMessage) => void,
@@ -13,47 +13,30 @@ export function useBotResponses(
     topic: string,
     riskAppetite: string = 'medium',
     businessPriority: string = 'growth',
-    preferences?: UserPreferences
+    preferences?: any
   ) => {
     if (!participants.length) return;
     
     setIsLoading(true);
     
     try {
-      // Get responses from each participant sequentially
+      // Get responses from each participant sequentially with slight delay between them
       for (const participant of participants) {
-        // Create a debateContext object to send to the API
-        const debateContext = {
-          topic,
-          riskAppetite,
-          businessPriority,
-          includeRationale: preferences?.showSources || false
-        };
-        
         try {
-          // Call the OpenAI edge function
-          const { data, error } = await supabase.functions.invoke('multi-model-ai', {
-            body: {
-              action: 'debate',
-              modelName: 'gpt-4o-mini',
-              botName: participant.name,
-              botRole: participant.title,
-              debateContext,
-              preferences // Pass user preferences to the API
-            }
-          });
-          
-          if (error) {
-            console.error('Error calling AI API:', error);
-            throw error;
-          }
+          // Get a unique, persona-specific response for this executive
+          const content = await generateBotResponse(
+            participant,
+            topic,
+            riskAppetite,
+            businessPriority
+          );
           
           // Format the response to include rationale if requested
-          let content = data.content;
+          let finalContent = content;
           
           // If rationale isn't already included but was requested
-          if (preferences?.showSources && !content.includes('Rationale:')) {
-            content += `\n\nRationale: Based on my experience as ${participant.name}, I believe this approach aligns with the ${riskAppetite} risk profile and prioritizes ${businessPriority}.`;
+          if (preferences?.showSources && !finalContent.includes('Rationale:')) {
+            finalContent += `\n\nRationale: Based on my experience as ${participant.name}, I believe this approach aligns with the ${riskAppetite} risk profile and prioritizes ${businessPriority}.`;
           }
           
           // Add the bot response message
@@ -61,7 +44,7 @@ export function useBotResponses(
             id: `msg-${Date.now()}-${participant.id}`,
             sender: participant.name,
             senderId: participant.id,
-            content,
+            content: finalContent,
             timestamp: new Date(),
             isUser: false,
             votes: 0,
@@ -69,34 +52,18 @@ export function useBotResponses(
           };
           
           addMessage(message);
+          
+          // Add a delay between responses to make it feel more natural
+          await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
         } catch (error) {
-          // Create varied fallback responses based on the executive's role
-          let fallbackContent = '';
+          console.error(`Error generating response for ${participant.name}:`, error);
           
-          // Personalized fallback responses based on executive role
-          if (participant.role === 'ceo') {
-            fallbackContent = `Looking at ${topic} from a strategic viewpoint, I believe we need to balance both acquisition and retention efforts, but with a slight emphasis on ${businessPriority === 'growth' ? 'acquisition to fuel our growth trajectory' : 'retention to stabilize our revenue'}. Innovation will be key regardless of which path we prioritize.`;
-          } else if (participant.role === 'cfo') {
-            fallbackContent = `From a financial perspective, ${topic} requires careful analysis of customer lifetime value. For a ${riskAppetite} risk profile, I'd recommend ${riskAppetite === 'high' ? 'investing more in acquisition despite higher CAC' : riskAppetite === 'low' ? 'focusing on retention which typically offers better ROI' : 'a balanced approach with clear metrics for both strategies'}.`;
-          } else if (participant.role === 'coo') {
-            fallbackContent = `Operationally speaking, our approach to ${topic} must consider our current resource allocation. With our ${businessPriority} priority, we should ${businessPriority === 'growth' ? 'build scalable acquisition channels while maintaining basic retention efforts' : 'optimize our customer journey to maximize retention while still acquiring new customers strategically'}.`;
-          } else if (participant.role === 'cio' || participant.role === 'cto') {
-            fallbackContent = `From a technology standpoint, our data infrastructure should support both aspects of ${topic}. I recommend investing in analytics that can identify which customers are most valuable to retain while also optimizing our acquisition funnel with A/B testing and personalization technologies.`;
-          } else if (participant.role === 'cmo') {
-            fallbackContent = `Marketing should approach ${topic} by segmenting our audience carefully. We should develop distinct strategies for acquisition versus retention, with appropriate content and channels for each. For a ${riskAppetite} risk profile, we should ${riskAppetite === 'high' ? 'experiment with new acquisition channels' : 'optimize our existing marketing mix'}.`;
-          } else {
-            fallbackContent = `Regarding ${topic}, we need to consider both strategies but align them with our ${businessPriority} business priority. For a company with a ${riskAppetite} risk appetite, I'd suggest a ${riskAppetite === 'high' ? 'more aggressive' : riskAppetite === 'low' ? 'more conservative' : 'balanced'} approach.`;
-          }
-          
-          if (preferences?.showSources) {
-            fallbackContent += `\n\nRationale: My recommendation is based on extensive experience in ${participant.specialty || participant.role}, considering the ${riskAppetite} risk profile and ${businessPriority} priority.`;
-          }
-          
+          // Create fallback response
           const fallbackMessage: DebateMessage = {
             id: `msg-${Date.now()}-${participant.id}`,
             sender: participant.name,
             senderId: participant.id,
-            content: fallbackContent,
+            content: `I need more context about ${topic} before providing a detailed response. However, I would approach this with a ${riskAppetite} risk profile, focusing primarily on ${businessPriority}.`,
             timestamp: new Date(),
             isUser: false,
             votes: 0,
@@ -104,13 +71,12 @@ export function useBotResponses(
           };
           
           addMessage(fallbackMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
-        
-        // Add a delay between responses to make it feel more natural
-        await new Promise(resolve => setTimeout(resolve, 1500));
       }
     } catch (error) {
       console.error('Error in simulateBotResponses:', error);
+      toast.error('Error generating executive responses');
     } finally {
       setIsLoading(false);
     }
