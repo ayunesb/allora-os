@@ -145,7 +145,7 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
   }, [companyId, profile?.company_id]);
 
   const handleStartNewDebate = () => {
-    // Navigate to the debate page or tab instead of showing a toast
+    // Navigate directly to the debate page
     navigate("/dashboard/debate");
   };
 

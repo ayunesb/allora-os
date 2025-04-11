@@ -12,6 +12,7 @@ import Campaigns from "@/pages/dashboard/Campaigns";
 import DashboardLeads from "@/pages/dashboard/Leads";
 import DashboardCalls from "@/pages/dashboard/Calls";
 import DashboardApprovals from "@/pages/dashboard/Approvals";
+import DashboardDebate from "@/pages/dashboard/Debate";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdAccountsConnect from "@/pages/dashboard/AdAccountsConnect";
 import CampaignCreate from "@/pages/dashboard/CampaignCreate";
@@ -50,6 +51,10 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "ai-bots",
       element: <DashboardAiBots />,
+    },
+    {
+      path: "debate",
+      element: <DashboardDebate />,
     },
     {
       path: "campaigns",
