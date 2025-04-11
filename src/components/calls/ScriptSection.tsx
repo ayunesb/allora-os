@@ -2,7 +2,7 @@
 import React from "react";
 import { CallScript } from "@/hooks/useCallScripts";
 import AiCallScript from "@/components/calls/AiCallScript";
-import { Play, Download, FileText } from "lucide-react";
+import { Play, Download, FileText, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -85,12 +85,16 @@ export default function ScriptSection({
                 {script.status === "Ready" ? (
                   <>
                     <Button variant="outline" size="sm" className="flex-1" onClick={() => onUseScript(script.id, script.title)}>
-                      <Play className="mr-2 h-4 w-4" />
+                      {type === 'call' ? (
+                        <Play className="mr-2 h-4 w-4" />
+                      ) : (
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                      )}
                       Use
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewScript(script.id)}>
                       <FileText className="mr-2 h-4 w-4" />
-                      View Script
+                      View {type === 'call' ? 'Script' : 'Template'}
                     </Button>
                   </>
                 ) : (
@@ -135,10 +139,16 @@ export default function ScriptSection({
                 </div>
                 
                 <div className="border-t pt-4 mt-4">
-                  <h3 className="text-lg font-medium mb-2">Script Content</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    {type === 'call' ? 'Script Content' : 'Template Content'}
+                  </h3>
                   <div className="bg-muted/30 rounded-md p-4 whitespace-pre-line">
                     {currentScript.content || 
-                      `# ${currentScript.title}\n\n## Introduction\n- Greet the prospect warmly and introduce yourself and your company\n- Briefly explain the purpose of your call\n\n## Value Proposition\n- Present your main value proposition tailored to ${currentScript.target}\n- Highlight 2-3 key benefits\n\n## Questions to Ask\n- What challenges are they currently facing?\n- How are they currently solving these problems?\n- What would an ideal solution look like for them?\n\n## Addressing Objections\n- Price: Focus on ROI and long-term value\n- Timing: Emphasize opportunity cost of delay\n- Need to consult others: Offer to schedule a follow-up with all stakeholders\n\n## Call to Action\n- Schedule a demo/follow-up meeting\n- Send additional information\n- Confirm next steps\n\n## Closing\n- Thank them for their time\n- Restate any commitments made\n- Provide your contact information`
+                      (type === 'call' ? 
+                        `# ${currentScript.title}\n\n## Introduction\n- Greet the prospect warmly and introduce yourself and your company\n- Briefly explain the purpose of your call\n\n## Value Proposition\n- Present your main value proposition tailored to ${currentScript.target}\n- Highlight 2-3 key benefits\n\n## Questions to Ask\n- What challenges are they currently facing?\n- How are they currently solving these problems?\n- What would an ideal solution look like for them?\n\n## Addressing Objections\n- Price: Focus on ROI and long-term value\n- Timing: Emphasize opportunity cost of delay\n- Need to consult others: Offer to schedule a follow-up with all stakeholders\n\n## Call to Action\n- Schedule a demo/follow-up meeting\n- Send additional information\n- Confirm next steps\n\n## Closing\n- Thank them for their time\n- Restate any commitments made\n- Provide your contact information`
+                      : 
+                        `# ${currentScript.title}\n\nHi [Name],\n\nI hope this message finds you well. I'm reaching out regarding our business platform that has been helping companies like yours achieve significant growth.\n\n## Key Points\n- Our platform provides personalized strategic advice for businesses in your industry\n- We've analyzed market trends and created recommendations specifically for companies like yours\n- Clients implementing our strategies have seen an average 20% improvement in key metrics\n\n## Next Steps\nI'd love to schedule a brief call to discuss how our solution could specifically benefit your business. Would you be available for a 15-minute conversation this week?\n\nBest regards,\n[Your Name]\n[Your Contact Information]`
+                      )
                     }
                   </div>
                 </div>
