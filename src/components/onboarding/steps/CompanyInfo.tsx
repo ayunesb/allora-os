@@ -1,13 +1,22 @@
 
 import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
+import { PartialCompanyDetails } from "@/models/companyDetails";
 
 interface CompanyInfoProps {
   companyName: string;
   setCompanyName: (name: string) => void;
+  companyDetails?: PartialCompanyDetails;
+  updateCompanyDetails?: (details: PartialCompanyDetails) => void;
   errorMessage?: string | null;
 }
 
-export function CompanyInfo({ companyName, setCompanyName, errorMessage }: CompanyInfoProps) {
+export function CompanyInfo({ 
+  companyName, 
+  setCompanyName, 
+  companyDetails,
+  updateCompanyDetails,
+  errorMessage 
+}: CompanyInfoProps) {
   return (
     <CompanyInfoForm
       companyName={companyName}
