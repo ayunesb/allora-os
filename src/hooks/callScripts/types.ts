@@ -10,4 +10,6 @@ export interface CallScript {
   aiGenerated?: boolean;
   primaryBot?: any;
   collaborators?: any[];
+  executiveGenerated?: boolean;
+  executiveStyle?: string;
 }

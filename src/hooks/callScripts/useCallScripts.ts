@@ -4,7 +4,7 @@ import { useCompanyInsights } from "../useCompanyInsights";
 import { useAuth } from "@/context/AuthContext";
 import { CallScript } from "./types";
 import { getDefaultScripts } from "./scriptGenerators";
-import { createAiGeneratedScripts } from "./scriptFactory";
+import { createAiGeneratedScripts, createExecutiveCollectiveScripts } from "./scriptFactory";
 
 export function useCallScripts() {
   const [scripts, setScripts] = useState<CallScript[]>([]);
@@ -23,6 +23,7 @@ export function useCallScripts() {
         // Company info
         const companyName = profile?.company || "Your Company";
         const industry = profile?.industry || "Technology";
+        const companySize = profile?.company_size || "Small";
         
         // Create AI-generated scripts from insights
         const aiGeneratedScripts = createAiGeneratedScripts(
@@ -31,8 +32,15 @@ export function useCallScripts() {
           industry
         );
         
+        // Create executive collective scripts
+        const executiveScripts = createExecutiveCollectiveScripts(
+          companyName,
+          industry,
+          companySize
+        );
+        
         // Combine scripts
-        setScripts([...aiGeneratedScripts, ...defaultScripts]);
+        setScripts([...aiGeneratedScripts, ...executiveScripts, ...defaultScripts]);
       } catch (error) {
         console.error("Error loading call scripts:", error);
       } finally {

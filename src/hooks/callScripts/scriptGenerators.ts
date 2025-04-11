@@ -68,6 +68,83 @@ Best regards,
 };
 
 /**
+ * Generate WhatsApp template based on executive expertise
+ */
+export const generateWhatsAppTemplate = (executiveName: string, executiveRole: string, industry: string, companyName?: string) => {
+  const templates = {
+    sales: `Hi [Name], ${executiveName} here (${executiveRole}). I've analyzed ${companyName || 'your company'}'s ${industry} position and found 3 critical growth opportunities. Quick 5-min call this week? The 3rd opportunity alone could boost revenue by 22-31%.`,
+    marketing: `Hi [Name], ${executiveName} (${executiveRole}) from Allora AI. Just finished reviewing ${companyName || 'your'} ${industry} marketing strategy. Identified 3 conversion gaps your competitors aren't seeing. Free to chat Wed/Thu? I'll share the full competitive analysis.`,
+    strategy: `[Name], ${executiveName} here (${executiveRole} specialist). Our AI executive team just completed a deep dive on the ${industry} market. We've identified a unique position for ${companyName || 'your company'} with 40% less competition. When works to discuss the strategy blueprint?`,
+    finance: `Hi [Name], ${executiveName} (${executiveRole}) with Allora AI. Just completed financial modeling for ${companyName || 'your company'}'s growth in the ${industry} space. Projecting 3-year path to 2.7x current valuation. Can I walk you through the model this week?`
+  };
+
+  const template = templates[executiveRole.toLowerCase().includes('sales') ? 'sales' : 
+                    executiveRole.toLowerCase().includes('market') ? 'marketing' :
+                    executiveRole.toLowerCase().includes('finance') || executiveRole.toLowerCase().includes('cfo') ? 'finance' : 
+                    'strategy'];
+  
+  return `# WhatsApp Template from ${executiveName} (${executiveRole})
+
+${template}
+
+## Follow-up (if no response after 2 days)
+Just following up on my message about the growth opportunities for ${companyName || 'your company'} in the ${industry} space. The analysis is ready whenever you have 5 minutes to discuss.
+
+## Personalization Tips
+- Reference a recent company announcement or news if available
+- Mention a specific challenge common in their industry segment
+- Adapt tone based on company size (more formal for enterprise, more direct for startups)`;
+};
+
+/**
+ * Generate cold call script based on executive expertise
+ */
+export const generateColdCallScript = (executiveName: string, executiveRole: string, industry: string, companyName?: string) => {
+  let scriptStyle = "";
+  let technique = "";
+  
+  if (executiveRole.toLowerCase().includes('sales')) {
+    scriptStyle = "Trish Bertuzzi";
+    technique = "targeted value proposition";
+  } else if (executiveRole.toLowerCase().includes('market')) {
+    scriptStyle = "Gary Vaynerchuk";
+    technique = "pattern interruption";
+  } else if (executiveRole.toLowerCase().includes('growth')) {
+    scriptStyle = "Grant Cardone";
+    technique = "10X mindset framework";
+  } else {
+    scriptStyle = "Mike Weinberg";
+    technique = "curiosity-based questioning";
+  }
+  
+  return `# Cold Call Script in the style of ${scriptStyle}
+
+## Introduction (10 seconds)
+"Hi [Name], this is [Your Name] calling based on ${executiveName}'s recommendation. [Small pause] Our AI executive team just completed an analysis of the ${industry} space and identified some significant opportunities for ${companyName || 'companies like yours'}. Do you have 2 minutes?"
+
+## Value Statement (20 seconds)
+"Great. ${executiveName}, our ${executiveRole}, used our AI platform to analyze growth patterns in the ${industry} sector. [pause] We've found that companies implementing our strategic recommendations are seeing a 27% average increase in qualified leads within 90 days. I wanted to share the 3 key findings specific to your situation."
+
+## Qualifying Questions (using ${scriptStyle}'s ${technique})
+- "What's your biggest challenge right now in acquiring new customers?"
+- "On a scale of 1-10, how satisfied are you with your current growth rate?"
+- "What would reaching [2X current revenue] in the next 18 months mean for your business?"
+
+## Addressing Common Objections
+- "We already have consultants": "I understand. What makes our approach different is that we combine AI-powered analysis with expertise from executives like ${executiveName} who have specific experience in ${industry}. This gives you both data-driven insights and battle-tested strategies."
+  
+- "Not interested right now": "I appreciate that. Just to clarify, is it the timing that's not right, or are you not interested in accelerating growth in [specific area]?"
+
+- "Send me some information": "I'd be happy to. What specifically would be most valuable for you to see? Case studies, industry analysis, or the specific recommendations ${executiveName} has for your company?"
+
+## Call to Action
+"Based on our conversation, I'd like to set up a brief strategy session where we can walk through ${executiveName}'s specific recommendations for ${companyName || 'your company'}. We could do this Thursday at 2pm or Friday at 10am - which works better for you?"
+
+## Approved by ${executiveName} (${executiveRole})
+This script was developed using ${scriptStyle}'s ${technique} methodology, chosen specifically for its effectiveness in the ${industry} industry.`;
+};
+
+/**
  * Generate default call scripts with sample content
  */
 export const getDefaultScripts = (): CallScript[] => {
@@ -139,6 +216,80 @@ Looking forward to your response!
 Best regards,
 [Your Name]
 [Your Contact Information]`
+    },
+    {
+      id: "exec-whatsapp-1",
+      title: "Executive WhatsApp Template",
+      target: "Fortune 1000 Leaders",
+      duration: "1 min",
+      status: "Ready",
+      type: 'message',
+      content: generateWhatsAppTemplate("Trish Bertuzzi", "Sales Development Expert", "Technology", "Acme Inc")
+    },
+    {
+      id: "exec-call-1",
+      title: "Executive Cold Call Script",
+      target: "C-Suite Decision Makers",
+      duration: "3-4 min", 
+      status: "Ready",
+      type: 'call',
+      content: generateColdCallScript("Mike Weinberg", "Sales Strategy Consultant", "SaaS", "Acme Inc")
+    }
+  ];
+};
+
+/**
+ * Get executive-generated scripts for a specific role
+ */
+export const getExecutiveScripts = (executiveRole: string, industry: string, companyName?: string): CallScript[] => {
+  // Map of executives by role category
+  const executiveMap = {
+    sales: ["Grant Cardone", "Brian Tracy", "Zig Ziglar", "Jill Konrath", "Trish Bertuzzi", "Mike Weinberg"],
+    marketing: ["Seth Godin", "Gary Vaynerchuk", "Rand Fishkin", "Neil Patel", "Ann Handley"],
+    strategy: ["Clayton Christensen", "Brian Chesky", "Reed Hastings", "Marissa Mayer", "Jim Collins"],
+    finance: ["Warren Buffett", "Ruth Porat", "David Wehner", "Kelly R. Bennett", "Michael S. Dell"],
+    ceo: ["Elon Musk", "Jeff Bezos", "Satya Nadella", "Tim Cook", "Sheryl Sandberg", "Gwynne Shotwell"]
+  };
+  
+  // Determine which category the executive role falls into
+  let category = 'strategy';
+  for (const [cat, _] of Object.entries(executiveMap)) {
+    if (executiveRole.toLowerCase().includes(cat)) {
+      category = cat;
+      break;
+    }
+  }
+  
+  // Select two random executives from the appropriate category
+  const executives = executiveMap[category];
+  const selectedExecs = [
+    executives[Math.floor(Math.random() * executives.length)],
+    executives[Math.floor(Math.random() * executives.length)]
+  ];
+  
+  // Create one WhatsApp template and one cold call script for each selected executive
+  return [
+    {
+      id: `whatsapp-${category}-${Date.now()}`,
+      title: `${selectedExecs[0]}'s ${category.charAt(0).toUpperCase() + category.slice(1)} WhatsApp Template`,
+      target: `${industry} Decision Makers`,
+      duration: "1 min",
+      status: "Ready",
+      type: 'message',
+      content: generateWhatsAppTemplate(selectedExecs[0], executiveRole, industry, companyName),
+      aiGenerated: true,
+      primaryBot: { name: selectedExecs[0], role: executiveRole }
+    },
+    {
+      id: `call-${category}-${Date.now()}`,
+      title: `${selectedExecs[1]}'s ${category.charAt(0).toUpperCase() + category.slice(1)} Cold Call Script`,
+      target: `${industry} C-Suite`,
+      duration: "3-4 min",
+      status: "Ready",
+      type: 'call',
+      content: generateColdCallScript(selectedExecs[1], executiveRole, industry, companyName),
+      aiGenerated: true,
+      primaryBot: { name: selectedExecs[1], role: executiveRole }
     }
   ];
 };
