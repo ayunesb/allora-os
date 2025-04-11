@@ -98,13 +98,16 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       if (signUpResult.user) {
         console.log("User created successfully:", signUpResult.user.id);
         
+        // Create sanitized data to avoid empty strings
+        const userData = {
+          name: data.name,
+          company: data.company || null,
+          industry: data.industry || null
+        };
+        
         // Update user metadata with name and company info
         const { error: updateError } = await supabase.auth.updateUser({
-          data: {
-            name: data.name,
-            company: data.company || '',
-            industry: data.industry || ''
-          }
+          data: userData
         });
 
         if (updateError) {
@@ -114,7 +117,11 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
         // Once the user is created, save company information to profiles table
         if (data.company || data.industry) {
           const { saveCompanyInfo } = await import('@/utils/profileHelpers');
-          await saveCompanyInfo(signUpResult.user.id, data.company || '', data.industry || '');
+          await saveCompanyInfo(
+            signUpResult.user.id, 
+            data.company || '', 
+            data.industry || ''
+          );
         }
         
         // Set a flag in sessionStorage to indicate this is a new user for onboarding

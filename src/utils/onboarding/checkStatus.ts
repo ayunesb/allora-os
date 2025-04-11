@@ -42,13 +42,14 @@ export async function checkOnboardingStatus(userId: string): Promise<boolean> {
 
       if (companyError) {
         console.error("Error checking company details:", companyError);
-        throw companyError;
-      }
-
-      // Check if onboarding is completed in company details
-      if (companyData?.details?.onboarding_completed) {
-        console.log("Company onboarding_completed flag is true");
-        return true;
+        // Don't throw error here, just continue to default return
+        console.log("Continuing with default onboarding status");
+      } else {
+        // Check if onboarding is completed in company details
+        if (companyData?.details?.onboarding_completed) {
+          console.log("Company onboarding_completed flag is true");
+          return true;
+        }
       }
     }
 

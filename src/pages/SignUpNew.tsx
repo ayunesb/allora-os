@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-export default function Signup() {
+export default function SignUpNew() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [newUser, setNewUser] = useState<User | null>(null);

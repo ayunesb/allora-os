@@ -23,12 +23,11 @@ export default function IndustryForm({ industry, setIndustry, error }: IndustryF
         <label htmlFor="industry" className="text-sm font-medium">
           Select your industry
         </label>
-        <Select onValueChange={setIndustry} value={industry || ""}>
+        <Select onValueChange={setIndustry} value={industry || undefined}>
           <SelectTrigger className={error ? "border-destructive" : ""}>
             <SelectValue placeholder="Select an industry" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Select an industry</SelectItem>
             <SelectItem value="technology">Technology</SelectItem>
             <SelectItem value="healthcare">Healthcare</SelectItem>
             <SelectItem value="finance">Finance</SelectItem>
