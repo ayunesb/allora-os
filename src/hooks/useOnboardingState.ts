@@ -33,11 +33,12 @@ export default function useOnboardingState() {
     }
   }, [profile, step]);
 
-  const handleNext = () => {
+  const handleNext = async (): Promise<void> => {
     if (step < 7) { // Updated to 7 total steps with ad platforms
       setStep(step + 1);
+      return Promise.resolve();
     } else {
-      handleComplete();
+      return handleComplete();
     }
   };
 
@@ -59,13 +60,13 @@ export default function useOnboardingState() {
     setCompanyDetails({ ...companyDetails, ...details });
   };
 
-  const handleComplete = async () => {
+  const handleComplete = async (): Promise<void> => {
     setErrorMessage(null);
     
     if (!user) {
       toast.error("You must be logged in to complete onboarding");
       navigate("/login");
-      return;
+      return Promise.reject("Not logged in");
     }
 
     setIsLoading(true);
@@ -90,6 +91,7 @@ export default function useOnboardingState() {
       
       toast.success("Company setup completed successfully!");
       navigate("/dashboard");
+      return Promise.resolve();
     } catch (error: any) {
       console.error("Onboarding error:", error);
       const errorMsg = error.message || "An error occurred during setup";
@@ -101,6 +103,7 @@ export default function useOnboardingState() {
           description: "There's an issue with the database permissions."
         });
       }
+      return Promise.reject(errorMsg);
     } finally {
       setIsLoading(false);
     }
