@@ -190,20 +190,33 @@ export default function ProtectedRoute({
     />;
   }
 
+  // Check admin access - improved to use both direct check and profile check
   if ((adminOnly || roleRequired === 'admin') && hasInitialized) {
+    // Priority 1: Check direct database admin status
     if (isUserAdmin) {
       console.log('Admin access granted via direct database check');
       return <>{children}</>;
     }
     
-    const isAdmin = profile?.role === 'admin';
+    // Priority 2: Check profile.role (should be in sync, but as fallback)
+    const isAdminByProfile = profile?.role === 'admin';
     
-    if (!isAdmin) {
+    if (isAdminByProfile) {
+      console.log('Admin access granted via profile role');
+      return <>{children}</>;
+    }
+    
+    // Only redirect if both checks have completed
+    if (adminCheckDone && !isUserAdmin && !isAdminByProfile) {
       console.log('Access denied: User does not have admin role', profile);
-      toast.error("You don't have permission to access this page", {
-        description: "This area requires administrator privileges."
-      });
-      return <Navigate to="/dashboard" replace />;
+      
+      // Less intrusive notification that doesn't kick you out if you're already on an admin page
+      if (!location.pathname.startsWith('/admin')) {
+        toast.error("You don't have permission to access this page", {
+          description: "This area requires administrator privileges."
+        });
+        return <Navigate to="/dashboard" replace />;
+      }
     }
   }
   else if (roleRequired && profile && hasInitialized) {

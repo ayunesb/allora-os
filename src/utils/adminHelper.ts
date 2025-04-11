@@ -37,11 +37,13 @@ export async function checkIfUserIsAdmin(): Promise<boolean> {
  */
 export async function checkTableExists(tableName: string): Promise<boolean> {
   try {
+    // For Supabase/PostgreSQL, we need to query information_schema instead of pg_tables
+    // as pg_tables is not directly accessible through the client
     const { data, error } = await supabase
-      .from('pg_tables')
-      .select('tablename')
-      .eq('schemaname', 'public')
-      .eq('tablename', tableName)
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_schema', 'public')
+      .eq('table_name', tableName)
       .single();
     
     if (error && error.code !== 'PGRST116') {
