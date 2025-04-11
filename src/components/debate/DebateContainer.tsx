@@ -24,6 +24,7 @@ const DebateContainer: React.FC = () => {
     setDebateTitle,
     setDebateObjective,
     setDebateDuration,
+    setParticipants,
     voteMessage,
     toggleFavorite
   } = useDebateSession();
@@ -82,6 +83,7 @@ const DebateContainer: React.FC = () => {
             onObjectiveChange={setDebateObjective}
             onDurationChange={setDebateDuration}
             onStartDebate={startDebate}
+            onParticipantsChange={setParticipants}
           />
         </TabsContent>
         

@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { DebateParticipant, DebateTopic } from '@/utils/consultation/types';
 import TopicSelector from './TopicSelector';
 import DebateParameters from './DebateParameters';
 import ParticipantsList from './ParticipantsList';
+import ExecutiveSelectionDialog from './ExecutiveSelectionDialog';
 
 interface DebateSetupProps {
   participants: DebateParticipant[];
@@ -20,6 +21,7 @@ interface DebateSetupProps {
   onObjectiveChange: (value: string) => void;
   onDurationChange: (value: string) => void;
   onStartDebate: () => void;
+  onParticipantsChange?: (participants: DebateParticipant[]) => void;
 }
 
 const DebateSetup: React.FC<DebateSetupProps> = ({
@@ -35,7 +37,20 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
   onObjectiveChange,
   onDurationChange,
   onStartDebate,
+  onParticipantsChange,
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const handleEditParticipants = () => {
+    setIsDialogOpen(true);
+  };
+  
+  const handleParticipantsChange = (newParticipants: DebateParticipant[]) => {
+    if (onParticipantsChange) {
+      onParticipantsChange(newParticipants);
+    }
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -60,7 +75,17 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
           onDurationChange={onDurationChange}
         />
         
-        <ParticipantsList participants={participants} />
+        <ParticipantsList 
+          participants={participants} 
+          onEditParticipants={handleEditParticipants}
+        />
+        
+        <ExecutiveSelectionDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          selectedExecutives={participants}
+          onExecutivesChange={handleParticipantsChange}
+        />
       </CardContent>
       <CardFooter>
         <Button 

@@ -2,18 +2,33 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Users, Edit2 } from 'lucide-react';
 import { DebateParticipant } from '@/utils/consultation/types';
 
 interface ParticipantsListProps {
   participants: DebateParticipant[];
+  onEditParticipants: () => void;
 }
 
 const ParticipantsList: React.FC<ParticipantsListProps> = ({
   participants,
+  onEditParticipants,
 }) => {
   return (
     <div className="space-y-2">
-      <Label>Participants</Label>
+      <div className="flex items-center justify-between">
+        <Label>Participants</Label>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onEditParticipants}
+          className="flex items-center gap-1"
+        >
+          <Edit2 className="h-3.5 w-3.5" />
+          <span>Edit Team</span>
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {participants.map((bot) => (
           <div key={bot.id} className="flex items-center space-x-3 p-3 border rounded-md">
