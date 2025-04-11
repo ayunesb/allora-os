@@ -73,7 +73,45 @@ export function LegalAcceptanceModal({
         // Continue with fallback IP
       }
       
-      // Store acceptance record in database
+      // First check if a record already exists to avoid unique constraint violations
+      const { data: existingRecord, error: checkError } = await supabase
+        .from('user_legal_acceptances')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('terms_version', CURRENT_VERSIONS.terms)
+        .eq('privacy_version', CURRENT_VERSIONS.privacy)
+        .eq('consent_version', CURRENT_VERSIONS.messaging)
+        .maybeSingle();
+      
+      if (checkError) {
+        console.error('Error checking for existing record:', checkError);
+        // Continue with insert attempt
+      }
+      
+      if (existingRecord) {
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from('user_legal_acceptances')
+          .update({
+            terms_of_service: termsAccepted,
+            privacy_policy: privacyAccepted,
+            messaging_consent: messagingAccepted,
+            ip_address: ipAddress,
+            user_agent: navigator.userAgent,
+            accepted_at: new Date().toISOString()
+          })
+          .eq('id', existingRecord.id);
+          
+        if (updateError) {
+          throw updateError;
+        }
+        
+        toast.success('Legal terms updated successfully');
+        onAccept();
+        return;
+      }
+      
+      // If no existing record, create a new one
       const { error } = await supabase
         .from('user_legal_acceptances')
         .insert({
@@ -91,9 +129,20 @@ export function LegalAcceptanceModal({
       if (error) {
         console.error('Error details from Supabase:', error);
         
-        // Handle specific error cases
         if (error.code === '23505') { // Unique constraint violation
           // If there's already a record, try updating it instead
+          const { error: fetchError, data: existingRecords } = await supabase
+            .from('user_legal_acceptances')
+            .select('id')
+            .eq('user_id', userId)
+            .limit(1);
+            
+          if (fetchError || !existingRecords || existingRecords.length === 0) {
+            throw error;
+          }
+          
+          const recordId = existingRecords[0].id;
+          
           const { error: updateError } = await supabase
             .from('user_legal_acceptances')
             .update({
@@ -107,7 +156,7 @@ export function LegalAcceptanceModal({
               user_agent: navigator.userAgent,
               accepted_at: new Date().toISOString()
             })
-            .eq('user_id', userId);
+            .eq('id', recordId);
             
           if (updateError) {
             throw updateError;
@@ -117,6 +166,19 @@ export function LegalAcceptanceModal({
             onAccept();
             return;
           }
+        } else if (error.code === '42501' || error.message?.includes('permission denied')) {
+          // This is an RLS policy error
+          setErrorMessage('Permission denied. Please make sure you are properly authenticated.');
+          toast.error('Permission denied. Please make sure you are properly authenticated.');
+          // Try to refresh the session
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.error('Failed to refresh session:', refreshError);
+          } else {
+            // Retry after session refresh
+            setTimeout(() => handleSubmit(), 1000);
+          }
+          return;
         }
         
         throw error;

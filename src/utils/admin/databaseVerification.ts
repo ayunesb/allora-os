@@ -162,7 +162,7 @@ export function displayVerificationResults(
     toast.error(`RLS issues found on tables: ${missingRls.join(', ')}`);
   }
   
-  // Check functions
+  // Function issues
   const functionIssues = functions.filter(f => !f.exists || !f.isSecure).map(f => f.name);
   if (functionIssues.length === 0) {
     toast.success('Database functions verified successfully');
