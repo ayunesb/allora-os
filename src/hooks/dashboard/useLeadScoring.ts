@@ -1,140 +1,86 @@
 
-import { useState, useCallback } from 'react';
 import { Lead } from '@/models/lead';
-import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
 
-interface ScoreSettings {
-  statusWeights: Record<string, number>;
-  campaignMultiplier: number;
-  engagementBonus: number;
-  decayFactor: number;
-}
+type LeadScore = 'hot' | 'warm' | 'cold';
 
-interface UseLeadScoringProps {
-  initialSettings?: Partial<ScoreSettings>;
-}
-
-export type LeadWithScore = Lead & { score: number };
-
-export function useLeadScoring({ initialSettings }: UseLeadScoringProps = {}) {
-  const [settings, setSettings] = useState<ScoreSettings>({
-    statusWeights: {
-      new: 10,
-      contacted: 30,
-      qualified: 60,
-      proposal: 80,
-      negotiation: 90,
-      closed: 100,
-      lost: 0
-    },
-    campaignMultiplier: 1.2,
-    engagementBonus: 15,
-    decayFactor: 0.95,
-    ...initialSettings
-  });
-
-  const calculateLeadScore = useCallback((lead: Lead): number => {
-    // Base score from status
-    const statusScore = settings.statusWeights[lead.status] || 0;
+export function useLeadScoring() {
+  /**
+   * Calculate a lead score based on various factors
+   */
+  const calculateLeadScore = (lead: Lead): number => {
+    let score = 0;
     
-    // Time decay factor (newer leads score higher)
-    const createdDate = new Date(lead.created_at);
-    const daysSinceCreation = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
-    const timeDecay = Math.pow(settings.decayFactor, daysSinceCreation);
+    // Factor 1: Lead status
+    if (lead.status === 'qualified') score += 30;
+    else if (lead.status === 'proposal') score += 40;
+    else if (lead.status === 'negotiation') score += 50;
+    else if (lead.status === 'client') score += 60;
+    else if (lead.status === 'contacted') score += 20;
+    else if (lead.status === 'new') score += 10;
+    // Lost leads get no score boost
     
-    // Final score calculation
-    let score = statusScore * timeDecay;
+    // Factor 2: Communication recency (would normally check comms)
+    const daysSinceCreation = Math.floor(
+      (new Date().getTime() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24)
+    );
     
-    // Apply campaign multiplier if from a high-performance campaign
-    if (lead.campaign_id) {
-      score *= settings.campaignMultiplier;
-    }
+    if (daysSinceCreation < 3) score += 20; // Very recent
+    else if (daysSinceCreation < 7) score += 15; // Within a week
+    else if (daysSinceCreation < 14) score += 10; // Within two weeks
+    else if (daysSinceCreation < 30) score += 5; // Within a month
     
-    return Math.round(score);
-  }, [settings]);
-
-  const scoreLeads = useCallback((leads: Lead[]): LeadWithScore[] => {
-    return leads.map(lead => ({
-      ...lead,
-      score: calculateLeadScore(lead)
-    }));
-  }, [calculateLeadScore]);
-
-  const updateLeadScores = useCallback(async (companyId: string): Promise<boolean> => {
-    try {
-      // Fetch all leads for the company
-      const { data: leads, error } = await supabase
-        .from('leads')
-        .select('*, campaigns(name)')
-        .eq('campaigns.company_id', companyId);
-
-      if (error) throw error;
-      
-      // Update scores for all leads (if there was a score field in the database)
-      // This is a simplified example - in a real app, you might store these scores
-      
-      toast.success('Lead scores updated successfully');
-      return true;
-    } catch (error) {
-      console.error('Error updating lead scores:', error);
-      toast.error('Failed to update lead scores');
-      return false;
-    }
-  }, [calculateLeadScore]);
-
-  const getLeadsByScore = useCallback((leads: Lead[], minScore: number = 50): LeadWithScore[] => {
-    const scoredLeads = scoreLeads(leads);
-    return scoredLeads.filter(lead => lead.score >= minScore);
-  }, [scoreLeads]);
-
-  const getTopLeads = useCallback((leads: Lead[], count: number = 5): LeadWithScore[] => {
-    const scoredLeads = scoreLeads(leads);
-    return scoredLeads
-      .sort((a, b) => b.score - a.score)
-      .slice(0, count);
-  }, [scoreLeads]);
-
-  // Update to make sure the getLeadScore function accepts a Lead object
-  const getLeadScore = useCallback((lead: Lead): 'hot' | 'warm' | 'cold' => {
-    const score = calculateLeadScore(lead);
-    if (score >= 70) return 'hot';
-    if (score >= 40) return 'warm';
+    // Factor 3: Has contact info
+    if (lead.email) score += 10;
+    if (lead.phone) score += 10;
+    
+    // Factor 4: Source (would normally check lead source)
+    if (lead.source === 'referral') score += 15;
+    else if (lead.source === 'website') score += 10;
+    else if (lead.source === 'linkedin') score += 12;
+    
+    return score;
+  };
+  
+  /**
+   * Get a categorical score (hot/warm/cold) for a lead
+   */
+  const getLeadScore = (lead: Lead): LeadScore => {
+    // Get or calculate the score
+    const score = lead.score || calculateLeadScore(lead);
+    
+    // Categorize the lead
+    if (score >= 60) return 'hot';
+    if (score >= 30) return 'warm';
     return 'cold';
-  }, [calculateLeadScore]);
-
-  // Make sure the getNextBestAction function accepts a Lead object
-  const getNextBestAction = useCallback((lead: Lead): string => {
+  };
+  
+  /**
+   * Determine the next best action for a lead based on their score and status
+   */
+  const getNextBestAction = (lead: Lead): string => {
     const score = getLeadScore(lead);
-    const status = lead.status;
-
+    
     if (score === 'hot') {
-      if (status === 'new') return 'Schedule a discovery call';
-      if (status === 'contacted') return 'Send a detailed proposal';
-      if (status === 'qualified') return 'Schedule a product demo';
-      if (status === 'proposal') return 'Follow up on the proposal';
-      if (status === 'negotiation') return 'Close the deal';
-      return 'Upsell additional services';
-    } else if (score === 'warm') {
-      if (status === 'new') return 'Send an introductory email';
-      if (status === 'contacted') return 'Share relevant case studies';
-      if (status === 'qualified') return 'Invite to a webinar';
-      return 'Nurture with periodic check-ins';
-    } else {
-      if (status === 'new') return 'Add to the newsletter list';
-      if (status === 'contacted') return 'Share valuable content';
-      return 'Keep in the nurture campaign';
+      if (lead.status === 'negotiation') return 'Schedule follow-up call';
+      if (lead.status === 'proposal') return 'Check in on proposal';
+      if (lead.status === 'qualified') return 'Send proposal';
+      return 'Prioritize for immediate contact';
     }
-  }, [getLeadScore]);
-
+    
+    if (score === 'warm') {
+      if (lead.status === 'contacted') return 'Schedule qualification call';
+      if (lead.status === 'new') return 'Make initial contact';
+      return 'Follow up within 3 days';
+    }
+    
+    // Cold leads
+    if (lead.status === 'new') return 'Send introduction email';
+    if (lead.status === 'contacted') return 'Add to nurture campaign';
+    return 'Add to newsletter list';
+  };
+  
   return {
     calculateLeadScore,
-    scoreLeads,
-    updateLeadScores,
-    getLeadsByScore,
-    getTopLeads,
-    settings,
-    setSettings,
     getLeadScore,
     getNextBestAction
   };
