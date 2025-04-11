@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { debateTopics } from '@/backend/debateManager';
 import { DebateTopic } from '@/utils/consultation/types';
 
@@ -13,14 +13,19 @@ export default function useDebateSetup() {
   const [businessPriority, setBusinessPriority] = useState<string>('growth');
   const [customTopics, setCustomTopics] = useState<DebateTopic[]>([]);
 
+  // Ensure debateTopics is an array
+  const predefinedTopics = useMemo(() => {
+    return Array.isArray(debateTopics) ? debateTopics : [];
+  }, []);
+
   // Combine predefined and custom topics
   const getAllDebateTopics = useCallback(() => {
-    // Ensure debateTopics is an array
-    const predefinedTopics = Array.isArray(debateTopics) ? debateTopics : [];
     return [...predefinedTopics, ...customTopics];
-  }, [customTopics]);
+  }, [predefinedTopics, customTopics]);
 
   const handleTopicChange = useCallback((value: string) => {
+    if (!value) return;
+    
     setSelectedTopic(value);
     
     // Check if this is a predefined topic

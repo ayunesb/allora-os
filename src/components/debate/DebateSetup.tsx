@@ -52,7 +52,9 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
   const [customTopic, setCustomTopic] = React.useState("");
   
   // Ensure debateTopics is always an array (even if empty)
-  const safeDebateTopics = Array.isArray(debateTopics) ? debateTopics : [];
+  const safeDebateTopics = React.useMemo(() => {
+    return Array.isArray(debateTopics) ? debateTopics : [];
+  }, [debateTopics]);
   
   // Combine predefined topics with custom topic if entered
   const allTopics = React.useMemo(() => {
@@ -97,6 +99,7 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
                 role="combobox"
                 aria-expanded={open}
                 className="w-full justify-between"
+                type="button"
               >
                 {getTopicDisplayValue()}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -109,10 +112,7 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
                   value={customTopic}
                   onValueChange={(value) => {
                     setCustomTopic(value);
-                    // If no match is found in predefined topics, create a custom topic
-                    if (value && !safeDebateTopics.some(t => t.topic.toLowerCase() === value.toLowerCase())) {
-                      handleSelectTopic(value);
-                    }
+                    // Don't automatically select when typing - wait for explicit selection
                   }}
                 />
                 <CommandEmpty>
@@ -127,23 +127,25 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
                     "No topic found."
                   )}
                 </CommandEmpty>
-                <CommandGroup>
-                  {safeDebateTopics.map((topic) => (
-                    <CommandItem
-                      key={topic.id}
-                      value={topic.id}
-                      onSelect={() => handleSelectTopic(topic.id)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedTopic === topic.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {topic.topic}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                {safeDebateTopics.length > 0 && (
+                  <CommandGroup>
+                    {safeDebateTopics.map((topic) => (
+                      <CommandItem
+                        key={topic.id}
+                        value={topic.id}
+                        onSelect={() => handleSelectTopic(topic.id)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            selectedTopic === topic.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {topic.topic}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
               </Command>
             </PopoverContent>
           </Popover>
