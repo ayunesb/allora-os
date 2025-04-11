@@ -8,6 +8,7 @@ type FeedbackType = 'positive' | 'negative';
 export function useAiLearning() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Submit feedback for a bot response
   const submitFeedback = useCallback(async (
@@ -190,10 +191,33 @@ export function useAiLearning() {
     }
   }, [user]);
   
+  // Track feedback - alias for submitFeedback to match the component's expected API
+  const trackFeedback = useCallback(async (
+    interactionId?: string,
+    messageId?: string,
+    botName: string,
+    botRole: string,
+    isPositive: boolean,
+    comment?: string,
+    metadata?: Record<string, any>
+  ) => {
+    return submitFeedback(
+      botName,
+      botRole,
+      isPositive,
+      interactionId,
+      messageId,
+      comment,
+      metadata?.topic ? [metadata.topic] : undefined
+    );
+  }, [submitFeedback]);
+  
   return {
     isSubmitting,
+    isLoading,
     submitFeedback,
     getLearningModel,
-    getFeedbackHistory
+    getFeedbackHistory,
+    trackFeedback
   };
 }

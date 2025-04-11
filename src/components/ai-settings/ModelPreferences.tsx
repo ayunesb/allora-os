@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { debounce } from 'lodash';
 
 export default function ModelPreferences() {
-  const { preferences, updatePreference, updatePreferences, isLoading } = useAiModelPreferences();
+  const { preferences, updatePreference, isLoading } = useAiModelPreferences();
   const [localPreferences, setLocalPreferences] = useState(preferences);
   const [selectedModel, setSelectedModel] = useState<AiModelType>(preferences.modelPreference);
   
@@ -40,7 +40,7 @@ export default function ModelPreferences() {
     // Optimistic UI update
     setLocalPreferences(prev => ({ ...prev, maxDebateParticipants: value[0] }));
     // Update server
-    updatePreferences({ maxDebateParticipants: value[0] });
+    updatePreference('maxDebateParticipants', value[0]);
   };
   
   const toggleDebate = (enabled: boolean) => {

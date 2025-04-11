@@ -64,18 +64,18 @@ export default function DashboardLeads() {
             setActiveFilter={setActiveFilter}
             selectedLeads={selectedLeads}
             handleLeadSelect={handleLeadSelect}
-            handleSelectAll={handleSelectAll}
+            handleSelectAll={(isSelected) => handleSelectAll(isSelected)}
             handleBulkStatusUpdate={handleBulkStatusUpdate}
             handleViewLead={handleViewLead}
             handleLeadStatusUpdate={handleLeadStatusUpdate}
             handleLeadDelete={handleLeadDelete}
             refetchLeads={refetchLeads}
-            sortBy={sortBy}
+            sortBy={sortBy as "name" | "created_at"}
             sortOrder={sortOrder}
             toggleSort={toggleSort}
             getLeadScore={getLeadScore}
             getNextBestAction={getNextBestAction}
-            campaigns={formattedCampaigns}
+            campaigns={formattedCampaigns.map(c => ({ id: c.value, name: c.label }))}
           />
           
           {selectedLead && (

@@ -13,6 +13,9 @@ export interface AiModelPreferences {
   enableVectorSearch: boolean;
   maxMemoryItems: number;
   lastUpdated: string;
+  // Add missing properties needed by ModelPreferences component
+  enableDebate: boolean;
+  maxDebateParticipants: number;
 }
 
 const defaultPreferences: AiModelPreferences = {
@@ -21,7 +24,10 @@ const defaultPreferences: AiModelPreferences = {
   enableLearning: true,
   enableVectorSearch: false,
   maxMemoryItems: 5,
-  lastUpdated: new Date().toISOString()
+  lastUpdated: new Date().toISOString(),
+  // Add default values for new properties
+  enableDebate: false,
+  maxDebateParticipants: 3
 };
 
 export function useAiModelPreferences() {
@@ -112,11 +118,24 @@ export function useAiModelPreferences() {
     return savePreferences(newPreferences);
   }, [preferences, savePreferences]);
   
+  // Update multiple preferences at once
+  const updatePreferences = useCallback((updates: Partial<AiModelPreferences>) => {
+    const newPreferences = {
+      ...preferences,
+      ...updates,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    setPreferences(newPreferences);
+    return savePreferences(newPreferences);
+  }, [preferences, savePreferences]);
+  
   return {
     preferences,
     setPreferences,
     savePreferences,
     updatePreference,
+    updatePreferences,
     isLoading,
     isSaving
   };

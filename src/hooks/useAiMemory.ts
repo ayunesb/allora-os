@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 export function useAiMemory() {
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [recentMemories, setRecentMemories] = useState([]);
   
   // Store an interaction in the database for future reference
   const storeInteraction = useCallback(async (
@@ -80,7 +81,6 @@ export function useAiMemory() {
       
       if (error) throw error;
       
-      // TODO: When vector search is implemented, replace with semantic search
       // For now, just return the most recent interactions
       return data || [];
     } catch (error) {
@@ -150,11 +150,34 @@ export function useAiMemory() {
     }
   }, [user]);
 
+  // Get learning insights from stored interactions
+  const getLearningInsights = useCallback(async () => {
+    if (!user?.id) return null;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('memory', {
+        body: {
+          action: 'get_learning_insights',
+          userId: user.id
+        }
+      });
+      
+      if (error) throw error;
+      
+      return data.insightsSummary || null;
+    } catch (error) {
+      console.error("Error getting learning insights:", error);
+      return null;
+    }
+  }, [user]);
+
   return {
     isProcessing,
+    recentMemories,
     storeInteraction,
     getRelevantMemories,
     getBotInteractions,
-    clearBotMemory
+    clearBotMemory,
+    getLearningInsights
   };
 }
