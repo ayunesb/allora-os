@@ -1,265 +1,189 @@
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
-import { Loader2, Video } from 'lucide-react';
-import { Button } from '../ui/button';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2, RefreshCw, Play, Volume2 } from 'lucide-react';
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { generateVideo, getVideoStatus, pollVideoStatus } from '@/utils/heygenHelpers';
-
-// Define possible states for the component
-type VideoState = 'loading' | 'error' | 'ready' | 'generating' | 'disabled';
+import { pollVideoStatus } from '@/utils/heygenHelpers';
 
 export default function WelcomeVideo() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [videoState, setVideoState] = useState<VideoState>('loading');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasWatched, setHasWatched] = useState(false);
+  const [showVideo, setShowVideo] = useState(true);
   const { user, profile } = useAuth();
-
+  
   useEffect(() => {
-    async function fetchWelcomeVideo() {
+    const fetchWelcomeVideo = async () => {
       if (!user?.id) return;
       
       try {
-        setVideoState('loading');
-        
-        // Check if we already have a video for this user
-        const { data: existingVideos, error: fetchError } = await supabase
+        // Check if user has a welcome video
+        const { data, error } = await supabase
           .from('generated_videos')
           .select('*')
           .eq('user_id', user.id)
-          .eq('status', 'completed')
+          .eq('video_type', 'welcome')
           .order('created_at', { ascending: false })
           .limit(1);
           
-        if (fetchError) throw fetchError;
+        if (error) throw error;
         
-        if (existingVideos && existingVideos.length > 0 && existingVideos[0].video_url) {
-          setVideoUrl(existingVideos[0].video_url);
-          setVideoState('ready');
-          return;
-        }
-        
-        // If no video exists, check if there's one being generated
-        const { data: processingVideos } = await supabase
-          .from('generated_videos')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('status', 'processing')
-          .order('created_at', { ascending: false })
-          .limit(1);
+        if (data && data.length > 0 && data[0].status === 'completed') {
+          setVideoUrl(data[0].video_url);
           
-        if (processingVideos && processingVideos.length > 0) {
-          setVideoState('generating');
-          
-          // Start polling for the video status
-          pollVideoStatus(processingVideos[0].video_id, (status, url) => {
+          // Check if user has watched this video
+          const { data: activity } = await supabase
+            .from('user_activity')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('activity_type', 'video_watched')
+            .eq('activity_data->video_id', data[0].id)
+            .limit(1);
+            
+          if (activity && activity.length > 0) {
+            setHasWatched(true);
+            setShowVideo(false);
+          }
+        } else if (data && data.length > 0 && data[0].status === 'processing') {
+          // If video is still processing, start polling for status
+          pollVideoStatus(data[0].video_id, (status, url) => {
             if (status === 'completed' && url) {
               setVideoUrl(url);
-              setVideoState('ready');
-            } else if (status === 'error') {
-              setVideoState('error');
-              setErrorMessage("Something went wrong generating your welcome video.");
-            }
-          });
-          return;
-        }
-        
-        // If no video exists, check if there's a failed attempt
-        const { data: failedVideos } = await supabase
-          .from('generated_videos')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('status', 'error')
-          .order('created_at', { ascending: false })
-          .limit(1);
-          
-        // If there was a recent failed attempt, don't automatically try again
-        if (failedVideos && failedVideos.length > 0) {
-          setVideoState('error');
-          setErrorMessage("Previous generation failed. You can try again if you'd like.");
-          return;
-        }
-        
-        // Check if the feature should be enabled
-        const { data: featureFlags } = await supabase
-          .from('feature_flags')
-          .select('*')
-          .eq('feature_name', 'welcome_video')
-          .eq('is_enabled', true)
-          .limit(1);
-          
-        if (!featureFlags || featureFlags.length === 0) {
-          // Feature is disabled
-          setVideoState('disabled');
-          return;
-        }
-        
-        // Generate a new video
-        setVideoState('generating');
-        
-        const companyName = profile?.company || 'your company';
-        const userName = profile?.name?.split(' ')[0] || 'there';
-        
-        const welcomeText = `Hello ${userName}! Welcome to Allora AI's Executive Advisory for ${companyName}. I'm excited to be your AI CEO and help you grow your business with strategies from our team of AI executives. Check out our recommendations in the dashboard and let's start growing your business today!`;
-        
-        const result = await generateVideo(
-          welcomeText,
-          'avatar_twinsen',  // Default avatar ID
-          'voice_1',         // Default voice ID
-          companyName
-        );
-        
-        if (!result.success) {
-          throw new Error(result.error || "Failed to generate video");
-        }
-        
-        // Video generation has started, now we need to wait
-        toast.success("Your personalized welcome video is being generated.");
-        
-        // Start polling for video completion
-        if (result.videoId) {
-          pollVideoStatus(result.videoId, (status, url) => {
-            if (status === 'completed' && url) {
-              setVideoUrl(url);
-              setVideoState('ready');
-            } else if (status === 'error' || status === 'timeout') {
-              setVideoState('error');
-              setErrorMessage("Something went wrong generating your welcome video.");
+              
+              // Update the video record in the database
+              supabase
+                .from('generated_videos')
+                .update({ 
+                  status: 'completed',
+                  video_url: url
+                })
+                .eq('id', data[0].id)
+                .then(() => console.log("Video record updated with URL"));
             }
           });
         }
-      } catch (err: any) {
-        console.error('Error generating welcome video:', err);
-        setErrorMessage("Unable to generate welcome video. The service might be temporarily unavailable.");
-        setVideoState('error');
+      } catch (error) {
+        console.error("Error fetching welcome video:", error);
+      } finally {
+        setIsLoading(false);
       }
-    }
+    };
     
     fetchWelcomeVideo();
-  }, [user?.id, profile]);
-
-  const handleRegenerateVideo = async () => {
-    if (!user?.id || !profile) return;
-    
-    setVideoState('generating');
-    setErrorMessage(null);
+  }, [user?.id]);
+  
+  const handleVideoWatched = async () => {
+    if (!user?.id || !videoUrl) return;
     
     try {
-      const companyName = profile.company || 'your company';
-      const userName = profile.name?.split(' ')[0] || 'there';
-      
-      const welcomeText = `Hello ${userName}! Welcome to Allora AI's Executive Advisory for ${companyName}. I'm excited to be your AI CEO and help you grow your business with strategies from our team of AI executives. Check out our recommendations in the dashboard and let's start growing your business today!`;
-      
-      const result = await generateVideo(
-        welcomeText,
-        'avatar_twinsen',  // Default avatar ID
-        'voice_1',         // Default voice ID
-        companyName
-      );
-      
-      if (!result.success) {
-        throw new Error(result.error || "Failed to generate video");
+      const { data } = await supabase
+        .from('generated_videos')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('video_type', 'welcome')
+        .order('created_at', { ascending: false })
+        .limit(1);
+        
+      if (data && data.length > 0) {
+        // Record that the user watched this video
+        await supabase
+          .from('user_activity')
+          .insert([
+            {
+              user_id: user.id,
+              activity_type: 'video_watched',
+              activity_data: { 
+                video_id: data[0].id,
+                video_type: 'welcome' 
+              }
+            }
+          ]);
+          
+        setHasWatched(true);
+        toast.success("Thanks for watching your personalized welcome message!");
       }
-      
-      toast.success("Your personalized welcome video is being generated.");
-      
-      // Start polling for video completion
-      if (result.videoId) {
-        pollVideoStatus(result.videoId, (status, url) => {
-          if (status === 'completed' && url) {
-            setVideoUrl(url);
-            setVideoState('ready');
-          } else if (status === 'error' || status === 'timeout') {
-            setVideoState('error');
-            setErrorMessage("Something went wrong generating your welcome video.");
-          }
-        });
-      }
-    } catch (err: any) {
-      console.error('Error regenerating welcome video:', err);
-      setErrorMessage("Unable to generate welcome video. The service might be temporarily unavailable.");
-      setVideoState('error');
+    } catch (error) {
+      console.error("Error recording video watched:", error);
     }
   };
-
-  // When disabled, return null to remove from the dashboard
-  if (videoState === 'disabled') {
+  
+  const handleDismiss = () => {
+    setShowVideo(false);
+  };
+  
+  // Hide the component if there's no video or user chose to dismiss
+  if (!showVideo || (!videoUrl && !isLoading)) {
     return null;
   }
-
-  if (videoState === 'loading') {
-    return (
-      <Card className="shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Your Personalized Welcome</CardTitle>
-          <CardDescription>Loading your personal message</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-6">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="mt-4 text-sm text-muted-foreground">Loading your personalized welcome video...</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (videoState === 'generating') {
-    return (
-      <Card className="shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Your Personalized Welcome</CardTitle>
-          <CardDescription>Our AI CEO is preparing a personal message for you</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-6">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="mt-4 text-sm text-muted-foreground">Generating your personalized welcome video...</p>
-          <p className="mt-2 text-xs text-muted-foreground">This may take a minute or two</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (videoState === 'error') {
-    return (
-      <Card className="shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Your Personalized Welcome</CardTitle>
-          <CardDescription>There was an issue with your welcome video</CardDescription>
-        </CardHeader>
-        <CardContent className="py-4">
-          <div className="flex flex-col items-center text-center">
-            <Video className="h-12 w-12 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground mb-4">{errorMessage || "Unable to generate welcome video. Please try again later."}</p>
-            <Button onClick={handleRegenerateVideo}>Try Again</Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  
   return (
-    <Card className="shadow-md">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Your Personalized Welcome</CardTitle>
-        <CardDescription>A personalized message from your AI executive team</CardDescription>
-      </CardHeader>
-      <CardContent className="p-0 overflow-hidden">
-        {videoUrl ? (
-          <div className="aspect-video w-full">
-            <video 
-              src={videoUrl} 
-              controls 
-              className="w-full h-full object-cover"
-              poster="/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png"
-              autoPlay
-            />
+    <Card className="shadow-md overflow-hidden bg-primary/5 animate-fadeIn">
+      <CardContent className="p-4">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+            <p className="text-muted-foreground">Preparing your personalized welcome...</p>
+          </div>
+        ) : videoUrl ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">
+                Welcome to Allora AI, {profile?.name?.split(' ')[0] || 'there'}!
+              </CardTitle>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleDismiss}
+                className="text-muted-foreground"
+              >
+                Dismiss
+              </Button>
+            </div>
+            
+            <div className="relative aspect-video rounded-md overflow-hidden">
+              <video 
+                src={videoUrl} 
+                className="w-full h-full object-cover" 
+                controls
+                onEnded={handleVideoWatched}
+                poster="/assets/video-thumbnail.jpg"
+              />
+              {!hasWatched && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Button 
+                    size="icon" 
+                    className="h-12 w-12 rounded-full bg-primary/90 hover:bg-primary"
+                    onClick={() => {
+                      const videoElement = document.querySelector('video');
+                      if (videoElement) {
+                        videoElement.play();
+                        handleVideoWatched();
+                      }
+                    }}
+                  >
+                    <Play className="h-6 w-6" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center p-6">
-            <Video className="h-12 w-12 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground">No welcome video available.</p>
-            <Button onClick={handleRegenerateVideo} className="mt-3">Generate Video</Button>
+          <div className="flex flex-col items-center justify-center p-8">
+            <p className="text-muted-foreground mb-2">
+              Welcome message is being generated...
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="gap-2"
+              onClick={() => window.location.reload()}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Check again
+            </Button>
           </div>
         )}
       </CardContent>

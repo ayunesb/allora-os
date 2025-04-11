@@ -1,145 +1,199 @@
 
 import { useState, useCallback } from 'react';
-import { supabase } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+
+type FeedbackType = 'positive' | 'negative';
 
 export function useAiLearning() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Track feedback on an AI response
-  const trackFeedback = useCallback(async (
-    interactionId: string | undefined,
-    messageId: string | undefined,
+  // Submit feedback for a bot response
+  const submitFeedback = useCallback(async (
     botName: string,
     botRole: string,
     isPositive: boolean,
+    interactionId?: string,
+    messageId?: string,
     comment?: string,
-    metadata: Record<string, any> = {}
+    topics?: string[]
   ) => {
-    if (!user?.id) return;
-    setIsLoading(true);
+    if (!user?.id) return false;
     
+    setIsSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('learning', {
-        body: {
-          action: 'track_feedback',
-          userId: user.id,
-          data: {
-            interactionId: interactionId || `interaction-${Date.now()}`,
-            messageId: messageId || `message-${Date.now()}`,
-            botName,
-            botRole,
-            isPositive,
-            comment,
-            metadata
+      // Insert the feedback record
+      const { error } = await supabase
+        .from('user_feedback')
+        .insert([{
+          user_id: user.id,
+          bot_name: botName,
+          bot_role: botRole,
+          is_positive: isPositive,
+          interaction_id: interactionId,
+          message_id: messageId,
+          comment,
+          metadata: { 
+            topics,
+            timestamp: new Date().toISOString() 
           }
-        }
-      });
+        }]);
       
       if (error) throw error;
       
-      toast.success(isPositive ? 'Positive feedback recorded' : 'Feedback recorded');
-      return data;
+      // Update the learning model
+      await updateLearningModel(
+        botName,
+        botRole,
+        isPositive ? 'positive' : 'negative',
+        topics
+      );
+      
+      return true;
     } catch (error) {
-      console.error('Error tracking feedback:', error);
-      toast.error('Failed to record feedback');
+      console.error("Error submitting feedback:", error);
+      return false;
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   }, [user]);
-
-  // Get the learning model for a specific bot
+  
+  // Update the learning model for a bot
+  const updateLearningModel = useCallback(async (
+    botName: string,
+    botRole: string,
+    feedbackType: FeedbackType,
+    topics?: string[]
+  ) => {
+    try {
+      // First, check if a learning model exists for this bot
+      const { data, error } = await supabase
+        .from('learning_models')
+        .select('*')
+        .eq('bot_name', botName)
+        .eq('bot_role', botRole)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') { // Not found
+        throw error;
+      }
+      
+      // Update counters based on feedback type
+      const counters = feedbackType === 'positive' 
+        ? { positive_feedback_count: (data?.positive_feedback_count || 0) + 1 }
+        : { negative_feedback_count: (data?.negative_feedback_count || 0) + 1 };
+      
+      // Update topic scores
+      let topicsObj = data?.topics || {};
+      
+      if (topics && topics.length > 0) {
+        topics.forEach(topic => {
+          if (!topicsObj[topic]) {
+            topicsObj[topic] = { positive: 0, negative: 0 };
+          }
+          
+          if (feedbackType === 'positive') {
+            topicsObj[topic].positive += 1;
+          } else {
+            topicsObj[topic].negative += 1;
+          }
+        });
+      }
+      
+      // If model exists, update it
+      if (data) {
+        await supabase
+          .from('learning_models')
+          .update({
+            ...counters,
+            topics: topicsObj,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', data.id);
+      } else {
+        // Create a new model
+        await supabase
+          .from('learning_models')
+          .insert([{
+            bot_name: botName,
+            bot_role: botRole,
+            positive_feedback_count: feedbackType === 'positive' ? 1 : 0,
+            negative_feedback_count: feedbackType === 'negative' ? 1 : 0,
+            topics: topicsObj
+          }]);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error updating learning model:", error);
+      return false;
+    }
+  }, []);
+  
+  // Get the learning model for a bot
   const getLearningModel = useCallback(async (
     botName: string,
     botRole: string
   ) => {
-    setIsLoading(true);
-    
     try {
-      const { data, error } = await supabase.functions.invoke('learning', {
-        body: {
-          action: 'get_learning_model',
-          userId: user?.id || 'anonymous',
-          data: {
-            botName,
-            botRole
-          }
+      const { data, error } = await supabase
+        .from('learning_models')
+        .select('*')
+        .eq('bot_name', botName)
+        .eq('bot_role', botRole)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') { // Not found
+          return null;
         }
-      });
+        throw error;
+      }
       
-      if (error) throw error;
-      
-      return data.model;
-    } catch (error) {
-      console.error('Error getting learning model:', error);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
-
-  // Get user preferences based on learning
-  const getUserPreferences = useCallback(async () => {
-    if (!user?.id) return null;
-    setIsLoading(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('learning', {
-        body: {
-          action: 'get_user_preferences',
-          userId: user.id,
-          data: {}
-        }
-      });
-      
-      if (error) throw error;
-      
-      return data.preferences;
-    } catch (error) {
-      console.error('Error getting user preferences:', error);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
-
-  // Update user preferences explicitly
-  const updateUserPreferences = useCallback(async (
-    preferences: Record<string, any>
-  ) => {
-    if (!user?.id) return;
-    setIsLoading(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('learning', {
-        body: {
-          action: 'update_user_preferences',
-          userId: user.id,
-          data: {
-            preferences
-          }
-        }
-      });
-      
-      if (error) throw error;
-      
-      toast.success('Preferences updated');
       return data;
     } catch (error) {
-      console.error('Error updating preferences:', error);
-      toast.error('Failed to update preferences');
-    } finally {
-      setIsLoading(false);
+      console.error("Error retrieving learning model:", error);
+      return null;
+    }
+  }, []);
+  
+  // Get feedback history for a bot
+  const getFeedbackHistory = useCallback(async (
+    botName: string,
+    botRole?: string,
+    limit: number = 10
+  ) => {
+    if (!user?.id) return [];
+    
+    try {
+      let query = supabase
+        .from('user_feedback')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('bot_name', botName)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+        
+      if (botRole) {
+        query = query.eq('bot_role', botRole);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      return data || [];
+    } catch (error) {
+      console.error("Error retrieving feedback history:", error);
+      return [];
     }
   }, [user]);
-
+  
   return {
-    isLoading,
-    trackFeedback,
+    isSubmitting,
+    submitFeedback,
     getLearningModel,
-    getUserPreferences,
-    updateUserPreferences
+    getFeedbackHistory
   };
 }

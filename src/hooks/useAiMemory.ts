@@ -1,152 +1,160 @@
 
 import { useState, useCallback } from 'react';
-import { supabase } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
 
 export function useAiMemory() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [recentMemories, setRecentMemories] = useState<any[]>([]);
-
-  // Store an interaction in memory
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Store an interaction in the database for future reference
   const storeInteraction = useCallback(async (
     botName: string,
     botRole: string,
-    userMessage: string,
+    userMessage: string, 
     botResponse: string,
     metadata: Record<string, any> = {}
   ) => {
-    if (!user?.id) return;
-    setIsLoading(true);
+    if (!user?.id) return false;
     
+    setIsProcessing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('memory', {
-        body: {
-          action: 'store_interaction',
-          userId: user.id,
-          data: {
-            botName,
-            botRole,
-            userMessage,
-            botResponse,
-            metadata
-          }
-        }
-      });
+      // Store the interaction in the database
+      const { error } = await supabase
+        .from('bot_interactions')
+        .insert([{
+          user_id: user.id,
+          bot_name: botName,
+          bot_role: botRole,
+          user_message: userMessage,
+          bot_response: botResponse,
+          metadata
+        }]);
       
       if (error) throw error;
-      console.log('Interaction stored successfully');
-      return data;
+      
+      return true;
     } catch (error) {
-      console.error('Error storing interaction:', error);
-      toast.error('Failed to store interaction in memory');
+      console.error("Error storing interaction:", error);
+      return false;
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   }, [user]);
-
-  // Get relevant memories based on context
+  
+  // Get relevant memories based on semantic search
   const getRelevantMemories = useCallback(async (
-    query: string,
-    botName: string,
-    botRole: string,
+    userMessage: string,
+    botName?: string,
+    botRole?: string,
     limit: number = 5
   ) => {
     if (!user?.id) return [];
-    setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('memory', {
-        body: {
-          action: 'get_relevant_memory',
-          userId: user.id,
-          data: {
-            query,
-            botName,
-            botRole,
-            limit
-          }
-        }
+      // First, get embedding for the user's message
+      const { data: embedding, error: embeddingError } = await supabase.functions.invoke('get-embedding', {
+        body: { text: userMessage }
       });
+      
+      if (embeddingError) throw embeddingError;
+      
+      // Build the query to search for relevant memories
+      let query = supabase
+        .from('bot_interactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+        
+      // Add bot filters if provided
+      if (botName) {
+        query = query.eq('bot_name', botName);
+      }
+      
+      if (botRole) {
+        query = query.eq('bot_role', botRole);
+      }
+      
+      // Execute the query
+      const { data, error } = await query.limit(limit);
       
       if (error) throw error;
       
-      setRecentMemories(data.memories || []);
-      return data.memories || [];
+      // TODO: When vector search is implemented, replace with semantic search
+      // For now, just return the most recent interactions
+      return data || [];
     } catch (error) {
-      console.error('Error retrieving memories:', error);
-      toast.error('Failed to retrieve relevant memories');
+      console.error("Error retrieving relevant memories:", error);
       return [];
-    } finally {
-      setIsLoading(false);
     }
   }, [user]);
-
-  // Provide feedback on an interaction
-  const provideFeedback = useCallback(async (
-    interactionId: string,
-    feedback: 'positive' | 'negative' | null,
+  
+  // Get all interactions with a specific bot
+  const getBotInteractions = useCallback(async (
+    botName: string,
+    botRole?: string,
+    limit: number = 20
   ) => {
-    if (!user?.id) return;
-    setIsLoading(true);
+    if (!user?.id) return [];
     
     try {
-      const { data, error } = await supabase.functions.invoke('memory', {
-        body: {
-          action: 'update_feedback',
-          userId: user.id,
-          data: {
-            interactionId,
-            feedback
-          }
-        }
-      });
+      let query = supabase
+        .from('bot_interactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('bot_name', botName)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+        
+      if (botRole) {
+        query = query.eq('bot_role', botRole);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       
-      toast.success('Feedback recorded');
-      return data;
+      return data || [];
     } catch (error) {
-      console.error('Error updating feedback:', error);
-      toast.error('Failed to record feedback');
-    } finally {
-      setIsLoading(false);
+      console.error("Error retrieving bot interactions:", error);
+      return [];
     }
   }, [user]);
-
-  // Get learning insights
-  const getLearningInsights = useCallback(async () => {
-    if (!user?.id) return null;
-    setIsLoading(true);
+  
+  // Clear all stored interactions with a specific bot
+  const clearBotMemory = useCallback(async (
+    botName: string,
+    botRole?: string
+  ) => {
+    if (!user?.id) return false;
     
     try {
-      const { data, error } = await supabase.functions.invoke('memory', {
-        body: {
-          action: 'get_learning_insights',
-          userId: user.id,
-          data: {}
-        }
-      });
+      let query = supabase
+        .from('bot_interactions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('bot_name', botName);
+        
+      if (botRole) {
+        query = query.eq('bot_role', botRole);
+      }
+      
+      const { error } = await query;
       
       if (error) throw error;
       
-      return data.insightsSummary;
+      return true;
     } catch (error) {
-      console.error('Error getting learning insights:', error);
-      toast.error('Failed to retrieve learning insights');
-      return null;
-    } finally {
-      setIsLoading(false);
+      console.error("Error clearing bot memory:", error);
+      return false;
     }
   }, [user]);
 
   return {
-    isLoading,
-    recentMemories,
+    isProcessing,
     storeInteraction,
     getRelevantMemories,
-    provideFeedback,
-    getLearningInsights
+    getBotInteractions,
+    clearBotMemory
   };
 }

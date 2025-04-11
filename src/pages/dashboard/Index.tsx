@@ -11,6 +11,7 @@ import { UpcomingZoomMeeting } from "@/components/dashboard/UpcomingZoomMeeting"
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useEnhancedAiChat } from "@/hooks/useEnhancedAiChat";
 
 export default function Dashboard() {
   const {
@@ -22,6 +23,7 @@ export default function Dashboard() {
   } = useDashboardData();
   
   const { user, profile } = useAuth();
+  const { messages, generateResponse } = useEnhancedAiChat();
   
   // Auto-generate initial dashboard and track first visit
   useEffect(() => {
@@ -72,6 +74,25 @@ export default function Dashboard() {
             
             if (genError) console.error("Error generating initial strategies:", genError);
           }
+          
+          // Prepare welcome message using AI
+          try {
+            const welcomePrompt = `Welcome ${profile.name || 'there'} to Allora AI. 
+            They are in the ${profile.industry || 'technology'} industry and have a ${profile.risk_appetite || 'medium'} risk appetite. 
+            Create a brief, friendly welcome message highlighting 3 key benefits of using Allora AI for business strategy.`;
+            
+            generateResponse(
+              'AI CEO',
+              'Executive Business Advisor',
+              welcomePrompt,
+              false, // Don't include memory for first interaction
+              false // Don't include learning context for first interaction
+            ).then(response => {
+              console.log("Generated welcome message:", response);
+            });
+          } catch (aiError) {
+            console.error("Error generating welcome message:", aiError);
+          }
         }
       } catch (error) {
         console.error("Error tracking first dashboard visit:", error);
@@ -79,7 +100,7 @@ export default function Dashboard() {
     };
     
     trackFirstVisit();
-  }, [user?.id, profile]);
+  }, [user?.id, profile, generateResponse]);
   
   // For initial loading state
   if (isLoading) {
