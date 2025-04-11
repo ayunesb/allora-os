@@ -28,10 +28,10 @@ export default function Dashboard() {
     <div className="min-h-screen space-y-8">
       <DashboardHeader pendingApprovals={pendingApprovals} />
       
-      {/* Welcome Video - New addition */}
+      {/* Welcome Video - Component now handles its own visibility */}
       <WelcomeVideo />
       
-      {/* Upcoming Zoom Meeting - New addition */}
+      {/* Upcoming Zoom Meeting */}
       <UpcomingZoomMeeting />
       
       {/* CEO Strategy Summary */}
