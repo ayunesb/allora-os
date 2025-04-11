@@ -64,7 +64,7 @@ export default function DashboardLeads() {
             setActiveFilter={setActiveFilter}
             selectedLeads={selectedLeads}
             handleLeadSelect={handleLeadSelect}
-            handleSelectAll={handleSelectAll}
+            handleSelectAll={(leads, isSelected) => handleSelectAll(isSelected)}
             handleBulkStatusUpdate={handleBulkStatusUpdate}
             handleViewLead={handleViewLead}
             handleLeadStatusUpdate={handleLeadStatusUpdate}
