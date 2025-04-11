@@ -1,10 +1,11 @@
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 
 export type Profile = {
   id: string;
-  user_id: string;
+  user_id?: string;
   email?: string;
   username?: string;
   full_name?: string;
@@ -62,17 +63,23 @@ export function useAuthState() {
     
     setIsProfileLoading(true);
     try {
+      console.log("Loading profile for user ID:", userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Profile loading error:", error);
+        throw error;
+      }
       
       if (data) {
+        console.log("Profile loaded successfully:", data);
         setProfile(data as Profile);
       } else {
+        console.log("No profile data found");
         setProfile(null);
       }
     } catch (error) {
@@ -92,7 +99,7 @@ export function useAuthState() {
       const { error } = await supabase
         .from('profiles')
         .update({ last_activity: now })
-        .eq('user_id', user.id);
+        .eq('id', user.id);
 
       if (error) throw error;
       

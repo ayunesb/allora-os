@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAuthState } from '@/hooks/useAuthState';
+import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { updateUserProfile } from '@/utils/profileHelpers';
 import { ApiKeys, ProfileFormData } from '@/components/profile/ProfileForm';
 import { useAvatarUpload } from './useAvatarUpload';
 
 export function useProfileForm() {
-  const { user, profile } = useAuthState();
+  const { user, profile, refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [personalApiKeys, setPersonalApiKeys] = useState<ApiKeys>({
     stripe: '',
@@ -17,7 +17,7 @@ export function useProfileForm() {
     heygen: ''
   });
   
-  // Use the new avatar upload hook
+  // Use the avatar upload hook
   const { 
     avatarUrl, 
     setAvatarUrl, 
@@ -45,6 +45,7 @@ export function useProfileForm() {
 
   // Load profile data
   useEffect(() => {
+    console.log("useProfileForm - Loading profile data:", profile);
     if (profile) {
       reset({
         name: profile.name || '',
@@ -64,16 +65,27 @@ export function useProfileForm() {
       
       // Load personal API keys if they exist
       if (profile.personal_api_keys) {
-        const keys = typeof profile.personal_api_keys === 'string' 
-          ? JSON.parse(profile.personal_api_keys) 
-          : profile.personal_api_keys;
-        
-        setPersonalApiKeys({
-          stripe: keys.stripe || '',
-          twilio_sid: keys.twilio_sid || '',
-          twilio_token: keys.twilio_token || '',
-          heygen: keys.heygen || ''
-        });
+        try {
+          const keys = typeof profile.personal_api_keys === 'string' 
+            ? JSON.parse(profile.personal_api_keys) 
+            : profile.personal_api_keys;
+          
+          setPersonalApiKeys({
+            stripe: keys.stripe || '',
+            twilio_sid: keys.twilio_sid || '',
+            twilio_token: keys.twilio_token || '',
+            heygen: keys.heygen || ''
+          });
+        } catch (error) {
+          console.error('Error parsing personal API keys:', error);
+          // Set default empty values if parsing fails
+          setPersonalApiKeys({
+            stripe: '',
+            twilio_sid: '',
+            twilio_token: '',
+            heygen: ''
+          });
+        }
       }
     }
   }, [profile, user, reset, setAvatarUrl]);
@@ -84,6 +96,8 @@ export function useProfileForm() {
     setIsLoading(true);
     
     try {
+      console.log("Updating profile with data:", data);
+      
       // Update profile data including personal API keys
       const success = await updateUserProfile(user.id, {
         name: data.name,
@@ -114,6 +128,9 @@ export function useProfileForm() {
           });
         }
       }
+      
+      // Refresh profile data after update
+      await refreshProfile();
       
       toast.success('Profile updated successfully');
     } catch (error) {

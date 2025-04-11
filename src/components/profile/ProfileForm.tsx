@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useProfileForm } from '@/hooks/useProfileForm';
-import { useAuthState } from '@/hooks/useAuthState';
+import { useAuth } from '@/context/AuthContext';
 import ProfileAvatar from './ProfileAvatar';
 import PersonalInfoForm from './PersonalInfoForm';
 import ApiKeysSection from './ApiKeysSection';
@@ -32,7 +32,7 @@ export type ApiKeys = {
 }
 
 const ProfileForm: React.FC = () => {
-  const { user, profile } = useAuthState();
+  const { user, profile } = useAuth();
   const { 
     isLoading,
     isDirty,
@@ -48,6 +48,10 @@ const ProfileForm: React.FC = () => {
     reset,
     onSubmit
   } = useProfileForm();
+
+  useEffect(() => {
+    console.log("ProfileForm - Current profile data:", profile);
+  }, [profile]);
 
   return (
     <Card className="w-full">

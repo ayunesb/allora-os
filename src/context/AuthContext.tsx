@@ -95,6 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Refresh user profile
   const refreshProfile = async () => {
     if (user) {
+      console.log("Refreshing profile for user:", user.id);
       await loadUserProfile(user.id);
       return true;
     }

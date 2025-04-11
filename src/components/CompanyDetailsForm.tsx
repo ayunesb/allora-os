@@ -14,21 +14,43 @@ import { toast } from "sonner";
 import { updateCompanyDetails } from "@/utils/company";
 import { PartialCompanyDetails } from "@/models/companyDetails";
 import { CompanyDetailsSurvey } from "@/components/onboarding/company-details";
+import { fetchUserCompany } from "@/utils/companyHelpers";
 
 export default function CompanyDetailsForm() {
   const { user, profile, refreshProfile } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Load company details when profile changes
   useEffect(() => {
-    if (profile?.company_id) {
-      // In a real app, you would fetch the company details from the database
-      // For now, we'll just use an empty object
-      setCompanyDetails({});
+    async function loadCompanyData() {
+      if (!profile?.company_id) {
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        console.log("Loading company details for company ID:", profile.company_id);
+        const company = await fetchUserCompany(user?.id || '');
+        
+        if (company) {
+          console.log("Company details loaded:", company);
+          // If company has details property, use that for additional details
+          const additionalDetails = company.details || {};
+          setCompanyDetails(additionalDetails);
+        }
+      } catch (error) {
+        console.error("Error loading company details:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [profile]);
+    
+    loadCompanyData();
+  }, [profile, user]);
 
   const updateCompanyDetailsState = (details: PartialCompanyDetails) => {
     setCompanyDetails({ ...companyDetails, ...details });
@@ -60,8 +82,8 @@ export default function CompanyDetailsForm() {
         description: companyDetails.description || "",
         mission: companyDetails.mission || "",
         vision: companyDetails.vision || "",
-        headquarters: "",
-        phone: "",
+        headquarters: companyDetails.headquarters || "",
+        phone: companyDetails.phone || "",
         additionalDetails: companyDetails
       });
 
@@ -82,6 +104,22 @@ export default function CompanyDetailsForm() {
       setIsUpdating(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Company Details</CardTitle>
+          <CardDescription>Loading company information...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-40 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
