@@ -5,17 +5,21 @@ import {
   Accordion,
 } from "@/components/ui/accordion";
 import * as Sections from './sections';
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 type CompanyDetailsSurveyProps = {
   companyDetails: PartialCompanyDetails;
   updateCompanyDetails: (details: PartialCompanyDetails) => void;
   error?: string;
+  onNext?: () => void;
 }
 
 export default function CompanyDetailsSurvey({ 
   companyDetails, 
   updateCompanyDetails,
-  error 
+  error,
+  onNext 
 }: CompanyDetailsSurveyProps) {
   
   // Generic handler for updating string fields
@@ -54,6 +58,12 @@ export default function CompanyDetailsSurvey({
     }
   };
 
+  const handleSaveAndContinue = () => {
+    if (onNext) {
+      onNext();
+    }
+  };
+
   // Common props for all section components
   const sectionProps = {
     companyDetails,
@@ -87,8 +97,15 @@ export default function CompanyDetailsSurvey({
         <Sections.SpecialInfo {...sectionProps} />
       </Accordion>
       
-      <div className="text-sm text-muted-foreground italic mt-4">
-        <p>* You can continue with basic information only and update these details later.</p>
+      <div className="flex justify-between items-center mt-6">
+        <div className="text-sm text-muted-foreground italic">
+          <p>* You can continue with basic information only and update these details later.</p>
+        </div>
+        
+        <Button onClick={handleSaveAndContinue} className="gap-2">
+          Save & Continue
+          <ArrowRight className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );

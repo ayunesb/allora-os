@@ -44,13 +44,11 @@ export default function Onboarding() {
   const [isCompleting, setIsCompleting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Check if user has already completed onboarding
   useEffect(() => {
     let isMounted = true;
     
     const checkStatus = async () => {
       if (!user && retryCount < 3) {
-        // Wait a bit and retry if user is not loaded yet
         setTimeout(() => {
           if (isMounted) {
             setRetryCount(prev => prev + 1);
@@ -61,7 +59,6 @@ export default function Onboarding() {
       
       if (!user) {
         if (hasInitialized) {
-          // If we've fully initialized and still don't have a user, redirect to login
           toast.error("You must be logged in to complete onboarding");
           navigate("/login");
         }
@@ -110,19 +107,14 @@ export default function Onboarding() {
     setIsCompleting(true);
     
     try {
-      // Check for user authentication
       if (!user) {
         throw new Error("User authentication required. Please try logging in again.");
       }
       
       console.log("Current profile state:", profile);
       
-      // Check if we have a company ID
-      // If profile doesn't have company_id but has company name, we may need to create the company first
       if (!profile?.company_id && profile?.company) {
         console.log("Creating company for user before completing onboarding");
-        // Here we would call a function to create the company first, but in this simplified flow,
-        // we'll just throw an error
         throw new Error("Company setup incomplete. Please go back to step 1.");
       }
       
@@ -134,9 +126,8 @@ export default function Onboarding() {
         throw new Error("Please select an industry before continuing.");
       }
 
-      // Add communication preferences to company details before completing
       const enhancedDetails = {
-        whatsAppEnabled: true, // Using the checkbox values from ExecutiveTeamIntro
+        whatsAppEnabled: true,
         emailEnabled: true,
         executiveTeamEnabled
       };
@@ -148,7 +139,6 @@ export default function Onboarding() {
         enhancedDetails
       });
       
-      // First refresh the profile to ensure we have the latest data
       await refreshProfile();
       
       const result = await completeOnboarding(
@@ -172,12 +162,10 @@ export default function Onboarding() {
     }
   };
 
-  // Show loading state
   if (isAuthLoading || isCheckingStatus) {
     return <AuthLoadingState />;
   }
 
-  // If we've retried 3 times and still no user, show refresh button
   if (retryCount >= 3 && !user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -234,6 +222,7 @@ export default function Onboarding() {
           <CompanyDetailsSurvey
             companyDetails={companyDetails}
             updateCompanyDetails={updateCompanyDetails}
+            onNext={handleNext}
           />
         );
       case 5:
