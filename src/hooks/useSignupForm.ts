@@ -76,6 +76,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
     try {
       // Store the email in sessionStorage for verification page access
       sessionStorage.setItem('signupEmail', data.email);
+      console.log("Starting signup process for:", data.email);
       
       // Sign up the user with Supabase Auth
       const signUpResult = await signUp(data.email, data.password);
@@ -95,6 +96,8 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
 
       // Store user metadata for profile creation
       if (signUpResult.user) {
+        console.log("User created successfully:", signUpResult.user.id);
+        
         // Update user metadata with name and company info
         const { error: updateError } = await supabase.auth.updateUser({
           data: {
@@ -113,6 +116,10 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
           const { saveCompanyInfo } = await import('@/utils/profileHelpers');
           await saveCompanyInfo(signUpResult.user.id, data.company, data.industry);
         }
+        
+        // Set a flag in sessionStorage to indicate this is a new user for onboarding
+        sessionStorage.setItem('newUserSignup', 'true');
+        sessionStorage.setItem('pendingOnboardingUserId', signUpResult.user.id);
         
         toast.success("Account created successfully!");
         

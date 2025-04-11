@@ -8,6 +8,7 @@ import SignupLayout from "@/components/auth/SignupLayout";
 import { LegalAcceptanceModal } from "@/components/auth/LegalAcceptanceModal";
 import { User } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Signup() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,7 +24,14 @@ export default function Signup() {
       const email = sessionStorage.getItem('signupEmail') || "";
       setUserEmail(email);
     }
-  }, [isSubmitted]);
+
+    // Check if user was redirected from email verification
+    const emailVerified = new URLSearchParams(window.location.search).get('emailVerified');
+    if (emailVerified === 'true') {
+      toast.success("Email verified successfully! Please log in.");
+      navigate('/login');
+    }
+  }, [isSubmitted, navigate]);
 
   const handleSubmitSuccess = (user: User) => {
     if (!user) {
@@ -31,6 +39,7 @@ export default function Signup() {
       return;
     }
     
+    console.log("Signup success, user:", user.id);
     setNewUser(user);
     setShowLegalModal(true);
     setSignupError(null);
@@ -45,13 +54,11 @@ export default function Signup() {
     setShowLegalModal(false);
     setIsSubmitted(true);
     
-    // After legal acceptance and email verification view, navigate to onboarding
-    // This is a fallback, as the actual navigation should happen in EmailVerificationView
-    setTimeout(() => {
-      if (newUser) {
-        navigate("/onboarding");
-      }
-    }, 2000);
+    // Store a flag that this is a new user that needs onboarding
+    sessionStorage.setItem('newUserSignup', 'true');
+    
+    // After legal acceptance, show verification screen but also prepare for onboarding
+    console.log("Legal acceptance completed. User will be redirected to onboarding after verification.");
   };
 
   if (isSubmitted) {
@@ -59,7 +66,9 @@ export default function Signup() {
       <SignupLayout>
         <EmailVerificationView 
           email={userEmail} 
-          onTryAgain={handleTryAgain} 
+          onTryAgain={handleTryAgain}
+          isNewSignup={true}
+          userId={newUser?.id}
         />
       </SignupLayout>
     );

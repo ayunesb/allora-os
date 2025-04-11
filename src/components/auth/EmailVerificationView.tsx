@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Mail } from "lucide-react";
@@ -10,14 +10,27 @@ import { useNavigate } from "react-router-dom";
 interface EmailVerificationViewProps {
   email: string;
   onTryAgain?: () => void;
+  isNewSignup?: boolean;
+  userId?: string;
 }
 
 export default function EmailVerificationView({ 
   email, 
-  onTryAgain 
+  onTryAgain,
+  isNewSignup = false,
+  userId
 }: EmailVerificationViewProps) {
   const [isResending, setIsResending] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // If this is a new signup, we'll set a flag to redirect to onboarding
+    if (isNewSignup && userId) {
+      console.log("New signup detected in EmailVerificationView, will redirect to onboarding");
+      sessionStorage.setItem('newUserSignup', 'true');
+      sessionStorage.setItem('pendingOnboardingUserId', userId);
+    }
+  }, [isNewSignup, userId]);
 
   const handleResendEmail = async () => {
     if (!email) {
@@ -48,6 +61,7 @@ export default function EmailVerificationView({
   };
 
   const handleGoToOnboarding = () => {
+    console.log("Redirecting to onboarding from EmailVerificationView");
     navigate("/onboarding");
   };
 
@@ -98,15 +112,17 @@ export default function EmailVerificationView({
             Sign In
           </Button>
         </div>
-        <div className="w-full">
-          <Button 
-            variant="link" 
-            className="w-full text-muted-foreground"
-            onClick={handleGoToOnboarding}
-          >
-            Skip verification for now
-          </Button>
-        </div>
+        {isNewSignup && (
+          <div className="w-full">
+            <Button 
+              variant="link" 
+              className="w-full text-muted-foreground"
+              onClick={handleGoToOnboarding}
+            >
+              Skip verification for now
+            </Button>
+          </div>
+        )}
         
         {onTryAgain && (
           <Button 
