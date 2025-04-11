@@ -16,6 +16,7 @@ import { executiveBots } from "@/backend/executiveBots";
 import { useToast } from "@/components/ui/use-toast";
 import { scrollToBottom } from "@/utils/scrollHelpers";
 import { DebateSession, DebateMessage } from "@/hooks/useExecutiveDebate";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ExecutiveDebateModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export default function ExecutiveDebateModal({
 }: ExecutiveDebateModalProps) {
   const { toast } = useToast();
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = React.useState<string>("debate");
   
   // Scroll to the bottom whenever new messages come in
   React.useEffect(() => {
@@ -202,59 +204,71 @@ export default function ExecutiveDebateModal({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex-1 overflow-y-auto py-4 pr-2">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-10">
-              <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
-              <p className="text-lg font-medium">Gathering your executive team...</p>
-              <p className="text-sm text-muted-foreground text-center mt-2">
-                Our AI is simulating a debate among top executives about your strategy.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="space-y-6">
-                {debateMessages.map((message, index) => {
-                  const isEven = index % 2 === 0;
-                  return (
-                    <div 
-                      key={message.id} 
-                      className={`flex ${isEven ? 'justify-start' : 'justify-end'}`}
-                    >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="mb-2">
+            <TabsTrigger value="debate">Debate</TabsTrigger>
+            <TabsTrigger value="consensus">Consensus</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="debate" className="flex-1 overflow-hidden flex flex-col">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-10">
+                <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
+                <p className="text-lg font-medium">Gathering your executive team...</p>
+                <p className="text-sm text-muted-foreground text-center mt-2">
+                  Our AI is simulating a debate among top executives about your strategy.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6 overflow-y-auto py-4 pr-2 flex-1">
+                <div className="space-y-6">
+                  {debateMessages.map((message, index) => {
+                    const isEven = index % 2 === 0;
+                    return (
                       <div 
-                        className={`flex ${isEven ? 'flex-row' : 'flex-row-reverse'} gap-3 max-w-[80%]`}
+                        key={message.id} 
+                        className={`flex ${isEven ? 'justify-start' : 'justify-end'}`}
                       >
-                        <Avatar className="h-10 w-10 border-2 border-primary/30">
-                          <AvatarImage src={message.executive.avatar} alt={message.sender} />
-                          <AvatarFallback>{message.sender[0]}</AvatarFallback>
-                        </Avatar>
-                        
-                        <div>
-                          <div 
-                            className={`rounded-lg p-4 mb-1 
-                              ${isEven 
-                                ? 'bg-primary/10 border border-primary/20 rounded-tl-none' 
-                                : 'bg-secondary/10 border border-secondary/20 rounded-tr-none'
-                              }`}
-                          >
-                            <p className="text-sm">{message.content}</p>
-                          </div>
+                        <div 
+                          className={`flex ${isEven ? 'flex-row' : 'flex-row-reverse'} gap-3 max-w-[80%]`}
+                        >
+                          <Avatar className="h-10 w-10 border-2 border-primary/30">
+                            <AvatarImage src={message.executive.avatar} alt={message.sender} />
+                            <AvatarFallback>{message.sender[0]}</AvatarFallback>
+                          </Avatar>
                           
-                          <div 
-                            className={`flex items-center text-xs text-muted-foreground gap-2
-                              ${isEven ? 'justify-start' : 'justify-end'}`}
-                          >
-                            <span className="font-medium">{message.sender}</span>
-                            <span className="opacity-70">({message.executive.role || getExecutiveRole(message.sender)})</span>
+                          <div>
+                            <div 
+                              className={`rounded-lg p-4 mb-1 
+                                ${isEven 
+                                  ? 'bg-primary/10 border border-primary/20 rounded-tl-none' 
+                                  : 'bg-secondary/10 border border-secondary/20 rounded-tr-none'
+                                }`}
+                            >
+                              <p className="text-sm">{message.content}</p>
+                            </div>
+                            
+                            <div 
+                              className={`flex items-center text-xs text-muted-foreground gap-2
+                                ${isEven ? 'justify-start' : 'justify-end'}`}
+                            >
+                              <span className="font-medium">{message.sender}</span>
+                              <span className="opacity-70">({message.executive.role || getExecutiveRole(message.sender)})</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+                <div ref={messagesEndRef} />
               </div>
-              
-              <div className="mt-8 border-t border-white/10 pt-6">
+            )}
+          </TabsContent>
+          
+          <TabsContent value="consensus" className="flex-1 overflow-auto">
+            <div className="space-y-6 py-4 pr-2">
+              <div className="mt-2">
                 <h4 className="text-lg font-semibold mb-3 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                   Consensus Recommendation
                 </h4>
@@ -262,10 +276,9 @@ export default function ExecutiveDebateModal({
                   <p className="text-sm">{consensusRecommendation}</p>
                 </div>
               </div>
-              <div ref={messagesEndRef} />
-            </>
-          )}
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
         
         <DialogFooter className="flex flex-col sm:flex-row gap-2 border-t border-white/10 pt-4">
           <div className="flex items-center gap-2 sm:mr-auto">
