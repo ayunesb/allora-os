@@ -2,8 +2,10 @@
 import React from "react";
 import { CallScript } from "@/hooks/useCallScripts";
 import AiCallScript from "@/components/calls/AiCallScript";
-import { Play, Download } from "lucide-react";
+import { Play, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface ScriptSectionProps {
   title: string;
@@ -23,6 +25,18 @@ export default function ScriptSection({
   const filteredScripts = isAiSection 
     ? scripts.filter(script => script.aiGenerated)
     : scripts.filter(script => !script.aiGenerated);
+    
+  const [viewScriptId, setViewScriptId] = useState<string | null>(null);
+  const [scriptDialogOpen, setScriptDialogOpen] = useState(false);
+  
+  const handleViewScript = (scriptId: string) => {
+    setViewScriptId(scriptId);
+    setScriptDialogOpen(true);
+  };
+  
+  const currentScript = viewScriptId 
+    ? filteredScripts.find(script => script.id === viewScriptId) 
+    : null;
 
   return (
     <div className="space-y-4">
@@ -39,6 +53,7 @@ export default function ScriptSection({
               duration={script.duration}
               primaryBot={script.primaryBot}
               collaborators={script.collaborators}
+              content={script.content}
               onUse={onUseScript}
               type={type}
             />
@@ -73,9 +88,9 @@ export default function ScriptSection({
                       <Play className="mr-2 h-4 w-4" />
                       Use
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewScript(script.id)}>
+                      <FileText className="mr-2 h-4 w-4" />
+                      View Script
                     </Button>
                   </>
                 ) : (
@@ -84,10 +99,54 @@ export default function ScriptSection({
                   </Button>
                 )}
               </div>
+              
+              <div className="flex justify-end mt-2">
+                <Button variant="ghost" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+              </div>
             </div>
           ))
         )}
       </div>
+      
+      {/* Script Content Dialog for Standard Scripts */}
+      <Dialog open={scriptDialogOpen} onOpenChange={setScriptDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          {currentScript && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{currentScript.title}</DialogTitle>
+                <DialogDescription>
+                  {type === 'call' ? 'Call Script' : 'Message Template'}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="mt-4 space-y-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Target:</span>
+                  <span className="font-medium">{currentScript.target}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Duration:</span>
+                  <span className="font-medium">{currentScript.duration}</span>
+                </div>
+                
+                <div className="border-t pt-4 mt-4">
+                  <h3 className="text-lg font-medium mb-2">Script Content</h3>
+                  <div className="bg-muted/30 rounded-md p-4 whitespace-pre-line">
+                    {currentScript.content || 
+                      `# ${currentScript.title}\n\n## Introduction\n- Greet the prospect warmly and introduce yourself and your company\n- Briefly explain the purpose of your call\n\n## Value Proposition\n- Present your main value proposition tailored to ${currentScript.target}\n- Highlight 2-3 key benefits\n\n## Questions to Ask\n- What challenges are they currently facing?\n- How are they currently solving these problems?\n- What would an ideal solution look like for them?\n\n## Addressing Objections\n- Price: Focus on ROI and long-term value\n- Timing: Emphasize opportunity cost of delay\n- Need to consult others: Offer to schedule a follow-up with all stakeholders\n\n## Call to Action\n- Schedule a demo/follow-up meeting\n- Send additional information\n- Confirm next steps\n\n## Closing\n- Thank them for their time\n- Restate any commitments made\n- Provide your contact information`
+                    }
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
