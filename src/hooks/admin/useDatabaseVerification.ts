@@ -24,13 +24,14 @@ export function useDatabaseVerification() {
       
       const tableResults: DatabaseTableStatus[] = [];
       
-      // Get list of all tables
+      // Correct query for pg_tables - it's already in public schema
       const { data: tablesData, error: tablesError } = await supabase
-        .from('pg_catalog.pg_tables')
+        .from('pg_tables')
         .select('tablename')
         .eq('schemaname', 'public');
       
       if (tablesError) {
+        console.error('Error fetching tables:', tablesError);
         throw tablesError;
       }
       
@@ -53,22 +54,71 @@ export function useDatabaseVerification() {
       
       for (const table of tablesWithRls) {
         if (existingTables.includes(table)) {
-          // Check if RLS is enabled
-          const { data: rlsData, error: rlsError } = await supabase
-            .rpc('check_table_rls', { table_name: table });
-          
-          if (rlsError) {
-            policyResults.push({
-              table,
-              exists: false,
-              message: `Error checking RLS for ${table}: ${rlsError.message}`
-            });
-          } else {
-            policyResults.push({
-              table,
-              exists: !!rlsData,
-              message: rlsData ? `RLS enabled for ${table}` : `RLS not enabled for ${table}`
-            });
+          // Check if RLS is enabled using a more reliable method
+          try {
+            const { data: rlsData, error: rlsError } = await supabase
+              .rpc('check_table_rls', { table_name: table });
+            
+            if (rlsError) {
+              // If the function doesn't exist, fall back to a direct check
+              const { data: policiesData, error: policiesError } = await supabase
+                .from('pg_policies')
+                .select('*')
+                .eq('tablename', table);
+                
+              if (policiesError) {
+                policyResults.push({
+                  table,
+                  exists: false,
+                  message: `Could not verify RLS for ${table}: ${policiesError.message}`
+                });
+              } else {
+                const hasRlsPolicies = policiesData && policiesData.length > 0;
+                policyResults.push({
+                  table,
+                  exists: hasRlsPolicies,
+                  message: hasRlsPolicies 
+                    ? `Table ${table} has RLS policies` 
+                    : `No RLS policies found for ${table}`
+                });
+              }
+            } else {
+              policyResults.push({
+                table,
+                exists: !!rlsData,
+                message: rlsData ? `RLS enabled for ${table}` : `RLS not enabled for ${table}`
+              });
+            }
+          } catch (err) {
+            // Fall back to a more direct check
+            try {
+              const { data: policies, error: policiesError } = await supabase
+                .from('pg_policies')
+                .select('*')
+                .eq('tablename', table);
+                
+              if (policiesError) {
+                policyResults.push({
+                  table,
+                  exists: false,
+                  message: `Error checking RLS for ${table}: ${policiesError.message}`
+                });
+              } else {
+                policyResults.push({
+                  table,
+                  exists: policies && policies.length > 0,
+                  message: (policies && policies.length > 0) 
+                    ? `Found ${policies.length} policies for ${table}` 
+                    : `No policies found for ${table}`
+                });
+              }
+            } catch (policyErr) {
+              policyResults.push({
+                table,
+                exists: false,
+                message: `Error checking policies for ${table}: ${policyErr instanceof Error ? policyErr.message : String(policyErr)}`
+              });
+            }
           }
         } else {
           policyResults.push({
@@ -86,34 +136,42 @@ export function useDatabaseVerification() {
         'update_profile_after_company_creation'
       ];
       
+      // Correct query for pg_proc
       for (const func of requiredFunctions) {
-        // Fix the problematic line by using proper string literals and SQL functions
-        const { data: funcData, error: funcError } = await supabase
-          .from('pg_catalog.pg_proc')
-          .select('proname, prosecdef')
-          .eq('proname', func)
-          .eq('pronamespace', 'public'); // Removed the ::regnamespace that was causing the error
-        
-        if (funcError) {
+        try {
+          const { data: funcData, error: funcError } = await supabase
+            .from('pg_proc')
+            .select('proname, prosecdef')
+            .eq('proname', func);
+          
+          if (funcError) {
+            functionResults.push({
+              name: func,
+              exists: false,
+              isSecure: false,
+              message: `Error checking function ${func}: ${funcError.message}`
+            });
+          } else {
+            const exists = (funcData || []).length > 0;
+            const isSecure = exists ? funcData[0].prosecdef : false;
+            
+            functionResults.push({
+              name: func,
+              exists,
+              isSecure,
+              message: exists 
+                ? (isSecure 
+                  ? `Function ${func} exists and is SECURITY DEFINER` 
+                  : `Function ${func} exists but is NOT SECURITY DEFINER`)
+                : `Function ${func} does not exist`
+            });
+          }
+        } catch (err) {
           functionResults.push({
             name: func,
             exists: false,
             isSecure: false,
-            message: `Error checking function ${func}: ${funcError.message}`
-          });
-        } else {
-          const exists = (funcData || []).length > 0;
-          const isSecure = exists ? funcData[0].prosecdef : false;
-          
-          functionResults.push({
-            name: func,
-            exists,
-            isSecure,
-            message: exists 
-              ? (isSecure 
-                ? `Function ${func} exists and is SECURITY DEFINER` 
-                : `Function ${func} exists but is NOT SECURITY DEFINER`)
-              : `Function ${func} does not exist`
+            message: `Error checking function ${func}: ${err instanceof Error ? err.message : String(err)}`
           });
         }
       }

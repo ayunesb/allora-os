@@ -2,16 +2,19 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Checks if the current logged-in user has admin role
- * @returns Promise resolving to boolean indicating if user is admin
+ * Check if the current user has admin privileges
  */
 export async function checkIfUserIsAdmin(): Promise<boolean> {
   try {
+    // Get current user's profile
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) return false;
+    if (!user) {
+      return false;
+    }
     
-    const { data, error } = await supabase
+    // Check if user has admin role in profiles table
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -22,51 +25,33 @@ export async function checkIfUserIsAdmin(): Promise<boolean> {
       return false;
     }
     
-    return data?.role === 'admin';
+    return profile?.role === 'admin';
   } catch (error) {
-    console.error('Unexpected error during admin check:', error);
+    console.error('Error in checkIfUserIsAdmin:', error);
     return false;
   }
 }
 
 /**
- * Grants admin privileges to a user by email
- * @param email Email of the user to make admin
- * @returns Promise resolving to boolean indicating success
+ * Helper function to check if a database table exists
  */
-export async function grantAdminPrivileges(email: string): Promise<boolean> {
+export async function checkTableExists(tableName: string): Promise<boolean> {
   try {
-    // First, try to find the user by email
-    const { data: userData, error: userError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
+    const { data, error } = await supabase
+      .from('pg_tables')
+      .select('tablename')
+      .eq('schemaname', 'public')
+      .eq('tablename', tableName)
       .single();
     
-    if (userError) {
-      console.error('Error finding user by email:', userError);
+    if (error && error.code !== 'PGRST116') {
+      console.error(`Error checking if table ${tableName} exists:`, error);
       return false;
     }
     
-    if (!userData) {
-      console.error('No user found with email:', email);
-      return false;
-    }
-    
-    // Update the user's role to admin
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ role: 'admin' })
-      .eq('id', userData.id);
-    
-    if (updateError) {
-      console.error('Error updating user role:', updateError);
-      return false;
-    }
-    
-    return true;
+    return !!data;
   } catch (error) {
-    console.error('Unexpected error during admin privilege grant:', error);
+    console.error(`Error in checkTableExists for ${tableName}:`, error);
     return false;
   }
 }
