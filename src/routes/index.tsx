@@ -24,10 +24,25 @@ const withNavigationManager = (routes) => {
   }));
 };
 
-// Handle special case for dashboard route which is an object not array
+// Handle special case for dashboard route and admin routes which are objects not arrays
 const withNavigationManagerForObject = (routeObj, skipNavManager = false) => {
   if (skipNavManager) {
     return routeObj; // Return without NavigationManager for admin routes
+  }
+  
+  if (routeObj.children) {
+    return {
+      ...routeObj,
+      children: routeObj.children.map(childRoute => ({
+        ...childRoute,
+        element: (
+          <>
+            <NavigationManager />
+            {childRoute.element}
+          </>
+        )
+      }))
+    };
   }
   
   return {
@@ -41,7 +56,8 @@ const withNavigationManagerForObject = (routeObj, skipNavManager = false) => {
   };
 };
 
-export const router = createBrowserRouter([
+// Collect all routes as a flat array
+const routes = [
   ...withNavigationManager(publicRoutes),
   withNavigationManagerForObject(dashboardRoutes),
   ...withNavigationManager(onboardingRoutes),
@@ -67,4 +83,11 @@ export const router = createBrowserRouter([
       </>
     ),
   },
-]);
+];
+
+export const router = createBrowserRouter(routes);
+
+// Export a component to use in main.tsx
+export const AppRoutes = () => {
+  return null; // This component doesn't render anything as the router is used externally
+};
