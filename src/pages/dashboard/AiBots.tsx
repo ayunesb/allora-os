@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import BotCard from "@/components/BotCard";
 import ExecutiveRoster from "@/components/ExecutiveRoster";
@@ -7,6 +8,7 @@ import BotChatPanel from "@/components/bot-chat/BotChatPanel";
 import BotInsightsSection from "@/components/bot-insights/BotInsightsSection";
 import AIExecutiveBoardroom from "@/components/ai-boardroom/AIExecutiveBoardroom";
 import { executiveBots } from "@/backend/executiveBots";
+import DebateStarterPage from "@/components/ai-debate/DebateStarterPage";
 import { 
   Tabs, 
   TabsContent, 
@@ -39,6 +41,7 @@ import { formatRoleTitle, getBotExpertise } from "@/utils/consultation";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function AiBots() {
   const [activeTab, setActiveTab] = useState("boardroom");
@@ -49,6 +52,25 @@ export default function AiBots() {
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   const { profile } = useAuth();
   const companyId = profile?.company_id || null;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if there's a hash in the URL that should trigger a tab change
+    if (location.hash === '#debate') {
+      setActiveTab('debate');
+    }
+  }, [location.hash]);
+
+  // Handle tab changes and update URL
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === 'debate') {
+      navigate('/dashboard/ai-bots#debate');
+    } else {
+      navigate('/dashboard/ai-bots');
+    }
+  };
 
   const allBots = Object.entries(executiveBots).flatMap(([role, names]) => 
     names.map(name => ({
@@ -87,11 +109,15 @@ export default function AiBots() {
         <UserPreferencesDialog triggerLabel={isMobileView ? "Settings" : "Response Settings"} />
       </div>
 
-      <Tabs defaultValue="boardroom" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className={`mb-6 ${isMobileView ? 'flex-wrap gap-1' : ''}`}>
           <TabsTrigger value="boardroom" className={`flex items-center gap-1 ${isMobileView ? 'text-xs px-2 py-1' : 'gap-2'}`}>
             <Brain className="h-4 w-4" />
             <span className={isMobileView ? "sr-only" : ""}>Executive Boardroom</span>
+          </TabsTrigger>
+          <TabsTrigger value="debate" className={`flex items-center gap-1 ${isMobileView ? 'text-xs px-2 py-1' : 'gap-2'}`}>
+            <MessageSquare className="h-4 w-4" />
+            <span className={isMobileView ? "sr-only" : ""}>Start Debate</span>
           </TabsTrigger>
           <TabsTrigger value="bots" className={`flex items-center gap-1 ${isMobileView ? 'text-xs px-2 py-1' : 'gap-2'}`}>
             <Bot className="h-4 w-4" />
@@ -118,6 +144,12 @@ export default function AiBots() {
         <TabsContent value="boardroom">
           <ErrorBoundary>
             <AIExecutiveBoardroom companyId={companyId} />
+          </ErrorBoundary>
+        </TabsContent>
+
+        <TabsContent value="debate">
+          <ErrorBoundary>
+            <DebateStarterPage />
           </ErrorBoundary>
         </TabsContent>
 

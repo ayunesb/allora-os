@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const getStanceBadge = (stance: string) => {
   switch (stance.toLowerCase()) {
@@ -71,6 +72,7 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   const { riskAppetite } = useCompanyDetails(companyId);
   const [timeoutError, setTimeoutError] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -143,7 +145,8 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
   }, [companyId, profile?.company_id]);
 
   const handleStartNewDebate = () => {
-    toast.info("This feature is coming soon!");
+    // Navigate to the debate page or tab instead of showing a toast
+    navigate("/dashboard/debate");
   };
 
   const getExecutiveName = (executiveId: string) => {
