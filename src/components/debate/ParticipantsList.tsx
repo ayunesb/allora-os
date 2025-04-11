@@ -12,7 +12,7 @@ interface ParticipantsListProps {
 }
 
 const ParticipantsList: React.FC<ParticipantsListProps> = ({
-  participants,
+  participants = [], // Provide default empty array
   onEditParticipants,
 }) => {
   return (
@@ -29,20 +29,27 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({
           <span>Edit Team</span>
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {participants.map((bot) => (
-          <div key={bot.id} className="flex items-center space-x-3 p-3 border rounded-md">
-            <Avatar>
-              <AvatarImage src={bot.avatar} />
-              <AvatarFallback>{bot.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{bot.name}</p>
-              <p className="text-sm text-muted-foreground truncate">{bot.title}</p>
+      {Array.isArray(participants) && participants.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {participants.map((bot) => (
+            <div key={bot.id} className="flex items-center space-x-3 p-3 border rounded-md">
+              <Avatar>
+                <AvatarImage src={bot.avatar} alt={bot.name} />
+                <AvatarFallback>{bot.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{bot.name}</p>
+                <p className="text-sm text-muted-foreground truncate">{bot.title}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="p-4 border rounded-md text-center">
+          <Users className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No participants added yet</p>
+        </div>
+      )}
     </div>
   );
 };

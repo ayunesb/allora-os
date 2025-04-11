@@ -25,13 +25,13 @@ interface DebateSetupProps {
 }
 
 const DebateSetup: React.FC<DebateSetupProps> = ({
-  participants,
-  selectedTopic,
-  debateTopics,
-  debateTitle,
-  debateObjective,
-  debateDuration,
-  isLoading,
+  participants = [], // Add default for participants
+  selectedTopic = '',
+  debateTopics = [], // Add default empty array for debateTopics
+  debateTitle = '',
+  debateObjective = '',
+  debateDuration = '',
+  isLoading = false,
   onTopicChange,
   onTitleChange,
   onObjectiveChange,
@@ -51,6 +51,9 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
     }
   };
   
+  // Ensure debateTopics is an array
+  const safeDebateTopics = Array.isArray(debateTopics) ? debateTopics : [];
+  
   return (
     <Card>
       <CardHeader>
@@ -62,7 +65,7 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
       <CardContent className="space-y-4">
         <TopicSelector 
           selectedTopic={selectedTopic}
-          debateTopics={debateTopics}
+          debateTopics={safeDebateTopics}
           onTopicChange={onTopicChange}
         />
         

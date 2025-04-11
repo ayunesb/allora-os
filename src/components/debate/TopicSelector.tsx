@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { Label } from '@/components/ui/label';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { DebateTopic } from '@/utils/consultation/types';
 
 interface TopicSelectorProps {
@@ -16,45 +16,19 @@ interface TopicSelectorProps {
 
 const TopicSelector: React.FC<TopicSelectorProps> = ({
   selectedTopic,
-  debateTopics,
+  debateTopics = [], // Ensure this has a default value to prevent the iterator error
   onTopicChange,
 }) => {
   const [open, setOpen] = React.useState(false);
-  const [customTopic, setCustomTopic] = React.useState("");
-  
-  // Ensure debateTopics is always an array (even if empty)
-  const safeDebateTopics = React.useMemo(() => {
-    return Array.isArray(debateTopics) ? debateTopics : [];
-  }, [debateTopics]);
-  
-  // Combine predefined topics with custom topic if entered
-  const allTopics = React.useMemo(() => {
-    const topics = [...safeDebateTopics];
-    if (customTopic && !topics.some(t => t.id === customTopic)) {
-      topics.push({
-        id: customTopic,
-        topic: customTopic,
-        description: "Custom topic"
-      });
-    }
-    return topics;
-  }, [safeDebateTopics, customTopic]);
 
-  // Handle selection of topic from combobox
-  const handleSelectTopic = (value: string) => {
-    onTopicChange(value);
-    setOpen(false);
-  };
-
-  // Get selected topic display text
-  const getTopicDisplayValue = () => {
-    const topic = allTopics.find(topic => topic.id === selectedTopic);
-    return topic?.topic || "Select a topic";
-  };
+  // Ensure debateTopics is an array before trying to find in it
+  const currentTopic = Array.isArray(debateTopics) 
+    ? debateTopics.find((topic) => topic.id === selectedTopic)?.topic 
+    : '';
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="topic">Debate Topic</Label>
+      <Label htmlFor="topic">Topic</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -62,61 +36,46 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between"
-            type="button"
           >
-            {getTopicDisplayValue()}
+            {currentTopic || "Select a topic..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0">
           <Command>
-            <CommandInput 
-              placeholder="Search or enter a custom topic..." 
-              value={customTopic}
-              onValueChange={(value) => {
-                setCustomTopic(value);
-                // Don't automatically select when typing - wait for explicit selection
-              }}
-            />
-            <CommandEmpty>
-              {customTopic ? (
-                <CommandItem 
-                  value={customTopic}
-                  onSelect={() => handleSelectTopic(customTopic)}
-                >
-                  Create topic: "{customTopic}"
-                </CommandItem>
-              ) : (
-                "No topic found."
-              )}
-            </CommandEmpty>
-            {safeDebateTopics.length > 0 && (
+            <CommandInput placeholder="Search topics..." />
+            <CommandEmpty>No topic found.</CommandEmpty>
+            {Array.isArray(debateTopics) && debateTopics.length > 0 ? (
               <CommandGroup>
-                {safeDebateTopics.map((topic) => (
-                  <CommandItem
-                    key={topic.id}
-                    value={topic.id}
-                    onSelect={() => handleSelectTopic(topic.id)}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedTopic === topic.id ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {topic.topic}
-                  </CommandItem>
-                ))}
+                <CommandList>
+                  {debateTopics.map((topic) => (
+                    <CommandItem
+                      key={topic.id}
+                      value={topic.id}
+                      onSelect={() => {
+                        onTopicChange(topic.id);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selectedTopic === topic.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {topic.topic}
+                    </CommandItem>
+                  ))}
+                </CommandList>
               </CommandGroup>
+            ) : (
+              <div className="py-6 text-center text-sm">
+                No debate topics available
+              </div>
             )}
           </Command>
         </PopoverContent>
       </Popover>
-      {selectedTopic && (
-        <p className="text-sm text-muted-foreground">
-          {allTopics.find(t => t.id === selectedTopic)?.description}
-        </p>
-      )}
     </div>
   );
 };

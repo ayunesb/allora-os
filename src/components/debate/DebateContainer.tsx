@@ -73,7 +73,7 @@ const DebateContainer: React.FC = () => {
           <DebateSetup 
             participants={participants}
             selectedTopic={selectedTopic}
-            debateTopics={debateTopics}
+            debateTopics={Array.isArray(debateTopics) ? debateTopics : []}
             debateTitle={debateTitle}
             debateObjective={debateObjective}
             debateDuration={debateDuration}
