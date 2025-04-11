@@ -51,9 +51,12 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
   const [open, setOpen] = React.useState(false);
   const [customTopic, setCustomTopic] = React.useState("");
   
+  // Ensure debateTopics is always an array (even if empty)
+  const safeDebateTopics = Array.isArray(debateTopics) ? debateTopics : [];
+  
   // Combine predefined topics with custom topic if entered
   const allTopics = React.useMemo(() => {
-    const topics = [...debateTopics];
+    const topics = [...safeDebateTopics];
     if (customTopic && !topics.some(t => t.id === customTopic)) {
       topics.push({
         id: customTopic,
@@ -62,7 +65,7 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
       });
     }
     return topics;
-  }, [debateTopics, customTopic]);
+  }, [safeDebateTopics, customTopic]);
 
   // Handle selection of topic from combobox
   const handleSelectTopic = (value: string) => {
@@ -107,7 +110,7 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
                   onValueChange={(value) => {
                     setCustomTopic(value);
                     // If no match is found in predefined topics, create a custom topic
-                    if (value && !debateTopics.some(t => t.topic.toLowerCase() === value.toLowerCase())) {
+                    if (value && !safeDebateTopics.some(t => t.topic.toLowerCase() === value.toLowerCase())) {
                       handleSelectTopic(value);
                     }
                   }}
@@ -125,7 +128,7 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
                   )}
                 </CommandEmpty>
                 <CommandGroup>
-                  {debateTopics.map((topic) => (
+                  {safeDebateTopics.map((topic) => (
                     <CommandItem
                       key={topic.id}
                       value={topic.id}

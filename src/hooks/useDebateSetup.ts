@@ -15,7 +15,9 @@ export default function useDebateSetup() {
 
   // Combine predefined and custom topics
   const getAllDebateTopics = useCallback(() => {
-    return [...debateTopics, ...customTopics];
+    // Ensure debateTopics is an array
+    const predefinedTopics = Array.isArray(debateTopics) ? debateTopics : [];
+    return [...predefinedTopics, ...customTopics];
   }, [customTopics]);
 
   const handleTopicChange = useCallback((value: string) => {
@@ -28,7 +30,7 @@ export default function useDebateSetup() {
       // Auto-fill title and objective based on selected topic
       setDebateTitle(`${existingTopic.topic} Discussion`);
       setDebateObjective(`Evaluate and decide on the best approach for ${existingTopic.topic.toLowerCase()}`);
-    } else {
+    } else if (value) {
       // This is a custom topic (value should be the topic text itself)
       // Add it to custom topics if not already there
       if (!customTopics.some(t => t.id === value)) {
