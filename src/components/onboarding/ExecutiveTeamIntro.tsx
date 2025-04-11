@@ -57,7 +57,7 @@ export default function ExecutiveTeamIntro({
           role: "ceo",
           title: "CEO",
           specialty: "Strategic Planning & Leadership",
-          avatar: "/placeholder.svg"
+          avatar: "/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png"
         },
         {
           id: "2",
@@ -65,7 +65,7 @@ export default function ExecutiveTeamIntro({
           role: "cfo",
           title: "CFO",
           specialty: "Financial Planning & Risk Management",
-          avatar: "/placeholder.svg"
+          avatar: "/lovable-uploads/fa68c49e-02d3-4f17-b128-a5b8f6f1665b.png"
         },
         {
           id: "3",
@@ -73,7 +73,7 @@ export default function ExecutiveTeamIntro({
           role: "cmo",
           title: "CMO",
           specialty: "Marketing Strategy & Growth",
-          avatar: "/placeholder.svg"
+          avatar: "/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png"
         }
       ]} />
 

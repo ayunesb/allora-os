@@ -5,12 +5,16 @@
 
 // Gets the appropriate image for an executive
 export function getExecutiveImage(executiveName: string): string {
-  const formattedName = executiveName.toLowerCase().replace(/\s+/g, '-');
-  return `/avatars/${formattedName}.png`;
+  // Use available images instead of relying on images that don't exist
+  return '/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png';
 }
 
 // Get executive suggestions based on risk appetite
 export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high') {
+  // Static image paths we know exist in the project
+  const defaultAvatar1 = '/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png';
+  const defaultAvatar2 = '/lovable-uploads/fa68c49e-02d3-4f17-b128-a5b8f6f1665b.png';
+  
   // Default executives for all risk appetites
   const baseExecutives = [
     {
@@ -19,7 +23,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
       role: 'ceo',
       title: 'CEO Advisor',
       specialty: 'Strategic Vision, Leadership, Innovation',
-      avatar: '/avatars/satya-nadella.png'
+      avatar: defaultAvatar1
     },
     {
       id: 'exec-2',
@@ -27,7 +31,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
       role: 'cfo',
       title: 'CFO Advisor',
       specialty: 'Financial Analysis, Investment Strategy, Risk Management',
-      avatar: '/avatars/warren-buffett.png'
+      avatar: defaultAvatar2
     }
   ];
 
@@ -42,7 +46,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'ceo',
           title: 'Innovation Advisor',
           specialty: 'Disruptive Innovation, Moonshot Projects, Risk-Taking',
-          avatar: '/avatars/elon-musk.png'
+          avatar: defaultAvatar1
         },
         {
           id: 'exec-4',
@@ -50,7 +54,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'strategy',
           title: 'Strategy Advisor',
           specialty: 'Business Model Innovation, User Experience',
-          avatar: '/avatars/brian-chesky.png'
+          avatar: defaultAvatar2
         },
         {
           id: 'exec-5',
@@ -58,7 +62,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'marketing',
           title: 'Marketing Advisor',
           specialty: 'Brand Building, Digital Marketing',
-          avatar: '/avatars/gary-vaynerchuk.png'
+          avatar: defaultAvatar1
         }
       ];
     case 'medium':
@@ -70,7 +74,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'coo',
           title: 'COO Advisor',
           specialty: 'Operations, Scaling, Process Optimization',
-          avatar: '/avatars/sheryl-sandberg.png'
+          avatar: defaultAvatar1
         },
         {
           id: 'exec-4',
@@ -78,7 +82,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'ceo',
           title: 'Growth Advisor',
           specialty: 'Scaling, Long-term Thinking, Customer Obsession',
-          avatar: '/avatars/jeff-bezos.png'
+          avatar: defaultAvatar2
         },
         {
           id: 'exec-5',
@@ -86,7 +90,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'marketing',
           title: 'Marketing Advisor',
           specialty: 'Positioning, Marketing Strategy',
-          avatar: '/avatars/seth-godin.png'
+          avatar: defaultAvatar1
         }
       ];
     case 'low':
@@ -98,7 +102,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'ceo',
           title: 'Operations Advisor',
           specialty: 'Supply Chain, Operational Excellence, Incremental Innovation',
-          avatar: '/avatars/tim-cook.png'
+          avatar: defaultAvatar1
         },
         {
           id: 'exec-4',
@@ -106,7 +110,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'operations_efficiency',
           title: 'Efficiency Advisor',
           specialty: 'Sustainable Growth, Operational Efficiency',
-          avatar: '/avatars/indra-nooyi.png'
+          avatar: defaultAvatar2
         },
         {
           id: 'exec-5',
@@ -114,7 +118,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
           role: 'sales_business_development',
           title: 'Brand Advisor',
           specialty: 'Brand Building, Customer Experience',
-          avatar: '/avatars/howard-schultz.png'
+          avatar: defaultAvatar1
         }
       ];
     default:

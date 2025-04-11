@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { GraduationCap, Briefcase } from "lucide-react";
+import { GraduationCap, Briefcase, User } from "lucide-react";
 
 type BotCardProps = {
   bot: {
@@ -20,16 +20,22 @@ export default function BotCard({ bot, onSelect }: BotCardProps) {
       onClick={onSelect}
     >
       <div className="relative pb-[56.25%] h-0 overflow-hidden bg-gradient-to-br from-primary/30 to-primary/10">
-        <img 
-          src={bot.avatar || `/avatars/${bot.role}.png`} 
-          alt={bot.name} 
-          className="absolute top-0 left-0 w-full h-full object-cover"
-          onError={(e) => {
-            // Fallback for missing images
-            const target = e.target as HTMLImageElement;
-            target.src = 'https://placehold.co/400x300/1a1a2e/ffffff?text=' + encodeURIComponent(bot.name);
-          }}
-        />
+        {bot.avatar ? (
+          <img 
+            src={bot.avatar} 
+            alt={bot.name}
+            className="absolute top-0 left-0 w-full h-full object-cover"
+            onError={(e) => {
+              // Fallback for missing images
+              const target = e.target as HTMLImageElement;
+              target.src = '/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png';
+            }}
+          />
+        ) : (
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+            <User className="h-16 w-16 text-primary/50" />
+          </div>
+        )}
       </div>
       
       <CardHeader className="pb-2">

@@ -12,7 +12,7 @@ export function CeoMessageHeader() {
     <div className="flex items-start gap-4">
       <Avatar className="h-12 w-12 border-2 border-primary/20">
         <AvatarImage 
-          src={`/avatars/${selectedCeo.name.toLowerCase().replace(/\s+/g, '-')}.png`} 
+          src="/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png" 
           alt={selectedCeo.name} 
         />
         <AvatarFallback className="bg-primary/10">
