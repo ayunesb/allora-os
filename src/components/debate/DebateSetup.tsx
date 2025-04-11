@@ -54,6 +54,10 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
   // Ensure debateTopics is an array
   const safeDebateTopics = Array.isArray(debateTopics) ? debateTopics : [];
   
+  const handleStartDebate = () => {
+    onStartDebate();
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -92,7 +96,7 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
       </CardContent>
       <CardFooter>
         <Button 
-          onClick={onStartDebate} 
+          onClick={handleStartDebate} 
           disabled={!selectedTopic || !debateTitle || !debateObjective || isLoading}
           className="ml-auto"
         >

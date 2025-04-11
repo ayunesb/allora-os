@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useDebateSession from '@/hooks/useDebateSession';
 import useDebateState from '@/hooks/useDebateState';
@@ -41,12 +41,24 @@ const DebateContainer: React.FC = () => {
     saveToReports,
   } = useDebateState();
 
+  // Auto-switch to debate tab when debate becomes active
+  useEffect(() => {
+    if (isDebateActive && activeTab === 'setup') {
+      handleTabChange('debate');
+    }
+  }, [isDebateActive, activeTab, handleTabChange]);
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
     
     sendUserMessage(newMessage);
     setNewMessage('');
+  };
+
+  const handleStartDebate = () => {
+    startDebate();
+    // The auto-switch will happen via the useEffect
   };
 
   const handleGenerateSummary = () => {
@@ -82,7 +94,7 @@ const DebateContainer: React.FC = () => {
             onTitleChange={setDebateTitle}
             onObjectiveChange={setDebateObjective}
             onDurationChange={setDebateDuration}
-            onStartDebate={startDebate}
+            onStartDebate={handleStartDebate}
             onParticipantsChange={setParticipants}
           />
         </TabsContent>
