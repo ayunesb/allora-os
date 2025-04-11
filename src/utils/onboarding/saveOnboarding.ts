@@ -76,8 +76,8 @@ export async function saveOnboardingInfo(
         ...(companyDetails || {}),
         goals: goals,
         communication_preferences: {
-          whatsapp_enabled: companyDetails?.whatsAppEnabled || true,
-          email_enabled: companyDetails?.emailEnabled || true
+          whatsapp_enabled: companyDetails?.whatsAppEnabled ?? true,
+          email_enabled: companyDetails?.emailEnabled ?? true
         },
         executive_team_enabled: companyDetails?.executiveTeamEnabled !== false
       };
@@ -104,8 +104,8 @@ export async function saveOnboardingInfo(
         ...(companyDetails || {}),
         goals: goals,
         communication_preferences: {
-          whatsapp_enabled: companyDetails?.whatsAppEnabled || true,
-          email_enabled: companyDetails?.emailEnabled || true
+          whatsapp_enabled: companyDetails?.whatsAppEnabled ?? true,
+          email_enabled: companyDetails?.emailEnabled ?? true
         },
         executive_team_enabled: companyDetails?.executiveTeamEnabled !== false
       };

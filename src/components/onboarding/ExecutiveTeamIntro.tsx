@@ -1,10 +1,10 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import ExecutiveTeamCarousel from "./ExecutiveTeamCarousel";
+import { ExecutiveTeamCarousel } from "./ExecutiveTeamCarousel";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import WhatsAppOptIn from "./WhatsAppOptIn";
+import { WhatsAppOptIn } from "./WhatsAppOptIn";
 
 interface ExecutiveTeamIntroProps {
   executiveTeamEnabled: boolean;
@@ -50,7 +50,32 @@ export default function ExecutiveTeamIntro({
         Based on your risk profile ({riskAppetite}), we've assembled the perfect executive team for {companyName}.
       </p>
 
-      <ExecutiveTeamCarousel />
+      <ExecutiveTeamCarousel executives={[
+        {
+          id: "1",
+          name: "Alex Morgan",
+          role: "ceo",
+          title: "CEO",
+          specialty: "Strategic Planning & Leadership",
+          avatar: "/placeholder.svg"
+        },
+        {
+          id: "2",
+          name: "Jordan Chen",
+          role: "cfo",
+          title: "CFO",
+          specialty: "Financial Planning & Risk Management",
+          avatar: "/placeholder.svg"
+        },
+        {
+          id: "3",
+          name: "Taylor Reynolds",
+          role: "cmo",
+          title: "CMO",
+          specialty: "Marketing Strategy & Growth",
+          avatar: "/placeholder.svg"
+        }
+      ]} />
 
       <Card className="mt-8">
         <CardContent className="pt-6">

@@ -59,6 +59,12 @@ export type CompanyDetails = {
   // Additional contact/location info
   headquarters?: string;
   phone?: string;
+  
+  // Communication preferences and AI team settings
+  whatsAppEnabled?: boolean;
+  emailEnabled?: boolean;
+  executiveTeamEnabled?: boolean;
+  riskAppetite?: 'low' | 'medium' | 'high';
 };
 
 export type PartialCompanyDetails = Partial<CompanyDetails>;
