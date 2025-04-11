@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { useStrategies } from "@/hooks/useStrategies";
 import { useBreakpoint } from "@/hooks/use-mobile";
@@ -26,42 +25,34 @@ export default function StrategyBoard() {
   const breakpoint = useBreakpoint();
   const isMobile = ['xs', 'mobile'].includes(breakpoint);
   
-  // Modal states
   const [isWizardModalOpen, setIsWizardModalOpen] = useState(false);
   const [isDebateModalOpen, setIsDebateModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   
-  // Executive debate integration
   const { generateDebate, debate, isGeneratingDebate } = useExecutiveDebate();
   
-  // Market alerts integration
-  const { alerts, checkForAlerts } = useMarketAlerts();
+  const { alerts, dismissAlert, checkForAlerts } = useMarketAlerts();
   
-  // Check for market alerts on component mount
   useEffect(() => {
     checkForAlerts();
   }, [checkForAlerts]);
   
-  // Handle creating a new strategy
   const handleCreateNew = useCallback(() => {
     setIsWizardModalOpen(true);
   }, []);
   
-  // Handle opening debate modal
   const handleDebateStrategy = useCallback((strategy: Strategy) => {
     setSelectedStrategy(strategy);
     generateDebate(strategy);
     setIsDebateModalOpen(true);
   }, [generateDebate]);
 
-  // Handle opening strategy detail modal
   const handleViewStrategyDetail = useCallback((strategy: Strategy) => {
     setSelectedStrategy(strategy);
     setIsDetailModalOpen(true);
   }, []);
   
-  // Handle export to PDF
   const handleExportPDF = useCallback((strategy: Strategy) => {
     toast.info("Preparing PDF export...");
     
@@ -76,7 +67,6 @@ export default function StrategyBoard() {
     }, 1000);
   }, []);
   
-  // Handle export all to PDF
   const handleExportAllPDF = useCallback(() => {
     if (!strategies || strategies.length === 0) {
       toast.error("No strategies to export");
@@ -96,7 +86,6 @@ export default function StrategyBoard() {
     }, 1500);
   }, [strategies]);
   
-  // Handle retry on error
   const handleRetry = useCallback(() => {
     toast.info("Retrying...");
     if (refetch) {
@@ -104,14 +93,11 @@ export default function StrategyBoard() {
     }
   }, [refetch]);
   
-  // Filter and sort strategies
   const filteredStrategies = (strategies || []).filter(strategy => {
-    // Apply search filter
     if (searchQuery && !strategy.title.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     
-    // Apply risk filter
     if (riskFilter !== 'all') {
       const strategyRisk = strategy.risk || strategy.risk_level;
       if (strategyRisk !== riskFilter) {
@@ -122,7 +108,6 @@ export default function StrategyBoard() {
     return true;
   });
 
-  // Sort strategies
   const sortedStrategies = [...filteredStrategies].sort((a, b) => {
     switch (sortBy) {
       case 'alphabetical':
@@ -145,7 +130,6 @@ export default function StrategyBoard() {
   return (
     <div className="min-h-screen bg-[#0c0f1f] text-white p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div className="mb-4 md:mb-0">
             <h1 className="text-3xl md:text-4xl font-bold">📈 Your Growth Strategies</h1>
@@ -175,10 +159,9 @@ export default function StrategyBoard() {
         </div>
         
         {alerts.length > 0 && (
-          <MarketAlertBanner alerts={alerts} />
+          <MarketAlertBanner alerts={alerts} onDismiss={dismissAlert} />
         )}
         
-        {/* Filters Section */}
         <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-lg p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
@@ -209,7 +192,6 @@ export default function StrategyBoard() {
               <button
                 className="py-2 px-4 bg-gray-800/70 border border-gray-700 rounded-lg text-white flex items-center gap-2 hover:bg-gray-700/70 transition-colors"
                 onClick={() => {
-                  // Implement sorting functionality
                   const nextSort = sortBy === 'newest' ? 'oldest' : 'newest';
                   setSortBy(nextSort);
                 }}
@@ -223,7 +205,6 @@ export default function StrategyBoard() {
           </div>
         </div>
         
-        {/* Content Section */}
         {error ? (
           <ErrorState error={error} onRetry={handleRetry} />
         ) : isLoading ? (
@@ -240,14 +221,12 @@ export default function StrategyBoard() {
         )}
       </div>
       
-      {/* Strategy Wizard Modal */}
       <StrategyWizardModal 
         isOpen={isWizardModalOpen} 
         onClose={() => setIsWizardModalOpen(false)}
         onCreateStrategy={createStrategy}
       />
       
-      {/* Executive Debate Modal */}
       <ExecutiveDebateModal 
         isOpen={isDebateModalOpen} 
         onClose={() => setIsDebateModalOpen(false)}
@@ -256,7 +235,6 @@ export default function StrategyBoard() {
         isLoading={isGeneratingDebate}
       />
       
-      {/* Strategy Detail Modal */}
       <StrategyDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}

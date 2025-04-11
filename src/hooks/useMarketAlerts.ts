@@ -8,6 +8,14 @@ interface MarketAlert {
   link?: string;
   linkText?: string;
   affectedStrategies?: string[];
+  trendReport?: {
+    title: string;
+    content: string;
+    insights: string[];
+    recommendations: string[];
+    relatedStrategies: string[];
+    externalLink?: string;
+  };
 }
 
 export function useMarketAlerts() {
@@ -27,9 +35,26 @@ export function useMarketAlerts() {
           {
             id: `alert-${Date.now()}`,
             message: "Consider updating your Expansion Strategy in light of recent AI industry developments.",
-            link: "https://example.com/ai-trends",
-            linkText: "View AI Trend Report",
-            affectedStrategies: ["Market Expansion", "Digital Transformation"]
+            affectedStrategies: ["Market Expansion", "Digital Transformation"],
+            trendReport: {
+              title: "AI Industry Developments: Strategic Impact Analysis",
+              content: "Recent advancements in artificial intelligence technologies are reshaping market dynamics across industries. This report analyzes the strategic implications for businesses looking to capitalize on these trends.",
+              insights: [
+                "Large language models are becoming increasingly accessible to businesses of all sizes",
+                "AI automation is reducing operational costs by an average of 23% in early adopter companies",
+                "Competitor analysis shows 67% of market leaders have integrated AI into their core business processes",
+                "Customer behavior data indicates a 34% increase in preference for AI-enhanced products and services"
+              ],
+              recommendations: [
+                "Update your Market Expansion strategy to prioritize AI-ready markets first",
+                "Allocate resources to reskill teams in AI implementation and management",
+                "Consider strategic partnerships with AI technology providers",
+                "Develop an AI ethics framework to ensure responsible implementation",
+                "Implement a phased approach to digital transformation with clear ROI metrics"
+              ],
+              relatedStrategies: ["Market Expansion", "Digital Transformation", "Product Development", "Competitive Positioning"],
+              externalLink: "https://example.com/ai-trends"
+            }
           }
         ];
         

@@ -1,7 +1,8 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Bell, XCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import TrendReportModal from "./TrendReportModal";
 
 interface Alert {
   id: string;
@@ -9,6 +10,14 @@ interface Alert {
   link?: string;
   linkText?: string;
   affectedStrategies?: string[];
+  trendReport?: {
+    title: string;
+    content: string;
+    insights: string[];
+    recommendations: string[];
+    relatedStrategies: string[];
+    externalLink?: string;
+  };
 }
 
 interface MarketAlertBannerProps {
@@ -17,7 +26,19 @@ interface MarketAlertBannerProps {
 }
 
 export default function MarketAlertBanner({ alerts, onDismiss }: MarketAlertBannerProps) {
+  const [trendReportOpen, setTrendReportOpen] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+  
   if (!alerts || alerts.length === 0) return null;
+  
+  const openTrendReport = (alert: Alert) => {
+    setSelectedAlert(alert);
+    setTrendReportOpen(true);
+  };
+  
+  const closeTrendReport = () => {
+    setTrendReportOpen(false);
+  };
   
   return (
     <div className="mb-6 animate-fadeIn">
@@ -38,17 +59,15 @@ export default function MarketAlertBanner({ alerts, onDismiss }: MarketAlertBann
             )}
           </div>
           <div className="flex gap-2 items-center">
-            {alert.link && (
+            {alert.trendReport && (
               <Button 
                 variant="outline" 
                 size="sm" 
                 className="text-xs border-amber-700 bg-amber-900/30 hover:bg-amber-800/40 text-amber-300"
-                asChild
+                onClick={() => openTrendReport(alert)}
               >
-                <a href={alert.link} target="_blank" rel="noopener noreferrer">
-                  {alert.linkText || "Learn more"}
-                  <ExternalLink className="ml-1 h-3 w-3" />
-                </a>
+                View AI Trend Report
+                <ExternalLink className="ml-1 h-3 w-3" />
               </Button>
             )}
             {onDismiss && (
@@ -65,6 +84,13 @@ export default function MarketAlertBanner({ alerts, onDismiss }: MarketAlertBann
           </div>
         </div>
       ))}
+      
+      {/* Trend Report Modal */}
+      <TrendReportModal
+        isOpen={trendReportOpen}
+        onClose={closeTrendReport}
+        trendData={selectedAlert?.trendReport}
+      />
     </div>
   );
 }
