@@ -15,11 +15,25 @@ export function useBotResponses(
     businessPriority: string = 'growth',
     preferences?: any
   ) => {
-    if (!participants.length) return;
+    if (!participants.length || !topic) return;
     
     setIsLoading(true);
     
     try {
+      // Add system message indicating the debate topic
+      const systemMessage: DebateMessage = {
+        id: `system-${Date.now()}`,
+        sender: 'System',
+        senderId: 'system',
+        content: `Debate started: ${topic} Discussion\nObjective: Evaluate and decide on the best approach for ${topic}\nTopic: ${topic}\nRisk Appetite: ${riskAppetite}\nBusiness Priority: ${businessPriority}`,
+        timestamp: new Date(),
+        isUser: false,
+        votes: 0,
+        isFavorite: false
+      };
+      
+      addMessage(systemMessage);
+      
       // Get responses from each participant sequentially with slight delay between them
       for (const participant of participants) {
         try {

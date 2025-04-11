@@ -13,6 +13,10 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { DebateParticipant, DebateTopic } from '@/utils/consultation/types';
 
 interface DebateSetupProps {
@@ -44,6 +48,34 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
   onDurationChange,
   onStartDebate,
 }) => {
+  const [open, setOpen] = React.useState(false);
+  const [customTopic, setCustomTopic] = React.useState("");
+  
+  // Combine predefined topics with custom topic if entered
+  const allTopics = React.useMemo(() => {
+    const topics = [...debateTopics];
+    if (customTopic && !topics.some(t => t.id === customTopic)) {
+      topics.push({
+        id: customTopic,
+        topic: customTopic,
+        description: "Custom topic"
+      });
+    }
+    return topics;
+  }, [debateTopics, customTopic]);
+
+  // Handle selection of topic from combobox
+  const handleSelectTopic = (value: string) => {
+    onTopicChange(value);
+    setOpen(false);
+  };
+
+  // Get selected topic display text
+  const getTopicDisplayValue = () => {
+    const topic = allTopics.find(topic => topic.id === selectedTopic);
+    return topic?.topic || "Select a topic";
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -55,21 +87,66 @@ const DebateSetup: React.FC<DebateSetupProps> = ({
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="topic">Debate Topic</Label>
-          <Select value={selectedTopic} onValueChange={onTopicChange}>
-            <SelectTrigger id="topic">
-              <SelectValue placeholder="Select a topic" />
-            </SelectTrigger>
-            <SelectContent>
-              {debateTopics.map((topic) => (
-                <SelectItem key={topic.id} value={topic.id}>
-                  {topic.topic}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between"
+              >
+                {getTopicDisplayValue()}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+              <Command>
+                <CommandInput 
+                  placeholder="Search or enter a custom topic..." 
+                  value={customTopic}
+                  onValueChange={(value) => {
+                    setCustomTopic(value);
+                    // If no match is found in predefined topics, create a custom topic
+                    if (value && !debateTopics.some(t => t.topic.toLowerCase() === value.toLowerCase())) {
+                      handleSelectTopic(value);
+                    }
+                  }}
+                />
+                <CommandEmpty>
+                  {customTopic ? (
+                    <CommandItem 
+                      value={customTopic}
+                      onSelect={() => handleSelectTopic(customTopic)}
+                    >
+                      Create topic: "{customTopic}"
+                    </CommandItem>
+                  ) : (
+                    "No topic found."
+                  )}
+                </CommandEmpty>
+                <CommandGroup>
+                  {debateTopics.map((topic) => (
+                    <CommandItem
+                      key={topic.id}
+                      value={topic.id}
+                      onSelect={() => handleSelectTopic(topic.id)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selectedTopic === topic.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {topic.topic}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
           {selectedTopic && (
             <p className="text-sm text-muted-foreground">
-              {debateTopics.find(t => t.id === selectedTopic)?.description}
+              {allTopics.find(t => t.id === selectedTopic)?.description}
             </p>
           )}
         </div>

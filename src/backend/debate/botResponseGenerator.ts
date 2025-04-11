@@ -17,7 +17,8 @@ export const generateBotResponse = async (
     Provide a thoughtful, insightful response about "${topic}" from your unique executive perspective.
     Consider a ${riskAppetite} risk appetite and prioritize ${businessPriority}.
     Your response should reflect your actual persona, including your known leadership style and business philosophy.
-    DO NOT start with "As [name]" or similar phrases - speak directly in first person as this character would.`;
+    DO NOT start with "As [name]" or similar phrases - speak directly in first person as this character would.
+    Be specific about the topic at hand and provide concrete suggestions for approaching it.`;
     
     // Call the multi-model-ai edge function with improved prompting
     const { data, error } = await supabase.functions.invoke('multi-model-ai', {
