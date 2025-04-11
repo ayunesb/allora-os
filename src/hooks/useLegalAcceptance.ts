@@ -34,12 +34,14 @@ export function useLegalAcceptance(user: User | null): LegalAcceptanceStatus {
 
       if (error) {
         // PGRST116 is "no rows returned" - this means the user hasn't accepted yet
-        if (error.code !== 'PGRST116') {
-          console.error('Error checking legal acceptance status:', error);
-          throw error;
+        if (error.code === 'PGRST116') {
+          console.log("No legal acceptance records found for user:", userId);
+          setHasAcceptedLegal(false);
+          setShowLegalModal(true);
+          return false;
         }
         
-        // User hasn't accepted terms yet
+        console.error('Error checking legal acceptance status:', error);
         setHasAcceptedLegal(false);
         setShowLegalModal(true);
         return false;
@@ -47,12 +49,14 @@ export function useLegalAcceptance(user: User | null): LegalAcceptanceStatus {
 
       // Check if they've accepted all required terms
       if (data) {
+        console.log("Found legal acceptance record:", data);
         const allAccepted = data.terms_of_service && data.privacy_policy && data.messaging_consent;
         setHasAcceptedLegal(allAccepted);
         setShowLegalModal(!allAccepted);
         return allAccepted;
       } else {
         // No acceptance record found
+        console.log("No legal acceptance record found despite no error");
         setHasAcceptedLegal(false);
         setShowLegalModal(true);
         return false;
@@ -85,6 +89,7 @@ export function useLegalAcceptance(user: User | null): LegalAcceptanceStatus {
     setAcceptanceError(null);
     
     if (!user) {
+      console.error("Cannot accept legal terms: User not authenticated");
       setAcceptanceError("User not authenticated");
       return false;
     }
@@ -92,6 +97,7 @@ export function useLegalAcceptance(user: User | null): LegalAcceptanceStatus {
     try {
       // We don't need to implement the actual acceptance logic here,
       // as it's handled in the LegalAcceptanceModal component
+      console.log("Legal terms accepted for user:", user.id);
       setHasAcceptedLegal(true);
       setShowLegalModal(false);
       return true;

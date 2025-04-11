@@ -112,9 +112,9 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
         }
 
         // Once the user is created, save company information to profiles table
-        if (data.company && data.industry) {
+        if (data.company || data.industry) {
           const { saveCompanyInfo } = await import('@/utils/profileHelpers');
-          await saveCompanyInfo(signUpResult.user.id, data.company, data.industry);
+          await saveCompanyInfo(signUpResult.user.id, data.company || '', data.industry || '');
         }
         
         // Set a flag in sessionStorage to indicate this is a new user for onboarding

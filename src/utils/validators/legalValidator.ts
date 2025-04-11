@@ -14,12 +14,14 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
     
     if (tableCheckError) {
       if (tableCheckError.code === '42P01') { // Table doesn't exist
+        console.error("user_legal_acceptances table doesn't exist");
         return {
           valid: false,
           message: "The user_legal_acceptances table does not exist in the database."
         };
       }
       
+      console.error("Error accessing user_legal_acceptances table:", tableCheckError);
       return {
         valid: false,
         message: `Error accessing user_legal_acceptances: ${tableCheckError.message}`
@@ -33,6 +35,7 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
       .limit(1);
     
     if (structureCheckError) {
+      console.error("Table structure invalid:", structureCheckError);
       return {
         valid: false,
         message: `Table structure invalid: ${structureCheckError.message}`
@@ -43,7 +46,7 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
     const testUserId = '00000000-0000-0000-0000-000000000000'; // Dummy UUID for testing
     
     // Check insertion permission
-    const { error: insertError } = await supabase
+    const { error: insertError, data: insertData } = await supabase
       .from('user_legal_acceptances')
       .insert({
         user_id: testUserId,
@@ -58,15 +61,20 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
       })
       .select();
     
-    // Remove test record regardless of whether it was inserted
-    await supabase
-      .from('user_legal_acceptances')
-      .delete()
-      .eq('user_id', testUserId);
+    // Try to remove test record regardless of whether it was inserted
+    if (insertData && insertData.length > 0) {
+      await supabase
+        .from('user_legal_acceptances')
+        .delete()
+        .eq('user_id', testUserId);
+      
+      console.log("Test record successfully deleted");
+    }
     
     if (insertError) {
       // Permission error but table exists and structure is valid
       if (insertError.code === '42501' || insertError.message?.includes('permission')) {
+        console.error("RLS policy may be preventing insertions:", insertError);
         return {
           valid: false,
           message: `RLS policy may be preventing insertions: ${insertError.message}`
@@ -74,6 +82,7 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
       }
       
       // Other insertion error
+      console.error("Test insertion failed:", insertError);
       return {
         valid: false,
         message: `Test insertion failed: ${insertError.message}`
@@ -86,12 +95,14 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
         // Just check if the module exists and can be imported
         const { useLegalAcceptance } = await import('@/hooks/useLegalAcceptance');
         if (!useLegalAcceptance) {
+          console.error("useLegalAcceptance hook exists but may not be properly implemented");
           return {
             valid: false,
             message: "useLegalAcceptance hook exists but may not be properly implemented."
           };
         }
       } catch (error) {
+        console.error("Failed to load useLegalAcceptance hook:", error);
         return {
           valid: false,
           message: "Failed to load useLegalAcceptance hook: " + (error instanceof Error ? error.message : String(error))
@@ -99,11 +110,13 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
       }
     }
     
+    console.log("Legal acceptance system validation successful");
     return {
       valid: true,
       message: "Legal acceptance system is properly configured."
     };
   } catch (error) {
+    console.error("Unexpected error during legal acceptance validation:", error);
     return {
       valid: false,
       message: "Unexpected error during legal acceptance validation: " + 

@@ -10,6 +10,8 @@ export async function checkOnboardingStatus(userId: string): Promise<boolean> {
       throw new Error("User ID is required");
     }
 
+    console.log("Checking onboarding status for user:", userId);
+
     // Get the user's profile
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
@@ -24,12 +26,14 @@ export async function checkOnboardingStatus(userId: string): Promise<boolean> {
 
     // Check if onboarding is completed
     if (profileData?.onboarding_completed) {
+      console.log("Onboarding completed flag is true");
       return true;
     }
 
     // If the user has a company ID but onboarding is not marked as completed,
     // check the company record as well
     if (profileData?.company_id) {
+      console.log("User has company ID, checking company details");
       const { data: companyData, error: companyError } = await supabase
         .from('companies')
         .select('details')
@@ -43,10 +47,12 @@ export async function checkOnboardingStatus(userId: string): Promise<boolean> {
 
       // Check if onboarding is completed in company details
       if (companyData?.details?.onboarding_completed) {
+        console.log("Company onboarding_completed flag is true");
         return true;
       }
     }
 
+    console.log("Onboarding not completed for user:", userId);
     // Onboarding not completed
     return false;
   } catch (error) {

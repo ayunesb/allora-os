@@ -52,6 +52,7 @@ export default function CompanyInfoFields({ form }: CompanyInfoFieldsProps) {
                   <SelectValue placeholder="Select industry" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">Select industry</SelectItem>
                   <SelectItem value="technology">Technology</SelectItem>
                   <SelectItem value="healthcare">Healthcare</SelectItem>
                   <SelectItem value="finance">Finance</SelectItem>
