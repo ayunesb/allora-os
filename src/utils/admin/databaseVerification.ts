@@ -115,22 +115,49 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
   
   for (const funcName of requiredFunctions) {
     try {
-      // Query pg_proc directly for the function
+      // Try to use our new check_function_exists function
       const { data, error } = await supabase
         .rpc('check_function_exists', { function_name: funcName });
         
       if (error) {
-        console.error(`Error checking function ${funcName}:`, error);
+        console.warn(`Using fallback method to check function ${funcName}:`, error);
+        
+        // Fallback: Query pg_proc directly
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('pg_proc')
+          .select('proname, prosecdef')
+          .eq('proname', funcName)
+          .single();
+          
+        if (fallbackError) {
+          console.error(`Error checking function ${funcName} with fallback:`, fallbackError);
+          functionResults.push({
+            name: funcName,
+            exists: false,
+            isSecure: false,
+            message: `Function ${funcName} could not be verified: ${fallbackError.message}`
+          });
+          continue;
+        }
+        
+        const exists = !!fallbackData;
+        const isSecure = exists && fallbackData.prosecdef;
+          
         functionResults.push({
           name: funcName,
-          exists: false,
-          isSecure: false,
-          message: `Error checking function ${funcName}: ${error.message}`
+          exists,
+          isSecure,
+          message: exists 
+            ? (isSecure 
+              ? `Function ${funcName} exists and is SECURITY DEFINER` 
+              : `Function ${funcName} exists but is NOT SECURITY DEFINER`)
+            : `Function ${funcName} does not exist`
         });
         continue;
       }
       
-      const exists = !!data && data.exists;
+      // Parse check_function_exists results
+      const exists = !!data && data.function_exists;
       const isSecure = !!data && data.is_secure;
         
       functionResults.push({

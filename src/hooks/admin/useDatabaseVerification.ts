@@ -23,14 +23,10 @@ export function useDatabaseVerification() {
       // Check if the helper function exists
       const { data, error } = await supabase.rpc('check_function_exists', { function_name: 'check_function_exists' });
       
-      if (error && error.message.includes('does not exist')) {
-        // Create the helper function if it doesn't exist
-        const { error: createError } = await supabase.rpc('create_function_checker');
-        
-        if (createError) {
-          console.error('Failed to create function checker:', createError);
-          // We'll use a fallback method in verifyDatabaseFunctions
-        }
+      if (error) {
+        console.error('Error checking function existence:', error);
+        // The check_function_exists function may not exist yet, which is expected
+        // We'll continue with the verification process
       }
     } catch (err) {
       console.error('Error setting up function checker:', err);

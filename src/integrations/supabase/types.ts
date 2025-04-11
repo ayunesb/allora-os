@@ -967,6 +967,13 @@ export type Database = {
         Args: { "": string } | { "": unknown }
         Returns: unknown
       }
+      check_function_exists: {
+        Args: { function_name: string }
+        Returns: {
+          function_exists: boolean
+          is_secure: boolean
+        }[]
+      }
       check_rls_enabled: {
         Args: { table_name: string }
         Returns: {
