@@ -1,70 +1,44 @@
 
-export type CompanyDetails = {
-  // Company Fundamentals
-  description: string;
-  mission: string;
-  vision: string;
-  targetMarket: string;
-  businessType: 'B2B' | 'B2C' | 'Both';
-  coreProducts: string[];
-  businessModel: string;
+export interface CompanyDetails {
+  // Basic company details
+  companySize?: string;
+  foundingYear?: number;
+  website?: string;
+  location?: string;
   
-  // Market Analysis
-  marketSize: string;
-  competitors: string[];
-  differentiators: string;
-  painPoints: string[];
+  // Financial information
+  revenue?: string;
+  funding?: string;
+  profitMargin?: string;
   
-  // Growth & Traction
-  revenue: string;
-  userMetrics: string;
-  funding: string;
-  partnerships: string[];
+  // Business information
+  businessModel?: string;
+  targetMarket?: string;
+  competitiveLandscape?: string;
+  marketPosition?: string;
   
-  // Product & Technology
-  techStack: string[];
-  productStage: string;
-  intellectualProperty: string;
-  rdPipeline: string;
+  // Goals and risk information
+  goals?: string[];
+  shortTermGoals?: string[];
+  longTermGoals?: string[];
+  riskAppetite?: 'low' | 'medium' | 'high';
   
-  // Team & Leadership
-  founders: string;
-  teamSize: number;
-  cultureValues: string[];
-  
-  // Marketing & Sales
-  acquisitionStrategy: string[];
-  salesChannels: string[];
-  customerRetention: string;
-  pricingStrategy: string;
-  
-  // AI Readiness
-  currentAiUse: string;
-  aiOpportunities: string[];
-  
-  // Financial Overview
-  financials: string;
-  burnRate: string;
-  runway: string;
-  
-  // Strategic Goals
-  shortTermPlan: string;
-  longTermVision: string;
-  challenges: string[];
-  
-  // Special Info
-  socialImpact: string;
-  exitStrategy: string;
-  
-  // Additional contact/location info
-  headquarters?: string;
-  phone?: string;
-  
-  // Communication preferences and AI team settings
+  // Communication preferences
   whatsAppEnabled?: boolean;
   emailEnabled?: boolean;
   executiveTeamEnabled?: boolean;
-  riskAppetite?: 'low' | 'medium' | 'high';
-};
+  communication_preferences?: {
+    whatsapp_enabled?: boolean;
+    email_enabled?: boolean;
+  };
+  
+  // AI compatibility
+  aiReadiness?: string;
+  aiExperience?: string;
+  
+  // Onboarding status
+  onboarding_completed?: boolean;
+  onboarding_completed_at?: string;
+}
 
 export type PartialCompanyDetails = Partial<CompanyDetails>;

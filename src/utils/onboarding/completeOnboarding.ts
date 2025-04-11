@@ -26,15 +26,37 @@ export async function completeOnboarding(
 
     console.log(`Completing onboarding for user ${userId} with company ${companyId}`);
 
+    // First, get the current company details
+    const { data: companyData, error: fetchError } = await supabase
+      .from('companies')
+      .select('details')
+      .eq('id', companyId)
+      .single();
+      
+    if (fetchError) {
+      console.error("Error fetching company details:", fetchError);
+      throw new Error(`Failed to fetch company details: ${fetchError.message}`);
+    }
+    
+    // Get existing details or start with an empty object
+    const existingDetails = companyData?.details || {};
+    
+    // Merge existing details with completion flags
+    const updatedDetails = {
+      ...existingDetails,
+      onboarding_completed: true,
+      onboarding_completed_at: new Date().toISOString(),
+      industry
+    };
+
+    console.log("Updating company with details:", updatedDetails);
+
     // Update the company with onboarding_completed flag
     const { error: companyError } = await supabase
       .from('companies')
       .update({
-        details: {
-          onboarding_completed: true,
-          onboarding_completed_at: new Date().toISOString(),
-          industry
-        }
+        details: updatedDetails,
+        industry: industry
       })
       .eq('id', companyId);
 
@@ -48,7 +70,8 @@ export async function completeOnboarding(
       .from('profiles')
       .update({
         onboarding_completed: true,
-        onboarding_completed_at: new Date().toISOString()
+        onboarding_completed_at: new Date().toISOString(),
+        industry: industry
       })
       .eq('id', userId);
 

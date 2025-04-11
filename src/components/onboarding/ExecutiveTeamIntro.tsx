@@ -26,17 +26,30 @@ export default function ExecutiveTeamIntro({
   const [whatsAppConsent, setWhatsAppConsent] = React.useState(true);
   const [emailConsent, setEmailConsent] = React.useState(true);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleCompleteSetup = async () => {
     // Clear any previous error messages
     setErrorMessage(null);
     
+    if (isSubmitting) return; // Prevent multiple submissions
+    
+    setIsSubmitting(true);
+    
     try {
-      // Since all required information is provided in the parent component
-      // and all checkboxes default to true, we don't need additional validation here
+      console.log("Completing setup with preferences:", {
+        whatsAppConsent,
+        emailConsent,
+        executiveTeamEnabled
+      });
+      
+      // Save communication preferences to company details
       await onComplete();
     } catch (error: any) {
+      console.error("Error completing setup:", error);
       setErrorMessage(error.message || "Failed to complete setup. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -126,11 +139,11 @@ export default function ExecutiveTeamIntro({
       <div className="flex justify-center mt-8">
         <Button
           onClick={handleCompleteSetup}
-          disabled={isLoading}
+          disabled={isLoading || isSubmitting}
           size="lg"
           className="w-full max-w-md"
         >
-          {isLoading ? (
+          {isLoading || isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Processing...

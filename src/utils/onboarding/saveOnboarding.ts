@@ -76,8 +76,8 @@ export async function saveOnboardingInfo(
         ...(companyDetails || {}),
         goals: goals,
         communication_preferences: {
-          whatsapp_enabled: companyDetails?.whatsAppEnabled ?? true,
-          email_enabled: companyDetails?.emailEnabled ?? true
+          whatsapp_enabled: companyDetails?.whatsAppEnabled !== false,
+          email_enabled: companyDetails?.emailEnabled !== false
         },
         executive_team_enabled: companyDetails?.executiveTeamEnabled !== false
       };
@@ -104,8 +104,8 @@ export async function saveOnboardingInfo(
         ...(companyDetails || {}),
         goals: goals,
         communication_preferences: {
-          whatsapp_enabled: companyDetails?.whatsAppEnabled ?? true,
-          email_enabled: companyDetails?.emailEnabled ?? true
+          whatsapp_enabled: companyDetails?.whatsAppEnabled !== false,
+          email_enabled: companyDetails?.emailEnabled !== false
         },
         executive_team_enabled: companyDetails?.executiveTeamEnabled !== false
       };
@@ -149,18 +149,23 @@ export async function saveOnboardingInfo(
       
       // Set up external service integrations for the company
       console.log("Setting up integrations for company:", companyId);
-      const integrationResult = await setupCompanyIntegrations(
-        companyId,
-        companyName,
-        industry,
-        userEmail
-      );
-      
-      if (!integrationResult.success) {
-        console.warn("Warning: Failed to set up some integrations:", integrationResult.error);
-        // Continue with onboarding even if some integrations fail
-      } else {
-        console.log("Integration setup successful");
+      try {
+        const integrationResult = await setupCompanyIntegrations(
+          companyId,
+          companyName,
+          industry,
+          userEmail
+        );
+        
+        if (!integrationResult.success) {
+          console.warn("Warning: Failed to set up some integrations:", integrationResult.error);
+          // Continue with onboarding even if some integrations fail
+        } else {
+          console.log("Integration setup successful");
+        }
+      } catch (error) {
+        // Don't fail the whole process if integration setup fails
+        console.warn("Error setting up integrations:", error);
       }
     }
     

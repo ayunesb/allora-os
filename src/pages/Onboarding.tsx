@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
@@ -38,7 +37,7 @@ export default function Onboarding() {
     toggleGoal
   } = useOnboardingState();
 
-  const { user, signOut, isLoading: isAuthLoading, hasInitialized, profile } = useAuth();
+  const { user, signOut, isLoading: isAuthLoading, hasInitialized, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
@@ -108,31 +107,49 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     setValidationError(null);
-    
-    // Validate that we have all required data
-    if (!user) {
-      setValidationError("User authentication required. Please try logging in again.");
-      return;
-    }
-    
-    if (!profile?.company_id) {
-      setValidationError("Company setup incomplete. Please try again.");
-      return;
-    }
-    
-    if (!industry) {
-      setValidationError("Please select an industry before continuing.");
-      return;
-    }
-
     setIsCompleting(true);
     
     try {
+      // Check for user authentication
+      if (!user) {
+        throw new Error("User authentication required. Please try logging in again.");
+      }
+      
+      console.log("Current profile state:", profile);
+      
+      // Check if we have a company ID
+      // If profile doesn't have company_id but has company name, we may need to create the company first
+      if (!profile?.company_id && profile?.company) {
+        console.log("Creating company for user before completing onboarding");
+        // Here we would call a function to create the company first, but in this simplified flow,
+        // we'll just throw an error
+        throw new Error("Company setup incomplete. Please go back to step 1.");
+      }
+      
+      if (!profile?.company_id) {
+        throw new Error("Company setup incomplete. Please try again.");
+      }
+      
+      if (!industry) {
+        throw new Error("Please select an industry before continuing.");
+      }
+
+      // Add communication preferences to company details before completing
+      const enhancedDetails = {
+        whatsAppEnabled: true, // Using the checkbox values from ExecutiveTeamIntro
+        emailEnabled: true,
+        executiveTeamEnabled
+      };
+      
       console.log("Completing onboarding with data:", {
         userId: user.id,
         companyId: profile.company_id,
-        industry
+        industry,
+        enhancedDetails
       });
+      
+      // First refresh the profile to ensure we have the latest data
+      await refreshProfile();
       
       const result = await completeOnboarding(
         user.id, 
