@@ -1,65 +1,73 @@
 
 import { RouteObject } from "react-router-dom";
-import AdminLayout from "@/components/AdminLayout";
-import AdminIndex from "@/pages/admin/Index";
-import AdminUsers from "@/pages/admin/Users";
-import AdminCompanies from "@/pages/admin/Companies";
-import AdminCampaigns from "@/pages/admin/Campaigns";
-import AdminLeads from "@/pages/admin/Leads";
-import AdminAnalytics from "@/pages/admin/Analytics";
-import AdminSettings from "@/pages/admin/Settings";
-import LaunchPrep from "@/pages/admin/LaunchPrep";
-import LaunchCheck from "@/pages/admin/LaunchCheck";
-import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import UserManagement from "@/pages/admin/UserManagement";
+import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
+import WebhookManagement from "@/pages/admin/WebhookManagement";
+import CompanySettings from "@/pages/admin/CompanySettings";
+import LaunchPlan from "@/pages/admin/LaunchPlan";
 
-export const adminRoutes: RouteObject = {
-  path: "/admin",
-  element: (
-    <ProtectedRoute roleRequired="admin">
-      <AdminLayout />
-    </ProtectedRoute>
-  ),
-  children: [
-    {
-      index: true,
-      element: <AdminIndex />,
-    },
-    {
-      path: "users",
-      element: <AdminUsers />,
-    },
-    {
-      path: "companies",
-      element: <AdminCompanies />,
-    },
-    {
-      path: "campaigns",
-      element: <AdminCampaigns />,
-    },
-    {
-      path: "leads",
-      element: <AdminLeads />,
-    },
-    {
-      path: "analytics",
-      element: <AdminAnalytics />,
-    },
-    {
-      path: "settings",
-      element: <AdminSettings />,
-    },
-    {
-      path: "launch-prep",
-      element: <LaunchPrep />,
-    },
-    {
-      path: "launch-check",
-      element: <LaunchCheck />,
-    },
-    {
-      path: "database-verification",
-      element: <DatabaseVerification />,
-    },
-  ],
-};
+export const adminRoutes: RouteObject[] = [
+  {
+    path: "/admin",
+    element: (
+      <ProtectedRoute>
+        <AdminRoute>
+          <AdminDashboard />
+        </AdminRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/users",
+    element: (
+      <ProtectedRoute>
+        <AdminRoute>
+          <UserManagement />
+        </AdminRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/api-keys",
+    element: (
+      <ProtectedRoute>
+        <AdminRoute>
+          <ApiKeyManagement />
+        </AdminRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/webhooks",
+    element: (
+      <ProtectedRoute>
+        <AdminRoute>
+          <WebhookManagement />
+        </AdminRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/company",
+    element: (
+      <ProtectedRoute>
+        <AdminRoute>
+          <CompanySettings />
+        </AdminRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/launch-plan",
+    element: (
+      <ProtectedRoute>
+        <AdminRoute>
+          <LaunchPlan />
+        </AdminRoute>
+      </ProtectedRoute>
+    ),
+  },
+];

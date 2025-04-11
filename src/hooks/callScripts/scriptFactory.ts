@@ -56,19 +56,298 @@ export const createAiGeneratedScripts = (
 export const createExecutiveCollectiveScripts = (
   companyName?: string,
   industry?: string,
-  companySize?: string
+  companySize?: string,
+  riskAppetite?: string
 ): CallScript[] => {
-  // Define executive roles based on company size and industry
-  const executiveRoles = [
-    { role: "Sales Development Director", specialty: "sales" },
-    { role: "Chief Marketing Strategist", specialty: "marketing" },
-    { role: "Growth Optimization Consultant", specialty: "strategy" },
-    { role: "VP of Business Development", specialty: "sales" },
-    { role: "Customer Acquisition Specialist", specialty: "marketing" }
-  ];
+  // Define executive roles based on company size, industry, and risk appetite
+  const executiveRoles = getExecutiveRoles(companySize, industry, riskAppetite);
   
-  // Generate scripts from all executive roles
-  return executiveRoles.flatMap(exec => 
+  // Generate scripts from the selected executive roles
+  const scripts = executiveRoles.flatMap(exec => 
     getExecutiveScripts(exec.role, industry || "Technology", companyName)
   );
+
+  // Add WhatsApp templates from specialized executives
+  const whatsAppTemplates = createWhatsAppTemplates(companyName, industry);
+  
+  // Add cold call scripts from specialized executives
+  const coldCallScripts = createColdCallScripts(companyName, industry, companySize);
+
+  // Combine all scripts
+  return [...scripts, ...whatsAppTemplates, ...coldCallScripts];
 };
+
+/**
+ * Creates WhatsApp message templates from specialized executives
+ */
+function createWhatsAppTemplates(
+  companyName?: string,
+  industry?: string
+): CallScript[] {
+  // Select messaging specialists for WhatsApp templates
+  const messagingExperts = [
+    { role: "VP of Business Development", name: "Trish Bertuzzi", specialty: "sales" },
+    { role: "Customer Acquisition Specialist", name: "Jill Konrath", specialty: "marketing" },
+    { role: "Growth Hacking Specialist", name: "Neil Patel", specialty: "digital marketing" }
+  ];
+  
+  return messagingExperts.map((expert, index) => ({
+    id: `whatsapp-template-${index + 1}`,
+    title: `${expert.specialty.charAt(0).toUpperCase() + expert.specialty.slice(1)} WhatsApp Template`,
+    target: `${expert.name}'s WhatsApp Strategy`,
+    duration: "1 min",
+    status: "Ready" as const,
+    content: generateWhatsAppTemplate(expert.name, expert.role, companyName, industry),
+    executiveGenerated: true,
+    executiveStyle: expert.name,
+    type: 'message' as const,
+    primaryBot: {
+      name: expert.name,
+      role: expert.role
+    }
+  }));
+}
+
+/**
+ * Creates cold call scripts from sales executive specialists
+ */
+function createColdCallScripts(
+  companyName?: string,
+  industry?: string,
+  companySize?: string
+): CallScript[] {
+  // Select cold calling specialists
+  const coldCallingExperts = [
+    { role: "Sales Development Director", name: "Grant Cardone", specialty: "high-pressure" },
+    { role: "Chief Revenue Officer", name: "Brian Tracy", specialty: "consultative" },
+    { role: "VP Sales", name: "Zig Ziglar", specialty: "relationship-based" }
+  ];
+  
+  return coldCallingExperts.map((expert, index) => ({
+    id: `coldcall-script-${index + 1}`,
+    title: `${expert.specialty.charAt(0).toUpperCase() + expert.specialty.slice(1)} Cold Call Script`,
+    target: `${expert.name}'s Cold Calling Approach`,
+    duration: "3-4 min",
+    status: "Ready" as const,
+    content: generateColdCallScript(expert.name, expert.role, expert.specialty, companyName, industry, companySize),
+    executiveGenerated: true,
+    executiveStyle: expert.name,
+    type: 'call' as const,
+    primaryBot: {
+      name: expert.name,
+      role: expert.role
+    }
+  }));
+}
+
+/**
+ * Selects appropriate executive roles based on company attributes
+ */
+function getExecutiveRoles(
+  companySize?: string, 
+  industry?: string,
+  riskAppetite?: string
+) {
+  // Base executives that are always included
+  const baseExecutives = [
+    { role: "CEO", specialty: "leadership" },
+    { role: "CFO", specialty: "finance" },
+    { role: "CMO", specialty: "marketing" }
+  ];
+  
+  // Additional executives based on company size
+  let sizeBasedExecutives = [];
+  if (companySize === "Enterprise") {
+    sizeBasedExecutives = [
+      { role: "Chief Innovation Officer", specialty: "innovation" },
+      { role: "Global Operations Director", specialty: "operations" },
+      { role: "Chief Strategy Officer", specialty: "strategy" }
+    ];
+  } else if (companySize === "Medium") {
+    sizeBasedExecutives = [
+      { role: "VP of Business Development", specialty: "business development" },
+      { role: "Operations Director", specialty: "operations" }
+    ];
+  } else {
+    // Small or Startup
+    sizeBasedExecutives = [
+      { role: "Growth Hacking Specialist", specialty: "growth" },
+      { role: "Sales Development Director", specialty: "sales" }
+    ];
+  }
+  
+  // Additional executives based on risk appetite
+  let riskBasedExecutives = [];
+  if (riskAppetite === "high") {
+    riskBasedExecutives = [
+      { role: "Disruptive Innovation Consultant", specialty: "innovation" },
+      { role: "Venture Capital Advisor", specialty: "investment" }
+    ];
+  } else if (riskAppetite === "medium") {
+    riskBasedExecutives = [
+      { role: "Growth Strategy Advisor", specialty: "growth" },
+      { role: "Market Expansion Specialist", specialty: "markets" }
+    ];
+  } else {
+    // Low risk
+    riskBasedExecutives = [
+      { role: "Risk Management Advisor", specialty: "risk" },
+      { role: "Operational Excellence Consultant", specialty: "operations" }
+    ];
+  }
+  
+  // Industry-specific executives
+  let industryExecutives = [];
+  if (industry) {
+    const lowerIndustry = industry.toLowerCase();
+    if (lowerIndustry.includes("tech") || lowerIndustry.includes("software")) {
+      industryExecutives = [
+        { role: "CTO", specialty: "technology" },
+        { role: "Product Development Director", specialty: "product" }
+      ];
+    } else if (lowerIndustry.includes("finance") || lowerIndustry.includes("bank")) {
+      industryExecutives = [
+        { role: "Compliance Officer", specialty: "compliance" },
+        { role: "Financial Strategy Advisor", specialty: "finance" }
+      ];
+    } else if (lowerIndustry.includes("health") || lowerIndustry.includes("medical")) {
+      industryExecutives = [
+        { role: "Healthcare Innovation Director", specialty: "healthcare" },
+        { role: "Patient Experience Advisor", specialty: "customer experience" }
+      ];
+    } else if (lowerIndustry.includes("retail") || lowerIndustry.includes("ecommerce")) {
+      industryExecutives = [
+        { role: "Digital Retail Strategist", specialty: "retail" },
+        { role: "Customer Experience Director", specialty: "customer experience" }
+      ];
+    } else {
+      // Default industry experts
+      industryExecutives = [
+        { role: "Industry Analyst", specialty: "analysis" },
+        { role: "Market Research Director", specialty: "research" }
+      ];
+    }
+  }
+  
+  // Combine all executives
+  return [...baseExecutives, ...sizeBasedExecutives, ...riskBasedExecutives, ...industryExecutives];
+}
+
+/**
+ * Generates a WhatsApp template from an executive
+ */
+function generateWhatsAppTemplate(
+  executiveName: string,
+  executiveRole: string,
+  companyName?: string,
+  industry?: string
+): string {
+  const companyReference = companyName ? ` at ${companyName}` : "";
+  const industryReference = industry ? ` in the ${industry} industry` : "";
+  
+  return `# ${executiveName}'s WhatsApp Template
+
+## WhatsApp Business Message Template
+Designed by: ${executiveName}, ${executiveRole}
+
+---
+
+Hi {{contact.first_name}},
+
+This is {{user.name}}${companyReference}. Based on your interest${industryReference}, I wanted to personally share how we've helped similar businesses achieve [specific result].
+
+Would you be open to a quick call this week to discuss how we might help you achieve similar results?
+
+---
+
+## Follow-up Template (No Response)
+
+Hi {{contact.first_name}},
+
+Just following up on my previous message. I understand you're busy, so I thought I'd share a quick case study of how we helped [similar company] increase their [key metric] by [percentage].
+
+Let me know if you'd like to learn more.
+
+---
+
+## Why This Template Works (${executiveName}'s Methodology):
+
+1. **Personalization**: Uses the recipient's name and references their industry
+2. **Value-First Approach**: Immediately suggests benefits rather than features
+3. **Social Proof**: References similar successful clients
+4. **Clear Call-to-Action**: Specific request for a call with timeframe
+5. **Brevity**: Keeps message short and scannable on mobile devices
+
+This template typically achieves a 35-40% response rate when targeting qualified prospects.`;
+}
+
+/**
+ * Generates a cold call script from an executive
+ */
+function generateColdCallScript(
+  executiveName: string,
+  executiveRole: string,
+  executiveStyle: string,
+  companyName?: string,
+  industry?: string,
+  companySize?: string
+): string {
+  const companySizeRef = companySize ? `${companySize.toLowerCase()}-sized businesses` : "businesses";
+  const industryRef = industry ? ` in the ${industry} industry` : "";
+  
+  return `# ${executiveName}'s Cold Call Script
+## Designed for: ${companyName || "Your Company"}${industryRef}
+## Style: ${executiveStyle} sales approach
+## Created by: ${executiveName}, ${executiveRole}
+
+---
+
+### Introduction
+
+"Hi, [Prospect Name], this is [Your Name] from ${companyName || "our company"}. 
+
+[Pattern Interrupt]: "I know I'm catching you in the middle of your day, but the reason I'm calling is that we've been helping ${companySizeRef}${industryRef} increase their [key metric] by [percentage], and I thought you might be interested in learning how."
+
+### Value Proposition
+
+"Specifically, we help companies like yours [specific value proposition tailored to industry]. 
+
+For example, we recently worked with [similar company] and helped them [specific result].
+
+### Engagement Question
+
+"I'm curious - is improving [key performance area] a priority for you this quarter?"
+
+### Handling Common Objections
+
+**"I'm busy right now"**
+"I completely understand. When would be a better time for a brief 10-minute conversation? My goal is simply to determine if what we've done for others might be valuable for you as well."
+
+**"Just send me some information"**
+"I'd be happy to. To make sure I send you the most relevant information, may I ask you a quick question about [specific challenge in their industry]?"
+
+**"We're already working with someone"**
+"That's great to hear. Many of our current clients came to us specifically because we were able to [unique value proposition] that their previous solution couldn't address. Would it be worth a quick conversation to see if we might complement what you're already doing?"
+
+### Call to Action
+
+"Based on what you've shared, I think it would be valuable for us to schedule a more in-depth conversation. How does your calendar look [specific day] for a 20-minute call?"
+
+### Close
+
+"Great! I'll send you a calendar invite with some additional information to review before our call. In the meantime, if you have any questions, feel free to reach me at [your contact information]. I look forward to speaking with you on [confirmed date and time]."
+
+---
+
+## ${executiveName}'s Strategy Notes:
+
+This script follows my ${executiveStyle} selling methodology that emphasizes:
+
+1. **Pattern interrupt** to differentiate from typical cold calls
+2. **Social proof** with specific examples
+3. **Value-focused** conversation rather than feature-focused
+4. **Respect for time** with clear timeframes
+5. **Objection handling** that acknowledges concerns but gently redirects
+
+For best results, personalize the script with research on the prospect's company before calling, and use a warm, confident tone throughout the conversation.`;
+}

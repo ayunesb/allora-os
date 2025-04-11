@@ -24,6 +24,7 @@ export function useCallScripts() {
         const companyName = profile?.company || "Your Company";
         const industry = profile?.industry || "Technology";
         const companySize = profile?.company_size || "Small";
+        const riskAppetite = profile?.risk_appetite || "medium";
         
         // Create AI-generated scripts from insights
         const aiGeneratedScripts = createAiGeneratedScripts(
@@ -36,7 +37,8 @@ export function useCallScripts() {
         const executiveScripts = createExecutiveCollectiveScripts(
           companyName,
           industry,
-          companySize
+          companySize,
+          riskAppetite
         );
         
         // Combine scripts
@@ -61,10 +63,31 @@ export function useCallScripts() {
     return scripts.filter(script => script.type === 'message');
   };
   
+  const getExecutiveScripts = () => {
+    return scripts.filter(script => script.executiveGenerated);
+  };
+  
+  const getWhatsAppTemplates = () => {
+    return getMessageScripts().filter(script => 
+      script.executiveGenerated && 
+      script.title.includes('WhatsApp')
+    );
+  };
+  
+  const getColdCallScripts = () => {
+    return getCallScripts().filter(script => 
+      script.executiveGenerated && 
+      script.title.includes('Cold Call')
+    );
+  };
+  
   return { 
     scripts, 
     callScripts: getCallScripts(),
     messageScripts: getMessageScripts(),
+    executiveScripts: getExecutiveScripts(),
+    whatsAppTemplates: getWhatsAppTemplates(),
+    coldCallScripts: getColdCallScripts(),
     isLoading 
   };
 }
