@@ -84,7 +84,7 @@ export function useAiModelPreferences() {
         ...updates
       }));
       
-      // Process actual updates sequentially
+      // Process actual updates one by one to ensure we don't run into validation issues
       for (const [key, value] of Object.entries(updates)) {
         await updateUserPreference(key as any, value);
       }

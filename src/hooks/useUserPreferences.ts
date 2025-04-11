@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -73,11 +74,11 @@ export function useUserPreferences() {
               riskAppetite: (data.risk_appetite as 'low' | 'medium' | 'high') || defaultPreferences.riskAppetite,
               preferredExecutives: preferredExecs,
               favoriteTopics: favTopics,
-              modelPreference: (data.model_preference as AIModelType) || defaultPreferences.modelPreference,
-              enableDebate: data.enable_debate !== undefined ? Boolean(data.enable_debate) : defaultPreferences.enableDebate,
-              maxDebateParticipants: data.max_debate_participants || defaultPreferences.maxDebateParticipants,
-              enableVectorSearch: data.enable_vector_search !== undefined ? Boolean(data.enable_vector_search) : defaultPreferences.enableVectorSearch,
-              enableLearning: data.enable_learning !== undefined ? Boolean(data.enable_learning) : defaultPreferences.enableLearning
+              modelPreference: defaultPreferences.modelPreference,
+              enableDebate: defaultPreferences.enableDebate,
+              maxDebateParticipants: defaultPreferences.maxDebateParticipants,
+              enableVectorSearch: defaultPreferences.enableVectorSearch,
+              enableLearning: defaultPreferences.enableLearning
             });
             
             setLastSyncTime(new Date());
@@ -113,6 +114,7 @@ export function useUserPreferences() {
       localStorage.setItem('userPreferences', JSON.stringify(newPreferences));
       
       if (user?.id) {
+        // Only save the fields that are actually in the database schema
         const { error } = await supabase
           .from('user_preferences')
           .upsert({
@@ -121,11 +123,13 @@ export function useUserPreferences() {
             risk_appetite: newPreferences.riskAppetite,
             preferred_executives: newPreferences.preferredExecutives,
             favorite_topics: newPreferences.favoriteTopics,
-            model_preference: newPreferences.modelPreference,
-            enable_debate: newPreferences.enableDebate,
-            max_debate_participants: newPreferences.maxDebateParticipants,
-            enable_vector_search: newPreferences.enableVectorSearch,
-            enable_learning: newPreferences.enableLearning,
+            dashboard_preferences: {
+              modelPreference: newPreferences.modelPreference,
+              enableDebate: newPreferences.enableDebate,
+              maxDebateParticipants: newPreferences.maxDebateParticipants,
+              enableVectorSearch: newPreferences.enableVectorSearch,
+              enableLearning: newPreferences.enableLearning,
+            },
             last_updated: new Date().toISOString()
           }, {
             onConflict: 'user_id'
