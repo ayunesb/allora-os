@@ -63,13 +63,16 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
     
     // Try to remove test record regardless of whether it was inserted
     if (insertData && insertData.length > 0) {
-      // Fixed: Properly handle the Promise from the delete operation
-      await supabase
-        .from('user_legal_acceptances')
-        .delete()
-        .eq('user_id', testUserId)
-        .then(() => console.log("Test record successfully deleted"))
-        .catch(err => console.error("Error deleting test record:", err));
+      try {
+        await supabase
+          .from('user_legal_acceptances')
+          .delete()
+          .eq('user_id', testUserId);
+        
+        console.log("Test record successfully deleted");
+      } catch (err) {
+        console.error("Error deleting test record:", err);
+      }
     }
     
     if (insertError) {
