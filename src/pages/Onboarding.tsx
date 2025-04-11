@@ -43,6 +43,7 @@ export default function Onboarding() {
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Check if user has already completed onboarding
   useEffect(() => {
@@ -106,14 +107,33 @@ export default function Onboarding() {
   };
 
   const handleComplete = async () => {
-    if (!user || !profile?.company_id) {
-      toast.error("Missing user information. Please try again.");
+    setValidationError(null);
+    
+    // Validate that we have all required data
+    if (!user) {
+      setValidationError("User authentication required. Please try logging in again.");
+      return;
+    }
+    
+    if (!profile?.company_id) {
+      setValidationError("Company setup incomplete. Please try again.");
+      return;
+    }
+    
+    if (!industry) {
+      setValidationError("Please select an industry before continuing.");
       return;
     }
 
     setIsCompleting(true);
     
     try {
+      console.log("Completing onboarding with data:", {
+        userId: user.id,
+        companyId: profile.company_id,
+        industry
+      });
+      
       const result = await completeOnboarding(
         user.id, 
         profile.company_id, 
@@ -128,6 +148,7 @@ export default function Onboarding() {
       }
     } catch (error: any) {
       console.error("Error completing onboarding:", error);
+      setValidationError(error.message || "An error occurred during onboarding");
       toast.error(error.message || "An error occurred during onboarding");
     } finally {
       setIsCompleting(false);
@@ -240,6 +261,12 @@ export default function Onboarding() {
       title="Allora AI Setup"
     >
       {getStepContent()}
+      
+      {validationError && (
+        <div className="mt-4 p-3 bg-red-100 border border-red-300 text-red-800 rounded-md">
+          {validationError}
+        </div>
+      )}
     </OnboardingLayout>
   );
 }

@@ -71,12 +71,23 @@ export async function saveOnboardingInfo(
     if (profileData?.company_id) {
       console.log("User already has a company, updating existing company:", profileData.company_id);
       
+      // Add communication preferences and executive team enabled to company details
+      const enhancedDetails = {
+        ...(companyDetails || {}),
+        goals: goals,
+        communication_preferences: {
+          whatsapp_enabled: companyDetails?.whatsAppEnabled || true,
+          email_enabled: companyDetails?.emailEnabled || true
+        },
+        executive_team_enabled: companyDetails?.executiveTeamEnabled !== false
+      };
+      
       const { error: updateError } = await supabase
         .from('companies')
         .update({
           name: companyName,
           industry: industry,
-          details: companyDetails || {}
+          details: enhancedDetails
         })
         .eq('id', profileData.company_id);
         
@@ -88,13 +99,24 @@ export async function saveOnboardingInfo(
       companyId = profileData.company_id;
     } else {
       // Create a new company with the detailed information
+      // Include communication preferences and goals
+      const enhancedDetails = {
+        ...(companyDetails || {}),
+        goals: goals,
+        communication_preferences: {
+          whatsapp_enabled: companyDetails?.whatsAppEnabled || true,
+          email_enabled: companyDetails?.emailEnabled || true
+        },
+        executive_team_enabled: companyDetails?.executiveTeamEnabled !== false
+      };
+      
       const { data: newCompany, error: createError } = await supabase
         .from('companies')
         .insert([
           {
             name: companyName,
             industry: industry,
-            details: companyDetails || {}
+            details: enhancedDetails
           }
         ])
         .select('id')
