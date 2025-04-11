@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from "react";
 import { useStrategies } from "@/hooks/useStrategies";
 import { useBreakpoint } from "@/hooks/use-mobile";
@@ -10,6 +11,7 @@ import LoadingState from "./LoadingState";
 import ErrorState from "./ErrorState";
 import StrategyWizardModal from "./StrategyWizardModal";
 import ExecutiveDebateModal from "./ExecutiveDebateModal";
+import StrategyDetailModal from "./StrategyDetailModal";
 import MarketAlertBanner from "./MarketAlertBanner";
 import { useExecutiveDebate } from "@/hooks/useExecutiveDebate";
 import { useMarketAlerts } from "@/hooks/useMarketAlerts";
@@ -27,6 +29,7 @@ export default function StrategyBoard() {
   // Modal states
   const [isWizardModalOpen, setIsWizardModalOpen] = useState(false);
   const [isDebateModalOpen, setIsDebateModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   
   // Executive debate integration
@@ -51,6 +54,12 @@ export default function StrategyBoard() {
     generateDebate(strategy);
     setIsDebateModalOpen(true);
   }, [generateDebate]);
+
+  // Handle opening strategy detail modal
+  const handleViewStrategyDetail = useCallback((strategy: Strategy) => {
+    setSelectedStrategy(strategy);
+    setIsDetailModalOpen(true);
+  }, []);
   
   // Handle export to PDF
   const handleExportPDF = useCallback((strategy: Strategy) => {
@@ -226,6 +235,7 @@ export default function StrategyBoard() {
             strategies={sortedStrategies} 
             onDebate={handleDebateStrategy}
             onExport={handleExportPDF}
+            onViewStrategy={handleViewStrategyDetail}
           />
         )}
       </div>
@@ -244,6 +254,13 @@ export default function StrategyBoard() {
         strategy={selectedStrategy}
         debate={debate}
         isLoading={isGeneratingDebate}
+      />
+      
+      {/* Strategy Detail Modal */}
+      <StrategyDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        strategy={selectedStrategy}
       />
     </div>
   );

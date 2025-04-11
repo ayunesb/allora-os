@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { useStrategies } from "@/hooks/useStrategies";
 import { Strategy } from "@/models/strategy";
@@ -8,10 +8,13 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { exportStrategyToPdf } from "@/utils/strategy/pdfExport";
 import { toast } from "sonner";
+import StrategyDetailModal from "../strategy-board/StrategyDetailModal";
 
 export function StrategyDisplay() {
   const { strategies, isLoading, error, refetch } = useStrategies();
   const navigate = useNavigate();
+  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   
   useEffect(() => {
     // Fetch strategies on component mount
@@ -34,6 +37,11 @@ export function StrategyDisplay() {
         toast.error("Failed to export strategy. Please try again.");
       }
     }, 1000);
+  };
+
+  const handleViewStrategyDetail = (strategy: Strategy) => {
+    setSelectedStrategy(strategy);
+    setIsDetailModalOpen(true);
   };
   
   if (isLoading) {
@@ -83,14 +91,22 @@ export function StrategyDisplay() {
             key={strategy.id} 
             strategy={strategy} 
             onExport={() => handleExportPDF(strategy)}
+            onClick={() => handleViewStrategyDetail(strategy)}
           />
         ))}
       </div>
+
+      {/* Strategy Detail Modal */}
+      <StrategyDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        strategy={selectedStrategy}
+      />
     </div>
   );
 }
 
-function StrategyCard({ strategy, onExport }: { strategy: Strategy; onExport: () => void }) {
+function StrategyCard({ strategy, onExport, onClick }: { strategy: Strategy; onExport: () => void; onClick: () => void }) {
   // Determine a color based on risk level
   const getRiskColor = (risk: string | undefined) => {
     switch (risk?.toLowerCase()) {
@@ -106,7 +122,7 @@ function StrategyCard({ strategy, onExport }: { strategy: Strategy; onExport: ()
   };
   
   return (
-    <Card className="transition-all hover:shadow-md">
+    <Card className="transition-all hover:shadow-md cursor-pointer" onClick={onClick}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl">{strategy.title}</CardTitle>
@@ -141,7 +157,10 @@ function StrategyCard({ strategy, onExport }: { strategy: Strategy; onExport: ()
           variant="ghost" 
           size="sm" 
           className="h-8 px-2 text-muted-foreground hover:text-foreground"
-          onClick={onExport}
+          onClick={(e) => {
+            e.stopPropagation();
+            onExport();
+          }}
         >
           <FileDown className="h-4 w-4 mr-1" />
           PDF

@@ -7,17 +7,19 @@ interface StrategyGridProps {
   strategies: Strategy[];
   onDebate: (strategy: Strategy) => void;
   onExport: (strategy: Strategy) => void;
+  onViewStrategy: (strategy: Strategy) => void;
 }
 
-export default function StrategyGrid({ strategies, onDebate, onExport }: StrategyGridProps) {
+export default function StrategyGrid({ strategies, onDebate, onExport, onViewStrategy }: StrategyGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {strategies.map((strategy) => (
-        <StrategyCard 
-          key={strategy.id} 
-          strategy={strategy} 
+        <StrategyCard
+          key={strategy.id}
+          strategy={strategy}
           onDebate={() => onDebate(strategy)}
           onExport={() => onExport(strategy)}
+          onClick={() => onViewStrategy(strategy)}
         />
       ))}
     </div>

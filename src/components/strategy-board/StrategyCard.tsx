@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Strategy } from "@/models/strategy";
-import { Clock, MessageSquare, FileDown, Edit } from "lucide-react";
+import { Clock, MessageSquare, FileDown, Edit, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { formatDistanceToNow } from "date-fns";
 
@@ -9,9 +9,10 @@ interface StrategyCardProps {
   strategy: Strategy;
   onDebate: () => void;
   onExport: () => void;
+  onClick: () => void;
 }
 
-export default function StrategyCard({ strategy, onDebate, onExport }: StrategyCardProps) {
+export default function StrategyCard({ strategy, onDebate, onExport, onClick }: StrategyCardProps) {
   // Progress calculation
   const progress = strategy.progress !== undefined 
     ? strategy.progress 
@@ -39,7 +40,10 @@ export default function StrategyCard({ strategy, onDebate, onExport }: StrategyC
   };
   
   return (
-    <div className="group bg-[#0f1526] border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/10">
+    <div 
+      className="group bg-[#0f1526] border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/10 cursor-pointer"
+      onClick={onClick}
+    >
       <div className="p-5">
         {/* Status badges */}
         <div className="flex flex-wrap gap-2 mb-3">
@@ -108,6 +112,7 @@ export default function StrategyCard({ strategy, onDebate, onExport }: StrategyC
           
           <button
             className="flex items-center justify-center py-2 px-3 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 transition-colors"
+            onClick={(e) => e.stopPropagation()}
           >
             <Edit className="h-4 w-4" />
           </button>
