@@ -21,14 +21,14 @@ export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
   for (const tableName of requiredTables) {
     try {
       // Check if table exists by attempting to query it
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('information_schema.tables')
         .select('table_name')
         .eq('table_schema', 'public')
         .eq('table_name', tableName)
-        .maybeSingle();
+        .single();
       
-      const exists = !error;
+      const exists = error ? false : !!data;
       
       tableResults.push({
         name: tableName,
@@ -52,7 +52,7 @@ export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
  * Verifies that RLS policies are properly configured for critical tables
  */
 export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
-  const tablesWithRls = ['profiles', 'companies', 'campaigns', 'strategies', 'leads', 'communications', 'user_preferences'];
+  const tablesWithRls = ['profiles', 'companies', 'campaigns', 'strategies', 'leads', 'communications', 'user_preferences', 'ai_boardroom_debates'];
   const policyResults: PolicyStatus[] = [];
   
   for (const table of tablesWithRls) {
@@ -63,7 +63,7 @@ export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
         .select('table_name')
         .eq('table_schema', 'public')
         .eq('table_name', table)
-        .maybeSingle();
+        .single();
         
       if (tableError || !tableData) {
         policyResults.push({
@@ -74,18 +74,21 @@ export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
         continue;
       }
       
-      // Check if RLS is enabled for the table
-      const { data: rlsData, error: rlsError } = await supabase
-        .rpc('check_rls_enabled', { table_name: table });
-      
-      const hasRls = rlsData && rlsData.length > 0 && rlsData[0]?.rls_enabled;
+      // Check if the table has RLS policies
+      const { data: policiesData, error: policiesError } = await supabase
+        .from('pg_policies')
+        .select('*')
+        .eq('tablename', table)
+        .eq('schemaname', 'public');
+        
+      const hasRlsPolicies = !policiesError && policiesData && policiesData.length > 0;
         
       policyResults.push({
         table,
-        exists: hasRls,
-        message: hasRls 
-          ? `RLS is enabled for ${table}` 
-          : `RLS is disabled for ${table}`
+        exists: hasRlsPolicies,
+        message: hasRlsPolicies 
+          ? `RLS policies are enabled for ${table}` 
+          : `RLS policies are disabled for ${table}`
       });
     } catch (err: any) {
       console.error(`Error checking RLS for ${table}:`, err);
@@ -112,12 +115,9 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
   
   for (const funcName of requiredFunctions) {
     try {
-      // Query information_schema.routines for functions
+      // Query pg_proc directly for the function
       const { data, error } = await supabase
-        .from('information_schema.routines')
-        .select('routine_name, security_type')
-        .eq('routine_schema', 'public')
-        .eq('routine_name', funcName);
+        .rpc('check_function_exists', { function_name: funcName });
         
       if (error) {
         console.error(`Error checking function ${funcName}:`, error);
@@ -127,21 +127,22 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
           isSecure: false,
           message: `Error checking function ${funcName}: ${error.message}`
         });
-      } else {
-        const exists = Array.isArray(data) && data.length > 0;
-        const isSecure = exists && data[0]?.security_type === 'DEFINER';
-        
-        functionResults.push({
-          name: funcName,
-          exists,
-          isSecure,
-          message: exists 
-            ? (isSecure 
-              ? `Function ${funcName} exists and is SECURITY DEFINER` 
-              : `Function ${funcName} exists but is NOT SECURITY DEFINER`)
-            : `Function ${funcName} does not exist`
-        });
+        continue;
       }
+      
+      const exists = !!data && data.exists;
+      const isSecure = !!data && data.is_secure;
+        
+      functionResults.push({
+        name: funcName,
+        exists,
+        isSecure,
+        message: exists 
+          ? (isSecure 
+            ? `Function ${funcName} exists and is SECURITY DEFINER` 
+            : `Function ${funcName} exists but is NOT SECURITY DEFINER`)
+          : `Function ${funcName} does not exist`
+      });
     } catch (err: any) {
       console.error(`Error checking function ${funcName}:`, err);
       functionResults.push({
@@ -174,17 +175,17 @@ export function displayVerificationResults(
   
   // Check RLS policies
   const missingRls = policies.filter(p => !p.exists).map(p => p.table);
-  if (missingRls.length === 0) {
+  if (missingRls.length === 0 && policies.length > 0) {
     toast.success('RLS policies verified successfully');
-  } else {
+  } else if (missingRls.length > 0) {
     toast.error(`RLS issues found on tables: ${missingRls.join(', ')}`);
   }
   
   // Function issues
   const functionIssues = functions.filter(f => !f.exists || !f.isSecure).map(f => f.name);
-  if (functionIssues.length === 0) {
+  if (functionIssues.length === 0 && functions.length > 0) {
     toast.success('Database functions verified successfully');
-  } else {
+  } else if (functionIssues.length > 0) {
     toast.error(`Issues with functions: ${functionIssues.join(', ')}`);
   }
 }

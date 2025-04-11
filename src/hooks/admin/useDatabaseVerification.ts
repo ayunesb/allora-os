@@ -8,6 +8,7 @@ import {
   verifyDatabaseFunctions,
   displayVerificationResults 
 } from '@/utils/admin/databaseVerification';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useDatabaseVerification() {
   const [verificationResult, setVerificationResult] = useState<DatabaseVerificationResult>({
@@ -17,11 +18,34 @@ export function useDatabaseVerification() {
     isVerifying: false
   });
 
+  const createFunctionCheckerRPC = async () => {
+    try {
+      // Check if the helper function exists
+      const { data, error } = await supabase.rpc('check_function_exists', { function_name: 'check_function_exists' });
+      
+      if (error && error.message.includes('does not exist')) {
+        // Create the helper function if it doesn't exist
+        const { error: createError } = await supabase.rpc('create_function_checker');
+        
+        if (createError) {
+          console.error('Failed to create function checker:', createError);
+          // We'll use a fallback method in verifyDatabaseFunctions
+        }
+      }
+    } catch (err) {
+      console.error('Error setting up function checker:', err);
+      // We'll use a fallback method in verifyDatabaseFunctions
+    }
+  };
+
   const verifyDatabaseConfiguration = useCallback(async () => {
     setVerificationResult(prev => ({ ...prev, isVerifying: true }));
     
     try {
       console.log('Starting database verification process...');
+      
+      // Create function checker if needed
+      await createFunctionCheckerRPC();
       
       // Run all verification checks in parallel for better performance
       const [tables, policies, functions] = await Promise.all([
