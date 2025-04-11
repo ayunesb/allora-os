@@ -1,20 +1,14 @@
-import React, { useEffect, useState } from "react";
+
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
-import CompanyInfoForm from "@/components/onboarding/CompanyInfoForm";
-import IndustryForm from "@/components/onboarding/IndustryForm";
-import GoalsForm from "@/components/onboarding/GoalsForm";
 import useOnboardingState from "@/hooks/useOnboardingState";
-import { CompanyDetailsSurvey } from "@/components/onboarding/company-details";
-import RiskProfileForm from "@/components/onboarding/RiskProfileForm";
-import ExecutiveTeamIntro from "@/components/onboarding/ExecutiveTeamIntro";
-import { Button } from "@/components/ui/button";
-import { LogOut, RefreshCw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { checkOnboardingStatus } from "@/utils/onboarding";
-import { completeOnboarding } from "@/utils/onboarding/completeOnboarding"; 
 import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
+import { useOnboardingStatusCheck } from "@/hooks/useOnboardingStatusCheck";
+import { useOnboardingValidation } from "@/hooks/useOnboardingValidation";
+import * as Steps from "@/components/onboarding/steps";
 
 export default function Onboarding() {
   const {
@@ -37,55 +31,10 @@ export default function Onboarding() {
     toggleGoal
   } = useOnboardingState();
 
-  const { user, signOut, isLoading: isAuthLoading, hasInitialized, profile, refreshProfile } = useAuth();
+  const { isLoading: isAuthLoading, signOut } = useAuth();
+  const { isCheckingStatus, retryCount, user } = useOnboardingStatusCheck();
+  const { isCompleting, validationError, handleComplete } = useOnboardingValidation();
   const navigate = useNavigate();
-  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
-  const [isCompleting, setIsCompleting] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    const checkStatus = async () => {
-      if (!user && retryCount < 3) {
-        setTimeout(() => {
-          if (isMounted) {
-            setRetryCount(prev => prev + 1);
-          }
-        }, 1500);
-        return;
-      }
-      
-      if (!user) {
-        if (hasInitialized) {
-          toast.error("You must be logged in to complete onboarding");
-          navigate("/login");
-        }
-        return;
-      }
-
-      try {
-        const isCompleted = await checkOnboardingStatus(user.id);
-        if (isCompleted && isMounted) {
-          toast.info("You've already completed onboarding");
-          navigate("/dashboard");
-        }
-      } catch (error) {
-        console.error("Error checking onboarding status:", error);
-      } finally {
-        if (isMounted) {
-          setIsCheckingStatus(false);
-        }
-      }
-    };
-
-    checkStatus();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [user, navigate, retryCount, hasInitialized]);
 
   const handleSignOut = async () => {
     try {
@@ -102,63 +51,10 @@ export default function Onboarding() {
     window.location.reload();
   };
 
-  const handleComplete = async () => {
-    setValidationError(null);
-    setIsCompleting(true);
-    
-    try {
-      if (!user) {
-        throw new Error("User authentication required. Please try logging in again.");
-      }
-      
-      console.log("Current profile state:", profile);
-      
-      if (!profile?.company_id && profile?.company) {
-        console.log("Creating company for user before completing onboarding");
-        throw new Error("Company setup incomplete. Please go back to step 1.");
-      }
-      
-      if (!profile?.company_id) {
-        throw new Error("Company setup incomplete. Please try again.");
-      }
-      
-      if (!industry) {
-        throw new Error("Please select an industry before continuing.");
-      }
-
-      const enhancedDetails = {
-        whatsAppEnabled: true,
-        emailEnabled: true,
-        executiveTeamEnabled
-      };
-      
-      console.log("Completing onboarding with data:", {
-        userId: user.id,
-        companyId: profile.company_id,
-        industry,
-        enhancedDetails
-      });
-      
-      await refreshProfile();
-      
-      const result = await completeOnboarding(
-        user.id, 
-        profile.company_id, 
-        industry
-      );
-      
-      if (result.success) {
-        toast.success("Onboarding completed! Welcome to Allora AI.");
-        navigate("/dashboard");
-      } else {
-        throw new Error(result.error || "Failed to complete onboarding");
-      }
-    } catch (error: any) {
-      console.error("Error completing onboarding:", error);
-      setValidationError(error.message || "An error occurred during onboarding");
-      toast.error(error.message || "An error occurred during onboarding");
-    } finally {
-      setIsCompleting(false);
+  const handleFinalComplete = async () => {
+    const success = await handleComplete();
+    if (success) {
+      navigate("/dashboard");
     }
   };
 
@@ -167,59 +63,40 @@ export default function Onboarding() {
   }
 
   if (retryCount >= 3 && !user) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-        <div className="bg-card border rounded-lg shadow-lg p-6 max-w-md w-full">
-          <h2 className="text-xl font-semibold mb-4">Authentication Issue</h2>
-          <p className="text-muted-foreground mb-6">
-            There was a problem loading your account information. This might be due to a temporary connection issue.
-          </p>
-          <div className="flex gap-4 justify-end">
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
-            </Button>
-            <Button onClick={handleRefresh}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh page
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <Steps.AuthIssue onSignOut={handleSignOut} onRefresh={handleRefresh} />;
   }
 
   const getStepContent = () => {
     switch (step) {
       case 1:
         return (
-          <CompanyInfoForm
+          <Steps.CompanyInfo 
             companyName={companyName}
             setCompanyName={setCompanyName}
-            error={errorMessage?.includes("company") ? errorMessage : undefined}
+            errorMessage={errorMessage}
           />
         );
       case 2:
         return (
-          <IndustryForm
+          <Steps.Industry
             industry={industry}
             setIndustry={setIndustry}
-            error={errorMessage?.includes("industry") ? errorMessage : undefined}
+            errorMessage={errorMessage}
           />
         );
       case 3:
         return (
-          <GoalsForm
+          <Steps.Goals
             goals={goals}
             toggleGoal={toggleGoal}
             companyName={companyName}
             industry={industry}
-            error={errorMessage?.includes("goal") ? errorMessage : undefined}
+            errorMessage={errorMessage}
           />
         );
       case 4:
         return (
-          <CompanyDetailsSurvey
+          <Steps.CompanyDetails
             companyDetails={companyDetails}
             updateCompanyDetails={updateCompanyDetails}
             onNext={handleNext}
@@ -227,7 +104,7 @@ export default function Onboarding() {
         );
       case 5:
         return (
-          <RiskProfileForm
+          <Steps.RiskProfile
             riskAppetite={riskAppetite}
             setRiskAppetite={setRiskAppetite}
             executiveTeamEnabled={executiveTeamEnabled}
@@ -237,12 +114,12 @@ export default function Onboarding() {
         );
       case 6:
         return (
-          <ExecutiveTeamIntro
+          <Steps.ExecutiveTeam
             executiveTeamEnabled={executiveTeamEnabled}
             setExecutiveTeamEnabled={setExecutiveTeamEnabled}
             riskAppetite={riskAppetite}
             companyName={companyName}
-            onComplete={handleComplete}
+            onComplete={handleFinalComplete}
             isLoading={isCompleting}
           />
         );
@@ -257,7 +134,7 @@ export default function Onboarding() {
     <OnboardingLayout
       step={step}
       totalSteps={6}
-      onNext={isLastStep ? handleComplete : handleNext}
+      onNext={isLastStep ? handleFinalComplete : handleNext}
       onBack={handleBack}
       isNextDisabled={isOnboardingLoading || isCompleting}
       isBackDisabled={step === 1 || isOnboardingLoading || isCompleting}
