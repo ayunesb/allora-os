@@ -17,6 +17,7 @@ import AdAccountsConnect from "@/pages/dashboard/AdAccountsConnect";
 import CampaignCreate from "@/pages/dashboard/CampaignCreate";
 import CampaignDetail from "@/pages/dashboard/CampaignDetail";
 import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";
+import TiktokCallback from "@/components/auth/TiktokCallback";
 
 export const dashboardRoutes: RouteObject = {
   path: "/dashboard",
@@ -73,6 +74,10 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "ad-accounts",
       element: <AdAccountsConnect />,
+    },
+    {
+      path: "auth/tiktok/callback",
+      element: <TiktokCallback />,
     },
     {
       path: "leads",

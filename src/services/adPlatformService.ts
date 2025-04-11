@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { handleApiError } from '@/utils/api/errorHandling';
 
 export interface AdPlatformConnection {
   id: string;
@@ -30,7 +31,10 @@ export async function initiateMetaAuth() {
       throw new Error('Failed to get authorization URL');
     }
   } catch (error: any) {
-    toast.error(`Meta authorization failed: ${error.message}`);
+    handleApiError(error, { 
+      customMessage: 'Meta authorization failed',
+      showToast: true
+    });
     return { success: false, error: error.message };
   }
 }
@@ -44,16 +48,20 @@ export async function initiateTikTokAuth() {
       body: { action: 'authorize' }
     });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
     
-    if (data.url) {
+    if (data?.url) {
       window.location.href = data.url;
       return { success: true };
     } else {
-      throw new Error('Failed to get authorization URL');
+      console.error('TikTok auth response:', data);
+      throw new Error('Failed to get TikTok authorization URL');
     }
   } catch (error: any) {
-    toast.error(`TikTok authorization failed: ${error.message}`);
+    console.error('TikTok auth error:', error);
+    toast.error(`TikTok authorization failed: ${error.message || 'Unknown error'}`);
     return { success: false, error: error.message };
   }
 }
@@ -98,7 +106,10 @@ export async function disconnectAdPlatform(platform: 'meta' | 'tiktok') {
       throw new Error(data.error || 'Failed to disconnect account');
     }
   } catch (error: any) {
-    toast.error(`Failed to disconnect account: ${error.message}`);
+    handleApiError(error, {
+      customMessage: `Failed to disconnect ${platform} account`,
+      showToast: true
+    });
     return { success: false, error: error.message };
   }
 }

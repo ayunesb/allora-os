@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { RefreshCcw } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function TiktokCallback() {
   const [isLoading, setIsLoading] = useState(true);
@@ -31,11 +32,16 @@ export default function TiktokCallback() {
         }
         
         // Call the edge function to exchange the code for a token
-        const response = await fetch(`/functions/v1/tiktok-auth?action=callback&auth_code=${authCode}`);
-        const data = await response.json();
+        const { data, error } = await supabase.functions.invoke('tiktok-auth', {
+          body: { 
+            action: 'callback',
+            auth_code: authCode
+          }
+        });
         
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to authenticate with TikTok');
+        if (error) {
+          console.error('TikTok callback error:', error);
+          throw error;
         }
         
         if (data.success) {
