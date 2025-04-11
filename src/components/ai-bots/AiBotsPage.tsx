@@ -14,6 +14,8 @@ import BotInsightsSection from "@/components/bot-insights/BotInsightsSection";
 import BotChatPanel from "@/components/bot-chat/BotChatPanel";
 import ExecutiveRoster from "@/components/ExecutiveRoster";
 import ConsultationHistory from "@/components/ConsultationHistory";
+import { executiveBots } from "@/backend/executiveBots";
+import { formatRoleTitle, getBotExpertise, getBotOutputLocation } from "@/utils/consultation";
 
 export const AiBotsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("boardroom");
@@ -42,7 +44,17 @@ export const AiBotsPage: React.FC = () => {
     }
   };
 
-  const allBots = Object.entries({}).flatMap(([role, names]) => []);  // Empty placeholder for type inference
+  // Generate the full list of executive bots with all their metadata
+  const allBots = Object.entries(executiveBots).flatMap(([role, names]) => 
+    names.map(name => ({
+      name,
+      role,
+      title: formatRoleTitle(role),
+      specialty: getBotExpertise(role),
+      outputLocation: getBotOutputLocation(role),
+      avatar: `/avatars/${name.toLowerCase().replace(/\s+/g, '-')}.png`
+    }))
+  );
 
   return (
     <div className="space-y-8">
