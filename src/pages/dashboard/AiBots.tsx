@@ -38,6 +38,7 @@ import {
 import { formatRoleTitle, getBotExpertise } from "@/utils/consultation";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function AiBots() {
   const [activeTab, setActiveTab] = useState("boardroom");
@@ -115,7 +116,9 @@ export default function AiBots() {
         </TabsList>
 
         <TabsContent value="boardroom">
-          <AIExecutiveBoardroom companyId={companyId} />
+          <ErrorBoundary>
+            <AIExecutiveBoardroom companyId={companyId} />
+          </ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="bots">
