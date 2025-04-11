@@ -10,5 +10,5 @@ export interface SectionProps {
   removeFromArray: (field: keyof PartialCompanyDetails, index: number) => void;
   handleTextChange: (field: keyof PartialCompanyDetails, value: string) => void;
   handleNumberChange?: (field: keyof PartialCompanyDetails, value: string) => void;
-  onNext?: () => void;
+  onNext?: (section?: string) => void;
 }

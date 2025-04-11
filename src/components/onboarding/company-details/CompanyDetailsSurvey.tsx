@@ -82,8 +82,10 @@ export default function CompanyDetailsSurvey({
   ];
 
   // Function to navigate to the next section
-  const navigateToNextSection = (currentSection: string) => {
-    const currentIndex = sectionOrder.indexOf(currentSection);
+  const navigateToNextSection = (section?: string) => {
+    if (!section) return;
+    
+    const currentIndex = sectionOrder.indexOf(section);
     if (currentIndex < sectionOrder.length - 1) {
       const nextSection = sectionOrder[currentIndex + 1];
       setOpenSections([nextSection]);
@@ -111,7 +113,7 @@ export default function CompanyDetailsSurvey({
     removeFromArray,
     handleTextChange,
     handleNumberChange,
-    onNext: (section: string) => navigateToNextSection(section)
+    onNext: navigateToNextSection
   };
 
   return (
@@ -128,15 +130,15 @@ export default function CompanyDetailsSurvey({
         value={openSections}
         onValueChange={setOpenSections}
       >
-        <Sections.CompanyFundamentals {...sectionProps} onNext={() => navigateToNextSection('fundamentals')} />
-        <Sections.MarketAnalysis {...sectionProps} onNext={() => navigateToNextSection('market')} />
-        <Sections.GrowthTraction {...sectionProps} onNext={() => navigateToNextSection('growth')} />
-        <Sections.ProductTechnology {...sectionProps} onNext={() => navigateToNextSection('product')} />
-        <Sections.TeamLeadership {...sectionProps} onNext={() => navigateToNextSection('team')} />
-        <Sections.MarketingSales {...sectionProps} onNext={() => navigateToNextSection('marketing')} />
-        <Sections.AiReadiness {...sectionProps} onNext={() => navigateToNextSection('ai')} />
-        <Sections.FinancialOverview {...sectionProps} onNext={() => navigateToNextSection('financial')} />
-        <Sections.StrategicGoals {...sectionProps} onNext={() => navigateToNextSection('goals')} />
+        <Sections.CompanyFundamentals {...sectionProps} />
+        <Sections.MarketAnalysis {...sectionProps} />
+        <Sections.GrowthTraction {...sectionProps} />
+        <Sections.ProductTechnology {...sectionProps} />
+        <Sections.TeamLeadership {...sectionProps} />
+        <Sections.MarketingSales {...sectionProps} />
+        <Sections.AiReadiness {...sectionProps} />
+        <Sections.FinancialOverview {...sectionProps} />
+        <Sections.StrategicGoals {...sectionProps} />
         <Sections.SpecialInfo {...sectionProps} />
       </Accordion>
       
