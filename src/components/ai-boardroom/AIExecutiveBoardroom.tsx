@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MessageSquare, AlertTriangle, PlusCircle } from "lucide-react";
+import { Loader2, MessageSquare, AlertTriangle, PlusCircle, LightbulbIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { getExecutiveImage } from "@/utils/ai-executives";
@@ -12,8 +11,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 
-// Add the missing getStanceBadge function
 const getStanceBadge = (stance: string) => {
   switch (stance.toLowerCase()) {
     case 'support':
@@ -40,6 +39,24 @@ const getStanceBadge = (stance: string) => {
 interface AIExecutiveBoardroomProps {
   companyId?: string | null;
 }
+
+const sampleDebate = {
+  topic: "Expanding into emerging markets with our SaaS product",
+  summary: "The executive team debated the benefits and challenges of expanding our SaaS product into emerging markets, weighing market potential against operational complexity.",
+  executives: [
+    { id: "exec-1", name: "Elon Musk", role: "ceo", title: "CEO" },
+    { id: "exec-2", name: "Warren Buffett", role: "cfo", title: "CFO" },
+    { id: "exec-3", name: "Satya Nadella", role: "coo", title: "COO" },
+    { id: "exec-4", name: "Sheryl Sandberg", role: "cmo", title: "CMO" }
+  ],
+  discussion: [
+    { speaker: "Elon Musk", message: "I strongly believe we should aggressively expand into Southeast Asia first. The digital transformation happening there presents a unique opportunity for our SaaS solution. We could capture significant market share before competitors realize the potential." },
+    { speaker: "Warren Buffett", message: "I'm concerned about the financial implications. These markets typically have lower price points, which could impact our margins. We should carefully analyze the unit economics before committing significant resources." },
+    { speaker: "Satya Nadella", message: "From an operational perspective, we'd need to consider localization requirements - not just language, but also regulatory compliance and payment methods. I suggest starting with a limited offering in 1-2 countries first." },
+    { speaker: "Sheryl Sandberg", message: "Marketing in these regions will require a different approach. We should leverage local partnerships and platforms rather than our usual channels. I'd recommend allocating budget for market research before full commitment." }
+  ],
+  conclusion: "The executive team recommends a phased approach, starting with a focused entry into Singapore and Vietnam, with clear success metrics before expanding further. This balances opportunity with responsible risk management."
+};
 
 export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroomProps) {
   const [topic, setTopic] = useState<string>('');
@@ -70,13 +87,11 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
       setError(null);
       setTimeoutError(false);
       
-      // Set a timeout to show a message if the fetch takes too long
       timer = setTimeout(() => {
         setTimeoutError(true);
       }, 8000);
 
       try {
-        // Check if the table exists and we have access
         const { data, error } = await supabase
           .from('ai_boardroom_debates')
           .select('*')
@@ -84,16 +99,13 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
           .order('created_at', { ascending: false })
           .limit(1);
 
-        // Clear the timeout since we got a response
         clearTimeout(timer);
 
         if (error) {
           console.error("Supabase error:", error);
           if (error.code === 'PGRST116') {
-            // No data found for this company
             setError("No boardroom debate found for this company. Try starting a new debate.");
           } else if (error.code === '42P01') {
-            // Table doesn't exist
             setError("Executive boardroom functionality is not available. The required database table is missing.");
           } else {
             throw new Error(`Failed to fetch boardroom debate: ${error.message}`);
@@ -106,8 +118,13 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
           setDiscussion(debateData.discussion || []);
           setConclusion(debateData.conclusion || '');
         } else {
-          // No error but no data
           setError("No boardroom debates found. Start your first executive debate.");
+          
+          setTopic(sampleDebate.topic);
+          setSummary(sampleDebate.summary);
+          setExecutives(sampleDebate.executives);
+          setDiscussion(sampleDebate.discussion);
+          setConclusion(sampleDebate.conclusion);
         }
       } catch (err: any) {
         clearTimeout(timer);
@@ -126,7 +143,6 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
   }, [companyId, profile?.company_id]);
 
   const handleStartNewDebate = () => {
-    // This function would open a modal or navigate to a debate creation page
     toast.info("This feature is coming soon!");
   };
 
@@ -135,7 +151,6 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
     return executive ? executive.name : 'Unknown Executive';
   };
 
-  // Create a default debate if we're stuck loading too long
   if (timeoutError && isLoading) {
     return (
       <Card className="shadow-md">
@@ -178,27 +193,75 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
       <Card className="shadow-md">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">AI Executive Boardroom</CardTitle>
-          <CardDescription>Simulating a live debate among your AI executives</CardDescription>
+          <CardDescription>Preview of an executive debate - start your own to get personalized insights</CardDescription>
         </CardHeader>
-        <CardContent className="py-4">
-          <div className="flex flex-col items-center text-center">
-            <AlertTriangle className="h-12 w-12 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground mb-4">{error}</p>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-md font-semibold">Sample Topic</h3>
+            <p className="text-muted-foreground">{sampleDebate.topic}</p>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-md font-semibold">Preview</h3>
+            <p className="text-muted-foreground">{sampleDebate.summary}</p>
+          </div>
+
+          <div>
+            <h3 className="text-md font-semibold">How It Works</h3>
+            <div className="mt-4 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <PlusCircle className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium">Start a Debate</h4>
+                  <p className="text-xs text-muted-foreground">Set a business topic for your AI executives to discuss</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium">Watch the Discussion</h4>
+                  <p className="text-xs text-muted-foreground">See different perspectives from AI executives with diverse expertise</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <AlertTriangle className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium">Get Strategic Insights</h4>
+                  <p className="text-xs text-muted-foreground">Receive actionable strategies based on the debate outcome</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-center">
             <Button 
-              variant="outline" 
+              variant="default" 
               onClick={handleStartNewDebate}
-              className="mt-2"
+              className="px-8"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
-              Start New Debate
+              Start Your First Debate
             </Button>
+          </div>
+          
+          <div className="text-center mt-4">
+            <p className="text-xs text-muted-foreground">
+              Or <Link to="/dashboard/strategies" className="text-primary hover:underline">view strategic recommendations</Link> based on previous debates
+            </p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  // Handle case where we somehow passed all checks but still have no data
   if (!topic && !summary && discussion.length === 0) {
     return (
       <Card className="shadow-md">
@@ -276,6 +339,13 @@ export default function AIExecutiveBoardroom({ companyId }: AIExecutiveBoardroom
               )}
             </TabsContent>
           </Tabs>
+        </div>
+        
+        <div className="mt-4 pt-4 border-t border-border">
+          <Button onClick={handleStartNewDebate} className="w-full">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Start New Debate
+          </Button>
         </div>
       </CardContent>
     </Card>
