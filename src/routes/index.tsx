@@ -9,6 +9,7 @@ import { authRoutes } from "./auth-routes";
 import { adminRoutes } from "./admin-routes";
 import { marketingRoutes } from "./marketing-routes";
 import ZoomCallback from "@/components/integration/ZoomCallback";
+import NotFound from "@/pages/NotFound";
 
 // Add NavigationManager to each route that isn't the admin routes
 const withNavigationManager = (routes) => {
@@ -53,6 +54,16 @@ export const router = createBrowserRouter([
       <>
         <NavigationManager />
         <ZoomCallback />
+      </>
+    ),
+  },
+  // Add a catch-all route for 404 pages
+  {
+    path: "*",
+    element: (
+      <>
+        <NavigationManager />
+        <NotFound />
       </>
     ),
   },

@@ -62,12 +62,21 @@ export async function getWhatsAppTemplates() {
       body: { action: 'get-whatsapp-templates' }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error invoking Twilio function:", error);
+      throw new Error(`Error invoking Twilio function: ${error.message}`);
+    }
+    
+    if (!data.success) {
+      console.error("Error from Twilio API:", data.error);
+      throw new Error(data.error || "Failed to retrieve WhatsApp templates");
+    }
     
     return data.templates || [];
   } catch (error: any) {
+    console.error("WhatsApp template fetch error:", error);
     toast.error(`Error fetching WhatsApp templates: ${error.message}`);
-    return [];
+    throw error; // Re-throw to allow caller to handle
   }
 }
 

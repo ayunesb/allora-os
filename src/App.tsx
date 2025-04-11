@@ -11,7 +11,7 @@ function App() {
     console.log("Current route:", location.pathname);
   }, [location]);
 
-  // The actual routing is now handled in src/routes.tsx
+  // The actual routing is now handled in src/routes/index.tsx
   return (
     <div className="min-h-screen bg-background">
       <ErrorBoundary>

@@ -304,25 +304,50 @@ serve(async (req) => {
     }
     
     else if (action === "get-whatsapp-templates") {
-      // Fetch WhatsApp templates from Twilio
-      const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Content.json?ContentType=template`;
-      const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
-      
-      const twilioResponse = await fetch(twilioEndpoint, {
-        method: "GET",
-        headers: {
-          "Authorization": `Basic ${twilioAuthString}`
-        }
-      });
+      try {
+        // Fetch WhatsApp templates from Twilio
+        const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Content.json?ContentType=template`;
+        const twilioAuthString = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+        
+        const twilioResponse = await fetch(twilioEndpoint, {
+          method: "GET",
+          headers: {
+            "Authorization": `Basic ${twilioAuthString}`
+          }
+        });
 
-      const twilioResult = await twilioResponse.json();
-      
-      return new Response(JSON.stringify({ 
-        success: twilioResponse.ok,
-        templates: twilioResult.contents || []
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+        if (!twilioResponse.ok) {
+          console.error(`Failed to fetch templates: ${twilioResponse.status} ${twilioResponse.statusText}`);
+          return new Response(JSON.stringify({ 
+            success: false,
+            error: `Failed to fetch templates: ${twilioResponse.status} ${twilioResponse.statusText}`,
+            templates: []
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200 // Still return 200 to avoid triggering CORS issues
+          });
+        }
+
+        const twilioResult = await twilioResponse.json();
+        
+        return new Response(JSON.stringify({ 
+          success: true,
+          templates: twilioResult.contents || []
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        console.error(`Error fetching WhatsApp templates: ${err.message}`);
+        // Return a valid response even in error case to avoid CORS issues
+        return new Response(JSON.stringify({ 
+          success: false,
+          error: err.message || "Unknown error fetching templates",
+          templates: []
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200
+        });
+      }
     }
     
     else if (action === "get-message-status") {
