@@ -8,6 +8,7 @@ import DashboardSettings from "@/pages/dashboard/Settings";
 import DashboardProfile from "@/pages/dashboard/Profile";
 import DashboardAiBots from "@/pages/dashboard/AiBots";
 import DashboardCampaigns from "@/pages/dashboard/CampaignDashboard";
+import Campaigns from "@/pages/dashboard/Campaigns";
 import DashboardLeads from "@/pages/dashboard/Leads";
 import DashboardCalls from "@/pages/dashboard/Calls";
 import DashboardApprovals from "@/pages/dashboard/Approvals";
@@ -52,6 +53,10 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "campaigns",
       element: <DashboardCampaigns />,
+    },
+    {
+      path: "campaigns/legacy",
+      element: <Campaigns />,
     },
     {
       path: "campaigns/create",
