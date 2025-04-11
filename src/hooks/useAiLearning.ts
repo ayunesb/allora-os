@@ -193,8 +193,8 @@ export function useAiLearning() {
   
   // Track feedback - alias for submitFeedback to match the component's expected API
   const trackFeedback = useCallback(async (
-    interactionId?: string,
-    messageId?: string,
+    interactionId: string | undefined,
+    messageId: string | undefined,
     botName: string,
     botRole: string,
     isPositive: boolean,
