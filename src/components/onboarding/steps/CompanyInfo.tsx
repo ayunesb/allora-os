@@ -21,6 +21,8 @@ export function CompanyInfo({
     <CompanyInfoForm
       companyName={companyName}
       setCompanyName={setCompanyName}
+      companyDetails={companyDetails}
+      updateCompanyDetails={updateCompanyDetails}
       error={errorMessage?.includes("company") ? errorMessage : undefined}
     />
   );
