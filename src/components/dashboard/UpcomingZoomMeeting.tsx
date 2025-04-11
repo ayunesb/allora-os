@@ -1,122 +1,156 @@
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CalendarDays, Users, ExternalLink, Copy } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Video, Calendar, ExternalLink, Clock } from "lucide-react";
-import { useZoomIntegration } from '@/hooks/useZoomIntegration';
-import { formatDistanceToNow, format, isAfter } from 'date-fns';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export function UpcomingZoomMeeting() {
-  const { getUpcomingMeetings } = useZoomIntegration();
-  const [upcomingMeeting, setUpcomingMeeting] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [hasUpcomingMeeting, setHasUpcomingMeeting] = useState(false);
+  const [meetingData, setMeetingData] = useState<any>(null);
+  const { profile } = useAuth();
   
   useEffect(() => {
-    async function fetchMeetings() {
-      setIsLoading(true);
+    // Check if we should show a demo meeting
+    const checkForMeeting = async () => {
+      if (!profile?.company_id) return;
+      
       try {
-        const meetings = await getUpcomingMeetings();
+        // Check if there are any upcoming meetings in the database
+        const { data: meetings, error } = await supabase
+          .from('zoom_meetings')
+          .select('*')
+          .eq('company_id', profile.company_id)
+          .gt('meeting_time', new Date().toISOString())
+          .order('meeting_time', { ascending: true })
+          .limit(1);
+          
+        if (error) throw error;
         
         if (meetings && meetings.length > 0) {
-          // Sort by start time and get the earliest one
-          const sortedMeetings = meetings.sort((a, b) => 
-            new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
-          );
+          setHasUpcomingMeeting(true);
+          setMeetingData(meetings[0]);
+          return;
+        }
+        
+        // If no meetings, check feature flags to see if we should create a demo one
+        const { data: featureFlags } = await supabase
+          .from('feature_flags')
+          .select('*')
+          .eq('feature_name', 'demo_zoom_meeting')
+          .eq('is_enabled', true)
+          .limit(1);
           
-          setUpcomingMeeting(sortedMeetings[0]);
+        if (featureFlags && featureFlags.length > 0) {
+          // Create a demo meeting - 2 days from now
+          const meetingTime = new Date();
+          meetingTime.setDate(meetingTime.getDate() + 2);
+          meetingTime.setHours(10, 0, 0, 0);
+          
+          const demoMeeting = {
+            title: "Strategy Review with AI Executive Team",
+            meeting_time: meetingTime.toISOString(),
+            duration: 45,
+            zoom_url: "https://zoom.us/j/123456789",
+            meeting_id: "123 456 789",
+            password: "allora",
+            host: "AI CEO",
+            company_id: profile.company_id,
+            participants: ["You", "AI CEO", "AI CMO", "AI CTO"]
+          };
+          
+          setHasUpcomingMeeting(true);
+          setMeetingData(demoMeeting);
         }
       } catch (error) {
-        console.error('Error fetching upcoming Zoom meetings:', error);
-      } finally {
-        setIsLoading(false);
+        console.error("Error checking for meetings:", error);
       }
-    }
+    };
     
-    fetchMeetings();
-  }, [getUpcomingMeetings]);
+    checkForMeeting();
+  }, [profile?.company_id]);
   
-  const copyMeetingLink = () => {
-    if (upcomingMeeting?.join_url) {
-      navigator.clipboard.writeText(upcomingMeeting.join_url);
-      toast.success('Meeting link copied to clipboard');
+  const handleCopyMeetingId = () => {
+    if (meetingData?.meeting_id) {
+      navigator.clipboard.writeText(meetingData.meeting_id);
+      toast.success("Meeting ID copied to clipboard");
     }
   };
   
-  if (isLoading) {
-    return (
-      <Card className="border-primary/10">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl flex items-center gap-2">
-            <Video className="h-5 w-5 text-primary" />
-            Loading Meeting Details...
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-20 flex items-center justify-center">
-            <div className="animate-pulse h-4 w-3/4 bg-muted rounded"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
+  const handleJoinMeeting = () => {
+    if (meetingData?.zoom_url) {
+      window.open(meetingData.zoom_url, '_blank');
+    }
+  };
+  
+  if (!hasUpcomingMeeting) {
+    return null;
   }
   
-  if (!upcomingMeeting) {
-    return null; // Don't display anything if there's no meeting
-  }
-  
-  const meetingDate = new Date(upcomingMeeting.start_time);
-  const isInFuture = isAfter(meetingDate, new Date());
-  
-  if (!isInFuture) {
-    return null; // Don't display past meetings
-  }
-  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   return (
-    <Card className="border-primary/10">
+    <Card className="shadow-md">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Video className="h-5 w-5 text-primary" />
-          Strategy Review Call
-        </CardTitle>
-        <CardDescription>
-          {upcomingMeeting.topic}
-        </CardDescription>
+        <CardTitle className="text-lg">Upcoming Strategy Meeting</CardTitle>
+        <CardDescription>Your next meeting with the AI executive team</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span>{format(meetingDate, 'EEEE, MMMM d, yyyy')}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span>{format(meetingDate, 'h:mm a')} ({formatDistanceToNow(meetingDate, { addSuffix: true })})</span>
-        </div>
-        {upcomingMeeting.agenda && (
-          <div className="text-sm text-muted-foreground mt-2">
-            <p className="font-medium">Agenda:</p>
-            <p>{upcomingMeeting.agenda}</p>
+      <CardContent className="space-y-4">
+        <div className="flex items-start gap-3">
+          <CalendarDays className="h-5 w-5 text-primary mt-0.5" />
+          <div>
+            <p className="font-medium">{meetingData?.title || "Strategy Review"}</p>
+            <p className="text-sm text-muted-foreground">
+              {meetingData ? formatDate(meetingData.meeting_time) : "Loading..."}
+              {meetingData?.duration ? ` (${meetingData.duration} mins)` : ""}
+            </p>
           </div>
-        )}
+        </div>
+        
+        <div className="flex items-start gap-3">
+          <Users className="h-5 w-5 text-primary mt-0.5" />
+          <div>
+            <p className="font-medium">Participants</p>
+            <p className="text-sm text-muted-foreground">
+              {meetingData?.participants?.join(", ") || "AI Executive Team"}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3 mt-2 pt-2 border-t">
+          <div className="text-xs bg-primary/10 p-1.5 rounded flex items-center gap-1.5">
+            <span className="font-medium">ID:</span> {meetingData?.meeting_id || "123 456 789"}
+            <button onClick={handleCopyMeetingId} className="text-primary hover:text-primary/80">
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          
+          <div className="text-xs bg-primary/10 p-1.5 rounded">
+            <span className="font-medium">Password:</span> {meetingData?.password || "allora"}
+          </div>
+          
+          <Button 
+            className="ml-auto"
+            size="sm"
+            onClick={handleJoinMeeting}
+          >
+            <ExternalLink className="h-4 w-4 mr-1.5" />
+            Join Meeting
+          </Button>
+        </div>
       </CardContent>
-      <CardFooter className="flex flex-col sm:flex-row gap-2">
-        <Button 
-          variant="default"
-          className="w-full sm:w-auto"
-          onClick={() => window.open(upcomingMeeting.join_url, '_blank')}
-        >
-          <Video className="mr-2 h-4 w-4" />
-          Join Meeting
-        </Button>
-        <Button 
-          variant="outline"
-          className="w-full sm:w-auto"
-          onClick={copyMeetingLink}
-        >
-          <ExternalLink className="mr-2 h-4 w-4" />
-          Copy Link
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

@@ -1,5 +1,5 @@
 
-import { supabase } from '@/backend/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // Maximum number of retries for API calls
@@ -12,19 +12,27 @@ export async function generateVideo(
   text: string, 
   avatarId: string, 
   voiceId: string, 
+  companyName: string,
   campaignId?: string, 
   strategyId?: string,
   retryCount = 0
 ) {
   try {
     const { data, error } = await supabase.functions.invoke('heygen', {
-      body: { action: 'generate-video', text, avatarId, voiceId, campaignId, strategyId }
+      body: { 
+        action: 'generate-video', 
+        text, 
+        avatarId, 
+        voiceId, 
+        campaignId, 
+        strategyId,
+        companyName 
+      }
     });
 
     if (error) throw error;
     
-    if (data.success) {
-      toast.success('Video generation started successfully');
+    if (data && data.videoId) {
       return {
         success: true,
         videoId: data.videoId,
@@ -32,20 +40,18 @@ export async function generateVideo(
         dbRecordId: data.dbRecordId
       };
     } else {
-      throw new Error(data.error || 'Failed to generate video');
+      throw new Error(data?.error || 'Failed to generate video');
     }
   } catch (error: any) {
     console.error(`Video generation error (attempt ${retryCount + 1}):`, error.message);
     
     // Implement retry logic for transient errors
     if (retryCount < MAX_RETRIES) {
-      toast.info(`Retrying video generation (attempt ${retryCount + 1})`);
       // Exponential backoff: wait longer between each retry
       await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
-      return generateVideo(text, avatarId, voiceId, campaignId, strategyId, retryCount + 1);
+      return generateVideo(text, avatarId, voiceId, companyName, campaignId, strategyId, retryCount + 1);
     }
     
-    toast.error(`Video generation failed after ${retryCount + 1} attempts: ${error.message}`);
     return {
       success: false,
       error: error.message
@@ -61,14 +67,14 @@ export async function getVideoStatus(videoId: string, retryCount = 0) {
 
     if (error) throw error;
     
-    if (data.success) {
+    if (data) {
       return {
         success: true,
         status: data.status,
         videoUrl: data.videoUrl
       };
     } else {
-      throw new Error(data.error || 'Failed to get video status');
+      throw new Error('Failed to get video status');
     }
   } catch (error: any) {
     console.error(`Video status error (attempt ${retryCount + 1}):`, error.message);
@@ -87,44 +93,6 @@ export async function getVideoStatus(videoId: string, retryCount = 0) {
       success: false,
       error: error.message
     };
-  }
-}
-
-export async function listHeygenAvatars() {
-  try {
-    const { data, error } = await supabase.functions.invoke('heygen', {
-      body: { action: 'list-avatars' }
-    });
-
-    if (error) throw error;
-    
-    if (data.success) {
-      return data.avatars || [];
-    } else {
-      throw new Error(data.error || 'Failed to list avatars');
-    }
-  } catch (error: any) {
-    toast.error(`Avatar list error: ${error.message}`);
-    return [];
-  }
-}
-
-export async function listHeygenVoices() {
-  try {
-    const { data, error } = await supabase.functions.invoke('heygen', {
-      body: { action: 'list-voices' }
-    });
-
-    if (error) throw error;
-    
-    if (data.success) {
-      return data.voices || [];
-    } else {
-      throw new Error(data.error || 'Failed to list voices');
-    }
-  }  catch (error: any) {
-    toast.error(`Voice list error: ${error.message}`);
-    return [];
   }
 }
 
@@ -163,4 +131,42 @@ export async function pollVideoStatus(videoId: string, onStatusChange?: (status:
   
   // Start polling
   await poll();
+}
+
+export async function listHeygenAvatars() {
+  try {
+    const { data, error } = await supabase.functions.invoke('heygen', {
+      body: { action: 'list-avatars' }
+    });
+
+    if (error) throw error;
+    
+    if (data) {
+      return data.avatars || [];
+    } else {
+      throw new Error('Failed to list avatars');
+    }
+  } catch (error: any) {
+    console.error(`Error listing avatars:`, error.message);
+    return [];
+  }
+}
+
+export async function listHeygenVoices() {
+  try {
+    const { data, error } = await supabase.functions.invoke('heygen', {
+      body: { action: 'list-voices' }
+    });
+
+    if (error) throw error;
+    
+    if (data) {
+      return data.voices || [];
+    } else {
+      throw new Error('Failed to list voices');
+    }
+  } catch (error: any) {
+    console.error(`Error listing voices:`, error.message);
+    return [];
+  }
 }
