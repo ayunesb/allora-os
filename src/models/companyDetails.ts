@@ -55,6 +55,10 @@ export type CompanyDetails = {
   // Special Info
   socialImpact: string;
   exitStrategy: string;
+  
+  // Additional contact/location info
+  headquarters?: string;
+  phone?: string;
 };
 
 export type PartialCompanyDetails = Partial<CompanyDetails>;

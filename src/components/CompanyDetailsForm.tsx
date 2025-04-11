@@ -40,7 +40,7 @@ export default function CompanyDetailsForm() {
           console.log("Company details loaded:", company);
           // If company has details property, use that for additional details
           const additionalDetails = company.details || {};
-          setCompanyDetails(additionalDetails);
+          setCompanyDetails(additionalDetails as PartialCompanyDetails);
         }
       } catch (error) {
         console.error("Error loading company details:", error);

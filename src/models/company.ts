@@ -4,4 +4,5 @@ export type Company = {
   name: string;
   industry: string;
   created_at: string;
+  details?: Record<string, any>;
 };
