@@ -6,3 +6,4 @@ export * from './CompanyDetails';
 export * from './RiskProfile';
 export * from './ExecutiveTeam';
 export * from './AuthIssue';
+export * from './AdPlatformsConnection';

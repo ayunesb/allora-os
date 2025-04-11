@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
@@ -114,6 +115,14 @@ export default function Onboarding() {
         );
       case 6:
         return (
+          <Steps.AdPlatformsConnection
+            companyName={companyName}
+            onComplete={handleNext}
+            isLoading={isOnboardingLoading || isCompleting}
+          />
+        );
+      case 7:
+        return (
           <Steps.ExecutiveTeam
             executiveTeamEnabled={executiveTeamEnabled}
             setExecutiveTeamEnabled={setExecutiveTeamEnabled}
@@ -128,12 +137,12 @@ export default function Onboarding() {
     }
   };
 
-  const isLastStep = step === 6;
+  const isLastStep = step === 7;
   
   return (
     <OnboardingLayout
       step={step}
-      totalSteps={6}
+      totalSteps={7}
       onNext={isLastStep ? handleFinalComplete : handleNext}
       onBack={handleBack}
       isNextDisabled={isOnboardingLoading || isCompleting}

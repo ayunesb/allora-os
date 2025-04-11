@@ -34,7 +34,7 @@ export default function useOnboardingState() {
   }, [profile, step]);
 
   const handleNext = () => {
-    if (step < 6) { // Updated to 6 total steps
+    if (step < 7) { // Updated to 7 total steps with ad platforms
       setStep(step + 1);
     } else {
       handleComplete();
