@@ -83,7 +83,10 @@ export function TeamLeadership({
         </div>
 
         <div className="flex justify-end mt-4">
-          <Button onClick={onNext} className="gap-2">
+          <Button 
+            onClick={(e) => onNext && onNext('team')} 
+            className="gap-2"
+          >
             Continue to Marketing & Sales
             <ArrowRight className="h-4 w-4" />
           </Button>

@@ -55,7 +55,10 @@ export function FinancialOverview({
         </div>
 
         <div className="flex justify-end mt-4">
-          <Button onClick={onNext} className="gap-2">
+          <Button 
+            onClick={(e) => onNext && onNext('financial')} 
+            className="gap-2"
+          >
             Continue to Strategic Goals
             <ArrowRight className="h-4 w-4" />
           </Button>

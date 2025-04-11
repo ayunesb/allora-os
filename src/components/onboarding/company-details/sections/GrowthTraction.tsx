@@ -91,7 +91,10 @@ export function GrowthTraction({
         </div>
 
         <div className="flex justify-end mt-4">
-          <Button onClick={onNext} className="gap-2">
+          <Button 
+            onClick={(e) => onNext && onNext('growth')} 
+            className="gap-2"
+          >
             Continue to Product & Technology
             <ArrowRight className="h-4 w-4" />
           </Button>
