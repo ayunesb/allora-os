@@ -11,7 +11,15 @@ export default function useOnboardingState() {
   const [companyName, setCompanyName] = useState("");
   const [industry, setIndustry] = useState("");
   const [goals, setGoals] = useState<string[]>([]);
-  const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({});
+  const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({
+    emailEnabled: true,
+    whatsAppEnabled: false,
+    phoneEnabled: true,
+    zoomEnabled: true,
+    communicationChannels: ["email", "phone", "zoom"],
+    primaryColor: "#4f46e5",
+    secondaryColor: "#ffffff",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [riskAppetite, setRiskAppetite] = useState<'low' | 'medium' | 'high'>('medium');
@@ -34,7 +42,26 @@ export default function useOnboardingState() {
   }, [profile, step]);
 
   const handleNext = async (): Promise<void> => {
-    if (step < 7) { // Updated to 7 total steps with ad platforms
+    // Validate required fields before proceeding
+    if (step === 1 && !companyName.trim()) {
+      setErrorMessage("Company name is required");
+      return Promise.resolve();
+    }
+    
+    if (step === 2 && !industry) {
+      setErrorMessage("Please select an industry");
+      return Promise.resolve();
+    }
+    
+    if (step === 3 && goals.length === 0) {
+      setErrorMessage("Please select at least one business goal");
+      return Promise.resolve();
+    }
+    
+    // Clear any error message
+    setErrorMessage(null);
+    
+    if (step < 10) { // Updated to 10 total steps
       setStep(step + 1);
       return Promise.resolve();
     } else {
@@ -76,7 +103,8 @@ export default function useOnboardingState() {
       const enhancedDetails = {
         ...companyDetails,
         riskAppetite,
-        executiveTeamEnabled
+        executiveTeamEnabled,
+        goals: goals,
       };
       
       console.log("Saving onboarding info:", user.id, companyName, industry, goals, enhancedDetails);

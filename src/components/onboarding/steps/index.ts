@@ -7,3 +7,6 @@ export * from './RiskProfile';
 export * from './ExecutiveTeam';
 export * from './AuthIssue';
 export * from './AdPlatformsConnection';
+export * from './BrandIdentity';
+export * from './CommunicationPreferences';
+export * from './CrmIntegrations';

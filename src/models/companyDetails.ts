@@ -1,90 +1,45 @@
-
-export interface CompanyDetails {
-  // Basic company details
-  companySize?: string;
-  foundingYear?: number;
-  website?: string;
-  location?: string;
+export interface PartialCompanyDetails {
+  // Basic Information
   description?: string;
   mission?: string;
   vision?: string;
   headquarters?: string;
   phone?: string;
-  businessType?: 'B2B' | 'B2C' | 'Both';
+  website?: string;
+  email?: string;
+  primaryOffering?: string;
+  companySize?: string;
+  monthlyRevenue?: string;
+  geographicMarket?: string;
   
-  // Financial information
-  revenue?: string;
-  funding?: string;
-  profitMargin?: string;
-  financials?: string;
-  burnRate?: string;
-  runway?: string;
-  userMetrics?: string;
-  
-  // Business information
-  businessModel?: string;
-  targetMarket?: string;
-  competitiveLandscape?: string;
-  marketPosition?: string;
-  marketSize?: string;
-  differentiators?: string;
-  
-  // Product and Technology
-  productStage?: string;
-  intellectualProperty?: string;
-  rdPipeline?: string;
-  
-  // Teams and Leadership
-  founders?: string;
-  teamSize?: number;
-  
-  // Marketing and Sales
-  customerRetention?: string;
-  pricingStrategy?: string;
-  
-  // AI Information
-  currentAiUse?: string;
-  
-  // Social impact
-  socialImpact?: string;
-  exitStrategy?: string;
-  
-  // Strategic planning
-  shortTermPlan?: string;
-  longTermVision?: string;
-  
-  // Goals and risk information
+  // Strategic Goals
   goals?: string[];
-  shortTermGoals?: string[];
-  longTermGoals?: string[];
+  timeHorizon?: string;
+  
+  // Risk Appetite
   riskAppetite?: 'low' | 'medium' | 'high';
-  coreProducts?: string[];
-  techStack?: string[];
-  competitors?: string[];
-  painPoints?: string[];
-  acquisitionStrategy?: string[];
-  salesChannels?: string[];
-  partnerships?: string[];
-  cultureValues?: string[];
-  aiOpportunities?: string[];
-  challenges?: string[];
   
-  // Communication preferences
-  whatsAppEnabled?: boolean;
+  // Brand Identity
+  logoUrl?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  brandTone?: string;
+  
+  // Communication Preferences
+  communicationChannels?: string[];
+  salesStylePreference?: string;
   emailEnabled?: boolean;
+  whatsAppEnabled?: boolean;
+  phoneEnabled?: boolean;
+  zoomEnabled?: boolean;
+  
+  // CRM & Marketing
+  crmSystem?: string;
+  marketingPlatform?: string;
+  usesEcommerce?: boolean;
+  shopName?: string;
+  
+  // Other Details
   executiveTeamEnabled?: boolean;
-  communication_preferences?: {
-    whatsapp_enabled?: boolean;
-    email_enabled?: boolean;
-  };
-  
-  // AI compatibility
-  aiReadiness?: string;
-  aiExperience?: string;
-  
-  // Onboarding status
-  onboarding_completed?: boolean;
-  onboarding_completed_at?: string;
+  [key: string]: any;
 }
-
-export type PartialCompanyDetails = Partial<CompanyDetails>;

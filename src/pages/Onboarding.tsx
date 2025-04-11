@@ -67,6 +67,9 @@ export default function Onboarding() {
     return <Steps.AuthIssue onSignOut={handleSignOut} onRefresh={handleRefresh} />;
   }
 
+  // Define total number of steps
+  const totalSteps = 10;
+
   const getStepContent = () => {
     switch (step) {
       case 1:
@@ -74,6 +77,8 @@ export default function Onboarding() {
           <Steps.CompanyInfo 
             companyName={companyName}
             setCompanyName={setCompanyName}
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
             errorMessage={errorMessage}
           />
         );
@@ -92,18 +97,12 @@ export default function Onboarding() {
             toggleGoal={toggleGoal}
             companyName={companyName}
             industry={industry}
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
             errorMessage={errorMessage}
           />
         );
       case 4:
-        return (
-          <Steps.CompanyDetails
-            companyDetails={companyDetails}
-            updateCompanyDetails={updateCompanyDetails}
-            onNext={handleNext}
-          />
-        );
-      case 5:
         return (
           <Steps.RiskProfile
             riskAppetite={riskAppetite}
@@ -113,7 +112,36 @@ export default function Onboarding() {
             companyName={companyName}
           />
         );
+      case 5:
+        return (
+          <Steps.BrandIdentity
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
+          />
+        );
       case 6:
+        return (
+          <Steps.CommunicationPreferences
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
+          />
+        );
+      case 7:
+        return (
+          <Steps.CrmIntegrations
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
+          />
+        );
+      case 8:
+        return (
+          <Steps.CompanyDetails
+            companyDetails={companyDetails}
+            updateCompanyDetails={updateCompanyDetails}
+            onNext={handleNext}
+          />
+        );
+      case 9:
         return (
           <Steps.AdPlatformsConnection
             companyName={companyName}
@@ -121,7 +149,7 @@ export default function Onboarding() {
             isLoading={isOnboardingLoading || isCompleting}
           />
         );
-      case 7:
+      case 10:
         return (
           <Steps.ExecutiveTeam
             executiveTeamEnabled={executiveTeamEnabled}
@@ -137,12 +165,12 @@ export default function Onboarding() {
     }
   };
 
-  const isLastStep = step === 7;
+  const isLastStep = step === totalSteps;
   
   return (
     <OnboardingLayout
       step={step}
-      totalSteps={7}
+      totalSteps={totalSteps}
       onNext={isLastStep ? handleFinalComplete : handleNext}
       onBack={handleBack}
       isNextDisabled={isOnboardingLoading || isCompleting}

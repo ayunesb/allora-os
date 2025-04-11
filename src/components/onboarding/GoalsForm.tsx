@@ -1,7 +1,16 @@
 
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, Check, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 type GoalsFormProps = {
   goals: string[];
@@ -9,64 +18,106 @@ type GoalsFormProps = {
   companyName: string;
   industry: string;
   error?: string;
-}
+  companyDetails?: Record<string, any>;
+  updateCompanyDetails?: (details: Record<string, any>) => void;
+};
 
-export default function GoalsForm({ goals, toggleGoal, companyName, industry, error }: GoalsFormProps) {
-  const goalOptions = [
-    "Increase revenue",
-    "Expand customer base",
-    "Improve product/service",
-    "Enter new markets",
-    "Optimize operations",
-    "Reduce costs"
-  ];
+// Business goals options
+const businessGoals = [
+  { id: "increase_revenue", label: "Increase Revenue" },
+  { id: "expand_markets", label: "Expand to New Markets" },
+  { id: "launch_products", label: "Launch New Products" },
+  { id: "improve_retention", label: "Improve Customer Retention" },
+  { id: "automate_operations", label: "Automate Operations" },
+  { id: "raise_funding", label: "Raise Funding" },
+  { id: "improve_efficiency", label: "Improve Operational Efficiency" },
+  { id: "scale_team", label: "Scale Team & Talent" },
+];
+
+// Time horizon options
+const timeHorizons = [
+  { value: "6_months", label: "6 months" },
+  { value: "12_months", label: "12 months" },
+  { value: "18_months", label: "18 months" },
+  { value: "24_months", label: "24 months" },
+];
+
+export default function GoalsForm({
+  goals,
+  toggleGoal,
+  companyName,
+  industry,
+  error,
+  companyDetails = {},
+  updateCompanyDetails = () => {},
+}: GoalsFormProps) {
+  // Company name display for the form
+  const displayCompanyName = companyName || "Your company";
+
+  // Handle updating company time horizon
+  const handleTimeHorizonChange = (value: string) => {
+    if (updateCompanyDetails) {
+      updateCompanyDetails({ timeHorizon: value });
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Business Goals</h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        Select the goals that align with your business strategy
-      </p>
-      
-      <div className="grid grid-cols-1 gap-2">
-        {goalOptions.map(goal => (
-          <Button
-            key={goal}
-            type="button"
-            variant={goals.includes(goal) ? "default" : "outline"}
-            className="justify-start gap-2 transition-all"
-            onClick={() => toggleGoal(goal)}
-          >
-            {goals.includes(goal) ? (
-              <Check className="h-4 w-4 shrink-0" />
-            ) : (
-              <div className="w-4 h-4 shrink-0" />
-            )}
-            {goal}
-          </Button>
-        ))}
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-medium">Business Goals</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Select the primary goals for {displayCompanyName} in the {industry} industry.
+        </p>
       </div>
-      
-      {error && (
-        <Alert variant="destructive" className="py-2 mt-2">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="ml-2 text-xs">{error}</AlertDescription>
-        </Alert>
-      )}
-      
-      <div className="p-4 bg-primary/10 rounded-lg mt-6">
-        <p className="font-medium">Company: {companyName}</p>
-        <p className="font-medium">Industry: {industry}</p>
-        {goals.length > 0 && (
-          <div className="mt-2">
-            <p className="font-medium">Goals:</p>
-            <ul className="list-disc pl-5 text-sm">
-              {goals.map(goal => (
-                <li key={goal}>{goal}</li>
-              ))}
-            </ul>
+
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm font-medium mb-3">Primary Business Goals <span className="text-destructive">*</span></p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {businessGoals.map((item) => (
+              <div key={item.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={item.id}
+                  checked={goals.includes(item.id)}
+                  onCheckedChange={() => toggleGoal(item.id)}
+                />
+                <label
+                  htmlFor={item.id}
+                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {item.label}
+                </label>
+              </div>
+            ))}
           </div>
-        )}
+
+          {error && (
+            <Alert variant="destructive" className="mt-4 py-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="ml-2 text-xs">{error}</AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        <div className="space-y-2 pt-2">
+          <Label htmlFor="time-horizon">Time Horizon for Achieving Goals</Label>
+          <Select
+            value={companyDetails?.timeHorizon || ""}
+            onValueChange={handleTimeHorizonChange}
+          >
+            <SelectTrigger id="time-horizon">
+              <SelectValue placeholder="Select time horizon" />
+            </SelectTrigger>
+            <SelectContent>
+              {timeHorizons.map((horizon) => (
+                <SelectItem key={horizon.value} value={horizon.value}>
+                  {horizon.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );
