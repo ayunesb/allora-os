@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExecutiveTeamCarousel } from "./ExecutiveTeamCarousel";
@@ -44,7 +43,7 @@ export default function ExecutiveTeamIntro({
       });
       
       // Save communication preferences to company details
-      await onComplete();
+      await onComplete(); // Call the onComplete function which returns a Promise
     } catch (error: any) {
       console.error("Error completing setup:", error);
       setErrorMessage(error.message || "Failed to complete setup. Please try again.");

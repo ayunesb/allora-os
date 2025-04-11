@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
@@ -51,7 +50,7 @@ export default function Onboarding() {
     window.location.reload();
   };
 
-  const handleFinalComplete = async () => {
+  const handleFinalComplete = async (): Promise<void> => {
     const success = await handleComplete();
     if (success) {
       navigate("/dashboard");

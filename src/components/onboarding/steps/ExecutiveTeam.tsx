@@ -6,7 +6,7 @@ interface ExecutiveTeamProps {
   setExecutiveTeamEnabled: (enabled: boolean) => void;
   riskAppetite: 'low' | 'medium' | 'high';
   companyName: string;
-  onComplete: () => void;
+  onComplete: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -18,13 +18,14 @@ export function ExecutiveTeam({
   onComplete, 
   isLoading 
 }: ExecutiveTeamProps) {
+  // Ensure that onComplete is being passed correctly to the ExecutiveTeamIntro component
   return (
     <ExecutiveTeamIntro
       executiveTeamEnabled={executiveTeamEnabled}
       setExecutiveTeamEnabled={setExecutiveTeamEnabled}
       riskAppetite={riskAppetite}
       companyName={companyName}
-      onComplete={onComplete}
+      onComplete={onComplete} // This expects a Promise<void> function
       isLoading={isLoading}
     />
   );
