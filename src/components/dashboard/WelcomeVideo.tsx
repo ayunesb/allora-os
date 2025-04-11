@@ -20,10 +20,10 @@ export default function WelcomeVideo() {
       try {
         // Check if we already have a video for this user
         const { data: existingVideos, error: fetchError } = await supabase
-          .from('ai_generated_videos')
+          .from('generated_videos')
           .select('*')
           .eq('user_id', user.id)
-          .eq('video_type', 'welcome')
+          .eq('status', 'completed')
           .order('created_at', { ascending: false })
           .limit(1);
           
@@ -51,7 +51,7 @@ export default function WelcomeVideo() {
         
         if (error) throw error;
         
-        if (data?.dbRecordId) {
+        if (data?.videoId) {
           // Poll for video completion
           let attempts = 0;
           const maxAttempts = 20;
