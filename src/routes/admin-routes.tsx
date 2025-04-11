@@ -8,6 +8,7 @@ import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
 import WebhookManagement from "@/pages/admin/WebhookManagement";
 import CompanySettings from "@/pages/admin/CompanySettings";
 import LaunchPlan from "@/pages/admin/LaunchPlan";
+import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 
 export const adminRoutes: RouteObject = {
   path: "",
@@ -68,6 +69,16 @@ export const adminRoutes: RouteObject = {
         <ProtectedRoute>
           <AdminRoute>
             <LaunchPlan />
+          </AdminRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/admin/database-verification",
+      element: (
+        <ProtectedRoute>
+          <AdminRoute>
+            <DatabaseVerification />
           </AdminRoute>
         </ProtectedRoute>
       ),
