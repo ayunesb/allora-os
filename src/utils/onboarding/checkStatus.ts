@@ -2,24 +2,56 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Checks if a user has completed the onboarding process
+ * Checks if the user has completed onboarding
  */
 export async function checkOnboardingStatus(userId: string): Promise<boolean> {
   try {
-    if (!userId) return false;
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
 
-    const { data, error } = await supabase
+    // Get the user's profile
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('company, industry')
+      .select('onboarding_completed, company_id')
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
+    if (profileError) {
+      console.error("Error checking onboarding status:", profileError);
+      throw profileError;
+    }
 
-    // Consider onboarding completed if user has both company name and industry set
-    return !!(data?.company && data?.industry);
+    // Check if onboarding is completed
+    if (profileData?.onboarding_completed) {
+      return true;
+    }
+
+    // If the user has a company ID but onboarding is not marked as completed,
+    // check the company record as well
+    if (profileData?.company_id) {
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .select('details')
+        .eq('id', profileData.company_id)
+        .single();
+
+      if (companyError) {
+        console.error("Error checking company details:", companyError);
+        throw companyError;
+      }
+
+      // Check if onboarding is completed in company details
+      if (companyData?.details?.onboarding_completed) {
+        return true;
+      }
+    }
+
+    // Onboarding not completed
+    return false;
   } catch (error) {
-    console.error("Error checking onboarding status:", error);
+    console.error("Error in checkOnboardingStatus:", error);
+    // Return false in case of error to ensure user can proceed with onboarding
     return false;
   }
 }

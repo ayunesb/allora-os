@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { RocketIcon } from "lucide-react";
+import { RocketIcon, AlertTriangle } from "lucide-react";
 import SignupForm from "@/components/auth/SignupForm";
 import EmailVerificationView from "@/components/auth/EmailVerificationView";
 import SignupLayout from "@/components/auth/SignupLayout";
@@ -9,6 +9,7 @@ import { LegalAcceptanceModal } from "@/components/auth/LegalAcceptanceModal";
 import { User } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Signup() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -16,6 +17,8 @@ export default function Signup() {
   const [newUser, setNewUser] = useState<User | null>(null);
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [signupError, setSignupError] = useState<string | null>(null);
+  const [legalError, setLegalError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,17 +51,46 @@ export default function Signup() {
   const handleTryAgain = () => {
     setIsSubmitted(false);
     setSignupError(null);
+    setLegalError(null);
   };
 
-  const handleLegalAcceptance = () => {
-    setShowLegalModal(false);
-    setIsSubmitted(true);
+  const handleLegalAcceptance = async () => {
+    setLegalError(null);
+    setRetryCount(0);
     
     // Store a flag that this is a new user that needs onboarding
     sessionStorage.setItem('newUserSignup', 'true');
     
     // After legal acceptance, show verification screen but also prepare for onboarding
     console.log("Legal acceptance completed. User will be redirected to onboarding after verification.");
+    
+    setShowLegalModal(false);
+    setIsSubmitted(true);
+  };
+
+  const handleModalClose = () => {
+    // If the modal is closed without acceptance, sign the user out
+    // as they need to accept the terms to use the platform
+    supabase.auth.signOut().then(() => {
+      toast.info("Sign up cancelled. You must accept the terms to create an account.");
+      setShowLegalModal(false);
+      setIsSubmitted(false);
+      setNewUser(null);
+    });
+  };
+
+  const handleRetryLegalAcceptance = () => {
+    if (retryCount < 3) {
+      setRetryCount(prev => prev + 1);
+      setLegalError(null);
+      setShowLegalModal(true);
+    } else {
+      // Too many retries, sign out and start over
+      supabase.auth.signOut().then(() => {
+        toast.error("There seems to be an issue with legal acceptance. Please try signing up again.");
+        navigate('/signup');
+      });
+    }
   };
 
   if (isSubmitted) {
@@ -70,6 +102,26 @@ export default function Signup() {
           isNewSignup={true}
           userId={newUser?.id}
         />
+        
+        {legalError && (
+          <Card className="mt-4 border-destructive bg-destructive/10">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
+                <div>
+                  <h3 className="font-medium text-destructive">Legal Acceptance Error</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{legalError}</p>
+                  <button 
+                    onClick={handleRetryLegalAcceptance}
+                    className="text-sm text-primary mt-2 hover:underline"
+                  >
+                    Retry Legal Acceptance
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </SignupLayout>
     );
   }
@@ -109,7 +161,7 @@ export default function Signup() {
         <LegalAcceptanceModal
           isOpen={showLegalModal}
           userId={newUser.id}
-          onClose={() => setShowLegalModal(false)}
+          onClose={handleModalClose}
           onAccept={handleLegalAcceptance}
         />
       )}

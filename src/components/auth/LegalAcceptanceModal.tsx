@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 export interface LegalAcceptanceProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export function LegalAcceptanceModal({
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [messagingAccepted, setMessagingAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const allAccepted = termsAccepted && privacyAccepted && messagingAccepted;
   
@@ -47,21 +49,28 @@ export function LegalAcceptanceModal({
     }
     
     if (!userId) {
+      setErrorMessage('User information is missing');
       toast.error('User information is missing');
       return;
     }
     
     setIsSubmitting(true);
+    setErrorMessage(null);
     
     try {
+      console.log("Attempting to save legal acceptance for user:", userId);
+      
       // Get client IP (in a real production app, this would be done server-side)
-      let ipAddress = null;
+      let ipAddress = "127.0.0.1"; // Default fallback IP
       try {
         const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        ipAddress = data.ip;
+        if (response.ok) {
+          const data = await response.json();
+          ipAddress = data.ip;
+        }
       } catch (error) {
         console.error('Could not determine IP address:', error);
+        // Continue with fallback IP
       }
       
       // Store acceptance record in database
@@ -80,6 +89,36 @@ export function LegalAcceptanceModal({
         });
       
       if (error) {
+        console.error('Error details from Supabase:', error);
+        
+        // Handle specific error cases
+        if (error.code === '23505') { // Unique constraint violation
+          // If there's already a record, try updating it instead
+          const { error: updateError } = await supabase
+            .from('user_legal_acceptances')
+            .update({
+              terms_of_service: termsAccepted,
+              privacy_policy: privacyAccepted,
+              messaging_consent: messagingAccepted,
+              terms_version: CURRENT_VERSIONS.terms,
+              privacy_version: CURRENT_VERSIONS.privacy,
+              consent_version: CURRENT_VERSIONS.messaging,
+              ip_address: ipAddress,
+              user_agent: navigator.userAgent,
+              accepted_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+            
+          if (updateError) {
+            throw updateError;
+          } else {
+            // Update was successful
+            toast.success('Legal terms accepted successfully');
+            onAccept();
+            return;
+          }
+        }
+        
         throw error;
       }
       
@@ -87,6 +126,7 @@ export function LegalAcceptanceModal({
       onAccept();
     } catch (error: any) {
       console.error('Error saving legal acceptances:', error);
+      setErrorMessage('Failed to save your acceptance. Please try again.');
       toast.error('Failed to save your acceptance. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -160,6 +200,12 @@ export function LegalAcceptanceModal({
               </p>
             </div>
           </div>
+          
+          {errorMessage && (
+            <div className="p-3 mt-2 bg-destructive/10 border border-destructive rounded-md text-sm text-destructive">
+              {errorMessage}
+            </div>
+          )}
         </div>
         
         <DialogFooter>
@@ -168,7 +214,14 @@ export function LegalAcceptanceModal({
             disabled={!allAccepted || isSubmitting}
             className="w-full"
           >
-            {isSubmitting ? "Processing..." : "Accept & Continue"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Accept & Continue"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

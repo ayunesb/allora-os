@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { ValidationResult } from './types';
 
@@ -30,7 +29,7 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
     // 2. Verify the structure by attempting to fetch specific columns
     const { error: structureCheckError } = await supabase
       .from('user_legal_acceptances')
-      .select('user_id, terms_of_service, privacy_policy, messaging_consent')
+      .select('user_id, terms_of_service, privacy_policy, messaging_consent, terms_version, privacy_version, consent_version')
       .limit(1);
     
     if (structureCheckError) {
@@ -40,7 +39,48 @@ export async function validateLegalAcceptance(): Promise<ValidationResult> {
       };
     }
     
-    // 3. Check if legal hook is properly implemented
+    // 3. Check for permissions - try a test insertion and then delete it
+    const testUserId = '00000000-0000-0000-0000-000000000000'; // Dummy UUID for testing
+    
+    // Check insertion permission
+    const { error: insertError } = await supabase
+      .from('user_legal_acceptances')
+      .insert({
+        user_id: testUserId,
+        terms_of_service: true,
+        privacy_policy: true,
+        messaging_consent: true,
+        terms_version: 'test',
+        privacy_version: 'test',
+        consent_version: 'test',
+        ip_address: '127.0.0.1',
+        user_agent: 'Validator Test'
+      })
+      .select();
+    
+    // Remove test record regardless of whether it was inserted
+    await supabase
+      .from('user_legal_acceptances')
+      .delete()
+      .eq('user_id', testUserId);
+    
+    if (insertError) {
+      // Permission error but table exists and structure is valid
+      if (insertError.code === '42501' || insertError.message?.includes('permission')) {
+        return {
+          valid: false,
+          message: `RLS policy may be preventing insertions: ${insertError.message}`
+        };
+      }
+      
+      // Other insertion error
+      return {
+        valid: false,
+        message: `Test insertion failed: ${insertError.message}`
+      };
+    }
+    
+    // 4. Check if legal hook is properly implemented
     if (typeof window !== 'undefined') {
       try {
         // Just check if the module exists and can be imported
