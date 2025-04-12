@@ -1,265 +1,153 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { useAiModelPreferences, AiModelType } from '@/hooks/useAiModelPreferences';
-import { Sparkles, LayoutGrid, Cable, HardDriveDownload, Bot, Brain, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { debounce } from 'lodash';
+import React from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RefreshCw, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import { AIModelPreference } from '@/types/aiSettings';
 
-export default function ModelPreferences() {
-  const { preferences, updatePreference, isLoading } = useAiModelPreferences();
-  const [localPreferences, setLocalPreferences] = useState(preferences);
-  const [selectedModel, setSelectedModel] = useState<AiModelType>(preferences.modelPreference);
-  
-  // Update local state when preferences from the hook change
-  useEffect(() => {
-    setLocalPreferences(preferences);
-    setSelectedModel(preferences.modelPreference);
-  }, [preferences]);
-  
-  // Debounced update function for when user changes model
-  const debouncedModelChange = debounce((value: string) => {
-    updatePreference('modelPreference', value as AiModelType);
-    toast.success('Model preference updated');
-  }, 300);
-  
-  const handleModelChange = (value: string) => {
-    // Optimistic UI update
-    setSelectedModel(value as AiModelType);
-    // Trigger debounced update
-    debouncedModelChange(value);
-  };
-  
-  const handleParticipantChange = (value: number[]) => {
-    // Optimistic UI update
-    setLocalPreferences(prev => ({ ...prev, maxDebateParticipants: value[0] }));
-    // Update server
-    updatePreference('maxDebateParticipants', value[0]);
-  };
-  
-  const toggleDebate = (enabled: boolean) => {
-    // Optimistic UI update
-    setLocalPreferences(prev => ({ ...prev, enableDebate: enabled }));
-    // Update server
-    updatePreference('enableDebate', enabled);
-    
-    if (enabled) {
-      toast.success('Multi-Executive Debate enabled');
-    }
-  };
-  
-  const toggleVectorSearch = (enabled: boolean) => {
-    // Optimistic UI update
-    setLocalPreferences(prev => ({ ...prev, enableVectorSearch: enabled }));
-    // Update server
-    updatePreference('enableVectorSearch', enabled);
-    
-    if (enabled) {
-      toast.success('AI Memory enabled');
-    }
-  };
-  
-  const toggleLearning = (enabled: boolean) => {
-    // Optimistic UI update
-    setLocalPreferences(prev => ({ ...prev, enableLearning: enabled }));
-    // Update server
-    updatePreference('enableLearning', enabled);
-    
-    if (enabled) {
-      toast.success('Learning from feedback enabled');
+interface ModelPreferencesProps {
+  modelPreferences: AIModelPreference;
+  onUpdateModelPreferences: (preferences: Partial<AIModelPreference>) => void;
+}
+
+export function ModelPreferences({ modelPreferences, onUpdateModelPreferences }: ModelPreferencesProps) {
+  const handleSave = async () => {
+    try {
+      toast.success("AI model preferences updated", {
+        description: "Changes will apply to all future AI interactions."
+      });
+    } catch (error) {
+      console.error("Error updating model preferences:", error);
+      toast.error("Failed to update model preferences");
     }
   };
   
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
+          <Sparkles className="h-5 w-5" />
           AI Model Preferences
         </CardTitle>
         <CardDescription>
-          Configure your AI assistant behavior and model preferences
+          Configure which AI models power your executive team
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="modelPreference" className="mb-2 inline-block">Default AI Model</Label>
-            <Select 
-              value={selectedModel} 
-              onValueChange={handleModelChange}
-              disabled={isLoading}
-            >
-              <SelectTrigger 
-                id="modelPreference" 
-                className={cn(
-                  "w-full transition-all duration-200 relative md:min-h-11",
-                  isLoading && "opacity-80"
-                )}
-                aria-label="Select AI model"
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={selectedModel}
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center"
-                  >
-                    <SelectValue placeholder="Select AI model" />
-                    {isLoading && (
-                      <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </SelectTrigger>
-              <SelectContent className="max-h-80">
-                <SelectItem 
-                  value="gpt-4o-mini"
-                  className="py-3 px-2 cursor-pointer focus:bg-accent transition-colors"
-                >
-                  OpenAI GPT-4o Mini (Fast)
-                </SelectItem>
-                <SelectItem 
-                  value="gpt-4o"
-                  className="py-3 px-2 cursor-pointer focus:bg-accent transition-colors"
-                >
-                  OpenAI GPT-4o (Powerful)
-                </SelectItem>
-                <SelectItem 
-                  value="claude-3-sonnet-20240229"
-                  className="py-3 px-2 cursor-pointer focus:bg-accent transition-colors"
-                >
-                  Anthropic Claude 3 Sonnet
-                </SelectItem>
-                <SelectItem 
-                  value="gemini-1.5-pro"
-                  className="py-3 px-2 cursor-pointer focus:bg-accent transition-colors"
-                >
-                  Google Gemini 1.5 Pro
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-muted-foreground mt-1">
-              Select your preferred AI model for generating responses
-            </p>
+        <div className="space-y-2">
+          <Label htmlFor="provider" className="text-base font-medium">
+            AI Provider
+          </Label>
+          <Select 
+            value={modelPreferences.provider}
+            onValueChange={(value) => onUpdateModelPreferences({ 
+              provider: value as AIModelPreference['provider'] 
+            })}
+          >
+            <SelectTrigger id="provider">
+              <SelectValue placeholder="Select AI provider" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="openai">OpenAI</SelectItem>
+              <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
+              <SelectItem value="google">Google (Gemini)</SelectItem>
+              <SelectItem value="mistral">Mistral AI</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2 pt-4">
+          <Label htmlFor="model" className="text-base font-medium">
+            Model
+          </Label>
+          <Select 
+            value={modelPreferences.model}
+            onValueChange={(value) => onUpdateModelPreferences({ model: value })}
+          >
+            <SelectTrigger id="model">
+              <SelectValue placeholder="Select AI model" />
+            </SelectTrigger>
+            <SelectContent>
+              {modelPreferences.provider === 'openai' && (
+                <>
+                  <SelectItem value="gpt-4o-mini">GPT-4o Mini (Fastest)</SelectItem>
+                  <SelectItem value="gpt-4o">GPT-4o (Most Capable)</SelectItem>
+                </>
+              )}
+              {modelPreferences.provider === 'anthropic' && (
+                <>
+                  <SelectItem value="claude-3-sonnet-20240229">Claude 3 Sonnet</SelectItem>
+                  <SelectItem value="claude-3-opus-20240229">Claude 3 Opus (Most Capable)</SelectItem>
+                </>
+              )}
+              {modelPreferences.provider === 'google' && (
+                <>
+                  <SelectItem value="gemini-1.5-pro">Gemini 1.5 Pro</SelectItem>
+                </>
+              )}
+              {modelPreferences.provider === 'mistral' && (
+                <>
+                  <SelectItem value="mistral-large">Mistral Large</SelectItem>
+                  <SelectItem value="mistral-small">Mistral Small</SelectItem>
+                </>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2 pt-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="temperature" className="text-base font-medium">
+              Temperature
+            </Label>
+            <span className="text-sm font-medium">
+              {modelPreferences.temperature.toFixed(1)}
+            </span>
           </div>
-          
-          <motion.div 
-            className="flex items-center justify-between pt-4"
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.1 }}
-          >
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="enableDebate" className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-amber-500" />
-                Multi-Executive Debate
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Enable executives to debate and provide multiple perspectives
-              </p>
-            </div>
-            <Switch 
-              id="enableDebate" 
-              checked={localPreferences.enableDebate}
-              onCheckedChange={toggleDebate}
-              disabled={isLoading}
-              aria-label={localPreferences.enableDebate ? "Disable multi-executive debate" : "Enable multi-executive debate"}
-              className="data-[state=checked]:animate-pulse-once"
-            />
-          </motion.div>
-          
-          {localPreferences.enableDebate && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Label className="flex items-center gap-2 mb-2">
-                <LayoutGrid className="h-4 w-4 text-violet-500" />
-                Maximum Debate Participants
-              </Label>
-              <div className="pt-4 pb-2">
-                <Slider
-                  value={[localPreferences.maxDebateParticipants]}
-                  min={2}
-                  max={5}
-                  step={1}
-                  onValueChange={handleParticipantChange}
-                  disabled={isLoading}
-                  aria-label="Select number of debate participants"
-                />
-              </div>
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Number of executives that can participate in a debate
-              </p>
-            </motion.div>
-          )}
-          
-          <motion.div 
-            className="flex items-center justify-between pt-4"
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.1 }}
-          >
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="enableMemory" className="flex items-center gap-2">
-                <HardDriveDownload className="h-4 w-4 text-green-500" />
-                AI Memory & Vector Search
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Allow AI to remember previous conversations and use them for context
-              </p>
-            </div>
-            <Switch 
-              id="enableMemory" 
-              checked={localPreferences.enableVectorSearch}
-              onCheckedChange={toggleVectorSearch}
-              disabled={isLoading}
-              aria-label={localPreferences.enableVectorSearch ? "Disable AI memory" : "Enable AI memory"}
-              className="data-[state=checked]:animate-pulse-once"
-            />
-          </motion.div>
-          
-          <motion.div 
-            className="flex items-center justify-between pt-4"
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.1 }}
-          >
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="enableLearning" className="flex items-center gap-2">
-                <Cable className="h-4 w-4 text-blue-500" />
-                Learning from Feedback
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Enable AI to learn from your feedback to improve future responses
-              </p>
-            </div>
-            <Switch 
-              id="enableLearning" 
-              checked={localPreferences.enableLearning}
-              onCheckedChange={toggleLearning}
-              disabled={isLoading}
-              aria-label={localPreferences.enableLearning ? "Disable learning from feedback" : "Enable learning from feedback"}
-              className="data-[state=checked]:animate-pulse-once"
-            />
-          </motion.div>
+          <Slider
+            id="temperature"
+            defaultValue={[modelPreferences.temperature]}
+            min={0}
+            max={1}
+            step={0.1}
+            onValueChange={(values) => onUpdateModelPreferences({ temperature: values[0] })}
+            className="w-full"
+          />
+          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+            <span>Predictable</span>
+            <span>Balanced</span>
+            <span>Creative</span>
+          </div>
         </div>
       </CardContent>
+      
+      <CardFooter className="flex justify-between border-t px-6 py-4">
+        <Button 
+          variant="outline" 
+          onClick={() => onUpdateModelPreferences({
+            provider: 'openai',
+            model: 'gpt-4o-mini',
+            temperature: 0.7
+          })}
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Reset to Defaults
+        </Button>
+        <Button onClick={handleSave}>
+          Save Preferences
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

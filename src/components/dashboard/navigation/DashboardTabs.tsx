@@ -12,7 +12,8 @@ import {
   Phone, 
   CheckCircle, 
   MessageSquare,
-  Calendar
+  Calendar,
+  Sliders
 } from "lucide-react";
 
 interface DashboardTabsProps {
@@ -35,6 +36,12 @@ export function DashboardTabs({ navItems }: DashboardTabsProps = {}) {
       href: "/dashboard/ai-bots",
       icon: <Brain className="h-5 w-5" />,
       match: pathname.includes("/dashboard/ai-bots") || pathname.includes("/dashboard/debate"),
+    },
+    {
+      name: "AI Settings",
+      href: "/dashboard/ai-settings",
+      icon: <Sliders className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/ai-settings"),
     },
     {
       name: "Campaigns",
