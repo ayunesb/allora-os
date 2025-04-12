@@ -42,24 +42,39 @@ export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
     
     console.log('Database connection established, proceeding with table verification');
     
-    // Proceed with checking each required table
+    // Proceed with checking each required table directly
     for (const tableName of requiredTables) {
       try {
-        // Check if table exists by attempting to query it
+        // Check if table exists by attempting to query it directly
+        // This approach avoids using information_schema which is causing issues
         const { data, error } = await supabase
-          .from('information_schema.tables')
-          .select('table_name')
-          .eq('table_schema', 'public')
-          .eq('table_name', tableName)
-          .single();
+          .from(tableName)
+          .select('id')
+          .limit(1);
         
-        const exists = error ? false : !!data;
-        
-        tableResults.push({
-          name: tableName,
-          exists,
-          message: exists ? `Table ${tableName} exists` : `Table ${tableName} is missing`
-        });
+        if (error) {
+          if (error.code === '42P01') { // Table doesn't exist
+            tableResults.push({
+              name: tableName,
+              exists: false,
+              message: `Table ${tableName} is missing`
+            });
+          } else {
+            // If there's an error but it's not "table doesn't exist",
+            // it likely means the table exists but we can't access it due to RLS
+            tableResults.push({
+              name: tableName,
+              exists: true,
+              message: `Table ${tableName} exists but might have RLS restrictions: ${error.message}`
+            });
+          }
+        } else {
+          tableResults.push({
+            name: tableName,
+            exists: true,
+            message: `Table ${tableName} exists`
+          });
+        }
       } catch (err: any) {
         console.error(`Error checking table ${tableName}:`, err);
         tableResults.push({

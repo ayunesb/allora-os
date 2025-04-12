@@ -33,7 +33,7 @@ export function DatabaseVerificationDashboard({
       console.log("No verification data available, running verification automatically");
       checkConnection();
     }
-  }, [hasTablesData, hasPoliciesData, hasFunctionsData, isVerifying, onVerify]);
+  }, [hasTablesData, hasPoliciesData, hasFunctionsData, isVerifying]);
   
   const countIssues = () => {
     const tableMissing = (tables || []).filter(t => !t.exists).length;
@@ -70,13 +70,28 @@ export function DatabaseVerificationDashboard({
     setConnectionError(null);
     
     try {
-      // Test connection with a simple query
+      // Test direct connection with a specific table instead of information_schema
       const { data, error } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
+        .from('profiles')
+        .select('id')
         .limit(1);
       
       if (error) {
+        // Try another table if profiles doesn't exist
+        if (error.code === '42P01') {
+          const { error: companiesError } = await supabase
+            .from('companies')
+            .select('id')
+            .limit(1);
+            
+          if (!companiesError) {
+            // If we can access companies, connection is good
+            setIsCheckingConnection(false);
+            await onVerify();
+            return true;
+          }
+        }
+        
         console.error("Database connection error:", error);
         setConnectionError(error.message);
         toast.error("Database connection failed", {
@@ -153,6 +168,8 @@ export function DatabaseVerificationDashboard({
                     <li>Check your API keys and connection settings</li>
                     <li>Verify that the Supabase project is running</li>
                     <li>Check your network connection</li>
+                    <li>Note: The error "public.information_schema.tables does not exist" means we need 
+                    to test tables directly instead of using metadata queries</li>
                   </ul>
                 </div>
               </div>

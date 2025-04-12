@@ -13,6 +13,7 @@ import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
 import { HelpProvider } from "@/context/HelpContext";
 import { HelpModal } from "@/components/help/HelpModal";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { Suspense } from "react";
 
 export default function DashboardLayout() {
   const { user, isLoading } = useAuth();
@@ -79,7 +80,9 @@ export default function DashboardLayout() {
               <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
                 <div className="animate-fadeIn">
                   <ErrorBoundary>
-                    <Outlet />
+                    <Suspense fallback={<DashboardLoadingState />}>
+                      <Outlet />
+                    </Suspense>
                   </ErrorBoundary>
                 </div>
               </div>

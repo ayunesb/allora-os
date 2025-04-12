@@ -72,11 +72,12 @@ export async function checkSupabaseConnection() {
       return { connected: false, error: new Error("Authentication required"), authenticated: false };
     }
     
-    // Then try a simple query that should always work if the database exists
+    // Try a simple direct query to a known table instead of information_schema
     try {
+      // Try to access the profiles table which should exist
       const { data, error } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
+        .from('profiles')
+        .select('id')
         .limit(1);
       
       if (error) {
@@ -88,6 +89,19 @@ export async function checkSupabaseConnection() {
             description: "Please log in to access database functions" 
           });
           return { connected: false, error, authenticated: false };
+        }
+        
+        // If it's a table doesn't exist error, try another table
+        if (error.code === '42P01') {
+          const { error: companiesError } = await supabase
+            .from('companies')
+            .select('id')
+            .limit(1);
+            
+          if (!companiesError) {
+            console.log("Connected to database (companies table exists)");
+            return { connected: true, authenticated: isAuthenticated };
+          }
         }
         
         // Only show toast for errors when not in a component that's already handling errors
