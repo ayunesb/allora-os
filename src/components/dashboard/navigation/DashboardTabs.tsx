@@ -56,7 +56,7 @@ const DashboardTabs = () => {
     },
     {
       name: "Calendar",
-      path: "/dashboard/calendar",
+      path: "/dashboard/social-media-calendar",
       icon: <Calendar className="h-5 w-5" />
     },
     {
@@ -71,7 +71,7 @@ const DashboardTabs = () => {
     },
     {
       name: "Shop",
-      path: "/dashboard/shop",
+      path: "/dashboard/shopify-optimization",
       icon: <ShoppingCart className="h-5 w-5" />
     },
     {
@@ -102,13 +102,13 @@ const DashboardTabs = () => {
   ];
 
   return (
-    <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 mx-6">
+    <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 mx-6 overflow-x-auto pb-2 w-full">
       {tabs.map((tab) => (
         <Link
           key={tab.name}
           to={tab.path}
           className={cn(
-            "flex items-center text-sm font-medium transition-colors hover:text-primary",
+            "flex items-center text-sm font-medium transition-colors hover:text-primary whitespace-nowrap",
             isActive(tab.path)
               ? "text-primary"
               : "text-muted-foreground"

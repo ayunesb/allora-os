@@ -76,6 +76,9 @@ export const dashboardRoutes: RouteObject[] = [
       { path: "linkedin-integration", element: wrapInProtectedRoute(LinkedInIntegration) },
       { path: "integrations", element: wrapInProtectedRoute(Integrations) },
       { path: "technical-improvements", element: wrapInProtectedRoute(TechnicalImprovements, true) },
+      // Redirects for backward compatibility
+      { path: "calendar", element: <Navigate to="/dashboard/social-media-calendar" replace /> },
+      { path: "shop", element: <Navigate to="/dashboard/shopify-optimization" replace /> },
       { path: "*", element: <Navigate to="/dashboard" replace /> },
     ],
   },

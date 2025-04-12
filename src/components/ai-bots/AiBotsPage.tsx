@@ -3,7 +3,7 @@ import React, { useState, useEffect, useTransition } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AiBotsHeader } from "./AiBotsHeader";
 import { AiBotsTabsList } from "./AiBotsTabsList";
@@ -72,7 +72,7 @@ export const AiBotsPage: React.FC = () => {
       <AiBotsHeader isMobileView={isMobileView} />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-full">
-        <AiBotsTabsList isMobileView={isMobileView} />
+        <AiBotsTabsList isMobileView={isMobileView} activeTab={activeTab} onTabChange={handleTabChange} />
 
         <TabsContent value="boardroom" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
@@ -123,3 +123,5 @@ export const AiBotsPage: React.FC = () => {
     </div>
   );
 };
+
+export default AiBotsPage;

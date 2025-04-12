@@ -60,7 +60,7 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
     },
     {
       name: "Calendar",
-      path: "/dashboard/calendar",
+      path: "/dashboard/social-media-calendar",
       icon: <Calendar className="h-5 w-5" />
     },
     {
@@ -75,7 +75,7 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
     },
     {
       name: "Shop",
-      path: "/dashboard/shop",
+      path: "/dashboard/shopify-optimization",
       icon: <ShoppingCart className="h-5 w-5" />
     },
     {
@@ -115,7 +115,7 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
             </Button>
           </DrawerClose>
         </div>
-        <div className="py-4">
+        <div className="py-4 max-h-[70vh] overflow-y-auto">
           {tabs.map((tab) => (
             <Link
               to={tab.path}

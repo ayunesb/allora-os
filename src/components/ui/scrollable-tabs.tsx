@@ -1,15 +1,14 @@
 
 import React from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useBreakpoint } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface TabItem {
   id: string;
   label: string;
   shortLabel?: string;
-  icon?: LucideIcon;
+  icon: LucideIcon;
 }
 
 interface ScrollableTabsProps {
@@ -17,9 +16,7 @@ interface ScrollableTabsProps {
   activeTab?: string;
   onTabChange?: (value: string) => void;
   className?: string;
-  variant?: "default" | "outline" | "underline";
-  iconPosition?: "left" | "top";
-  iconSize?: number;
+  variant?: "default" | "outline";
   fullWidth?: boolean;
 }
 
@@ -29,80 +26,41 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
   onTabChange,
   className,
   variant = "default",
-  iconPosition = "left",
-  iconSize = 4,
   fullWidth = false,
 }) => {
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'sm', 'mobile'].includes(breakpoint);
-  const isTabletView = ['md'].includes(breakpoint);
-
-  // Handle tab click if onTabChange is provided
-  const handleTabClick = (value: string) => {
+  const handleChange = (tabId: string) => {
     if (onTabChange) {
-      onTabChange(value);
+      onTabChange(tabId);
     }
-  };
-
-  const getTabsListClassName = () => {
-    let baseClass = "overflow-x-auto scrollbar-thin safari-fix w-full";
-    
-    if (fullWidth) {
-      baseClass += " grid";
-      baseClass += isMobileView 
-        ? " grid-cols-4 gap-1" 
-        : isTabletView 
-          ? " grid-cols-6 gap-1" 
-          : " grid-cols-8";
-    } else {
-      baseClass += " flex tabs-scrollable";
-    }
-    
-    if (variant === "outline") {
-      baseClass += " border border-gray-200 dark:border-gray-800 rounded-md";
-    } else if (variant === "underline") {
-      baseClass += " border-b border-gray-200 dark:border-gray-800 rounded-none";
-    }
-    
-    return cn(baseClass, className);
   };
 
   return (
-    <TabsList className={getTabsListClassName()}>
-      {tabs.map((tab) => {
-        const Icon = tab.icon;
-        
-        return (
-          <TabsTrigger
-            key={tab.id}
-            value={tab.id}
-            onClick={() => handleTabClick(tab.id)}
-            className={cn(
-              "min-w-max",
-              isMobileView 
-                ? "text-xs px-2 py-1 tab-compact" 
-                : isTabletView 
-                  ? "text-sm px-2.5 py-1.5" 
-                  : "gap-2 px-3 py-2",
-              iconPosition === "top" && "flex-col"
-            )}
-          >
-            {Icon && (
-              <Icon className={cn(
-                `h-${iconSize} w-${iconSize}`,
-                iconPosition === "left" && (isMobileView ? "mr-1" : "mr-2")
-              )} />
-            )}
-            <span className={cn(
-              isMobileView && (!tab.shortLabel || tab.shortLabel === tab.label) ? "sr-only" : "",
-              isMobileView && tab.shortLabel && tab.shortLabel !== tab.label ? "" : ""
-            )}>
-              {isMobileView && tab.shortLabel ? tab.shortLabel : tab.label}
-            </span>
-          </TabsTrigger>
-        );
-      })}
-    </TabsList>
+    <div className={cn("relative", fullWidth && "w-full", className)}>
+      <div className="overflow-x-auto pb-1 hide-scrollbar">
+        <TabsList className={cn(
+          "w-max min-w-full flex",
+          variant === "outline" && "bg-transparent p-0 border-b border-border"
+        )}>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              onClick={() => handleChange(tab.id)}
+              className={cn(
+                "flex-shrink-0",
+                variant === "outline" && "rounded-none border-b-2 border-transparent px-4 pb-2 pt-1 data-[state=active]:border-primary data-[state=active]:bg-transparent",
+                activeTab === tab.id ? "data-[state=active]:bg-primary/10" : ""
+              )}
+            >
+              {React.createElement(tab.icon, { className: "h-4 w-4 mr-2" })}
+              <span className="whitespace-nowrap">
+                {window.innerWidth < 640 && tab.shortLabel ? tab.shortLabel : tab.label}
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
+    </div>
   );
 };
 

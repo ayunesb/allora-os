@@ -2,6 +2,7 @@
 import React from "react";
 import { Brain, MessageSquare, Bot, Lightbulb, History } from "lucide-react";
 import ScrollableTabs, { TabItem } from "@/components/ui/scrollable-tabs";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface AiBotsTabsListProps {
   isMobileView?: boolean;
@@ -58,6 +59,25 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({
       icon: History
     }
   ];
+
+  // Use TabsList directly if ScrollableTabs component has issues
+  if (!ScrollableTabs) {
+    return (
+      <TabsList className="w-full mb-6 py-1 overflow-x-auto">
+        {tabs.map((tab) => (
+          <TabsTrigger 
+            key={tab.id} 
+            value={tab.id}
+            onClick={() => onTabChange && onTabChange(tab.id)}
+            className={activeTab === tab.id ? "data-[state=active]:bg-primary/10" : ""}
+          >
+            {React.createElement(tab.icon, { className: "h-4 w-4 mr-2" })}
+            <span>{propsMobileView ? tab.shortLabel || tab.label : tab.label}</span>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    );
+  }
 
   return (
     <div className="w-full max-w-full overflow-hidden">
