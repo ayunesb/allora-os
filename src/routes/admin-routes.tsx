@@ -9,6 +9,7 @@ import WebhookManagement from "@/pages/admin/WebhookManagement";
 import CompanySettings from "@/pages/admin/CompanySettings";
 import LaunchPlan from "@/pages/admin/LaunchPlan";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
+import DiagnosticsPage from "@/pages/admin/DiagnosticsPage";
 
 export const adminRoutes: RouteObject = {
   path: "",
@@ -79,6 +80,16 @@ export const adminRoutes: RouteObject = {
         <ProtectedRoute>
           <AdminRoute>
             <DatabaseVerification />
+          </AdminRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/admin/diagnostics",
+      element: (
+        <ProtectedRoute>
+          <AdminRoute>
+            <DiagnosticsPage />
           </AdminRoute>
         </ProtectedRoute>
       ),

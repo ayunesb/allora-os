@@ -9,7 +9,9 @@ import {
   Building2, 
   PanelRight, 
   HomeIcon,
-  Rocket
+  Rocket,
+  Shield,
+  Database
 } from "lucide-react";
 
 interface AdminNavProps {
@@ -49,6 +51,18 @@ export function AdminNav({ className }: AdminNavProps) {
       label: "Launch Plan",
       icon: Rocket,
       active: location.pathname === "/admin/launch-plan",
+    },
+    {
+      href: "/admin/database-verification",
+      label: "Database Checks",
+      icon: Database,
+      active: location.pathname === "/admin/database-verification",
+    },
+    {
+      href: "/admin/diagnostics",
+      label: "Diagnostics",
+      icon: Shield,
+      active: location.pathname === "/admin/diagnostics",
     },
     {
       href: "/admin/company",
