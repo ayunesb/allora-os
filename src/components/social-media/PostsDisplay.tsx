@@ -4,28 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
+import { SocialMediaPost } from '@/types/socialMedia';
 
 // Lazy load the calendar and list views for better performance
 const CalendarView = lazy(() => import('./calendar/CalendarView'));
 const ListView = lazy(() => import('./list/ListView'));
 
-export interface Post {
-  id: string;
-  title: string;
-  platform: string;
-  content: string;
-  scheduled_date: string;
-  status: string;
-  [key: string]: any;
+export interface Post extends SocialMediaPost {
+  status: string; // Make status required for backward compatibility
 }
 
 interface PostsDisplayProps {
   view: 'calendar' | 'list';
-  posts: Post[];
+  posts: SocialMediaPost[];
   isLoading: boolean;
   error: Error | null;
   currentMonth: Date;
-  onEditPost: (post: Post) => void;
+  onEditPost: (post: SocialMediaPost) => void;
   onDeletePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onSchedulePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onApprovePost: (postId: string) => Promise<{ success: boolean, error?: string }>;

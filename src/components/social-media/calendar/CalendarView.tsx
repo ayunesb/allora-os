@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { type Post } from '../PostsDisplay';
+import { SocialMediaPost } from '@/types/socialMedia';
 import { 
   format, 
   startOfMonth, 
@@ -14,9 +14,9 @@ import {
 } from 'date-fns';
 
 interface CalendarViewProps {
-  posts: Post[];
+  posts: SocialMediaPost[];
   currentMonth: Date;
-  onEditPost: (post: Post) => void;
+  onEditPost: (post: SocialMediaPost) => void;
   onDeletePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onSchedulePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onApprovePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
@@ -46,7 +46,7 @@ export function CalendarView({
     }
     acc[date].push(post);
     return acc;
-  }, {} as Record<string, Post[]>);
+  }, {} as Record<string, SocialMediaPost[]>);
 
   // Custom day renderer for the calendar
   const renderDay = (day: Date) => {
