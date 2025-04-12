@@ -1,10 +1,10 @@
 
 import React from "react";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { QuickAccess } from "@/components/dashboard/QuickAccess";
-import { AiRecommendations } from "@/components/dashboard/AiRecommendations";
-import { CeoMessage } from "@/components/dashboard/CeoMessage";
-import { LoadingState } from "@/components/dashboard/LoadingState";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import QuickAccess from "@/components/dashboard/QuickAccess";
+import AiRecommendations from "@/components/dashboard/AiRecommendations";
+import CeoMessage from "@/components/dashboard/CeoMessage";
+import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Dashboard() {
@@ -18,7 +18,7 @@ export default function Dashboard() {
   });
 
   if (isLoading) {
-    return <LoadingState />;
+    return <DashboardLoadingState />;
   }
 
   return (
@@ -27,8 +27,11 @@ export default function Dashboard() {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
-          <CeoMessage />
-          <AiRecommendations />
+          <CeoMessage riskAppetite="medium" />
+          <AiRecommendations 
+            recommendations={[]} 
+            onApprove={() => {}}
+          />
         </div>
         <div>
           <QuickAccess />

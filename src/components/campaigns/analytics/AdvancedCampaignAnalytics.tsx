@@ -88,11 +88,12 @@ export function AdvancedCampaignAnalytics({
     { name: 'Other', value: totalCost * 0.15 },
   ];
   
-  // Fix the ROI calculation by ensuring we're working with numbers
-  const estimatedRevenue = totalConversions * (typeof campaign.budget === 'string' 
+  // Fix the ROI calculation to ensure we're working with numbers
+  const campaignBudget = typeof campaign.budget === 'string' 
     ? parseFloat(campaign.budget) || 5000 
-    : (campaign.budget || 5000)) * 0.2;
+    : (campaign.budget || 5000);
     
+  const estimatedRevenue = totalConversions * campaignBudget * 0.2;
   const roi = ((estimatedRevenue - totalCost) / totalCost * 100).toFixed(2);
   
   if (isLoading) {
@@ -546,7 +547,6 @@ function MetricCard({
   );
 }
 
-// Helper functions for mock data and insights
 function generateMockMetrics() {
   const dates = Array.from({ length: 14 }, (_, i) => {
     const date = new Date();
@@ -612,7 +612,6 @@ function getOptimizationSuggestions(campaign: Campaign, metrics: { ctr: number, 
     suggestions.push(`Refine professional targeting criteria to reach more relevant decision-makers`);
   }
   
-  // Return maximum 4 suggestions
   return suggestions.slice(0, 4);
 }
 
