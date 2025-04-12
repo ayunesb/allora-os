@@ -44,3 +44,28 @@ export const logComplianceChange = async (
     console.error("Failed to log compliance change:", error);
   }
 };
+
+// Add the missing logSystemChange function
+export const logSystemChange = async (
+  userId: string,
+  resource: string,
+  description: string,
+  details: any
+): Promise<void> => {
+  try {
+    await logAuditEvent({
+      user: userId,
+      action: 'SYSTEM_CHANGE',
+      resource,
+      details: {
+        description,
+        ...details,
+      }
+    });
+    
+    console.log(`[SYSTEM CHANGE] ${new Date().toISOString()} | ${userId} | ${resource} | ${description}`);
+    
+  } catch (error) {
+    console.error("Failed to log system change:", error);
+  }
+};
