@@ -1,203 +1,145 @@
 
-import React, { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { SendIcon, RefreshCw, Trash2, Bot } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatRoleTitle } from "@/utils/consultation";
-import { toast } from "sonner";
-
-type ChatMessage = {
-  id: string;
-  content: string;
-  sender: "user" | "bot";
-  botName?: string;
-  timestamp: Date;
-};
-
-type BotInfo = {
-  name: string;
-  role: string;
-  title: string;
-  specialty: string;
-  avatar: string;
-};
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { getExecutiveImage } from "@/utils/ai-executives";
+import { formatRoleTitle } from "@/utils/consultation/botRoleUtils";
+import { useBotConsultation } from "@/components/bot-detail/useBotConsultation";
+import { ChatMessageList } from "@/components/chat/ChatMessageList";
+import { ChatInput } from "@/components/chat/ChatInput";
+import { VoiceControls } from "./VoiceControls";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { IndustryExpertSelector } from "@/components/ai-bots/IndustryExpertSelector";
 
 interface BotChatPanelProps {
-  selectedBot: BotInfo | null;
-  onSelectBot: (bot: BotInfo | null) => void;
-  allBots: BotInfo[];
+  selectedBot: any;
+  onSelectBot: (bot: any) => void;
+  allBots: any[];
 }
 
-export default function BotChatPanel({ selectedBot, onSelectBot, allBots }: BotChatPanelProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+const BotChatPanel: React.FC<BotChatPanelProps> = ({ 
+  selectedBot, 
+  onSelectBot,
+  allBots 
+}) => {
+  const [activeTab, setActiveTab] = useState("chat");
+  const [selectedIndustryBot, setSelectedIndustryBot] = useState<any | null>(null);
   
-  // Auto scroll to bottom when messages change
+  const currentBot = selectedIndustryBot || selectedBot;
+  
+  const { 
+    bot, 
+    messages, 
+    isLoading, 
+    isTyping,
+    isVoiceEnabled,
+    isListening,
+    handleSendMessage, 
+    clearConversation,
+    toggleVoiceInterface,
+    startVoiceRecognition 
+  } = useBotConsultation(
+    currentBot?.name, 
+    currentBot?.role,
+    currentBot?.industry
+  );
+
+  // Reset selected industry bot when main selected bot changes
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-  
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
-    
-    // Add user message
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      content: inputMessage,
-      sender: "user",
-      timestamp: new Date(),
-    };
-    
-    setMessages((prev) => [...prev, userMessage]);
-    setInputMessage("");
-    setIsLoading(true);
-    
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: ChatMessage = {
-        id: `bot-${Date.now()}`,
-        content: selectedBot 
-          ? `As ${selectedBot.name}, I would recommend approaching this from a ${selectedBot.specialty} perspective...`
-          : "Our executive team would suggest looking at this from multiple angles...",
-        sender: "bot",
-        botName: selectedBot?.name,
-        timestamp: new Date(),
-      };
-      
-      setMessages((prev) => [...prev, botResponse]);
-      setIsLoading(false);
-    }, 1500);
+    setSelectedIndustryBot(null);
+  }, [selectedBot]);
+
+  const handleIndustryExpertSelect = (expert: { name: string; role: string; industry: string }) => {
+    setSelectedIndustryBot({
+      name: expert.name,
+      role: expert.role,
+      title: formatRoleTitle(expert.role),
+      industry: expert.industry,
+      avatar: getExecutiveImage(expert.name)
+    });
+    setActiveTab("chat");
   };
-  
-  const clearChat = () => {
-    setMessages([]);
-    toast.success("Chat cleared");
-  };
-  
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-  
+
+  if (!currentBot) {
+    return (
+      <Card className="border shadow-sm">
+        <CardContent className="p-6">
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Select an executive advisor to start a conversation</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader>
-        <CardTitle>AI Executive Chat</CardTitle>
-        <CardDescription>
-          {selectedBot 
-            ? `Speaking with ${selectedBot.name}, ${formatRoleTitle(selectedBot.role)}`
-            : "Consult with our AI executive team"}
-        </CardDescription>
-        
-        <Tabs defaultValue="chat" className="mt-4">
+    <div className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTrigger value="chat">Chat</TabsTrigger>
-            <TabsTrigger value="executives">Executives</TabsTrigger>
+            <TabsTrigger value="chat">Conversation</TabsTrigger>
+            <TabsTrigger value="experts">Industry Experts</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="chat" className="space-y-4">
-            {/* Chat interface will be shown here */}
-          </TabsContent>
-          
-          <TabsContent value="executives" className="mt-2">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {allBots.slice(0, 6).map((bot) => (
-                <Button 
-                  key={`${bot.role}-${bot.name}`}
-                  variant={selectedBot?.name === bot.name ? "default" : "outline"}
-                  className="flex items-center justify-start gap-2 h-auto py-2 px-3"
-                  onClick={() => onSelectBot(bot)}
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={bot.avatar} alt={bot.name} />
-                    <AvatarFallback>{bot.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm">{bot.name}</span>
-                </Button>
-              ))}
-              
-              <Button 
-                variant={selectedBot === null ? "default" : "outline"}
-                className="flex items-center justify-start gap-2 h-auto py-2 px-3"
-                onClick={() => onSelectBot(null)}
-              >
-                <Avatar className="h-8 w-8 bg-primary/10">
-                  <Bot className="h-4 w-4 text-primary" />
-                </Avatar>
-                <span className="text-sm">All Executives</span>
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardHeader>
-      
-      <CardContent className="flex-grow overflow-y-auto p-4">
-        <div className="space-y-4">
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center h-40 text-muted-foreground">
-              <Bot className="h-12 w-12 mb-2 text-muted-foreground/50" />
-              <p>No messages yet. Start the conversation with our AI executives.</p>
-            </div>
-          ) : (
-            messages.map((msg) => (
-              <div 
-                key={msg.id} 
-                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div 
-                  className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                    msg.sender === "user" 
-                      ? "bg-primary text-primary-foreground" 
-                      : "bg-muted"
-                  }`}
-                >
-                  {msg.botName && <div className="font-semibold text-xs mb-1">{msg.botName}</div>}
-                  <div className="break-words">{msg.content}</div>
+          {activeTab === "chat" && (
+            <VoiceControls
+              isVoiceEnabled={isVoiceEnabled}
+              isListening={isListening}
+              toggleVoiceInterface={toggleVoiceInterface}
+              startVoiceRecognition={startVoiceRecognition}
+            />
+          )}
+        </div>
+        
+        <TabsContent value="chat" className="mt-4 space-y-4">
+          <Card className="border shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <Avatar 
+                  className="h-10 w-10 border"
+                  src={currentBot?.avatar || getExecutiveImage(currentBot?.name)}
+                />
+                <div>
+                  <CardTitle className="text-lg">{currentBot?.name}</CardTitle>
+                  <div className="flex gap-2 items-center">
+                    <span className="text-sm text-muted-foreground">{currentBot?.title}</span>
+                    {currentBot?.industry && (
+                      <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
+                        {currentBot.industry}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-      </CardContent>
-      
-      <CardFooter className="pt-4 border-t">
-        <div className="flex w-full gap-2">
-          <Textarea
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your message..."
-            className="resize-none min-h-[60px]"
-            disabled={isLoading}
-          />
-          <div className="flex flex-col gap-2">
-            <Button 
-              onClick={handleSendMessage} 
-              disabled={!inputMessage.trim() || isLoading}
-              size="icon"
-              className="h-[60px]"
-            >
-              <SendIcon className="h-5 w-5" />
-            </Button>
-            <Button 
-              onClick={clearChat}
-              variant="outline" 
-              size="icon"
-              title="Clear chat"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardFooter>
-    </Card>
+            </CardHeader>
+            <CardContent>
+              <ChatMessageList 
+                messages={messages}
+                isTyping={isTyping}
+                onClearChat={clearConversation}
+              />
+              
+              <div className="mt-4">
+                <ChatInput 
+                  onSendMessage={handleSendMessage}
+                  isLoading={isLoading}
+                  placeholder={`Ask ${currentBot?.name} a question...`}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="experts" className="mt-4">
+          <Card className="border shadow-sm">
+            <CardContent className="p-6">
+              <IndustryExpertSelector onSelectExpert={handleIndustryExpertSelect} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
-}
+};
+
+export default BotChatPanel;

@@ -4,6 +4,11 @@ import { toast } from "sonner";
 import { useProtectedApi } from "@/hooks/useProtectedApi";
 import { getBotExpertise, formatRoleTitle } from "@/utils/consultation";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useAuth } from "@/context/AuthContext";
+import { 
+  getConversationMemory, 
+  storeConversationMemory 
+} from "@/utils/conversation/conversationMemory";
 
 export interface Message {
   id: string;
@@ -17,16 +22,21 @@ export interface Bot {
   name: string;
   title: string;
   expertise: string;
+  industry?: string;
 }
 
-export function useBotConsultation(botName?: string, role?: string) {
+export function useBotConsultation(botName?: string, role?: string, industry?: string) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [bot, setBot] = useState<Bot | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speech, setSpeech] = useState<SpeechSynthesisUtterance | null>(null);
   const { preferences } = useUserPreferences();
+  const { profile } = useAuth();
 
   // Initialize the bot data
   useEffect(() => {
@@ -42,6 +52,7 @@ export function useBotConsultation(botName?: string, role?: string) {
         name: botName || "",
         title: formatRoleTitle(role || ""),
         expertise: getBotExpertise(role || ""),
+        industry: industry || undefined
       });
       setError(null);
     } catch (err) {
@@ -49,7 +60,7 @@ export function useBotConsultation(botName?: string, role?: string) {
       setBot(null);
       setError("Failed to initialize advisor. Please try again later.");
     }
-  }, [botName, role]);
+  }, [botName, role, industry]);
 
   // Reset state when bot changes
   useEffect(() => {
@@ -57,15 +68,138 @@ export function useBotConsultation(botName?: string, role?: string) {
       setMessages([]);
       setError(null);
       setRetryCount(0);
+      
+      // Load previous conversation if available
+      if (profile?.id) {
+        loadPreviousConversation(profile.id, `${botName}-${role}`);
+      }
     }
-  }, [botName, role]);
+  }, [botName, role, profile?.id]);
+
+  // Load previous conversation from memory
+  const loadPreviousConversation = async (userId: string, botId: string) => {
+    try {
+      const memory = await getConversationMemory(userId, botId);
+      
+      if (memory && memory.memoryContext.previousInteractions.length > 0) {
+        // Convert memory format to messages
+        const historicalMessages: Message[] = [];
+        
+        memory.memoryContext.previousInteractions.forEach(interaction => {
+          if (interaction.startsWith('User: ')) {
+            historicalMessages.push({
+              id: `user-${Date.now()}-${Math.random()}`,
+              content: interaction.replace('User: ', ''),
+              sender: "user",
+              timestamp: new Date(memory.lastUpdated)
+            });
+          } else if (interaction.includes(': ')) {
+            const [, content] = interaction.split(': ', 2);
+            historicalMessages.push({
+              id: `bot-${Date.now()}-${Math.random()}`,
+              content,
+              sender: "bot",
+              timestamp: new Date(memory.lastUpdated)
+            });
+          }
+        });
+        
+        if (historicalMessages.length > 0) {
+          setMessages(historicalMessages);
+          toast.info("Previous conversation loaded");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load previous conversation:", error);
+    }
+  };
+
+  // Initialize Web Speech API for voice interface
+  useEffect(() => {
+    if (!window.SpeechSynthesisUtterance || !window.speechSynthesis) {
+      console.warn("Speech synthesis not supported in this browser");
+      return;
+    }
+
+    const speechUtterance = new SpeechSynthesisUtterance();
+    speechUtterance.rate = 1.0;
+    speechUtterance.pitch = 1.0;
+    speechUtterance.volume = 1.0;
+    
+    speechUtterance.onend = () => {
+      setIsTyping(false);
+    };
+    
+    speechUtterance.onerror = (event) => {
+      console.error("Speech synthesis error:", event);
+      setIsTyping(false);
+    };
+    
+    setSpeech(speechUtterance);
+    
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // Toggle voice interface
+  const toggleVoiceInterface = useCallback(() => {
+    setIsVoiceEnabled(prev => !prev);
+    toast.info(isVoiceEnabled ? "Voice interface disabled" : "Voice interface enabled");
+  }, [isVoiceEnabled]);
+
+  // Start voice recognition
+  const startVoiceRecognition = useCallback(() => {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      toast.error("Speech recognition not supported in this browser");
+      return;
+    }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info("Listening...");
+    };
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      handleSendMessage(transcript);
+    };
+    
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event);
+      setIsListening(false);
+      toast.error("Failed to recognize speech");
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    
+    recognition.start();
+  }, []);
 
   const { execute: fetchBotResponse } = useProtectedApi<string, string>(
     async (userMessage) => {
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
-      // In a real application, we would make an API call here
+      // Get memory context if available
+      let memoryContext = null;
+      if (profile?.id && botName && role) {
+        const memory = await getConversationMemory(profile.id, `${botName}-${role}`);
+        memoryContext = memory?.memoryContext || null;
+      }
+      
+      // In a real application, we would make an API call here with memory context
       // For now, we'll just return a mock response
       const mockResponses = [
         `Thank you for your message. Based on my analysis and ${preferences.technicalLevel === 'advanced' ? 'in-depth technical assessment' : 'business expertise'}, I would recommend exploring this further.`,
@@ -75,7 +209,19 @@ export function useBotConsultation(botName?: string, role?: string) {
       
       // Select a random response
       const randomIndex = Math.floor(Math.random() * mockResponses.length);
-      return mockResponses[randomIndex];
+      const response = mockResponses[randomIndex];
+      
+      // Store interaction in memory
+      if (profile?.id && botName && role) {
+        await storeConversationMemory(
+          profile.id,
+          `${botName}-${role}`,
+          userMessage,
+          response
+        );
+      }
+      
+      return response;
     }
   );
 
@@ -143,6 +289,12 @@ export function useBotConsultation(botName?: string, role?: string) {
             }
           ];
         });
+        
+        // If voice interface is enabled, speak the response
+        if (isVoiceEnabled && speech && window.speechSynthesis) {
+          speech.text = response;
+          window.speechSynthesis.speak(speech);
+        }
       } else {
         throw new Error("Failed to get response");
       }
@@ -173,8 +325,12 @@ export function useBotConsultation(botName?: string, role?: string) {
     isTyping,
     error,
     retryCount,
+    isVoiceEnabled,
+    isListening,
     handleSendMessage,
     retryLastMessage,
-    clearConversation
+    clearConversation,
+    toggleVoiceInterface,
+    startVoiceRecognition
   };
 }

@@ -1,4 +1,3 @@
-
 // AI Executive Team - These are the AI personas that function as virtual executives
 export const executiveBots = {
   // C-Suite
@@ -122,6 +121,40 @@ export const executiveBots = {
   
   // Marketing 
   marketing: ["Seth Godin", "Gary Vaynerchuk", "Rand Fishkin", "Neil Patel"]
+};
+
+// Additional specialized industry-specific executives
+export const industrySpecificExecutives = {
+  healthcare: {
+    cmo: ["Angela Hwang", "Emma Walmsley", "Vas Narasimhan"],
+    chro: ["Bernard J. Tyson", "Carla Irwin", "David Feinberg"],
+    compliance: ["Catherine Corley", "Richard Sauber", "Melissa Stapleton Barnes"],
+    strategic_partnerships: ["Jessica Mega", "Kieran Murphy", "Joaquin Duato"]
+  },
+  technology: {
+    cio: ["Satya Nadella", "Sarah Friar", "Safra Catz"],
+    cto: ["Werner Vogels", "Mike Schroepfer", "Parag Agrawal"],
+    security: ["Christopher Krebs", "Katie Moussouris", "Bruce Schneier"],
+    product_strategy: ["Marissa Mayer", "Sundar Pichai", "Lisa Su"]
+  },
+  finance: {
+    cfo: ["Ruth Porat", "Jamie Dimon", "Jane Fraser"],
+    risk_officer: ["Sarah Dahlgren", "Brian Moynihan", "Marianne Lake"],
+    investment_advisor: ["Ray Dalio", "Cathie Wood", "Howard Marks"],
+    regulatory_compliance: ["Mary Schapiro", "Gary Gensler", "Hester Peirce"]
+  },
+  retail: {
+    cmo: ["Seth Godin", "Bozoma Saint John", "Marc Pritchard"],
+    supply_chain: ["Tim Cook", "Alexis Maybank", "Dave Clark"],
+    customer_experience: ["Tony Hsieh", "Horst Schulze", "Shep Hyken"],
+    ecommerce_director: ["Daniel Zhang", "Julie Wainwright", "Kunal Bahl"]
+  },
+  manufacturing: {
+    operations: ["Tim Cook", "Mary Barra", "Gwynne Shotwell"],
+    supply_chain: ["Liz Elting", "Annette Clayton", "Ruth Hartman"],
+    quality_control: ["W. Edwards Deming", "Joseph Juran", "Mary Walton"],
+    innovation_manager: ["Jim Hackett", "Marillyn Hewson", "Alan Mulally"]
+  }
 };
 
 // Defines the output locations for each role
@@ -368,4 +401,13 @@ export const botExampleActions = {
   cold_calling: "Build high-conversion call scripts",
   lead_qualification: "Develop lead scoring system",
   sales_business_development: "Create strategic partnership roadmaps"
+};
+
+// Define industry expertise for executives
+export const executiveIndustryExpertise = {
+  healthcare: ["Regulatory compliance", "Patient experience", "Clinical trials", "Healthcare technology"],
+  technology: ["Digital transformation", "Software development", "Cloud architecture", "Cybersecurity"],
+  finance: ["Risk management", "Investment strategy", "Financial regulations", "Market analysis"],
+  retail: ["Consumer behavior", "Omnichannel strategy", "Supply chain optimization", "Brand development"],
+  manufacturing: ["Lean production", "Quality assurance", "Supply chain management", "Operational efficiency"]
 };
