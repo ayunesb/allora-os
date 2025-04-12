@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Campaign, Platform, ExecutiveBot } from "@/models/campaign";
 import { Button } from "@/components/ui/button";
 import { DownloadIcon } from "lucide-react";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 export default function Campaigns() {
   const [editingCampaignId, setEditingCampaignId] = useState<string | null>(null);
@@ -195,49 +196,53 @@ export default function Campaigns() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <CampaignHeader onNewCampaign={handleNewCampaign} />
-      
-      <CampaignAnalytics 
-        campaigns={campaigns}
-        isLoading={isLoading}
-      />
-      
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">All Campaigns</h2>
-        
-        {campaigns.length > 0 && (
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={() => handleExportCampaign('all', 'csv')}>
-              <DownloadIcon className="mr-2 h-4 w-4" />
-              Export All (CSV)
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleExportCampaign('all', 'pdf')}>
-              <DownloadIcon className="mr-2 h-4 w-4" />
-              Export All (PDF)
-            </Button>
+    <Tabs defaultValue="main">
+      <TabsContent value="main">
+        <div className="container mx-auto px-4 py-8">
+          <CampaignHeader onNewCampaign={handleNewCampaign} />
+          
+          <CampaignAnalytics 
+            campaigns={campaigns}
+            isLoading={isLoading}
+          />
+          
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">All Campaigns</h2>
+            
+            {campaigns.length > 0 && (
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm" onClick={() => handleExportCampaign('all', 'csv')}>
+                  <DownloadIcon className="mr-2 h-4 w-4" />
+                  Export All (CSV)
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleExportCampaign('all', 'pdf')}>
+                  <DownloadIcon className="mr-2 h-4 w-4" />
+                  Export All (PDF)
+                </Button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      
-      <CampaignsList 
-        campaigns={campaigns}
-        isLoading={isLoading}
-        handleEditCampaign={handleEditCampaign}
-        deleteCampaign={deleteCampaign}
-        onCreateCampaign={handleNewCampaign}
-        onApproveCampaign={handleApproveCampaign}
-        onExportCampaign={handleExportCampaign}
-      />
-      
-      <CampaignWizard
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSubmit={onSubmit}
-        defaultValues={getWizardDefaultValues()}
-        isSubmitting={isCreating || isUpdating}
-        isEditing={!!editingCampaignId}
-      />
-    </div>
+          
+          <CampaignsList 
+            campaigns={campaigns}
+            isLoading={isLoading}
+            handleEditCampaign={handleEditCampaign}
+            deleteCampaign={deleteCampaign}
+            onCreateCampaign={handleNewCampaign}
+            onApproveCampaign={handleApproveCampaign}
+            onExportCampaign={handleExportCampaign}
+          />
+          
+          <CampaignWizard
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            onSubmit={onSubmit}
+            defaultValues={getWizardDefaultValues()}
+            isSubmitting={isCreating || isUpdating}
+            isEditing={!!editingCampaignId}
+          />
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }

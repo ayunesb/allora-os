@@ -81,25 +81,11 @@ const ExecutiveBoardroom: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{message.executive.name}</span>
                         <span className="text-xs text-muted-foreground">
-                          ({formatRoleTitle(message.executive.role)})
+                          {message.executive.role || formatRoleTitle(message.executive.role || '')}
                         </span>
-                        {message.sentiment === 'positive' && (
-                          <ThumbsUp className="h-3.5 w-3.5 text-green-500" />
-                        )}
-                        {message.sentiment === 'negative' && (
-                          <ThumbsDown className="h-3.5 w-3.5 text-red-500" />
-                        )}
-                        {message.sentiment === 'neutral' && (
-                          <span className="h-3.5 w-3.5 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                            <span className="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
-                          </span>
-                        )}
                       </div>
-                      <div className="bg-muted/30 p-3 rounded-lg border border-border/40">
-                        <p className="text-sm">{message.content}</p>
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <div className="bg-secondary/10 rounded-lg p-3">
+                        <p>{message.content}</p>
                       </div>
                     </div>
                   </div>
@@ -108,157 +94,85 @@ const ExecutiveBoardroom: React.FC = () => {
             </CardContent>
           </Card>
         </TabsContent>
-
+        
         <TabsContent value="summary">
-          {debateSummary && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Decision Summary</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-amber-500" />
-                      <h3 className="font-medium">Key Findings</h3>
-                    </div>
-                    <ul className="space-y-1 pl-6 list-disc">
-                      {debateSummary.keyFindings.map((finding, index) => (
-                        <li key={index} className="text-sm">{finding}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <ThumbsUp className="h-4 w-4 text-green-500" />
-                        <h3 className="font-medium">Points of Agreement</h3>
-                      </div>
-                      <ul className="space-y-1 pl-6 list-disc">
-                        {debateSummary.agreedPoints.map((point, index) => (
-                          <li key={index} className="text-sm">{point}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <ThumbsDown className="h-4 w-4 text-red-500" />
-                        <h3 className="font-medium">Points of Disagreement</h3>
-                      </div>
-                      <ul className="space-y-1 pl-6 list-disc">
-                        {debateSummary.disagreedPoints.map((point, index) => (
-                          <li key={index} className="text-sm">{point}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 border-t pt-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users className="h-4 w-4 text-primary" />
-                      <h3 className="font-medium">Final Decision</h3>
-                    </div>
-                    <p className="text-sm">{debateSummary.finalDecision}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="contributors">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                <span>Key Contributors</span>
-              </CardTitle>
+              <CardTitle className="text-xl font-bold">Decision Summary</CardTitle>
               <CardDescription>
-                Meet the AI executives who contributed to your business strategy
+                The key decisions and recommendations from the executive team
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {debateMessages.length > 0 && 
-                  Array.from(new Set(debateMessages.map(m => m.executive.name))).map((name, index) => {
-                    const executive = debateMessages.find(m => m.executive.name === name)?.executive;
-                    if (!executive) return null;
-                    
-                    return (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border border-border/40">
-                        <Avatar className="h-12 w-12 border-2 border-background">
-                          <AvatarImage src={executive.avatar} alt={executive.name} />
-                          <AvatarFallback>{executive.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-medium">{executive.name}</h3>
-                          <p className="text-xs text-muted-foreground">{formatRoleTitle(executive.role)}</p>
-                          <p className="mt-2 text-sm">
-                            {executive.role === 'ceo' 
-                              ? 'Led the strategic direction discussion' 
-                              : executive.role === 'cfo' 
-                                ? 'Provided financial risk assessment'
-                                : executive.role === 'strategy'
-                                  ? 'Outlined strategic market positioning'
-                                  : 'Contributed domain expertise to the discussion'}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })
-                }
+              <div className="bg-secondary/10 rounded-lg p-4">
+                <p>{debateSummary || "No summary is available for this debate yet."}</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-
+        
+        <TabsContent value="contributors">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl font-bold">Key Contributors</CardTitle>
+              <CardDescription>
+                The executive team members who contributed to this analysis
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {debateMessages
+                  .filter((m, i, arr) => arr.findIndex(m2 => m2.executive.name === m.executive.name) === i)
+                  .map((message) => (
+                    <div key={message.executive.name} className="flex items-center gap-3 p-3 bg-secondary/10 rounded-lg">
+                      <Avatar className="h-10 w-10 border-2 border-primary/20">
+                        <AvatarImage src={message.executive.avatar} alt={message.executive.name} />
+                        <AvatarFallback>
+                          {message.executive.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{message.executive.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {message.executive.role || formatRoleTitle(message.executive.role || '')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
         <TabsContent value="process">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-primary" />
-                <span>The Decision Process</span>
-              </CardTitle>
+              <CardTitle className="text-xl font-bold">Thinking Process</CardTitle>
               <CardDescription>
-                Understand how our AI executive team collaborates to create your strategy
+                How our AI executive team approached the analysis of your business needs
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="relative pl-8 pb-8 border-l-2 border-primary/30">
-                  <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-                  <h3 className="font-medium text-lg">1. Information Analysis</h3>
-                  <p className="text-sm mt-1">
-                    The AI executive team analyzes your company's industry, goals, and market position to establish a baseline for discussion.
+                <div className="bg-secondary/10 rounded-lg p-4">
+                  <h3 className="font-medium mb-2 flex items-center gap-2">
+                    <Lightbulb className="h-4 w-4 text-amber-400" />
+                    Analysis Methodology
+                  </h3>
+                  <p className="text-sm">
+                    Our AI executive team analyzes your business information through multiple perspectives,
+                    using industry-specific knowledge and strategic frameworks to provide comprehensive insights.
                   </p>
                 </div>
                 
-                <div className="relative pl-8 pb-8 border-l-2 border-primary/30">
-                  <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-                  <h3 className="font-medium text-lg">2. Executive Debate</h3>
-                  <p className="text-sm mt-1">
-                    Each executive contributes based on their specialty - Elon Musk on innovation, Warren Buffett on financial prudence, Satya Nadella on digital transformation, etc.
-                  </p>
-                </div>
-                
-                <div className="relative pl-8 pb-8 border-l-2 border-primary/30">
-                  <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-                  <h3 className="font-medium text-lg">3. Conflict Resolution</h3>
-                  <p className="text-sm mt-1">
-                    Executives debate contrasting approaches, weighing pros and cons to find the optimal strategy for your specific situation.
-                  </p>
-                </div>
-                
-                <div className="relative pl-8">
-                  <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-                  <h3 className="font-medium text-lg">4. Decision Synthesis</h3>
-                  <p className="text-sm mt-1">
-                    The final strategy combines the strongest insights from each executive, creating a balanced approach that addresses your company's unique challenges and opportunities.
+                <div className="bg-secondary/10 rounded-lg p-4">
+                  <h3 className="font-medium mb-2 flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-blue-400" />
+                    Business Context Integration
+                  </h3>
+                  <p className="text-sm">
+                    The team integrates your specific business context with market trends,
+                    competitive analysis, and growth opportunities to create tailored recommendations.
                   </p>
                 </div>
               </div>

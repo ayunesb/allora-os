@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import WebhookHistoryTab from './webhooks/WebhookHistoryTab';
 import { useWebhooks } from './webhooks/useWebhooks';
@@ -97,40 +98,42 @@ const WebhooksTab = () => {
         />
       </CardHeader>
       
-      <TabsContent value="config" className="mt-0">
-        <CardContent>
-          <WebhookConfigTab 
-            stripeWebhook={stripeWebhook}
-            zapierWebhook={zapierWebhook}
-            githubWebhook={githubWebhook}
-            slackWebhook={slackWebhook}
-            customWebhook={customWebhook}
-            onStripeWebhookChange={handleStripeWebhookChange}
-            onZapierWebhookChange={handleZapierWebhookChange}
-            onGithubWebhookChange={handleGithubWebhookChange}
-            onSlackWebhookChange={handleSlackWebhookChange}
-            onCustomWebhookChange={handleCustomWebhookChange}
-            onTestStripeWebhook={() => handleTestStripeWebhook(isStripeWebhookValid)}
-            onTestZapierWebhook={() => handleTestZapierWebhook(isZapierWebhookValid)}
-            onTestGithubWebhook={() => handleTestGithubWebhook(isGithubWebhookValid)}
-            onTestSlackWebhook={() => handleTestSlackWebhook(isSlackWebhookValid)}
-            onTestCustomWebhook={() => handleTestCustomWebhook(isCustomWebhookValid)}
-            onSave={handleSave}
-            isSaving={isSaving}
-            testingWebhook={testingWebhook}
-            testLoading={testLoading}
-            isStripeWebhookValid={isStripeWebhookValid}
-            isZapierWebhookValid={isZapierWebhookValid}
-            isGithubWebhookValid={isGithubWebhookValid}
-            isSlackWebhookValid={isSlackWebhookValid}
-            isCustomWebhookValid={isCustomWebhookValid}
-          />
-        </CardContent>
-      </TabsContent>
-      
-      <TabsContent value="history" className="mt-0">
-        <WebhookHistoryTab />
-      </TabsContent>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsContent value="config" className="mt-0">
+          <CardContent>
+            <WebhookConfigTab 
+              stripeWebhook={stripeWebhook}
+              zapierWebhook={zapierWebhook}
+              githubWebhook={githubWebhook}
+              slackWebhook={slackWebhook}
+              customWebhook={customWebhook}
+              onStripeWebhookChange={handleStripeWebhookChange}
+              onZapierWebhookChange={handleZapierWebhookChange}
+              onGithubWebhookChange={handleGithubWebhookChange}
+              onSlackWebhookChange={handleSlackWebhookChange}
+              onCustomWebhookChange={handleCustomWebhookChange}
+              onTestStripeWebhook={() => handleTestStripeWebhook(isStripeWebhookValid)}
+              onTestZapierWebhook={() => handleTestZapierWebhook(isZapierWebhookValid)}
+              onTestGithubWebhook={() => handleTestGithubWebhook(isGithubWebhookValid)}
+              onTestSlackWebhook={() => handleTestSlackWebhook(isSlackWebhookValid)}
+              onTestCustomWebhook={() => handleTestCustomWebhook(isCustomWebhookValid)}
+              onSave={handleSave}
+              isSaving={isSaving}
+              testingWebhook={testingWebhook}
+              testLoading={testLoading}
+              isStripeWebhookValid={isStripeWebhookValid}
+              isZapierWebhookValid={isZapierWebhookValid}
+              isGithubWebhookValid={isGithubWebhookValid}
+              isSlackWebhookValid={isSlackWebhookValid}
+              isCustomWebhookValid={isCustomWebhookValid}
+            />
+          </CardContent>
+        </TabsContent>
+        
+        <TabsContent value="history" className="mt-0">
+          <WebhookHistoryTab />
+        </TabsContent>
+      </Tabs>
     </Card>
   );
 };
