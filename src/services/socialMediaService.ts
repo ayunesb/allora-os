@@ -350,8 +350,8 @@ export async function deleteSocialMediaPost(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get the current post data to determine company ID for cache invalidation
-    const post = await fetchSocialMediaPost(postId);
-    if (!post) {
+    const postData = await fetchSocialMediaPost(postId);
+    if (!postData) {
       return {
         success: false,
         error: 'Post not found'
@@ -368,7 +368,7 @@ export async function deleteSocialMediaPost(
         
         if (error) throw error;
         
-        return { data: null };
+        return { data: null, error: null };
       }),
       {
         successMessage: 'Social media post deleted successfully',
@@ -378,10 +378,10 @@ export async function deleteSocialMediaPost(
     
     // Clear the specific post cache and the posts list cache
     clearApiCache(`social_media_post_${postId}`);
-    clearApiCache(getSocialMediaCacheKey(post.company_id));
+    clearApiCache(getSocialMediaCacheKey(postData.company_id));
     
     // Log the successful deletion
-    logger.info('Social media post deleted', { postId, companyId: post.company_id });
+    logger.info('Social media post deleted', { postId, companyId: postData.company_id });
     
     return { success: true };
   } catch (error: any) {
@@ -406,8 +406,8 @@ export async function schedulePost(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get the current post data to determine company ID for cache invalidation
-    const post = await fetchSocialMediaPost(postId);
-    if (!post) {
+    const initialPostData = await fetchSocialMediaPost(postId);
+    if (!initialPostData) {
       return {
         success: false,
         error: 'Post not found'
@@ -415,10 +415,10 @@ export async function schedulePost(
     }
     
     // Check if the post is already scheduled or published
-    if (post.status === 'scheduled' || post.status === 'published') {
+    if (initialPostData.status === 'scheduled' || initialPostData.status === 'published') {
       return {
         success: false,
-        error: `Post is already ${post.status}`
+        error: `Post is already ${initialPostData.status}`
       };
     }
     
@@ -435,7 +435,7 @@ export async function schedulePost(
         
         if (error) throw error;
         
-        return { data: null };
+        return { data: null, error: null };
       }),
       {
         successMessage: 'Post scheduled successfully',
@@ -443,21 +443,21 @@ export async function schedulePost(
       }
     );
     
-    // Get post information for cache invalidation
-    const post = await fetchSocialMediaPost(postId);
-    if (post) {
+    // Get updated post information for cache invalidation and logging
+    const updatedPostData = await fetchSocialMediaPost(postId);
+    if (updatedPostData) {
       // Clear the specific post cache and the posts list cache
       clearApiCache(`social_media_post_${postId}`);
-      clearApiCache(getSocialMediaCacheKey(post.company_id));
+      clearApiCache(getSocialMediaCacheKey(updatedPostData.company_id));
+      
+      // Log the successful scheduling
+      logger.info('Social media post scheduled', { 
+        postId, 
+        companyId: updatedPostData.company_id,
+        scheduledDate: updatedPostData.scheduled_date,
+        publishTime: updatedPostData.publish_time
+      });
     }
-    
-    // Log the successful scheduling
-    logger.info('Social media post scheduled', { 
-      postId, 
-      companyId: post.company_id,
-      scheduledDate: post.scheduled_date,
-      publishTime: post.publish_time
-    });
     
     return { success: true };
   } catch (error: any) {
@@ -484,8 +484,8 @@ export async function approvePost(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get the current post data to determine company ID for cache invalidation
-    const post = await fetchSocialMediaPost(postId);
-    if (!post) {
+    const initialPostData = await fetchSocialMediaPost(postId);
+    if (!initialPostData) {
       return {
         success: false,
         error: 'Post not found'
@@ -493,7 +493,7 @@ export async function approvePost(
     }
     
     // Check if the post is already approved
-    if (post.is_approved) {
+    if (initialPostData.is_approved) {
       return {
         success: false,
         error: 'Post is already approved'
@@ -508,14 +508,14 @@ export async function approvePost(
           .update({
             is_approved: true,
             approval_notes: notes,
-            status: post.status === 'draft' ? 'approved' : post.status,
+            status: initialPostData.status === 'draft' ? 'approved' : initialPostData.status,
             updated_at: new Date().toISOString()
           })
           .eq('id', postId);
         
         if (error) throw error;
         
-        return { data: null };
+        return { data: null, error: null };
       }),
       {
         successMessage: 'Post approved successfully',
@@ -523,20 +523,20 @@ export async function approvePost(
       }
     );
     
-    // Get post information for cache invalidation
-    const post = await fetchSocialMediaPost(postId);
-    if (post) {
+    // Get updated post information for cache invalidation and logging
+    const updatedPostData = await fetchSocialMediaPost(postId);
+    if (updatedPostData) {
       // Clear the specific post cache and the posts list cache
       clearApiCache(`social_media_post_${postId}`);
-      clearApiCache(getSocialMediaCacheKey(post.company_id));
+      clearApiCache(getSocialMediaCacheKey(updatedPostData.company_id));
+      
+      // Log the successful approval
+      logger.info('Social media post approved', { 
+        postId, 
+        companyId: updatedPostData.company_id,
+        withNotes: !!notes
+      });
     }
-    
-    // Log the successful approval
-    logger.info('Social media post approved', { 
-      postId, 
-      companyId: post.company_id,
-      withNotes: !!notes
-    });
     
     return { success: true };
   } catch (error: any) {
