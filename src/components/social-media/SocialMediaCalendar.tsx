@@ -2,36 +2,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useSocialMedia } from '@/hooks/social/useSocialMedia';
-import { SocialMediaPost, SocialPlatform, PostStatus } from '@/types/socialMedia';
-import { CalendarIcon, List, Grid, ChevronLeft, ChevronRight, Filter, Search, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
-import SocialMediaPostForm from './SocialMediaPostForm';
+import { Card, CardContent } from '@/components/ui/card';
+import { CalendarIcon } from 'lucide-react';
 import { DialogCreate } from './SocialMediaPostDialog';
 import SocialMediaPostList from './SocialMediaPostList';
 import SocialMediaCalendarView from './SocialMediaCalendarView';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { formatDate } from '@/utils/formatters';
+import { SocialMediaHeader } from './calendar/SocialMediaHeader';
+import { SocialMediaFilters } from './calendar/SocialMediaFilters';
+import { ViewToggle } from './calendar/ViewToggle';
 
-/**
- * Social Media Calendar Component
- * Provides a comprehensive view and management system for social media posts
- */
 export default function SocialMediaCalendar() {
   const { profile } = useAuth();
   const {
@@ -41,7 +20,6 @@ export default function SocialMediaCalendar() {
     filters,
     setPostFilters,
     clearFilters,
-    fetchPosts,
     createPost,
     updatePost,
     deletePost,
@@ -56,29 +34,17 @@ export default function SocialMediaCalendar() {
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  // Navigation for months
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
-  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  
-  // Apply filters on form submission
+  // Handle filter submission
   const handleFilterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     setPostFilters({
-      platform: selectedPlatform as SocialPlatform || undefined,
-      status: selectedStatus as PostStatus || undefined,
+      platform: selectedPlatform || undefined,
+      status: selectedStatus || undefined,
       search: searchQuery || undefined,
       startDate: format(startOfMonth(currentMonth), 'yyyy-MM-dd'),
       endDate: format(endOfMonth(currentMonth), 'yyyy-MM-dd')
     });
-  };
-  
-  // Reset all filters
-  const handleClearFilters = () => {
-    setSearchQuery('');
-    setSelectedPlatform('');
-    setSelectedStatus('');
-    clearFilters();
   };
   
   // Handle post creation
@@ -104,125 +70,31 @@ export default function SocialMediaCalendar() {
   
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Social Media Calendar</h1>
-          <p className="text-muted-foreground mt-1">
-            Plan, schedule, and manage your social media content
-          </p>
-        </div>
-        
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Post
-        </Button>
-      </div>
+      <SocialMediaHeader onCreatePost={() => setIsDialogOpen(true)} />
       
-      {/* Filters and Search */}
-      <Card>
-        <CardContent className="p-4">
-          <form onSubmit={handleFilterSubmit} className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search posts..."
-                className="pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <Select
-              value={selectedPlatform}
-              onValueChange={setSelectedPlatform}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Platform" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Platforms</SelectItem>
-                <SelectItem value="Facebook">Facebook</SelectItem>
-                <SelectItem value="Instagram">Instagram</SelectItem>
-                <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                <SelectItem value="Twitter">Twitter</SelectItem>
-                <SelectItem value="TikTok">TikTok</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select
-              value={selectedStatus}
-              onValueChange={setSelectedStatus}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="scheduled">Scheduled</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <div>
-              <div className="flex items-center space-x-2">
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  onClick={prevMonth}
-                  size="icon"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="font-medium">
-                  {format(currentMonth, 'MMMM yyyy')}
-                </span>
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  onClick={nextMonth}
-                  size="icon"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="flex space-x-2">
-              <Button type="submit" variant="default" className="w-full">
-                <Filter className="mr-2 h-4 w-4" />
-                Apply Filters
-              </Button>
-              <Button type="button" variant="outline" onClick={handleClearFilters}>
-                Clear
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+      <SocialMediaFilters 
+        currentMonth={currentMonth}
+        onMonthChange={setCurrentMonth}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedPlatform={selectedPlatform}
+        onPlatformChange={setSelectedPlatform}
+        selectedStatus={selectedStatus}
+        onStatusChange={setSelectedStatus}
+        onApplyFilters={handleFilterSubmit}
+        onClearFilters={() => {
+          setSearchQuery('');
+          setSelectedPlatform('');
+          setSelectedStatus('');
+          clearFilters();
+        }}
+      />
       
-      {/* View Toggle */}
-      <div className="flex justify-between items-center">
-        <Tabs value={view} onValueChange={(v) => setView(v as 'calendar' | 'list')}>
-          <TabsList>
-            <TabsTrigger value="calendar">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              Calendar
-            </TabsTrigger>
-            <TabsTrigger value="list">
-              <List className="mr-2 h-4 w-4" />
-              List
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
-        {posts.length > 0 && (
-          <Badge variant="outline">
-            {posts.length} post{posts.length !== 1 ? 's' : ''}
-          </Badge>
-        )}
-      </div>
+      <ViewToggle 
+        view={view}
+        onViewChange={(v) => setView(v)}
+        postCount={posts.length}
+      />
       
       {/* Loading State */}
       {isLoading && (
