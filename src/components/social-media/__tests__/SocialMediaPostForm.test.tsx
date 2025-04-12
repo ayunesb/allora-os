@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SocialMediaPostForm from '../SocialMediaPostForm';
-import { SocialPlatform, PostContentType, SocialMediaPost } from '@/types/socialMedia';
+import { SocialPlatform, PostContentType, SocialMediaPost, PostStatus } from '@/types/socialMedia';
 
 // Mock the useCampaigns hook
 jest.mock('@/hooks/campaigns/useCampaigns', () => ({
@@ -30,6 +31,7 @@ describe('SocialMediaPostForm', () => {
   it('renders the form with pre-filled fields when a post is provided', () => {
     const mockPost: SocialMediaPost = {
       id: '1',
+      name: 'Test Post',
       company_id: 'company123',
       title: 'Test Post',
       content: 'This is test content',
@@ -37,7 +39,7 @@ describe('SocialMediaPostForm', () => {
       content_type: 'text' as PostContentType,
       scheduled_date: '2023-10-15',
       publish_time: '14:30',
-      status: 'draft',
+      status: 'Draft' as PostStatus,
       is_approved: false,
       created_at: '2023-10-01',
       updated_at: '2023-10-01'
@@ -89,6 +91,7 @@ describe('SocialMediaPostForm', () => {
   it('correctly updates a post when a post object is provided', async () => {
     const mockPost: SocialMediaPost = {
       id: '1',
+      name: 'Original Post',
       company_id: 'company123',
       title: 'Original Post',
       content: 'Original Content',
@@ -96,7 +99,7 @@ describe('SocialMediaPostForm', () => {
       content_type: 'link' as PostContentType,
       scheduled_date: '2023-11-01',
       publish_time: '08:00',
-      status: 'approved',
+      status: 'Approved' as PostStatus,
       is_approved: true,
       created_at: '2023-10-25',
       updated_at: '2023-10-25'

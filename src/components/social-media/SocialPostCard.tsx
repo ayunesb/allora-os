@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { SocialMediaPost } from '@/types/socialMedia';
+import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
 import { format, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -50,13 +50,13 @@ export default function SocialPostCard({
   // Status badge styles
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'draft':
+      case 'Draft':
         return <Badge variant="outline">Draft</Badge>;
-      case 'scheduled':
+      case 'Scheduled':
         return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Scheduled</Badge>;
-      case 'published':
+      case 'Published':
         return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Published</Badge>;
-      case 'failed':
+      case 'Failed':
         return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">Failed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
@@ -80,7 +80,7 @@ export default function SocialPostCard({
       <CardContent className={cn(compact && "p-3 pt-0")}>
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            {getStatusBadge(post.status)}
+            {getStatusBadge(post.status || '')}
             {post.is_approved && (
               <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Approved</Badge>
             )}
@@ -111,7 +111,7 @@ export default function SocialPostCard({
           </Button>
           
           <div className="space-x-2">
-            {post.status === 'draft' && (
+            {post.status === 'Draft' && (
               <Button variant="outline" size="sm" onClick={onSchedule}>
                 <Clock className="mr-2 h-3 w-3" />
                 Schedule

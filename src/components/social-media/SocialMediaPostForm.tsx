@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { SocialPlatform, PostContentType, SocialMediaPost } from '@/types/socialMedia';
+import { SocialMediaPost, SocialPlatform, PostContentType } from '@/types/socialMedia';
 import { useCampaigns } from '@/hooks/campaigns/useCampaigns';
 import { socialMediaPostSchema } from '@/utils/validators/socialMediaValidator';
 import { sanitizeInput } from '@/utils/sanitizers';
@@ -85,7 +85,7 @@ export default function SocialMediaPostForm({
     ? {
         title: sanitizeInput(post.title),
         content: sanitizeInput(post.content),
-        platform: post.platform,
+        platform: post.platform as SocialPlatform, // Cast to SocialPlatform
         content_type: post.content_type,
         scheduled_date: post.scheduled_date,
         publish_time: post.publish_time,

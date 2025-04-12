@@ -38,7 +38,7 @@ export interface SocialMediaPost {
   author_id?: string;
 }
 
-export type Platform = "Google" | "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Email" | "Twitter";
+export type Platform = "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Twitter" | "Google" | "Email";
 export type ExecutiveBot = string;
 
 // Harmonized type definitions to avoid inconsistencies
@@ -50,7 +50,7 @@ export type PostContentType = ContentType;
 export interface CreatePostInput {
   title: string;
   content: string;
-  platform: Platform; // Changed from SocialPlatform to Platform
+  platform: SocialPlatform; // Changed from Platform to SocialPlatform
   scheduled_date: string;
   publish_time: string;
   content_type: PostContentType;
@@ -68,7 +68,7 @@ export interface UpdatePostInput {
   id: string;
   title?: string;
   content?: string;
-  platform?: Platform; // Changed from SocialPlatform to Platform
+  platform?: SocialPlatform; // Changed from Platform to SocialPlatform
   scheduled_date?: string;
   publish_time?: string;
   status?: PostStatus;
@@ -85,7 +85,7 @@ export interface UpdatePostInput {
 }
 
 export interface SocialMediaCalendarFilters {
-  platform?: Platform; // Changed from SocialPlatform to Platform
+  platform?: SocialPlatform; // Changed from Platform to SocialPlatform
   status?: PostStatus;
   content_type?: PostContentType;
   campaign_id?: string;
