@@ -1,3 +1,4 @@
+
 import React, { FormEvent } from 'react';
 import { useSocialMediaContext } from '@/context/SocialMediaContext';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
@@ -99,6 +100,7 @@ export function SocialMediaContent() {
   
   const handleApprovePost = async (postId: string, notes?: string) => {
     try {
+      // Only pass notes if they exist
       if (notes) {
         await approve(postId, notes);
       } else {

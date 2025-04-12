@@ -5,7 +5,7 @@ import { RiskAppetiteType, CompanyDetails } from "./useCompanyDetails";
 import { executiveBots } from '@/backend/executiveBots';
 
 export type RecommendationType = { 
-  id: string; // Add the id property to the interface
+  id: string;
   title: string; 
   description: string; 
   type: string;

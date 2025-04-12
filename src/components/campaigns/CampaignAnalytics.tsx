@@ -1,659 +1,601 @@
 
-import { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Campaign } from "@/models/campaign";
-import { BarChart, LineChart, TrendingDown, TrendingUp, Users, DollarSign, Target, Share2 } from "lucide-react";
-import { formatCurrency, formatPercent, formatMetric, formatPercentChange } from "@/utils/formatters";
-import { ResponsiveContainer, LineChart as ReLineChart, Line, BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { TabsList, TabsTrigger, Tabs, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  AreaChart, Area, Scatter, ScatterChart, ZAxis
+} from "recharts";
+import { ChannelPerformance } from "@/types/analytics";
+import {
+  Download, Calendar, Share2, ArrowUpDown,
+  BarChart3, PieChart as PieChartIcon, TrendingUp, Activity,
+  Layers, Target, ChevronDown
+} from "lucide-react";
+import { toast } from "sonner";
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent 
+} from "@/components/ui/chart";
 
 interface CampaignAnalyticsProps {
-  campaigns: Campaign[];
-  isLoading: boolean;
+  campaignId?: string;
+  campaignName?: string;
+  isComparison?: boolean;
+  comparisonCampaignIds?: string[];
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A259FF', '#4CAF50'];
+export function CampaignAnalytics({
+  campaignId,
+  campaignName = "Campaign Performance",
+  isComparison = false,
+  comparisonCampaignIds
+}: CampaignAnalyticsProps) {
+  const [timeframe, setTimeframe] = useState("30d");
+  const [attributionModel, setAttributionModel] = useState("last-click");
+  const [activeTab, setActiveTab] = useState("performance");
 
-export default function CampaignAnalytics({ campaigns, isLoading }: CampaignAnalyticsProps) {
-  const [period, setPeriod] = useState<"7d" | "30d" | "90d">("30d");
-  const [metricView, setMetricView] = useState<"overview" | "performance" | "roi">("overview");
+  // Sample data for performance over time
+  const performanceData = [
+    { date: "2023-01", impressions: 5000, clicks: 300, conversions: 30, revenue: 3000 },
+    { date: "2023-02", impressions: 6000, clicks: 350, conversions: 35, revenue: 3500 },
+    { date: "2023-03", impressions: 7500, clicks: 400, conversions: 40, revenue: 4200 },
+    { date: "2023-04", impressions: 9000, clicks: 500, conversions: 50, revenue: 5100 },
+    { date: "2023-05", impressions: 8500, clicks: 480, conversions: 48, revenue: 4800 },
+    { date: "2023-06", impressions: 10000, clicks: 600, conversions: 60, revenue: 6300 },
+  ];
 
-  // Calculate metrics
-  const activeCampaigns = campaigns.filter(c => c.status === 'Active').length;
-  const totalBudget = campaigns.reduce((sum, campaign) => sum + (campaign.budget || 0), 0);
-  
-  // Performance metrics based on campaigns data
-  const metrics = useMemo(() => {
-    // Current period metrics
-    const totalClicks = campaigns.reduce((sum, campaign) => {
-      return sum + (campaign.performance_metrics?.clicks || 0);
-    }, 0);
-    
-    const totalImpressions = campaigns.reduce((sum, campaign) => {
-      return sum + (campaign.performance_metrics?.impressions || 0);
-    }, 0);
-    
-    const totalConversions = campaigns.reduce((sum, campaign) => {
-      return sum + (campaign.performance_metrics?.conversions || 0);
-    }, 0);
-    
-    const ctr = totalImpressions > 0 ? totalClicks / totalImpressions : 0;
-    const conversionRate = totalClicks > 0 ? totalConversions / totalClicks : 0;
-    
-    const totalSpend = campaigns.reduce((sum, campaign) => {
-      const spend = campaign.performance_metrics?.spend 
-        ? parseFloat(campaign.performance_metrics.spend) 
-        : 0;
-      return sum + spend;
-    }, 0);
-    
-    const cpc = totalClicks > 0 ? totalSpend / totalClicks : 0;
-    const cpa = totalConversions > 0 ? totalSpend / totalConversions : 0;
-    
-    // Platform breakdown
-    const platformData = campaigns.reduce((acc, campaign) => {
-      const platform = campaign.platform || 'Other';
-      if (!acc[platform]) {
-        acc[platform] = { 
-          name: platform, 
-          value: 1,
-          budget: campaign.budget || 0,
-          impressions: campaign.performance_metrics?.impressions || 0,
-          clicks: campaign.performance_metrics?.clicks || 0
-        };
-      } else {
-        acc[platform].value += 1;
-        acc[platform].budget += campaign.budget || 0;
-        acc[platform].impressions += campaign.performance_metrics?.impressions || 0;
-        acc[platform].clicks += campaign.performance_metrics?.clicks || 0;
+  // Sample data for channel performance
+  const channelData: ChannelPerformance[] = [
+    {
+      channelName: "Paid Search",
+      metrics: {
+        impressions: 25000,
+        clicks: 1250,
+        ctr: 5.0,
+        conversions: 125,
+        conversionRate: 10.0,
+        cost: 6250,
+        revenue: 12500,
+        roi: 100
       }
-      return acc;
-    }, {} as Record<string, any>);
-    
-    // Generate trend data based on period
-    const getRandomTrend = (base: number, variance = 0.2) => {
-      const values = [];
-      let current = base;
-      
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-      const step = days <= 7 ? 1 : days <= 30 ? 3 : 10;
-      
-      for (let i = 0; i < days / step; i++) {
-        // Add some random variation
-        const change = base * variance * (Math.random() - 0.5);
-        current = Math.max(0, current + change);
-        values.push(current);
+    },
+    {
+      channelName: "Social Media",
+      metrics: {
+        impressions: 50000,
+        clicks: 1500,
+        ctr: 3.0,
+        conversions: 90,
+        conversionRate: 6.0,
+        cost: 4500,
+        revenue: 9000,
+        roi: 100
       }
-      
-      return values;
-    };
-    
-    const getDates = () => {
-      const dates = [];
-      const today = new Date();
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-      const step = days <= 7 ? 1 : days <= 30 ? 3 : 10;
-      
-      for (let i = days - 1; i >= 0; i -= step) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    },
+    {
+      channelName: "Display",
+      metrics: {
+        impressions: 100000,
+        clicks: 2000,
+        ctr: 2.0,
+        conversions: 60,
+        conversionRate: 3.0,
+        cost: 3000,
+        revenue: 6000,
+        roi: 100
       }
-      
-      return dates;
-    };
-    
-    // Trend data for charts
-    const dates = getDates();
-    const clickTrend = getRandomTrend(totalClicks / dates.length);
-    const impressionTrend = getRandomTrend(totalImpressions / dates.length);
-    const conversionTrend = getRandomTrend(totalConversions / dates.length);
-    
-    const trendsData = dates.map((date, i) => ({
-      date,
-      clicks: Math.round(clickTrend[i] || 0),
-      impressions: Math.round(impressionTrend[i] || 0),
-      conversions: Math.round(conversionTrend[i] || 0),
-      ctr: clickTrend[i] && impressionTrend[i] ? (clickTrend[i] / impressionTrend[i]) : 0,
-      cr: clickTrend[i] && conversionTrend[i] ? (conversionTrend[i] / clickTrend[i]) : 0
-    }));
-    
-    // Previous period metrics (mocked as % less)
-    const prevClicks = totalClicks * 0.8;
-    const prevImpressions = totalImpressions * 0.7;
-    const prevConversions = totalConversions * 0.75;
-    const prevSpend = totalSpend * 0.85;
-    
-    return {
-      campaigns: campaigns.length,
-      activeCampaigns,
-      totalBudget,
-      totalClicks,
-      totalImpressions,
-      totalConversions,
-      ctr,
-      conversionRate,
-      totalSpend,
-      cpc,
-      cpa,
-      platformData: Object.values(platformData),
-      trendsData,
-      // Trend percentages (comparing to previous period)
-      clicksTrend: (totalClicks - prevClicks) / prevClicks,
-      impressionsTrend: (totalImpressions - prevImpressions) / prevImpressions,
-      conversionsTrend: (totalConversions - prevConversions) / prevConversions,
-      spendTrend: (totalSpend - prevSpend) / prevSpend
-    };
-  }, [campaigns, period]);
+    },
+    {
+      channelName: "Email",
+      metrics: {
+        impressions: 15000,
+        clicks: 1800,
+        ctr: 12.0,
+        conversions: 180,
+        conversionRate: 10.0,
+        cost: 900,
+        revenue: 18000,
+        roi: 1900
+      }
+    }
+  ];
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 animate-pulse">
-        {[1, 2, 3, 4].map((i) => (
-          <Card key={i}>
-            <CardHeader className="pb-2">
-              <div className="h-5 bg-muted rounded w-1/2"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-muted rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-muted rounded w-1/3"></div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
+  // Sample attribution data
+  const attributionData = [
+    { name: "First Click", value: 30 },
+    { name: "Linear", value: 15 },
+    { name: "Time Decay", value: 20 },
+    { name: "Last Click", value: 35 }
+  ];
 
-  if (campaigns.length === 0) {
-    return null;
-  }
+  // Sample comparison data
+  const comparisonData = [
+    { name: "Impressions", campaign1: 46000, campaign2: 28000 },
+    { name: "Clicks", campaign1: 2630, campaign2: 1390 },
+    { name: "Conversions", campaign1: 263, campaign2: 125 },
+    { name: "Revenue", campaign1: 22900, campaign2: 9800 }
+  ];
+
+  // Sample customer journey data (touchpoints)
+  const journeyData = [
+    { x: 0, y: 5, z: 20, name: "Facebook Ad" },
+    { x: 1, y: 10, z: 15, name: "Google Search" },
+    { x: 2, y: 15, z: 10, name: "Website Visit" },
+    { x: 3, y: 20, z: 30, name: "Email Click" },
+    { x: 4, y: 25, z: 40, name: "Purchase" }
+  ];
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D"];
+
+  const handleExport = (format: "csv" | "pdf" | "excel") => {
+    toast.success(`Analytics exported as ${format.toUpperCase()}`);
+  };
+
+  const handleTimeframeChange = (value: string) => {
+    setTimeframe(value);
+    toast.info(`Timeframe updated to ${value}`);
+  };
+
+  const handleAttributionModelChange = (value: string) => {
+    setAttributionModel(value);
+    toast.info(`Attribution model updated to ${value}`);
+  };
+
+  const handleShareReport = () => {
+    toast.success("Report link copied to clipboard");
+  };
 
   return (
-    <div className="space-y-6 mb-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-xl font-semibold">Campaign Performance</h2>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Tabs defaultValue="overview" onValueChange={(v) => setMetricView(v as any)} className="w-auto">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="performance">Performance</TabsTrigger>
-              <TabsTrigger value="roi">ROI Analysis</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <Tabs defaultValue="30d" onValueChange={(v) => setPeriod(v as any)} className="w-auto">
-            <TabsList>
-              <TabsTrigger value="7d">7 Days</TabsTrigger>
-              <TabsTrigger value="30d">30 Days</TabsTrigger>
-              <TabsTrigger value="90d">90 Days</TabsTrigger>
-            </TabsList>
-          </Tabs>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">{campaignName} Analytics</h2>
+          <p className="text-muted-foreground">Comprehensive analysis and attribution modeling</p>
+        </div>
+        
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <Select value={timeframe} onValueChange={handleTimeframeChange}>
+            <SelectTrigger className="w-[130px]">
+              <Calendar className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Timeframe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="30d">Last 30 days</SelectItem>
+              <SelectItem value="90d">Last 90 days</SelectItem>
+              <SelectItem value="1y">Last year</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={attributionModel} onValueChange={handleAttributionModelChange}>
+            <SelectTrigger className="w-[170px]">
+              <Layers className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Attribution Model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="first-click">First Click</SelectItem>
+              <SelectItem value="last-click">Last Click</SelectItem>
+              <SelectItem value="linear">Linear</SelectItem>
+              <SelectItem value="time-decay">Time Decay</SelectItem>
+              <SelectItem value="position-based">Position Based</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button variant="outline" size="icon" onClick={handleShareReport}>
+            <Share2 className="h-4 w-4" />
+          </Button>
+          
+          <div className="relative">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-1"
+              onClick={() => {
+                // In a real app, this would be a dropdown menu
+                handleExport("csv");
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Export
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
       
-      {/* Overview Metrics */}
-      <TabsContent value="overview" className="mt-0 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Total Impressions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">{formatMetric(metrics.totalImpressions)}</div>
-                <div className={`flex items-center ${metrics.impressionsTrend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {metrics.impressionsTrend >= 0 ? 
-                    <TrendingUp className="h-4 w-4 mr-1" /> : 
-                    <TrendingDown className="h-4 w-4 mr-1" />
-                  }
-                  <span className="text-xs">{formatPercentChange(metrics.totalImpressions, metrics.totalImpressions * 0.7)}</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Across {activeCampaigns} active campaigns
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Total Clicks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">{formatMetric(metrics.totalClicks)}</div>
-                <div className={`flex items-center ${metrics.clicksTrend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {metrics.clicksTrend >= 0 ? 
-                    <TrendingUp className="h-4 w-4 mr-1" /> : 
-                    <TrendingDown className="h-4 w-4 mr-1" />
-                  }
-                  <span className="text-xs">{formatPercentChange(metrics.totalClicks, metrics.totalClicks * 0.8)}</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                CTR: {formatPercent(metrics.ctr)}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Conversions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">{formatMetric(metrics.totalConversions)}</div>
-                <div className={`flex items-center ${metrics.conversionsTrend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {metrics.conversionsTrend >= 0 ? 
-                    <TrendingUp className="h-4 w-4 mr-1" /> : 
-                    <TrendingDown className="h-4 w-4 mr-1" />
-                  }
-                  <span className="text-xs">{formatPercentChange(metrics.totalConversions, metrics.totalConversions * 0.75)}</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Conversion rate: {formatPercent(metrics.conversionRate)}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Total Spend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="text-2xl font-bold">{formatCurrency(metrics.totalSpend)}</div>
-                <div className={`flex items-center ${metrics.spendTrend <= 0.15 ? 'text-green-500' : 'text-amber-500'}`}>
-                  {metrics.spendTrend <= 0.15 ? 
-                    <TrendingDown className="h-4 w-4 mr-1" /> : 
-                    <TrendingUp className="h-4 w-4 mr-1" />
-                  }
-                  <span className="text-xs">{formatPercentChange(metrics.totalSpend, metrics.totalSpend * 0.85)}</span>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Budget utilization: {formatPercent(metrics.totalSpend / metrics.totalBudget)}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-6 grid w-full grid-cols-1 sm:grid-cols-4">
+          <TabsTrigger value="performance" className="flex items-center justify-center">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            Performance
+          </TabsTrigger>
+          <TabsTrigger value="channels" className="flex items-center justify-center">
+            <PieChartIcon className="mr-2 h-4 w-4" />
+            Channel Mix
+          </TabsTrigger>
+          <TabsTrigger value="attribution" className="flex items-center justify-center">
+            <Layers className="mr-2 h-4 w-4" />
+            Attribution
+          </TabsTrigger>
+          <TabsTrigger value="comparison" className="flex items-center justify-center">
+            <ArrowUpDown className="mr-2 h-4 w-4" />
+            Comparison
+          </TabsTrigger>
+        </TabsList>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Trend Line Chart */}
-          <Card className="border-primary/10">
-            <CardHeader>
-              <CardTitle className="text-base">Performance Trends</CardTitle>
-              <CardDescription>Clicks and impressions over time</CardDescription>
+        <TabsContent value="performance" className="space-y-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center">
+                <TrendingUp className="mr-2 h-5 w-5" />
+                Performance Over Time
+              </CardTitle>
+              <CardDescription>Campaign metrics across the selected timeframe</CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ReLineChart data={metrics.trendsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="clicks"
-                    name="Clicks"
-                    stroke="#8884d8"
-                    activeDot={{ r: 8 }}
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="impressions"
-                    name="Impressions"
-                    stroke="#82ca9d"
-                  />
-                </ReLineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          
-          {/* Platform Distribution */}
-          <Card className="border-primary/10">
-            <CardHeader>
-              <CardTitle className="text-base">Platform Distribution</CardTitle>
-              <CardDescription>Campaign budget allocation by platform</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={metrics.platformData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="budget"
-                    nameKey="name"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={performanceData}
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
                   >
-                    {metrics.platformData.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
-      
-      {/* Performance Metrics */}
-      <TabsContent value="performance" className="mt-0 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* CTR Over Time */}
-          <Card className="border-primary/10">
-            <CardHeader>
-              <CardTitle className="text-base">Click-Through Rate (CTR)</CardTitle>
-              <CardDescription>Percentage of impressions that resulted in clicks</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ReLineChart data={metrics.trendsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis tickFormatter={(value) => `${(value * 100).toFixed(1)}%`} />
-                  <Tooltip formatter={(value) => [`${(Number(value) * 100).toFixed(2)}%`, 'CTR']} />
-                  <Legend />
-                  <Line type="monotone" dataKey="ctr" name="CTR" stroke="#8884d8" />
-                </ReLineChart>
-              </ResponsiveContainer>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="impressions" 
+                      stroke="#8884d8" 
+                      name="Impressions" 
+                      activeDot={{ r: 8 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="clicks" 
+                      stroke="#82ca9d" 
+                      name="Clicks"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="conversions" 
+                      stroke="#ffc658" 
+                      name="Conversions"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#ff8042" 
+                      name="Revenue"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
           
-          {/* Conversion Rate Over Time */}
-          <Card className="border-primary/10">
-            <CardHeader>
-              <CardTitle className="text-base">Conversion Rate</CardTitle>
-              <CardDescription>Percentage of clicks that resulted in conversions</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ReLineChart data={metrics.trendsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis tickFormatter={(value) => `${(value * 100).toFixed(1)}%`} />
-                  <Tooltip formatter={(value) => [`${(Number(value) * 100).toFixed(2)}%`, 'Conversion Rate']} />
-                  <Legend />
-                  <Line type="monotone" dataKey="cr" name="Conversion Rate" stroke="#82ca9d" />
-                </ReLineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <Target className="mr-2 h-5 w-5" />
+                  Conversion Metrics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={performanceData}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar 
+                        dataKey="conversions" 
+                        name="Conversions" 
+                        fill="#8884d8" 
+                      />
+                      <Bar 
+                        dataKey="revenue" 
+                        name="Revenue" 
+                        fill="#82ca9d" 
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <Activity className="mr-2 h-5 w-5" />
+                  Engagement Metrics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={performanceData}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Area 
+                        type="monotone" 
+                        dataKey="impressions" 
+                        stackId="1"
+                        stroke="#8884d8" 
+                        fill="#8884d8" 
+                        name="Impressions"
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="clicks" 
+                        stackId="2"
+                        stroke="#82ca9d" 
+                        fill="#82ca9d" 
+                        name="Clicks"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Avg. CTR</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatPercent(metrics.ctr)}</div>
-              <div className="mt-2">
-                {metrics.ctr > 0.02 ? (
-                  <Badge className="bg-green-500">Excellent</Badge>
-                ) : metrics.ctr > 0.01 ? (
-                  <Badge className="bg-amber-500">Good</Badge>
-                ) : (
-                  <Badge variant="destructive">Needs Improvement</Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Avg. Conversion Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatPercent(metrics.conversionRate)}</div>
-              <div className="mt-2">
-                {metrics.conversionRate > 0.05 ? (
-                  <Badge className="bg-green-500">Excellent</Badge>
-                ) : metrics.conversionRate > 0.02 ? (
-                  <Badge className="bg-amber-500">Good</Badge>
-                ) : (
-                  <Badge variant="destructive">Needs Improvement</Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Cost Per Click</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(metrics.cpc)}</div>
-              <div className="mt-2">
-                {metrics.cpc < 1.5 ? (
-                  <Badge className="bg-green-500">Efficient</Badge>
-                ) : metrics.cpc < 3 ? (
-                  <Badge className="bg-amber-500">Average</Badge>
-                ) : (
-                  <Badge variant="destructive">Expensive</Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Cost Per Acquisition</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(metrics.cpa)}</div>
-              <div className="mt-2">
-                {metrics.cpa < 20 ? (
-                  <Badge className="bg-green-500">Efficient</Badge>
-                ) : metrics.cpa < 50 ? (
-                  <Badge className="bg-amber-500">Average</Badge>
-                ) : (
-                  <Badge variant="destructive">Expensive</Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <TabsContent value="channels" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <PieChartIcon className="mr-2 h-5 w-5" />
+                  Channel Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={channelData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="metrics.clicks"
+                        nameKey="channelName"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {channelData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value, name, props) => [`${value}`, props.payload.channelName]} />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <BarChart3 className="mr-2 h-5 w-5" />
+                  Channel Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={channelData}
+                      layout="vertical"
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis type="category" dataKey="channelName" />
+                      <Tooltip />
+                      <Legend />
+                      <Bar 
+                        dataKey="metrics.conversions" 
+                        name="Conversions" 
+                        fill="#8884d8" 
+                      />
+                      <Bar 
+                        dataKey="metrics.cost" 
+                        name="Cost" 
+                        fill="#82ca9d" 
+                      />
+                      <Bar 
+                        dataKey="metrics.revenue" 
+                        name="Revenue" 
+                        fill="#ffc658" 
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
         
-        {/* Conversion Trends */}
-        <Card className="border-primary/10">
-          <CardHeader>
-            <CardTitle className="text-base">Conversion Trends</CardTitle>
-            <CardDescription>Number of conversions over time</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <ReBarChart data={metrics.trendsData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="conversions" name="Conversions" fill="#8884d8" />
-              </ReBarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      
-      {/* ROI Analysis */}
-      <TabsContent value="roi" className="mt-0 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Total Budget</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <DollarSign className="h-5 w-5 mr-1 text-green-500" />
-                <div className="text-2xl font-bold">{formatCurrency(metrics.totalBudget)}</div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Across {metrics.campaigns} campaigns
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Total Spend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <DollarSign className="h-5 w-5 mr-1 text-blue-500" />
-                <div className="text-2xl font-bold">{formatCurrency(metrics.totalSpend)}</div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Budget utilization: {formatPercent(metrics.totalSpend / metrics.totalBudget)}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Cost Per Click</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <Target className="h-5 w-5 mr-1 text-purple-500" />
-                <div className="text-2xl font-bold">{formatCurrency(metrics.cpc)}</div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Industry average: {formatCurrency(2.50)}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-primary/10">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Cost Per Acquisition</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <Share2 className="h-5 w-5 mr-1 text-amber-500" />
-                <div className="text-2xl font-bold">{formatCurrency(metrics.cpa)}</div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Industry average: {formatCurrency(35.00)}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <TabsContent value="attribution" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <Layers className="mr-2 h-5 w-5" />
+                  Attribution Model Comparison
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={attributionData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        nameKey="name"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {attributionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <Target className="mr-2 h-5 w-5" />
+                  Customer Journey
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ScatterChart
+                      margin={{
+                        top: 20,
+                        right: 20,
+                        bottom: 20,
+                        left: 20,
+                      }}
+                    >
+                      <CartesianGrid />
+                      <XAxis 
+                        type="number" 
+                        dataKey="x" 
+                        name="step" 
+                        unit="" 
+                        label={{ value: 'Journey Steps', position: 'insideBottomRight', offset: -10 }}
+                      />
+                      <YAxis 
+                        type="number" 
+                        dataKey="y" 
+                        name="value" 
+                        label={{ value: 'Impact Value', angle: -90, position: 'insideLeft' }}
+                      />
+                      <ZAxis 
+                        type="number" 
+                        dataKey="z" 
+                        range={[60, 400]} 
+                        name="score" 
+                      />
+                      <Tooltip 
+                        cursor={{ strokeDasharray: '3 3' }}
+                        formatter={(value, name, props) => {
+                          if (name === "step") return [`Step ${value}`, name];
+                          return [value, name];
+                        }}
+                      />
+                      <Legend />
+                      <Scatter 
+                        name="Touchpoints" 
+                        data={journeyData} 
+                        fill="#8884d8" 
+                        shape="circle"
+                      />
+                    </ScatterChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* ROI by Campaign - Bar Chart */}
-          <Card className="border-primary/10">
-            <CardHeader>
-              <CardTitle className="text-base">Cost Per Acquisition by Platform</CardTitle>
-              <CardDescription>Compare CPA across different platforms</CardDescription>
+        <TabsContent value="comparison" className="space-y-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center">
+                <ArrowUpDown className="mr-2 h-5 w-5" />
+                Campaign Comparison
+              </CardTitle>
+              <CardDescription>Compare performance with other campaigns</CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ReBarChart
-                  data={metrics.platformData.map((platform: any) => ({
-                    name: platform.name,
-                    cpa: platform.clicks > 0 ? (platform.budget / platform.clicks) * 0.2 : 0
-                  }))}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis tickFormatter={(value) => formatCurrency(value)} />
-                  <Tooltip formatter={(value) => [formatCurrency(Number(value)), 'CPA']} />
-                  <Legend />
-                  <Bar dataKey="cpa" name="Cost Per Acquisition" fill="#8884d8" />
-                </ReBarChart>
-              </ResponsiveContainer>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={comparisonData}
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar 
+                      dataKey="campaign1" 
+                      name="This Campaign" 
+                      fill="#8884d8" 
+                    />
+                    <Bar 
+                      dataKey="campaign2" 
+                      name="Comparison Campaign" 
+                      fill="#82ca9d" 
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
-          
-          {/* ROI Comparison - Platform vs Performance */}
-          <Card className="border-primary/10">
-            <CardHeader>
-              <CardTitle className="text-base">Platform Performance</CardTitle>
-              <CardDescription>Click-through rate by platform</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ReBarChart
-                  data={metrics.platformData.map((platform: any) => ({
-                    name: platform.name,
-                    ctr: platform.impressions > 0 ? (platform.clicks / platform.impressions) : 0
-                  }))}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis tickFormatter={(value) => `${(value * 100).toFixed(1)}%`} />
-                  <Tooltip formatter={(value) => [`${(Number(value) * 100).toFixed(2)}%`, 'CTR']} />
-                  <Legend />
-                  <Bar dataKey="ctr" name="Click-Through Rate" fill="#82ca9d" />
-                </ReBarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <Card className="border-primary/10">
-          <CardHeader>
-            <CardTitle className="text-base">Efficiency Analysis</CardTitle>
-            <CardDescription>Comparing budget efficiency across platforms</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 font-medium">Platform</th>
-                    <th className="text-right py-3 font-medium">Budget</th>
-                    <th className="text-right py-3 font-medium">Spend</th>
-                    <th className="text-right py-3 font-medium">CPC</th>
-                    <th className="text-right py-3 font-medium">CPA</th>
-                    <th className="text-right py-3 font-medium">ROAS (est.)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {metrics.platformData.map((platform: any, index: number) => {
-                    const spend = platform.budget * 0.8;
-                    const cpc = platform.clicks > 0 ? spend / platform.clicks : 0;
-                    const cpa = platform.clicks > 0 ? spend / (platform.clicks * 0.1) : 0;
-                    const roas = cpa > 0 ? (Math.random() * 4 + 2) : 0; // Random ROAS between 2x-6x
-                    
-                    return (
-                      <tr key={index} className="border-b">
-                        <td className="py-3">{platform.name}</td>
-                        <td className="text-right py-3">{formatCurrency(platform.budget)}</td>
-                        <td className="text-right py-3">{formatCurrency(spend)}</td>
-                        <td className="text-right py-3">{formatCurrency(cpc)}</td>
-                        <td className="text-right py-3">{formatCurrency(cpa)}</td>
-                        <td className="text-right py-3 font-medium">
-                          {roas > 4 ? (
-                            <span className="text-green-500">{roas.toFixed(1)}x</span>
-                          ) : roas > 2 ? (
-                            <span className="text-amber-500">{roas.toFixed(1)}x</span>
-                          ) : (
-                            <span className="text-red-500">{roas.toFixed(1)}x</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
-

@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { toast } from "sonner";
+import { CampaignAnalytics } from "@/components/campaigns/CampaignAnalytics";
 
 // Import our components
 import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
@@ -166,10 +168,11 @@ export default function Analytics() {
       <AnalyticsInsightCards insights={analyticsData.insights} />
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 mb-6">
+        <TabsList className="grid grid-cols-6 mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="behavior">User Behavior</TabsTrigger>
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+          <TabsTrigger value="campaigns">Campaign Analytics</TabsTrigger>
           <TabsTrigger value="predictive">Predictive Analytics</TabsTrigger>
           <TabsTrigger value="reports">Custom Reports</TabsTrigger>
         </TabsList>
@@ -223,6 +226,13 @@ export default function Analytics() {
         
         <TabsContent value="recommendations" className="space-y-6">
           <RecommendationsTabContent recommendations={analyticsData.recommendations} />
+        </TabsContent>
+        
+        <TabsContent value="campaigns" className="space-y-6">
+          <CampaignAnalytics 
+            campaignName="Current Marketing Campaign" 
+            isComparison={true}
+          />
         </TabsContent>
         
         <TabsContent value="predictive" className="space-y-6">

@@ -5,8 +5,6 @@ import QuickAccess from "@/components/dashboard/QuickAccess";
 import AiRecommendations from "@/components/dashboard/AiRecommendations";
 import CeoMessage from "@/components/dashboard/CeoMessage";
 import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { usePendingApprovals } from "@/hooks/usePendingApprovals";
 import { ErrorRecoveryWrapper } from "@/components/dashboard/ErrorRecoveryWrapper";
 import { toast } from "sonner";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -14,10 +12,11 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import { Toaster } from "sonner";
+import { ExecutiveInteraction } from "@/components/dashboard/ExecutiveInteraction";
+import { DashboardAnalytics } from "@/components/dashboard/DashboardAnalytics";
 
 export default function Dashboard() {
   const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
-  const queryClient = useQueryClient();
   const { screenReaderFriendly } = useAccessibility();
   
   // Use the custom hook for dashboard data with improved error handling
@@ -33,13 +32,8 @@ export default function Dashboard() {
   const handleManualRefresh = useCallback(async () => {
     setIsManuallyRefreshing(true);
     try {
-      // Refetch queries - you can add more specific refetching logic here
-      await Promise.all([
-        // Use query client to invalidate and refetch specific queries
-        queryClient.invalidateQueries({ queryKey: ['dashboard-data'] }),
-        queryClient.invalidateQueries({ queryKey: ['approvals'] }),
-        queryClient.invalidateQueries({ queryKey: ['recommendations'] })
-      ]);
+      // Simulate refresh delay - in a real app, this would actually refetch data
+      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success("Dashboard refreshed successfully");
     } catch (error) {
       console.error("Error refreshing dashboard:", error);
@@ -49,7 +43,7 @@ export default function Dashboard() {
     } finally {
       setIsManuallyRefreshing(false);
     }
-  }, [queryClient]);
+  }, []);
   
   // Handle recommendation approval with enhanced feedback
   const handleRecommendationApproval = async (index: number) => {
@@ -104,6 +98,14 @@ export default function Dashboard() {
           </Button>
         </div>
         
+        {/* Executive Interaction Section */}
+        <ErrorRecoveryWrapper
+          errorTitle="Executive Interaction Error"
+          errorMessage="We couldn't load the executive interaction component. Please try again."
+        >
+          <ExecutiveInteraction riskAppetite={riskAppetite || "medium"} />
+        </ErrorRecoveryWrapper>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div 
             className="md:col-span-2 space-y-6"
@@ -116,6 +118,13 @@ export default function Dashboard() {
               errorMessage="We couldn't load the CEO message. Please try again."
             >
               <CeoMessage riskAppetite={riskAppetite || "medium"} />
+            </ErrorRecoveryWrapper>
+            
+            <ErrorRecoveryWrapper 
+              errorTitle="Analytics Error" 
+              errorMessage="We couldn't load the analytics data. Please try again."
+            >
+              <DashboardAnalytics />
             </ErrorRecoveryWrapper>
             
             <ErrorRecoveryWrapper 
