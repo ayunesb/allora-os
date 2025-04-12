@@ -49,3 +49,14 @@ export type ValidatorFn<T = any> = (
   options?: ValidationOptions
 ) => Promise<ValidationResult> | ValidationResult;
 
+/**
+ * Launch validation results type
+ * Contains the validation results for the launch readiness checks
+ * 
+ * @property valid - Whether all validation checks passed
+ * @property results - Object containing individual validation results
+ */
+export interface LaunchValidationResults {
+  valid: boolean;
+  results: Record<string, ValidationResult>;
+}

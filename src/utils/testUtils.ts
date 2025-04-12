@@ -11,6 +11,7 @@
 
 import { ReactElement } from 'react';
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom'; // Import testing library extensions
 import { ZodSchema } from 'zod';
 
 /**
@@ -132,4 +133,3 @@ export async function waitForPromises(): Promise<void> {
     setTimeout(resolve, 0);
   });
 }
-

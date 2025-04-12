@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom'; // Add this line to import the matchers
 import { vi } from 'vitest';
 import SocialMediaPostForm from '../SocialMediaPostForm';
 import { SocialPlatform, PostContentType } from '@/types/socialMedia';
