@@ -8,6 +8,7 @@ import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import RefundPolicy from "@/pages/RefundPolicy";
 import CookiePolicy from "@/pages/CookiePolicy";
 import MessagingConsent from "@/pages/MessagingConsent";
+import Compliance from "@/pages/Compliance";
 import LegalDocument from "@/pages/LegalDocument";
 import DevAdminHelper from "@/pages/DevAdminHelper";
 import FAQ from "@/pages/FAQ";
@@ -40,6 +41,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/messaging-consent",
     element: <MessagingConsent />,
+  },
+  {
+    path: "/compliance",
+    element: <Compliance />,
   },
   {
     path: "/faq",

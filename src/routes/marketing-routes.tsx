@@ -5,6 +5,7 @@ import Legal from "@/pages/Legal";
 import Privacy from "@/pages/Privacy";
 import CookiePolicy from "@/pages/CookiePolicy";
 import RefundPolicy from "@/pages/RefundPolicy";
+import Compliance from "@/pages/Compliance";
 import FAQ from "@/pages/FAQ";
 
 export const marketingRoutes: RouteObject[] = [
@@ -27,6 +28,10 @@ export const marketingRoutes: RouteObject[] = [
   {
     path: "/refund-policy",
     element: <RefundPolicy />,
+  },
+  {
+    path: "/compliance",
+    element: <Compliance />,
   },
   {
     path: "/faq",

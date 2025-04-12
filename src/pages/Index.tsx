@@ -9,6 +9,7 @@ import CallToAction from "@/components/home/CallToAction";
 import TrustBadges from "@/components/home/TrustBadges";
 import InteractiveDemo from "@/components/home/InteractiveDemo";
 import OutcomeShowcase from "@/components/home/OutcomeShowcase";
+import CookieConsent from "@/components/CookieConsent";
 
 export default function Index() {
   return (
@@ -40,6 +41,9 @@ export default function Index() {
       </main>
 
       <Footer />
+      
+      {/* GDPR Cookie Consent Banner */}
+      <CookieConsent />
     </div>
   );
 }
