@@ -2,7 +2,7 @@
 import React from 'react';
 import { SocialMediaPost } from '@/types/socialMedia';
 import { Card, CardContent } from '@/components/ui/card';
-import { CalendarIcon, List, Plus } from 'lucide-react';
+import { List, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SocialMediaPostList from './SocialMediaPostList';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,10 +17,11 @@ interface PostsDisplayProps {
   error: Error | null;
   currentMonth: Date;
   onEditPost: (post: SocialMediaPost) => void;
-  onDeletePost: (id: string) => Promise<any>;
-  onSchedulePost: (id: string) => Promise<any>;
-  onApprovePost: (id: string) => Promise<any>;
+  onDeletePost: (id: string) => Promise<{ success: boolean; error?: string }>;
+  onSchedulePost: (id: string) => Promise<{ success: boolean; error?: string }>;
+  onApprovePost: (id: string, notes?: string) => Promise<{ success: boolean; error?: string }>;
   onCreatePost: () => void;
+  "aria-label"?: string;
 }
 
 /**
@@ -37,7 +38,8 @@ export function PostsDisplay({
   onDeletePost,
   onSchedulePost,
   onApprovePost,
-  onCreatePost
+  onCreatePost,
+  "aria-label": ariaLabel
 }: PostsDisplayProps) {
   const breakpoint = useBreakpoint();
   const isMobile = ['xs', 'mobile'].includes(breakpoint);
@@ -77,6 +79,7 @@ export function PostsDisplay({
         onDeletePost={onDeletePost}
         onSchedulePost={onSchedulePost}
         onApprovePost={onApprovePost}
+        aria-label={ariaLabel}
       />
     );
   }
@@ -89,6 +92,7 @@ export function PostsDisplay({
       onDeletePost={onDeletePost}
       onSchedulePost={onSchedulePost}
       onApprovePost={onApprovePost}
+      aria-label={ariaLabel}
     />
   );
 }

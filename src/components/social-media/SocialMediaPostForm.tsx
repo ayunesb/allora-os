@@ -1,11 +1,9 @@
 
 import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -15,6 +13,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -22,144 +22,87 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { SocialMediaPost, SocialPlatform, PostContentType } from '@/types/socialMedia';
-import { useCampaigns } from '@/hooks/campaigns/useCampaigns';
-import { socialMediaPostSchema } from '@/utils/validators/socialMediaValidator';
-import { sanitizeInput } from '@/utils/sanitizers';
+import { SocialMediaPost, SocialPlatform, ContentType } from '@/types/socialMedia';
 
-/**
- * Form schema validation using Zod
- * Enforces data integrity and validation rules for social media posts
- */
-const formSchema = socialMediaPostSchema;
+// Define the form schema with Zod for validation
+const formSchema = z.object({
+  title: z.string().min(2, { message: "Title must be at least 2 characters." }),
+  content: z.string().min(10, { message: "Content must be at least 10 characters." }),
+  platform: z.enum(['LinkedIn', 'Facebook', 'Instagram', 'TikTok', 'Twitter'] as const),
+  scheduled_date: z.string().min(1, { message: "Scheduled date is required." }),
+  publish_time: z.string().min(1, { message: "Publish time is required." }),
+  content_type: z.enum(['text', 'image', 'video', 'link', 'carousel', 'poll'] as const),
+  media_urls: z.array(z.string().url()).optional(),
+  link_url: z.string().url().optional().or(z.string().length(0)),
+  campaign_id: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+});
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface SocialMediaPostFormProps {
-  /**
-   * Optional existing post to edit
-   * If provided, form will be pre-filled with post data
-   */
   post?: SocialMediaPost;
-  
-  /**
-   * Form submission handler
-   * Returns a promise with submission result
-   */
   onSubmit: (data: FormValues) => Promise<{ success: boolean; error?: string }>;
-  
-  /**
-   * Whether form is currently submitting
-   * Controls loading state of the submit button
-   */
-  isSubmitting?: boolean;
+  isSubmitting: boolean;
 }
 
-/**
- * Form component for creating and editing social media posts
- * 
- * This component handles:
- * - Creating new social media posts
- * - Editing existing posts
- * - Form validation using Zod schema
- * - Input sanitization for security
- * - Integration with campaign selection
- */
-export default function SocialMediaPostForm({
-  post,
+export default function SocialMediaPostForm({ 
+  post, 
   onSubmit,
-  isSubmitting = false
+  isSubmitting 
 }: SocialMediaPostFormProps) {
-  const { campaigns } = useCampaigns();
-  
-  // Set default values from post or use empty values
-  const defaultValues: Partial<FormValues> = post
-    ? {
-        title: sanitizeInput(post.title),
-        content: sanitizeInput(post.content),
-        platform: post.platform as SocialPlatform,
-        content_type: post.content_type,
-        scheduled_date: post.scheduled_date,
-        publish_time: post.publish_time,
-        media_urls: post.media_urls || [],
-        campaign_id: post.campaign_id,
-        tags: post.tags || [],
-      }
-    : {
-        title: '',
-        content: '',
-        platform: 'Facebook',
-        content_type: 'text',
-        scheduled_date: new Date().toISOString().split('T')[0],
-        media_urls: [],
-        tags: [],
-      };
-  
-  // Initialize form with validation schema
+  // Initialize form with default values or existing post
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues: post ? {
+      title: post.title,
+      content: post.content,
+      platform: post.platform,
+      scheduled_date: post.scheduled_date,
+      publish_time: post.publish_time,
+      content_type: post.content_type,
+      media_urls: post.media_urls || [],
+      link_url: post.link_url || '',
+      campaign_id: post.campaign_id || '',
+      tags: post.tags || [],
+    } : {
+      title: '',
+      content: '',
+      platform: 'LinkedIn' as SocialPlatform,
+      scheduled_date: new Date().toISOString().split('T')[0], // Today
+      publish_time: '09:00',
+      content_type: 'text' as ContentType,
+      media_urls: [],
+      link_url: '',
+      campaign_id: '',
+      tags: [],
+    },
   });
   
-  /**
-   * Handle form submission
-   * Passes validated form data to the onSubmit handler
-   */
+  // Handle form submission
   const handleSubmit = async (values: FormValues) => {
-    await onSubmit(values);
+    const result = await onSubmit(values);
+    
+    if (result.success) {
+      form.reset(); // Reset form after successful submission for create form
+    }
+    
+    return result;
   };
-  
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6" aria-label="social-media-post-form">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Post Title</FormLabel>
-              <FormControl>
-                <Input 
-                  {...field} 
-                  placeholder="Enter a title for your post" 
-                  aria-describedby="title-description"
-                />
-              </FormControl>
-              <FormDescription id="title-description">
-                A title to help you identify this post in your calendar
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="platform"
+            name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Platform</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a platform" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Facebook">Facebook</SelectItem>
-                    <SelectItem value="Instagram">Instagram</SelectItem>
-                    <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                    <SelectItem value="Twitter">Twitter</SelectItem>
-                    <SelectItem value="TikTok">TikTok</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Choose the social media platform
-                </FormDescription>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter post title" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -167,31 +110,27 @@ export default function SocialMediaPostForm({
           
           <FormField
             control={form.control}
-            name="content_type"
+            name="platform"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Content Type</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
+                <FormLabel>Platform</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select content type" />
+                      <SelectValue placeholder="Select platform" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="text">Text Only</SelectItem>
-                    <SelectItem value="image">Image</SelectItem>
-                    <SelectItem value="video">Video</SelectItem>
-                    <SelectItem value="link">Link</SelectItem>
-                    <SelectItem value="carousel">Carousel</SelectItem>
-                    <SelectItem value="poll">Poll</SelectItem>
+                    <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                    <SelectItem value="Facebook">Facebook</SelectItem>
+                    <SelectItem value="Instagram">Instagram</SelectItem>
+                    <SelectItem value="TikTok">TikTok</SelectItem>
+                    <SelectItem value="Twitter">Twitter</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Type of content in this post
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -203,24 +142,23 @@ export default function SocialMediaPostForm({
           name="content"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Post Content</FormLabel>
+              <FormLabel>Content</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Enter your post content here"
+                <Textarea 
+                  placeholder="Write your post content here..."
                   className="min-h-[120px]"
-                  aria-describedby="content-description"
+                  {...field} 
                 />
               </FormControl>
-              <FormDescription id="content-description">
-                The main content of your social media post
+              <FormDescription>
+                Write engaging content for your social media post.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FormField
             control={form.control}
             name="scheduled_date"
@@ -228,16 +166,8 @@ export default function SocialMediaPostForm({
               <FormItem>
                 <FormLabel>Scheduled Date</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="date"
-                    min={new Date().toISOString().split('T')[0]}
-                    aria-describedby="scheduled-date-description"
-                  />
+                  <Input type="date" {...field} />
                 </FormControl>
-                <FormDescription id="scheduled-date-description">
-                  When to publish this post
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -248,61 +178,75 @@ export default function SocialMediaPostForm({
             name="publish_time"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Publish Time (Optional)</FormLabel>
+                <FormLabel>Publish Time</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="time"
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value || undefined)}
-                    aria-describedby="publish-time-description"
-                  />
+                  <Input type="time" {...field} />
                 </FormControl>
-                <FormDescription id="publish-time-description">
-                  When to publish on the scheduled date
-                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="content_type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content Type</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select content type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="text">Text</SelectItem>
+                    <SelectItem value="image">Image</SelectItem>
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="link">Link</SelectItem>
+                    <SelectItem value="carousel">Carousel</SelectItem>
+                    <SelectItem value="poll">Poll</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
         
-        {campaigns && campaigns.length > 0 && (
-          <FormField
-            control={form.control}
-            name="campaign_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Campaign (Optional)</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Link to a campaign" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    {campaigns.map(campaign => (
-                      <SelectItem key={campaign.id} value={campaign.id}>
-                        {campaign.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Associate this post with a marketing campaign
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        <FormField
+          control={form.control}
+          name="link_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Link URL (Optional)</FormLabel>
+              <FormControl>
+                <Input type="url" placeholder="https://example.com" {...field} />
+              </FormControl>
+              <FormDescription>
+                Add a URL to your post if you want to include a link.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
-        <div className="flex justify-end space-x-4">
-          <Button type="submit" disabled={isSubmitting}>
+        <div className="flex justify-end space-x-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => form.reset()}
+            disabled={isSubmitting}
+          >
+            Reset
+          </Button>
+          <Button 
+            type="submit"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Saving...' : post ? 'Update Post' : 'Create Post'}
           </Button>
         </div>

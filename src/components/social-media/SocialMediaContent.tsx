@@ -4,8 +4,8 @@ import { useSocialMediaContext } from '@/context/SocialMediaContext';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
 import { SocialMediaFilters } from './calendar/SocialMediaFilters';
 import { ViewToggle } from './calendar/ViewToggle';
-import { PostsDisplay } from '../PostsDisplay';
-import { DialogCreate } from '../SocialMediaPostDialog';
+import { PostsDisplay } from './PostsDisplay';
+import { DialogCreate } from './SocialMediaPostDialog';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import SocialMediaCalendarView from './calendar/SocialMediaCalendarView';
 import { toast } from 'sonner';
@@ -76,9 +76,10 @@ export function SocialMediaContent() {
     try {
       await createPost(data);
       toast.success('Post created successfully');
+      return { success: true };
     } catch (err) {
       toast.error('Failed to create post');
-      throw err;
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };
   
@@ -87,9 +88,10 @@ export function SocialMediaContent() {
     try {
       await deletePost(postId);
       toast.success('Post deleted successfully');
+      return { success: true };
     } catch (err) {
       toast.error('Failed to delete post');
-      throw err;
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };
   
@@ -98,20 +100,22 @@ export function SocialMediaContent() {
     try {
       await schedule(postId);
       toast.success('Post scheduled successfully');
+      return { success: true };
     } catch (err) {
       toast.error('Failed to schedule post');
-      throw err;
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };
   
   // Handle approve post with feedback
-  const handleApprovePost = async (postId: string) => {
+  const handleApprovePost = async (postId: string, notes?: string) => {
     try {
-      await approve(postId);
+      await approve(postId, notes);
       toast.success('Post approved successfully');
+      return { success: true };
     } catch (err) {
       toast.error('Failed to approve post');
-      throw err;
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };
   

@@ -1,26 +1,22 @@
 
 import React from 'react';
-import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
-import { format, parseISO } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
+import { SocialMediaPost } from '@/types/socialMedia';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit, Trash2, Clock, ThumbsUp, ExternalLink } from 'lucide-react';
+import { Pencil, Trash2, CalendarClock, CheckSquare, ExternalLink } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useAccessibility } from '@/context/AccessibilityContext';
 
 interface SocialPostCardProps {
   post: SocialMediaPost;
   onEdit: () => void;
-  onDelete: () => void;
-  onSchedule: () => void;
-  onApprove: () => void;
+  onDelete: () => Promise<{ success: boolean; error?: string }>;
+  onSchedule: () => Promise<{ success: boolean; error?: string }>;
+  onApprove: (notes?: string) => Promise<{ success: boolean; error?: string }>;
   compact?: boolean;
 }
 
-/**
- * Card component for displaying a social media post
- * Can be used in regular or compact mode
- */
 export default function SocialPostCard({
   post,
   onEdit,
@@ -29,109 +25,141 @@ export default function SocialPostCard({
   onApprove,
   compact = false
 }: SocialPostCardProps) {
-  // Platform badge styles
-  const getPlatformBadge = (platform: string) => {
+  const { screenReaderFriendly } = useAccessibility();
+  
+  const getPlatformColor = (platform: string) => {
     switch (platform) {
-      case 'Facebook':
-        return <Badge className="bg-blue-500">Facebook</Badge>;
-      case 'Instagram':
-        return <Badge className="bg-purple-600">Instagram</Badge>;
-      case 'LinkedIn':
-        return <Badge className="bg-blue-900">LinkedIn</Badge>;
-      case 'Twitter':
-        return <Badge className="bg-blue-400">Twitter</Badge>;
-      case 'TikTok':
-        return <Badge className="bg-black">TikTok</Badge>;
-      default:
-        return <Badge>{platform}</Badge>;
+      case 'Facebook': return 'bg-blue-100 text-blue-800';
+      case 'Instagram': return 'bg-purple-100 text-purple-800';
+      case 'LinkedIn': return 'bg-blue-900 text-white';
+      case 'Twitter': return 'bg-blue-400 text-white';
+      case 'TikTok': return 'bg-black text-white';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
-  
-  // Status badge styles
-  const getStatusBadge = (status: string) => {
+
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Draft':
-        return <Badge variant="outline">Draft</Badge>;
-      case 'Scheduled':
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Scheduled</Badge>;
-      case 'Published':
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Published</Badge>;
-      case 'Failed':
-        return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">Failed</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+      case 'Draft': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'Scheduled': return 'bg-green-100 text-green-800 border-green-200';
+      case 'Published': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-  
+
   return (
-    <Card className={cn(compact ? "w-64" : "w-full")}>
-      <CardHeader className={cn(
-        "flex flex-row items-center justify-between space-y-0 pb-2",
-        compact && "p-3"
-      )}>
-        <CardTitle className={cn(
-          "font-semibold", 
-          compact ? "text-sm" : "text-lg"
+    <div 
+      className={cn(
+        "rounded-md shadow-sm",
+        compact ? "p-2" : "p-4"
+      )}
+    >
+      <div className="flex flex-col space-y-2">
+        <div className="flex flex-wrap gap-1">
+          <Badge className={getPlatformColor(post.platform)}>
+            {post.platform}
+          </Badge>
+          
+          <Badge variant="outline" className={getStatusColor(post.status || 'Draft')}>
+            {post.status || 'Draft'}
+          </Badge>
+          
+          {post.is_approved && (
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              Approved
+            </Badge>
+          )}
+        </div>
+        
+        <h4 className={cn(
+          "font-medium",
+          compact ? "text-sm" : "text-base"
         )}>
           {post.title}
-        </CardTitle>
-        {getPlatformBadge(post.platform)}
-      </CardHeader>
-      <CardContent className={cn(compact && "p-3 pt-0")}>
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            {getStatusBadge(post.status || '')}
-            {post.is_approved && (
-              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Approved</Badge>
-            )}
-          </div>
-          
-          <p className={cn(
-            "text-muted-foreground", 
-            compact ? "text-xs line-clamp-2" : "text-sm"
-          )}>
+        </h4>
+        
+        {!compact && (
+          <p className="text-sm text-muted-foreground line-clamp-2">
             {post.content}
           </p>
-          
-          <div className={cn(
-            "text-xs text-muted-foreground",
-            compact && "text-[10px]"
-          )}>
-            Scheduled for: {format(parseISO(post.scheduled_date), 'MMM d, yyyy')}
-            {post.publish_time && ` at ${post.publish_time}`}
-          </div>
+        )}
+        
+        <div className="flex items-center text-xs text-muted-foreground">
+          <CalendarClock className="h-3 w-3 mr-1" />
+          <time dateTime={post.scheduled_date}>
+            {format(parseISO(post.scheduled_date), 'MMM d, yyyy')} at {post.publish_time}
+          </time>
         </div>
-      </CardContent>
-      
-      {!compact && (
-        <CardFooter className="flex justify-between pt-0">
-          <Button variant="outline" size="sm" onClick={onEdit}>
-            <Edit className="mr-2 h-3 w-3" />
-            Edit
+        
+        <div className="flex flex-wrap gap-1 mt-2">
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-8 px-2"
+            onClick={onEdit}
+            aria-label={screenReaderFriendly ? `Edit post: ${post.title}` : undefined}
+          >
+            <Pencil className="h-4 w-4 mr-1" />
+            {compact ? '' : 'Edit'}
           </Button>
           
-          <div className="space-x-2">
-            {post.status === 'Draft' && (
-              <Button variant="outline" size="sm" onClick={onSchedule}>
-                <Clock className="mr-2 h-3 w-3" />
-                Schedule
-              </Button>
-            )}
-            
-            {!post.is_approved && (
-              <Button variant="outline" size="sm" onClick={onApprove}>
-                <ThumbsUp className="mr-2 h-3 w-3" />
-                Approve
-              </Button>
-            )}
-            
-            <Button variant="outline" size="sm" onClick={onDelete} className="text-destructive">
-              <Trash2 className="mr-2 h-3 w-3" />
-              Delete
+          {post.status === 'Draft' && post.is_approved && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="h-8 px-2"
+              onClick={onSchedule}
+              aria-label={screenReaderFriendly ? `Schedule post: ${post.title}` : undefined}
+            >
+              <CalendarClock className="h-4 w-4 mr-1" />
+              {compact ? '' : 'Schedule'}
             </Button>
-          </div>
-        </CardFooter>
-      )}
-    </Card>
+          )}
+          
+          {post.status === 'Draft' && !post.is_approved && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="h-8 px-2"
+              onClick={() => onApprove()}
+              aria-label={screenReaderFriendly ? `Approve post: ${post.title}` : undefined}
+            >
+              <CheckSquare className="h-4 w-4 mr-1" />
+              {compact ? '' : 'Approve'}
+            </Button>
+          )}
+          
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-8 px-2 text-destructive hover:text-destructive"
+            onClick={onDelete}
+            aria-label={screenReaderFriendly ? `Delete post: ${post.title}` : undefined}
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            {compact ? '' : 'Delete'}
+          </Button>
+          
+          {post.link_url && (
+            <Button 
+              size="sm" 
+              variant="ghost"
+              className="h-8 px-2"
+              asChild
+            >
+              <a 
+                href={post.link_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label={screenReaderFriendly ? `Visit link: ${post.link_url}` : undefined}
+              >
+                <ExternalLink className="h-4 w-4 mr-1" />
+                {compact ? '' : 'Visit Link'}
+              </a>
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
