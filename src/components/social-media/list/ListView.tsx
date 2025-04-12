@@ -19,11 +19,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Edit, MoreVertical, Trash, Clock, Check, Plus } from "lucide-react";
 import { format } from 'date-fns';
-import { type Post } from '../PostsDisplay';
+import { SocialMediaPost } from '@/types/socialMedia';
 
 interface ListViewProps {
-  posts: Post[];
-  onEditPost: (post: Post) => void;
+  posts: SocialMediaPost[];
+  onEditPost: (post: SocialMediaPost) => void;
   onDeletePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onSchedulePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onApprovePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
@@ -54,7 +54,7 @@ export function ListView({
   };
   
   const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'draft':
         return <Badge variant="outline">Draft</Badge>;
       case 'scheduled':
@@ -64,7 +64,7 @@ export function ListView({
       case 'approved':
         return <Badge className="bg-purple-100 text-purple-800 border-purple-200">Approved</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{status || 'Draft'}</Badge>;
     }
   };
   
@@ -115,7 +115,7 @@ export function ListView({
                 <TableCell>
                   {post.scheduled_date ? format(new Date(post.scheduled_date), 'MMM d, yyyy') : 'Not scheduled'}
                 </TableCell>
-                <TableCell>{getStatusBadge(post.status)}</TableCell>
+                <TableCell>{getStatusBadge(post.status || 'Draft')}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -131,13 +131,13 @@ export function ListView({
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      {post.status.toLowerCase() !== 'published' && (
+                      {(post.status?.toLowerCase() !== 'published') && (
                         <DropdownMenuItem onClick={(e) => handleScheduleClick(post.id, e)}>
                           <Clock className="mr-2 h-4 w-4" />
                           Schedule
                         </DropdownMenuItem>
                       )}
-                      {post.status.toLowerCase() !== 'approved' && (
+                      {(post.status?.toLowerCase() !== 'approved') && (
                         <DropdownMenuItem onClick={(e) => handleApproveClick(post.id, e)}>
                           <Check className="mr-2 h-4 w-4" />
                           Approve

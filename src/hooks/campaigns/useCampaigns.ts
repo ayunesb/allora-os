@@ -76,7 +76,7 @@ export function useCampaigns() {
         trackAction(
           'update_campaign',
           'campaign_management',
-          campaignData.id,
+          campaignData.id!,
           'campaign',
           {
             name: campaignData.name,
