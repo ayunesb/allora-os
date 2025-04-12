@@ -2,11 +2,12 @@
 import React, { useEffect } from 'react';
 import { DatabaseVerificationDashboard } from '@/components/admin/database-verification';
 import { useDatabaseVerification } from '@/hooks/admin/useDatabaseVerification';
-import { AlertCircle, Database, RefreshCw, ShieldAlert, Info, LogIn } from 'lucide-react';
+import { AlertCircle, Database, RefreshCw, ShieldAlert, Info, LogIn, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 /**
  * Admin page for verifying database configuration.
@@ -42,6 +43,24 @@ export default function DatabaseVerification() {
     }
   }, [user, isAdmin, connectionStatus.checked, connectionStatus.connected, verifyDatabaseConfiguration]);
 
+  // New useEffect to show toast message when verification results update
+  useEffect(() => {
+    if (hasVerificationData && !verificationResult.isVerifying) {
+      // Check if there were issues previously that are now fixed
+      const totalIssues = missingTablesCount + missingPoliciesCount + missingFunctionsCount;
+      
+      if (totalIssues === 0) {
+        toast.success("Database verification complete", {
+          description: "All database tables, RLS policies, and functions are properly configured."
+        });
+      } else if (hasMissingPolicies) {
+        toast.warning("Database verification found issues", {
+          description: `${missingPoliciesCount} RLS policies still need to be configured.`
+        });
+      }
+    }
+  }, [verificationResult, hasVerificationData]);
+
   return (
     <div className="animate-fadeIn space-y-6">
       <div className="flex items-center justify-between">
@@ -56,6 +75,33 @@ export default function DatabaseVerification() {
           <Database className="h-5 w-5 text-primary" />
         </div>
       </div>
+      
+      {/* Show success message if all checks pass */}
+      {hasVerificationData && !verificationResult.isVerifying && 
+       !hasMissingTables && !hasMissingPolicies && !hasMissingFunctions && (
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-green-800 text-lg flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              All Database Checks Passed
+            </CardTitle>
+            <CardDescription className="text-green-700">
+              Your database is properly configured with all required tables, RLS policies, and functions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-green-700">
+              <p>The following items have been verified:</p>
+              <ul className="list-disc pl-5 mt-2 space-y-1">
+                <li>All required database tables exist</li>
+                <li>Row Level Security (RLS) is enabled on all tables</li>
+                <li>All necessary security policies are in place</li>
+                <li>Required database functions are available and secure</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       {/* Authentication Status Card */}
       {!user && (
@@ -185,16 +231,20 @@ export default function DatabaseVerification() {
             size="sm" 
             onClick={async () => {
               try {
-                // Force a complete refresh of connection and verification
-                window.location.reload();
+                // Run a fresh verification instead of reloading the page
+                toast.info("Running fresh verification...");
+                await verifyDatabaseConfiguration();
               } catch (error) {
-                console.error("Error during page refresh:", error);
+                console.error("Error during verification refresh:", error);
+                toast.error("Verification failed", {
+                  description: error instanceof Error ? error.message : "Unknown error"
+                });
               }
             }}
-            disabled={!connectionStatus.checked}
+            disabled={!connectionStatus.checked || verificationResult.isVerifying}
             variant={connectionStatus.connected ? "outline" : "default"}
           >
-            {!connectionStatus.checked ? (
+            {!connectionStatus.checked || verificationResult.isVerifying ? (
               <>
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                 Checking...
@@ -202,7 +252,7 @@ export default function DatabaseVerification() {
             ) : (
               <>
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh Page
+                Refresh Verification
               </>
             )}
           </Button>
@@ -247,6 +297,12 @@ export default function DatabaseVerification() {
               Tables: {verificationResult.tables.length}, 
               Policies: {verificationResult.policies.length}, 
               Functions: {verificationResult.functions.length}
+            </div>
+            <div>
+              <span className="font-semibold">Issues Found:</span> 
+              Tables: {missingTablesCount}, 
+              Policies: {missingPoliciesCount}, 
+              Functions: {missingFunctionsCount}
             </div>
           </div>
         </CardContent>

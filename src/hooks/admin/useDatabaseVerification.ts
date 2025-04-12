@@ -197,7 +197,9 @@ export function useDatabaseVerification() {
       } else if (issuesCount === 0) {
         toast.success("Database verification completed - All checks passed");
       } else {
-        toast.error(`Database verification completed - ${issuesCount} issues found`);
+        toast.warning(`Database verification completed - ${issuesCount} issues found`, {
+          description: "Some tables, policies or functions need configuration"
+        });
       }
       
     } catch (error: any) {

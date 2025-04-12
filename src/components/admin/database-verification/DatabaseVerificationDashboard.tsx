@@ -6,7 +6,7 @@ import { DatabaseTablesCheck } from './DatabaseTablesCheck';
 import { RlsPoliciesCheck } from './RlsPoliciesCheck';
 import { DatabaseFunctionsCheck } from './DatabaseFunctionsCheck';
 import { DatabaseVerificationResult } from './types';
-import { RefreshCw, Database, Shield, Code, AlertTriangle, Info } from 'lucide-react';
+import { RefreshCw, Database, Shield, Code, AlertTriangle, Info, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -22,6 +22,7 @@ export function DatabaseVerificationDashboard({
   const { tables, policies, functions, isVerifying } = result;
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [lastVerifiedAt, setLastVerifiedAt] = useState<Date | null>(null);
   
   const hasTablesData = tables && tables.length > 0;
   const hasPoliciesData = policies && policies.length > 0;
@@ -88,6 +89,7 @@ export function DatabaseVerificationDashboard({
             // If we can access companies, connection is good
             setIsCheckingConnection(false);
             await onVerify();
+            setLastVerifiedAt(new Date());
             return true;
           }
         }
@@ -104,6 +106,7 @@ export function DatabaseVerificationDashboard({
       // If we got here, connection is good
       setIsCheckingConnection(false);
       await onVerify();
+      setLastVerifiedAt(new Date());
       return true;
     } catch (err: any) {
       console.error("Connection check error:", err);
@@ -122,14 +125,35 @@ export function DatabaseVerificationDashboard({
   
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="border-border/50 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-primary" />
-            Database Verification
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Database className="h-5 w-5 text-primary" />
+              Database Verification
+              {issueCount === 0 && hasTablesData && (
+                <span className="ml-2 text-xs bg-green-100 text-green-800 rounded-full px-2 py-0.5 font-medium">
+                  All checks passed
+                </span>
+              )}
+              {issueCount > 0 && hasTablesData && (
+                <span className="ml-2 text-xs bg-amber-100 text-amber-800 rounded-full px-2 py-0.5 font-medium">
+                  {issueCount} {issueCount === 1 ? 'issue' : 'issues'} found
+                </span>
+              )}
+            </div>
+            {isReady === true && <CheckCircle className="h-5 w-5 text-green-500" />}
+            {isReady === false && <AlertTriangle className="h-5 w-5 text-amber-500" />}
           </CardTitle>
-          <CardDescription>
-            Check if your database has all required tables, RLS policies, and functions
+          <CardDescription className="flex justify-between items-center">
+            <span>
+              Check if your database has all required tables, RLS policies, and functions
+            </span>
+            {lastVerifiedAt && (
+              <span className="text-xs text-muted-foreground">
+                Last verified: {lastVerifiedAt.toLocaleTimeString()}
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -147,7 +171,12 @@ export function DatabaseVerificationDashboard({
                 </div>
               )}
             </div>
-            <Button onClick={handleVerifyClick} disabled={isVerifying || isCheckingConnection}>
+            <Button 
+              onClick={handleVerifyClick} 
+              disabled={isVerifying || isCheckingConnection}
+              variant={lastVerifiedAt ? "outline" : "default"}
+              className={lastVerifiedAt ? "border-green-200 hover:border-green-300" : ""}
+            >
               <RefreshCw className={`mr-2 h-4 w-4 ${isVerifying || isCheckingConnection ? 'animate-spin' : ''}`} />
               {isVerifying ? 'Verifying...' : isCheckingConnection ? 'Checking connection...' : 'Verify Database'}
             </Button>
@@ -200,6 +229,20 @@ export function DatabaseVerificationDashboard({
                   <p className="text-xs text-amber-700 mt-1">
                     Your Supabase database is missing required tables, policies, or functions. 
                     Please run the SQL setup script from the setup documentation to fix these issues.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {issueCount === 0 && hasTablesData && (
+            <div className="mb-6 p-4 border border-green-200 bg-green-50 rounded-md">
+              <div className="flex items-start gap-2">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-medium text-green-800">Database Configuration Verified</h3>
+                  <p className="text-xs text-green-700 mt-1">
+                    All database tables, RLS policies, and functions are properly configured and ready to use.
                   </p>
                 </div>
               </div>
