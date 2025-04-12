@@ -20,6 +20,9 @@ import CampaignDetail from "@/pages/dashboard/CampaignDetail";
 import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";
 import TiktokCallback from "@/components/auth/TiktokCallback";
 import SocialMediaCalendarPage from "@/pages/dashboard/SocialMediaCalendar";
+import LinkedInIntegration from "@/pages/dashboard/LinkedInIntegration";
+import LinkedInAuthCallback from "@/pages/dashboard/LinkedInAuthCallback";
+import LeadFollowUpSequences from "@/pages/dashboard/LeadFollowUpSequences";
 
 export const dashboardRoutes: RouteObject = {
   path: "/dashboard",
@@ -92,6 +95,18 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "leads",
       element: <DashboardLeads />,
+    },
+    {
+      path: "leads/follow-up-sequences",
+      element: <LeadFollowUpSequences />,
+    },
+    {
+      path: "leads/linkedin",
+      element: <LinkedInIntegration />,
+    },
+    {
+      path: "auth/linkedin/callback",
+      element: <LinkedInAuthCallback />,
     },
     {
       path: "calls",

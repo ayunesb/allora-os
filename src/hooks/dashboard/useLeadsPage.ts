@@ -5,7 +5,7 @@ import { Lead } from '@/models/lead';
 import { supabase } from '@/integrations/supabase/client';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAuth } from '@/context/AuthContext';
-import { useLeadScoring } from '@/hooks/dashboard/useLeadScoring';
+import { useAdvancedLeadScoring } from '@/hooks/useAdvancedLeadScoring';
 
 export function useLeadsPage() {
   const { user, profile } = useAuth();
@@ -23,7 +23,12 @@ export function useLeadsPage() {
   
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   
-  const { calculateLeadScore, getLeadScore, getNextBestAction } = useLeadScoring();
+  const { 
+    calculateAdvancedScore, 
+    getLeadScoreCategory, 
+    getNextBestAction, 
+    getLeadPriority 
+  } = useAdvancedLeadScoring();
   
   // Fetch leads
   const fetchLeads = useCallback(async () => {
@@ -207,7 +212,8 @@ export function useLeadsPage() {
     handleLeadStatusUpdate,
     handleLeadDelete,
     refetchLeads: fetchLeads,
-    getLeadScore,
-    getNextBestAction
+    getLeadScore: getLeadScoreCategory,
+    getNextBestAction,
+    getLeadPriority
   };
 }

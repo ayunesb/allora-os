@@ -16,4 +16,11 @@ export type Lead = {
   campaigns?: {
     name: string;
   };
+  // Enhanced fields for advanced lead scoring
+  last_contact_date?: string;
+  engagement_level?: number; // 1-5 scale
+  follow_up_status?: 'pending' | 'in_progress' | 'completed';
+  follow_up_sequence_id?: string;
+  linkedin_profile_url?: string;
+  tags?: string[];
 };
