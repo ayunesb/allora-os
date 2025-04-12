@@ -1,4 +1,3 @@
-
 /**
  * Utility functions for testing components and validators
  * 
@@ -11,7 +10,7 @@
 
 import { ReactElement } from 'react';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom'; // Import testing library extensions
+import '@testing-library/jest-dom';
 import { ZodSchema } from 'zod';
 
 /**
