@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getExecutiveImage } from "@/utils/ai-executives";
 import { formatRoleTitle } from "@/utils/consultation/botRoleUtils";
 import { useBotConsultation } from "@/components/bot-detail/useBotConsultation";
@@ -95,10 +95,10 @@ const BotChatPanel: React.FC<BotChatPanelProps> = ({
           <Card className="border shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
-                <Avatar 
-                  className="h-10 w-10 border"
-                  src={currentBot?.avatar || getExecutiveImage(currentBot?.name)}
-                />
+                <Avatar className="h-10 w-10 border">
+                  <AvatarImage src={currentBot?.avatar || getExecutiveImage(currentBot?.name)} />
+                  <AvatarFallback>{currentBot?.name?.charAt(0)}</AvatarFallback>
+                </Avatar>
                 <div>
                   <CardTitle className="text-lg">{currentBot?.name}</CardTitle>
                   <div className="flex gap-2 items-center">
