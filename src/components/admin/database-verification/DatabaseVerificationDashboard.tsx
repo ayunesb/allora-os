@@ -23,22 +23,42 @@ export function DatabaseVerificationDashboard({
   const hasPoliciesData = policies && policies.length > 0;
   const hasFunctionsData = functions && functions.length > 0;
   
-  // Run verification automatically when component mounts
+  // Run verification automatically when component mounts if no data
   useEffect(() => {
     if (!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying) {
+      console.log("No verification data available, running verification automatically");
       onVerify();
     }
   }, [hasTablesData, hasPoliciesData, hasFunctionsData, isVerifying, onVerify]);
   
   const countIssues = () => {
-    const tableMissing = tables.filter(t => !t.exists).length;
-    const policiesMissing = policies.filter(p => !p.exists).length;
-    const functionIssues = functions.filter(f => !f.exists || !f.isSecure).length;
+    const tableMissing = (tables || []).filter(t => !t.exists).length;
+    const policiesMissing = (policies || []).filter(p => !p.exists).length;
+    const functionIssues = (functions || []).filter(f => !f.exists || !f.isSecure).length;
     
     return tableMissing + policiesMissing + functionIssues;
   };
   
   const issueCount = hasTablesData ? countIssues() : 0;
+  
+  // Helper to print debug info about the result
+  const printDebugInfo = () => {
+    console.log("Database verification result:", {
+      hasTablesData,
+      hasPoliciesData,
+      hasFunctionsData,
+      isVerifying,
+      tablesCount: tables?.length || 0,
+      policiesCount: policies?.length || 0,
+      functionsCount: functions?.length || 0,
+      issues: issueCount
+    });
+  };
+  
+  // Call printDebugInfo on component mount and when the data changes
+  useEffect(() => {
+    printDebugInfo();
+  }, [tables, policies, functions, isVerifying]);
   
   return (
     <div className="space-y-6">
@@ -106,10 +126,11 @@ export function DatabaseVerificationDashboard({
               <div className="flex items-start gap-2">
                 <Info className="h-5 w-5 text-blue-500 mt-0.5" />
                 <div>
-                  <h3 className="text-sm font-medium text-blue-800">No Data or Connection Issues</h3>
+                  <h3 className="text-sm font-medium text-blue-800">No Verification Data</h3>
                   <p className="text-xs text-blue-700 mt-1">
-                    No database verification data is being returned. This could indicate connection issues with your Supabase database or missing permissions.
-                    Please check your network connection and Supabase API key configuration.
+                    No database verification data is being returned. This could indicate connection issues, 
+                    authentication problems, or missing permissions. Try logging in as an admin user or 
+                    check your Supabase API key configuration.
                   </p>
                 </div>
               </div>

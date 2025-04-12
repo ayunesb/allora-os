@@ -6,7 +6,8 @@ import {
   verifyDatabaseTables, 
   verifyRlsPolicies, 
   verifyDatabaseFunctions,
-  displayVerificationResults 
+  displayVerificationResults,
+  checkVerificationAccess
 } from '@/utils/admin/database-verification';
 import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
 
@@ -23,31 +24,55 @@ export function useDatabaseVerification() {
     isVerifying: false
   });
   
-  const [connectionChecked, setConnectionChecked] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState({
+    checked: false,
+    connected: false,
+    authenticated: false,
+    error: null as any,
+    accessError: null as string | null
+  });
 
   // Check connection status on mount
   useEffect(() => {
     const initialConnectionCheck = async () => {
       try {
+        console.log("Performing initial connection check...");
         const status = await checkSupabaseConnection();
-        setConnectionChecked(true);
+        
+        // Check verification access permissions
+        const accessCheck = await checkVerificationAccess();
+        
+        setConnectionStatus({
+          checked: true,
+          connected: status.connected,
+          authenticated: status.authenticated,
+          error: status.error || null,
+          accessError: !accessCheck.canAccess ? accessCheck.message : null
+        });
         
         // If not connected or not authenticated, we don't need to try verification
-        if (!status.connected || !status.authenticated) {
+        if (!status.connected || !status.authenticated || !accessCheck.canAccess) {
+          console.log("Not proceeding with verification due to connection/auth issues");
           return;
         }
         
-        // Auto-verify if we're connected and authenticated
+        // Auto-verify if we're connected and authenticated and have access
+        console.log("Connection check passed, proceeding with verification");
         verifyDatabaseConfiguration();
       } catch (err) {
         console.error("Initial connection check failed:", err);
+        setConnectionStatus(prev => ({
+          ...prev,
+          checked: true,
+          error: err
+        }));
       }
     };
     
-    if (!connectionChecked) {
+    if (!connectionStatus.checked) {
       initialConnectionCheck();
     }
-  }, [connectionChecked]);
+  }, [connectionStatus.checked]);
 
   /**
    * Attempts to ensure the check_function_exists RPC exists
@@ -97,26 +122,37 @@ export function useDatabaseVerification() {
    */
   const verifyDatabaseConfiguration = useCallback(async () => {
     // First check connection
-    const connectionStatus = await checkSupabaseConnection();
-    
-    if (!connectionStatus.connected) {
-      toast.error("Cannot verify database - connection failed", {
-        description: "Please check your Supabase connection and try again."
-      });
-      return;
-    }
-    
-    if (!connectionStatus.authenticated) {
-      toast.error("Cannot verify database - authentication required", {
-        description: "Please sign in to access database verification features."
-      });
-      return;
-    }
-    
     setVerificationResult(prev => ({ ...prev, isVerifying: true }));
     
     try {
       console.log('Starting database verification process...');
+      const connectionStatus = await checkSupabaseConnection();
+      
+      if (!connectionStatus.connected) {
+        toast.error("Cannot verify database - connection failed", {
+          description: "Please check your Supabase connection and try again."
+        });
+        setVerificationResult(prev => ({ ...prev, isVerifying: false }));
+        return;
+      }
+      
+      if (!connectionStatus.authenticated) {
+        toast.error("Cannot verify database - authentication required", {
+          description: "Please sign in to access database verification features."
+        });
+        setVerificationResult(prev => ({ ...prev, isVerifying: false }));
+        return;
+      }
+      
+      // Check access permissions
+      const accessCheck = await checkVerificationAccess();
+      if (!accessCheck.canAccess) {
+        toast.error("Access denied", {
+          description: accessCheck.message
+        });
+        setVerificationResult(prev => ({ ...prev, isVerifying: false }));
+        return;
+      }
       
       // Create function checker if needed
       await createFunctionCheckerRPC();
@@ -173,6 +209,7 @@ export function useDatabaseVerification() {
 
   return {
     verificationResult,
+    connectionStatus,
     verifyDatabaseConfiguration
   };
 }

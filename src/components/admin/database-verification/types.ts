@@ -1,22 +1,5 @@
 
-export interface DatabaseTableStatus {
-  name: string;
-  exists: boolean;
-  message: string;
-}
-
-export interface PolicyStatus {
-  table: string;
-  exists: boolean;
-  message: string;
-}
-
-export interface FunctionStatus {
-  name: string;
-  exists: boolean;
-  isSecure: boolean;
-  message: string;
-}
+import { DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/types/databaseVerification';
 
 export interface DatabaseVerificationResult {
   tables: DatabaseTableStatus[];

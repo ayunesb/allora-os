@@ -14,7 +14,7 @@ export const supabase = createClient(
       storage: typeof window !== 'undefined' ? window.localStorage : undefined
     },
     global: {
-      fetch: (...args: [RequestInfo | URL, RequestInit?]) => {
+      fetch: (...args) => {
         return fetch(...args);
       }
     },
