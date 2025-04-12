@@ -59,7 +59,8 @@ serve(async (req) => {
     }
 
     // Get the request body
-    const { action, priceId, name, email, metadata, customerId } = await req.json();
+    const requestBody = await req.json();
+    const { action, priceId, subscriptionId, newPriceId, name, email, metadata, successUrl, cancelUrl } = requestBody;
 
     if (action === "create-checkout-session") {
       // Create a new Checkout Session
@@ -72,8 +73,8 @@ serve(async (req) => {
           },
         ],
         mode: "subscription",
-        success_url: `${APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${APP_URL}/payment-cancel`,
+        success_url: successUrl || `${APP_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: cancelUrl || `${APP_URL}/payment-cancel`,
         customer_email: user.email,
         metadata: {
           userId: user.id,
@@ -138,6 +139,197 @@ serve(async (req) => {
       });
       
       return new Response(JSON.stringify(products.data), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    else if (action === "get-subscription-details") {
+      // Get the customer ID from the database
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("stripe_customer_id, subscription_status, subscription_plan_id, subscription_expires_at")
+        .eq("id", user.id)
+        .single();
+        
+      if (profileError) {
+        return new Response(JSON.stringify({ 
+          isActive: false,
+          error: "Failed to retrieve profile"
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+      
+      // If no customer ID, return inactive status
+      if (!profile.stripe_customer_id) {
+        return new Response(JSON.stringify({ isActive: false }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+      
+      // Fetch subscriptions from Stripe
+      const subscriptions = await stripe.subscriptions.list({
+        customer: profile.stripe_customer_id,
+        status: 'all',
+        expand: ['data.default_payment_method', 'data.items.data.price.product'],
+        limit: 1
+      });
+      
+      // If no subscriptions, return inactive
+      if (subscriptions.data.length === 0) {
+        return new Response(JSON.stringify({ 
+          isActive: false,
+          planId: profile.subscription_plan_id,
+          expiresAt: profile.subscription_expires_at
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+      
+      // Process the subscription
+      const subscription = subscriptions.data[0];
+      const price = subscription.items.data[0].price;
+      const product = await stripe.products.retrieve(price.product as string);
+      
+      return new Response(JSON.stringify({
+        isActive: subscription.status === 'active' || subscription.status === 'trialing',
+        planId: profile.subscription_plan_id,
+        planName: product.name,
+        expiresAt: profile.subscription_expires_at,
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+        status: subscription.status,
+        subscriptionId: subscription.id,
+        customerId: subscription.customer as string,
+        priceId: price.id,
+        createdAt: new Date(subscription.created * 1000).toISOString(),
+        canceledAt: subscription.canceled_at 
+          ? new Date(subscription.canceled_at * 1000).toISOString() 
+          : null
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    else if (action === "cancel-subscription") {
+      if (!subscriptionId) {
+        return new Response(JSON.stringify({ error: "Subscription ID is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Verify the subscription belongs to this user
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("stripe_customer_id")
+        .eq("id", user.id)
+        .single();
+
+      // Get subscription to verify customer
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      
+      if (subscription.customer !== profile.stripe_customer_id) {
+        return new Response(JSON.stringify({ error: "Unauthorized access to subscription" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Cancel the subscription at period end
+      const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: true
+      });
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        cancelAtPeriodEnd: updatedSubscription.cancel_at_period_end,
+        currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000).toISOString()
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    else if (action === "reactivate-subscription") {
+      if (!subscriptionId) {
+        return new Response(JSON.stringify({ error: "Subscription ID is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Verify the subscription belongs to this user
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("stripe_customer_id")
+        .eq("id", user.id)
+        .single();
+
+      // Get subscription to verify customer
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      
+      if (subscription.customer !== profile.stripe_customer_id) {
+        return new Response(JSON.stringify({ error: "Unauthorized access to subscription" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Reactivate the subscription (remove cancel_at_period_end)
+      const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: false
+      });
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        cancelAtPeriodEnd: updatedSubscription.cancel_at_period_end
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    else if (action === "change-subscription-plan") {
+      if (!subscriptionId || !newPriceId) {
+        return new Response(JSON.stringify({ error: "Subscription ID and new price ID are required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Verify the subscription belongs to this user
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("stripe_customer_id")
+        .eq("id", user.id)
+        .single();
+
+      // Get subscription to verify customer
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      
+      if (subscription.customer !== profile.stripe_customer_id) {
+        return new Response(JSON.stringify({ error: "Unauthorized access to subscription" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // Find the subscription item to modify
+      const subscriptionItem = subscription.items.data[0].id;
+      
+      // Update the subscription with the new price
+      const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+        items: [{
+          id: subscriptionItem,
+          price: newPriceId,
+        }],
+        proration_behavior: 'create_prorations',
+      });
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        subscriptionId: updatedSubscription.id,
+        priceId: newPriceId
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }

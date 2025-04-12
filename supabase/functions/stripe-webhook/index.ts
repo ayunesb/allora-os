@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
@@ -87,21 +88,41 @@ serve(async (req) => {
         const userId = session.metadata.userId;
         const customerEmail = session.customer_details.email;
         
-        // Update the database with payment information
-        const { error } = await supabase
-          .from("profiles")
-          .update({ 
-            stripe_customer_id: session.customer,
-            subscription_status: "active"
-          })
-          .eq("id", userId);
+        // Get subscription details if this is a subscription
+        if (session.mode === 'subscription' && session.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          const pricingPlanId = subscription.items.data[0].price.id;
           
-        if (error) {
-          console.error("Error updating user subscription:", error);
-          return new Response(JSON.stringify({ success: false, error: error.message }), { 
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" }
-          });
+          // Update user's subscription details
+          const { error } = await supabase
+            .from("profiles")
+            .update({ 
+              stripe_customer_id: session.customer,
+              subscription_status: "active",
+              subscription_plan_id: pricingPlanId,
+              subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString()
+            })
+            .eq("id", userId);
+            
+          if (error) {
+            console.error("Error updating user subscription:", error);
+            return new Response(JSON.stringify({ success: false, error: error.message }), { 
+              status: 500,
+              headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+        } else {
+          // One-time payment handling
+          const { error } = await supabase
+            .from("profiles")
+            .update({ 
+              stripe_customer_id: session.customer
+            })
+            .eq("id", userId);
+            
+          if (error) {
+            console.error("Error updating user profile:", error);
+          }
         }
         break;
         
@@ -111,12 +132,17 @@ serve(async (req) => {
         
         // Update subscription status in the database
         if (subscription.metadata?.userId) {
+          const userId = subscription.metadata.userId;
+          const pricingPlanId = subscription.items.data[0].price.id;
+          
           const { error } = await supabase
             .from("profiles")
             .update({ 
-              subscription_status: subscription.status
+              subscription_status: subscription.status,
+              subscription_plan_id: pricingPlanId,
+              subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString()
             })
-            .eq("id", subscription.metadata.userId);
+            .eq("id", userId);
             
           if (error) {
             console.error("Error updating subscription status:", error);
@@ -130,12 +156,15 @@ serve(async (req) => {
         
         // Update subscription status in the database
         if (canceledSubscription.metadata?.userId) {
+          const userId = canceledSubscription.metadata.userId;
+          
           const { error } = await supabase
             .from("profiles")
             .update({ 
-              subscription_status: "canceled"
+              subscription_status: "canceled",
+              subscription_expires_at: new Date(canceledSubscription.current_period_end * 1000).toISOString()
             })
-            .eq("id", canceledSubscription.metadata.userId);
+            .eq("id", userId);
             
           if (error) {
             console.error("Error updating subscription status:", error);
