@@ -1,3 +1,4 @@
+
 import { Drawer, DrawerClose, DrawerContent } from "@/components/ui/drawer";
 import { Link } from "react-router-dom";
 import { 
@@ -105,8 +106,8 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
   ];
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} className="z-50">
-      <DrawerContent className="bg-white">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
         <div className="p-4 flex justify-end">
           <DrawerClose asChild>
             <Button variant="ghost" className="hover:bg-accent rounded-full">

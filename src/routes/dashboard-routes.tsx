@@ -1,7 +1,10 @@
+
 import React from "react";
 import { RouteObject } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Navigate } from "react-router-dom";
+
+const { lazy } = React;
 
 // Lazy loaded components
 const Index = lazy(() => import("@/pages/dashboard/Index"));

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { useDashboardNavigation } from "@/hooks/useDashboardNavigation";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { DashboardTabs } from "@/components/dashboard/navigation/DashboardTabs";
+import DashboardTabs from "@/components/dashboard/navigation/DashboardTabs";
 import { MobileNavDrawer } from "@/components/dashboard/navigation/MobileNavDrawer";
 import { UserDropdown } from "@/components/dashboard/navigation/UserDropdown";
 import { SessionRefreshBar } from "@/components/dashboard/SessionRefreshBar";
@@ -19,7 +19,6 @@ export default function DashboardLayout() {
   const isMobile = ['xs', 'mobile'].includes(breakpoint);
   
   const {
-    navItems,
     mobileMenuOpen,
     setMobileMenuOpen,
     needsSessionRefresh,
@@ -52,18 +51,15 @@ export default function DashboardLayout() {
               {isMobile ? (
                 <div className="flex justify-between w-full items-center">
                   <MobileNavDrawer 
-                    navItems={navItems}
                     currentPath={currentPath}
                     open={mobileMenuOpen}
                     onOpenChange={setMobileMenuOpen}
-                    onNavigateToProfile={handleNavigateToProfile}
-                    onSignOut={handleSignOut}
                   />
                   <UserDropdown onSignOut={handleSignOut} />
                 </div>
               ) : (
                 <>
-                  <DashboardTabs navItems={navItems} />
+                  <DashboardTabs />
                   <UserDropdown onSignOut={handleSignOut} />
                 </>
               )}

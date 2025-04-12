@@ -62,16 +62,11 @@ const wrapArrayRoutes = (routes: RouteObject[]): RouteObject[] => {
   return routes.map(route => wrapChildrenWithHelpProvider(route));
 };
 
-// Handle special case for object-based routes like dashboardRoutes
-const wrapObjectRoute = (route: RouteObject): RouteObject => {
-  return wrapChildrenWithHelpProvider(route);
-};
-
 // Combine all routes
-const routes: RouteObject[] = [
+const allRoutes: RouteObject[] = [
   ...wrapArrayRoutes(publicRoutes),
-  wrapObjectRoute(dashboardRoutes),
-  wrapObjectRoute(adminRoutes as RouteObject),
+  wrapChildrenWithHelpProvider(dashboardRoutes),
+  wrapChildrenWithHelpProvider(adminRoutes as RouteObject),
   ...wrapArrayRoutes(authRoutes),
   ...wrapArrayRoutes(devRoutes),
   ...wrapArrayRoutes(onboardingRoutes),
@@ -84,4 +79,4 @@ const routes: RouteObject[] = [
   }
 ];
 
-export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter(allRoutes);
