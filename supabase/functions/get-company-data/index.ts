@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       normalizedUrl = `https://${normalizedUrl}`
     }
 
-    // Make request to Zyte API
+    // Make request to Zyte API with comprehensive extraction
     const zyteResponse = await fetch('https://api.zyte.com/v1/extract', {
       method: 'POST',
       headers: {
@@ -55,25 +55,18 @@ Deno.serve(async (req) => {
         browserHtml: true,
         extractFrom: {
           webPage: {
+            "schema.org": {
+              "@type": ["Organization", "LocalBusiness", "Corporation"]
+            },
             "meta": true,
             "article": true,
             "address": true,
-            "contactPoint": true,
-            "interactionCounter": true,
             "organizationContacts": true,
-            "itemList": true,
             "product": true,
             "autoKeywords": true,
             "links": true,
+            "itemList": true,
             "screenshot": true,
-            "siteNavigationElement": true,
-            "schema.org": {
-              "@type": [
-                "Organization",
-                "LocalBusiness",
-                "Corporation"
-              ]
-            }
           }
         }
       }),
@@ -90,8 +83,6 @@ Deno.serve(async (req) => {
 
     // Process the response
     const responseData = await zyteResponse.json()
-    
-    // Extract relevant company information
     const companyData = processCompanyData(responseData)
     
     return new Response(JSON.stringify({ 
@@ -120,6 +111,9 @@ function processCompanyData(zyteData: any) {
       size: '',
       products: [],
       services: [],
+      website: '',
+      headquarters: '',
+      founded: ''
     }
 
     // Extract company name
@@ -131,6 +125,8 @@ function processCompanyData(zyteData: any) {
       )
       if (org) {
         result.name = org.name || ''
+        result.website = org.url || ''
+        result.founded = org.foundingDate || ''
       }
     }
 
@@ -146,12 +142,10 @@ function processCompanyData(zyteData: any) {
       result.description = zyteData.webPage.article.description
     }
 
-    // Try to extract industry from keywords or categories
+    // Extract industry from keywords
     if (zyteData.webPage?.autoKeywords) {
-      // Get the top 5 keywords and use them to guess the industry
       const keywords = zyteData.webPage.autoKeywords.slice(0, 5).map((k: any) => k.value)
       
-      // Common industry keywords to check against
       const industryKeywords: Record<string, string> = {
         'technology': 'Technology',
         'software': 'Technology',
@@ -167,32 +161,9 @@ function processCompanyData(zyteData: any) {
         'real estate': 'Real Estate',
         'property': 'Real Estate',
         'construction': 'Construction',
-        'legal': 'Legal',
-        'law': 'Legal',
-        'hospitality': 'Hospitality',
-        'restaurant': 'Food & Beverage',
-        'food': 'Food & Beverage',
-        'travel': 'Travel & Tourism',
-        'tourism': 'Travel & Tourism',
-        'marketing': 'Marketing',
-        'advertising': 'Marketing',
-        'consulting': 'Consulting',
-        'entertainment': 'Entertainment',
-        'media': 'Media',
-        'transportation': 'Transportation',
-        'automotive': 'Automotive',
-        'energy': 'Energy',
-        'telecommunication': 'Telecommunications',
-        'insurance': 'Insurance',
-        'agriculture': 'Agriculture',
-        'aerospace': 'Aerospace',
-        'defense': 'Defense',
-        'pharmaceutical': 'Pharmaceutical',
-        'non-profit': 'Non-Profit',
-        'charity': 'Non-Profit',
+        // Add more industry mappings as needed
       }
       
-      // Check if any keyword matches an industry
       for (const keyword of keywords) {
         for (const [industryKey, industryValue] of Object.entries(industryKeywords)) {
           if (keyword.toLowerCase().includes(industryKey)) {
@@ -204,22 +175,22 @@ function processCompanyData(zyteData: any) {
       }
     }
 
-    // Extract products or services
+    // Extract products
     if (zyteData.webPage?.product) {
       result.products = zyteData.webPage.product.map((p: any) => p.name || 'Unnamed Product')
     }
 
-    // Try to extract services from navigation or links
-    if (zyteData.webPage?.siteNavigationElement) {
+    // Try to extract services from navigation
+    if (zyteData.webPage?.links) {
       const serviceKeywords = ['services', 'solutions', 'offerings', 'what we do']
-      const serviceNavItems = zyteData.webPage.siteNavigationElement.filter(
-        (nav: any) => nav.name && serviceKeywords.some(keyword => 
-          nav.name.toLowerCase().includes(keyword)
+      const serviceLinks = zyteData.webPage.links.filter(
+        (link: any) => serviceKeywords.some(keyword => 
+          link.text.toLowerCase().includes(keyword)
         )
       )
       
-      if (serviceNavItems.length > 0) {
-        result.services = serviceNavItems.map((nav: any) => nav.name)
+      if (serviceLinks.length > 0) {
+        result.services = serviceLinks.map((link: any) => link.text)
       }
     }
 
@@ -250,7 +221,10 @@ function processCompanyData(zyteData: any) {
       industry: '',
       size: '',
       products: [],
-      services: []
+      services: [],
+      website: '',
+      headquarters: '',
+      founded: ''
     }
   }
 }

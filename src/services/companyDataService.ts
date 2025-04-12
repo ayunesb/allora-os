@@ -8,6 +8,9 @@ export type CompanyScrapedData = {
   size: string;
   products: string[];
   services: string[];
+  website?: string;
+  headquarters?: string;
+  founded?: string;
 };
 
 export async function fetchCompanyDataFromWebsite(
