@@ -109,7 +109,7 @@ export default function SocialMediaCalendar() {
         view={view}
         posts={posts}
         isLoading={isLoading}
-        error={error instanceof Error ? error : error ? new Error(String(error)) : null}
+        error={typeof error === 'object' && error !== null ? error as Error : error ? new Error(String(error)) : null}
         currentMonth={currentMonth}
         onEditPost={(post) => console.log('Edit post', post)}
         onDeletePost={deletePost}
