@@ -1,21 +1,28 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { useSocialMedia } from '@/hooks/social/useSocialMedia';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { CalendarIcon, Plus } from 'lucide-react';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { DialogCreate } from './SocialMediaPostDialog';
-import SocialMediaPostList from './SocialMediaPostList';
-import SocialMediaCalendarView from './SocialMediaCalendarView';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
 import { SocialMediaFilters } from './calendar/SocialMediaFilters';
 import { ViewToggle } from './calendar/ViewToggle';
 import { SocialPlatform, PostStatus } from '@/types/socialMedia';
+import { DialogCreate } from './SocialMediaPostDialog';
+import { PostsDisplay } from './PostsDisplay';
+import { toast } from 'sonner';
 
 export default function SocialMediaCalendar() {
-  const { profile } = useAuth();
+  // Core state
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // Social media data and operations
   const {
     posts,
     isLoading,
@@ -24,18 +31,10 @@ export default function SocialMediaCalendar() {
     setPostFilters,
     clearFilters,
     createPost,
-    updatePost,
     deletePost,
     schedule,
     approve
   } = useSocialMedia();
-  
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [view, setView] = useState<'calendar' | 'list'>('calendar');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Handle filter submission
   const handleFilterSubmit = (e: React.FormEvent) => {
@@ -65,7 +64,10 @@ export default function SocialMediaCalendar() {
     });
     
     if (result.success) {
+      toast.success('Post created successfully');
       setIsDialogOpen(false);
+    } else {
+      toast.error(result.error || 'Failed to create post');
     }
     
     return result;
@@ -73,8 +75,10 @@ export default function SocialMediaCalendar() {
   
   return (
     <div className="space-y-6">
+      {/* Header */}
       <SocialMediaHeader onCreatePost={() => setIsDialogOpen(true)} />
       
+      {/* Filters */}
       <SocialMediaFilters 
         currentMonth={currentMonth}
         onMonthChange={setCurrentMonth}
@@ -93,68 +97,26 @@ export default function SocialMediaCalendar() {
         }}
       />
       
+      {/* View Toggle */}
       <ViewToggle 
         view={view}
         onViewChange={(v) => setView(v)}
         postCount={posts.length}
       />
       
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      )}
-      
-      {/* Error State */}
-      {error && !isLoading && (
-        <Card className="border-destructive">
-          <CardContent className="p-4 text-destructive">
-            <p>Error loading social media posts: {error}</p>
-          </CardContent>
-        </Card>
-      )}
-      
-      {/* Content Based on View */}
-      {!isLoading && !error && (
-        <>
-          {view === 'calendar' ? (
-            <SocialMediaCalendarView 
-              posts={posts} 
-              currentMonth={currentMonth}
-              onEditPost={(post) => console.log('Edit post', post)}
-              onDeletePost={deletePost}
-              onSchedulePost={schedule}
-              onApprovePost={approve}
-            />
-          ) : (
-            <SocialMediaPostList 
-              posts={posts} 
-              onEditPost={(post) => console.log('Edit post', post)}
-              onDeletePost={deletePost}
-              onSchedulePost={schedule}
-              onApprovePost={approve}
-            />
-          )}
-        </>
-      )}
-      
-      {/* Empty State */}
-      {!isLoading && !error && posts.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No posts found</h3>
-            <p className="text-muted-foreground text-center max-w-md mb-6">
-              You don't have any social media posts for this period. Create a new post to get started.
-            </p>
-            <Button onClick={() => setIsDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Your First Post
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {/* Content Display */}
+      <PostsDisplay
+        view={view}
+        posts={posts}
+        isLoading={isLoading}
+        error={error}
+        currentMonth={currentMonth}
+        onEditPost={(post) => console.log('Edit post', post)}
+        onDeletePost={deletePost}
+        onSchedulePost={schedule}
+        onApprovePost={approve}
+        onCreatePost={() => setIsDialogOpen(true)}
+      />
       
       {/* Create Post Dialog */}
       <DialogCreate
