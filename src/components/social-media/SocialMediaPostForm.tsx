@@ -30,7 +30,7 @@ const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title must be less than 100 characters'),
   content: z.string().min(1, 'Content is required').max(2000, 'Content must be less than 2000 characters'),
   platform: z.enum(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'TikTok'] as const),
-  content_type: z.enum(['text', 'image', 'video', 'link', 'carousel'] as const),
+  content_type: z.enum(['text', 'image', 'video', 'link', 'carousel', 'poll'] as const),
   scheduled_date: z.string().min(1, 'Scheduled date is required'),
   publish_time: z.string().optional(),
   media_urls: z.array(z.string()).optional(),
@@ -61,7 +61,7 @@ export default function SocialMediaPostForm({
     ? {
         title: post.title,
         content: post.content,
-        platform: post.platform as SocialPlatform,
+        platform: post.platform,
         content_type: post.content_type,
         scheduled_date: post.scheduled_date,
         publish_time: post.publish_time,
@@ -163,6 +163,7 @@ export default function SocialMediaPostForm({
                     <SelectItem value="video">Video</SelectItem>
                     <SelectItem value="link">Link</SelectItem>
                     <SelectItem value="carousel">Carousel</SelectItem>
+                    <SelectItem value="poll">Poll</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>
