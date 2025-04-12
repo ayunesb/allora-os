@@ -11,12 +11,28 @@ import { performanceMonitor } from "@/utils/performance/performanceMonitor";
 import { optimizedApiClient } from "@/utils/api/optimizedApiClient";
 import { logger } from "@/utils/loggingService";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+
+// Extended types with error properties
+type CompanyDetailsResult = ReturnType<typeof useCompanyDetails> & { error?: Error | null };
+type PendingApprovalsResult = ReturnType<typeof usePendingApprovals> & { error?: Error | null };
+type AnalyticsDataResult = ReturnType<typeof useAnalyticsData> & { error?: Error | null };
+type AiRecommendationsResult = ReturnType<typeof useAiRecommendations> & { 
+  isLoading?: boolean;
+  error?: Error | null;
+};
+
+// Add id property to RecommendationType
+interface EnhancedRecommendationType extends RecommendationType {
+  id: string;
+}
 
 export function useDashboardData() {
   const { profile } = useAuth();
   const companyId = profile?.company_id;
   const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
   const [lastError, setLastError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
   
   // Use our smaller, focused hooks with error retry handling
   const { 
@@ -24,19 +40,19 @@ export function useDashboardData() {
     riskAppetite, 
     companyDetails,
     error: companyError
-  } = useCompanyDetails(companyId);
+  } = useCompanyDetails(companyId) as CompanyDetailsResult;
   
   const { 
     isLoading: isApprovalsLoading, 
     pendingApprovals,
     error: approvalsError
-  } = usePendingApprovals();
+  } = usePendingApprovals() as PendingApprovalsResult;
   
   const { 
     isLoading: isAnalyticsLoading, 
     analyticsData,
     error: analyticsError
-  } = useAnalyticsData(companyId);
+  } = useAnalyticsData(companyId) as AnalyticsDataResult;
   
   // Get company insights for strategic recommendations
   const { 
@@ -52,7 +68,7 @@ export function useDashboardData() {
     removeRecommendation,
     isLoading: isRecommendationsLoading,
     error: recommendationsError
-  } = useAiRecommendations(companyDetails, analyticsData, profile, riskAppetite);
+  } = useAiRecommendations(companyDetails, analyticsData, profile, riskAppetite) as AiRecommendationsResult;
   
   // Get recommendation approval functionality
   const { handleApproveRecommendation } = useRecommendationApproval();
@@ -84,7 +100,7 @@ export function useDashboardData() {
         { companyId, hasAnalyticsData: !!analyticsData }
       );
     }
-  }, [isCompanyLoading, isAnalyticsLoading, analyticsData, generateAiRecommendations]);
+  }, [isCompanyLoading, isAnalyticsLoading, analyticsData, generateAiRecommendations, companyId]);
   
   // Manual refresh function with performance monitoring
   const refreshAllData = useCallback(async () => {
@@ -102,12 +118,12 @@ export function useDashboardData() {
         optimizedApiClient.clearCache('/api/approvals');
         
         // Invalidate React Query cache and trigger refetches
-        if (window.queryClient) {
+        if (queryClient) {
           await Promise.all([
-            window.queryClient.invalidateQueries({ queryKey: ['company'] }),
-            window.queryClient.invalidateQueries({ queryKey: ['analytics'] }),
-            window.queryClient.invalidateQueries({ queryKey: ['approvals'] }),
-            window.queryClient.invalidateQueries({ queryKey: ['recommendations'] })
+            queryClient.invalidateQueries({ queryKey: ['company'] }),
+            queryClient.invalidateQueries({ queryKey: ['analytics'] }),
+            queryClient.invalidateQueries({ queryKey: ['approvals'] }),
+            queryClient.invalidateQueries({ queryKey: ['recommendations'] })
           ]);
         }
       });
@@ -119,18 +135,19 @@ export function useDashboardData() {
     } finally {
       setIsManuallyRefreshing(false);
     }
-  }, [isManuallyRefreshing]);
+  }, [isManuallyRefreshing, queryClient]);
   
   // Handle approving a recommendation with error recovery
   const handleApprove = useCallback(async (index: number) => {
     if (index >= 0 && index < (aiRecommendations?.length || 0)) {
       try {
-        const recommendation = aiRecommendations[index];
+        const recommendation = aiRecommendations[index] as EnhancedRecommendationType;
+        const recommendationId = `recommendation-${index}`; // Generate an ID if none exists
         
         const result = await performanceMonitor.measureAsync(
           'approve-recommendation',
           () => handleApproveRecommendation(recommendation, index, riskAppetite),
-          { recommendationId: recommendation.id }
+          { recommendationId: recommendation.id || recommendationId }
         );
         
         if (result >= 0) {

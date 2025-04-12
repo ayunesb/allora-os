@@ -5,7 +5,7 @@ import QuickAccess from "@/components/dashboard/QuickAccess";
 import AiRecommendations from "@/components/dashboard/AiRecommendations";
 import CeoMessage from "@/components/dashboard/CeoMessage";
 import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePendingApprovals } from "@/hooks/usePendingApprovals";
 import { ErrorRecoveryWrapper } from "@/components/dashboard/ErrorRecoveryWrapper";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
+  const queryClient = useQueryClient();
   
   // Use the custom hook for dashboard data with improved error handling
   const { 
@@ -32,9 +33,9 @@ export default function Dashboard() {
       // Refetch queries - you can add more specific refetching logic here
       await Promise.all([
         // Use query client to invalidate and refetch specific queries
-        window.queryClient?.invalidateQueries({ queryKey: ['dashboard-data'] }),
-        window.queryClient?.invalidateQueries({ queryKey: ['approvals'] }),
-        window.queryClient?.invalidateQueries({ queryKey: ['recommendations'] })
+        queryClient.invalidateQueries({ queryKey: ['dashboard-data'] }),
+        queryClient.invalidateQueries({ queryKey: ['approvals'] }),
+        queryClient.invalidateQueries({ queryKey: ['recommendations'] })
       ]);
       toast.success("Dashboard refreshed successfully");
     } catch (error) {
@@ -43,7 +44,7 @@ export default function Dashboard() {
     } finally {
       setIsManuallyRefreshing(false);
     }
-  }, []);
+  }, [queryClient]);
 
   if (isLoading) {
     return <DashboardLoadingState />;

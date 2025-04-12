@@ -18,6 +18,7 @@ export function useCompanyDetails(companyId?: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [riskAppetite, setRiskAppetite] = useState<RiskAppetiteType>('medium');
   const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({});
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchCompanyDetails = async () => {
@@ -28,6 +29,7 @@ export function useCompanyDetails(companyId?: string) {
       
       try {
         setIsLoading(true);
+        setError(null);
         
         // Fetch company details including risk appetite
         const { data: companyData, error: companyError } = await supabase
@@ -73,6 +75,7 @@ export function useCompanyDetails(companyId?: string) {
         setCompanyDetails(extractedDetails);
       } catch (error: any) {
         console.error("Error fetching company details:", error);
+        setError(new Error(error.message || "Failed to load company information"));
         toast.error("Failed to load company information");
       } finally {
         setIsLoading(false);
@@ -85,6 +88,7 @@ export function useCompanyDetails(companyId?: string) {
   return {
     isLoading,
     riskAppetite,
-    companyDetails
+    companyDetails,
+    error
   };
 }

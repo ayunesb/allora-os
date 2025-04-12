@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
 import { apiRequest, ApiRequestOptions } from '@/utils/api/apiClient';
@@ -174,8 +173,8 @@ export const optimizedApiClient = {
    * Clear cache for specific endpoint or all endpoints
    */
   clearCache: (endpoint?: string) => {
-    // This uses the existing clearApiCache function from apiClient.ts
-    if (typeof window.clearApiCache === 'function') {
+    // Use the global clearApiCache function
+    if (typeof window !== 'undefined' && typeof window.clearApiCache === 'function') {
       window.clearApiCache(endpoint);
     }
   }
