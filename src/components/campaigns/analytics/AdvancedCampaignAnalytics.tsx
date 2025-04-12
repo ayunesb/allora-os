@@ -87,8 +87,8 @@ export function AdvancedCampaignAnalytics({
     { name: 'Other', value: totalCost * 0.15 },
   ];
   
-  // ROI calculation
-  const estimatedRevenue = totalConversions * (campaign.budget || 5000) * 0.2;
+  // ROI calculation - Fix type issues by ensuring numbers are used in calculations
+  const estimatedRevenue = totalConversions * (campaign.budget ? parseFloat(campaign.budget.toString()) : 5000) * 0.2;
   const roi = ((estimatedRevenue - totalCost) / totalCost * 100).toFixed(2);
   
   if (isLoading) {
