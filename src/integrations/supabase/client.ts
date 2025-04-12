@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
 import { toast } from 'sonner';
@@ -28,7 +27,6 @@ export const supabase = createClient(
 export async function getSession() {
   try {
     const response = await supabase.auth.getSession();
-    console.log("Session response:", response);
     return response;
   } catch (error) {
     console.error("Error getting session:", error);
@@ -39,7 +37,6 @@ export async function getSession() {
 export async function getCurrentUser() {
   try {
     const { data: { session } } = await getSession();
-    console.log("Current user session:", session);
     return { user: session?.user || null, session };
   } catch (error) {
     console.error("Error getting current user:", error);
@@ -49,7 +46,7 @@ export async function getCurrentUser() {
 
 /**
  * Checks if the Supabase connection is working properly
- * @returns A promise with boolean indicating if connection is working
+ * @returns A promise with connection status information
  */
 export async function checkSupabaseConnection() {
   try {
@@ -60,19 +57,47 @@ export async function checkSupabaseConnection() {
     
     if (sessionError) {
       console.error("Session error:", sessionError);
-      return { connected: false, error: sessionError, authenticated: false };
+      return { 
+        connected: false, 
+        error: sessionError, 
+        authenticated: false,
+        message: `Authentication error: ${sessionError.message}`
+      };
     }
     
     const isAuthenticated = session !== null;
     console.log("Authentication status:", isAuthenticated ? "Authenticated" : "Not authenticated");
     
-    // If not authenticated, don't even try to check the database connection
+    // If not authenticated, return early with specific status
     if (!isAuthenticated) {
       console.log("Not authenticated, skipping database check");
-      return { connected: false, error: new Error("Authentication required"), authenticated: false };
+      return { 
+        connected: false, 
+        error: new Error("Authentication required"), 
+        authenticated: false,
+        message: "Authentication required to check database connection"
+      };
     }
     
-    // Try a simple direct query to a known table instead of information_schema
+    // Try to use our RLS check function first which is more reliable
+    try {
+      const { data: rlsCheck, error: rlsError } = await supabase
+        .rpc('check_table_rls', { table_name: 'profiles' });
+      
+      if (!rlsError) {
+        console.log("Connected to database (check_table_rls function worked)");
+        return { 
+          connected: true, 
+          authenticated: isAuthenticated,
+          message: "Connected to database and authenticated"
+        };
+      }
+    } catch (e) {
+      // Function might not exist, continue with other checks
+      console.log("check_table_rls function not available, trying direct table access");
+    }
+    
+    // Try direct table queries if the function is not available
     try {
       // Try to access the profiles table which should exist
       const { data, error } = await supabase
@@ -88,7 +113,12 @@ export async function checkSupabaseConnection() {
           toast.error("Authentication error", { 
             description: "Please log in to access database functions" 
           });
-          return { connected: false, error, authenticated: false };
+          return { 
+            connected: false, 
+            error, 
+            authenticated: false,
+            message: `JWT authentication error: ${error.message}`
+          };
         }
         
         // If it's a table doesn't exist error, try another table
@@ -100,36 +130,81 @@ export async function checkSupabaseConnection() {
             
           if (!companiesError) {
             console.log("Connected to database (companies table exists)");
-            return { connected: true, authenticated: isAuthenticated };
+            return { 
+              connected: true, 
+              authenticated: isAuthenticated,
+              message: "Connected to database through companies table"
+            };
           }
+          
+          // If companies table doesn't exist either, try system_settings
+          const { error: settingsError } = await supabase
+            .from('system_settings')
+            .select('id')
+            .limit(1);
+            
+          if (!settingsError) {
+            console.log("Connected to database (system_settings table exists)");
+            return { 
+              connected: true, 
+              authenticated: isAuthenticated,
+              message: "Connected to database through system_settings table"
+            };
+          }
+          
+          // If we get here, no tables were found
+          return { 
+            connected: false, 
+            error: new Error("Required tables not found"), 
+            authenticated: isAuthenticated,
+            message: "Database connection works but required tables are missing"
+          };
         }
         
-        // Only show toast for errors when not in a component that's already handling errors
-        if (!error.message.includes('silent')) {
-          toast.error("Database connection error", {
-            description: error.message
-          });
+        // If we get an RLS error, that indicates the tables exist but we might not have access
+        if (error.code === 'PGRST116' || error.message.includes('permission denied')) {
+          console.log("RLS is active, which is good for security");
+          // RLS is denying access, which is expected with a secure setup
+          return { 
+            connected: true, 
+            authenticated: isAuthenticated,
+            message: "Connected to database with RLS properly configured"
+          };
         }
         
-        return { connected: false, error, authenticated: isAuthenticated };
+        // Other error type
+        return { 
+          connected: false, 
+          error, 
+          authenticated: isAuthenticated,
+          message: `Database error: ${error.message}`
+        };
       }
       
+      // No error means connection is working
       console.log("Supabase connection successful");
-      return { connected: true, authenticated: isAuthenticated };
-    } catch (queryError) {
+      return { 
+        connected: true, 
+        authenticated: isAuthenticated,
+        message: "Connected to database successfully"
+      };
+    } catch (queryError: any) {
       console.error("Error during database query:", queryError);
-      return { connected: false, error: queryError, authenticated: isAuthenticated };
+      return { 
+        connected: false, 
+        error: queryError, 
+        authenticated: isAuthenticated,
+        message: `Query error: ${queryError.message}`
+      };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error checking Supabase connection:", error);
     
-    // Only show toast for errors when not in a component that's already handling errors
-    if (!(error instanceof Error && error.message.includes('silent'))) {
-      toast.error("Connection check failed", {
-        description: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-    
-    return { connected: false, error, authenticated: false };
+    return { 
+      connected: false, 
+      error, 
+      authenticated: false,
+      message: `Connection error: ${error.message}`
+    };
   }
 }

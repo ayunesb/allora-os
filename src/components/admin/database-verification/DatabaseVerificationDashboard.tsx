@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { DatabaseTablesCheck } from './DatabaseTablesCheck';
 import { RlsPoliciesCheck } from './RlsPoliciesCheck';
 import { DatabaseFunctionsCheck } from './DatabaseFunctionsCheck';
-import { DatabaseVerificationResult } from './types';
+import { DatabaseVerificationResult } from '@/types/databaseVerification';
 import { RefreshCw, Database, Shield, Code, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
+import { checkVerificationAccess } from '@/utils/admin/database-verification';
 
 interface DatabaseVerificationDashboardProps {
   result: DatabaseVerificationResult;
@@ -22,11 +23,64 @@ export function DatabaseVerificationDashboard({
   const { tables, policies, functions, isVerifying } = result;
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [authStatus, setAuthStatus] = useState<{
+    isChecking: boolean;
+    isAuthenticated: boolean;
+    hasAdminAccess: boolean;
+    error: string | null;
+  }>({
+    isChecking: true,
+    isAuthenticated: false,
+    hasAdminAccess: false,
+    error: null
+  });
   const [lastVerifiedAt, setLastVerifiedAt] = useState<Date | null>(null);
   
   const hasTablesData = tables && tables.length > 0;
   const hasPoliciesData = policies && policies.length > 0;
   const hasFunctionsData = functions && functions.length > 0;
+  
+  // Check auth status on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      setAuthStatus(prev => ({ ...prev, isChecking: true }));
+      
+      try {
+        // Check if user is authenticated
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          setAuthStatus({
+            isChecking: false,
+            isAuthenticated: false,
+            hasAdminAccess: false,
+            error: 'Not authenticated. Please sign in to verify database.'
+          });
+          return;
+        }
+        
+        // Check if user has admin access
+        const access = await checkVerificationAccess();
+        
+        setAuthStatus({
+          isChecking: false,
+          isAuthenticated: true,
+          hasAdminAccess: access.canAccess,
+          error: !access.canAccess ? access.message : null
+        });
+      } catch (err) {
+        console.error('Error checking authentication status:', err);
+        setAuthStatus({
+          isChecking: false,
+          isAuthenticated: false,
+          hasAdminAccess: false,
+          error: 'Error checking authentication status'
+        });
+      }
+    };
+    
+    checkAuth();
+  }, []);
   
   // Calculate ready state based on verification results
   const calculateIsReady = () => {
@@ -41,13 +95,14 @@ export function DatabaseVerificationDashboard({
   
   const isReady = calculateIsReady();
   
-  // Run verification automatically when component mounts if no data
+  // Run verification automatically when component mounts if no data and user is authenticated with admin access
   useEffect(() => {
-    if (!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying) {
-      console.log("No verification data available, running verification automatically");
+    if (!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying && 
+        !authStatus.isChecking && authStatus.isAuthenticated && authStatus.hasAdminAccess) {
+      console.log("No verification data available and user has access, running verification automatically");
       checkConnection();
     }
-  }, [hasTablesData, hasPoliciesData, hasFunctionsData, isVerifying]);
+  }, [hasTablesData, hasPoliciesData, hasFunctionsData, isVerifying, authStatus]);
   
   const countIssues = () => {
     const tableMissing = (tables || []).filter(t => !t.exists).length;
@@ -59,6 +114,17 @@ export function DatabaseVerificationDashboard({
   
   const issueCount = hasTablesData ? countIssues() : 0;
   
+  // Check database connection issue indicators
+  const getConnectionStatus = () => {
+    if (authStatus.error) return "error";
+    if (connectionError) return "error";
+    if (!hasTablesData && !isVerifying && !isCheckingConnection) return "unknown";
+    if (issueCount === 0 && hasTablesData) return "success";
+    return "warning";
+  };
+  
+  const connectionStatus = getConnectionStatus();
+  
   // Helper to print debug info about the result
   const printDebugInfo = () => {
     console.log("Database verification result:", {
@@ -69,69 +135,63 @@ export function DatabaseVerificationDashboard({
       tablesCount: tables?.length || 0,
       policiesCount: policies?.length || 0,
       functionsCount: functions?.length || 0,
-      issues: issueCount
+      issues: issueCount,
+      auth: authStatus
     });
   };
   
   // Call printDebugInfo on component mount and when the data changes
   useEffect(() => {
     printDebugInfo();
-  }, [tables, policies, functions, isVerifying]);
+  }, [tables, policies, functions, isVerifying, authStatus]);
   
   // Check Supabase connection before verification
   const checkConnection = async () => {
     setIsCheckingConnection(true);
     setConnectionError(null);
     
+    // First check authentication and permissions
+    if (!authStatus.isAuthenticated) {
+      setConnectionError("You must be logged in to verify the database");
+      setIsCheckingConnection(false);
+      toast.error("Authentication required", {
+        description: "Please sign in to verify database configuration"
+      });
+      return false;
+    }
+    
+    if (!authStatus.hasAdminAccess) {
+      setConnectionError(authStatus.error || "Admin access required");
+      setIsCheckingConnection(false);
+      toast.error("Access denied", {
+        description: authStatus.error || "Admin role required for database verification"
+      });
+      return false;
+    }
+    
     try {
-      // First check if we can access our new check_table_rls function
-      const { data: rlsCheckData, error: rlsCheckError } = await supabase
-        .rpc('check_table_rls', { table_name: 'profiles' });
+      // Improved connection check using the checkSupabaseConnection helper
+      const status = await checkSupabaseConnection();
       
-      if (!rlsCheckError) {
-        console.log("Successfully checked RLS with our new function:", rlsCheckData);
-        setIsCheckingConnection(false);
-        await onVerify();
-        setLastVerifiedAt(new Date());
-        return true;
-      }
-      
-      // Fall back to direct table queries if the function doesn't work
-      console.log("RLS check function failed, falling back to direct table tests:", rlsCheckError);
-      
-      // Test direct connection with a specific table
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1);
-      
-      if (error) {
-        // Try another table if profiles doesn't exist
-        if (error.code === '42P01') {
-          const { error: companiesError } = await supabase
-            .from('companies')
-            .select('id')
-            .limit(1);
-            
-          if (!companiesError) {
-            // If we can access companies, connection is good
-            setIsCheckingConnection(false);
-            await onVerify();
-            setLastVerifiedAt(new Date());
-            return true;
-          }
+      if (!status.connected) {
+        console.error("Database connection failed:", status.error);
+        setConnectionError(status.error?.message || "Could not connect to database");
+        
+        if (status.error?.code === 'PGRST301' || status.error?.message?.includes('JWT')) {
+          toast.error("Authentication issue detected", {
+            description: "Your session might have expired. Please try logging in again."
+          });
+        } else {
+          toast.error("Database connection failed", {
+            description: status.error?.message || "Could not connect to database"
+          });
         }
         
-        console.error("Database connection error:", error);
-        setConnectionError(error.message);
-        toast.error("Database connection failed", {
-          description: error.message
-        });
         setIsCheckingConnection(false);
         return false;
       }
       
-      // If we got here, connection is good
+      // If connection was successful, run the verification
       setIsCheckingConnection(false);
       await onVerify();
       setLastVerifiedAt(new Date());
@@ -151,15 +211,26 @@ export function DatabaseVerificationDashboard({
     await checkConnection();
   };
   
-  // Quick check of database connection issue indicators
-  const getConnectionStatus = () => {
-    if (connectionError) return "error";
-    if (!hasTablesData && !isVerifying && !isCheckingConnection) return "unknown";
-    if (issueCount === 0 && hasTablesData) return "success";
-    return "warning";
+  // Show connection/auth errors prominently
+  const getErrorMessage = () => {
+    if (authStatus.error) {
+      return {
+        title: "Authentication Issue",
+        message: authStatus.error
+      };
+    }
+    
+    if (connectionError) {
+      return {
+        title: "Connection Error",
+        message: connectionError
+      };
+    }
+    
+    return null;
   };
   
-  const connectionStatus = getConnectionStatus();
+  const errorInfo = getErrorMessage();
   
   return (
     <div className="space-y-6">
@@ -212,53 +283,65 @@ export function DatabaseVerificationDashboard({
             </div>
             <Button 
               onClick={handleVerifyClick} 
-              disabled={isVerifying || isCheckingConnection}
+              disabled={isVerifying || isCheckingConnection || authStatus.isChecking || 
+                (!authStatus.isAuthenticated || !authStatus.hasAdminAccess)}
               variant={lastVerifiedAt ? "outline" : "default"}
               className={lastVerifiedAt ? "border-green-200 hover:border-green-300" : ""}
             >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isVerifying || isCheckingConnection ? 'animate-spin' : ''}`} />
-              {isVerifying ? 'Verifying...' : isCheckingConnection ? 'Checking connection...' : 'Verify Database'}
+              <RefreshCw className={`mr-2 h-4 w-4 ${isVerifying || isCheckingConnection || authStatus.isChecking ? 'animate-spin' : ''}`} />
+              {isVerifying ? 'Verifying...' : 
+               isCheckingConnection ? 'Checking connection...' : 
+               authStatus.isChecking ? 'Checking permissions...' :
+               'Verify Database'}
             </Button>
           </div>
           
-          {/* Connection error message */}
-          {connectionError && (
+          {/* Authentication/permission error message */}
+          {errorInfo && (
             <div className="mb-6 p-4 border border-red-200 bg-red-50 rounded-md">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
                 <div>
-                  <h3 className="text-sm font-medium text-red-800">Database Connection Failed</h3>
+                  <h3 className="text-sm font-medium text-red-800">{errorInfo.title}</h3>
                   <p className="text-xs text-red-700 mt-1">
-                    {connectionError}
+                    {errorInfo.message}
                   </p>
-                  <ul className="list-disc pl-5 mt-2 text-xs text-red-700">
-                    <li>Make sure you are logged in to your Supabase account</li>
-                    <li>Check your API keys and connection settings</li>
-                    <li>Verify that the Supabase project is running</li>
-                    <li>Check your network connection</li>
-                    <li>Note: The error "public.information_schema.tables does not exist" means we need 
-                    to test tables directly instead of using metadata queries</li>
-                  </ul>
+                  {connectionError && (
+                    <ul className="list-disc pl-5 mt-2 text-xs text-red-700">
+                      <li>Make sure you are logged in to your Supabase account</li>
+                      <li>Check your API keys and connection settings</li>
+                      <li>Verify that the Supabase project is running</li>
+                      <li>Check your network connection</li>
+                      <li>If you're an admin, try refreshing your auth token</li>
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>
           )}
           
-          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && (isVerifying || isCheckingConnection) && (
+          {/* Loading states */}
+          {(isVerifying || isCheckingConnection || authStatus.isChecking) && (
             <div className="py-8 text-center">
               <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
               <p className="text-muted-foreground">
-                {isCheckingConnection ? "Checking database connection..." : "Checking database configuration..."}
+                {authStatus.isChecking ? "Checking user permissions..." : 
+                 isCheckingConnection ? "Checking database connection..." : 
+                 "Checking database configuration..."}
               </p>
             </div>
           )}
           
-          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying && !isCheckingConnection && !connectionError && (
+          {/* No data state */}
+          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && 
+           !isVerifying && !isCheckingConnection && !authStatus.isChecking && 
+           !errorInfo && (
             <div className="py-8 text-center text-muted-foreground">
               Click "Verify Database" to check your database configuration
             </div>
           )}
           
+          {/* Issue summary */}
           {issueCount > 0 && (
             <div className="mb-6 p-4 border border-amber-200 bg-amber-50 rounded-md">
               <div className="flex items-start gap-2">
@@ -274,6 +357,7 @@ export function DatabaseVerificationDashboard({
             </div>
           )}
 
+          {/* Success message */}
           {issueCount === 0 && hasTablesData && (
             <div className="mb-6 p-4 border border-green-200 bg-green-50 rounded-md">
               <div className="flex items-start gap-2">
@@ -288,7 +372,8 @@ export function DatabaseVerificationDashboard({
             </div>
           )}
 
-          {!issueCount && !hasTablesData && !isVerifying && !connectionError && (
+          {/* No data message */}
+          {!issueCount && !hasTablesData && !isVerifying && !isCheckingConnection && !authStatus.isChecking && !errorInfo && (
             <div className="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-md">
               <div className="flex items-start gap-2">
                 <Info className="h-5 w-5 text-blue-500 mt-0.5" />
@@ -304,6 +389,7 @@ export function DatabaseVerificationDashboard({
             </div>
           )}
           
+          {/* Verification results */}
           <div className="space-y-6">
             {hasTablesData && <DatabaseTablesCheck tables={tables} />}
             {hasPoliciesData && <RlsPoliciesCheck policies={policies} />}
