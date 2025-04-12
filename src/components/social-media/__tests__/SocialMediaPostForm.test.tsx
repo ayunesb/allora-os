@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import SocialMediaPostForm from '../SocialMediaPostForm';
 import { SocialPlatform, PostContentType } from '@/types/socialMedia';
-import { socialMediaPostSchema } from '@/utils/validators/socialMediaValidator';
+import { socialMediaPostSchema } from '@/utils/validators/socialMedia/schema';
 
 // Mock useCampaigns hook
 vi.mock('@/hooks/campaigns/useCampaigns', () => ({
