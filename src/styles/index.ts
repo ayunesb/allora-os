@@ -9,7 +9,7 @@ import './components.css';
 import './utilities.css';
 import './animations.css';
 
-// Import responsive overrides
+// Import responsive styles - now modularized
 import './responsive.css';
 
 // Import accessibility styles
