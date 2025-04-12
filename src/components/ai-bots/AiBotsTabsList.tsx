@@ -14,9 +14,9 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
   const isTabletView = breakpoint === 'tablet';
 
   return (
-    <TabsList className={`mb-6 tabs-scrollable safari-fix ${
+    <TabsList className={`w-full mb-6 overflow-x-auto flex justify-start ${
       isMobileView ? 'flex-wrap gap-1' : 
-      isTabletView ? 'tabs-flex-wrap gap-1.5' : ''
+      isTabletView ? 'tabs-flex-wrap gap-1.5' : 'gap-2'
     }`}>
       <TabsTrigger 
         value="boardroom" 
@@ -27,7 +27,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
         }`}
       >
         <Brain className="h-4 w-4" />
-        <span className={isMobileView ? "sr-only" : ""}>Executive Boardroom</span>
+        <span className={isMobileView ? "sr-only md:not-sr-only" : ""}>Executive Boardroom</span>
       </TabsTrigger>
       
       <TabsTrigger 
@@ -39,7 +39,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
         }`}
       >
         <MessageSquare className="h-4 w-4" />
-        <span className={isMobileView ? "sr-only" : ""}>Start Debate</span>
+        <span className={isMobileView ? "sr-only md:not-sr-only" : ""}>Start Debate</span>
       </TabsTrigger>
       
       <TabsTrigger 
@@ -51,7 +51,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
         }`}
       >
         <Bot className="h-4 w-4" />
-        <span className={isMobileView ? "sr-only" : ""}>Executive Advisors</span>
+        <span className={isMobileView ? "sr-only md:not-sr-only" : ""}>Executive Advisors</span>
       </TabsTrigger>
       
       <TabsTrigger 
@@ -63,7 +63,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
         }`}
       >
         <Lightbulb className="h-4 w-4" />
-        <span className={isMobileView ? "sr-only" : ""}>AI Insights</span>
+        <span className={isMobileView ? "sr-only md:not-sr-only" : ""}>AI Insights</span>
       </TabsTrigger>
       
       <TabsTrigger 
@@ -75,7 +75,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
         }`}
       >
         <MessageSquare className="h-4 w-4" />
-        <span className={isMobileView ? "sr-only" : ""}>AI Chat</span>
+        <span className={isMobileView ? "sr-only md:not-sr-only" : ""}>AI Chat</span>
       </TabsTrigger>
       
       <TabsTrigger 
@@ -87,7 +87,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
         }`}
       >
         <Brain className="h-4 w-4" />
-        <span className={isMobileView ? "sr-only" : ""}>Full Roster</span>
+        <span className={isMobileView ? "sr-only md:not-sr-only" : ""}>Full Roster</span>
       </TabsTrigger>
       
       <TabsTrigger 
@@ -99,7 +99,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: pr
         }`}
       >
         <History className="h-4 w-4" />
-        <span className={isMobileView ? "sr-only" : ""}>Consultation History</span>
+        <span className={isMobileView ? "sr-only md:not-sr-only" : ""}>Consultation History</span>
       </TabsTrigger>
     </TabsList>
   );

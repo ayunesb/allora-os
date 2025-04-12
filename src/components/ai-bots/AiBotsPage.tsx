@@ -71,34 +71,34 @@ export const AiBotsPage: React.FC = () => {
     <div className="space-y-8">
       <AiBotsHeader isMobileView={isMobileView} />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <AiBotsTabsList isMobileView={isMobileView} />
 
-        <TabsContent value="boardroom">
+        <TabsContent value="boardroom" className="mt-6">
           <ErrorBoundary>
             <AIExecutiveBoardroom companyId={companyId} />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="debate">
+        <TabsContent value="debate" className="mt-6">
           <ErrorBoundary>
             <DebateStarterPage />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="bots">
+        <TabsContent value="bots" className="mt-6">
           <ErrorBoundary>
             <BotsTabContent onSelectBot={setSelectedBot} setActiveTab={setActiveTab} />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="insights">
+        <TabsContent value="insights" className="mt-6">
           <ErrorBoundary>
             <BotInsightsSection />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="chat">
+        <TabsContent value="chat" className="mt-6">
           <ErrorBoundary>
             <BotChatPanel 
               selectedBot={selectedBot} 
@@ -108,13 +108,13 @@ export const AiBotsPage: React.FC = () => {
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="roster">
+        <TabsContent value="roster" className="mt-6">
           <ErrorBoundary>
             <ExecutiveRoster />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="history">
+        <TabsContent value="history" className="mt-6">
           <ErrorBoundary>
             <ConsultationHistory />
           </ErrorBoundary>
