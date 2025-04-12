@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DatabaseTablesCheck } from './DatabaseTablesCheck';
@@ -7,6 +7,8 @@ import { RlsPoliciesCheck } from './RlsPoliciesCheck';
 import { DatabaseFunctionsCheck } from './DatabaseFunctionsCheck';
 import { DatabaseVerificationResult } from './types';
 import { RefreshCw, Database, Shield, Code, AlertTriangle, Info } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DatabaseVerificationDashboardProps {
   result: DatabaseVerificationResult;
@@ -18,6 +20,8 @@ export function DatabaseVerificationDashboard({
   onVerify 
 }: DatabaseVerificationDashboardProps) {
   const { tables, policies, functions, isVerifying } = result;
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   
   const hasTablesData = tables && tables.length > 0;
   const hasPoliciesData = policies && policies.length > 0;
@@ -27,7 +31,7 @@ export function DatabaseVerificationDashboard({
   useEffect(() => {
     if (!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying) {
       console.log("No verification data available, running verification automatically");
-      onVerify();
+      checkConnection();
     }
   }, [hasTablesData, hasPoliciesData, hasFunctionsData, isVerifying, onVerify]);
   
@@ -60,6 +64,47 @@ export function DatabaseVerificationDashboard({
     printDebugInfo();
   }, [tables, policies, functions, isVerifying]);
   
+  // Check Supabase connection before verification
+  const checkConnection = async () => {
+    setIsCheckingConnection(true);
+    setConnectionError(null);
+    
+    try {
+      // Test connection with a simple query
+      const { data, error } = await supabase
+        .from('information_schema.tables')
+        .select('table_name')
+        .limit(1);
+      
+      if (error) {
+        console.error("Database connection error:", error);
+        setConnectionError(error.message);
+        toast.error("Database connection failed", {
+          description: error.message
+        });
+        setIsCheckingConnection(false);
+        return false;
+      }
+      
+      // If we got here, connection is good
+      setIsCheckingConnection(false);
+      await onVerify();
+      return true;
+    } catch (err: any) {
+      console.error("Connection check error:", err);
+      setConnectionError(err.message || "Unknown connection error");
+      toast.error("Connection check failed", {
+        description: err.message || "Unknown error"
+      });
+      setIsCheckingConnection(false);
+      return false;
+    }
+  };
+  
+  const handleVerifyClick = async () => {
+    await checkConnection();
+  };
+  
   return (
     <div className="space-y-6">
       <Card>
@@ -87,20 +132,43 @@ export function DatabaseVerificationDashboard({
                 </div>
               )}
             </div>
-            <Button onClick={onVerify} disabled={isVerifying}>
-              <RefreshCw className={`mr-2 h-4 w-4 ${isVerifying ? 'animate-spin' : ''}`} />
-              {isVerifying ? 'Verifying...' : 'Verify Database'}
+            <Button onClick={handleVerifyClick} disabled={isVerifying || isCheckingConnection}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isVerifying || isCheckingConnection ? 'animate-spin' : ''}`} />
+              {isVerifying ? 'Verifying...' : isCheckingConnection ? 'Checking connection...' : 'Verify Database'}
             </Button>
           </div>
           
-          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && isVerifying && (
-            <div className="py-8 text-center">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-              <p className="text-muted-foreground">Checking database configuration...</p>
+          {/* Connection error message */}
+          {connectionError && (
+            <div className="mb-6 p-4 border border-red-200 bg-red-50 rounded-md">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-medium text-red-800">Database Connection Failed</h3>
+                  <p className="text-xs text-red-700 mt-1">
+                    {connectionError}
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 text-xs text-red-700">
+                    <li>Make sure you are logged in to your Supabase account</li>
+                    <li>Check your API keys and connection settings</li>
+                    <li>Verify that the Supabase project is running</li>
+                    <li>Check your network connection</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           )}
           
-          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying && (
+          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && (isVerifying || isCheckingConnection) && (
+            <div className="py-8 text-center">
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-muted-foreground">
+                {isCheckingConnection ? "Checking database connection..." : "Checking database configuration..."}
+              </p>
+            </div>
+          )}
+          
+          {!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying && !isCheckingConnection && !connectionError && (
             <div className="py-8 text-center text-muted-foreground">
               Click "Verify Database" to check your database configuration
             </div>
@@ -121,7 +189,7 @@ export function DatabaseVerificationDashboard({
             </div>
           )}
 
-          {!issueCount && !hasTablesData && !isVerifying && (
+          {!issueCount && !hasTablesData && !isVerifying && !connectionError && (
             <div className="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-md">
               <div className="flex items-start gap-2">
                 <Info className="h-5 w-5 text-blue-500 mt-0.5" />

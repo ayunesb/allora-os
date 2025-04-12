@@ -66,33 +66,37 @@ export async function checkSupabaseConnection() {
     const isAuthenticated = session !== null;
     console.log("Authentication status:", isAuthenticated ? "Authenticated" : "Not authenticated");
     
-    // Then try a simple query to check database connection
-    const { data, error } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .limit(1);
-    
-    if (error) {
-      console.error("Database connection error:", error);
+    // Then try a simple query that should always work if the database exists
+    try {
+      const { data, error } = await supabase
+        .from('information_schema.tables')
+        .select('table_name')
+        .limit(1);
       
-      // Special handling for auth errors
-      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
-        toast.error("Authentication error", { 
-          description: "Please log in to access database functions" 
+      if (error) {
+        console.error("Database connection error:", error);
+        
+        // Special handling for auth errors
+        if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+          toast.error("Authentication error", { 
+            description: "Please log in to access database functions" 
+          });
+          return { connected: false, error, authenticated: false };
+        }
+        
+        toast.error("Database connection error", {
+          description: error.message
         });
-        return { connected: false, error, authenticated: false };
+        
+        return { connected: false, error, authenticated: isAuthenticated };
       }
       
-      toast.error("Database connection error", {
-        description: error.message
-      });
-      
-      return { connected: false, error, authenticated: isAuthenticated };
+      console.log("Supabase connection successful");
+      return { connected: true, authenticated: isAuthenticated };
+    } catch (queryError) {
+      console.error("Error during database query:", queryError);
+      return { connected: false, error: queryError, authenticated: isAuthenticated };
     }
-    
-    console.log("Supabase connection successful");
-    toast.success("Database connection verified");
-    return { connected: true, authenticated: isAuthenticated };
   } catch (error) {
     console.error("Error checking Supabase connection:", error);
     
