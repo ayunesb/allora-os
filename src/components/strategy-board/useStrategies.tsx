@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useCompanyInsights } from "@/hooks/useCompanyInsights";
 import { InsightType } from "@/components/bot-insights/BotInsightCard";
 import { useAuth } from "@/context/AuthContext";
@@ -17,6 +17,7 @@ export interface Strategy {
 }
 
 export function useStrategies() {
+  const [isPending, startTransition] = useTransition();
   const [strategies, setStrategies] = useState<Strategy[]>([
     { 
       id: '1',
@@ -116,10 +117,12 @@ export function useStrategies() {
         });
         
         // Combine AI strategies with existing ones
-        setStrategies(prev => {
-          const existingIds = new Set(prev.map(s => s.id));
-          const newAiStrategies = aiGeneratedStrategies.filter(s => !existingIds.has(s.id));
-          return [...newAiStrategies, ...prev];
+        startTransition(() => {
+          setStrategies(prev => {
+            const existingIds = new Set(prev.map(s => s.id));
+            const newAiStrategies = aiGeneratedStrategies.filter(s => !existingIds.has(s.id));
+            return [...newAiStrategies, ...prev];
+          });
         });
       } catch (err: any) {
         console.error("Error fetching strategies:", err);
@@ -132,17 +135,24 @@ export function useStrategies() {
     if (!insightsLoading) {
       fetchStrategies();
     }
-  }, [insights, insightsLoading, profile?.company_id]);
+  }, [insights, insightsLoading, profile?.company_id, startTransition]);
   
   const refetch = () => {
     // This would normally fetch data from the API
     setIsLoading(true);
     // Simulate API call with timeout
     setTimeout(() => {
-      setIsLoading(false);
-      setError(null); // Clear any previous errors
+      startTransition(() => {
+        setIsLoading(false);
+        setError(null); // Clear any previous errors
+      });
     }, 800);
   };
 
-  return { strategies, isLoading, error, refetch };
+  return { 
+    strategies, 
+    isLoading: isLoading || isPending, 
+    error, 
+    refetch 
+  };
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import LaunchReadinessCheck from '@/components/admin/LaunchReadinessCheck';
 import PreLaunchChecklist from '@/components/admin/PreLaunchChecklist';
 import { EnhancedVerificationChecklist } from '@/components/admin/launch-verification/EnhancedVerificationChecklist';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function LaunchCheck() {
   return (
@@ -15,9 +16,17 @@ export default function LaunchCheck() {
       </div>
       
       <div className="space-y-6">
-        <EnhancedVerificationChecklist />
-        <LaunchReadinessCheck />
-        <PreLaunchChecklist />
+        <ErrorBoundary>
+          <EnhancedVerificationChecklist />
+        </ErrorBoundary>
+        
+        <ErrorBoundary>
+          <LaunchReadinessCheck />
+        </ErrorBoundary>
+        
+        <ErrorBoundary>
+          <PreLaunchChecklist />
+        </ErrorBoundary>
       </div>
     </div>
   );
