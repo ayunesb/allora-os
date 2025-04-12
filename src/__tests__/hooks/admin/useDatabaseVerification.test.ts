@@ -1,6 +1,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react-hooks'; // Corrected import
+import { renderHook, act } from '@testing-library/react-hooks';
 import { useDatabaseVerification } from '@/hooks/admin/useDatabaseVerification';
 import { toast } from 'sonner';
 import * as databaseVerification from '@/utils/admin/databaseVerification';
@@ -29,120 +29,134 @@ vi.mock('@/integrations/supabase/client', () => ({
   }
 }));
 
+// Test data
+const mockTableResults = [{ name: 'profiles', exists: true, message: 'Table exists' }];
+const mockPolicyResults = [{ table: 'profiles', exists: true, message: 'RLS enabled' }];
+const mockFunctionResults = [{ name: 'handle_new_user', exists: true, isSecure: true, message: 'Function is secure' }];
+
 describe('useDatabaseVerification Hook', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  it('should initialize with empty verification result', () => {
-    const { result } = renderHook(() => useDatabaseVerification());
-    
-    expect(result.current.verificationResult).toEqual({
-      tables: [],
-      policies: [],
-      functions: [],
-      isVerifying: false
+  describe('Initial State', () => {
+    it('should initialize with empty verification result', () => {
+      const { result } = renderHook(() => useDatabaseVerification());
+      
+      expect(result.current.verificationResult).toEqual({
+        tables: [],
+        policies: [],
+        functions: [],
+        isVerifying: false
+      });
     });
   });
 
-  it('should verify database configuration when triggered', async () => {
-    // Mock the verification functions
-    const mockTables = [{ name: 'profiles', exists: true, message: 'Table exists' }];
-    const mockPolicies = [{ table: 'profiles', exists: true, message: 'RLS enabled' }];
-    const mockFunctions = [{ name: 'handle_new_user', exists: true, isSecure: true, message: 'Function is secure' }];
-    
-    vi.mocked(databaseVerification.verifyDatabaseTables).mockResolvedValue(mockTables);
-    vi.mocked(databaseVerification.verifyRlsPolicies).mockResolvedValue(mockPolicies);
-    vi.mocked(databaseVerification.verifyDatabaseFunctions).mockResolvedValue(mockFunctions);
-    
-    const { result, waitForNextUpdate } = renderHook(() => useDatabaseVerification());
-    
-    // Trigger the verification
-    act(() => {
-      result.current.verifyDatabaseConfiguration();
+  describe('Verification Process', () => {
+    beforeEach(() => {
+      // Setup common mocks for verification process tests
+      vi.mocked(databaseVerification.verifyDatabaseTables).mockResolvedValue(mockTableResults);
+      vi.mocked(databaseVerification.verifyRlsPolicies).mockResolvedValue(mockPolicyResults);
+      vi.mocked(databaseVerification.verifyDatabaseFunctions).mockResolvedValue(mockFunctionResults);
     });
-    
-    // Check that isVerifying was set to true
-    expect(result.current.verificationResult.isVerifying).toBe(true);
-    
-    await waitForNextUpdate();
-    
-    // After update, should have results and not be verifying
-    expect(result.current.verificationResult).toEqual({
-      tables: mockTables,
-      policies: mockPolicies,
-      functions: mockFunctions,
-      isVerifying: false
+
+    it('should set isVerifying flag when verification starts', () => {
+      const { result } = renderHook(() => useDatabaseVerification());
+      
+      act(() => {
+        result.current.verifyDatabaseConfiguration();
+      });
+      
+      expect(result.current.verificationResult.isVerifying).toBe(true);
     });
-    
-    // Should have called the display function
-    expect(databaseVerification.displayVerificationResults).toHaveBeenCalledWith(
-      mockTables, mockPolicies, mockFunctions
-    );
+
+    it('should perform full verification and update results', async () => {
+      const { result, waitForNextUpdate } = renderHook(() => useDatabaseVerification());
+      
+      act(() => {
+        result.current.verifyDatabaseConfiguration();
+      });
+      
+      await waitForNextUpdate();
+      
+      // Verify final state
+      expect(result.current.verificationResult).toEqual({
+        tables: mockTableResults,
+        policies: mockPolicyResults,
+        functions: mockFunctionResults,
+        isVerifying: false
+      });
+      
+      // Verify that all verification functions were called
+      expect(databaseVerification.verifyDatabaseTables).toHaveBeenCalledTimes(1);
+      expect(databaseVerification.verifyRlsPolicies).toHaveBeenCalledTimes(1);
+      expect(databaseVerification.verifyDatabaseFunctions).toHaveBeenCalledTimes(1);
+      
+      // Verify display function was called with correct params
+      expect(databaseVerification.displayVerificationResults).toHaveBeenCalledWith(
+        mockTableResults, mockPolicyResults, mockFunctionResults
+      );
+    });
   });
 
-  it('should handle errors during verification', async () => {
-    // Mock a verification function to throw an error
-    vi.mocked(databaseVerification.verifyDatabaseTables).mockRejectedValue(new Error('Test error'));
-    
-    const { result, waitForNextUpdate } = renderHook(() => useDatabaseVerification());
-    
-    // Trigger the verification
-    act(() => {
-      result.current.verifyDatabaseConfiguration();
+  describe('Error Handling', () => {
+    it('should handle errors during verification and show error toast', async () => {
+      // Mock the verification function to throw an error
+      const testError = new Error('Test verification error');
+      vi.mocked(databaseVerification.verifyDatabaseTables).mockRejectedValue(testError);
+      
+      const { result, waitForNextUpdate } = renderHook(() => useDatabaseVerification());
+      
+      act(() => {
+        result.current.verifyDatabaseConfiguration();
+      });
+      
+      await waitForNextUpdate();
+      
+      // Should reset isVerifying flag
+      expect(result.current.verificationResult.isVerifying).toBe(false);
+      
+      // Should show error toast
+      expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('Test verification error'));
     });
-    
-    await waitForNextUpdate();
-    
-    // Should have shown error toast
-    expect(toast.error).toHaveBeenCalled();
-    
-    // Should reset isVerifying
-    expect(result.current.verificationResult.isVerifying).toBe(false);
   });
 
-  it('should show appropriate toast message based on issues count', async () => {
-    // Mock verification functions with no issues
-    const mockTables = [{ name: 'profiles', exists: true, message: 'Table exists' }];
-    const mockPolicies = [{ table: 'profiles', exists: true, message: 'RLS enabled' }];
-    const mockFunctions = [{ name: 'handle_new_user', exists: true, isSecure: true, message: 'Function is secure' }];
-    
-    vi.mocked(databaseVerification.verifyDatabaseTables).mockResolvedValue(mockTables);
-    vi.mocked(databaseVerification.verifyRlsPolicies).mockResolvedValue(mockPolicies);
-    vi.mocked(databaseVerification.verifyDatabaseFunctions).mockResolvedValue(mockFunctions);
-    
-    const { result, waitForNextUpdate } = renderHook(() => useDatabaseVerification());
-    
-    // Trigger verification
-    act(() => {
-      result.current.verifyDatabaseConfiguration();
+  describe('Toast Notifications', () => {
+    it('should show success toast when all checks pass', async () => {
+      // Mock all verification functions to return successful results
+      vi.mocked(databaseVerification.verifyDatabaseTables).mockResolvedValue(mockTableResults);
+      vi.mocked(databaseVerification.verifyRlsPolicies).mockResolvedValue(mockPolicyResults);
+      vi.mocked(databaseVerification.verifyDatabaseFunctions).mockResolvedValue(mockFunctionResults);
+      
+      const { result, waitForNextUpdate } = renderHook(() => useDatabaseVerification());
+      
+      act(() => {
+        result.current.verifyDatabaseConfiguration();
+      });
+      
+      await waitForNextUpdate();
+      
+      expect(toast.success).toHaveBeenCalledWith("Database verification completed - All checks passed");
+      expect(toast.error).not.toHaveBeenCalled();
     });
-    
-    await waitForNextUpdate();
-    
-    // Should have shown success toast
-    expect(toast.success).toHaveBeenCalledWith("Database verification completed - All checks passed");
-    
-    // Reset and test with issues
-    vi.resetAllMocks();
-    
-    // Mock verification functions with issues
-    const mockTablesWithIssues = [{ name: 'profiles', exists: false, message: 'Table missing' }];
-    
-    vi.mocked(databaseVerification.verifyDatabaseTables).mockResolvedValue(mockTablesWithIssues);
-    vi.mocked(databaseVerification.verifyRlsPolicies).mockResolvedValue(mockPolicies);
-    vi.mocked(databaseVerification.verifyDatabaseFunctions).mockResolvedValue(mockFunctions);
-    
-    const { result: result2, waitForNextUpdate: waitForNextUpdate2 } = renderHook(() => useDatabaseVerification());
-    
-    // Trigger verification again
-    act(() => {
-      result2.current.verifyDatabaseConfiguration();
+
+    it('should show error toast with count when issues are found', async () => {
+      // Mock tables verification to return a failure
+      const tablesWithIssue = [{ name: 'profiles', exists: false, message: 'Table missing' }];
+      vi.mocked(databaseVerification.verifyDatabaseTables).mockResolvedValue(tablesWithIssue);
+      vi.mocked(databaseVerification.verifyRlsPolicies).mockResolvedValue(mockPolicyResults);
+      vi.mocked(databaseVerification.verifyDatabaseFunctions).mockResolvedValue(mockFunctionResults);
+      
+      const { result, waitForNextUpdate } = renderHook(() => useDatabaseVerification());
+      
+      act(() => {
+        result.current.verifyDatabaseConfiguration();
+      });
+      
+      await waitForNextUpdate();
+      
+      expect(toast.error).toHaveBeenCalledWith("Database verification completed - 1 issues found");
+      expect(toast.success).not.toHaveBeenCalled();
     });
-    
-    await waitForNextUpdate2();
-    
-    // Should have shown error toast with count
-    expect(toast.error).toHaveBeenCalledWith(expect.stringMatching(/1 issues found/));
   });
 });
