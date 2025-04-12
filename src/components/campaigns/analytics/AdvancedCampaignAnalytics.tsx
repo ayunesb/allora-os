@@ -98,8 +98,9 @@ export function AdvancedCampaignAnalytics({
   const campaignBudgetNumber = Number(campaignBudget);
   const totalCostNumber = Number(totalCost);
   
+  // Ensure we're working with numbers in calculations
   const estimatedRevenue = totalConversionsNumber * campaignBudgetNumber * 0.2;
-  const roi = (((estimatedRevenue - totalCostNumber) / totalCostNumber) * 100).toFixed(2);
+  const roi = ((estimatedRevenue - totalCostNumber) / totalCostNumber * 100).toFixed(2);
   
   if (isLoading) {
     return (

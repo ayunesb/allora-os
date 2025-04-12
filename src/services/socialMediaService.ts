@@ -1,4 +1,3 @@
-
 /**
  * Social Media Service
  * 
@@ -20,7 +19,8 @@ import {
   validateUpdatePost, 
   validateMediaUrl 
 } from '@/utils/validators/socialMediaValidator';
-import { apiRequest, clearApiCache } from '@/utils/api/apiClient';
+import { apiRequest } from '@/utils/api/apiClient';
+import { wrapSupabaseQuery } from '@/utils/api/supabaseWrapper';
 import { logger } from '@/utils/loggingService';
 
 /**
@@ -93,11 +93,7 @@ export async function fetchSocialMediaPosts(
       // Order by scheduled date
       query = query.order('scheduled_date', { ascending: true });
       
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      return { data };
+      return await query;
     },
     {
       errorMessage: 'Failed to fetch social media posts',
@@ -116,15 +112,11 @@ export async function fetchSocialMediaPosts(
 export async function fetchSocialMediaPost(postId: string): Promise<SocialMediaPost | null> {
   return apiRequest<SocialMediaPost>(
     async () => {
-      const { data, error } = await supabase
+      return await supabase
         .from('social_media_posts')
         .select('*')
         .eq('id', postId)
         .maybeSingle();
-      
-      if (error) throw error;
-      
-      return { data };
     },
     {
       errorMessage: `Failed to fetch social media post ${postId}`,
@@ -177,7 +169,7 @@ export async function createSocialMediaPost(
     // Insert post into database
     const result = await apiRequest<{ id: string }>(
       async () => {
-        const { data, error } = await supabase
+        return await supabase
           .from('social_media_posts')
           .insert({
             company_id: companyId,
@@ -201,10 +193,6 @@ export async function createSocialMediaPost(
           })
           .select('id')
           .single();
-        
-        if (error) throw error;
-        
-        return { data };
       },
       {
         successMessage: 'Social media post created successfully',

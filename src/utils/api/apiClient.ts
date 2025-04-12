@@ -15,20 +15,34 @@ export interface ApiRequestOptions {
   errorMessage?: string;
 }
 
+// API function type that handles both fetch and Supabase queries
+export type ApiFetchFunction = (() => Promise<Response>) | (() => Promise<{ data: any; error?: any }>);
+
 /**
  * Core API request function
  */
 export const apiRequest = async <T>(
-  fetchFunction: () => Promise<Response>,
+  fetchFunction: ApiFetchFunction,
   options: ApiRequestOptions = {}
 ): Promise<{ data: T | null; error: Error | null; status: 'success' | 'error' }> => {
   try {
     const response = await fetchFunction();
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    
+    // Handle both standard fetch responses and Supabase responses
+    if ('ok' in response) {
+      // Standard fetch response
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      const data = await response.json();
+      return { data, error: null, status: 'success' };
+    } else {
+      // Supabase response
+      if (response.error) {
+        throw new Error(response.error.message || 'Unknown Supabase error');
+      }
+      return { data: response.data, error: null, status: 'success' };
     }
-    const data = await response.json();
-    return { data, error: null, status: 'success' };
   } catch (error) {
     return { 
       data: null, 

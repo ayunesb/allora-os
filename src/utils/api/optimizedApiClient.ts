@@ -1,6 +1,7 @@
+
 import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
-import { apiRequest, ApiRequestOptions } from '@/utils/api/apiClient';
+import { apiRequest, ApiFetchFunction, ApiRequestOptions, clearApiCache } from '@/utils/api/apiClient';
 
 /**
  * An optimized API client that focuses on performance and error recovery
@@ -17,6 +18,7 @@ export const optimizedApiClient = {
       retryDelay?: number;
       fallbackData?: T;
       showToastOnError?: boolean;
+      fetchFunction?: ApiFetchFunction;
     } = {}
   ) => {
     const {
@@ -25,6 +27,7 @@ export const optimizedApiClient = {
       retryDelay = 1000,
       fallbackData,
       showToastOnError = true,
+      fetchFunction,
       ...restOptions
     } = options;
 
@@ -34,14 +37,18 @@ export const optimizedApiClient = {
     while (attempt <= maxRetries) {
       try {
         // Use the core apiRequest function with optimized caching
-        const response = await apiRequest<T>(() => fetch(endpoint), {
-          ...restOptions,
-          timeout: 15000, // Increased timeout for better reliability
-          retry: attempt < maxRetries,
-          maxRetries: maxRetries - attempt,
-          cacheTTL: 60000, // 1 minute cache
-          cacheKey: endpoint
-        });
+        const response = await apiRequest<T>(
+          // Use provided fetch function or default to standard fetch
+          fetchFunction || (() => fetch(endpoint)),
+          {
+            ...restOptions,
+            timeout: 15000, // Increased timeout for better reliability
+            retry: attempt < maxRetries,
+            maxRetries: maxRetries - attempt,
+            cacheTTL: 60000, // 1 minute cache
+            cacheKey: endpoint
+          }
+        );
 
         if (response.status === 'success') {
           // Successfully fetched data, return it
@@ -173,9 +180,6 @@ export const optimizedApiClient = {
    * Clear cache for specific endpoint or all endpoints
    */
   clearCache: (endpoint?: string) => {
-    // Use the global clearApiCache function
-    if (typeof window !== 'undefined' && typeof window.clearApiCache === 'function') {
-      window.clearApiCache(endpoint);
-    }
+    clearApiCache(endpoint);
   }
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCompanyDetails } from "./useCompanyDetails";
@@ -75,7 +74,18 @@ export function useDashboardData() {
   
   // Collect any errors
   useEffect(() => {
-    const error = companyError || approvalsError || analyticsError || insightsError || recommendationsError;
+    // Create proper Error objects for any string errors
+    const processError = (err: Error | string | null | undefined): Error | null => {
+      if (err === null || err === undefined) return null;
+      return err instanceof Error ? err : new Error(String(err));
+    };
+    
+    const error = processError(companyError) || 
+                 processError(approvalsError) || 
+                 processError(analyticsError) || 
+                 processError(insightsError) || 
+                 processError(recommendationsError);
+                 
     if (error) {
       setLastError(error);
       logger.error("Dashboard data error:", error);
@@ -118,14 +128,10 @@ export function useDashboardData() {
         optimizedApiClient.clearCache('/api/approvals');
         
         // Invalidate React Query cache and trigger refetches
-        if (queryClient) {
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ['company'] }),
-            queryClient.invalidateQueries({ queryKey: ['analytics'] }),
-            queryClient.invalidateQueries({ queryKey: ['approvals'] }),
-            queryClient.invalidateQueries({ queryKey: ['recommendations'] })
-          ]);
-        }
+        await queryClient.invalidateQueries({ queryKey: ['company'] });
+        await queryClient.invalidateQueries({ queryKey: ['analytics'] });
+        await queryClient.invalidateQueries({ queryKey: ['approvals'] });
+        await queryClient.invalidateQueries({ queryKey: ['recommendations'] });
       });
       
       toast.success("Dashboard data refreshed");
@@ -142,12 +148,13 @@ export function useDashboardData() {
     if (index >= 0 && index < (aiRecommendations?.length || 0)) {
       try {
         const recommendation = aiRecommendations[index] as EnhancedRecommendationType;
-        const recommendationId = `recommendation-${index}`; // Generate an ID if none exists
+        // Generate an ID if none exists
+        const recommendationId = recommendation.id || `recommendation-${index}`;
         
         const result = await performanceMonitor.measureAsync(
           'approve-recommendation',
           () => handleApproveRecommendation(recommendation, index, riskAppetite),
-          { recommendationId: recommendation.id || recommendationId }
+          { recommendationId }
         );
         
         if (result >= 0) {
