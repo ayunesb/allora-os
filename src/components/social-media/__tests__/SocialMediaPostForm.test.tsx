@@ -22,10 +22,11 @@ vi.mock('@/hooks/campaigns/useCampaigns', () => ({
 // Mock the validators - this allows us to test validation behavior
 vi.mock('@/utils/validators/socialMediaValidator', async () => {
   const actual = await vi.importActual('@/utils/validators/socialMediaValidator');
+  
+  // Fix: Don't spread the imported schema, instead create a new object with the safeParse method
   return {
     ...actual,
     socialMediaPostSchema: {
-      ...actual.socialMediaPostSchema,
       safeParse: vi.fn()
     }
   };
