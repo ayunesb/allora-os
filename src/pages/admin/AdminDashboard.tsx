@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Layout } from "@/components/admin/Layout"; // Add a layout if needed
+// We're removing the non-existent import and using what's available
 
 export default function AdminDashboard() {
   return (
@@ -32,4 +32,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-
