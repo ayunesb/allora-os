@@ -24,22 +24,14 @@ import {
 } from '@/components/ui/select';
 import { SocialPlatform, PostContentType, SocialMediaPost } from '@/types/socialMedia';
 import { useCampaigns } from '@/hooks/campaigns/useCampaigns';
+import { socialMediaPostSchema } from '@/utils/validators/socialMediaValidator';
+import { sanitizeInput } from '@/utils/sanitizers';
 
 /**
  * Form schema validation using Zod
  * Enforces data integrity and validation rules for social media posts
  */
-const formSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title must be less than 100 characters'),
-  content: z.string().min(1, 'Content is required').max(2000, 'Content must be less than 2000 characters'),
-  platform: z.enum(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'TikTok'] as const),
-  content_type: z.enum(['text', 'image', 'video', 'link', 'carousel', 'poll'] as const),
-  scheduled_date: z.string().min(1, 'Scheduled date is required'),
-  publish_time: z.string().optional(),
-  media_urls: z.array(z.string()).optional(),
-  campaign_id: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-});
+const formSchema = socialMediaPostSchema;
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -70,6 +62,7 @@ interface SocialMediaPostFormProps {
  * - Creating new social media posts
  * - Editing existing posts
  * - Form validation using Zod schema
+ * - Input sanitization for security
  * - Integration with campaign selection
  * 
  * @example
@@ -90,8 +83,8 @@ export default function SocialMediaPostForm({
   // Set default values from post or use empty values
   const defaultValues: Partial<FormValues> = post
     ? {
-        title: post.title,
-        content: post.content,
+        title: sanitizeInput(post.title),
+        content: sanitizeInput(post.content),
         platform: post.platform,
         content_type: post.content_type,
         scheduled_date: post.scheduled_date,
@@ -126,7 +119,7 @@ export default function SocialMediaPostForm({
   
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6" aria-label="social-media-post-form">
         <FormField
           control={form.control}
           name="title"
@@ -134,9 +127,13 @@ export default function SocialMediaPostForm({
             <FormItem>
               <FormLabel>Post Title</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Enter a title for your post" />
+                <Input 
+                  {...field} 
+                  placeholder="Enter a title for your post" 
+                  aria-describedby="title-description"
+                />
               </FormControl>
-              <FormDescription>
+              <FormDescription id="title-description">
                 A title to help you identify this post in your calendar
               </FormDescription>
               <FormMessage />
@@ -220,9 +217,10 @@ export default function SocialMediaPostForm({
                   {...field}
                   placeholder="Enter your post content here"
                   className="min-h-[120px]"
+                  aria-describedby="content-description"
                 />
               </FormControl>
-              <FormDescription>
+              <FormDescription id="content-description">
                 The main content of your social media post
               </FormDescription>
               <FormMessage />
@@ -242,8 +240,12 @@ export default function SocialMediaPostForm({
                     {...field}
                     type="date"
                     min={new Date().toISOString().split('T')[0]}
+                    aria-describedby="scheduled-date-description"
                   />
                 </FormControl>
+                <FormDescription id="scheduled-date-description">
+                  When to publish this post
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -261,9 +263,10 @@ export default function SocialMediaPostForm({
                     type="time"
                     value={field.value || ''}
                     onChange={(e) => field.onChange(e.target.value || undefined)}
+                    aria-describedby="publish-time-description"
                   />
                 </FormControl>
-                <FormDescription>
+                <FormDescription id="publish-time-description">
                   When to publish on the scheduled date
                 </FormDescription>
                 <FormMessage />

@@ -1,27 +1,21 @@
 
+import { z } from 'zod';
+import { sanitizeInput, sanitizeUrl } from '@/utils/sanitizers';
+import { ValidationResult } from './types';
+import { SocialPlatform, PostContentType } from '@/types/socialMedia';
+
 /**
- * Social Media Data Validation
- * 
- * This module provides functions for validating social media post data
- * to ensure data integrity and security.
+ * URL regex pattern for validating URLs in social media content
+ * Matches standard URLs with http/https protocol
  */
-
-import { z } from "zod";
-import { isValidUrl } from "../validation";
-import { sanitizeInput } from "../sanitizers";
-import { 
-  SocialPlatform, 
-  PostStatus, 
-  PostContentType,
-  CreatePostInput,
-  UpdatePostInput
-} from "@/types/socialMedia";
+const URL_PATTERN = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
 /**
- * Maximum content length by platform to prevent API errors
+ * Platform-specific character limits for post content
+ * Based on current platform limitations as of 2025
  */
 const PLATFORM_CHARACTER_LIMITS: Record<SocialPlatform, number> = {
-  'Facebook': 63206,
+  'Facebook': 5000,
   'Instagram': 2200,
   'LinkedIn': 3000,
   'Twitter': 280,
@@ -29,259 +23,155 @@ const PLATFORM_CHARACTER_LIMITS: Record<SocialPlatform, number> = {
 };
 
 /**
- * Zod schema for post platform
+ * Hashtag pattern for validation
+ * Must start with # followed by alphanumeric characters
  */
-const platformSchema = z.enum(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'TikTok']);
+const HASHTAG_PATTERN = /^#[a-zA-Z0-9_]+$/;
 
 /**
- * Zod schema for post status
+ * Validates if hashtags follow the correct pattern
+ * @param hashtags Array of hashtag strings to validate
+ * @returns Boolean indicating if all hashtags are valid
  */
-const statusSchema = z.enum(['draft', 'scheduled', 'published', 'failed', 'approved', 'rejected']);
+export function validateHashtags(hashtags: string[]): boolean {
+  if (!Array.isArray(hashtags)) return false;
+  return hashtags.every(tag => HASHTAG_PATTERN.test(tag));
+}
 
 /**
- * Zod schema for post content type
+ * Validates if content length is appropriate for the selected platform
+ * @param content Post content to validate
+ * @param platform Social media platform
+ * @returns Boolean indicating if content length is valid
  */
-const contentTypeSchema = z.enum(['text', 'image', 'video', 'link', 'carousel', 'poll']);
+export function validateContentLength(content: string, platform: SocialPlatform): boolean {
+  const limit = PLATFORM_CHARACTER_LIMITS[platform];
+  return content.length <= limit;
+}
 
 /**
- * Zod schema for media URLs
+ * Validates URLs provided in media_urls array
+ * @param urls Array of URLs to validate
+ * @returns Boolean indicating if all URLs are valid
  */
-const mediaUrlSchema = z.array(z.string().url()).optional();
+export function validateMediaUrls(urls: string[]): boolean {
+  if (!Array.isArray(urls)) return false;
+  return urls.every(url => URL_PATTERN.test(url) && sanitizeUrl(url) === url);
+}
 
 /**
- * Zod schema for tags
+ * Zod schema for validating social media post data
+ * Includes comprehensive validation rules for all post properties
  */
-const tagsSchema = z.array(z.string().trim().min(1).max(50)).optional();
-
-/**
- * Zod schema for location
- */
-const locationSchema = z.object({
-  name: z.string().max(100).optional(),
-  latitude: z.number().min(-90).max(90).optional(),
-  longitude: z.number().min(-180).max(180).optional()
-}).optional();
-
-/**
- * Zod schema for link preview
- */
-const linkPreviewSchema = z.object({
-  title: z.string().max(200).optional(),
-  description: z.string().max(500).optional(),
-  image: z.string().url().optional()
-}).optional();
-
-/**
- * Zod schema for creating a post
- */
-export const createPostSchema = z.object({
-  title: z.string().trim().min(1).max(100),
-  content: z.string().min(1).max(10000),
-  platform: platformSchema,
-  scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  publish_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/).optional(),
-  content_type: contentTypeSchema,
-  media_urls: mediaUrlSchema,
-  campaign_id: z.string().uuid().optional(),
-  is_approved: z.boolean().optional().default(false),
-  tags: tagsSchema,
-  mentions: tagsSchema,
-  hashtags: tagsSchema,
-  location: locationSchema,
-  link_url: z.string().url().optional(),
-}).refine(data => {
-  // Check platform-specific character limits
-  if (data.platform && data.content) {
-    return data.content.length <= PLATFORM_CHARACTER_LIMITS[data.platform];
-  }
-  return true;
-}, {
-  message: "Content exceeds the maximum length for the selected platform",
-  path: ["content"]
+export const socialMediaPostSchema = z.object({
+  title: z.string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(100, 'Title must be less than 100 characters')
+    .transform(sanitizeInput),
+    
+  content: z.string()
+    .min(1, 'Content is required')
+    .max(2000, 'Content must be less than 2000 characters')
+    .transform(sanitizeInput),
+    
+  platform: z.enum(['Facebook', 'Instagram', 'LinkedIn', 'Twitter', 'TikTok'] as const),
+  
+  content_type: z.enum(['text', 'image', 'video', 'link', 'carousel', 'poll'] as const),
+  
+  scheduled_date: z.string()
+    .min(1, 'Scheduled date is required')
+    .refine(date => !isNaN(Date.parse(date)), {
+      message: 'Invalid date format'
+    }),
+    
+  publish_time: z.string().optional(),
+  
+  media_urls: z.array(z.string().url('Invalid URL format'))
+    .optional()
+    .transform(urls => urls?.map(url => sanitizeUrl(url))),
+    
+  campaign_id: z.string().uuid('Invalid campaign ID format').optional(),
+  
+  tags: z.array(z.string()).optional()
+    .transform(tags => tags?.map(tag => sanitizeInput(tag))),
+    
+  link_url: z.string().url('Invalid URL format').optional()
+    .transform(url => url ? sanitizeUrl(url) : undefined),
 });
 
 /**
- * Zod schema for updating a post
+ * Validate a social media post for security and data integrity
+ * Performs deep validation of all post properties
+ * 
+ * @param postData Social media post data to validate
+ * @returns Validation result with success status and message
+ * 
+ * @example
+ * // Validate post data before submission
+ * const validation = validateSocialMediaPost(postFormData);
+ * if (!validation.valid) {
+ *   showError(validation.message);
+ *   return;
+ * }
  */
-export const updatePostSchema = z.object({
-  id: z.string().uuid(),
-  title: z.string().trim().min(1).max(100).optional(),
-  content: z.string().min(1).max(10000).optional(),
-  platform: platformSchema.optional(),
-  scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  publish_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/).optional().nullable(),
-  content_type: contentTypeSchema.optional(),
-  media_urls: mediaUrlSchema,
-  campaign_id: z.string().uuid().optional().nullable(),
-  status: statusSchema.optional(),
-  is_approved: z.boolean().optional(),
-  approval_notes: z.string().max(1000).optional().nullable(),
-  tags: tagsSchema,
-  mentions: tagsSchema,
-  hashtags: tagsSchema,
-  location: locationSchema,
-  link_url: z.string().url().optional().nullable(),
-}).refine((data) => {
-  // Check platform-specific character limits if both platform and content are provided
-  if (data.platform && data.content) {
-    return data.content.length <= PLATFORM_CHARACTER_LIMITS[data.platform];
-  }
-  return true;
-}, {
-  message: "Content exceeds the maximum length for the selected platform",
-  path: ["content"]
-});
-
-/**
- * Validates a social media post creation input
- * @param input - The post creation data to validate
- * @returns Validation result with sanitized data or errors
- */
-export function validateCreatePost(input: CreatePostInput): { 
-  valid: boolean; 
-  data?: CreatePostInput; 
-  errors?: Record<string, string>;
-} {
+export async function validateSocialMediaPost(postData: any): Promise<ValidationResult> {
   try {
-    // Sanitize text inputs to prevent XSS
-    const sanitizedInput = {
-      ...input,
-      title: sanitizeInput(input.title),
-      content: sanitizeInput(input.content),
-      tags: input.tags?.map(tag => sanitizeInput(tag)),
-      mentions: input.mentions?.map(mention => sanitizeInput(mention)),
-      hashtags: input.hashtags?.map(hashtag => sanitizeInput(hashtag)),
-      location: input.location ? {
-        ...input.location,
-        name: input.location.name ? sanitizeInput(input.location.name) : undefined
-      } : undefined
-    };
-
-    // Validate with Zod schema
-    const validatedData = createPostSchema.parse(sanitizedInput);
+    // Basic schema validation
+    const result = socialMediaPostSchema.safeParse(postData);
     
-    return { 
-      valid: true, 
-      data: validatedData as CreatePostInput 
-    };
-  } catch (error) {
-    // Handle Zod validation errors
-    if (error instanceof z.ZodError) {
-      const errorMap: Record<string, string> = {};
-      error.errors.forEach(err => {
-        const path = err.path.join('.');
-        errorMap[path] = err.message;
-      });
-      
-      return { 
-        valid: false, 
-        errors: errorMap 
+    if (!result.success) {
+      const errorMessage = result.error.errors[0]?.message || 'Invalid post data';
+      return {
+        valid: false,
+        message: errorMessage
       };
     }
     
-    // Handle other errors
-    return { 
-      valid: false, 
-      errors: { 
-        _general: 'Invalid post data provided' 
-      } 
-    };
-  }
-}
-
-/**
- * Validates a social media post update input
- * @param input - The post update data to validate
- * @returns Validation result with sanitized data or errors
- */
-export function validateUpdatePost(input: UpdatePostInput): { 
-  valid: boolean; 
-  data?: UpdatePostInput; 
-  errors?: Record<string, string>;
-} {
-  try {
-    // Sanitize text inputs to prevent XSS
-    const sanitizedInput = {
-      ...input,
-      title: input.title ? sanitizeInput(input.title) : undefined,
-      content: input.content ? sanitizeInput(input.content) : undefined,
-      tags: input.tags?.map(tag => sanitizeInput(tag)),
-      mentions: input.mentions?.map(mention => sanitizeInput(mention)),
-      hashtags: input.hashtags?.map(hashtag => sanitizeInput(hashtag)),
-      approval_notes: input.approval_notes ? sanitizeInput(input.approval_notes) : undefined,
-      location: input.location ? {
-        ...input.location,
-        name: input.location.name ? sanitizeInput(input.location.name) : undefined
-      } : undefined
-    };
-
-    // Validate with Zod schema
-    const validatedData = updatePostSchema.parse(sanitizedInput);
+    const data = result.data;
     
-    return { 
-      valid: true, 
-      data: validatedData as UpdatePostInput 
-    };
-  } catch (error) {
-    // Handle Zod validation errors
-    if (error instanceof z.ZodError) {
-      const errorMap: Record<string, string> = {};
-      error.errors.forEach(err => {
-        const path = err.path.join('.');
-        errorMap[path] = err.message;
-      });
-      
-      return { 
-        valid: false, 
-        errors: errorMap 
+    // Platform-specific validations
+    if (!validateContentLength(data.content, data.platform)) {
+      return {
+        valid: false,
+        message: `Content exceeds maximum length for ${data.platform} (${PLATFORM_CHARACTER_LIMITS[data.platform]} characters)`
       };
     }
     
-    // Handle other errors
-    return { 
-      valid: false, 
-      errors: { 
-        _general: 'Invalid post update data provided' 
-      } 
+    // Media validations based on content type
+    if (data.content_type !== 'text' && (!data.media_urls || data.media_urls.length === 0)) {
+      return {
+        valid: false,
+        message: `${data.content_type} posts require at least one media URL`
+      };
+    }
+    
+    // Link validation for link type posts
+    if (data.content_type === 'link' && !data.link_url) {
+      return {
+        valid: false,
+        message: 'Link posts require a valid link URL'
+      };
+    }
+    
+    // Hashtag validation
+    if (data.tags && data.tags.length > 0 && !validateHashtags(data.tags)) {
+      return {
+        valid: false,
+        message: 'One or more hashtags are invalid'
+      };
+    }
+    
+    // All validations passed
+    return {
+      valid: true,
+      message: "Social media post validation successful"
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      message: "Error validating social media post: " + 
+        (error instanceof Error ? error.message : String(error))
     };
   }
 }
 
-/**
- * Validates a media URL for security and format
- * @param url - The URL to validate
- * @returns Whether the URL is valid and safe
- */
-export function validateMediaUrl(url: string): boolean {
-  // Check if it's a valid URL format
-  if (!isValidUrl(url)) {
-    return false;
-  }
-  
-  // Ensure it's an image or video URL from trusted domains
-  const trustedDomains = [
-    'cloudinary.com',
-    'amazonaws.com',
-    'storage.googleapis.com',
-    'fb.com',
-    'fbcdn.net',
-    'instagram.com',
-    'cdninstagram.com',
-    'twimg.com',
-    'linkedin.com',
-    'youtu.be',
-    'youtube.com',
-    'vimeo.com'
-  ];
-  
-  try {
-    const urlObj = new URL(url);
-    const domain = urlObj.hostname;
-    
-    return trustedDomains.some(trusted => 
-      domain === trusted || domain.endsWith(`.${trusted}`)
-    );
-  } catch {
-    return false;
-  }
-}
