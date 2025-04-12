@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import AdminSettingsProvider from '@/components/admin/settings/AdminSettingsProvider';
 import APIKeysTab from '@/components/admin/APIKeysTab';
 import WebhooksTab from '@/components/admin/WebhooksTab';
-import SecurityTab from '@/components/admin/SecurityTab';
+import { SecurityTab } from '@/components/admin/security';
 import NotificationsTab from '@/components/admin/NotificationsTab';
 
 export default function AdminSettings() {
