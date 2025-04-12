@@ -5,26 +5,23 @@ import { LeadsHeader } from '@/components/dashboard/leads/LeadsHeader';
 import { LeadsEmptyState } from '@/components/dashboard/leads/LeadsEmptyState';
 import { LeadsLoading } from '@/components/dashboard/leads/LeadsLoading';
 import { LeadsErrorState } from '@/components/dashboard/leads/LeadsErrorState';
-import { LeadsContent } from '@/components/dashboard/leads/LeadsContent';
+import { LeadsContent as LeadsContentComponent } from '@/components/dashboard/leads/LeadsContent';
 import { LeadProfileDrawer } from '@/components/dashboard/leads/LeadProfileDrawer';
 import { useLeadsPage } from '@/hooks/dashboard/useLeadsPage';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function DashboardLeads() {
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
-  
   return (
     <ErrorBoundary>
       <Suspense fallback={<LeadsLoading />}>
-        <LeadsContent />
+        <LeadsPageContent />
       </Suspense>
     </ErrorBoundary>
   );
 }
 
-// Extracted content component to better handle suspense
-function LeadsContent() {
+// Renamed to LeadsPageContent to avoid naming conflict with imported component
+function LeadsPageContent() {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
@@ -70,7 +67,7 @@ function LeadsContent() {
         <LeadsEmptyState />
       ) : (
         <>
-          <LeadsContent 
+          <LeadsContentComponent 
             leads={leads}
             isMobileView={isMobileView}
             filteredLeads={filteredLeads}
@@ -80,7 +77,7 @@ function LeadsContent() {
             setActiveFilter={setActiveFilter}
             selectedLeads={selectedLeads}
             handleLeadSelect={handleLeadSelect}
-            handleSelectAll={(_leads, isSelected) => handleSelectAll(isSelected)}
+            handleSelectAll={handleSelectAll}
             handleBulkStatusUpdate={handleBulkStatusUpdate}
             handleViewLead={handleViewLead}
             handleLeadStatusUpdate={handleLeadStatusUpdate}
