@@ -1,6 +1,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
+import { toast } from 'sonner';
 
 // Create a single supabase client for interacting with the database
 export const supabase = createClient(
@@ -11,6 +12,14 @@ export const supabase = createClient(
       persistSession: true,
       autoRefreshToken: true,
       storage: typeof window !== 'undefined' ? window.localStorage : undefined
+    },
+    global: {
+      fetch: (...args) => {
+        return fetch(...args);
+      }
+    },
+    db: {
+      schema: 'public',
     }
   }
 );
@@ -35,5 +44,52 @@ export async function getCurrentUser() {
   } catch (error) {
     console.error("Error getting current user:", error);
     return { user: null, session: null };
+  }
+}
+
+/**
+ * Checks if the Supabase connection is working properly
+ * @returns A promise with boolean indicating if connection is working
+ */
+export async function checkSupabaseConnection() {
+  try {
+    console.log("Checking Supabase connection...");
+    
+    // First check auth session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error("Session error:", sessionError);
+      return { connected: false, error: sessionError, authenticated: false };
+    }
+    
+    const isAuthenticated = session !== null;
+    console.log("Authentication status:", isAuthenticated ? "Authenticated" : "Not authenticated");
+    
+    // Then try a simple query to check database connection
+    const { data, error } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .limit(1);
+    
+    if (error) {
+      console.error("Database connection error:", error);
+      
+      // Handle specific errors
+      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+        toast.error("Authentication error", { 
+          description: "Please log in to access database functions" 
+        });
+        return { connected: false, error, authenticated: false };
+      }
+      
+      return { connected: false, error, authenticated: isAuthenticated };
+    }
+    
+    console.log("Supabase connection successful");
+    return { connected: true, authenticated: isAuthenticated };
+  } catch (error) {
+    console.error("Error checking Supabase connection:", error);
+    return { connected: false, error, authenticated: false };
   }
 }

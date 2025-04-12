@@ -6,7 +6,7 @@ import { DatabaseTablesCheck } from './DatabaseTablesCheck';
 import { RlsPoliciesCheck } from './RlsPoliciesCheck';
 import { DatabaseFunctionsCheck } from './DatabaseFunctionsCheck';
 import { DatabaseVerificationResult } from './types';
-import { RefreshCw, Database, Shield, Code, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Database, Shield, Code, AlertTriangle, Info } from 'lucide-react';
 
 interface DatabaseVerificationDashboardProps {
   result: DatabaseVerificationResult;
@@ -95,6 +95,21 @@ export function DatabaseVerificationDashboard({
                   <p className="text-xs text-amber-700 mt-1">
                     Your Supabase database is missing required tables, policies, or functions. 
                     Please run the SQL setup script from the setup documentation to fix these issues.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!issueCount && !hasTablesData && !isVerifying && (
+            <div className="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-md">
+              <div className="flex items-start gap-2">
+                <Info className="h-5 w-5 text-blue-500 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-medium text-blue-800">No Data or Connection Issues</h3>
+                  <p className="text-xs text-blue-700 mt-1">
+                    No database verification data is being returned. This could indicate connection issues with your Supabase database or missing permissions.
+                    Please check your network connection and Supabase API key configuration.
                   </p>
                 </div>
               </div>

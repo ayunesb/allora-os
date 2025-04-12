@@ -1,13 +1,9 @@
 
 import { toast } from 'sonner';
-import { 
-  DatabaseTableStatus, 
-  PolicyStatus, 
-  FunctionStatus 
-} from '@/types/databaseVerification';
+import { DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/types/databaseVerification';
 
 /**
- * Shows success or error toast messages based on verification results
+ * Display user-friendly notifications about database verification results
  * @param tables Results of table verification
  * @param policies Results of RLS policy verification
  * @param functions Results of function verification
@@ -16,41 +12,57 @@ export function displayVerificationResults(
   tables: DatabaseTableStatus[],
   policies: PolicyStatus[],
   functions: FunctionStatus[]
-): void {
-  // Track if there are any issues to determine overall status
-  let hasIssues = false;
-  
-  // Check tables
-  const missingTables = tables.filter(t => !t.exists).map(t => t.name);
+) {
+  // Log all results to help with debugging
+  console.log('Database verification results:', { tables, policies, functions });
+
+  // First check if any data was returned at all
+  if (tables.length === 0 && policies.length === 0 && functions.length === 0) {
+    toast.error("Database verification failed - No data returned", {
+      description: "Check Supabase connection and permissions"
+    });
+    return;
+  }
+
+  // Tables verification results
+  const missingTables = tables.filter(t => !t.exists);
   if (missingTables.length === 0) {
-    toast.success('All required database tables exist');
+    toast.success("Tables verification passed", {
+      description: `All ${tables.length} required tables exist`
+    });
   } else {
-    toast.error(`Missing tables: ${missingTables.join(', ')}`);
-    hasIssues = true;
+    const tableCount = missingTables.length;
+    const tableNames = missingTables.map(t => t.name).join(", ");
+    toast.error(`Missing ${tableCount} database ${tableCount === 1 ? 'table' : 'tables'}`, {
+      description: `Missing: ${tableNames}`
+    });
   }
-  
-  // Check RLS policies
-  const missingRls = policies.filter(p => !p.exists).map(p => p.table);
-  if (missingRls.length === 0 && policies.length > 0) {
-    toast.success('RLS policies verified successfully');
-  } else if (missingRls.length > 0) {
-    toast.error(`RLS issues found on tables: ${missingRls.join(', ')}`);
-    hasIssues = true;
+
+  // RLS policies verification results
+  const missingPolicies = policies.filter(p => !p.exists);
+  if (missingPolicies.length === 0 && policies.length > 0) {
+    toast.success("RLS policies verification passed", {
+      description: `All ${policies.length} required tables have RLS policies`
+    });
+  } else if (policies.length > 0) {
+    const policyCount = missingPolicies.length;
+    const tableNames = missingPolicies.map(p => p.table).join(", ");
+    toast.error(`Missing RLS policies for ${policyCount} ${policyCount === 1 ? 'table' : 'tables'}`, {
+      description: `Tables without RLS: ${tableNames}`
+    });
   }
-  
-  // Function issues
-  const functionIssues = functions.filter(f => !f.exists || !f.isSecure).map(f => f.name);
+
+  // Database functions verification results
+  const functionIssues = functions.filter(f => !f.exists || !f.isSecure);
   if (functionIssues.length === 0 && functions.length > 0) {
-    toast.success('Database functions verified successfully');
-  } else if (functionIssues.length > 0) {
-    toast.error(`Issues with functions: ${functionIssues.join(', ')}`);
-    hasIssues = true;
-  }
-  
-  // Show overall status
-  if (!hasIssues) {
-    toast.success('Database verification completed successfully');
-  } else {
-    toast.error('Database verification found issues that need to be addressed');
+    toast.success("Database functions verification passed", {
+      description: `All ${functions.length} required functions exist and are secure`
+    });
+  } else if (functions.length > 0) {
+    const functionCount = functionIssues.length;
+    const functionNames = functionIssues.map(f => f.name).join(", ");
+    toast.error(`Issues with ${functionCount} database ${functionCount === 1 ? 'function' : 'functions'}`, {
+      description: `Functions with issues: ${functionNames}`
+    });
   }
 }

@@ -1,9 +1,12 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DatabaseVerificationDashboard } from '@/components/admin/database-verification';
 import { useDatabaseVerification } from '@/hooks/admin/useDatabaseVerification';
-import { AlertCircle, Database } from 'lucide-react';
+import { AlertCircle, Database, RefreshCw, ShieldAlert } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { checkSupabaseConnection } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 /**
  * Admin page for verifying database configuration.
@@ -11,16 +14,72 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
  */
 export default function DatabaseVerification() {
   const { verificationResult, verifyDatabaseConfiguration } = useDatabaseVerification();
+  const [connectionStatus, setConnectionStatus] = useState<{
+    checking: boolean;
+    connected: boolean;
+    authenticated: boolean;
+    error?: any;
+  }>({
+    checking: false,
+    connected: false,
+    authenticated: false
+  });
 
-  // Run verification automatically when page loads
+  // Check Supabase connection when page loads
   useEffect(() => {
-    if (verificationResult.tables.length === 0 && 
+    const checkConnection = async () => {
+      setConnectionStatus(prev => ({ ...prev, checking: true }));
+      try {
+        const result = await checkSupabaseConnection();
+        setConnectionStatus({
+          checking: false,
+          connected: result.connected,
+          authenticated: result.authenticated,
+          error: result.error
+        });
+        
+        // If connected and authenticated, run verification
+        if (result.connected && result.authenticated) {
+          if (verificationResult.tables.length === 0 && 
+              verificationResult.policies.length === 0 && 
+              verificationResult.functions.length === 0 && 
+              !verificationResult.isVerifying) {
+            verifyDatabaseConfiguration();
+          }
+        } else if (!result.authenticated) {
+          toast.error("Authentication required", {
+            description: "Please log in to verify database configuration"
+          });
+        } else if (!result.connected) {
+          toast.error("Database connection failed", {
+            description: result.error?.message || "Could not connect to Supabase"
+          });
+        }
+      } catch (error) {
+        console.error("Error checking connection:", error);
+        setConnectionStatus({
+          checking: false,
+          connected: false,
+          authenticated: false,
+          error
+        });
+      }
+    };
+    
+    checkConnection();
+  }, []);
+
+  // Run verification automatically when user becomes authenticated
+  useEffect(() => {
+    if (connectionStatus.authenticated && 
+        connectionStatus.connected && 
+        verificationResult.tables.length === 0 && 
         verificationResult.policies.length === 0 && 
         verificationResult.functions.length === 0 && 
         !verificationResult.isVerifying) {
       verifyDatabaseConfiguration();
     }
-  }, [verificationResult, verifyDatabaseConfiguration]);
+  }, [connectionStatus.authenticated, connectionStatus.connected, verificationResult, verifyDatabaseConfiguration]);
 
   const hasMissingTables = verificationResult.tables.some(t => !t.exists);
   const hasMissingFunctions = verificationResult.functions.some(f => !f.exists);
@@ -42,6 +101,100 @@ export default function DatabaseVerification() {
         </div>
       </div>
       
+      {/* Connection Status Card */}
+      <Card className={`border-${connectionStatus.connected ? 'green' : 'red'}-200 bg-${connectionStatus.connected ? 'green' : 'red'}-50`}>
+        <CardHeader className="pb-2">
+          <CardTitle className={`text-${connectionStatus.connected ? 'green' : 'red'}-800 text-lg flex items-center gap-2`}>
+            {connectionStatus.checking ? (
+              <RefreshCw className="h-5 w-5 animate-spin" />
+            ) : connectionStatus.connected ? (
+              <Database className="h-5 w-5 text-green-500" />
+            ) : (
+              <ShieldAlert className="h-5 w-5 text-red-500" />
+            )}
+            Database Connection Status
+          </CardTitle>
+          <CardDescription className={`text-${connectionStatus.connected ? 'green' : 'red'}-700`}>
+            {connectionStatus.checking
+              ? "Checking database connection..."
+              : connectionStatus.connected
+                ? `Connected to Supabase database ${connectionStatus.authenticated ? 'and authenticated' : 'but not authenticated'}`
+                : "Database connection issue detected"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-sm">
+          {!connectionStatus.checking && !connectionStatus.connected && (
+            <div className="rounded-md bg-red-100 p-3 mb-3">
+              <div className="flex">
+                <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                <div>
+                  <p className="text-red-700 font-medium">Connection Error</p>
+                  <p className="text-red-600">
+                    {connectionStatus.error?.message || "Could not connect to the Supabase database. Please check your configuration."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {!connectionStatus.checking && connectionStatus.connected && !connectionStatus.authenticated && (
+            <div className="rounded-md bg-amber-100 p-3 mb-3">
+              <div className="flex">
+                <AlertCircle className="h-5 w-5 text-amber-500 mr-2" />
+                <div>
+                  <p className="text-amber-700 font-medium">Authentication Required</p>
+                  <p className="text-amber-600">
+                    Connected to database but not authenticated. Please log in to access database verification features.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <Button 
+            size="sm" 
+            onClick={async () => {
+              setConnectionStatus(prev => ({ ...prev, checking: true }));
+              try {
+                const result = await checkSupabaseConnection();
+                setConnectionStatus({
+                  checking: false,
+                  connected: result.connected,
+                  authenticated: result.authenticated,
+                  error: result.error
+                });
+                
+                if (result.connected && result.authenticated) {
+                  toast.success("Connection verified successfully");
+                  verifyDatabaseConfiguration();
+                }
+              } catch (error) {
+                setConnectionStatus({
+                  checking: false,
+                  connected: false,
+                  authenticated: false,
+                  error
+                });
+              }
+            }}
+            disabled={connectionStatus.checking}
+            variant={connectionStatus.connected ? "outline" : "default"}
+          >
+            {connectionStatus.checking ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Checking...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Recheck Connection
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+      
       <DatabaseVerificationDashboard 
         result={verificationResult}
         onVerify={verifyDatabaseConfiguration}
@@ -61,6 +214,8 @@ export default function DatabaseVerification() {
             <li>Check that database functions use SECURITY DEFINER and have proper search_path settings</li>
             <li>Ensure database indexes are set up for optimal performance</li>
             <li>If issues persist after running SQL migrations, try refreshing the browser cache</li>
+            <li>Ensure you are properly authenticated to access your database resources</li>
+            <li>Check your network connection if you're having connectivity issues</li>
           </ul>
         </CardContent>
       </Card>
