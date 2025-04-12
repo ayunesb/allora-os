@@ -36,10 +36,11 @@ const ImplementationTabs: React.FC<ImplementationTabsProps> = ({ activeTab, onTa
         tabs={tabs} 
         activeTab={activeTab}
         onTabChange={onTabChange}
-        variant="underline"
+        variant="outline"  // Changed from "underline" to "outline"
       />
     </div>
   );
 };
 
 export default ImplementationTabs;
+
