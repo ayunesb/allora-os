@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCampaigns } from '@/hooks/campaigns';
 import { syncCampaignData } from '@/services/campaignService';
