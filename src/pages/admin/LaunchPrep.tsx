@@ -7,6 +7,7 @@ import { removeTestData, verifyApiSecrets } from '@/utils/cleanupForProduction';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { EnhancedVerificationChecklist } from '@/components/admin/launch-verification/EnhancedVerificationChecklist';
 
 export default function LaunchPrep() {
   const handleCleanupTestData = async () => {
@@ -93,6 +94,8 @@ export default function LaunchPrep() {
         <LaunchButton />
       </div>
 
+      <EnhancedVerificationChecklist />
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <LaunchVerification />
         <PreLaunchChecklist />

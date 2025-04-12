@@ -54,3 +54,42 @@ export interface ValidationResultsUI {
 export interface LaunchButtonProps {
   className?: string;
 }
+
+// Enhanced verification types
+export interface ChecklistItem {
+  id: string;
+  label: string;
+  checked: boolean;
+  description?: string;
+  category: ChecklistCategory;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+}
+
+export type ChecklistCategory = 
+  | 'platform_stability' 
+  | 'user_onboarding' 
+  | 'ai_bot_logic' 
+  | 'dashboard_modules' 
+  | 'communication_tools' 
+  | 'payment_system' 
+  | 'admin_controls' 
+  | 'api_integrations' 
+  | 'legal_compliance' 
+  | 'cross_device_testing';
+
+export interface EnhancedVerificationState {
+  items: ChecklistItem[];
+  progress: {
+    [key in ChecklistCategory]: {
+      total: number;
+      completed: number;
+      percentage: number;
+    };
+  };
+  overallProgress: {
+    total: number;
+    completed: number;
+    percentage: number;
+  };
+  lastUpdated: string;
+}
