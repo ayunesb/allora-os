@@ -75,7 +75,7 @@ export async function checkSupabaseConnection() {
     if (error) {
       console.error("Database connection error:", error);
       
-      // Handle specific errors
+      // Special handling for auth errors
       if (error.code === 'PGRST301' || error.message.includes('JWT')) {
         toast.error("Authentication error", { 
           description: "Please log in to access database functions" 
@@ -83,13 +83,23 @@ export async function checkSupabaseConnection() {
         return { connected: false, error, authenticated: false };
       }
       
+      toast.error("Database connection error", {
+        description: error.message
+      });
+      
       return { connected: false, error, authenticated: isAuthenticated };
     }
     
     console.log("Supabase connection successful");
+    toast.success("Database connection verified");
     return { connected: true, authenticated: isAuthenticated };
   } catch (error) {
     console.error("Error checking Supabase connection:", error);
+    
+    toast.error("Connection check failed", {
+      description: error instanceof Error ? error.message : "Unknown error"
+    });
+    
     return { connected: false, error, authenticated: false };
   }
 }

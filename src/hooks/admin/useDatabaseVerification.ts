@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { DatabaseVerificationResult } from '@/types/databaseVerification';
 import { 
@@ -8,7 +8,7 @@ import {
   verifyDatabaseFunctions,
   displayVerificationResults 
 } from '@/utils/admin/database-verification';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
 
 /**
  * Hook for verifying database configuration.
@@ -22,6 +22,32 @@ export function useDatabaseVerification() {
     functions: [],
     isVerifying: false
   });
+  
+  const [connectionChecked, setConnectionChecked] = useState(false);
+
+  // Check connection status on mount
+  useEffect(() => {
+    const initialConnectionCheck = async () => {
+      try {
+        const status = await checkSupabaseConnection();
+        setConnectionChecked(true);
+        
+        // If not connected or not authenticated, we don't need to try verification
+        if (!status.connected || !status.authenticated) {
+          return;
+        }
+        
+        // Auto-verify if we're connected and authenticated
+        verifyDatabaseConfiguration();
+      } catch (err) {
+        console.error("Initial connection check failed:", err);
+      }
+    };
+    
+    if (!connectionChecked) {
+      initialConnectionCheck();
+    }
+  }, [connectionChecked]);
 
   /**
    * Attempts to ensure the check_function_exists RPC exists
@@ -32,24 +58,15 @@ export function useDatabaseVerification() {
       // Log API details to help troubleshoot connection issues
       console.log('Checking Supabase connection status...');
       
-      // Basic connection test
-      const { data: connectionTest, error: connectionError } = await supabase.from('_dummy_query').select('*').limit(1);
+      // Basic connection test to check auth token validity
+      const { data: { session } } = await supabase.auth.getSession();
       
-      // Log connection status
-      if (connectionError) {
-        console.error('Supabase connection issue detected:', connectionError);
-        
-        // Check if this is an authentication error
-        if (connectionError.code === 'PGRST301' || 
-            connectionError.message.includes('JWT') || 
-            connectionError.message.includes('auth')) {
-          console.error('Authentication issue detected. Check if user is authenticated properly.');
-          toast.error('Authentication issue detected', {
-            description: 'Make sure you are logged in with appropriate permissions'
-          });
-        }
-      } else {
-        console.log('Supabase connection appears to be working');
+      if (!session) {
+        console.warn("No active session found during function verification setup");
+        toast.error("Authentication required", {
+          description: "Please log in to verify database functions"
+        });
+        return false;
       }
       
       // Check if the helper function exists
@@ -64,12 +81,13 @@ export function useDatabaseVerification() {
             description: error.message
           });
         }
-        // The check_function_exists function may not exist yet, which is expected
-        // We'll continue with the verification process
+        return false;
       }
+      
+      return true;
     } catch (err) {
       console.error('Error setting up function checker:', err);
-      // We'll use a fallback method in verifyDatabaseFunctions
+      return false;
     }
   };
 
@@ -78,6 +96,23 @@ export function useDatabaseVerification() {
    * Checks tables, RLS policies, and functions in parallel
    */
   const verifyDatabaseConfiguration = useCallback(async () => {
+    // First check connection
+    const connectionStatus = await checkSupabaseConnection();
+    
+    if (!connectionStatus.connected) {
+      toast.error("Cannot verify database - connection failed", {
+        description: "Please check your Supabase connection and try again."
+      });
+      return;
+    }
+    
+    if (!connectionStatus.authenticated) {
+      toast.error("Cannot verify database - authentication required", {
+        description: "Please sign in to access database verification features."
+      });
+      return;
+    }
+    
     setVerificationResult(prev => ({ ...prev, isVerifying: true }));
     
     try {
@@ -93,7 +128,14 @@ export function useDatabaseVerification() {
         verifyDatabaseFunctions()
       ]);
       
-      console.log('Verification results:', { tables, policies, functions });
+      console.log('Verification results:', { 
+        tables, 
+        policies, 
+        functions,
+        tablesCount: tables.length,
+        policiesCount: policies.length,
+        functionsCount: functions.length
+      });
       
       // Update state with all results
       setVerificationResult({
