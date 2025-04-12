@@ -126,6 +126,31 @@
   .mobile-table-value {
     font-size: 0.875rem !important;
   }
+
+  /* Tabs specific mobile styles */
+  .tabs-scrollable {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 0.25rem !important;
+  }
+  
+  .tabs-scrollable::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  .tab-compact {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.75rem !important;
+    min-width: auto !important;
+  }
+  
+  .tab-icon-only {
+    min-width: 2.5rem !important;
+  }
 }
 
 /* Tablet-specific media queries */
@@ -150,9 +175,38 @@
   .admin-content-tablet {
     padding-left: 14rem !important;
   }
+  
+  /* Tabs specific tablet styles */
+  .tabs-flex-wrap {
+    flex-wrap: wrap !important;
+  }
+  
+  .tab-text-sm {
+    font-size: 0.875rem !important;
+  }
 }
 
 /* Responsive scrollbar styling for better UX */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+  border-radius: 20px;
+  border: transparent;
+}
+
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(155, 155, 155, 0.5) transparent;

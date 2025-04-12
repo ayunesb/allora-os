@@ -20,13 +20,24 @@ interface CallTabsProps {
 export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  const isTabletView = breakpoint === 'tablet';
   
   return (
-    <TabsList className={`grid w-full ${isMobileView ? 'grid-cols-4 gap-1' : 'grid-cols-4 md:grid-cols-6 lg:grid-cols-8'}`}>
+    <TabsList 
+      className={`grid w-full tabs-scrollable safari-fix ${
+        isMobileView ? 'grid-cols-4 gap-1' : 
+        isTabletView ? 'grid-cols-6 gap-1' : 
+        'grid-cols-8'
+      }`}
+    >
       <TabsTrigger 
         value="timeline" 
         onClick={() => onTabChange("timeline")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <Clock className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Timeline</span>
@@ -35,7 +46,11 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="upcoming" 
         onClick={() => onTabChange("upcoming")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <Calendar className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Upcoming</span>
@@ -44,7 +59,11 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="history" 
         onClick={() => onTabChange("history")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <History className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>History</span>
@@ -53,7 +72,11 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="scripts" 
         onClick={() => onTabChange("scripts")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <Phone className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Call Scripts</span>
@@ -62,7 +85,11 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="messages" 
         onClick={() => onTabChange("messages")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <MessageSquare className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Message Templates</span>
@@ -71,7 +98,11 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="zoom" 
         onClick={() => onTabChange("zoom")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <VideoIcon className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Zoom Tools</span>
@@ -80,7 +111,11 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="ai-assistant" 
         onClick={() => onTabChange("ai-assistant")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <Sparkles className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>AI Assistant</span>
@@ -89,7 +124,11 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       <TabsTrigger 
         value="analytics" 
         onClick={() => onTabChange("analytics")}
-        className={`flex items-center ${isMobileView ? 'px-1 py-1 text-xs' : 'space-x-2'}`}
+        className={`flex items-center ${
+          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
+          isTabletView ? 'px-2 py-1 tab-text-sm' : 
+          'space-x-2'
+        }`}
       >
         <BarChart className="h-4 w-4" />
         <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Analytics</span>

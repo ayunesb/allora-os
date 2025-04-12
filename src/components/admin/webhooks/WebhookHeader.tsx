@@ -3,6 +3,7 @@ import React from 'react';
 import { Webhook } from "lucide-react";
 import { CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 interface WebhookHeaderProps {
   activeTab: string;
@@ -10,6 +11,9 @@ interface WebhookHeaderProps {
 }
 
 const WebhookHeader: React.FC<WebhookHeaderProps> = ({ activeTab, onTabChange }) => {
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  
   return (
     <>
       <CardTitle className="flex items-center gap-2">
@@ -21,9 +25,13 @@ const WebhookHeader: React.FC<WebhookHeaderProps> = ({ activeTab, onTabChange })
       </CardDescription>
       
       <Tabs defaultValue="config" value={activeTab} onValueChange={onTabChange}>
-        <TabsList>
-          <TabsTrigger value="config">Configuration</TabsTrigger>
-          <TabsTrigger value="history">Event History</TabsTrigger>
+        <TabsList className={isMobileView ? 'w-full mt-2' : ''}>
+          <TabsTrigger value="config" className={isMobileView ? 'flex-1' : ''}>
+            Configuration
+          </TabsTrigger>
+          <TabsTrigger value="history" className={isMobileView ? 'flex-1' : ''}>
+            Event History
+          </TabsTrigger>
         </TabsList>
       </Tabs>
     </>

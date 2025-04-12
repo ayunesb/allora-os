@@ -7,9 +7,12 @@ import { useWebhooks } from './webhooks/useWebhooks';
 import { useWebhookValidation } from './webhooks/useWebhookValidation';
 import WebhookHeader from './webhooks/WebhookHeader';
 import WebhookConfigTab from './webhooks/config/WebhookConfigTab';
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 const WebhooksTab = () => {
   const [activeTab, setActiveTab] = useState<string>("config");
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
   // Custom hooks for state management and functionality
   const {
@@ -100,7 +103,7 @@ const WebhooksTab = () => {
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsContent value="config" className="mt-0">
-          <CardContent>
+          <CardContent className={isMobileView ? 'p-3' : ''}>
             <WebhookConfigTab 
               stripeWebhook={stripeWebhook}
               zapierWebhook={zapierWebhook}

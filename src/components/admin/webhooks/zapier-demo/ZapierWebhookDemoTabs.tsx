@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ManualTriggerContent } from './ManualTriggerContent';
 import { BusinessEventContent } from './BusinessEventContent';
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 interface ZapierWebhookDemoTabsProps {
   webhookUrl: string;
@@ -21,12 +22,24 @@ export function ZapierWebhookDemoTabs({
   triggerBusinessSample
 }: ZapierWebhookDemoTabsProps) {
   const [activeTab, setActiveTab] = React.useState<string>("business");
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
   return (
     <Tabs defaultValue="business" value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="mb-4">
-        <TabsTrigger value="business">Business Events</TabsTrigger>
-        <TabsTrigger value="manual">Manual Triggers</TabsTrigger>
+      <TabsList className={`mb-4 ${isMobileView ? 'w-full' : ''}`}>
+        <TabsTrigger 
+          value="business" 
+          className={isMobileView ? 'flex-1 text-sm' : ''}
+        >
+          Business Events
+        </TabsTrigger>
+        <TabsTrigger 
+          value="manual" 
+          className={isMobileView ? 'flex-1 text-sm' : ''}
+        >
+          Manual Triggers
+        </TabsTrigger>
       </TabsList>
       
       <TabsContent value="business" className="mt-0">

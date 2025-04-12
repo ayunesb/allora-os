@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import AdminSettingsProvider from '@/components/admin/settings/AdminSettingsProvider';
@@ -7,8 +7,14 @@ import APIKeysTab from '@/components/admin/APIKeysTab';
 import WebhooksTab from '@/components/admin/WebhooksTab';
 import { SecurityTab } from '@/components/admin/security';
 import NotificationsTab from '@/components/admin/NotificationsTab';
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 export default function AdminSettings() {
+  const [activeTab, setActiveTab] = useState<string>("api-keys");
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  const isTabletView = breakpoint === 'tablet';
+  
   return (
     <div className="min-h-screen bg-background">
       <Navbar isLoggedIn={true} />
@@ -23,12 +29,32 @@ export default function AdminSettings() {
         
         <AdminSettingsProvider>
           {({ companyId, isLoading, apiKeys, securitySettings }) => (
-            <Tabs defaultValue="api-keys">
-              <TabsList className="mb-6">
-                <TabsTrigger value="api-keys">API Keys</TabsTrigger>
-                <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
-                <TabsTrigger value="security">Security</TabsTrigger>
-                <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <Tabs defaultValue="api-keys" value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className={`mb-6 ${isMobileView ? 'w-full tabs-scrollable flex' : isTabletView ? 'tabs-flex-wrap' : ''}`}>
+                <TabsTrigger 
+                  value="api-keys" 
+                  className={isMobileView ? 'text-xs flex-1 tab-compact' : isTabletView ? 'text-sm' : ''}
+                >
+                  API Keys
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="webhooks" 
+                  className={isMobileView ? 'text-xs flex-1 tab-compact' : isTabletView ? 'text-sm' : ''}
+                >
+                  Webhooks
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="security" 
+                  className={isMobileView ? 'text-xs flex-1 tab-compact' : isTabletView ? 'text-sm' : ''}
+                >
+                  Security
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="notifications" 
+                  className={isMobileView ? 'text-xs flex-1 tab-compact' : isTabletView ? 'text-sm' : ''}
+                >
+                  Notifications
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="api-keys">

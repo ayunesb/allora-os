@@ -4,8 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExecutiveBoardroom from '@/components/ai-debate/ExecutiveBoardroom';
 import { MessageSquare, BookOpen, LineChart, Briefcase, Sparkles } from 'lucide-react';
+import { useBreakpoint } from '@/hooks/use-mobile';
 
 export default function BotDebate() {
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  const isTabletView = breakpoint === 'tablet';
+  
   return (
     <Card className="max-w-[1200px] mx-auto">
       <CardHeader className="pb-0">
@@ -19,26 +24,45 @@ export default function BotDebate() {
       
       <CardContent className="pt-6">
         <Tabs defaultValue="debate" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="debate" className="flex items-center gap-2">
+          <TabsList className="tabs-scrollable safari-fix">
+            <TabsTrigger 
+              value="debate" 
+              className={`flex items-center ${isMobileView ? 'px-2 py-1 text-xs tab-compact' : isTabletView ? 'px-3 py-1.5 tab-text-sm' : 'gap-2'}`}
+            >
               <MessageSquare className="h-4 w-4" />
-              Executive Discussion
+              <span className={isMobileView ? "sr-only" : ""}>Executive Discussion</span>
             </TabsTrigger>
-            <TabsTrigger value="insights" className="flex items-center gap-2">
+            
+            <TabsTrigger 
+              value="insights" 
+              className={`flex items-center ${isMobileView ? 'px-2 py-1 text-xs tab-compact' : isTabletView ? 'px-3 py-1.5 tab-text-sm' : 'gap-2'}`}
+            >
               <BookOpen className="h-4 w-4" />
-              Strategic Insights
+              <span className={isMobileView ? "sr-only" : ""}>Strategic Insights</span>
             </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
+            
+            <TabsTrigger 
+              value="analysis" 
+              className={`flex items-center ${isMobileView ? 'px-2 py-1 text-xs tab-compact' : isTabletView ? 'px-3 py-1.5 tab-text-sm' : 'gap-2'}`}
+            >
               <LineChart className="h-4 w-4" />
-              Market Analysis
+              <span className={isMobileView ? "sr-only" : ""}>Market Analysis</span>
             </TabsTrigger>
-            <TabsTrigger value="innovations" className="flex items-center gap-2">
+            
+            <TabsTrigger 
+              value="innovations" 
+              className={`flex items-center ${isMobileView ? 'px-2 py-1 text-xs tab-compact' : isTabletView ? 'px-3 py-1.5 tab-text-sm' : 'gap-2'}`}
+            >
               <Sparkles className="h-4 w-4" />
-              Innovation Ideas
+              <span className={isMobileView ? "sr-only" : ""}>Innovation Ideas</span>
             </TabsTrigger>
-            <TabsTrigger value="implementation" className="flex items-center gap-2">
+            
+            <TabsTrigger 
+              value="implementation" 
+              className={`flex items-center ${isMobileView ? 'px-2 py-1 text-xs tab-compact' : isTabletView ? 'px-3 py-1.5 tab-text-sm' : 'gap-2'}`}
+            >
               <Briefcase className="h-4 w-4" />
-              Implementation Plan
+              <span className={isMobileView ? "sr-only" : ""}>Implementation Plan</span>
             </TabsTrigger>
           </TabsList>
           

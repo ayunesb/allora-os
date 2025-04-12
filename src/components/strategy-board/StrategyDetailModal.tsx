@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Strategy } from "@/models/strategy";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, BarChart2, ArrowRight } from "lucide-react";
 import StrategyImplementationTools from "../strategy-implementation/StrategyImplementationTools";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
 interface StrategyDetailModalProps {
   isOpen: boolean;
@@ -17,6 +18,10 @@ const StrategyDetailModal: React.FC<StrategyDetailModalProps> = ({
   onClose,
   strategy
 }) => {
+  const [activeTab, setActiveTab] = useState("details");
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  
   if (!strategy) return null;
 
   return (
@@ -26,15 +31,21 @@ const StrategyDetailModal: React.FC<StrategyDetailModalProps> = ({
           <DialogTitle className="text-2xl">{strategy.title}</DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="details" className="mt-4">
-          <TabsList className="bg-gray-800/50">
-            <TabsTrigger value="details">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <TabsList className={`bg-gray-800/50 ${isMobileView ? 'w-full tabs-scrollable' : ''}`}>
+            <TabsTrigger 
+              value="details" 
+              className={isMobileView ? 'text-xs px-2 py-1 tab-compact' : ''}
+            >
               <FileText className="h-4 w-4 mr-2" />
               Strategy Details
             </TabsTrigger>
-            <TabsTrigger value="implementation">
+            <TabsTrigger 
+              value="implementation" 
+              className={isMobileView ? 'text-xs px-2 py-1 tab-compact' : ''}
+            >
               <ArrowRight className="h-4 w-4 mr-2" />
-              Implementation Tools
+              {isMobileView ? 'Implementation' : 'Implementation Tools'}
             </TabsTrigger>
           </TabsList>
           
