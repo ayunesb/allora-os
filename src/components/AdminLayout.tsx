@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -11,35 +11,56 @@ import {
   Settings,
   Menu,
   X,
-  Rocket
+  Rocket,
+  Bot,
+  Server,
+  MessagesSquare,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useBreakpoint } from '@/hooks/use-mobile';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarProvider,
-  SidebarInset,
-  SidebarTrigger,
-  SidebarFooter
-} from '@/components/ui/sidebar';
+import AdminNav from '@/components/admin/AdminNav';
 
 export default function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
+  // Parse the current active tab from the URL
+  const getActiveTab = () => {
+    if (currentPath.includes('/platform-stability')) return 'platform-stability';
+    if (currentPath.includes('/user-onboarding')) return 'user-onboarding';
+    if (currentPath.includes('/ai-bot-logic')) return 'ai-bot-logic';
+    if (currentPath.includes('/dashboard-modules')) return 'dashboard-modules';
+    if (currentPath.includes('/communication-tools')) return 'communication-tools';
+    return '';
+  };
+  
+  const [activeTab, setActiveTab] = useState(getActiveTab());
+  
   useEffect(() => {
+    // Update active tab when route changes
+    setActiveTab(getActiveTab());
     // Close mobile menu when route changes
     setMobileMenuOpen(false);
   }, [location]);
+  
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    navigate(`/admin/${tab}`);
+  };
+  
+  const tabs = [
+    { id: 'platform-stability', label: 'Platform Stability', icon: <Shield className="h-4 w-4" /> },
+    { id: 'user-onboarding', label: 'User Onboarding', icon: <Users className="h-4 w-4" /> },
+    { id: 'ai-bot-logic', label: 'AI Bot Logic', icon: <Bot className="h-4 w-4" /> },
+    { id: 'dashboard-modules', label: 'Dashboard Modules', icon: <LayoutDashboard className="h-4 w-4" /> },
+    { id: 'communication-tools', label: 'Communication Tools', icon: <MessagesSquare className="h-4 w-4" /> }
+  ];
   
   const adminMenuItems = [
     { icon: <LayoutDashboard size={isMobileView ? 16 : 18} />, label: "Dashboard", href: "/admin" },
@@ -96,27 +117,35 @@ export default function AdminLayout() {
           }`}
         >
           <div className="py-2">
-            {adminMenuItems.map((item) => (
-              <Link
-                key={item.label}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 text-sm",
-                  isRouteActive(item.href)
-                    ? "bg-[#1E293B] text-white font-medium border-l-4 border-[#5A67D8]" 
-                    : "text-gray-400 hover:bg-[#1E293B]/50 hover:text-white"
-                )}
-                onClick={toggleMobileMenu}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            <AdminNav />
           </div>
         </div>
         
         {/* Page content */}
         <div className="pt-14 pb-4 px-3 max-w-full overflow-x-hidden">
+          {/* Add tab navigation for specific admin pages */}
+          {(currentPath.includes('/platform-stability') || 
+            currentPath.includes('/user-onboarding') || 
+            currentPath.includes('/ai-bot-logic') || 
+            currentPath.includes('/dashboard-modules') || 
+            currentPath.includes('/communication-tools')) && (
+            <div className="mb-6 overflow-x-auto">
+              <div className="flex space-x-1 p-1 bg-muted rounded-lg">
+                {tabs.map((tab) => (
+                  <Button
+                    key={tab.id}
+                    variant={activeTab === tab.id ? "default" : "ghost"}
+                    size="sm"
+                    className="flex items-center gap-1 px-2"
+                    onClick={() => handleTabChange(tab.id)}
+                  >
+                    {tab.icon}
+                    <span className="text-xs sm:text-sm">{tab.label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
           <Outlet />
         </div>
       </div>
@@ -132,26 +161,35 @@ export default function AdminLayout() {
         </div>
         
         <div className="flex-1 px-3 py-3">
-          {adminMenuItems.map((item) => (
-            <Link
-              key={item.label}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium mb-1",
-                isRouteActive(item.href)
-                  ? "bg-[#1E293B] text-white" 
-                  : "text-gray-400 hover:bg-[#1E293B]/50 hover:text-white"
-              )}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          ))}
+          <AdminNav />
         </div>
       </div>
       
       {/* Main content */}
       <div className="flex-1 md:ml-[260px]">
+        {/* Add tab navigation for specific admin pages */}
+        {(currentPath.includes('/platform-stability') || 
+          currentPath.includes('/user-onboarding') || 
+          currentPath.includes('/ai-bot-logic') || 
+          currentPath.includes('/dashboard-modules') || 
+          currentPath.includes('/communication-tools')) && (
+          <div className="border-b border-white/10 bg-[#0F1729]">
+            <div className="flex space-x-2 p-4 max-w-screen-xl mx-auto">
+              {tabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant={activeTab === tab.id ? "default" : "outline"}
+                  size="sm"
+                  className={`flex items-center gap-2 px-4 ${activeTab === tab.id ? 'bg-primary/10 text-primary border-primary' : 'text-muted-foreground'}`}
+                  onClick={() => handleTabChange(tab.id)}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="p-6 max-w-full">
           <Outlet />
         </div>

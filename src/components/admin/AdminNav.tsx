@@ -1,7 +1,21 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Users, Building2, Webhook, Key, Database, RocketIcon, BarChart3 } from 'lucide-react';
+import { 
+  Users, 
+  Building2, 
+  Webhook, 
+  Key, 
+  Database, 
+  RocketIcon, 
+  BarChart3, 
+  Settings,
+  UserPlus,
+  Bot,
+  LayoutDashboard,
+  MessagesSquare,
+  Shield
+} from 'lucide-react';
 
 const AdminNav = () => {
   return (
@@ -15,6 +29,7 @@ const AdminNav = () => {
           }`
         }
       >
+        <LayoutDashboard className="mr-2 h-4 w-4" />
         <span className="truncate">Dashboard</span>
       </NavLink>
       <NavLink
@@ -38,6 +53,39 @@ const AdminNav = () => {
       >
         <Building2 className="mr-2 h-4 w-4" />
         <span className="truncate">Companies</span>
+      </NavLink>
+      <NavLink
+        to="/admin/campaigns"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <BarChart3 className="mr-2 h-4 w-4" />
+        <span className="truncate">Campaigns</span>
+      </NavLink>
+      <NavLink
+        to="/admin/leads"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <UserPlus className="mr-2 h-4 w-4" />
+        <span className="truncate">Leads</span>
+      </NavLink>
+      <NavLink
+        to="/admin/analytics"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <BarChart3 className="mr-2 h-4 w-4" />
+        <span className="truncate">Analytics</span>
       </NavLink>
       <NavLink
         to="/admin/webhooks"
@@ -73,6 +121,61 @@ const AdminNav = () => {
         <span className="truncate">Database Verification</span>
       </NavLink>
       <NavLink
+        to="/admin/ai-bot-logic"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Bot className="mr-2 h-4 w-4" />
+        <span className="truncate">AI Bot Logic</span>
+      </NavLink>
+      <NavLink
+        to="/admin/user-onboarding"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Users className="mr-2 h-4 w-4" />
+        <span className="truncate">User Onboarding</span>
+      </NavLink>
+      <NavLink
+        to="/admin/dashboard-modules"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <LayoutDashboard className="mr-2 h-4 w-4" />
+        <span className="truncate">Dashboard Modules</span>
+      </NavLink>
+      <NavLink
+        to="/admin/communication-tools"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <MessagesSquare className="mr-2 h-4 w-4" />
+        <span className="truncate">Communication Tools</span>
+      </NavLink>
+      <NavLink
+        to="/admin/platform-stability"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Shield className="mr-2 h-4 w-4" />
+        <span className="truncate">Platform Stability</span>
+      </NavLink>
+      <NavLink
         to="/admin/launch-check"
         className={({ isActive }) =>
           `flex items-center px-3 py-2 text-sm rounded-md ${
@@ -104,6 +207,17 @@ const AdminNav = () => {
       >
         <BarChart3 className="mr-2 h-4 w-4" />
         <span className="truncate">Technical Improvements</span>
+      </NavLink>
+      <NavLink
+        to="/admin/settings"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Settings className="mr-2 h-4 w-4" />
+        <span className="truncate">Settings</span>
       </NavLink>
     </nav>
   );

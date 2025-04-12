@@ -10,7 +10,16 @@ import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import LaunchCheck from "@/pages/admin/LaunchCheck";
 import LaunchPrep from "@/pages/admin/LaunchPrep";
-import TechnicalImprovements from "@/pages/dashboard/TechnicalImprovements";
+import TechnicalImprovements from "@/pages/admin/TechnicalImprovements";
+import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminAnalytics from "@/pages/admin/AdminAnalytics";
+import AdminCampaigns from "@/pages/admin/AdminCampaigns";
+import AdminLeads from "@/pages/admin/AdminLeads";
+import CommunicationTools from "@/pages/admin/CommunicationTools";
+import PlatformStability from "@/pages/admin/PlatformStability";
+import UserOnboarding from "@/pages/admin/UserOnboarding";
+import AiBotLogic from "@/pages/admin/AiBotLogic";
+import DashboardModules from "@/pages/admin/DashboardModules";
 
 export const adminRoutes: RouteObject = {
   path: "/admin",
@@ -55,6 +64,42 @@ export const adminRoutes: RouteObject = {
     {
       path: "technical-improvements",
       element: <TechnicalImprovements />,
+    },
+    {
+      path: "settings",
+      element: <AdminSettings />,
+    },
+    {
+      path: "analytics",
+      element: <AdminAnalytics />,
+    },
+    {
+      path: "campaigns",
+      element: <AdminCampaigns />,
+    },
+    {
+      path: "leads",
+      element: <AdminLeads />,
+    },
+    {
+      path: "communication-tools",
+      element: <CommunicationTools />,
+    },
+    {
+      path: "platform-stability",
+      element: <PlatformStability />,
+    },
+    {
+      path: "user-onboarding",
+      element: <UserOnboarding />,
+    },
+    {
+      path: "ai-bot-logic",
+      element: <AiBotLogic />,
+    },
+    {
+      path: "dashboard-modules",
+      element: <DashboardModules />,
     }
   ],
 };

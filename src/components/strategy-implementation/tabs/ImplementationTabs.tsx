@@ -43,4 +43,3 @@ const ImplementationTabs: React.FC<ImplementationTabsProps> = ({ activeTab, onTa
 };
 
 export default ImplementationTabs;
-

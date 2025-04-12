@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 const NotFound = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.error(
@@ -20,7 +21,29 @@ const NotFound = () => {
     toast.error("Page not found. Redirecting to a valid page.", {
       duration: 3000,
     });
-  }, [location.pathname]);
+    
+    // If the path includes admin, redirect to admin dashboard
+    const isAdminRoute = location.pathname.includes('/admin');
+    
+    // Set a timer to redirect the user to a valid page after 3 seconds
+    const timer = setTimeout(() => {
+      if (isAdminRoute) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, [location.pathname, navigate]);
+
+  // Determine the return link based on the current path
+  const getReturnLink = () => {
+    if (location.pathname.includes('/admin')) {
+      return "/admin";
+    }
+    return "/";
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background dark:bg-background">
@@ -42,9 +65,9 @@ const NotFound = () => {
           </p>
           
           <Button asChild size="lg" className="animate-pulse transition-all hover:shadow-lg">
-            <Link to="/" className="flex items-center">
+            <Link to={getReturnLink()} className="flex items-center">
               <ArrowLeft className="mr-2 h-5 w-5" />
-              Return to Home
+              Return to {location.pathname.includes('/admin') ? 'Admin Dashboard' : 'Home'}
             </Link>
           </Button>
         </div>
