@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -171,10 +172,10 @@ export function AdvancedCampaignAnalytics({
       const metrics = channel.metrics;
       return {
         totalImpressions: Number(prevMetrics.totalImpressions || 0) + Number(metrics.impressions || 0),
-        totalClicks: Number(prevMetrics.totalClicks || 0) + Number(metrics.totalClicks || 0),
-        totalConversions: Number(prevMetrics.totalConversions || 0) + Number(metrics.totalConversions || 0),
-        totalCost: (prevMetrics.totalCost || 0) + (metrics.cost || 0),
-        totalRevenue: (prevMetrics.totalRevenue || 0) + (metrics.revenue || 0),
+        totalClicks: Number(prevMetrics.totalClicks || 0) + Number(metrics.clicks || 0),
+        totalConversions: Number(prevMetrics.totalConversions || 0) + Number(metrics.conversions || 0),
+        totalCost: Number(prevMetrics.totalCost || 0) + Number(metrics.cost || 0),
+        totalRevenue: Number(prevMetrics.totalRevenue || 0) + Number(metrics.revenue || 0),
       };
     }, { 
       totalImpressions: 0, 
@@ -186,12 +187,12 @@ export function AdvancedCampaignAnalytics({
   }, [analyticsData]);
 
   // Handle data export
-  const handleExport = (format: 'csv' | 'pdf') => {
+  const handleExport = (exportFormat: 'csv' | 'pdf') => {
     if (!analyticsData) return;
     
     const filename = `${campaign.name}_analytics_${format(dateRange.from, 'yyyy-MM-dd')}_to_${format(dateRange.to, 'yyyy-MM-dd')}`;
     
-    if (format === 'csv') {
+    if (exportFormat === 'csv') {
       exportToCSV(analyticsData, filename);
     } else {
       exportToPDF(analyticsData, filename, campaign.name);
@@ -199,7 +200,7 @@ export function AdvancedCampaignAnalytics({
     
     toast({
       title: 'Export Successful',
-      description: `Analytics data has been exported as ${format.toUpperCase()}.`,
+      description: `Analytics data has been exported as ${exportFormat.toUpperCase()}.`,
     });
   };
 
