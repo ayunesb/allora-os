@@ -76,4 +76,4 @@ export type Campaign = {
 
 // These were missing and referenced in campaignService.ts
 export type CampaignCreate = Omit<Campaign, 'id' | 'created_at' | 'updated_at'>;
-export type CampaignUpdate = Partial<Omit<Campaign, 'id' | 'created_at'>>;
+export type CampaignUpdate = Partial<Campaign>;

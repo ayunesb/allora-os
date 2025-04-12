@@ -72,11 +72,11 @@ export function useCampaigns() {
     
     try {
       // Track this action
-      if (profile) {
+      if (profile && campaignData.id) {
         trackAction(
           'update_campaign',
           'campaign_management',
-          campaignData.id!,
+          campaignData.id,
           'campaign',
           {
             name: campaignData.name,
