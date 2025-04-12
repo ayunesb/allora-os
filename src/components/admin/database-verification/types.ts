@@ -8,5 +8,9 @@ export interface DatabaseVerificationResult {
   isVerifying: boolean;
 }
 
-// Export types from the imported module for components to use
-export { DatabaseTableStatus, PolicyStatus, FunctionStatus };
+// Correctly re-export types using 'export type'
+export type { 
+  DatabaseTableStatus, 
+  PolicyStatus, 
+  FunctionStatus 
+};
