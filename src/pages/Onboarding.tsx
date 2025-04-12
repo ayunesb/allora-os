@@ -10,6 +10,20 @@ import { useOnboardingStatusCheck } from "@/hooks/useOnboardingStatusCheck";
 import { useOnboardingValidation } from "@/hooks/useOnboardingValidation";
 import * as Steps from "@/components/onboarding/steps";
 
+// Step descriptions for better context
+const stepDescriptions = {
+  1: "Tell us about your company",
+  2: "Select your industry for customized insights",
+  3: "Define your main business goals",
+  4: "Determine your strategic risk profile",
+  5: "Customize your brand identity",
+  6: "Set your communication preferences",
+  7: "Connect your existing business tools",
+  8: "Share more about your company",
+  9: "Connect your advertising accounts",
+  10: "Meet your AI executive team"
+};
+
 export default function Onboarding() {
   const {
     step,
@@ -179,6 +193,7 @@ export default function Onboarding() {
       isLoading={isOnboardingLoading || isCompleting}
       isLastStep={isLastStep}
       title="Allora AI Setup"
+      stepDescription={stepDescriptions[step as keyof typeof stepDescriptions]}
     >
       {getStepContent()}
       
