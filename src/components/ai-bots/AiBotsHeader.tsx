@@ -1,3 +1,4 @@
+
 import React from "react";
 import UserPreferencesDialog from "@/components/UserPreferencesDialog";
 import { useBreakpoint } from "@/hooks/use-mobile";
@@ -9,8 +10,8 @@ interface AiBotsHeaderProps {
 
 export function AiBotsHeader({ isMobileView }: { isMobileView: boolean }) {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
+    <div className="w-full space-y-2">
+      <div className="flex items-center justify-between w-full">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">AI Executive Team</h1>
           <p className="text-muted-foreground mt-1">
@@ -21,7 +22,7 @@ export function AiBotsHeader({ isMobileView }: { isMobileView: boolean }) {
         <HelpButton contextId="ai-bots" variant="text" />
       </div>
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full">
         <div>
           <h1 className={`${isMobileView ? 'text-xl' : 'text-3xl'} font-bold tracking-tight`}>AI Executive Boardroom</h1>
           <p className="text-muted-foreground mt-2">

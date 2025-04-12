@@ -68,11 +68,13 @@ export const AiBotsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="w-full max-w-full space-y-8">
       <AiBotsHeader isMobileView={isMobileView} />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <AiBotsTabsList isMobileView={isMobileView} />
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-full">
+        <div className="w-full max-w-full overflow-hidden">
+          <AiBotsTabsList isMobileView={isMobileView} />
+        </div>
 
         <TabsContent value="boardroom" className="mt-6">
           <ErrorBoundary>
