@@ -4,7 +4,7 @@ import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
 import { useCampaignTracking } from "@/hooks/campaigns/useCampaignTracking";
 import CampaignsList from "@/components/campaigns/CampaignsList";
 import CampaignHeader from "@/components/campaigns/CampaignHeader";
-import CampaignAnalytics from "@/components/campaigns/CampaignAnalytics";
+import { CampaignAnalytics } from "@/components/campaigns/CampaignAnalytics";
 import CampaignWizard, { CampaignWizardData } from "@/components/campaigns/CampaignWizard";
 import { executiveBots } from "@/backend/executiveBots";
 import { useSelfLearning } from "@/hooks/useSelfLearning";

@@ -4,8 +4,8 @@ import { useSocialMediaContext } from '@/context/SocialMediaContext';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
 import { SocialMediaFilters } from './calendar/SocialMediaFilters';
 import { ViewToggle } from './calendar/ViewToggle';
-import { PostsDisplay } from '../PostsDisplay';
-import { DialogCreate } from '../SocialMediaPostDialog';
+import { PostsDisplay } from './PostsDisplay';
+import { DialogCreate } from './SocialMediaPostDialog';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from 'sonner';
 import { useAccessibility } from '@/context/AccessibilityContext';
@@ -98,14 +98,9 @@ export function SocialMediaContent() {
     }
   };
   
-  const handleApprovePost = async (postId: string, notes?: string) => {
+  const handleApprovePost = async (postId: string) => {
     try {
-      // Only pass notes if they exist
-      if (notes) {
-        await approve(postId, notes);
-      } else {
-        await approve(postId);
-      }
+      await approve(postId);
       toast.success('Post approved successfully');
       return { success: true };
     } catch (err) {
