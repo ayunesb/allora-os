@@ -1,10 +1,39 @@
 
+/**
+ * Social Media Service
+ * 
+ * This service handles interactions with the social media posts database table.
+ * It includes comprehensive validation and security checks for all operations.
+ */
+
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
-import { SocialMediaPost, CreatePostInput, UpdatePostInput, SocialMediaCalendarFilters } from '@/types/socialMedia';
+import { 
+  SocialMediaPost, 
+  CreatePostInput, 
+  UpdatePostInput, 
+  SocialMediaCalendarFilters,
+  BatchPostResponse
+} from '@/types/socialMedia';
+import { 
+  validateCreatePost, 
+  validateUpdatePost, 
+  validateMediaUrl 
+} from '@/utils/validators/socialMediaValidator';
+import { apiRequest, clearApiCache } from '@/utils/api/apiClient';
+import { logger } from '@/utils/loggingService';
 
 /**
- * Fetch all social media posts for a company
+ * Cache key for social media posts
+ * @param companyId - Company ID to include in the cache key
+ * @returns - Formatted cache key
+ */
+const getSocialMediaCacheKey = (companyId: string): string => 
+  `social_media_posts_${companyId}`;
+
+/**
+ * Fetch all social media posts for a company with optional filters
+ * 
  * @param companyId - The ID of the company
  * @param filters - Optional filters to apply to the query
  * @returns Promise with array of social media posts
@@ -13,247 +42,574 @@ export async function fetchSocialMediaPosts(
   companyId: string, 
   filters?: SocialMediaCalendarFilters
 ): Promise<SocialMediaPost[]> {
-  try {
-    let query = supabase
-      .from('social_media_posts')
-      .select('*')
-      .eq('company_id', companyId);
-    
-    // Apply filters if provided
-    if (filters) {
-      if (filters.platform) {
-        query = query.eq('platform', filters.platform);
+  return apiRequest<SocialMediaPost[]>(
+    async () => {
+      let query = supabase
+        .from('social_media_posts')
+        .select('*')
+        .eq('company_id', companyId);
+      
+      // Apply filters if provided
+      if (filters) {
+        if (filters.platform) {
+          query = query.eq('platform', filters.platform);
+        }
+        
+        if (filters.status) {
+          query = query.eq('status', filters.status);
+        }
+        
+        if (filters.content_type) {
+          query = query.eq('content_type', filters.content_type);
+        }
+        
+        if (filters.campaign_id) {
+          query = query.eq('campaign_id', filters.campaign_id);
+        }
+        
+        if (filters.author_id) {
+          query = query.eq('author_id', filters.author_id);
+        }
+        
+        if (filters.startDate && filters.endDate) {
+          query = query.gte('scheduled_date', filters.startDate)
+                       .lte('scheduled_date', filters.endDate);
+        } else if (filters.startDate) {
+          query = query.gte('scheduled_date', filters.startDate);
+        } else if (filters.endDate) {
+          query = query.lte('scheduled_date', filters.endDate);
+        }
+        
+        if (filters.search) {
+          query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+        }
+        
+        if (filters.tags && filters.tags.length > 0) {
+          // For array overlap search (posts that have any of the specified tags)
+          query = query.contains('tags', filters.tags);
+        }
       }
       
-      if (filters.status) {
-        query = query.eq('status', filters.status);
-      }
+      // Order by scheduled date
+      query = query.order('scheduled_date', { ascending: true });
       
-      if (filters.content_type) {
-        query = query.eq('content_type', filters.content_type);
-      }
+      const { data, error } = await query;
       
-      if (filters.campaign_id) {
-        query = query.eq('campaign_id', filters.campaign_id);
-      }
+      if (error) throw error;
       
-      if (filters.startDate && filters.endDate) {
-        query = query.gte('scheduled_date', filters.startDate)
-                     .lte('scheduled_date', filters.endDate);
-      } else if (filters.startDate) {
-        query = query.gte('scheduled_date', filters.startDate);
-      } else if (filters.endDate) {
-        query = query.lte('scheduled_date', filters.endDate);
-      }
-      
-      if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
-      }
+      return { data };
+    },
+    {
+      errorMessage: 'Failed to fetch social media posts',
+      cacheKey: getSocialMediaCacheKey(companyId),
+      cacheTTL: 60000 // 1 minute cache
     }
-    
-    // Order by scheduled date
-    query = query.order('scheduled_date', { ascending: true });
-    
-    const { data, error } = await query;
-    
-    if (error) throw error;
-    
-    return data as SocialMediaPost[];
-  } catch (error: any) {
-    console.error('Error fetching social media posts:', error.message);
-    return [];
-  }
+  ).then(response => response.data || []);
 }
 
 /**
  * Fetch a single social media post by ID
+ * 
  * @param postId - The ID of the post
  * @returns Promise with the post or null if not found
  */
 export async function fetchSocialMediaPost(postId: string): Promise<SocialMediaPost | null> {
-  try {
-    const { data, error } = await supabase
-      .from('social_media_posts')
-      .select('*')
-      .eq('id', postId)
-      .single();
-    
-    if (error) throw error;
-    
-    return data as SocialMediaPost;
-  } catch (error: any) {
-    console.error(`Error fetching social media post ${postId}:`, error.message);
-    return null;
-  }
+  return apiRequest<SocialMediaPost>(
+    async () => {
+      const { data, error } = await supabase
+        .from('social_media_posts')
+        .select('*')
+        .eq('id', postId)
+        .maybeSingle();
+      
+      if (error) throw error;
+      
+      return { data };
+    },
+    {
+      errorMessage: `Failed to fetch social media post ${postId}`,
+      cacheKey: `social_media_post_${postId}`,
+      cacheTTL: 60000 // 1 minute cache
+    }
+  ).then(response => response.data || null);
 }
 
 /**
- * Create a new social media post
+ * Create a new social media post with validation
+ * 
  * @param companyId - The ID of the company
  * @param postData - Data for the new post
- * @returns Promise with success status and post ID
+ * @returns Promise with success status and post ID or error details
  */
 export async function createSocialMediaPost(
   companyId: string,
   postData: CreatePostInput
-): Promise<{ success: boolean; postId?: string; error?: string }> {
+): Promise<{ success: boolean; postId?: string; error?: string; validationErrors?: Record<string, string> }> {
   try {
     // Validate the input data
-    if (!postData.title || !postData.content || !postData.platform || !postData.scheduled_date) {
-      throw new Error('Missing required fields for social media post');
+    const validation = validateCreatePost(postData);
+    
+    if (!validation.valid || !validation.data) {
+      return { 
+        success: false, 
+        error: 'Invalid post data', 
+        validationErrors: validation.errors 
+      };
+    }
+    
+    // Validated and sanitized data
+    const validatedData = validation.data;
+    
+    // Additional validation for media URLs
+    if (validatedData.media_urls?.length) {
+      const invalidUrls = validatedData.media_urls.filter(url => !validateMediaUrl(url));
+      if (invalidUrls.length > 0) {
+        return {
+          success: false,
+          error: 'One or more media URLs are invalid or from untrusted sources',
+          validationErrors: {
+            media_urls: 'Contains invalid or untrusted URLs'
+          }
+        };
+      }
     }
     
     // Insert post into database
-    const { data, error } = await supabase
-      .from('social_media_posts')
-      .insert({
-        company_id: companyId,
-        title: postData.title,
-        content: postData.content,
-        platform: postData.platform,
-        scheduled_date: postData.scheduled_date,
-        publish_time: postData.publish_time,
-        status: 'draft', // Default status
-        content_type: postData.content_type,
-        media_urls: postData.media_urls,
-        campaign_id: postData.campaign_id,
-        is_approved: postData.is_approved || false,
-        tags: postData.tags || []
-      })
-      .select('id')
-      .single();
+    const result = await apiRequest<{ id: string }>(
+      async () => {
+        const { data, error } = await supabase
+          .from('social_media_posts')
+          .insert({
+            company_id: companyId,
+            title: validatedData.title,
+            content: validatedData.content,
+            platform: validatedData.platform,
+            scheduled_date: validatedData.scheduled_date,
+            publish_time: validatedData.publish_time,
+            status: 'draft', // Default status
+            content_type: validatedData.content_type,
+            media_urls: validatedData.media_urls,
+            campaign_id: validatedData.campaign_id,
+            is_approved: validatedData.is_approved || false,
+            tags: validatedData.tags || [],
+            mentions: validatedData.mentions || [],
+            hashtags: validatedData.hashtags || [],
+            location: validatedData.location,
+            link_url: validatedData.link_url,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select('id')
+          .single();
+        
+        if (error) throw error;
+        
+        return { data };
+      },
+      {
+        successMessage: 'Social media post created successfully',
+        errorMessage: 'Failed to create social media post'
+      }
+    );
     
-    if (error) throw error;
+    // Clear any cached data to ensure fresh data
+    clearApiCache(getSocialMediaCacheKey(companyId));
     
-    toast.success('Social media post created successfully');
-    return { success: true, postId: data.id };
+    // Log the successful creation
+    logger.info('Social media post created', { 
+      companyId, 
+      postId: result.data?.id,
+      platform: validatedData.platform
+    });
+    
+    return { 
+      success: true, 
+      postId: result.data?.id 
+    };
   } catch (error: any) {
-    toast.error(`Failed to create social media post: ${error.message}`);
-    return { success: false, error: error.message };
+    // Log the error
+    logger.error('Error creating social media post', { 
+      error: error.message, 
+      companyId, 
+      postData 
+    });
+    
+    return { 
+      success: false, 
+      error: error.message || 'An unexpected error occurred' 
+    };
   }
 }
 
 /**
- * Update an existing social media post
+ * Update an existing social media post with validation
+ * 
  * @param postData - Updated post data
- * @returns Promise with success status
+ * @returns Promise with success status or error details
  */
 export async function updateSocialMediaPost(
   postData: UpdatePostInput
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; validationErrors?: Record<string, string> }> {
   try {
     // Validate the input data
-    if (!postData.id) {
-      throw new Error('Post ID is required for update');
+    const validation = validateUpdatePost(postData);
+    
+    if (!validation.valid || !validation.data) {
+      return { 
+        success: false, 
+        error: 'Invalid post update data', 
+        validationErrors: validation.errors 
+      };
+    }
+    
+    // Validated and sanitized data
+    const validatedData = validation.data;
+    
+    // Additional validation for media URLs if provided
+    if (validatedData.media_urls?.length) {
+      const invalidUrls = validatedData.media_urls.filter(url => !validateMediaUrl(url));
+      if (invalidUrls.length > 0) {
+        return {
+          success: false,
+          error: 'One or more media URLs are invalid or from untrusted sources',
+          validationErrors: {
+            media_urls: 'Contains invalid or untrusted URLs'
+          }
+        };
+      }
+    }
+    
+    // Get the current post data to determine company ID for cache invalidation
+    const currentPost = await fetchSocialMediaPost(validatedData.id);
+    if (!currentPost) {
+      return {
+        success: false,
+        error: 'Post not found'
+      };
     }
     
     // Update post in database
-    const { error } = await supabase
-      .from('social_media_posts')
-      .update({
-        title: postData.title,
-        content: postData.content,
-        platform: postData.platform,
-        scheduled_date: postData.scheduled_date,
-        publish_time: postData.publish_time,
-        status: postData.status,
-        content_type: postData.content_type,
-        media_urls: postData.media_urls,
-        campaign_id: postData.campaign_id,
-        is_approved: postData.is_approved,
-        approval_notes: postData.approval_notes,
-        tags: postData.tags,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', postData.id);
+    await apiRequest(
+      async () => {
+        const { error } = await supabase
+          .from('social_media_posts')
+          .update({
+            title: validatedData.title,
+            content: validatedData.content,
+            platform: validatedData.platform,
+            scheduled_date: validatedData.scheduled_date,
+            publish_time: validatedData.publish_time,
+            status: validatedData.status,
+            content_type: validatedData.content_type,
+            media_urls: validatedData.media_urls,
+            campaign_id: validatedData.campaign_id,
+            is_approved: validatedData.is_approved,
+            approval_notes: validatedData.approval_notes,
+            tags: validatedData.tags,
+            mentions: validatedData.mentions,
+            hashtags: validatedData.hashtags,
+            location: validatedData.location,
+            link_url: validatedData.link_url,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', validatedData.id);
+        
+        if (error) throw error;
+        
+        return { data: null };
+      },
+      {
+        successMessage: 'Social media post updated successfully',
+        errorMessage: 'Failed to update social media post'
+      }
+    );
     
-    if (error) throw error;
+    // Clear the specific post cache and the posts list cache
+    clearApiCache(`social_media_post_${validatedData.id}`);
+    if (currentPost.company_id) {
+      clearApiCache(getSocialMediaCacheKey(currentPost.company_id));
+    }
     
-    toast.success('Social media post updated successfully');
+    // Log the successful update
+    logger.info('Social media post updated', { 
+      postId: validatedData.id,
+      fieldCount: Object.keys(validatedData).length - 1 // Exclude the ID
+    });
+    
     return { success: true };
   } catch (error: any) {
-    toast.error(`Failed to update social media post: ${error.message}`);
-    return { success: false, error: error.message };
+    // Log the error
+    logger.error('Error updating social media post', { 
+      error: error.message, 
+      postId: postData.id 
+    });
+    
+    return { 
+      success: false, 
+      error: error.message || 'An unexpected error occurred' 
+    };
   }
 }
 
 /**
  * Delete a social media post
+ * 
  * @param postId - The ID of the post to delete
- * @returns Promise with success status
+ * @returns Promise with success status or error message
  */
 export async function deleteSocialMediaPost(
   postId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
-      .from('social_media_posts')
-      .delete()
-      .eq('id', postId);
+    // Get the current post data to determine company ID for cache invalidation
+    const post = await fetchSocialMediaPost(postId);
+    if (!post) {
+      return {
+        success: false,
+        error: 'Post not found'
+      };
+    }
     
-    if (error) throw error;
+    // Delete the post
+    await apiRequest(
+      async () => {
+        const { error } = await supabase
+          .from('social_media_posts')
+          .delete()
+          .eq('id', postId);
+        
+        if (error) throw error;
+        
+        return { data: null };
+      },
+      {
+        successMessage: 'Social media post deleted successfully',
+        errorMessage: 'Failed to delete social media post'
+      }
+    );
     
-    toast.success('Social media post deleted successfully');
+    // Clear the specific post cache and the posts list cache
+    clearApiCache(`social_media_post_${postId}`);
+    clearApiCache(getSocialMediaCacheKey(post.company_id));
+    
+    // Log the successful deletion
+    logger.info('Social media post deleted', { postId, companyId: post.company_id });
+    
     return { success: true };
   } catch (error: any) {
-    toast.error(`Failed to delete social media post: ${error.message}`);
-    return { success: false, error: error.message };
+    // Log the error
+    logger.error('Error deleting social media post', { error: error.message, postId });
+    
+    return { 
+      success: false, 
+      error: error.message || 'An unexpected error occurred' 
+    };
   }
 }
 
 /**
  * Schedule a post for publication
+ * 
  * @param postId - The ID of the post to schedule
- * @returns Promise with success status
+ * @returns Promise with success status or error message
  */
 export async function schedulePost(
   postId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
-      .from('social_media_posts')
-      .update({
-        status: 'scheduled',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', postId);
+    // Get the current post data to determine company ID for cache invalidation
+    const post = await fetchSocialMediaPost(postId);
+    if (!post) {
+      return {
+        success: false,
+        error: 'Post not found'
+      };
+    }
     
-    if (error) throw error;
+    // Check if the post is already scheduled or published
+    if (post.status === 'scheduled' || post.status === 'published') {
+      return {
+        success: false,
+        error: `Post is already ${post.status}`
+      };
+    }
     
-    toast.success('Post scheduled successfully');
+    // Schedule the post
+    await apiRequest(
+      async () => {
+        const { error } = await supabase
+          .from('social_media_posts')
+          .update({
+            status: 'scheduled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', postId);
+        
+        if (error) throw error;
+        
+        return { data: null };
+      },
+      {
+        successMessage: 'Post scheduled successfully',
+        errorMessage: 'Failed to schedule post'
+      }
+    );
+    
+    // Clear the specific post cache and the posts list cache
+    clearApiCache(`social_media_post_${postId}`);
+    clearApiCache(getSocialMediaCacheKey(post.company_id));
+    
+    // Log the successful scheduling
+    logger.info('Social media post scheduled', { 
+      postId, 
+      companyId: post.company_id,
+      scheduledDate: post.scheduled_date,
+      publishTime: post.publish_time
+    });
+    
     return { success: true };
   } catch (error: any) {
-    toast.error(`Failed to schedule post: ${error.message}`);
-    return { success: false, error: error.message };
+    // Log the error
+    logger.error('Error scheduling social media post', { error: error.message, postId });
+    
+    return { 
+      success: false, 
+      error: error.message || 'An unexpected error occurred' 
+    };
   }
 }
 
 /**
  * Approve a social media post
+ * 
  * @param postId - The ID of the post to approve
  * @param notes - Optional approval notes
- * @returns Promise with success status
+ * @returns Promise with success status or error message
  */
 export async function approvePost(
   postId: string,
   notes?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
-      .from('social_media_posts')
-      .update({
-        is_approved: true,
-        approval_notes: notes,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', postId);
+    // Get the current post data to determine company ID for cache invalidation
+    const post = await fetchSocialMediaPost(postId);
+    if (!post) {
+      return {
+        success: false,
+        error: 'Post not found'
+      };
+    }
     
-    if (error) throw error;
+    // Check if the post is already approved
+    if (post.is_approved) {
+      return {
+        success: false,
+        error: 'Post is already approved'
+      };
+    }
     
-    toast.success('Post approved successfully');
+    // Approve the post
+    await apiRequest(
+      async () => {
+        const { error } = await supabase
+          .from('social_media_posts')
+          .update({
+            is_approved: true,
+            approval_notes: notes,
+            status: post.status === 'draft' ? 'approved' : post.status,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', postId);
+        
+        if (error) throw error;
+        
+        return { data: null };
+      },
+      {
+        successMessage: 'Post approved successfully',
+        errorMessage: 'Failed to approve post'
+      }
+    );
+    
+    // Clear the specific post cache and the posts list cache
+    clearApiCache(`social_media_post_${postId}`);
+    clearApiCache(getSocialMediaCacheKey(post.company_id));
+    
+    // Log the successful approval
+    logger.info('Social media post approved', { 
+      postId, 
+      companyId: post.company_id,
+      withNotes: !!notes
+    });
+    
     return { success: true };
   } catch (error: any) {
-    toast.error(`Failed to approve post: ${error.message}`);
-    return { success: false, error: error.message };
+    // Log the error
+    logger.error('Error approving social media post', { error: error.message, postId });
+    
+    return { 
+      success: false, 
+      error: error.message || 'An unexpected error occurred' 
+    };
   }
+}
+
+/**
+ * Batch schedule multiple posts
+ * 
+ * @param postIds - Array of post IDs to schedule
+ * @returns Promise with batch operation results
+ */
+export async function batchSchedulePosts(
+  postIds: string[]
+): Promise<BatchPostResponse> {
+  if (!postIds.length) {
+    return {
+      success: true,
+      processed: 0,
+      failed: 0
+    };
+  }
+  
+  let processed = 0;
+  let failed = 0;
+  const errors: Array<{ post_id: string; error: string }> = [];
+  
+  // Process posts in batches to avoid overwhelming the database
+  for (const postId of postIds) {
+    try {
+      const result = await schedulePost(postId);
+      if (result.success) {
+        processed++;
+      } else {
+        failed++;
+        errors.push({ post_id: postId, error: result.error || 'Unknown error' });
+      }
+    } catch (error: any) {
+      failed++;
+      errors.push({ post_id: postId, error: error.message || 'Unknown error' });
+    }
+  }
+  
+  // Log batch operation results
+  logger.info('Batch schedule posts completed', {
+    total: postIds.length,
+    processed,
+    failed
+  });
+  
+  if (processed > 0) {
+    toast.success(`Successfully scheduled ${processed} posts`);
+  }
+  
+  if (failed > 0) {
+    toast.error(`Failed to schedule ${failed} posts`);
+  }
+  
+  return {
+    success: failed === 0,
+    processed,
+    failed,
+    error_details: errors.length ? errors : undefined
+  };
 }
