@@ -12,6 +12,7 @@ export default function useOnboardingState() {
   const [industry, setIndustry] = useState("");
   const [goals, setGoals] = useState<string[]>([]);
   const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({
+    // Using properties that exist in the updated interface
     emailEnabled: true,
     whatsAppEnabled: false,
     phoneEnabled: true,

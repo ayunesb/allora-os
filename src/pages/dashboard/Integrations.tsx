@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import {
   Plug, 
   RefreshCw,
   Shield, 
-  Tool
+  Wrench
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -103,7 +102,6 @@ export default function Integrations() {
           <TabsTrigger value="webhooks">Webhooks & APIs</TabsTrigger>
         </TabsList>
         
-        {/* CRM Integrations Tab */}
         <TabsContent value="crm" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
@@ -198,7 +196,6 @@ export default function Integrations() {
           </Card>
         </TabsContent>
         
-        {/* Marketing Platforms Tab */}
         <TabsContent value="marketing" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
@@ -293,18 +290,16 @@ export default function Integrations() {
           </Card>
         </TabsContent>
         
-        {/* Document Generation Tab */}
         <TabsContent value="documents" className="space-y-6">
           <DocumentGenerator />
         </TabsContent>
         
-        {/* Webhooks & APIs Tab */}
         <TabsContent value="webhooks" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Tool className="mr-2 h-5 w-5" />
+                  <Wrench className="mr-2 h-5 w-5" />
                   Zapier Integration
                 </CardTitle>
                 <CardDescription>
