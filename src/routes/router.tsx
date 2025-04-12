@@ -1,14 +1,13 @@
+
 import { createBrowserRouter } from "react-router-dom";
 import { adminRoutes } from "./admin-routes";
 import { complianceRoutes } from "./compliance-routes";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { publicRoutes } from "./public-routes";
 import { authRoutes } from "./auth-routes";
-import Dashboard from "@/pages/Dashboard";
-import LegalDocument from "@/pages/LegalDocument";
-import PricingPage from "@/pages/PricingPage";
-import ContactPage from "@/pages/ContactPage";
+import { dashboardRoutes } from "./dashboard-routes"; 
 import NotFound from "@/pages/NotFound";
+import Pricing from "@/pages/Pricing";
 import { AppRoutes } from ".";
 
 // Export the router to use in main.tsx or App.tsx
@@ -18,20 +17,8 @@ export const router = createBrowserRouter([
     element: <SystemDiagnostics />,
   },
   {
-    path: "/",
-    element: <Dashboard />,
-  },
-  {
-    path: "/legal/:documentId",
-    element: <LegalDocument />,
-  },
-  {
     path: "/pricing",
-    element: <PricingPage />,
-  },
-  {
-    path: "/contact",
-    element: <ContactPage />,
+    element: <Pricing />,
   },
   {
     path: "*",
@@ -41,4 +28,5 @@ export const router = createBrowserRouter([
   ...complianceRoutes,
   ...publicRoutes,
   ...authRoutes,
+  ...dashboardRoutes
 ]);
