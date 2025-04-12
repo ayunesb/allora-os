@@ -1,6 +1,7 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { SocialMediaPost, CreatePostInput } from '@/types/socialMedia';
+import { SocialMediaPost, CreatePostInput, SocialMediaCalendarFilters } from '@/types/socialMedia';
 import { useFilters } from './useFilters';
 import { usePostOperations } from './usePostOperations';
 import {
@@ -49,6 +50,34 @@ export function useSocialMedia() {
     fetchPosts();
   }, [fetchPosts]);
 
+  // Schedule a post
+  const schedule = useCallback(async (postId: string) => {
+    try {
+      const result = await schedulePost(postId);
+      if (result.success) {
+        fetchPosts(); // Refresh posts after scheduling
+      }
+      return result;
+    } catch (err: any) {
+      setError(err.message || 'Failed to schedule post');
+      return { success: false, error: err.message };
+    }
+  }, [fetchPosts]);
+
+  // Approve a post
+  const approve = useCallback(async (postId: string, notes?: string) => {
+    try {
+      const result = await approvePost(postId, notes);
+      if (result.success) {
+        fetchPosts(); // Refresh posts after approval
+      }
+      return result;
+    } catch (err: any) {
+      setError(err.message || 'Failed to approve post');
+      return { success: false, error: err.message };
+    }
+  }, [fetchPosts]);
+
   return {
     posts,
     isLoading,
@@ -58,6 +87,8 @@ export function useSocialMedia() {
     clearFilters,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    schedule,
+    approve
   };
 }

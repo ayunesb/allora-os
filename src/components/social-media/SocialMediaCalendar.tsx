@@ -3,13 +3,16 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useSocialMedia } from '@/hooks/social/useSocialMedia';
 import { Card, CardContent } from '@/components/ui/card';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Plus } from 'lucide-react';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { Button } from '@/components/ui/button';
 import { DialogCreate } from './SocialMediaPostDialog';
 import SocialMediaPostList from './SocialMediaPostList';
 import SocialMediaCalendarView from './SocialMediaCalendarView';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
 import { SocialMediaFilters } from './calendar/SocialMediaFilters';
 import { ViewToggle } from './calendar/ViewToggle';
+import { SocialPlatform, PostStatus } from '@/types/socialMedia';
 
 export default function SocialMediaCalendar() {
   const { profile } = useAuth();
@@ -39,8 +42,8 @@ export default function SocialMediaCalendar() {
     e.preventDefault();
     
     setPostFilters({
-      platform: selectedPlatform || undefined,
-      status: selectedStatus || undefined,
+      platform: selectedPlatform as SocialPlatform | undefined,
+      status: selectedStatus as PostStatus | undefined,
       search: searchQuery || undefined,
       startDate: format(startOfMonth(currentMonth), 'yyyy-MM-dd'),
       endDate: format(endOfMonth(currentMonth), 'yyyy-MM-dd')
