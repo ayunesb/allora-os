@@ -5,6 +5,7 @@ import { RiskAppetiteType, CompanyDetails } from "./useCompanyDetails";
 import { executiveBots } from '@/backend/executiveBots';
 
 export type RecommendationType = { 
+  id: string; // Add the id property to the interface
   title: string; 
   description: string; 
   type: string;
@@ -49,6 +50,7 @@ export function useAiRecommendations(
     const recommendations = [
       // Elon Musk - Innovation recommendation
       {
+        id: "rec-innovation-" + Date.now(), // Add unique ID
         title: `${industry} Disruptive Innovation`,
         description: `Based on your ${riskAppetite} risk profile, I recommend exploring cutting-edge ${industry.toLowerCase()} innovations with a focused R&D budget to stay ahead of competition.`,
         type: "strategy",
@@ -62,6 +64,7 @@ export function useAiRecommendations(
       
       // Warren Buffett - Financial recommendation
       {
+        id: "rec-financial-" + Date.now(), // Add unique ID
         title: riskAppetite === 'low' ? "Cost Optimization Strategy" : "Strategic Investment Plan",
         description: riskAppetite === 'low' 
           ? `I've identified key areas where we can optimize costs without sacrificing quality, potentially improving margins by 15-20%.` 
@@ -77,6 +80,7 @@ export function useAiRecommendations(
       
       // Marketing recommendation
       {
+        id: "rec-marketing-" + Date.now(), // Add unique ID
         title: topTopicNames[0] ? `${topTopicNames[0]} Campaign` : "Targeted LinkedIn Campaign",
         description: topTopicNames[0] 
           ? `Your team has been focused on ${topTopicNames[0]}. I've drafted a comprehensive campaign to maximize results in this area.` 
@@ -89,6 +93,7 @@ export function useAiRecommendations(
       
       // Sales recommendation
       {
+        id: "rec-sales-" + Date.now(), // Add unique ID
         title: "Optimized Sales Script",
         description: `I've analyzed successful conversions in the ${industry} sector and created a sales script that addresses the top 3 objections prospects typically raise.`,
         type: "call",
@@ -99,6 +104,7 @@ export function useAiRecommendations(
       
       // Satya Nadella - Digital transformation recommendation
       {
+        id: "rec-digital-" + Date.now(), // Add unique ID
         title: "Digital Workflow Optimization",
         description: `Implementing these digital workflow improvements could increase team productivity by up to 30% while reducing operational friction.`,
         type: "strategy",

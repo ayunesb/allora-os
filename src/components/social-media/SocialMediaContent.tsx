@@ -109,7 +109,12 @@ export function SocialMediaContent() {
   // Handle approve post with feedback
   const handleApprovePost = async (postId: string, notes?: string) => {
     try {
-      await approve(postId, notes);
+      // Only pass notes if they exist
+      if (notes) {
+        await approve(postId, notes);
+      } else {
+        await approve(postId);
+      }
       toast.success('Post approved successfully');
       return { success: true };
     } catch (err) {

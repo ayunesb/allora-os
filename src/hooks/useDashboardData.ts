@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCompanyDetails } from "./useCompanyDetails";
@@ -20,11 +21,6 @@ type AiRecommendationsResult = ReturnType<typeof useAiRecommendations> & {
   isLoading?: boolean;
   error?: Error | null;
 };
-
-// Add id property to RecommendationType
-interface EnhancedRecommendationType extends RecommendationType {
-  id: string;
-}
 
 export function useDashboardData() {
   const { profile } = useAuth();
@@ -147,14 +143,12 @@ export function useDashboardData() {
   const handleApprove = useCallback(async (index: number) => {
     if (index >= 0 && index < (aiRecommendations?.length || 0)) {
       try {
-        const recommendation = aiRecommendations[index] as EnhancedRecommendationType;
-        // Generate an ID if none exists
-        const recommendationId = recommendation.id || `recommendation-${index}`;
+        const recommendation = aiRecommendations[index];
         
         const result = await performanceMonitor.measureAsync(
           'approve-recommendation',
           () => handleApproveRecommendation(recommendation, index, riskAppetite),
-          { recommendationId }
+          { recommendationId: recommendation.id }
         );
         
         if (result >= 0) {

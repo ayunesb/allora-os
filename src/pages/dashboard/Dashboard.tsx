@@ -55,11 +55,9 @@ export default function Dashboard() {
   const handleRecommendationApproval = async (index: number) => {
     try {
       toast.info("Processing approval...");
-      // Convert index to string if the handleApproveRecommendation expects a string ID
-      // or get the ID from the recommendations array using the index
+      // Use proper type safety when accessing recommendations
       if (aiRecommendations && aiRecommendations[index]) {
-        const recommendationId = aiRecommendations[index].id;
-        await handleApproveRecommendation(recommendationId);
+        await handleApproveRecommendation(index);
         toast.success("Recommendation approved successfully", {
           description: "The approved recommendation will be implemented shortly"
         });
