@@ -3,7 +3,7 @@ import { RefreshCcw, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface CampaignHeaderProps {
-  onRefresh: () => void;
+  onRefresh: () => Promise<void>;
   onCreateCampaign: () => void;
   isRefreshing: boolean;
 }
@@ -21,7 +21,7 @@ export function CampaignHeader({ onRefresh, onCreateCampaign, isRefreshing }: Ca
       <div className="flex gap-2">
         <Button
           variant="outline"
-          onClick={onRefresh}
+          onClick={() => onRefresh()}
           disabled={isRefreshing}
         >
           <RefreshCcw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />

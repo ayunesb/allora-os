@@ -32,7 +32,8 @@ export default function CampaignDashboard() {
   };
 
   const handleRefreshData = async () => {
-    await refreshCampaignData({
+    // Make sure to return the Promise from refreshCampaignData
+    return refreshCampaignData({
       campaigns,
       onComplete: refetch,
       setIsRefreshing
