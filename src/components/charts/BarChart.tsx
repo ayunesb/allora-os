@@ -16,7 +16,7 @@ interface BarChartProps {
   categories: string[];
   index: string;
   colors?: string[];
-  valueFormatter?: (value: number) => string;
+  valueFormatter?: (value: number, category?: string) => string;
   layout?: 'horizontal' | 'vertical';
   className?: string;
 }
@@ -30,12 +30,20 @@ export function BarChart({
   layout = 'horizontal',
   className
 }: BarChartProps) {
-  // Create a simpler formatter function that matches the expected type
-  const formatValue = (value: any) => {
+  // Create a simpler formatter function that matches the expected type for Recharts
+  const formatTickValue = (value: any) => {
     if (valueFormatter && typeof value === 'number') {
       return valueFormatter(value);
     }
     return `${value}`;
+  };
+  
+  // Tooltip formatter
+  const formatTooltipValue = (value: any, name: string) => {
+    if (valueFormatter && typeof value === 'number') {
+      return [valueFormatter(value, name), name];
+    }
+    return [`${value}`, name];
   };
 
   return (
@@ -49,17 +57,15 @@ export function BarChart({
         {layout === 'horizontal' ? (
           <>
             <XAxis dataKey={index} />
-            <YAxis tickFormatter={(value: any) => formatValue(value)} />
+            <YAxis tickFormatter={formatTickValue} />
           </>
         ) : (
           <>
-            <XAxis type="number" tickFormatter={(value: any) => formatValue(value)} />
+            <XAxis type="number" tickFormatter={formatTickValue} />
             <YAxis type="category" dataKey={index} width={120} />
           </>
         )}
-        <Tooltip 
-          formatter={(value: any) => [formatValue(value), ""]}
-        />
+        <Tooltip formatter={formatTooltipValue} />
         <Legend />
         {categories.map((category, idx) => (
           <Bar

@@ -43,14 +43,14 @@ export type ExecutiveBot = string;
 
 // Harmonized type definitions to avoid inconsistencies
 export type SocialPlatform = "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Twitter";
-export type PostStatus = "Draft" | "Active" | "Paused" | "Completed"; 
+export type PostStatus = "Draft" | "Scheduled" | "Paused" | "Completed" | "Published" | "Approved"; 
 export type ContentType = "text" | "image" | "video" | "link" | "carousel" | "poll";
 export type PostContentType = ContentType;
 
 export interface CreatePostInput {
   title: string;
   content: string;
-  platform: SocialPlatform;
+  platform: Platform; // Changed from SocialPlatform to Platform
   scheduled_date: string;
   publish_time: string;
   content_type: PostContentType;
@@ -68,7 +68,7 @@ export interface UpdatePostInput {
   id: string;
   title?: string;
   content?: string;
-  platform?: SocialPlatform;
+  platform?: Platform; // Changed from SocialPlatform to Platform
   scheduled_date?: string;
   publish_time?: string;
   status?: PostStatus;
@@ -85,7 +85,7 @@ export interface UpdatePostInput {
 }
 
 export interface SocialMediaCalendarFilters {
-  platform?: SocialPlatform;
+  platform?: Platform; // Changed from SocialPlatform to Platform
   status?: PostStatus;
   content_type?: PostContentType;
   campaign_id?: string;

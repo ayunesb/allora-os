@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,7 @@ import { fetchCampaignAnalytics } from '@/services/analyticsService';
 import { format } from '@/utils/exportUtils';
 import { formatCurrency, formatNumber, calculatePercentChange } from '@/utils/formatters';
 import { Campaign } from '@/types/campaigns';
-import { AnalyticsData, MetricComparison, PlatformMetrics } from '@/types/analytics';
+import { AnalyticsData, MetricComparison, PlatformMetrics, ChannelPerformance } from '@/types/analytics';
 import { MetricCard } from './MetricCard';
 import { PerformanceTable } from './PerformanceTable';
 import { ConversionFunnel } from './ConversionFunnel';
@@ -116,6 +117,52 @@ export default function AdvancedCampaignAnalytics({ campaign }: { campaign: Camp
     }
   };
 
+  // Prepare data for performance table
+  const preparePerformanceData = (): { data: ChannelPerformance[], totalMetrics: any } => {
+    if (!analyticsData) return { data: [], totalMetrics: null };
+    
+    // Example: convert platform metrics to channel performance data
+    const channelData: ChannelPerformance[] = Object.entries(analyticsData.platformMetrics).map(([platform, metrics]) => ({
+      channelName: platform,
+      metrics: {
+        impressions: metrics.impressions,
+        clicks: metrics.clicks,
+        ctr: metrics.ctr,
+        conversions: metrics.conversions,
+        conversionRate: metrics.conversions / metrics.clicks,
+        cost: metrics.spend,
+        revenue: metrics.revenue,
+        roi: metrics.revenue / metrics.spend - 1
+      }
+    }));
+    
+    // Calculate totals
+    const totalMetrics = {
+      totalImpressions: channelData.reduce((sum, item) => sum + item.metrics.impressions, 0),
+      totalClicks: channelData.reduce((sum, item) => sum + item.metrics.clicks, 0),
+      totalConversions: channelData.reduce((sum, item) => sum + item.metrics.conversions, 0),
+      totalCost: channelData.reduce((sum, item) => sum + item.metrics.cost, 0),
+      totalRevenue: channelData.reduce((sum, item) => sum + item.metrics.revenue, 0)
+    };
+    
+    return { data: channelData, totalMetrics };
+  };
+  
+  // Prepare data for conversion funnel
+  const prepareFunnelData = () => {
+    if (!analyticsData) return null;
+    
+    return {
+      impressions: analyticsData.impressions,
+      clicks: analyticsData.clicks,
+      leads: analyticsData.leads,
+      conversions: analyticsData.conversions
+    };
+  };
+
+  const performanceData = preparePerformanceData();
+  const funnelData = prepareFunnelData();
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -217,10 +264,21 @@ export default function AdvancedCampaignAnalytics({ campaign }: { campaign: Camp
           </Card>
         </TabsContent>
         <TabsContent value="performance" className="space-y-4">
-          <PerformanceTable campaign={campaign} analyticsData={analyticsData} />
+          {funnelData && performanceData.data.length > 0 ? (
+            <PerformanceTable 
+              data={performanceData.data} 
+              totalMetrics={performanceData.totalMetrics}
+            />
+          ) : (
+            <p>No performance data available.</p>
+          )}
         </TabsContent>
         <TabsContent value="conversions" className="space-y-4">
-          <ConversionFunnel campaign={campaign} analyticsData={analyticsData} />
+          {funnelData ? (
+            <ConversionFunnel data={funnelData} />
+          ) : (
+            <p>No conversion data available.</p>
+          )}
         </TabsContent>
         <TabsContent value="platforms" className="space-y-4">
           <Card>

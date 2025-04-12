@@ -4,7 +4,7 @@ import { SocialMediaPost } from '@/types/socialMedia';
 import { Card, CardContent } from '@/components/ui/card';
 import { CalendarIcon, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import SocialMediaPostList from './SocialMediaPostList';
+import { SocialMediaPostList } from './SocialMediaPostList';
 import SocialMediaCalendarView from './SocialMediaCalendarView';
 
 interface PostsDisplayProps {

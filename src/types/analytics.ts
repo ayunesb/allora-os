@@ -55,3 +55,17 @@ export interface AnalyticsData {
   platformMetrics: PlatformMetrics;
   comparisonData: ComparisonData;
 }
+
+export interface ChannelPerformance {
+  channelName: string;
+  metrics: {
+    impressions: number;
+    clicks: number;
+    ctr: number;
+    conversions: number;
+    conversionRate: number;
+    cost: number;
+    revenue: number;
+    roi: number;
+  };
+}

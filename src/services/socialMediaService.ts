@@ -1,3 +1,4 @@
+
 /**
  * Social Media Service
  * 
@@ -94,7 +95,8 @@ export async function fetchSocialMediaPosts(
       // Order by scheduled date
       query = query.order('scheduled_date', { ascending: true });
       
-      return await query;
+      const { data, error } = await query;
+      return { data, error };
     }),
     {
       errorMessage: 'Failed to fetch social media posts',
@@ -117,7 +119,7 @@ export async function fetchSocialMediaPost(postId: string): Promise<SocialMediaP
     .eq('id', postId)
     .maybeSingle();
   
-  return { data: result.data, error: result.error };
+  return result.data;
 }
 
 /**
@@ -163,7 +165,7 @@ export async function createSocialMediaPost(
     // Insert post into database
     const result = await apiRequest<{ id: string }>(
       wrapSupabaseQuery(async () => {
-        return await supabase
+        const { data, error } = await supabase
           .from('social_media_posts')
           .insert({
             company_id: companyId,
@@ -172,7 +174,7 @@ export async function createSocialMediaPost(
             platform: validatedData.platform,
             scheduled_date: validatedData.scheduled_date,
             publish_time: validatedData.publish_time,
-            status: 'draft', // Default status
+            status: 'Draft' as PostStatus, // Default status
             content_type: validatedData.content_type,
             media_urls: validatedData.media_urls,
             campaign_id: validatedData.campaign_id,
@@ -187,6 +189,8 @@ export async function createSocialMediaPost(
           })
           .select('id')
           .single();
+          
+        return { data, error };
       }),
       {
         successMessage: 'Social media post created successfully',
@@ -273,7 +277,7 @@ export async function updateSocialMediaPost(
     // Update post in database
     await apiRequest(
       wrapSupabaseQuery(async () => {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('social_media_posts')
           .update({
             title: validatedData.title,
@@ -296,9 +300,7 @@ export async function updateSocialMediaPost(
           })
           .eq('id', validatedData.id);
         
-        if (error) throw error;
-        
-        return { data: null };
+        return { data, error };
       }),
       {
         successMessage: 'Social media post updated successfully',
@@ -355,14 +357,12 @@ export async function deleteSocialMediaPost(
     // Delete the post
     await apiRequest(
       wrapSupabaseQuery(async () => {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('social_media_posts')
           .delete()
           .eq('id', postId);
         
-        if (error) throw error;
-        
-        return { data: null, error: null };
+        return { data, error };
       }),
       {
         successMessage: 'Social media post deleted successfully',
@@ -372,7 +372,7 @@ export async function deleteSocialMediaPost(
     
     // Clear the specific post cache and the posts list cache
     clearApiCache(`social_media_post_${postId}`);
-    clearApiCache(getSocialMediaCacheKey(postData.company_id));
+    clearApiCache(getSocialMediaCacheKey(postData.company_id || ''));
     
     // Log the successful deletion
     logger.info('Social media post deleted', { postId, companyId: postData.company_id });
@@ -419,7 +419,7 @@ export async function schedulePost(
     // Schedule the post
     await apiRequest(
       wrapSupabaseQuery(async () => {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('social_media_posts')
           .update({
             status: 'Scheduled' as PostStatus,
@@ -427,9 +427,7 @@ export async function schedulePost(
           })
           .eq('id', postId);
         
-        if (error) throw error;
-        
-        return { data: null, error: null };
+        return { data, error };
       }),
       {
         successMessage: 'Post scheduled successfully',
@@ -497,7 +495,7 @@ export async function approvePost(
     // Approve the post
     await apiRequest(
       wrapSupabaseQuery(async () => {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('social_media_posts')
           .update({
             is_approved: true,
@@ -507,9 +505,7 @@ export async function approvePost(
           })
           .eq('id', postId);
         
-        if (error) throw error;
-        
-        return { data: null, error: null };
+        return { data, error };
       }),
       {
         successMessage: 'Post approved successfully',

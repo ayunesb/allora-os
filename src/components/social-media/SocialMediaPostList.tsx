@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   Table, 
@@ -12,8 +13,7 @@ import {
 } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, CheckCircle, Clock } from 'lucide-react';
-import { SocialMediaPost } from '@/types/socialMedia';
-import { formatDate } from '@/utils/formatters';
+import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
 
 interface SocialMediaPostListProps {
   posts: SocialMediaPost[];
@@ -30,6 +30,13 @@ export function SocialMediaPostList({
   onSchedulePost,
   onApprovePost
 }: SocialMediaPostListProps) {
+  // Function to format date
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+  
   return (
     <div className="rounded-md border overflow-x-auto">
       <Table>
@@ -131,3 +138,5 @@ function StatusBadge({ status }: { status: string }) {
       return <Badge variant="outline">{status}</Badge>;
   }
 }
+
+export default SocialMediaPostList;

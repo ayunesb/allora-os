@@ -9,9 +9,9 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { formatNumber, formatCurrency } from '@/utils/formatters';
-import { ChannelPerformance } from '@/types/analytics';
+import { ChannelPerformance, AnalyticsData } from '@/types/analytics';
 
-interface PerformanceTableProps {
+export interface PerformanceTableProps {
   data: ChannelPerformance[];
   totalMetrics: {
     totalImpressions: number;

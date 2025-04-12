@@ -16,7 +16,7 @@ interface LineChartProps {
   categories: string[];
   index: string;
   colors?: string[];
-  valueFormatter?: (value: number) => string;
+  valueFormatter?: (value: number, category?: string) => string;
   yAxisWidth?: number;
   className?: string;
 }
@@ -30,12 +30,20 @@ export function LineChart({
   yAxisWidth = 40,
   className
 }: LineChartProps) {
-  // Create a simpler formatter function that matches the expected type
-  const formatValue = (value: any) => {
+  // Create a formatter function that matches the expected type for Recharts
+  const formatTickValue = (value: any) => {
     if (valueFormatter && typeof value === 'number') {
       return valueFormatter(value);
     }
     return `${value}`;
+  };
+  
+  // Tooltip formatter
+  const formatTooltipValue = (value: any, name: string) => {
+    if (valueFormatter && typeof value === 'number') {
+      return [valueFormatter(value, name), name];
+    }
+    return [`${value}`, name];
   };
 
   return (
@@ -45,10 +53,10 @@ export function LineChart({
         <XAxis dataKey={index} />
         <YAxis 
           width={yAxisWidth} 
-          tickFormatter={(value: any) => formatValue(value)}
+          tickFormatter={formatTickValue}
         />
         <Tooltip 
-          formatter={(value: any) => [formatValue(value), ""]}
+          formatter={formatTooltipValue}
         />
         <Legend />
         {categories.map((category, idx) => (

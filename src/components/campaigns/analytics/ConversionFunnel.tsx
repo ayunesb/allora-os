@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { formatNumber, formatCurrency } from '@/utils/formatters';
+import { AnalyticsData } from '@/types/analytics';
 
-interface ConversionFunnelProps {
+export interface ConversionFunnelProps {
   data: {
     impressions: number;
     clicks: number;
