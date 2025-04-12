@@ -9,7 +9,6 @@ import { dashboardRoutes } from "./dashboard-routes";
 import NotFound from "@/pages/NotFound";
 import Pricing from "@/pages/Pricing";
 import { Navigate } from "react-router-dom";
-import { AppRoutes } from ".";
 
 // Export the router to use in main.tsx or App.tsx
 export const router = createBrowserRouter([

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowClockwise, FileExport, Save } from "lucide-react";
+import { RotateCw, FileText, Save } from "lucide-react";
 import { toast } from "sonner";
 
 export default function DashboardModules() {
@@ -124,12 +124,12 @@ export default function DashboardModules() {
       <div className="flex justify-between pt-4">
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2">
-            <ArrowClockwise className="h-4 w-4" />
+            <RotateCw className="h-4 w-4" />
             Load Saved
           </Button>
           
           <Button variant="outline" className="gap-2">
-            <FileExport className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             Export
           </Button>
         </div>

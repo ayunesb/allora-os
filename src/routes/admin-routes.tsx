@@ -10,7 +10,7 @@ import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import LaunchCheck from "@/pages/admin/LaunchCheck";
 import LaunchPrep from "@/pages/admin/LaunchPrep";
-import TechnicalImprovements from "@/pages/admin/TechnicalImprovements";
+import TechnicalImprovements from "@/pages/dashboard/TechnicalImprovements";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminCampaigns from "@/pages/admin/AdminCampaigns";
