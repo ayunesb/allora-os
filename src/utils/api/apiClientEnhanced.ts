@@ -1,9 +1,11 @@
+
 /**
  * Enhanced API Client
  * Provides optimized caching and standardized error handling
  */
 
-import { handleError, ErrorType } from '@/utils/errorHandling/errorHandler';
+import { handleError } from '@/utils/errorHandling/errorHandler';
+import { ErrorType } from '@/utils/errorHandling/errorTypes';
 import { logger } from '@/utils/loggingService';
 
 // Cache structure
