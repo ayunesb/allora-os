@@ -91,3 +91,64 @@
 .screen-reader-friendly [aria-hidden="true"] {
   display: none !important;
 }
+
+/* Enhanced focus styles for all elements */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: white;
+  padding: 8px;
+  z-index: 100;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Improve form validation feedback */
+input:invalid,
+select:invalid,
+textarea:invalid {
+  border-color: hsl(var(--destructive));
+}
+
+[aria-invalid="true"] {
+  border-color: hsl(var(--destructive));
+}
+
+/* Improved focus indication for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Add announcement region styling */
+[aria-live] {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+/* Improved keyboard navigation indicators */
+[data-focus-visible-added] {
+  box-shadow: 0 0 0 3px hsl(var(--primary));
+}

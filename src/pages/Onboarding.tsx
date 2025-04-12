@@ -10,6 +10,7 @@ import { useOnboardingStatusCheck } from "@/hooks/useOnboardingStatusCheck";
 import { useOnboardingValidation } from "@/hooks/useOnboardingValidation";
 import * as Steps from "@/components/onboarding/steps";
 import { useCompanyWebsite } from "@/hooks/useCompanyWebsite";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 // Step descriptions for better context
 const stepDescriptions = {
@@ -70,9 +71,14 @@ export default function Onboarding() {
   };
 
   const handleFinalComplete = async (): Promise<void> => {
-    const success = await handleComplete();
-    if (success) {
-      navigate("/dashboard");
+    try {
+      const success = await handleComplete();
+      if (success) {
+        toast.success("Onboarding completed successfully! Redirecting to dashboard...");
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      toast.error("Failed to complete onboarding. Please try again.");
     }
     return Promise.resolve();
   };
@@ -91,6 +97,8 @@ export default function Onboarding() {
       
       // Show success message
       toast.success("Company data applied! Please review and make any necessary adjustments.");
+    } else if (!success) {
+      toast.error("We couldn't fetch data from your website. Please enter your information manually.");
     }
     
     // Move to the next step regardless of success
@@ -212,26 +220,28 @@ export default function Onboarding() {
   const isLastStep = step === totalSteps;
   
   return (
-    <OnboardingLayout
-      step={step}
-      totalSteps={totalSteps}
-      onNext={isLastStep ? handleFinalComplete : handleNext}
-      onBack={handleBack}
-      isNextDisabled={isOnboardingLoading || isCompleting}
-      isBackDisabled={step === 1 || isOnboardingLoading || isCompleting}
-      nextLabel={isLastStep ? "Complete Setup" : "Continue"}
-      isLoading={isOnboardingLoading || isCompleting}
-      isLastStep={isLastStep}
-      title="Allora AI Setup"
-      stepDescription={stepDescriptions[step as keyof typeof stepDescriptions]}
-    >
-      {getStepContent()}
-      
-      {validationError && (
-        <div className="mt-4 p-3 bg-red-100 border border-red-300 text-red-800 rounded-md">
-          {validationError}
-        </div>
-      )}
-    </OnboardingLayout>
+    <AccessibilityProvider>
+      <OnboardingLayout
+        step={step}
+        totalSteps={totalSteps}
+        onNext={isLastStep ? handleFinalComplete : handleNext}
+        onBack={handleBack}
+        isNextDisabled={isOnboardingLoading || isCompleting}
+        isBackDisabled={step === 1 || isOnboardingLoading || isCompleting}
+        nextLabel={isLastStep ? "Complete Setup" : "Continue"}
+        isLoading={isOnboardingLoading || isCompleting}
+        isLastStep={isLastStep}
+        title="Allora AI Setup"
+        stepDescription={stepDescriptions[step as keyof typeof stepDescriptions]}
+      >
+        {getStepContent()}
+        
+        {validationError && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-300 text-red-800 rounded-md" role="alert">
+            {validationError}
+          </div>
+        )}
+      </OnboardingLayout>
+    </AccessibilityProvider>
   );
 }

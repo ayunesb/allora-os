@@ -4,6 +4,7 @@ import SocialMediaCalendar from '@/components/social-media/SocialMediaCalendar';
 import { Card } from '@/components/ui/card';
 import { Helmet } from 'react-helmet-async';
 import { useBreakpoint } from '@/hooks/use-mobile';
+import useMediaQuery from '@/hooks/useMediaQuery';
 
 /**
  * Social Media Calendar page component
@@ -12,6 +13,7 @@ import { useBreakpoint } from '@/hooks/use-mobile';
 export default function SocialMediaCalendarPage() {
   const breakpoint = useBreakpoint();
   const isMobile = ['xs', 'mobile'].includes(breakpoint);
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   
   return (
     <>
@@ -21,7 +23,11 @@ export default function SocialMediaCalendarPage() {
       </Helmet>
       
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
-        <Card className={isMobile ? "p-3" : "p-6"}>
+        <Card 
+          className={isMobile ? "p-3" : "p-6"} 
+          role="region" 
+          aria-label="Social Media Calendar"
+        >
           <SocialMediaCalendar />
         </Card>
       </div>

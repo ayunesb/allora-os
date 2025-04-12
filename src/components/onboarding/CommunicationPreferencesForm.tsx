@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
+import { useAccessibility } from "@/context/AccessibilityContext";
 
 interface CommunicationPreferencesFormProps {
   companyDetails: PartialCompanyDetails;
@@ -36,6 +39,8 @@ export function CommunicationPreferencesForm({
   companyDetails,
   updateCompanyDetails,
 }: CommunicationPreferencesFormProps) {
+  const { highContrast, screenReaderFriendly } = useAccessibility();
+  
   // Handle toggling communication channels
   const toggleChannel = (channelKey: string) => {
     updateCompanyDetails({
@@ -51,10 +56,12 @@ export function CommunicationPreferencesForm({
       updateCompanyDetails({
         communicationChannels: [...channels, channelId]
       });
+      toast.success(`${channelId.charAt(0).toUpperCase() + channelId.slice(1)} channel enabled`);
     } else {
       updateCompanyDetails({
         communicationChannels: channels.filter(c => c !== channelId)
       });
+      toast.info(`${channelId.charAt(0).toUpperCase() + channelId.slice(1)} channel disabled`);
     }
   };
 
@@ -64,6 +71,12 @@ export function CommunicationPreferencesForm({
       ...companyDetails,
       salesStylePreference: value,
     });
+    
+    // Show success toast
+    const selectedStyle = salesStyles.find(style => style.value === value);
+    if (selectedStyle) {
+      toast.success(`Sales style updated to: ${selectedStyle.label}`);
+    }
   };
 
   return (
@@ -79,17 +92,24 @@ export function CommunicationPreferencesForm({
         <div>
           <p className="text-sm font-medium mb-3">Preferred Communication Channels</p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 gap-3"
+            role={screenReaderFriendly ? "group" : undefined}
+            aria-label={screenReaderFriendly ? "Communication channel options" : undefined}
+          >
             {communicationChannels.map((channel) => (
               <div key={channel.id} className="flex items-center space-x-2">
                 <Checkbox
                   id={channel.id}
                   checked={!!companyDetails[channel.key]}
                   onCheckedChange={() => toggleChannel(channel.key)}
+                  aria-label={`Enable ${channel.label}`}
                 />
                 <label
                   htmlFor={channel.id}
-                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className={`text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+                    highContrast ? 'text-foreground' : ''
+                  }`}
                 >
                   {channel.label}
                 </label>
@@ -103,6 +123,7 @@ export function CommunicationPreferencesForm({
           <Select
             value={companyDetails.salesStylePreference || ""}
             onValueChange={handleSalesStyleChange}
+            aria-label="Select your sales style preference"
           >
             <SelectTrigger id="sales-style">
               <SelectValue placeholder="Select sales style" />
@@ -115,6 +136,12 @@ export function CommunicationPreferencesForm({
               ))}
             </SelectContent>
           </Select>
+          
+          {!companyDetails.salesStylePreference && (
+            <p className="text-xs text-amber-500 mt-1">
+              Please select a sales style preference to continue
+            </p>
+          )}
         </div>
       </div>
     </div>
