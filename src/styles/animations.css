@@ -34,10 +34,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(99, 179, 237, 0.4);
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.4);
   }
   50% {
-    box-shadow: 0 0 15px rgba(99, 179, 237, 0.7);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.7);
   }
 }
 
