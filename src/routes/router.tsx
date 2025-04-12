@@ -65,7 +65,7 @@ const wrapArrayRoutes = (routes: RouteObject[]): RouteObject[] => {
 // Combine all routes
 const allRoutes: RouteObject[] = [
   ...wrapArrayRoutes(publicRoutes),
-  wrapChildrenWithHelpProvider(dashboardRoutes),
+  ...dashboardRoutes.map(route => wrapChildrenWithHelpProvider(route)),
   wrapChildrenWithHelpProvider(adminRoutes as RouteObject),
   ...wrapArrayRoutes(authRoutes),
   ...wrapArrayRoutes(devRoutes),
