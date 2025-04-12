@@ -25,7 +25,10 @@ import {
 import { SocialPlatform, PostContentType, SocialMediaPost } from '@/types/socialMedia';
 import { useCampaigns } from '@/hooks/campaigns/useCampaigns';
 
-// Form schema validation
+/**
+ * Form schema validation using Zod
+ * Enforces data integrity and validation rules for social media posts
+ */
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title must be less than 100 characters'),
   content: z.string().min(1, 'Content is required').max(2000, 'Content must be less than 2000 characters'),
@@ -41,13 +44,41 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface SocialMediaPostFormProps {
+  /**
+   * Optional existing post to edit
+   * If provided, form will be pre-filled with post data
+   */
   post?: SocialMediaPost;
+  
+  /**
+   * Form submission handler
+   * Returns a promise with submission result
+   */
   onSubmit: (data: FormValues) => Promise<{ success: boolean; error?: string }>;
+  
+  /**
+   * Whether form is currently submitting
+   * Controls loading state of the submit button
+   */
   isSubmitting?: boolean;
 }
 
 /**
  * Form component for creating and editing social media posts
+ * 
+ * This component handles:
+ * - Creating new social media posts
+ * - Editing existing posts
+ * - Form validation using Zod schema
+ * - Integration with campaign selection
+ * 
+ * @example
+ * // Create a new post
+ * <SocialMediaPostForm onSubmit={handleCreatePost} />
+ * 
+ * @example
+ * // Edit an existing post
+ * <SocialMediaPostForm post={existingPost} onSubmit={handleUpdatePost} />
  */
 export default function SocialMediaPostForm({
   post,
@@ -79,13 +110,16 @@ export default function SocialMediaPostForm({
         tags: [],
       };
   
-  // Initialize form
+  // Initialize form with validation schema
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
   
-  // Handle form submission
+  /**
+   * Handle form submission
+   * Passes validated form data to the onSubmit handler
+   */
   const handleSubmit = async (values: FormValues) => {
     await onSubmit(values);
   };
