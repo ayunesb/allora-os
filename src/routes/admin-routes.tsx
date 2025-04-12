@@ -4,9 +4,9 @@ import AdminRoute from "@/components/AdminRoute";
 import AdminLayout from "@/components/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import UserManagement from "@/pages/admin/UserManagement";
-import CompanyManagement from "@/pages/admin/CompanyManagement";
-import Webhooks from "@/pages/admin/Webhooks";
-import APIConfiguration from "@/pages/admin/APIConfiguration";
+import Companies from "@/pages/admin/Companies";
+import WebhookManagement from "@/pages/admin/WebhookManagement";
+import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import LaunchCheck from "@/pages/admin/LaunchCheck";
 import LaunchPrep from "@/pages/admin/LaunchPrep";
@@ -29,15 +29,15 @@ export const adminRoutes: RouteObject = {
     },
     {
       path: "companies",
-      element: <CompanyManagement />,
+      element: <Companies />,
     },
     {
       path: "webhooks",
-      element: <Webhooks />,
+      element: <WebhookManagement />,
     },
     {
       path: "api-config",
-      element: <APIConfiguration />,
+      element: <ApiKeyManagement />,
     },
     {
       path: "database",

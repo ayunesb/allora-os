@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Loader2, Users, Building2, BarChart3, UserPlus, LineChart, Settings } from "lucide-react";
 import { getSystemAnalytics } from "@/backend/analyticsService";
@@ -5,10 +6,9 @@ import { supabase } from "@/backend/supabase";
 import { toast } from "sonner";
 import { AdminHeader } from '@/components/admin/dashboard/AdminHeader';
 import { StatsRow } from '@/components/admin/dashboard/StatsRow';
-import { AdminModuleGrid } from '@/components/admin/dashboard/AdminModuleGrid';
+import { AdminModuleGrid, AdminModule } from '@/components/admin/dashboard/AdminModuleGrid';
 import { formatRevenue, formatSessionTime } from '@/utils/admin/formatters';
 import { StatItem } from '@/components/admin/dashboard/StatsRow';
-import { AdminModule } from '@/components/admin/dashboard/AdminModuleGrid';
 import { useBreakpoint } from '@/hooks/use-mobile';
 
 export default function AdminIndex() {
