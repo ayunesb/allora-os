@@ -10,6 +10,7 @@ import CompanySettings from "@/pages/admin/CompanySettings";
 import LaunchPlan from "@/pages/admin/LaunchPlan";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import DiagnosticsPage from "@/pages/admin/DiagnosticsPage";
+import AdminSettings from "@/pages/admin/Settings";
 
 export const adminRoutes: RouteObject = {
   path: "",
@@ -50,6 +51,16 @@ export const adminRoutes: RouteObject = {
         <ProtectedRoute>
           <AdminRoute>
             <WebhookManagement />
+          </AdminRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/admin/settings",
+      element: (
+        <ProtectedRoute>
+          <AdminRoute>
+            <AdminSettings />
           </AdminRoute>
         </ProtectedRoute>
       ),

@@ -11,7 +11,8 @@ import {
   HomeIcon,
   Rocket,
   Shield,
-  Database
+  Database,
+  Settings
 } from "lucide-react";
 
 interface AdminNavProps {
@@ -45,6 +46,12 @@ export function AdminNav({ className }: AdminNavProps) {
       label: "Webhooks",
       icon: Webhook,
       active: location.pathname === "/admin/webhooks",
+    },
+    {
+      href: "/admin/settings",
+      label: "Settings",
+      icon: Settings,
+      active: location.pathname === "/admin/settings",
     },
     {
       href: "/admin/launch-plan",
