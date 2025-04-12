@@ -9,8 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RocketIcon, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { RocketIcon, ArrowRight, ArrowLeft, Loader2, HelpCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { HelpButton } from "@/components/help/HelpButton";
 
 type OnboardingLayoutProps = {
   children: ReactNode;
@@ -52,11 +53,25 @@ export default function OnboardingLayout({
           <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
             <RocketIcon className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">{title}</CardTitle>
+          <div className="flex items-center justify-center">
+            <CardTitle className="text-2xl">{title}</CardTitle>
+            <div className="ml-2">
+              <HelpButton contextId="onboarding" size="sm" />
+            </div>
+          </div>
           <CardDescription>
             Let's set up your business profile (Step {activeStep} of {totalSteps})
           </CardDescription>
-          <Progress value={progressPercentage} className="mt-4" />
+          
+          {/* Enhanced Progress Indicator */}
+          <div className="mt-6">
+            <Progress value={progressPercentage} className="h-2" />
+            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+              <span>Getting Started</span>
+              <span>Company Details</span>
+              <span>Complete</span>
+            </div>
+          </div>
         </CardHeader>
 
         <CardContent>
