@@ -6,6 +6,7 @@ import AiRecommendations from "@/components/dashboard/AiRecommendations";
 import CeoMessage from "@/components/dashboard/CeoMessage";
 import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
 import { useQuery } from "@tanstack/react-query";
+import { usePendingApprovals } from "@/hooks/usePendingApprovals";
 
 export default function Dashboard() {
   const { isLoading } = useQuery({
@@ -17,13 +18,16 @@ export default function Dashboard() {
     },
   });
 
+  // Use the hook to get pending approvals
+  const { pendingApprovals } = usePendingApprovals();
+
   if (isLoading) {
     return <DashboardLoadingState />;
   }
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
-      <DashboardHeader isRefreshing={false} onRefresh={() => {}} />
+      <DashboardHeader pendingApprovals={pendingApprovals} />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">

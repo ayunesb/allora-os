@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -93,8 +94,9 @@ export function AdvancedCampaignAnalytics({
     ? parseFloat(campaign.budget) || 5000 
     : (campaign.budget || 5000);
     
-  const estimatedRevenue = totalConversions * campaignBudget * 0.2;
-  const roi = ((estimatedRevenue - totalCost) / totalCost * 100).toFixed(2);
+  // Make sure all operands are numbers to fix the TypeScript errors
+  const estimatedRevenue = Number(totalConversions) * Number(campaignBudget) * 0.2;
+  const roi = (((Number(estimatedRevenue) - Number(totalCost)) / Number(totalCost)) * 100).toFixed(2);
   
   if (isLoading) {
     return (
