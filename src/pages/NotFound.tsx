@@ -26,17 +26,17 @@ const NotFound = () => {
     <div className="min-h-screen flex flex-col bg-background dark:bg-background">
       <Navbar isLoggedIn={false} />
       
-      <div className="flex-1 flex flex-col items-center justify-center px-4">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div className="max-w-md w-full text-center">
           <div className="flex justify-center mb-6">
-            <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center">
-              <AlertTriangle className="h-12 w-12 text-muted-foreground" />
+            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-muted flex items-center justify-center">
+              <AlertTriangle className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
             </div>
           </div>
           
-          <h1 className="text-6xl font-bold text-primary mb-4">404</h1>
-          <h2 className="text-2xl font-semibold mb-4">Unexpected Application Error!</h2>
-          <p className="text-muted-foreground mb-8">
+          <h1 className="text-5xl sm:text-6xl font-bold text-primary mb-4">404</h1>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">Unexpected Application Error!</h2>
+          <p className="text-muted-foreground mb-8 text-sm sm:text-base">
             The page you are looking for might have been removed, had its name changed,
             or is temporarily unavailable.
           </p>

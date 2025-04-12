@@ -1,32 +1,43 @@
 
-export interface LaunchButtonProps {
-  className?: string;
-}
-
-export interface LaunchStepState {
-  isLaunching: boolean;
-  launchStep: string | null;
-  isComplete: boolean;
-}
-
+// Add a new type for database table status with RLS flag
 export interface DatabaseTableStatus {
   exists: boolean;
-  message?: string;
-  rls: boolean;
-}
-
-export interface ValidationResult {
-  valid: boolean;
   message: string;
+  rls?: boolean;
 }
 
 export interface ValidationResultsUI {
-  legalAcceptance?: ValidationResult;
-  apiConnections?: ValidationResult;
-  userAuthentication?: ValidationResult;
-  executiveBoardroom?: ValidationResult;
-  databaseSecurity?: ValidationResult;
-  performanceOptimization?: ValidationResult;
+  [key: string]: any;
+  legalAcceptance?: {
+    valid: boolean;
+    message: string;
+  };
+  apiConnections?: {
+    valid: boolean;
+    message: string;
+  };
+  userAuthentication?: {
+    valid: boolean;
+    message: string;
+  };
+  executiveBoardroom?: {
+    valid: boolean;
+    message: string;
+  };
+  databaseSecurity?: {
+    valid: boolean;
+    message: string;
+  };
+  performanceOptimization?: {
+    valid: boolean;
+    message: string;
+  };
+  databaseTables?: Record<string, DatabaseTableStatus>;
+  databaseIndexes?: Array<{
+    name: string;
+    status: string;
+    message: string;
+  }>;
   rlsPolicies?: Array<{
     table: string;
     status: string;
@@ -37,11 +48,4 @@ export interface ValidationResultsUI {
     status: string;
     message: string;
   }>;
-  databaseTables?: Record<string, DatabaseTableStatus>;
-  databaseIndexes?: Array<{
-    name?: string;
-    status: string;
-    message: string;
-  }>;
-  [key: string]: ValidationResult | Record<string, DatabaseTableStatus> | Array<any> | undefined;
 }

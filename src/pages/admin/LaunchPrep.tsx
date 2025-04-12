@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PreLaunchChecklist from '@/components/admin/PreLaunchChecklist';
 import LaunchVerification from '@/components/admin/LaunchVerification';
@@ -34,6 +35,7 @@ export default function LaunchPrep() {
     }
   };
 
+  // Hide any lovable badges on this page
   React.useEffect(() => {
     localStorage.setItem('lovable-badge-hidden', 'true');
     

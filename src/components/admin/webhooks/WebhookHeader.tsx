@@ -12,7 +12,7 @@ interface WebhookHeaderProps {
 
 const WebhookHeader: React.FC<WebhookHeaderProps> = ({ activeTab, onTabChange }) => {
   const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  const isMobileView = ['xs', 'sm', 'mobile'].includes(breakpoint);
   
   return (
     <>
@@ -25,12 +25,12 @@ const WebhookHeader: React.FC<WebhookHeaderProps> = ({ activeTab, onTabChange })
       </CardDescription>
       
       <Tabs defaultValue="config" value={activeTab} onValueChange={onTabChange} className="w-full">
-        <TabsList className={`${isMobileView ? 'w-full mt-2 overflow-x-auto scrollbar-thin' : ''} flex`}>
+        <TabsList className={`${isMobileView ? 'w-full mt-2 overflow-x-auto scrollbar-thin' : 'w-auto'}`}>
           <TabsTrigger value="config" className={isMobileView ? 'flex-1 text-sm px-3' : ''}>
-            Configuration
+            {isMobileView ? 'Config' : 'Configuration'}
           </TabsTrigger>
           <TabsTrigger value="history" className={isMobileView ? 'flex-1 text-sm px-3' : ''}>
-            Event History
+            {isMobileView ? 'History' : 'Event History'}
           </TabsTrigger>
         </TabsList>
       </Tabs>
