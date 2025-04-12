@@ -1,120 +1,61 @@
-
-import { RouteObject } from "react-router-dom";
+import { lazy } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import DashboardIndex from "@/pages/dashboard/Index";
-import DashboardStrategies from "@/pages/dashboard/Strategies";
-import DashboardAnalytics from "@/pages/dashboard/Analytics";
-import DashboardSettings from "@/pages/dashboard/Settings";
-import DashboardProfile from "@/pages/dashboard/Profile";
-import DashboardAiBots from "@/pages/dashboard/AiBots";
-import DashboardCampaigns from "@/pages/dashboard/CampaignDashboard";
-import Campaigns from "@/pages/dashboard/Campaigns";
-import DashboardLeads from "@/pages/dashboard/Leads";
-import DashboardCalls from "@/pages/dashboard/Calls";
-import DashboardApprovals from "@/pages/dashboard/Approvals";
-import DashboardDebate from "@/pages/dashboard/Debate";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import AdAccountsConnect from "@/pages/dashboard/AdAccountsConnect";
-import CampaignCreate from "@/pages/dashboard/CampaignCreate";
-import CampaignDetail from "@/pages/dashboard/CampaignDetail";
-import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";
-import TiktokCallback from "@/components/auth/TiktokCallback";
-import SocialMediaCalendarPage from "@/pages/dashboard/SocialMediaCalendar";
-import LinkedInIntegration from "@/pages/dashboard/LinkedInIntegration";
-import LinkedInAuthCallback from "@/pages/dashboard/LinkedInAuthCallback";
-import LeadFollowUpSequences from "@/pages/dashboard/LeadFollowUpSequences";
+import { Navigate } from "react-router-dom";
 
-export const dashboardRoutes: RouteObject = {
+// Lazy loaded components
+const Index = lazy(() => import("@/pages/dashboard/Index"));
+const Analytics = lazy(() => import("@/pages/dashboard/Analytics"));
+const AiBots = lazy(() => import("@/pages/dashboard/AiBots"));
+const BotDetail = lazy(() => import("@/pages/dashboard/BotDetail"));
+const Profile = lazy(() => import("@/pages/dashboard/Profile"));
+const Debate = lazy(() => import("@/pages/dashboard/Debate"));
+const Settings = lazy(() => import("@/pages/dashboard/Settings"));
+const Strategies = lazy(() => import("@/pages/dashboard/Strategies"));
+const Leads = lazy(() => import("@/pages/dashboard/Leads"));
+const Calls = lazy(() => import("@/pages/dashboard/Calls"));
+const Campaigns = lazy(() => import("@/pages/dashboard/Campaigns"));
+const CampaignDetail = lazy(() => import("@/pages/dashboard/CampaignDetail"));
+const CampaignCreate = lazy(() => import("@/pages/dashboard/CampaignCreate"));
+const AdAccountsConnect = lazy(() => import("@/pages/dashboard/AdAccountsConnect"));
+const CampaignDashboard = lazy(() => import("@/pages/dashboard/CampaignDashboard"));
+const CampaignPaymentSuccess = lazy(() => import("@/pages/dashboard/CampaignPaymentSuccess"));
+const ShopifyOptimization = lazy(() => import("@/pages/dashboard/ShopifyOptimization"));
+const SocialMediaCalendar = lazy(() => import("@/pages/dashboard/SocialMediaCalendar"));
+const Approvals = lazy(() => import("@/pages/dashboard/Approvals"));
+const LeadFollowUpSequences = lazy(() => import("@/pages/dashboard/LeadFollowUpSequences"));
+const AISettings = lazy(() => import("@/pages/dashboard/AISettings"));
+const LinkedInAuthCallback = lazy(() => import("@/pages/dashboard/LinkedInAuthCallback"));
+const LinkedInIntegration = lazy(() => import("@/pages/dashboard/LinkedInIntegration"));
+const Integrations = lazy(() => import("@/pages/dashboard/Integrations"));
+
+export const dashboardRoutes = {
   path: "/dashboard",
-  element: (
-    <ProtectedRoute>
-      <DashboardLayout />
-    </ProtectedRoute>
-  ),
+  element: <DashboardLayout />,
   children: [
-    {
-      index: true,
-      element: <DashboardIndex />,
-    },
-    {
-      path: "strategies",
-      element: <DashboardStrategies />,
-    },
-    {
-      path: "analytics",
-      element: <DashboardAnalytics />,
-    },
-    {
-      path: "settings",
-      element: <DashboardSettings />,
-    },
-    {
-      path: "profile",
-      element: <DashboardProfile />,
-    },
-    {
-      path: "ai-bots",
-      element: <DashboardAiBots />,
-    },
-    {
-      path: "debate",
-      element: <DashboardDebate />,
-    },
-    {
-      path: "campaigns",
-      element: <DashboardCampaigns />,
-    },
-    {
-      path: "campaigns/legacy",
-      element: <Campaigns />,
-    },
-    {
-      path: "campaigns/create",
-      element: <CampaignCreate />,
-    },
-    {
-      path: "campaigns/:id",
-      element: <CampaignDetail />,
-    },
-    {
-      path: "campaigns/payment-success",
-      element: <CampaignPaymentSuccess />,
-    },
-    {
-      path: "social-media",
-      element: <SocialMediaCalendarPage />,
-    },
-    {
-      path: "ad-accounts",
-      element: <AdAccountsConnect />,
-    },
-    {
-      path: "auth/tiktok/callback",
-      element: <TiktokCallback />,
-    },
-    {
-      path: "leads",
-      element: <DashboardLeads />,
-    },
-    {
-      path: "leads/follow-up-sequences",
-      element: <LeadFollowUpSequences />,
-    },
-    {
-      path: "leads/linkedin",
-      element: <LinkedInIntegration />,
-    },
-    {
-      path: "auth/linkedin/callback",
-      element: <LinkedInAuthCallback />,
-    },
-    {
-      path: "calls",
-      element: <DashboardCalls />,
-    },
-    {
-      path: "approvals",
-      element: <DashboardApprovals />,
-    },
+    { index: true, element: <Index /> },
+    { path: "analytics", element: <Analytics /> },
+    { path: "ai-bots", element: <AiBots /> },
+    { path: "ai-bots/:botId", element: <BotDetail /> },
+    { path: "profile", element: <Profile /> },
+    { path: "debate", element: <Debate /> },
+    { path: "settings", element: <Settings /> },
+    { path: "strategies", element: <Strategies /> },
+    { path: "leads", element: <Leads /> },
+    { path: "leads/follow-up-sequences", element: <LeadFollowUpSequences /> },
+    { path: "calls", element: <Calls /> },
+    { path: "campaigns", element: <Campaigns /> },
+    { path: "campaigns/create", element: <CampaignCreate /> },
+    { path: "campaigns/:campaignId", element: <CampaignDetail /> },
+    { path: "ad-accounts/connect", element: <AdAccountsConnect /> },
+    { path: "campaign-dashboard", element: <CampaignDashboard /> },
+    { path: "campaign/payment-success", element: <CampaignPaymentSuccess /> },
+    { path: "shopify-optimization", element: <ShopifyOptimization /> },
+    { path: "social-media-calendar", element: <SocialMediaCalendar /> },
+    { path: "approvals", element: <Approvals /> },
+    { path: "ai-settings", element: <AISettings /> },
+    { path: "linkedin-auth-callback", element: <LinkedInAuthCallback /> },
+    { path: "linkedin-integration", element: <LinkedInIntegration /> },
+    { path: "integrations", element: <Integrations /> },
+    { path: "*", element: <Navigate to="/dashboard" replace /> },
   ],
 };

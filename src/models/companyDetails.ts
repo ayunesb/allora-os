@@ -1,45 +1,43 @@
 export interface PartialCompanyDetails {
-  // Basic Information
-  description?: string;
-  mission?: string;
-  vision?: string;
-  headquarters?: string;
-  phone?: string;
+  name?: string;
+  industry?: string;
+  size?: string;
+  founded?: string;
   website?: string;
-  email?: string;
-  primaryOffering?: string;
-  companySize?: string;
-  monthlyRevenue?: string;
-  geographicMarket?: string;
-  
-  // Strategic Goals
+  headquarters?: string;
+  description?: string;
+  revenue?: string;
+  funding?: string;
+  employees?: string;
+  riskProfile?: string;
+  executives?: Array<{
+    name: string;
+    role: string;
+    imageUrl?: string;
+  }>;
   goals?: string[];
-  timeHorizon?: string;
-  
-  // Risk Appetite
-  riskAppetite?: 'low' | 'medium' | 'high';
-  
-  // Brand Identity
-  logoUrl?: string;
-  primaryColor?: string;
-  secondaryColor?: string;
-  brandTone?: string;
-  
-  // Communication Preferences
-  communicationChannels?: string[];
-  salesStylePreference?: string;
-  emailEnabled?: boolean;
-  whatsAppEnabled?: boolean;
-  phoneEnabled?: boolean;
-  zoomEnabled?: boolean;
-  
-  // CRM & Marketing
+  competitors?: string[];
+  target_audience?: string;
+  usps?: string[];
+  challenges?: string[];
+  strengths?: string[];
+  weaknesses?: string[];
+  technologies?: string[];
   crmSystem?: string;
   marketingPlatform?: string;
   usesEcommerce?: boolean;
   shopName?: string;
-  
-  // Other Details
-  executiveTeamEnabled?: boolean;
-  [key: string]: any;
+  brandColors?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+  };
+  logoUrl?: string;
+  communicationPreferences?: {
+    emailFrequency?: string;
+    notificationPreferences?: string[];
+    preferredChannel?: string;
+  };
+  documentGenerationTypes?: string[];
+  integrationApiKey?: string;
 }
