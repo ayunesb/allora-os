@@ -3,73 +3,42 @@ import { supabase } from '@/integrations/supabase/client';
 import { FunctionStatus } from '@/types/databaseVerification';
 
 /**
- * Verifies that required database functions exist and are secure
- * Uses check_function_exists RPC with fallback to direct pg_proc querying
+ * Verifies the existence and security of required database functions
  * @returns Promise with array of function verification results
  */
 export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
   const requiredFunctions = [
-    'handle_new_user', 
-    'update_profile_after_company_creation'
+    'check_rls_enabled',
+    'check_function_exists',
+    'update_user_preferences',
+    'get_lead_communication_summary',
+    'update_company_integrations',
+    'insert_user_action'
   ];
+  
   const functionResults: FunctionStatus[] = [];
   
   for (const funcName of requiredFunctions) {
     try {
-      // Try to use our check_function_exists function
-      const { data, error } = await supabase
-        .rpc('check_function_exists', { function_name: funcName });
-        
-      if (error) {
-        console.warn(`Using fallback method to check function ${funcName}:`, error);
-        
-        // Fallback: Query pg_proc directly
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('pg_proc')
-          .select('proname, prosecdef')
-          .eq('proname', funcName)
-          .single();
-          
-        if (fallbackError) {
-          console.error(`Error checking function ${funcName} with fallback:`, fallbackError);
-          functionResults.push({
-            name: funcName,
-            exists: false,
-            isSecure: false,
-            message: `Function ${funcName} could not be verified: ${fallbackError.message}`
-          });
-          continue;
-        }
-        
-        const exists = !!fallbackData;
-        const isSecure = exists && fallbackData.prosecdef;
-          
-        functionResults.push({
-          name: funcName,
-          exists,
-          isSecure,
-          message: exists 
-            ? (isSecure 
-              ? `Function ${funcName} exists and is SECURITY DEFINER` 
-              : `Function ${funcName} exists but is NOT SECURITY DEFINER`)
-            : `Function ${funcName} does not exist`
-        });
-        continue;
-      }
+      // Call the check_function_exists function to verify if the function exists and is secure
+      const { data, error } = await supabase.rpc('check_function_exists', {
+        function_name: funcName
+      });
       
-      // Parse check_function_exists results
-      const exists = !!data && data.function_exists;
-      const isSecure = !!data && data.is_secure;
-        
+      if (error) throw error;
+      
+      const exists = data?.function_exists || false;
+      const isSecure = data?.is_secure || false;
+      
       functionResults.push({
         name: funcName,
         exists,
         isSecure,
         message: exists 
           ? (isSecure 
-            ? `Function ${funcName} exists and is SECURITY DEFINER` 
-            : `Function ${funcName} exists but is NOT SECURITY DEFINER`)
-          : `Function ${funcName} does not exist`
+              ? `Function ${funcName} exists and is secure` 
+              : `Function ${funcName} exists but is NOT secure - add SECURITY DEFINER`) 
+          : `Function ${funcName} is missing`
       });
     } catch (err: any) {
       console.error(`Error checking function ${funcName}:`, err);

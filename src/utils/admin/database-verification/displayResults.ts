@@ -17,12 +17,16 @@ export function displayVerificationResults(
   policies: PolicyStatus[],
   functions: FunctionStatus[]
 ): void {
+  // Track if there are any issues to determine overall status
+  let hasIssues = false;
+  
   // Check tables
   const missingTables = tables.filter(t => !t.exists).map(t => t.name);
   if (missingTables.length === 0) {
     toast.success('All required database tables exist');
   } else {
     toast.error(`Missing tables: ${missingTables.join(', ')}`);
+    hasIssues = true;
   }
   
   // Check RLS policies
@@ -31,6 +35,7 @@ export function displayVerificationResults(
     toast.success('RLS policies verified successfully');
   } else if (missingRls.length > 0) {
     toast.error(`RLS issues found on tables: ${missingRls.join(', ')}`);
+    hasIssues = true;
   }
   
   // Function issues
@@ -39,5 +44,13 @@ export function displayVerificationResults(
     toast.success('Database functions verified successfully');
   } else if (functionIssues.length > 0) {
     toast.error(`Issues with functions: ${functionIssues.join(', ')}`);
+    hasIssues = true;
+  }
+  
+  // Show overall status
+  if (!hasIssues) {
+    toast.success('Database verification completed successfully');
+  } else {
+    toast.error('Database verification found issues that need to be addressed');
   }
 }
