@@ -49,3 +49,8 @@ export interface ValidationResultsUI {
     message: string;
   }>;
 }
+
+// Add the missing LaunchButtonProps interface
+export interface LaunchButtonProps {
+  className?: string;
+}
