@@ -68,39 +68,37 @@ export const AiBotsPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-full space-y-8">
+    <div className="w-full space-y-8 max-w-full overflow-hidden">
       <AiBotsHeader isMobileView={isMobileView} />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-full">
-        <div className="w-full max-w-full overflow-hidden">
-          <AiBotsTabsList isMobileView={isMobileView} />
-        </div>
+        <AiBotsTabsList isMobileView={isMobileView} />
 
-        <TabsContent value="boardroom" className="mt-6">
+        <TabsContent value="boardroom" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
             <AIExecutiveBoardroom companyId={companyId} />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="debate" className="mt-6">
+        <TabsContent value="debate" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
             <DebateStarterPage />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="bots" className="mt-6">
+        <TabsContent value="bots" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
             <BotsTabContent onSelectBot={setSelectedBot} setActiveTab={setActiveTab} />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="insights" className="mt-6">
+        <TabsContent value="insights" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
             <BotInsightsSection />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="chat" className="mt-6">
+        <TabsContent value="chat" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
             <BotChatPanel 
               selectedBot={selectedBot} 
@@ -110,13 +108,13 @@ export const AiBotsPage: React.FC = () => {
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="roster" className="mt-6">
+        <TabsContent value="roster" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
             <ExecutiveRoster />
           </ErrorBoundary>
         </TabsContent>
 
-        <TabsContent value="history" className="mt-6">
+        <TabsContent value="history" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
             <ConsultationHistory />
           </ErrorBoundary>

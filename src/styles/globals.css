@@ -61,9 +61,21 @@
 }
 
 @layer utilities {
+  .container-constrained {
+    max-width: 100%;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
   .tabs-scrollable {
     scrollbar-width: thin;
     -ms-overflow-style: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    max-width: 100%;
   }
   
   .tabs-scrollable::-webkit-scrollbar {

@@ -16,20 +16,20 @@ const ImplementationTabContent: React.FC<ImplementationTabContentProps> = ({
 }) => {
   return (
     <>
-      <TabsContent value="implementation" className="p-4">
+      <TabsContent value="implementation" className="p-4 w-full max-w-full">
         <StrategyImplementationTracker 
           strategyId={strategyId} 
           strategyTitle={strategyTitle} 
         />
       </TabsContent>
       
-      <TabsContent value="roi" className="p-4">
+      <TabsContent value="roi" className="p-4 w-full max-w-full">
         <StrategyRoiCalculator 
           strategyId={strategyId} 
         />
       </TabsContent>
       
-      <TabsContent value="competitors" className="p-4">
+      <TabsContent value="competitors" className="p-4 w-full max-w-full">
         <CompetitorBenchmarking 
           strategyId={strategyId} 
         />
