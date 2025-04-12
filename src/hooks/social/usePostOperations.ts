@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -6,7 +7,7 @@ import { logger } from '@/utils/loggingService';
 import { validateCreatePost, validateUpdatePost, validateMediaUrl } from '@/utils/validators/socialMediaValidator';
 import { clearApiCache } from '@/utils/api/apiClient';
 
-export function usePostOperations() {
+export function usePostOperations(refreshCallback?: () => void) {
   const createPost = useCallback(async (postData: CreatePostInput) => {
     try {
       // Validate the input data
@@ -82,6 +83,9 @@ export function usePostOperations() {
         platform: validatedData.platform
       });
 
+      // Call refresh callback if provided
+      if (refreshCallback) refreshCallback();
+
       return {
         success: true,
         postId: data?.id
@@ -90,7 +94,7 @@ export function usePostOperations() {
       logger.error('Error creating social media post', error);
       return { success: false, error: error.message };
     }
-  }, []);
+  }, [refreshCallback]);
 
   const updatePost = useCallback(async (postData: UpdatePostInput) => {
     try {
@@ -160,12 +164,15 @@ export function usePostOperations() {
         fieldCount: Object.keys(validatedData).length - 1 // Exclude the ID
       });
 
+      // Call refresh callback if provided
+      if (refreshCallback) refreshCallback();
+
       return { success: true };
     } catch (error: any) {
       logger.error('Error updating social media post', error);
       return { success: false, error: error.message };
     }
-  }, []);
+  }, [refreshCallback]);
 
   const deletePost = useCallback(async (postId: string) => {
     try {
@@ -184,12 +191,15 @@ export function usePostOperations() {
       // Log the successful deletion
       logger.info('Social media post deleted', { postId });
 
+      // Call refresh callback if provided
+      if (refreshCallback) refreshCallback();
+
       return { success: true };
     } catch (error: any) {
       logger.error('Error deleting social media post', error);
       return { success: false, error: error.message };
     }
-  }, []);
+  }, [refreshCallback]);
 
   return {
     createPost,
