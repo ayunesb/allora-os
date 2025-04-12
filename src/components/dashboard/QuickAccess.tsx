@@ -1,69 +1,64 @@
 
-import { Brain, FilePieChart, MessageSquare, Phone, Users, Mail, Briefcase, LineChart } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { ArrowRight, Users, GitBranch, Phone, Bot, Zap } from "lucide-react";
 
 export default function QuickAccess() {
-  const quickAccess = [
+  const quickItems = [
     {
-      title: "Executive Team",
-      description: "Consult with AI executives",
-      icon: Brain,
-      link: "/dashboard/ai-bots",
-      color: "text-purple-500"
+      title: "Manage Leads",
+      description: "View and manage your leads",
+      icon: <Users className="h-8 w-8 text-blue-500" />,
+      link: "/dashboard/leads"
     },
     {
       title: "Strategies",
-      description: "View business strategies",
-      icon: FilePieChart,
-      link: "/dashboard/strategies",
-      color: "text-blue-500"
+      description: "Browse business strategies",
+      icon: <GitBranch className="h-8 w-8 text-green-500" />,
+      link: "/dashboard/strategies"
     },
     {
-      title: "Campaigns",
-      description: "Manage marketing campaigns",
-      icon: Mail,
-      link: "/dashboard/campaigns",
-      color: "text-green-500"
+      title: "Communications",
+      description: "Manage calls and messages",
+      icon: <Phone className="h-8 w-8 text-orange-500" />,
+      link: "/dashboard/calls"
     },
     {
-      title: "Call Scripts",
-      description: "Access call & message scripts",
-      icon: Phone,
-      link: "/dashboard/calls",
-      color: "text-amber-500"
+      title: "AI Bots",
+      description: "Access AI executive team",
+      icon: <Bot className="h-8 w-8 text-purple-500" />,
+      link: "/dashboard/ai-bots"
     },
     {
-      title: "Leads",
-      description: "Manage your leads",
-      icon: Users,
-      link: "/dashboard/leads",
-      color: "text-red-500"
-    },
-    {
-      title: "Analytics",
-      description: "Track your performance",
-      icon: LineChart,
-      link: "/dashboard/analytics",
-      color: "text-cyan-500"
+      title: "Technical",
+      description: "Performance improvements",
+      icon: <Zap className="h-8 w-8 text-amber-500" />,
+      link: "/dashboard/technical-improvements"
     }
   ];
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Quick Access</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        {quickAccess.map((item, index) => (
-          <Link key={index} to={item.link} className="block">
-            <div className="border rounded-lg p-4 h-full transition-all duration-200 hover:border-primary/50 hover:bg-primary/5">
-              <div className={`${item.color} mb-2`}>
-                <item.icon size={24} />
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">Quick Access</CardTitle>
+        <CardDescription>
+          Frequently used tools and resources
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {quickItems.map((item, index) => (
+            <Link to={item.link} key={index}>
+              <div className="flex flex-col items-center justify-center p-4 rounded-lg border hover:bg-accent/50 transition-colors h-full">
+                {item.icon}
+                <h3 className="mt-3 font-medium text-sm">{item.title}</h3>
+                <p className="text-xs text-muted-foreground text-center mt-1">{item.description}</p>
               </div>
-              <h3 className="font-medium">{item.title}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+            </Link>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

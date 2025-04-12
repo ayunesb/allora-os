@@ -1,164 +1,135 @@
-
-import * as React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { Drawer, DrawerClose, DrawerContent } from "@/components/ui/drawer";
+import { Link } from "react-router-dom";
 import { 
-  BarChart3, 
+  Home, 
   Users, 
-  LayoutDashboard, 
-  Settings, 
-  Brain, 
-  Megaphone, 
+  GitBranch, 
   Phone, 
-  CheckCircle, 
+  BarChart2, 
+  Calendar, 
+  Bot, 
+  Settings,
   MessageSquare,
-  Calendar,
-  Sliders
+  ShoppingCart,
+  Activity,
+  Bell,
+  Cpu,
+  X,
+  Zap
 } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
 interface MobileNavDrawerProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  navItems?: Array<{ label: string; path: string }>;
-  currentPath?: string;
-  onNavigateToProfile?: () => void;
-  onSignOut?: () => Promise<void>;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  currentPath: string;
 }
 
-export function MobileNavDrawer({ 
-  open, 
-  onOpenChange, 
-  navItems,
-  currentPath,
-  onNavigateToProfile,
-  onSignOut
-}: MobileNavDrawerProps = {}) {
-  const location = useLocation();
-  const pathname = location.pathname;
-  const [internalOpen, setInternalOpen] = React.useState(false);
-  
-  // Use either provided state or internal state
-  const isOpen = open !== undefined ? open : internalOpen;
-  const setIsOpen = onOpenChange || setInternalOpen;
+export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDrawerProps) {
+  const isActive = (path: string) => {
+    return currentPath === path || currentPath.startsWith(path + "/");
+  };
 
   const tabs = [
     {
       name: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutDashboard className="h-5 w-5" />,
-      match: pathname === "/dashboard",
-    },
-    {
-      name: "AI Bots",
-      href: "/dashboard/ai-bots",
-      icon: <Brain className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/ai-bots") || pathname.includes("/dashboard/debate"),
-    },
-    {
-      name: "AI Settings",
-      href: "/dashboard/ai-settings",
-      icon: <Sliders className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/ai-settings"),
-    },
-    {
-      name: "Campaigns",
-      href: "/dashboard/campaigns",
-      icon: <Megaphone className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/campaigns"),
-    },
-    {
-      name: "Social Media",
-      href: "/dashboard/social-media",
-      icon: <Calendar className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/social-media"),
+      path: "/dashboard",
+      icon: <Home className="h-5 w-5" />,
+      exact: true
     },
     {
       name: "Leads",
-      href: "/dashboard/leads",
-      icon: <Users className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/leads"),
-    },
-    {
-      name: "Calls",
-      href: "/dashboard/calls",
-      icon: <Phone className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/calls"),
+      path: "/dashboard/leads",
+      icon: <Users className="h-5 w-5" />
     },
     {
       name: "Strategies",
-      href: "/dashboard/strategies",
-      icon: <CheckCircle className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/strategies"),
+      path: "/dashboard/strategies",
+      icon: <GitBranch className="h-5 w-5" />
+    },
+    {
+      name: "Calls",
+      path: "/dashboard/calls",
+      icon: <Phone className="h-5 w-5" />
+    },
+    {
+      name: "Campaigns",
+      path: "/dashboard/campaigns",
+      icon: <BarChart2 className="h-5 w-5" />
+    },
+    {
+      name: "Calendar",
+      path: "/dashboard/calendar",
+      icon: <Calendar className="h-5 w-5" />
+    },
+    {
+      name: "AI Bots",
+      path: "/dashboard/ai-bots",
+      icon: <Bot className="h-5 w-5" />
+    },
+    {
+      name: "Debate",
+      path: "/dashboard/debate",
+      icon: <MessageSquare className="h-5 w-5" />
+    },
+    {
+      name: "Shop",
+      path: "/dashboard/shop",
+      icon: <ShoppingCart className="h-5 w-5" />
     },
     {
       name: "Analytics",
-      href: "/dashboard/analytics",
-      icon: <BarChart3 className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/analytics"),
+      path: "/dashboard/analytics",
+      icon: <Activity className="h-5 w-5" />
+    },
+    {
+      name: "Approvals",
+      path: "/dashboard/approvals",
+      icon: <Bell className="h-5 w-5" />
+    },
+    {
+      name: "Integrations",
+      path: "/dashboard/integrations",
+      icon: <Cpu className="h-5 w-5" />
+    },
+    {
+      name: "Technical",
+      path: "/dashboard/technical-improvements",
+      icon: <Zap className="h-5 w-5" />
     },
     {
       name: "Settings",
-      href: "/dashboard/settings",
-      icon: <Settings className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/settings") ||
-        pathname.includes("/dashboard/profile"),
-    },
+      path: "/dashboard/settings",
+      icon: <Settings className="h-5 w-5" />
+    }
   ];
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="md:hidden">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5"
-          >
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="sr-only">Toggle menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-72">
-        <div className="px-2 py-6">
-          <div className="mb-4 px-4">
-            <h2 className="text-lg font-semibold">Menu</h2>
-          </div>
-          <nav className="flex flex-col space-y-1">
-            {tabs.map((tab) => (
-              <Link
-                key={tab.name}
-                to={tab.href}
-                onClick={() => setIsOpen(false)}
-                className={cn(
-                  "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                  tab.match
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:text-primary"
-                )}
-              >
-                {tab.icon}
-                <span className="ml-3">{tab.name}</span>
-              </Link>
-            ))}
-          </nav>
+    <Drawer open={open} onOpenChange={onOpenChange} className="z-50">
+      <DrawerContent className="bg-white">
+        <div className="p-4 flex justify-end">
+          <DrawerClose asChild>
+            <Button variant="ghost" className="hover:bg-accent rounded-full">
+              <X className="h-5 w-5" />
+            </Button>
+          </DrawerClose>
         </div>
-      </SheetContent>
-    </Sheet>
+        <div className="py-4">
+          {tabs.map((tab) => (
+            <Link
+              to={tab.path}
+              key={tab.name}
+              className={`flex items-center space-x-2 p-3 hover:bg-accent rounded-md transition-colors ${
+                isActive(tab.path) ? "font-medium" : ""
+              }`}
+              onClick={() => onOpenChange(false)}
+            >
+              {tab.icon}
+              <span>{tab.name}</span>
+            </Link>
+          ))}
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

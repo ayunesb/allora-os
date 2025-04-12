@@ -1,91 +1,102 @@
-
-import * as React from "react";
+import { memo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { 
-  BarChart3, 
+  Home, 
   Users, 
-  LayoutDashboard, 
-  Settings, 
-  Brain, 
-  Megaphone, 
+  GitBranch, 
   Phone, 
-  CheckCircle, 
+  BarChart2, 
+  Calendar, 
+  Bot, 
+  Settings,
   MessageSquare,
-  Calendar,
-  Sliders
+  ShoppingCart,
+  Activity,
+  Bell,
+  Cpu,
+  Zap
 } from "lucide-react";
 
-interface DashboardTabsProps {
-  navItems?: Array<{ label: string; path: string }>;
-}
-
-export function DashboardTabs({ navItems }: DashboardTabsProps = {}) {
+const DashboardTabs = () => {
   const location = useLocation();
-  const pathname = location.pathname;
+  const currentPath = location.pathname;
+
+  const isActive = (path: string) => {
+    return currentPath === path || currentPath.startsWith(path + "/");
+  };
 
   const tabs = [
     {
       name: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutDashboard className="h-5 w-5" />,
-      match: pathname === "/dashboard",
-    },
-    {
-      name: "AI Bots",
-      href: "/dashboard/ai-bots",
-      icon: <Brain className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/ai-bots") || pathname.includes("/dashboard/debate"),
-    },
-    {
-      name: "AI Settings",
-      href: "/dashboard/ai-settings",
-      icon: <Sliders className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/ai-settings"),
-    },
-    {
-      name: "Campaigns",
-      href: "/dashboard/campaigns",
-      icon: <Megaphone className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/campaigns"),
-    },
-    {
-      name: "Social Media",
-      href: "/dashboard/social-media",
-      icon: <Calendar className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/social-media"),
+      path: "/dashboard",
+      icon: <Home className="h-5 w-5" />,
+      exact: true
     },
     {
       name: "Leads",
-      href: "/dashboard/leads",
-      icon: <Users className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/leads"),
-    },
-    {
-      name: "Calls",
-      href: "/dashboard/calls",
-      icon: <Phone className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/calls"),
+      path: "/dashboard/leads",
+      icon: <Users className="h-5 w-5" />
     },
     {
       name: "Strategies",
-      href: "/dashboard/strategies",
-      icon: <CheckCircle className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/strategies"),
+      path: "/dashboard/strategies",
+      icon: <GitBranch className="h-5 w-5" />
+    },
+    {
+      name: "Calls",
+      path: "/dashboard/calls",
+      icon: <Phone className="h-5 w-5" />
+    },
+    {
+      name: "Campaigns",
+      path: "/dashboard/campaigns",
+      icon: <BarChart2 className="h-5 w-5" />
+    },
+    {
+      name: "Calendar",
+      path: "/dashboard/calendar",
+      icon: <Calendar className="h-5 w-5" />
+    },
+    {
+      name: "AI Bots",
+      path: "/dashboard/ai-bots",
+      icon: <Bot className="h-5 w-5" />
+    },
+    {
+      name: "Debate",
+      path: "/dashboard/debate",
+      icon: <MessageSquare className="h-5 w-5" />
+    },
+    {
+      name: "Shop",
+      path: "/dashboard/shop",
+      icon: <ShoppingCart className="h-5 w-5" />
     },
     {
       name: "Analytics",
-      href: "/dashboard/analytics",
-      icon: <BarChart3 className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/analytics"),
+      path: "/dashboard/analytics",
+      icon: <Activity className="h-5 w-5" />
+    },
+    {
+      name: "Approvals",
+      path: "/dashboard/approvals",
+      icon: <Bell className="h-5 w-5" />
+    },
+    {
+      name: "Integrations",
+      path: "/dashboard/integrations",
+      icon: <Cpu className="h-5 w-5" />
+    },
+    {
+      name: "Technical",
+      path: "/dashboard/technical-improvements",
+      icon: <Zap className="h-5 w-5" />
     },
     {
       name: "Settings",
-      href: "/dashboard/settings",
-      icon: <Settings className="h-5 w-5" />,
-      match: pathname.includes("/dashboard/settings") ||
-        pathname.includes("/dashboard/profile"),
-    },
+      path: "/dashboard/settings",
+      icon: <Settings className="h-5 w-5" />
+    }
   ];
 
   return (
@@ -93,10 +104,10 @@ export function DashboardTabs({ navItems }: DashboardTabsProps = {}) {
       {tabs.map((tab) => (
         <Link
           key={tab.name}
-          to={tab.href}
+          to={tab.path}
           className={cn(
             "flex items-center text-sm font-medium transition-colors hover:text-primary",
-            tab.match
+            isActive(tab.path)
               ? "text-primary"
               : "text-muted-foreground"
           )}
@@ -107,4 +118,6 @@ export function DashboardTabs({ navItems }: DashboardTabsProps = {}) {
       ))}
     </nav>
   );
-}
+};
+
+export default memo(DashboardTabs);
