@@ -1,101 +1,101 @@
 
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { 
-  Users, 
-  Key, 
-  Webhook, 
-  Building2, 
-  PanelRight, 
-  HomeIcon,
-  Rocket,
-  Shield,
-  Database,
-  Settings
-} from "lucide-react";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { Users, Building2, Webhook, Key, Database, RocketIcon } from 'lucide-react';
 
-interface AdminNavProps {
-  className?: string;
-}
-
-export function AdminNav({ className }: AdminNavProps) {
-  const location = useLocation();
-  
-  const routes = [
-    {
-      href: "/admin",
-      label: "Dashboard",
-      icon: HomeIcon,
-      active: location.pathname === "/admin",
-    },
-    {
-      href: "/admin/users",
-      label: "User Management",
-      icon: Users,
-      active: location.pathname === "/admin/users",
-    },
-    {
-      href: "/admin/api-keys",
-      label: "API Keys",
-      icon: Key,
-      active: location.pathname === "/admin/api-keys",
-    },
-    {
-      href: "/admin/webhooks",
-      label: "Webhooks",
-      icon: Webhook,
-      active: location.pathname === "/admin/webhooks",
-    },
-    {
-      href: "/admin/settings",
-      label: "Settings",
-      icon: Settings,
-      active: location.pathname === "/admin/settings",
-    },
-    {
-      href: "/admin/launch-plan",
-      label: "Launch Plan",
-      icon: Rocket,
-      active: location.pathname === "/admin/launch-plan",
-    },
-    {
-      href: "/admin/database-verification",
-      label: "Database Checks",
-      icon: Database,
-      active: location.pathname === "/admin/database-verification",
-    },
-    {
-      href: "/admin/diagnostics",
-      label: "Diagnostics",
-      icon: Shield,
-      active: location.pathname === "/admin/diagnostics",
-    },
-    {
-      href: "/admin/company",
-      label: "Company Settings",
-      icon: Building2,
-      active: location.pathname === "/admin/company",
-    },
-  ];
-
+const AdminNav = () => {
   return (
-    <nav className={cn("flex items-center space-x-4 lg:space-x-6", className)}>
-      {routes.map((route) => (
-        <Link
-          key={route.href}
-          to={route.href}
-          className={cn(
-            "text-sm font-medium transition-colors hover:text-primary flex items-center gap-1",
-            route.active
-              ? "text-primary"
-              : "text-muted-foreground"
-          )}
-        >
-          <route.icon className="h-4 w-4" />
-          {route.label}
-        </Link>
-      ))}
+    <nav className="space-y-1">
+      <NavLink
+        to="/admin"
+        end
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <span className="truncate">Dashboard</span>
+      </NavLink>
+      <NavLink
+        to="/admin/users"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Users className="mr-2 h-4 w-4" />
+        <span className="truncate">User Management</span>
+      </NavLink>
+      <NavLink
+        to="/admin/companies"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Building2 className="mr-2 h-4 w-4" />
+        <span className="truncate">Companies</span>
+      </NavLink>
+      <NavLink
+        to="/admin/webhooks"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Webhook className="mr-2 h-4 w-4" />
+        <span className="truncate">Webhooks</span>
+      </NavLink>
+      <NavLink
+        to="/admin/api-config"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Key className="mr-2 h-4 w-4" />
+        <span className="truncate">API Keys</span>
+      </NavLink>
+      <NavLink
+        to="/admin/database"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <Database className="mr-2 h-4 w-4" />
+        <span className="truncate">Database Verification</span>
+      </NavLink>
+      <NavLink
+        to="/admin/launch-check"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <RocketIcon className="mr-2 h-4 w-4" />
+        <span className="truncate">Launch Check</span>
+      </NavLink>
+      <NavLink
+        to="/admin/launch-prep"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <RocketIcon className="mr-2 h-4 w-4" />
+        <span className="truncate">Launch Preparation</span>
+      </NavLink>
     </nav>
   );
-}
+};
+
+export default AdminNav;

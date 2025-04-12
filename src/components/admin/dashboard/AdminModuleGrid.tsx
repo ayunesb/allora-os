@@ -1,50 +1,87 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { useBreakpoint } from '@/hooks/use-mobile';
+import { Link } from 'react-router-dom';
+import { Users, Building2, Webhook, Key, Database, Settings, RocketIcon } from 'lucide-react';
 
-export interface AdminModule {
-  title: string;
-  count?: string;
-  icon: React.ReactNode;
-  description: string;
-  href: string;
-}
-
-interface AdminModuleGridProps {
-  modules: AdminModule[];
-  isLoading: boolean;
-}
-
-export function AdminModuleGrid({ modules, isLoading }: AdminModuleGridProps) {
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
-  
-  if (isLoading) return null; // Loading state is handled by the parent component
-  
+export function AdminModuleGrid() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-      {modules.map((module, index) => (
-        <Link to={module.href} key={index}>
-          <Card className="border-primary/10 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardHeader className={`pb-0 ${isMobileView ? 'px-3 py-3' : 'px-4 py-4'}`}>
-              <div className="flex justify-between items-center">
-                <div className="p-2 rounded-full bg-primary/10">
-                  {module.icon}
-                </div>
-                {module.count && (
-                  <span className={`${isMobileView ? 'text-base' : 'text-lg'} font-bold`}>{module.count}</span>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className={isMobileView ? 'px-3 py-3 pt-1' : 'px-4 py-4 pt-1'}>
-              <CardTitle className={`${isMobileView ? 'text-base' : 'text-lg'} mb-1`}>{module.title}</CardTitle>
-              <p className={`text-muted-foreground ${isMobileView ? 'text-xs' : 'text-sm'}`}>{module.description}</p>
-            </CardContent>
-          </Card>
-        </Link>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+      <ModuleCard
+        title="User Management"
+        description="Manage system users and permissions"
+        icon={<Users className="h-5 w-5" />}
+        href="/admin/users"
+      />
+      <ModuleCard
+        title="Companies"
+        description="Manage company accounts and details"
+        icon={<Building2 className="h-5 w-5" />}
+        href="/admin/companies"
+      />
+      <ModuleCard
+        title="Webhooks"
+        description="Configure integrations with external services"
+        icon={<Webhook className="h-5 w-5" />}
+        href="/admin/webhooks"
+      />
+      <ModuleCard
+        title="API Keys"
+        description="Manage API keys for external services"
+        icon={<Key className="h-5 w-5" />}
+        href="/admin/api-config"
+      />
+      <ModuleCard
+        title="Database Verification"
+        description="Verify database structure and security"
+        icon={<Database className="h-5 w-5" />}
+        href="/admin/database"
+      />
+      <ModuleCard
+        title="Launch Check"
+        description="Verify system readiness for production"
+        icon={<RocketIcon className="h-5 w-5" />}
+        href="/admin/launch-check"
+      />
+      <ModuleCard
+        title="Launch Preparation"
+        description="Prepare and deploy the application"
+        icon={<RocketIcon className="h-5 w-5" />}
+        href="/admin/launch-prep"
+        highlight={true}
+      />
+      <ModuleCard
+        title="System Settings"
+        description="Configure global system preferences"
+        icon={<Settings className="h-5 w-5" />}
+        href="/admin/settings"
+      />
     </div>
+  );
+}
+
+interface ModuleCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  href: string;
+  highlight?: boolean;
+}
+
+function ModuleCard({ title, description, icon, href, highlight = false }: ModuleCardProps) {
+  return (
+    <Link
+      to={href}
+      className={`flex flex-col p-6 rounded-xl transition-all ${
+        highlight 
+          ? 'bg-primary/10 border border-primary/20 hover:bg-primary/15' 
+          : 'bg-card border border-border hover:bg-accent/50'
+      }`}
+    >
+      <div className={`p-2 rounded-full w-fit ${highlight ? 'bg-primary/20' : 'bg-secondary'}`}>
+        {icon}
+      </div>
+      <h3 className={`text-lg font-medium mt-4 ${highlight ? 'text-primary' : ''}`}>{title}</h3>
+      <p className="text-muted-foreground text-sm mt-1">{description}</p>
+    </Link>
   );
 }

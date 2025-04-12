@@ -6,6 +6,7 @@ import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./context/AuthContext";
 import { HelpProvider } from "./context/HelpContext";
 import { Toaster as SonnerToaster } from "sonner";
+import { NavigationManager } from "./components/NavigationManager"; 
 import "./App.css";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
       <AuthProvider>
         <Suspense fallback={<div>Loading...</div>}>
           <RouterProvider router={router} />
+          <NavigationManager />
           <SonnerToaster position="top-right" />
           <Toaster />
         </Suspense>

@@ -1,120 +1,55 @@
 
 import { RouteObject } from "react-router-dom";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
+import AdminLayout from "@/components/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import UserManagement from "@/pages/admin/UserManagement";
-import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
-import WebhookManagement from "@/pages/admin/WebhookManagement";
-import CompanySettings from "@/pages/admin/CompanySettings";
-import LaunchPlan from "@/pages/admin/LaunchPlan";
+import CompanyManagement from "@/pages/admin/CompanyManagement";
+import Webhooks from "@/pages/admin/Webhooks";
+import APIConfiguration from "@/pages/admin/APIConfiguration";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
-import DiagnosticsPage from "@/pages/admin/DiagnosticsPage";
-import AdminSettings from "@/pages/admin/Settings";
+import LaunchCheck from "@/pages/admin/LaunchCheck";
 import LaunchPrep from "@/pages/admin/LaunchPrep";
 
 export const adminRoutes: RouteObject = {
-  path: "admin",
+  path: "/admin",
+  element: (
+    <AdminRoute>
+      <AdminLayout />
+    </AdminRoute>
+  ),
   children: [
     {
-      index: true,
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
+      path: "",
+      element: <AdminDashboard />,
     },
     {
-      path: "/admin/users",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <UserManagement />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
+      path: "users",
+      element: <UserManagement />,
     },
     {
-      path: "/admin/api-keys",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <ApiKeyManagement />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
+      path: "companies",
+      element: <CompanyManagement />,
     },
     {
-      path: "/admin/webhooks",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <WebhookManagement />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
+      path: "webhooks",
+      element: <Webhooks />,
     },
     {
-      path: "/admin/settings",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <AdminSettings />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
+      path: "api-config",
+      element: <APIConfiguration />,
     },
     {
-      path: "/admin/company",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <CompanySettings />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
+      path: "database",
+      element: <DatabaseVerification />,
     },
     {
-      path: "/admin/launch-plan",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <LaunchPlan />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
+      path: "launch-check",
+      element: <LaunchCheck />,
     },
     {
-      path: "/admin/launch-prep",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <LaunchPrep />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: "/admin/database-verification",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <DatabaseVerification />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: "/admin/diagnostics",
-      element: (
-        <ProtectedRoute>
-          <AdminRoute>
-            <DiagnosticsPage />
-          </AdminRoute>
-        </ProtectedRoute>
-      ),
-    },
+      path: "launch-prep",
+      element: <LaunchPrep />,
+    }
   ],
 };
