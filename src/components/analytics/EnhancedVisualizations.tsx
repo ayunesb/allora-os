@@ -61,7 +61,7 @@ export function EnhancedVisualization({
                 dataKey="value"
                 data={data}
                 isAnimationActive
-                colors={COLORS}
+                fill={COLORS[0]}
               >
                 <LabelList position="right" fill="#000" stroke="none" dataKey="name" />
               </Funnel>
