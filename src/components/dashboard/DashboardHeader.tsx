@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { HelpButton } from "@/components/help/HelpButton";

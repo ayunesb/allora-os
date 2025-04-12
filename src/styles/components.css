@@ -73,6 +73,25 @@
   @apply bg-green-500/20 text-green-300 border border-green-500/30;
 }
 
+/* New futuristic UI elements */
+.data-card {
+  @apply bg-black/30 backdrop-blur-lg rounded-xl border border-white/10 p-4 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5;
+}
+
+.glow-border {
+  @apply relative;
+}
+
+.glow-border::after {
+  content: '';
+  @apply absolute inset-0 rounded-xl border border-primary/30 opacity-0 transition-opacity duration-300;
+  box-shadow: 0 0 15px rgba(99, 179, 237, 0.3);
+}
+
+.glow-border:hover::after {
+  @apply opacity-100;
+}
+
 .metric-ring {
   @apply relative flex items-center justify-center;
 }
@@ -96,4 +115,40 @@
   50% {
     opacity: 0.5;
   }
+}
+
+/* Futuristic tab styling */
+.futuristic-tabs {
+  @apply flex gap-1 p-1 rounded-lg bg-secondary/20 backdrop-blur-sm border border-white/5;
+}
+
+.futuristic-tab {
+  @apply px-4 py-2 rounded-lg text-sm font-medium transition-all;
+}
+
+.futuristic-tab.active {
+  @apply bg-primary/90 text-white shadow-md;
+}
+
+.futuristic-tab:not(.active) {
+  @apply text-gray-300 hover:bg-white/10;
+}
+
+/* Executive card styling */
+.executive-card {
+  @apply relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-secondary/60 to-background/80 backdrop-blur-md transition-all duration-300;
+}
+
+.executive-card:hover {
+  @apply border-primary/30 shadow-lg shadow-primary/10;
+}
+
+.executive-avatar {
+  @apply relative rounded-full border-2 border-white/20 shadow-inner overflow-hidden;
+  background: linear-gradient(45deg, rgba(10,10,35,0.8), rgba(20,20,80,0.8));
+}
+
+/* Strategy card styling */
+.strategy-card {
+  @apply bg-secondary/30 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30;
 }
