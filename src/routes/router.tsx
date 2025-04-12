@@ -1,82 +1,44 @@
-
-import { createBrowserRouter, RouteObject } from "react-router-dom";
-import { publicRoutes } from "./public-routes";
-import { dashboardRoutes } from "./dashboard-routes";
+import { createBrowserRouter } from "react-router-dom";
 import { adminRoutes } from "./admin-routes";
-import { authRoutes } from "./auth-routes";
-import { devRoutes } from "./dev-routes";
-import { onboardingRoutes } from "./onboarding-routes";
-import { marketingRoutes } from "./marketing-routes";
 import { complianceRoutes } from "./compliance-routes";
+import SystemDiagnostics from "@/pages/SystemDiagnostics";
+import { publicRoutes } from "./public-routes";
+import { authRoutes } from "./auth-routes";
+import Dashboard from "@/pages/Dashboard";
+import LegalDocument from "@/pages/LegalDocument";
+import PricingPage from "@/pages/PricingPage";
+import ContactPage from "@/pages/ContactPage";
 import NotFound from "@/pages/NotFound";
-import { HelpProvider } from "@/context/HelpContext";
-import { HelpModal } from "@/components/help/HelpModal";
-import React from "react";
+import { AppRoutes } from ".";
 
-// Create a wrapper component to add HelpProvider
-const withHelpProvider = (element: React.ReactNode) => (
-  <HelpProvider>
-    {element}
-    <HelpModal />
-  </HelpProvider>
-);
-
-// Helper to wrap child routes with HelpProvider
-const wrapChildrenWithHelpProvider = (route: RouteObject): RouteObject => {
-  // Check for index routes to properly handle their types
-  if ('index' in route && route.index === true) {
-    return {
-      ...route,
-      element: withHelpProvider(route.element)
-    };
-  }
-  
-  if (route.children) {
-    return {
-      ...route,
-      element: withHelpProvider(route.element),
-      children: route.children.map(child => {
-        // Preserve the 'index' property if it exists
-        if ('index' in child && child.index === true) {
-          return {
-            ...child,
-            element: withHelpProvider(child.element)
-          };
-        }
-        return {
-          ...child,
-          element: withHelpProvider(child.element)
-        };
-      })
-    };
-  }
-  
-  return {
-    ...route,
-    element: withHelpProvider(route.element)
-  };
-};
-
-// Flatten array routes like publicRoutes
-const wrapArrayRoutes = (routes: RouteObject[]): RouteObject[] => {
-  return routes.map(route => wrapChildrenWithHelpProvider(route));
-};
-
-// Combine all routes
-const allRoutes: RouteObject[] = [
-  ...wrapArrayRoutes(publicRoutes),
-  ...dashboardRoutes.map(route => wrapChildrenWithHelpProvider(route)),
-  wrapChildrenWithHelpProvider(adminRoutes as RouteObject),
-  ...wrapArrayRoutes(authRoutes),
-  ...wrapArrayRoutes(devRoutes),
-  ...wrapArrayRoutes(onboardingRoutes),
-  ...wrapArrayRoutes(marketingRoutes),
-  ...wrapArrayRoutes(complianceRoutes),
-  // Add catch-all route for 404 pages
+// Export the router to use in main.tsx or App.tsx
+export const router = createBrowserRouter([
+  {
+    path: "/diagnostics",
+    element: <SystemDiagnostics />,
+  },
+  {
+    path: "/",
+    element: <Dashboard />,
+  },
+  {
+    path: "/legal/:documentId",
+    element: <LegalDocument />,
+  },
+  {
+    path: "/pricing",
+    element: <PricingPage />,
+  },
+  {
+    path: "/contact",
+    element: <ContactPage />,
+  },
   {
     path: "*",
-    element: withHelpProvider(<NotFound />)
-  }
-];
-
-export const router = createBrowserRouter(allRoutes);
+    element: <NotFound />,
+  },
+  adminRoutes,
+  ...complianceRoutes,
+  ...publicRoutes,
+  ...authRoutes,
+]);
