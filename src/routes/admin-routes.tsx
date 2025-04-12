@@ -13,10 +13,10 @@ import DiagnosticsPage from "@/pages/admin/DiagnosticsPage";
 import AdminSettings from "@/pages/admin/Settings";
 
 export const adminRoutes: RouteObject = {
-  path: "",
+  path: "admin",  // Change from "" to "admin"
   children: [
     {
-      path: "/admin",
+      index: true,  // Add index route for the base /admin path
       element: (
         <ProtectedRoute>
           <AdminRoute>
@@ -107,3 +107,4 @@ export const adminRoutes: RouteObject = {
     },
   ],
 };
+
