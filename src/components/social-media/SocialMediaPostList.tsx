@@ -1,16 +1,17 @@
 
 import React from 'react';
-import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
+import { SocialMediaPost } from '@/types/socialMedia';
 import { Card, CardContent } from '@/components/ui/card';
 import SocialPostCard from './SocialPostCard';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { Inbox } from 'lucide-react';
 
 interface SocialMediaPostListProps {
   posts: SocialMediaPost[];
   onEditPost: (post: SocialMediaPost) => void;
-  onDeletePost: (id: string) => void;
-  onSchedulePost: (id: string) => void;
-  onApprovePost: (id: string) => void;
+  onDeletePost: (id: string) => Promise<any>;
+  onSchedulePost: (id: string) => Promise<any>;
+  onApprovePost: (id: string) => Promise<any>;
 }
 
 /**
@@ -30,10 +31,11 @@ export function SocialMediaPostList({
   // If no posts, show empty state
   if (!posts.length) {
     return (
-      <Card className="w-full h-40 flex items-center justify-center">
+      <Card className="w-full p-6">
         <CardContent className="pt-6 text-center">
-          <p className="text-muted-foreground">No social media posts found</p>
-          <p className="text-sm text-muted-foreground">Create a new post to get started</p>
+          <Inbox className="h-12 w-12 mx-auto text-muted-foreground" />
+          <h3 className="text-lg font-medium mt-4">No social media posts found</h3>
+          <p className="text-sm text-muted-foreground mt-2">Create a new post to get started</p>
         </CardContent>
       </Card>
     );
@@ -54,7 +56,7 @@ export function SocialMediaPostList({
   // Desktop layout: Grid with separate sections
   if (isDesktop) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         {scheduledPosts.length > 0 && (
           <div>
             <h3 className="text-lg font-medium mb-3">Scheduled & Published</h3>
@@ -112,7 +114,7 @@ export function SocialMediaPostList({
     );
   }
   
-  // Mobile layout: Simple list
+  // Mobile layout: Simple list with optimized spacing
   return (
     <div className="space-y-4">
       {sortedPosts.map(post => (

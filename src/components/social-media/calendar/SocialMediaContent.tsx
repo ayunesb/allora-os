@@ -7,6 +7,7 @@ import { ViewToggle } from './ViewToggle';
 import { PostsDisplay } from '../PostsDisplay';
 import { DialogCreate } from '../SocialMediaPostDialog';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
+import SocialMediaCalendarView from './SocialMediaCalendarView';
 
 export function SocialMediaContent() {
   const {
@@ -55,6 +56,11 @@ export function SocialMediaContent() {
     clearFilters();
   };
   
+  // Format the error object correctly for PostsDisplay
+  const formattedError = error 
+    ? (error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error')) 
+    : null;
+  
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -82,18 +88,29 @@ export function SocialMediaContent() {
       />
       
       {/* Content Display */}
-      <PostsDisplay
-        view={view}
-        posts={posts}
-        isLoading={isLoading}
-        error={typeof error === 'object' && error !== null ? error as Error : error ? new Error(String(error)) : null}
-        currentMonth={currentMonth}
-        onEditPost={(post) => console.log('Edit post', post)}
-        onDeletePost={deletePost}
-        onSchedulePost={schedule}
-        onApprovePost={approve}
-        onCreatePost={openCreateDialog}
-      />
+      {view === 'calendar' ? (
+        <SocialMediaCalendarView
+          posts={posts}
+          currentMonth={currentMonth}
+          onEditPost={(post) => console.log('Edit post', post)}
+          onDeletePost={deletePost}
+          onSchedulePost={schedule}
+          onApprovePost={approve}
+        />
+      ) : (
+        <PostsDisplay
+          view={view}
+          posts={posts}
+          isLoading={isLoading}
+          error={formattedError}
+          currentMonth={currentMonth}
+          onEditPost={(post) => console.log('Edit post', post)}
+          onDeletePost={deletePost}
+          onSchedulePost={schedule}
+          onApprovePost={approve}
+          onCreatePost={openCreateDialog}
+        />
+      )}
       
       {/* Create Post Dialog */}
       <DialogCreate

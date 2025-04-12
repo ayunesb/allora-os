@@ -4,9 +4,11 @@ import { SocialMediaPost } from '@/types/socialMedia';
 import { Card, CardContent } from '@/components/ui/card';
 import { CalendarIcon, List, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SocialMediaPostList } from './SocialMediaPostList';
+import SocialMediaPostList from './SocialMediaPostList';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorRecoveryWrapper } from '@/components/dashboard/ErrorRecoveryWrapper';
+import SocialMediaCalendarView from './calendar/SocialMediaCalendarView';
+import { useBreakpoint } from '@/hooks/use-mobile';
 
 interface PostsDisplayProps {
   view: 'calendar' | 'list';
@@ -15,9 +17,9 @@ interface PostsDisplayProps {
   error: Error | null;
   currentMonth: Date;
   onEditPost: (post: SocialMediaPost) => void;
-  onDeletePost: (id: string) => void;
-  onSchedulePost: (id: string) => void;
-  onApprovePost: (id: string) => void;
+  onDeletePost: (id: string) => Promise<any>;
+  onSchedulePost: (id: string) => Promise<any>;
+  onApprovePost: (id: string) => Promise<any>;
   onCreatePost: () => void;
 }
 
@@ -37,18 +39,20 @@ export function PostsDisplay({
   onApprovePost,
   onCreatePost
 }: PostsDisplayProps) {
+  const breakpoint = useBreakpoint();
+  const isMobile = ['xs', 'mobile'].includes(breakpoint);
   
   // Loading state
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingSkeleton view={view} />;
   }
   
   // Error state
   if (error) {
     return (
       <ErrorRecoveryWrapper>
-        <Card className="w-full p-6">
-          <CardContent className="pt-6 text-center space-y-4">
+        <Card className="w-full">
+          <CardContent className="p-6 text-center space-y-4">
             <p className="text-destructive">Failed to load social media posts</p>
             <p className="text-sm text-muted-foreground">{error.message}</p>
             <Button onClick={() => window.location.reload()}>Retry</Button>
@@ -63,31 +67,21 @@ export function PostsDisplay({
     return <EmptyState onCreatePost={onCreatePost} />;
   }
   
-  // Calendar view not yet implemented - fallback to list view
+  // Calendar view
   if (view === 'calendar') {
     return (
-      <Card className="w-full p-6">
-        <CardContent className="pt-6 text-center space-y-4">
-          <CalendarIcon className="w-12 h-12 mx-auto text-muted-foreground" />
-          <h3 className="text-lg font-medium">Calendar View</h3>
-          <p className="text-sm text-muted-foreground">
-            Calendar view is not yet available. Showing list view instead.
-          </p>
-          <div className="mt-6">
-            <SocialMediaPostList
-              posts={posts}
-              onEditPost={onEditPost}
-              onDeletePost={onDeletePost}
-              onSchedulePost={onSchedulePost}
-              onApprovePost={onApprovePost}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <SocialMediaCalendarView
+        posts={posts}
+        currentMonth={currentMonth}
+        onEditPost={onEditPost}
+        onDeletePost={onDeletePost}
+        onSchedulePost={onSchedulePost}
+        onApprovePost={onApprovePost}
+      />
     );
   }
   
-  // List view (default)
+  // List view
   return (
     <SocialMediaPostList
       posts={posts}
@@ -99,12 +93,36 @@ export function PostsDisplay({
   );
 }
 
-// Loading state component
-function LoadingState() {
+// Loading state component with skeletons
+function LoadingSkeleton({ view }: { view: 'calendar' | 'list' }) {
+  const breakpoint = useBreakpoint();
+  const isMobile = ['xs', 'mobile'].includes(breakpoint);
+  
+  if (view === 'calendar') {
+    return (
+      <div className="mt-4 space-y-4">
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {Array(7).fill(0).map((_, i) => (
+            <Skeleton key={i} className="h-8 rounded-md" />
+          ))}
+        </div>
+        
+        <div className="grid grid-cols-7 gap-1">
+          {Array(35).fill(0).map((_, i) => (
+            <Skeleton 
+              key={i} 
+              className={`min-h-[80px] sm:min-h-[120px] rounded-md ${i % 7 === 0 ? 'col-start-1' : ''}`} 
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-4">
-      {[1, 2, 3].map(i => (
-        <Card key={i} className="w-full">
+      {Array(isMobile ? 3 : 6).fill(0).map((_, i) => (
+        <Card key={i} className="w-full overflow-hidden">
           <CardContent className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -113,7 +131,10 @@ function LoadingState() {
               </div>
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
-              <Skeleton className="h-4 w-1/4" />
+              <div className="flex items-center gap-2 pt-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-8 w-20" />
+              </div>
             </div>
           </CardContent>
         </Card>
