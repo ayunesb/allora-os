@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -283,7 +282,11 @@ export function CustomerJourneyMapper() {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
+        <Tabs 
+          value={activeView} 
+          onValueChange={(value) => setActiveView(value as 'flow' | 'metrics')} 
+          className="w-full"
+        >
           <div className="border-b px-6">
             <TabsList className="mb-0">
               <TabsTrigger value="flow">Journey Flow</TabsTrigger>

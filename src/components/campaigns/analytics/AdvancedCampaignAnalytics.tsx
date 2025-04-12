@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -68,6 +67,8 @@ export function AdvancedCampaignAnalytics({
   const totalClicks = metrics.clicks.reduce((a, b) => a + b, 0);
   const totalConversions = metrics.conversions.reduce((a, b) => a + b, 0);
   const totalCost = metrics.cost.reduce((a, b) => a + b, 0);
+  
+  // Fix type issues with these calculated values
   const avgCPC = totalClicks ? (totalCost / totalClicks).toFixed(2) : '0';
   const avgCTR = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : '0';
   const conversionRate = totalClicks ? ((totalConversions / totalClicks) * 100).toFixed(2) : '0';
@@ -87,8 +88,11 @@ export function AdvancedCampaignAnalytics({
     { name: 'Other', value: totalCost * 0.15 },
   ];
   
-  // ROI calculation - Fix type issues by ensuring numbers are used in calculations
-  const estimatedRevenue = totalConversions * (campaign.budget ? parseFloat(campaign.budget.toString()) : 5000) * 0.2;
+  // Fix the ROI calculation by ensuring we're working with numbers
+  const estimatedRevenue = totalConversions * (typeof campaign.budget === 'string' 
+    ? parseFloat(campaign.budget) || 5000 
+    : (campaign.budget || 5000)) * 0.2;
+    
   const roi = ((estimatedRevenue - totalCost) / totalCost * 100).toFixed(2);
   
   if (isLoading) {
