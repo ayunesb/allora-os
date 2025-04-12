@@ -56,7 +56,12 @@ export function useLaunchProcess() {
 
       if (companyError) throw companyError;
       
-      const companyId = companyData.id;
+      const companyId = companyData?.id;
+      
+      if (!companyId) {
+        throw new Error('Failed to create company - no company ID returned');
+      }
+      
       console.log('Created company with ID:', companyId);
       
       // 2. Generate Launch Strategy
@@ -65,7 +70,7 @@ export function useLaunchProcess() {
         { 
           level: 'Medium', 
           score: 65,
-          breakdown: {} // Add the missing breakdown property
+          breakdown: {} 
         },
         'AI SaaS',
         'Small',
@@ -85,59 +90,72 @@ export function useLaunchProcess() {
       
       if (strategyError) throw strategyError;
       
+      if (!strategyData || !strategyData.id) {
+        throw new Error('Failed to create strategy - no strategy ID returned');
+      }
+      
       // 3. Create First Campaigns
       setLaunchStep('Creating initial marketing campaigns...');
       const campaignPlatforms = ['LinkedIn', 'Google', 'Facebook'];
-      const campaignPromises = campaignPlatforms.map(platform => 
-        supabase.from('campaigns').insert([{
-          company_id: companyId,
-          name: `Allora AI Launch - ${platform}`,
-          platform,
-          budget: platform === 'LinkedIn' ? 500 : platform === 'Google' ? 400 : 300,
-          targeting: {
-            audience: 'Tech Founders and AI Enthusiasts',
-            location: 'United States',
-            interests: ['Artificial Intelligence', 'SaaS', 'Business Growth']
-          }
-        }])
-      );
       
-      await Promise.all(campaignPromises);
+      for (const platform of campaignPlatforms) {
+        const { error: campaignError } = await supabase
+          .from('campaigns')
+          .insert([{
+            company_id: companyId,
+            name: `Allora AI Launch - ${platform}`,
+            platform,
+            budget: platform === 'LinkedIn' ? 500 : platform === 'Google' ? 400 : 300,
+            targeting: {
+              audience: 'Tech Founders and AI Enthusiasts',
+              location: 'United States',
+              interests: ['Artificial Intelligence', 'SaaS', 'Business Growth']
+            }
+          }]);
+          
+        if (campaignError) {
+          console.error(`Error creating ${platform} campaign:`, campaignError);
+        }
+      }
       
       // 4. Create Lead Samples
       setLaunchStep('Preloading sample leads...');
       const sampleLeads = [
-        { name: 'John Founder', email: 'john@example.com', phone: '+1234567890' },
-        { name: 'Sarah CTO', email: 'sarah@techcompany.com', phone: '+1987654321' },
-        { name: 'Michael CEO', email: 'michael@startup.io', phone: '+1122334455' }
+        { name: 'John Founder', email: 'john@example.com', phone: '+1234567890', status: 'new', campaign_id: strategyData.id },
+        { name: 'Sarah CTO', email: 'sarah@techcompany.com', phone: '+1987654321', status: 'new', campaign_id: strategyData.id },
+        { name: 'Michael CEO', email: 'michael@startup.io', phone: '+1122334455', status: 'new', campaign_id: strategyData.id }
       ];
       
-      const { data: leadData, error: leadError } = await supabase
-        .from('leads')
-        .insert(sampleLeads.map(lead => ({
-          ...lead,
-          status: 'new',
-          campaign_id: strategyData.id, // Using strategy ID as a placeholder
-        })))
-        .select();
+      for (const lead of sampleLeads) {
+        const { error: leadError } = await supabase
+          .from('leads')
+          .insert([lead]);
+          
+        if (leadError) {
+          console.error('Error creating lead:', leadError);
+        }
+      }
       
-      if (leadError) throw leadError;
-      
-      // 5. Trigger Zapier notifications
+      // 5. Trigger Zapier notifications (if Zapier is configured)
       setLaunchStep('Sending launch notifications...');
-      await onCampaignLaunched({
-        campaignTitle: 'Allora AI Launch Campaign',
-        platform: 'Multiple Platforms',
-        owner: 'Admin',
-        campaignId: strategyData.id,
-        companyId: companyId
-      });
-      
-      await onNewLeadAdded({
-        company: companyId,
-        leadName: 'Initial Demo Leads',
-        source: 'Launch Process',
-      });
+      try {
+        await onCampaignLaunched({
+          campaignTitle: 'Allora AI Launch Campaign',
+          platform: 'Multiple Platforms',
+          owner: 'Admin',
+          campaignId: strategyData.id,
+          companyId: companyId
+        });
+        
+        await onNewLeadAdded({
+          company: companyId,
+          leadName: 'Initial Demo Leads',
+          source: 'Launch Process',
+        });
+      } catch (notificationError) {
+        console.warn('Launch notifications could not be sent:', notificationError);
+        // Don't throw error here - this shouldn't block the launch
+      }
       
       // 6. Mark launch as complete
       setLaunchStep('Launch completed successfully!');
