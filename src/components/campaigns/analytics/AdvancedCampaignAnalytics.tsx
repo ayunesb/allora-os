@@ -59,8 +59,8 @@ export function AdvancedCampaignAnalytics({
     clicks: metrics.clicks[index],
     conversions: metrics.conversions[index],
     cost: metrics.cost[index],
-    cpc: metrics.clicks[index] ? (metrics.cost[index] / metrics.clicks[index]).toFixed(2) : 0,
-    ctr: metrics.impressions[index] ? ((metrics.clicks[index] / metrics.impressions[index]) * 100).toFixed(2) : 0,
+    cpc: metrics.clicks[index] ? (metrics.cost[index] / metrics.clicks[index]).toFixed(2) : '0',
+    ctr: metrics.impressions[index] ? ((metrics.clicks[index] / metrics.impressions[index]) * 100).toFixed(2) : '0',
   }));
   
   // Calculate total metrics
@@ -68,9 +68,9 @@ export function AdvancedCampaignAnalytics({
   const totalClicks = metrics.clicks.reduce((a, b) => a + b, 0);
   const totalConversions = metrics.conversions.reduce((a, b) => a + b, 0);
   const totalCost = metrics.cost.reduce((a, b) => a + b, 0);
-  const avgCPC = totalClicks ? (totalCost / totalClicks).toFixed(2) : 0;
-  const avgCTR = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
-  const conversionRate = totalClicks ? ((totalConversions / totalClicks) * 100).toFixed(2) : 0;
+  const avgCPC = totalClicks ? (totalCost / totalClicks).toFixed(2) : '0';
+  const avgCTR = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : '0';
+  const conversionRate = totalClicks ? ((totalConversions / totalClicks) * 100).toFixed(2) : '0';
   
   // Funnel data
   const funnelData = [
@@ -211,7 +211,7 @@ export function AdvancedCampaignAnalytics({
                       formatter={(value, name) => {
                         if (name === 'ctr') return [`${value}%`, 'CTR'];
                         if (name === 'cpc') return [`$${value}`, 'CPC'];
-                        return [value, name.charAt(0).toUpperCase() + name.slice(1)];
+                        return [value, typeof name === 'string' ? name.charAt(0).toUpperCase() + name.slice(1) : name];
                       }}
                     />
                     <Legend />
@@ -272,7 +272,7 @@ export function AdvancedCampaignAnalytics({
             />
             <MetricCard
               title="Cost Per Conversion"
-              value={`$${totalConversions ? (totalCost / totalConversions).toFixed(2) : 0}`}
+              value={`$${totalConversions ? (totalCost / totalConversions).toFixed(2) : '0'}`}
               description="Acquisition cost"
               trend={-1.8}
               trendIsGood={false}
@@ -450,8 +450,6 @@ export function AdvancedCampaignAnalytics({
                         dataKey="conversions" 
                         name="Est. Revenue" 
                         fill="#00C49F"
-                        // Multiply conversions by average value to get revenue
-                        formatter={(value) => value * (campaign.budget || 5000) * 0.2} 
                       />
                     </BarChart>
                   </ResponsiveContainer>

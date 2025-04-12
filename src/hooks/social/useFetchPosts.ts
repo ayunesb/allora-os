@@ -66,7 +66,6 @@ export function useFetchPosts(filters: SocialMediaCalendarFilters) {
       fetchFn: async () => {
         const fetchedPosts = await fetchSocialMediaPosts(companyId as string, filters);
         setPosts(fetchedPosts);
-        return fetchedPosts;
       },
       onComplete: async () => { /* No additional actions needed */ },
       setIsRefreshing: setIsLoading,
