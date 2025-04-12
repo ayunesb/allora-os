@@ -1,122 +1,73 @@
 
 import React from "react";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, MessageSquare, Bot, Lightbulb, History } from "lucide-react";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import ScrollableTabs, { TabItem } from "@/components/ui/scrollable-tabs";
 
 interface AiBotsTabsListProps {
   isMobileView?: boolean;
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
 }
 
-export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ isMobileView: propsMobileView }) => {
-  const breakpoint = useBreakpoint();
-  const isMobileView = propsMobileView ?? ['xs', 'mobile'].includes(breakpoint);
-  const isTabletView = breakpoint === 'tablet';
+export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ 
+  isMobileView: propsMobileView,
+  activeTab,
+  onTabChange 
+}) => {
+  const tabs: TabItem[] = [
+    {
+      id: "boardroom",
+      label: "Executive Boardroom",
+      shortLabel: "Boardroom",
+      icon: Brain
+    },
+    {
+      id: "debate",
+      label: "Start Debate",
+      shortLabel: "Debate",
+      icon: MessageSquare
+    },
+    {
+      id: "bots",
+      label: "Executive Advisors",
+      shortLabel: "Advisors",
+      icon: Bot
+    },
+    {
+      id: "insights",
+      label: "AI Insights",
+      shortLabel: "Insights",
+      icon: Lightbulb
+    },
+    {
+      id: "chat",
+      label: "AI Chat",
+      shortLabel: "Chat",
+      icon: MessageSquare
+    },
+    {
+      id: "roster",
+      label: "Full Roster",
+      shortLabel: "Roster",
+      icon: Brain
+    },
+    {
+      id: "history",
+      label: "Consultation History",
+      shortLabel: "History",
+      icon: History
+    }
+  ];
 
   return (
     <div className="w-full max-w-full overflow-hidden">
-      <TabsList className={`w-full mb-6 overflow-x-auto scrollbar-thin py-1 ${
-        isMobileView ? 'tabs-scrollable flex-nowrap' : 
-        isTabletView ? 'flex flex-wrap gap-1' : 'flex gap-2'
-      }`}>
-        <TabsTrigger 
-          value="boardroom" 
-          className={`flex items-center ${
-            isMobileView ? 'text-xs px-2 py-1 min-w-max tab-compact' : 
-            isTabletView ? 'text-sm px-2.5 py-1 min-w-max' : 
-            'gap-2 min-w-max'
-          }`}
-        >
-          <Brain className="h-4 w-4" />
-          <span className={isMobileView ? "ml-1" : "ml-2"}>
-            {isMobileView ? "Boardroom" : "Executive Boardroom"}
-          </span>
-        </TabsTrigger>
-        
-        <TabsTrigger 
-          value="debate" 
-          className={`flex items-center ${
-            isMobileView ? 'text-xs px-2 py-1 min-w-max tab-compact' : 
-            isTabletView ? 'text-sm px-2.5 py-1 min-w-max' : 
-            'gap-2 min-w-max'
-          }`}
-        >
-          <MessageSquare className="h-4 w-4" />
-          <span className={isMobileView ? "ml-1" : "ml-2"}>
-            {isMobileView ? "Debate" : "Start Debate"}
-          </span>
-        </TabsTrigger>
-        
-        <TabsTrigger 
-          value="bots" 
-          className={`flex items-center ${
-            isMobileView ? 'text-xs px-2 py-1 min-w-max tab-compact' : 
-            isTabletView ? 'text-sm px-2.5 py-1 min-w-max' : 
-            'gap-2 min-w-max'
-          }`}
-        >
-          <Bot className="h-4 w-4" />
-          <span className={isMobileView ? "ml-1" : "ml-2"}>
-            {isMobileView ? "Advisors" : "Executive Advisors"}
-          </span>
-        </TabsTrigger>
-        
-        <TabsTrigger 
-          value="insights" 
-          className={`flex items-center ${
-            isMobileView ? 'text-xs px-2 py-1 min-w-max tab-compact' : 
-            isTabletView ? 'text-sm px-2.5 py-1 min-w-max' : 
-            'gap-2 min-w-max'
-          }`}
-        >
-          <Lightbulb className="h-4 w-4" />
-          <span className={isMobileView ? "ml-1" : "ml-2"}>
-            {isMobileView ? "Insights" : "AI Insights"}
-          </span>
-        </TabsTrigger>
-        
-        <TabsTrigger 
-          value="chat" 
-          className={`flex items-center ${
-            isMobileView ? 'text-xs px-2 py-1 min-w-max tab-compact' : 
-            isTabletView ? 'text-sm px-2.5 py-1 min-w-max' : 
-            'gap-2 min-w-max'
-          }`}
-        >
-          <MessageSquare className="h-4 w-4" />
-          <span className={isMobileView ? "ml-1" : "ml-2"}>
-            {isMobileView ? "Chat" : "AI Chat"}
-          </span>
-        </TabsTrigger>
-        
-        <TabsTrigger 
-          value="roster" 
-          className={`flex items-center ${
-            isMobileView ? 'text-xs px-2 py-1 min-w-max tab-compact' : 
-            isTabletView ? 'text-sm px-2.5 py-1 min-w-max' : 
-            'gap-2 min-w-max'
-          }`}
-        >
-          <Brain className="h-4 w-4" />
-          <span className={isMobileView ? "ml-1" : "ml-2"}>
-            {isMobileView ? "Roster" : "Full Roster"}
-          </span>
-        </TabsTrigger>
-        
-        <TabsTrigger 
-          value="history" 
-          className={`flex items-center ${
-            isMobileView ? 'text-xs px-2 py-1 min-w-max tab-compact' : 
-            isTabletView ? 'text-sm px-2.5 py-1 min-w-max' : 
-            'gap-2 min-w-max'
-          }`}
-        >
-          <History className="h-4 w-4" />
-          <span className={isMobileView ? "ml-1" : "ml-2"}>
-            {isMobileView ? "History" : "Consultation History"}
-          </span>
-        </TabsTrigger>
-      </TabsList>
+      <ScrollableTabs 
+        tabs={tabs} 
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        className="mb-6 py-1"
+        variant="default"
+      />
     </div>
   );
 };

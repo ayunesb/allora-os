@@ -1,5 +1,4 @@
 
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Calendar, 
   MessageSquare, 
@@ -10,7 +9,7 @@ import {
   Sparkles,
   BarChart
 } from "lucide-react";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import ScrollableTabs, { TabItem } from "@/components/ui/scrollable-tabs";
 
 interface CallTabsProps {
   activeTab: string;
@@ -18,121 +17,59 @@ interface CallTabsProps {
 }
 
 export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
-  const isTabletView = breakpoint === 'tablet';
+  const tabs: TabItem[] = [
+    {
+      id: "timeline",
+      label: "Timeline",
+      icon: Clock
+    },
+    {
+      id: "upcoming",
+      label: "Upcoming",
+      icon: Calendar
+    },
+    {
+      id: "history",
+      label: "History",
+      icon: History
+    },
+    {
+      id: "scripts",
+      label: "Call Scripts",
+      shortLabel: "Scripts",
+      icon: Phone
+    },
+    {
+      id: "messages",
+      label: "Message Templates",
+      shortLabel: "Messages",
+      icon: MessageSquare
+    },
+    {
+      id: "zoom",
+      label: "Zoom Tools",
+      shortLabel: "Zoom",
+      icon: VideoIcon
+    },
+    {
+      id: "ai-assistant",
+      label: "AI Assistant",
+      shortLabel: "Assistant",
+      icon: Sparkles
+    },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: BarChart
+    },
+  ];
   
   return (
-    <TabsList 
-      className={`grid w-full tabs-scrollable safari-fix ${
-        isMobileView ? 'grid-cols-4 gap-1' : 
-        isTabletView ? 'grid-cols-6 gap-1' : 
-        'grid-cols-8'
-      }`}
-    >
-      <TabsTrigger 
-        value="timeline" 
-        onClick={() => onTabChange("timeline")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <Clock className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Timeline</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="upcoming" 
-        onClick={() => onTabChange("upcoming")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <Calendar className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Upcoming</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="history" 
-        onClick={() => onTabChange("history")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <History className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>History</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="scripts" 
-        onClick={() => onTabChange("scripts")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <Phone className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Call Scripts</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="messages" 
-        onClick={() => onTabChange("messages")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <MessageSquare className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Message Templates</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="zoom" 
-        onClick={() => onTabChange("zoom")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <VideoIcon className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Zoom Tools</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="ai-assistant" 
-        onClick={() => onTabChange("ai-assistant")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <Sparkles className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>AI Assistant</span>
-      </TabsTrigger>
-      
-      <TabsTrigger 
-        value="analytics" 
-        onClick={() => onTabChange("analytics")}
-        className={`flex items-center ${
-          isMobileView ? 'px-1 py-1 text-xs tab-compact' : 
-          isTabletView ? 'px-2 py-1 tab-text-sm' : 
-          'space-x-2'
-        }`}
-      >
-        <BarChart className="h-4 w-4" />
-        <span className={isMobileView ? 'sr-only' : 'hidden md:inline'}>Analytics</span>
-      </TabsTrigger>
-    </TabsList>
+    <ScrollableTabs 
+      tabs={tabs} 
+      activeTab={activeTab}
+      onTabChange={onTabChange}
+      fullWidth={true}
+    />
   );
 }
