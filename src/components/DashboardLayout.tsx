@@ -10,6 +10,8 @@ import { MobileNavDrawer } from "@/components/dashboard/navigation/MobileNavDraw
 import { UserDropdown } from "@/components/dashboard/navigation/UserDropdown";
 import { SessionRefreshBar } from "@/components/dashboard/SessionRefreshBar";
 import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
+import { HelpProvider } from "@/context/HelpContext";
+import { HelpModal } from "@/components/help/HelpModal";
 
 export default function DashboardLayout() {
   const { user, isLoading } = useAuth();
@@ -37,44 +39,49 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {needsSessionRefresh() && (
-        <SessionRefreshBar onRefreshSession={handleRefreshSession} />
-      )}
-      
-      <DashboardHeader />
-      
-      <div className="bg-card border-b border-border sticky top-0 z-10">
-        <div className={`container mx-auto ${isMobile ? 'px-2 py-1' : 'px-4 py-2'}`}>
-          <div className="flex items-center justify-between">            
-            <div className="flex items-center w-full">
-              {isMobile ? (
-                <div className="flex justify-between w-full items-center">
-                  <MobileNavDrawer 
-                    currentPath={currentPath}
-                    open={mobileMenuOpen}
-                    onOpenChange={setMobileMenuOpen}
-                  />
-                  <UserDropdown onSignOut={handleSignOut} />
-                </div>
-              ) : (
-                <>
-                  <DashboardTabs />
-                  <UserDropdown onSignOut={handleSignOut} />
-                </>
-              )}
+    <HelpProvider>
+      <div className="min-h-screen flex flex-col">
+        {needsSessionRefresh() && (
+          <SessionRefreshBar onRefreshSession={handleRefreshSession} />
+        )}
+        
+        <DashboardHeader />
+        
+        <div className="bg-card border-b border-border sticky top-0 z-10">
+          <div className={`container mx-auto ${isMobile ? 'px-2 py-1' : 'px-4 py-2'}`}>
+            <div className="flex items-center justify-between">            
+              <div className="flex items-center w-full">
+                {isMobile ? (
+                  <div className="flex justify-between w-full items-center">
+                    <MobileNavDrawer 
+                      currentPath={currentPath}
+                      open={mobileMenuOpen}
+                      onOpenChange={setMobileMenuOpen}
+                    />
+                    <UserDropdown onSignOut={handleSignOut} />
+                  </div>
+                ) : (
+                  <>
+                    <DashboardTabs />
+                    <UserDropdown onSignOut={handleSignOut} />
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
+        
+        <div className="flex flex-1">
+          <main className="flex-1">
+            <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
+              <Outlet />
+            </div>
+          </main>
+        </div>
+        
+        {/* Help modal needs to be rendered within the HelpProvider */}
+        <HelpModal />
       </div>
-      
-      <div className="flex flex-1">
-        <main className="flex-1">
-          <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
-            <Outlet />
-          </div>
-        </main>
-      </div>
-    </div>
+    </HelpProvider>
   );
 }
