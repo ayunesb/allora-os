@@ -28,6 +28,19 @@ export function DatabaseVerificationDashboard({
   const hasPoliciesData = policies && policies.length > 0;
   const hasFunctionsData = functions && functions.length > 0;
   
+  // Calculate ready state based on verification results
+  const calculateIsReady = () => {
+    if (!hasTablesData || !hasPoliciesData || !hasFunctionsData) return null;
+    
+    const missingTables = tables.some(t => !t.exists);
+    const missingPolicies = policies.some(p => !p.exists);
+    const missingFunctions = functions.some(f => !f.exists || !f.isSecure);
+    
+    return !missingTables && !missingPolicies && !missingFunctions;
+  };
+  
+  const isReady = calculateIsReady();
+  
   // Run verification automatically when component mounts if no data
   useEffect(() => {
     if (!hasTablesData && !hasPoliciesData && !hasFunctionsData && !isVerifying) {
