@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { validateLaunchReadiness } from '@/utils/launchValidator';
 import { 
@@ -10,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { addDemoDataButton } from '@/utils/demoData';
 import type { ValidationResultsUI, DatabaseTableStatus } from '@/components/admin/launch-verification/types';
+import type { ValidationResult } from '@/utils/validators/types';
 
 export function useVerification(profileCompanyId?: string) {
   const [isChecking, setIsChecking] = useState(false);
@@ -25,7 +25,36 @@ export function useVerification(profileCompanyId?: string) {
     setIsChecking(true);
     try {
       const validation = await validateLaunchReadiness();
-      setResults(validation.results);
+      
+      // Transform the validation results to match ValidationResultsUI format
+      const transformedResults: ValidationResultsUI = {
+        legalAcceptance: validation.results.legalAcceptance,
+        apiConnections: validation.results.apiConnections,
+        userAuthentication: validation.results.userAuthentication,
+        executiveBoardroom: validation.results.executiveBoardroom,
+        databaseSecurity: validation.results.databaseSecurity,
+        performanceOptimization: validation.results.performanceOptimization,
+      };
+      
+      // Convert rlsPolicies from ValidationResult to required array format if it exists
+      if (validation.results.rlsPolicies) {
+        transformedResults.rlsPolicies = [{
+          table: 'All tables',
+          status: validation.results.rlsPolicies.valid ? 'verified' : 'issues',
+          message: validation.results.rlsPolicies.message
+        }];
+      }
+      
+      // Similarly transform databaseFunctions
+      if (validation.results.databaseFunctions) {
+        transformedResults.databaseFunctions = [{
+          name: 'Database Functions',
+          status: validation.results.databaseFunctions.valid ? 'verified' : 'issues',
+          message: validation.results.databaseFunctions.message
+        }];
+      }
+      
+      setResults(transformedResults);
       setIsReady(validation.valid);
     } catch (error) {
       console.error("Error during launch verification:", error);
