@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { DatabaseVerificationResult } from '@/components/admin/database-verification/types';
+import { DatabaseVerificationResult } from '@/types/databaseVerification';
 import { 
   verifyDatabaseTables, 
   verifyRlsPolicies, 
@@ -10,6 +10,11 @@ import {
 } from '@/utils/admin/databaseVerification';
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * Hook for verifying database configuration.
+ * Provides functionality to check database tables, RLS policies, and functions.
+ * @returns Object containing verification results and function to trigger verification
+ */
 export function useDatabaseVerification() {
   const [verificationResult, setVerificationResult] = useState<DatabaseVerificationResult>({
     tables: [],
@@ -18,6 +23,10 @@ export function useDatabaseVerification() {
     isVerifying: false
   });
 
+  /**
+   * Attempts to ensure the check_function_exists RPC exists
+   * This function will not create the RPC but will check for its existence
+   */
   const createFunctionCheckerRPC = async () => {
     try {
       // Check if the helper function exists
@@ -34,6 +43,10 @@ export function useDatabaseVerification() {
     }
   };
 
+  /**
+   * Triggers the verification process for database configuration
+   * Checks tables, RLS policies, and functions in parallel
+   */
   const verifyDatabaseConfiguration = useCallback(async () => {
     setVerificationResult(prev => ({ ...prev, isVerifying: true }));
     

@@ -5,10 +5,11 @@ import {
   DatabaseTableStatus, 
   PolicyStatus, 
   FunctionStatus 
-} from '@/components/admin/database-verification/types';
+} from '@/types/databaseVerification';
 
 /**
  * Verifies the existence of required database tables
+ * @returns Promise with array of table verification results
  */
 export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
   const requiredTables = [
@@ -50,6 +51,7 @@ export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
 
 /**
  * Verifies that RLS policies are properly configured for critical tables
+ * @returns Promise with array of policy verification results
  */
 export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
   const tablesWithRls = ['profiles', 'companies', 'campaigns', 'strategies', 'leads', 'communications', 'user_preferences', 'ai_boardroom_debates'];
@@ -105,6 +107,8 @@ export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
 
 /**
  * Verifies that required database functions exist and are secure
+ * Uses check_function_exists RPC with fallback to direct pg_proc querying
+ * @returns Promise with array of function verification results
  */
 export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
   const requiredFunctions = [
@@ -115,7 +119,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
   
   for (const funcName of requiredFunctions) {
     try {
-      // Try to use our new check_function_exists function
+      // Try to use our check_function_exists function
       const { data, error } = await supabase
         .rpc('check_function_exists', { function_name: funcName });
         
@@ -186,6 +190,9 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
 
 /**
  * Shows success or error toast messages based on verification results
+ * @param tables Results of table verification
+ * @param policies Results of RLS policy verification
+ * @param functions Results of function verification
  */
 export function displayVerificationResults(
   tables: DatabaseTableStatus[],

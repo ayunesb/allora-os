@@ -5,6 +5,10 @@ import { useDatabaseVerification } from '@/hooks/admin/useDatabaseVerification';
 import { AlertCircle, Database } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
+/**
+ * Admin page for verifying database configuration.
+ * Checks database tables, RLS policies, and functions.
+ */
 export default function DatabaseVerification() {
   const { verificationResult, verifyDatabaseConfiguration } = useDatabaseVerification();
 
