@@ -8,32 +8,32 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 
 const { lazy } = React;
 
-// Lazy loaded components
-const Index = lazy(() => import("@/pages/dashboard/Index"));
-const Analytics = lazy(() => import("@/pages/dashboard/Analytics"));
-const AiBots = lazy(() => import("@/pages/dashboard/AiBots"));
-const BotDetail = lazy(() => import("@/pages/dashboard/BotDetail"));
-const Profile = lazy(() => import("@/pages/dashboard/Profile"));
-const Debate = lazy(() => import("@/pages/dashboard/Debate"));
-const Settings = lazy(() => import("@/pages/dashboard/Settings"));
-const Strategies = lazy(() => import("@/pages/dashboard/Strategies"));
-const Leads = lazy(() => import("@/pages/dashboard/Leads"));
-const Calls = lazy(() => import("@/pages/dashboard/Calls"));
-const Campaigns = lazy(() => import("@/pages/dashboard/Campaigns"));
-const CampaignDetail = lazy(() => import("@/pages/dashboard/CampaignDetail"));
-const CampaignCreate = lazy(() => import("@/pages/dashboard/CampaignCreate"));
-const AdAccountsConnect = lazy(() => import("@/pages/dashboard/AdAccountsConnect"));
-const CampaignDashboard = lazy(() => import("@/pages/dashboard/CampaignDashboard"));
-const CampaignPaymentSuccess = lazy(() => import("@/pages/dashboard/CampaignPaymentSuccess"));
-const ShopifyOptimization = lazy(() => import("@/pages/dashboard/ShopifyOptimization"));
-const SocialMediaCalendar = lazy(() => import("@/pages/dashboard/SocialMediaCalendar"));
-const Approvals = lazy(() => import("@/pages/dashboard/Approvals"));
-const LeadFollowUpSequences = lazy(() => import("@/pages/dashboard/LeadFollowUpSequences"));
-const AISettings = lazy(() => import("@/pages/dashboard/AISettings"));
-const LinkedInAuthCallback = lazy(() => import("@/pages/dashboard/LinkedInAuthCallback"));
-const LinkedInIntegration = lazy(() => import("@/pages/dashboard/LinkedInIntegration"));
-const Integrations = lazy(() => import("@/pages/dashboard/Integrations"));
-const TechnicalImprovements = lazy(() => import("@/pages/dashboard/TechnicalImprovements"));
+// Improved code splitting with named chunks for better caching
+const Index = lazy(() => import(/* webpackChunkName: "dashboard-index" */ "@/pages/dashboard/Index"));
+const Analytics = lazy(() => import(/* webpackChunkName: "dashboard-analytics" */ "@/pages/dashboard/Analytics"));
+const AiBots = lazy(() => import(/* webpackChunkName: "dashboard-ai-bots" */ "@/pages/dashboard/AiBots"));
+const BotDetail = lazy(() => import(/* webpackChunkName: "dashboard-bot-detail" */ "@/pages/dashboard/BotDetail"));
+const Profile = lazy(() => import(/* webpackChunkName: "dashboard-profile" */ "@/pages/dashboard/Profile"));
+const Debate = lazy(() => import(/* webpackChunkName: "dashboard-debate" */ "@/pages/dashboard/Debate"));
+const Settings = lazy(() => import(/* webpackChunkName: "dashboard-settings" */ "@/pages/dashboard/Settings"));
+const Strategies = lazy(() => import(/* webpackChunkName: "dashboard-strategies" */ "@/pages/dashboard/Strategies"));
+const Leads = lazy(() => import(/* webpackChunkName: "dashboard-leads" */ "@/pages/dashboard/Leads"));
+const Calls = lazy(() => import(/* webpackChunkName: "dashboard-calls" */ "@/pages/dashboard/Calls"));
+const Campaigns = lazy(() => import(/* webpackChunkName: "dashboard-campaigns" */ "@/pages/dashboard/Campaigns"));
+const CampaignDetail = lazy(() => import(/* webpackChunkName: "dashboard-campaign-detail" */ "@/pages/dashboard/CampaignDetail"));
+const CampaignCreate = lazy(() => import(/* webpackChunkName: "dashboard-campaign-create" */ "@/pages/dashboard/CampaignCreate"));
+const AdAccountsConnect = lazy(() => import(/* webpackChunkName: "dashboard-ad-accounts" */ "@/pages/dashboard/AdAccountsConnect"));
+const CampaignDashboard = lazy(() => import(/* webpackChunkName: "dashboard-campaign-dashboard" */ "@/pages/dashboard/CampaignDashboard"));
+const CampaignPaymentSuccess = lazy(() => import(/* webpackChunkName: "dashboard-campaign-payment" */ "@/pages/dashboard/CampaignPaymentSuccess"));
+const ShopifyOptimization = lazy(() => import(/* webpackChunkName: "dashboard-shopify" */ "@/pages/dashboard/ShopifyOptimization"));
+const SocialMediaCalendar = lazy(() => import(/* webpackChunkName: "dashboard-social-media" */ "@/pages/dashboard/SocialMediaCalendar"));
+const Approvals = lazy(() => import(/* webpackChunkName: "dashboard-approvals" */ "@/pages/dashboard/Approvals"));
+const LeadFollowUpSequences = lazy(() => import(/* webpackChunkName: "dashboard-lead-followup" */ "@/pages/dashboard/LeadFollowUpSequences"));
+const AISettings = lazy(() => import(/* webpackChunkName: "dashboard-ai-settings" */ "@/pages/dashboard/AISettings"));
+const LinkedInAuthCallback = lazy(() => import(/* webpackChunkName: "dashboard-linkedin-auth" */ "@/pages/dashboard/LinkedInAuthCallback"));
+const LinkedInIntegration = lazy(() => import(/* webpackChunkName: "dashboard-linkedin" */ "@/pages/dashboard/LinkedInIntegration"));
+const Integrations = lazy(() => import(/* webpackChunkName: "dashboard-integrations" */ "@/pages/dashboard/Integrations"));
+const TechnicalImprovements = lazy(() => import(/* webpackChunkName: "dashboard-technical" */ "@/pages/dashboard/TechnicalImprovements"));
 
 // Wrap each route component with ProtectedRoute to ensure auth context is available
 const wrapInProtectedRoute = (Component: React.ComponentType, adminOnly: boolean = false) => {

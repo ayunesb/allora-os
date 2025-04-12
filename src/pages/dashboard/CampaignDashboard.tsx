@@ -13,17 +13,27 @@ import { CampaignTabs } from '@/components/campaigns/dashboard/CampaignTabs';
 import { CampaignList } from '@/components/campaigns/dashboard/CampaignList';
 import { CampaignLoadingState } from '@/components/campaigns/LoadingState';
 
+/**
+ * CampaignDashboard Component
+ * 
+ * Provides a centralized view for managing all marketing campaigns
+ * with filtering, refresh capabilities, and creation workflow.
+ */
 export default function CampaignDashboard() {
   const navigate = useNavigate();
   const { campaigns, isLoading, refetch } = useCampaigns();
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('all');
   const { hasAdPlatformConnections } = useAdPlatformConnections();
   
   // Get filtered campaigns based on active tab
   const filteredCampaigns = useFilteredCampaigns(campaigns, activeTab);
   
-  const handleCreateCampaign = () => {
+  /**
+   * Navigates to campaign creation or ad account connection page
+   * based on whether the user has connected ad platforms
+   */
+  const handleCreateCampaign = (): void => {
     if (hasAdPlatformConnections) {
       navigate('/dashboard/campaigns/create');
     } else {
@@ -31,8 +41,11 @@ export default function CampaignDashboard() {
     }
   };
 
-  const handleRefreshData = async () => {
-    // Make sure to return the Promise from refreshCampaignData
+  /**
+   * Refreshes campaign data from ad platforms
+   * Returns a Promise to match the expected type in CampaignHeader
+   */
+  const handleRefreshData = (): Promise<void> => {
     return refreshCampaignData({
       campaigns,
       onComplete: refetch,

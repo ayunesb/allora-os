@@ -4,18 +4,36 @@ import { Campaign } from '@/models/campaign';
 import { syncCampaignData } from '@/services/campaignService';
 import { toast } from 'sonner';
 
+/**
+ * Props for campaign refresh operations
+ */
 interface CampaignRefreshProps {
+  /** Array of campaigns to potentially refresh */
   campaigns: Campaign[];
+  
+  /** Callback function to execute after refresh completes */
   onComplete: () => Promise<void>;
+  
+  /** State setter for refresh status */
   setIsRefreshing: (isRefreshing: boolean) => void;
+  
+  /** Current refresh status */
   isRefreshing: boolean;
 }
 
+/**
+ * Refreshes campaign data from external ad platforms
+ * 
+ * This function syncs data for all deployed and paid campaigns,
+ * showing appropriate toast messages for success/failure.
+ * 
+ * @returns Promise that resolves when refresh operation is complete
+ */
 export async function refreshCampaignData({
   campaigns,
   onComplete,
   setIsRefreshing
-}: Omit<CampaignRefreshProps, 'isRefreshing'>) {
+}: Omit<CampaignRefreshProps, 'isRefreshing'>): Promise<void> {
   setIsRefreshing(true);
   
   try {
@@ -38,9 +56,14 @@ export async function refreshCampaignData({
     // Refetch campaigns
     await onComplete();
     toast.success('Campaign data refreshed');
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error refreshing campaign data:', error);
     toast.error('Failed to refresh campaign data');
+    
+    // Provide more detailed error information when available
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
   } finally {
     setIsRefreshing(false);
   }
