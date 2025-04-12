@@ -1,87 +1,137 @@
 
-import { Link } from "react-router-dom";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import * as React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { 
+  BarChart3, 
+  Users, 
+  LayoutDashboard, 
+  Settings, 
+  Brain, 
+  Megaphone, 
+  Phone, 
+  CheckCircle, 
+  MessageSquare,
+  Calendar
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
-interface NavItem {
-  label: string;
-  path: string;
-}
+export function MobileNavDrawer() {
+  const location = useLocation();
+  const pathname = location.pathname;
+  const [open, setOpen] = React.useState(false);
 
-interface MobileNavDrawerProps {
-  navItems: NavItem[];
-  currentPath: string;
-  onOpenChange: (open: boolean) => void;
-  open: boolean;
-  onNavigateToProfile: () => void;
-  onSignOut: () => void;
-}
+  const tabs = [
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: <LayoutDashboard className="h-5 w-5" />,
+      match: pathname === "/dashboard",
+    },
+    {
+      name: "AI Bots",
+      href: "/dashboard/ai-bots",
+      icon: <Brain className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/ai-bots") || pathname.includes("/dashboard/debate"),
+    },
+    {
+      name: "Campaigns",
+      href: "/dashboard/campaigns",
+      icon: <Megaphone className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/campaigns"),
+    },
+    {
+      name: "Social Media",
+      href: "/dashboard/social-media",
+      icon: <Calendar className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/social-media"),
+    },
+    {
+      name: "Leads",
+      href: "/dashboard/leads",
+      icon: <Users className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/leads"),
+    },
+    {
+      name: "Calls",
+      href: "/dashboard/calls",
+      icon: <Phone className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/calls"),
+    },
+    {
+      name: "Strategies",
+      href: "/dashboard/strategies",
+      icon: <CheckCircle className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/strategies"),
+    },
+    {
+      name: "Analytics",
+      href: "/dashboard/analytics",
+      icon: <BarChart3 className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/analytics"),
+    },
+    {
+      name: "Settings",
+      href: "/dashboard/settings",
+      icon: <Settings className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/settings") ||
+        pathname.includes("/dashboard/profile"),
+    },
+  ];
 
-export function MobileNavDrawer({
-  navItems,
-  currentPath,
-  onOpenChange,
-  open,
-  onNavigateToProfile,
-  onSignOut
-}: MobileNavDrawerProps) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="mr-2 md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Menu</span>
+        <Button variant="outline" size="icon" className="md:hidden">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+          >
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+          <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[240px] sm:w-[300px]">
-        <div className="py-6">
-          <h2 className="text-lg font-semibold mb-4">Navigation</h2>
+      <SheetContent side="left" className="w-72">
+        <div className="px-2 py-6">
+          <div className="mb-4 px-4">
+            <h2 className="text-lg font-semibold">Menu</h2>
+          </div>
           <nav className="flex flex-col space-y-1">
-            {navItems.map((item) => (
-              <Link 
-                key={item.path} 
-                to={item.path}
-                className={`px-4 py-2 rounded-md ${
-                  currentPath.startsWith(item.path) 
-                    ? "bg-primary/10 text-primary font-medium" 
-                    : "hover:bg-muted"
-                }`}
-                onClick={() => onOpenChange(false)}
+            {tabs.map((tab) => (
+              <Link
+                key={tab.name}
+                to={tab.href}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
+                  tab.match
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:text-primary"
+                )}
               >
-                {item.label}
+                {tab.icon}
+                <span className="ml-3">{tab.name}</span>
               </Link>
             ))}
           </nav>
-          
-          <div className="mt-8 pt-4 border-t">
-            <Button 
-              variant="outline" 
-              className="w-full justify-start" 
-              onClick={onNavigateToProfile}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Profile Settings
-            </Button>
-            
-            <Button 
-              variant="destructive" 
-              className="w-full justify-start mt-2" 
-              onClick={onSignOut}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
-          </div>
         </div>
       </SheetContent>
     </Sheet>
   );
 }
-
-// Add missing imports at the top
-import { Settings, LogOut } from "lucide-react";

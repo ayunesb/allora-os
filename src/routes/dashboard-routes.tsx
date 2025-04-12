@@ -19,6 +19,7 @@ import CampaignCreate from "@/pages/dashboard/CampaignCreate";
 import CampaignDetail from "@/pages/dashboard/CampaignDetail";
 import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";
 import TiktokCallback from "@/components/auth/TiktokCallback";
+import SocialMediaCalendarPage from "@/pages/dashboard/SocialMediaCalendar";
 
 export const dashboardRoutes: RouteObject = {
   path: "/dashboard",
@@ -75,6 +76,10 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "campaigns/payment-success",
       element: <CampaignPaymentSuccess />,
+    },
+    {
+      path: "social-media",
+      element: <SocialMediaCalendarPage />,
     },
     {
       path: "ad-accounts",

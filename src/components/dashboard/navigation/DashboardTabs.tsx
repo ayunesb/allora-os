@@ -1,57 +1,99 @@
 
+import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { 
+  BarChart3, 
+  Users, 
+  LayoutDashboard, 
+  Settings, 
+  Brain, 
+  Megaphone, 
+  Phone, 
+  CheckCircle, 
+  MessageSquare,
+  Calendar
+} from "lucide-react";
 
-interface NavItem {
-  label: string;
-  path: string;
-}
-
-interface DashboardTabsProps {
-  navItems: NavItem[];
-}
-
-export function DashboardTabs({ navItems }: DashboardTabsProps) {
+export function DashboardTabs() {
   const location = useLocation();
-  const currentPath = location.pathname;
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  const pathname = location.pathname;
 
-  const getActiveValue = () => {
-    if (currentPath === '/dashboard') return '/dashboard';
-    
-    for (const item of navItems) {
-      if (currentPath.startsWith(item.path) && item.path !== '/dashboard') {
-        return item.path;
-      }
-    }
-    
-    return '/dashboard';
-  };
+  const tabs = [
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: <LayoutDashboard className="h-5 w-5" />,
+      match: pathname === "/dashboard",
+    },
+    {
+      name: "AI Bots",
+      href: "/dashboard/ai-bots",
+      icon: <Brain className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/ai-bots") || pathname.includes("/dashboard/debate"),
+    },
+    {
+      name: "Campaigns",
+      href: "/dashboard/campaigns",
+      icon: <Megaphone className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/campaigns"),
+    },
+    {
+      name: "Social Media",
+      href: "/dashboard/social-media",
+      icon: <Calendar className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/social-media"),
+    },
+    {
+      name: "Leads",
+      href: "/dashboard/leads",
+      icon: <Users className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/leads"),
+    },
+    {
+      name: "Calls",
+      href: "/dashboard/calls",
+      icon: <Phone className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/calls"),
+    },
+    {
+      name: "Strategies",
+      href: "/dashboard/strategies",
+      icon: <CheckCircle className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/strategies"),
+    },
+    {
+      name: "Analytics",
+      href: "/dashboard/analytics",
+      icon: <BarChart3 className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/analytics"),
+    },
+    {
+      name: "Settings",
+      href: "/dashboard/settings",
+      icon: <Settings className="h-5 w-5" />,
+      match: pathname.includes("/dashboard/settings") ||
+        pathname.includes("/dashboard/profile"),
+    },
+  ];
 
   return (
-    <Tabs 
-      defaultValue={getActiveValue()} 
-      className={`w-auto ${isMobileView ? 'mr-1' : 'mr-4'}`} 
-      value={getActiveValue()}
-    >
-      <TabsList className={`bg-transparent ${isMobileView ? 'flex-wrap gap-1 p-1' : ''}`}>
-        {navItems.map((item) => (
-          <TabsTrigger 
-            key={item.path} 
-            value={item.path}
-            className={`
-              data-[state=active]:bg-primary/10 
-              data-[state=active]:text-primary
-              ${isMobileView ? 'text-xs py-1 px-2' : ''}
-            `}
-            asChild
-          >
-            <Link to={item.path}>{item.label}</Link>
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
+    <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 mx-6">
+      {tabs.map((tab) => (
+        <Link
+          key={tab.name}
+          to={tab.href}
+          className={cn(
+            "flex items-center text-sm font-medium transition-colors hover:text-primary",
+            tab.match
+              ? "text-primary"
+              : "text-muted-foreground"
+          )}
+        >
+          {tab.icon}
+          <span className="ml-2">{tab.name}</span>
+        </Link>
+      ))}
+    </nav>
   );
 }
