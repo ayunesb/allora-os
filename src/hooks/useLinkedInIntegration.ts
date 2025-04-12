@@ -132,11 +132,17 @@ export function useLinkedInIntegration() {
       // Convert connections to leads
       const imported = await Promise.all(
         selectedConnections.map(async (connection) => {
+          // Ensure required fields are present and non-optional
+          if (!connection.name) {
+            console.error('Connection missing required name field', connection);
+            return false;
+          }
+          
           // Create a new lead from the connection data
-          const leadData: Partial<Lead> = {
-            name: connection.name,
+          const leadData = {
+            name: connection.name, // This is now guaranteed to be present
             email: connection.email,
-            status: 'new',
+            status: 'new' as const, // Use a const assertion to ensure correct type
             campaign_id: campaignId,
             source: 'linkedin',
             score: 20, // Assign a default initial score for LinkedIn imports
