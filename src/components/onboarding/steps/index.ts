@@ -10,3 +10,4 @@ export * from './AdPlatformsConnection';
 export * from './BrandIdentity';
 export * from './CommunicationPreferences';
 export * from './CrmIntegrations';
+export * from './CompanyWebsite';

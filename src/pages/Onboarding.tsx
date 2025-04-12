@@ -9,19 +9,21 @@ import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
 import { useOnboardingStatusCheck } from "@/hooks/useOnboardingStatusCheck";
 import { useOnboardingValidation } from "@/hooks/useOnboardingValidation";
 import * as Steps from "@/components/onboarding/steps";
+import { useCompanyWebsite } from "@/hooks/useCompanyWebsite";
 
 // Step descriptions for better context
 const stepDescriptions = {
-  1: "Tell us about your company",
-  2: "Select your industry for customized insights",
-  3: "Define your main business goals",
-  4: "Determine your strategic risk profile",
-  5: "Customize your brand identity",
-  6: "Set your communication preferences",
-  7: "Connect your existing business tools",
-  8: "Share more about your company",
-  9: "Connect your advertising accounts",
-  10: "Meet your AI executive team"
+  1: "Start with your company website",
+  2: "Tell us about your company",
+  3: "Select your industry for customized insights",
+  4: "Define your main business goals",
+  5: "Determine your strategic risk profile",
+  6: "Customize your brand identity",
+  7: "Set your communication preferences",
+  8: "Connect your existing business tools",
+  9: "Share more about your company",
+  10: "Connect your advertising accounts",
+  11: "Meet your AI executive team"
 };
 
 export default function Onboarding() {
@@ -42,12 +44,14 @@ export default function Onboarding() {
     errorMessage,
     handleNext,
     handleBack,
-    toggleGoal
+    toggleGoal,
+    setStep
   } = useOnboardingState();
 
   const { isLoading: isAuthLoading, signOut } = useAuth();
   const { isCheckingStatus, retryCount, user } = useOnboardingStatusCheck();
   const { isCompleting, validationError, handleComplete } = useOnboardingValidation();
+  const { scrapedData, applyScrapedDataToCompanyDetails } = useCompanyWebsite();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -73,6 +77,26 @@ export default function Onboarding() {
     return Promise.resolve();
   };
 
+  const handleCompanyDataFetched = (success: boolean) => {
+    if (success && scrapedData) {
+      // Apply the scraped data to the onboarding state
+      const updatedDetails = applyScrapedDataToCompanyDetails(
+        companyDetails,
+        setCompanyName,
+        setIndustry
+      );
+      
+      // Update the company details with the scraped data
+      updateCompanyDetails(updatedDetails);
+      
+      // Show success message
+      toast.success("Company data applied! Please review and make any necessary adjustments.");
+    }
+    
+    // Move to the next step regardless of success
+    setStep(2);
+  };
+
   if (isAuthLoading || isCheckingStatus) {
     return <AuthLoadingState />;
   }
@@ -81,12 +105,18 @@ export default function Onboarding() {
     return <Steps.AuthIssue onSignOut={handleSignOut} onRefresh={handleRefresh} />;
   }
 
-  // Define total number of steps
-  const totalSteps = 10;
+  // Define total number of steps (now 11 with the website step)
+  const totalSteps = 11;
 
   const getStepContent = () => {
     switch (step) {
       case 1:
+        return (
+          <Steps.CompanyWebsite 
+            onCompanyDataFetched={handleCompanyDataFetched}
+          />
+        );
+      case 2:
         return (
           <Steps.CompanyInfo 
             companyName={companyName}
@@ -96,7 +126,7 @@ export default function Onboarding() {
             errorMessage={errorMessage}
           />
         );
-      case 2:
+      case 3:
         return (
           <Steps.Industry
             industry={industry}
@@ -104,7 +134,7 @@ export default function Onboarding() {
             errorMessage={errorMessage}
           />
         );
-      case 3:
+      case 4:
         return (
           <Steps.Goals
             goals={goals}
@@ -116,7 +146,7 @@ export default function Onboarding() {
             errorMessage={errorMessage}
           />
         );
-      case 4:
+      case 5:
         return (
           <Steps.RiskProfile
             riskAppetite={riskAppetite}
@@ -126,28 +156,28 @@ export default function Onboarding() {
             companyName={companyName}
           />
         );
-      case 5:
+      case 6:
         return (
           <Steps.BrandIdentity
             companyDetails={companyDetails}
             updateCompanyDetails={updateCompanyDetails}
           />
         );
-      case 6:
+      case 7:
         return (
           <Steps.CommunicationPreferences
             companyDetails={companyDetails}
             updateCompanyDetails={updateCompanyDetails}
           />
         );
-      case 7:
+      case 8:
         return (
           <Steps.CrmIntegrations
             companyDetails={companyDetails}
             updateCompanyDetails={updateCompanyDetails}
           />
         );
-      case 8:
+      case 9:
         return (
           <Steps.CompanyDetails
             companyDetails={companyDetails}
@@ -155,7 +185,7 @@ export default function Onboarding() {
             onNext={handleNext}
           />
         );
-      case 9:
+      case 10:
         return (
           <Steps.AdPlatformsConnection
             companyName={companyName}
@@ -163,7 +193,7 @@ export default function Onboarding() {
             isLoading={isOnboardingLoading || isCompleting}
           />
         );
-      case 10:
+      case 11:
         return (
           <Steps.ExecutiveTeam
             executiveTeamEnabled={executiveTeamEnabled}

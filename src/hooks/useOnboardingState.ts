@@ -35,26 +35,26 @@ export default function useOnboardingState() {
       if (profile.industry) setIndustry(profile.industry);
       
       // If both company and industry are already set from registration, 
-      // skip to the goals step (step 3)
+      // skip to the goals step (step 4) - we're now starting at step 1 (website)
       if (profile.company && profile.industry && step === 1) {
-        setStep(3); // Skip to goals step
+        setStep(4); // Skip to goals step
       }
     }
   }, [profile, step]);
 
   const handleNext = async (): Promise<void> => {
     // Validate required fields before proceeding
-    if (step === 1 && !companyName.trim()) {
+    if (step === 2 && !companyName.trim()) {
       setErrorMessage("Company name is required");
       return Promise.resolve();
     }
     
-    if (step === 2 && !industry) {
+    if (step === 3 && !industry) {
       setErrorMessage("Please select an industry");
       return Promise.resolve();
     }
     
-    if (step === 3 && goals.length === 0) {
+    if (step === 4 && goals.length === 0) {
       setErrorMessage("Please select at least one business goal");
       return Promise.resolve();
     }
@@ -62,7 +62,7 @@ export default function useOnboardingState() {
     // Clear any error message
     setErrorMessage(null);
     
-    if (step < 10) { // Updated to 10 total steps
+    if (step < 11) { // Updated to 11 total steps
       setStep(step + 1);
       return Promise.resolve();
     } else {
@@ -140,6 +140,7 @@ export default function useOnboardingState() {
 
   return {
     step,
+    setStep,
     companyName,
     setCompanyName,
     industry,
