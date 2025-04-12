@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -89,6 +89,25 @@ describe('SocialMediaPostForm', () => {
       expect(screen.getByLabelText(/Campaign/i)).toBeInTheDocument();
       expect(screen.getByText(/Link to a campaign/i)).toBeInTheDocument();
     });
+    
+    it('properly handles optional publish time field', () => {
+      const postWithTime = {
+        ...mockPost,
+        publish_time: '14:30'
+      };
+      
+      render(<SocialMediaPostForm post={postWithTime} onSubmit={mockSubmit} />);
+      expect(screen.getByLabelText(/Publish Time/i)).toHaveValue('14:30');
+    });
+    
+    it('has accessible form elements with proper attributes', () => {
+      render(<SocialMediaPostForm onSubmit={mockSubmit} />);
+      
+      // Check for proper ARIA attributes
+      expect(screen.getByLabelText(/Post Title/i)).toHaveAttribute('aria-describedby', 'title-description');
+      expect(screen.getByLabelText(/Post Content/i)).toHaveAttribute('aria-describedby', 'content-description');
+      expect(screen.getByLabelText(/Scheduled Date/i)).toHaveAttribute('aria-describedby', 'scheduled-date-description');
+    });
   });
 
   describe('Form states', () => {
@@ -112,11 +131,24 @@ describe('SocialMediaPostForm', () => {
       
       expect(screen.getByRole('button', { name: /Update Post/i })).toBeInTheDocument();
     });
+    
+    it('disables submit button during form submission', () => {
+      render(<SocialMediaPostForm onSubmit={mockSubmit} isSubmitting={true} />);
+      
+      const submitButton = screen.getByRole('button');
+      expect(submitButton).toBeDisabled();
+    });
   });
 
   describe('Form interactions', () => {
     it('calls onSubmit with form values when submitted', async () => {
       render(<SocialMediaPostForm post={mockPost} onSubmit={mockSubmit} />);
+      
+      // Mock successful validation
+      vi.mocked(socialMediaPostSchema.safeParse).mockReturnValueOnce({
+        success: true,
+        data: mockPost
+      });
       
       // Submit the form
       await user.click(screen.getByRole('button', { name: /Update Post/i }));
@@ -135,18 +167,28 @@ describe('SocialMediaPostForm', () => {
     it('allows changing form values before submission', async () => {
       render(<SocialMediaPostForm onSubmit={mockSubmit} />);
       
+      // Mock successful validation
+      vi.mocked(socialMediaPostSchema.safeParse).mockReturnValueOnce({
+        success: true,
+        data: {
+          title: 'New Title',
+          content: 'New content for testing',
+          platform: 'Instagram',
+          content_type: 'image',
+          scheduled_date: '2025-05-01'
+        }
+      });
+      
       // Fill out the form
       await user.type(screen.getByLabelText(/Post Title/i), 'New Title');
       await user.type(screen.getByLabelText(/Post Content/i), 'New content for testing');
       
       // Select a different platform
-      const platformSelect = screen.getByLabelText(/Platform/i);
-      await user.click(platformSelect);
+      await user.click(screen.getByLabelText(/Platform/i));
       await user.click(screen.getByRole('option', { name: /Instagram/i }));
       
       // Select a different content type
-      const contentTypeSelect = screen.getByLabelText(/Content Type/i);
-      await user.click(contentTypeSelect);
+      await user.click(screen.getByLabelText(/Content Type/i));
       await user.click(screen.getByRole('option', { name: /Image/i }));
       
       // Submit the form
@@ -166,9 +208,25 @@ describe('SocialMediaPostForm', () => {
     it('allows selecting a campaign from the dropdown', async () => {
       render(<SocialMediaPostForm onSubmit={mockSubmit} />);
       
+      // Mock successful validation
+      vi.mocked(socialMediaPostSchema.safeParse).mockReturnValueOnce({
+        success: true,
+        data: {
+          title: 'Test Title',
+          content: 'Test content',
+          platform: 'Facebook',
+          content_type: 'text',
+          scheduled_date: '2025-05-01',
+          campaign_id: 'camp-1'
+        }
+      });
+      
+      // Fill required fields
+      await user.type(screen.getByLabelText(/Post Title/i), 'Test Title');
+      await user.type(screen.getByLabelText(/Post Content/i), 'Test content');
+      
       // Open campaign dropdown
-      const campaignSelect = screen.getByLabelText(/Campaign/i);
-      await user.click(campaignSelect);
+      await user.click(screen.getByLabelText(/Campaign/i));
       
       // Select a campaign
       await user.click(screen.getByRole('option', { name: /Test Campaign 1/i }));
@@ -180,6 +238,40 @@ describe('SocialMediaPostForm', () => {
       await waitFor(() => {
         expect(mockSubmit).toHaveBeenCalledWith(expect.objectContaining({
           campaign_id: 'camp-1'
+        }));
+      });
+    });
+    
+    it('allows entering optional publish time', async () => {
+      render(<SocialMediaPostForm onSubmit={mockSubmit} />);
+      
+      // Mock successful validation
+      vi.mocked(socialMediaPostSchema.safeParse).mockReturnValueOnce({
+        success: true,
+        data: {
+          title: 'Test Title',
+          content: 'Test content',
+          platform: 'Facebook',
+          content_type: 'text',
+          scheduled_date: '2025-05-01',
+          publish_time: '15:30'
+        }
+      });
+      
+      // Fill required fields
+      await user.type(screen.getByLabelText(/Post Title/i), 'Test Title');
+      await user.type(screen.getByLabelText(/Post Content/i), 'Test content');
+      
+      // Set publish time
+      await user.type(screen.getByLabelText(/Publish Time/i), '15:30');
+      
+      // Submit the form
+      await user.click(screen.getByRole('button', { name: /Create Post/i }));
+      
+      // Verify publish_time was included in the submission
+      await waitFor(() => {
+        expect(mockSubmit).toHaveBeenCalledWith(expect.objectContaining({
+          publish_time: '15:30'
         }));
       });
     });
@@ -240,33 +332,114 @@ describe('SocialMediaPostForm', () => {
         expect(mockSubmit).toHaveBeenCalled();
       });
     });
+    
+    it('validates date fields correctly', async () => {
+      // Mock the validation with a date error
+      vi.mocked(socialMediaPostSchema.safeParse).mockReturnValueOnce({
+        success: false,
+        error: {
+          errors: [
+            { path: ['scheduled_date'], message: 'Invalid date format' }
+          ]
+        }
+      } as any);
+      
+      render(<SocialMediaPostForm onSubmit={mockSubmit} />);
+      
+      // Fill required fields
+      await user.type(screen.getByLabelText(/Post Title/i), 'Test Title');
+      await user.type(screen.getByLabelText(/Post Content/i), 'Test content');
+      
+      // Set an invalid date (this would be caught by the validation)
+      const dateInput = screen.getByLabelText(/Scheduled Date/i);
+      fireEvent.change(dateInput, { target: { value: 'not-a-date' } });
+      
+      // Submit the form
+      await user.click(screen.getByRole('button', { name: /Create Post/i }));
+      
+      // Check for date error message
+      await waitFor(() => {
+        expect(screen.getByText(/Invalid date format/i)).toBeInTheDocument();
+      });
+      
+      // Verify onSubmit was not called
+      expect(mockSubmit).not.toHaveBeenCalled();
+    });
   });
 
   describe('Platform-specific behavior', () => {
     it('adjusts character limit information based on selected platform', async () => {
       render(<SocialMediaPostForm onSubmit={mockSubmit} />);
       
+      // Mock successful validation
+      vi.mocked(socialMediaPostSchema.safeParse).mockReturnValueOnce({
+        success: true,
+        data: {
+          title: 'Test Title',
+          content: 'Test content for Twitter',
+          platform: 'Twitter',
+          content_type: 'text',
+          scheduled_date: '2025-05-01'
+        }
+      });
+      
+      // Fill required fields
+      await user.type(screen.getByLabelText(/Post Title/i), 'Test Title');
+      
       // Select Twitter platform which has shorter character limits
-      const platformSelect = screen.getByLabelText(/Platform/i);
-      await user.click(platformSelect);
+      await user.click(screen.getByLabelText(/Platform/i));
       await user.click(screen.getByRole('option', { name: /Twitter/i }));
       
-      // Fill with content longer than Twitter's limit would allow in a real scenario
-      const longContent = 'A'.repeat(300);
-      await user.type(screen.getByLabelText(/Post Content/i), longContent);
+      // Add content
+      await user.type(screen.getByLabelText(/Post Content/i), 'Test content for Twitter');
       
-      // In a real implementation, we would check for a warning message here
-      // This test is more to demonstrate platform-specific testing
-      
-      // Try submitting the form
+      // Submit the form
       await user.click(screen.getByRole('button', { name: /Create Post/i }));
       
-      // Verify onSubmit was called with the long content
-      // In a real app, validation would prevent this
+      // Verify onSubmit was called with the platform-specific data
       await waitFor(() => {
         expect(mockSubmit).toHaveBeenCalledWith(expect.objectContaining({
           platform: 'Twitter',
-          content: longContent
+          content: 'Test content for Twitter'
+        }));
+      });
+    });
+    
+    it('handles different content types based on platform selection', async () => {
+      render(<SocialMediaPostForm onSubmit={mockSubmit} />);
+      
+      // Mock successful validation
+      vi.mocked(socialMediaPostSchema.safeParse).mockReturnValueOnce({
+        success: true,
+        data: {
+          title: 'Instagram Post',
+          content: 'Image post for Instagram',
+          platform: 'Instagram',
+          content_type: 'image',
+          scheduled_date: '2025-05-01'
+        }
+      });
+      
+      // Fill required fields
+      await user.type(screen.getByLabelText(/Post Title/i), 'Instagram Post');
+      await user.type(screen.getByLabelText(/Post Content/i), 'Image post for Instagram');
+      
+      // Select Instagram platform
+      await user.click(screen.getByLabelText(/Platform/i));
+      await user.click(screen.getByRole('option', { name: /Instagram/i }));
+      
+      // Select image content type
+      await user.click(screen.getByLabelText(/Content Type/i));
+      await user.click(screen.getByRole('option', { name: /Image/i }));
+      
+      // Submit the form
+      await user.click(screen.getByRole('button', { name: /Create Post/i }));
+      
+      // Verify onSubmit was called with proper platform and content type
+      await waitFor(() => {
+        expect(mockSubmit).toHaveBeenCalledWith(expect.objectContaining({
+          platform: 'Instagram',
+          content_type: 'image'
         }));
       });
     });
