@@ -13,10 +13,10 @@ const ImplementationTabs: React.FC<ImplementationTabsProps> = ({ activeTab }) =>
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
   return (
-    <TabsList className={`w-full ${isMobileView ? 'flex tabs-scrollable' : 'grid grid-cols-3'} rounded-none border-b border-gray-800`}>
+    <TabsList className={`w-full ${isMobileView ? 'flex overflow-x-auto scrollbar-thin tabs-scrollable' : 'grid grid-cols-3'} rounded-none border-b border-gray-800`}>
       <TabsTrigger 
         value="implementation" 
-        className={`data-[state=active]:bg-gray-800 flex items-center ${isMobileView ? 'text-xs px-2 py-1 tab-compact' : ''}`}
+        className={`data-[state=active]:bg-gray-800 flex items-center ${isMobileView ? 'text-xs px-2 py-1 tab-compact whitespace-nowrap' : ''}`}
       >
         <FileText className="h-4 w-4 mr-2" />
         <span className={isMobileView ? "" : ""}>
@@ -26,7 +26,7 @@ const ImplementationTabs: React.FC<ImplementationTabsProps> = ({ activeTab }) =>
       
       <TabsTrigger 
         value="roi" 
-        className={`data-[state=active]:bg-gray-800 flex items-center ${isMobileView ? 'text-xs px-2 py-1 tab-compact' : ''}`}
+        className={`data-[state=active]:bg-gray-800 flex items-center ${isMobileView ? 'text-xs px-2 py-1 tab-compact whitespace-nowrap' : ''}`}
       >
         <Calculator className="h-4 w-4 mr-2" />
         <span className={isMobileView ? "" : ""}>ROI Calculator</span>
@@ -34,7 +34,7 @@ const ImplementationTabs: React.FC<ImplementationTabsProps> = ({ activeTab }) =>
       
       <TabsTrigger 
         value="competitors" 
-        className={`data-[state=active]:bg-gray-800 flex items-center ${isMobileView ? 'text-xs px-2 py-1 tab-compact' : ''}`}
+        className={`data-[state=active]:bg-gray-800 flex items-center ${isMobileView ? 'text-xs px-2 py-1 tab-compact whitespace-nowrap' : ''}`}
       >
         <Target className="h-4 w-4 mr-2" />
         <span className={isMobileView ? "" : ""}>

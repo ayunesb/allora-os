@@ -41,7 +41,7 @@ const NotFound = () => {
             or is temporarily unavailable.
           </p>
           
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="animate-pulse transition-all hover:shadow-lg">
             <Link to="/" className="flex items-center">
               <ArrowLeft className="mr-2 h-5 w-5" />
               Return to Home

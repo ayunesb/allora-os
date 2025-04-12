@@ -11,12 +11,13 @@ import LaunchPlan from "@/pages/admin/LaunchPlan";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import DiagnosticsPage from "@/pages/admin/DiagnosticsPage";
 import AdminSettings from "@/pages/admin/Settings";
+import LaunchPrep from "@/pages/admin/LaunchPrep";
 
 export const adminRoutes: RouteObject = {
-  path: "admin",  // Change from "" to "admin"
+  path: "admin",
   children: [
     {
-      index: true,  // Add index route for the base /admin path
+      index: true,
       element: (
         <ProtectedRoute>
           <AdminRoute>
@@ -86,6 +87,16 @@ export const adminRoutes: RouteObject = {
       ),
     },
     {
+      path: "/admin/launch-prep",
+      element: (
+        <ProtectedRoute>
+          <AdminRoute>
+            <LaunchPrep />
+          </AdminRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
       path: "/admin/database-verification",
       element: (
         <ProtectedRoute>
@@ -107,4 +118,3 @@ export const adminRoutes: RouteObject = {
     },
   ],
 };
-

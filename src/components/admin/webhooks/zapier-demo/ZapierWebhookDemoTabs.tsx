@@ -27,16 +27,16 @@ export function ZapierWebhookDemoTabs({
   
   return (
     <Tabs defaultValue="business" value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className={`mb-4 ${isMobileView ? 'w-full' : ''}`}>
+      <TabsList className={`mb-4 ${isMobileView ? 'w-full overflow-x-auto scrollbar-thin' : ''}`}>
         <TabsTrigger 
           value="business" 
-          className={isMobileView ? 'flex-1 text-sm' : ''}
+          className={isMobileView ? 'flex-1 text-sm px-3 whitespace-nowrap' : ''}
         >
           Business Events
         </TabsTrigger>
         <TabsTrigger 
           value="manual" 
-          className={isMobileView ? 'flex-1 text-sm' : ''}
+          className={isMobileView ? 'flex-1 text-sm px-3 whitespace-nowrap' : ''}
         >
           Manual Triggers
         </TabsTrigger>

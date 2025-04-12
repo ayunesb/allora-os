@@ -24,12 +24,12 @@ const WebhookHeader: React.FC<WebhookHeaderProps> = ({ activeTab, onTabChange })
         Configure and monitor webhook endpoints for service integrations
       </CardDescription>
       
-      <Tabs defaultValue="config" value={activeTab} onValueChange={onTabChange}>
-        <TabsList className={isMobileView ? 'w-full mt-2' : ''}>
-          <TabsTrigger value="config" className={isMobileView ? 'flex-1' : ''}>
+      <Tabs defaultValue="config" value={activeTab} onValueChange={onTabChange} className="w-full">
+        <TabsList className={`${isMobileView ? 'w-full mt-2 overflow-x-auto scrollbar-thin' : ''} flex`}>
+          <TabsTrigger value="config" className={isMobileView ? 'flex-1 text-sm px-3' : ''}>
             Configuration
           </TabsTrigger>
-          <TabsTrigger value="history" className={isMobileView ? 'flex-1' : ''}>
+          <TabsTrigger value="history" className={isMobileView ? 'flex-1 text-sm px-3' : ''}>
             Event History
           </TabsTrigger>
         </TabsList>
