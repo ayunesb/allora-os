@@ -1,11 +1,10 @@
-
 import React, { FormEvent } from 'react';
 import { useSocialMediaContext } from '@/context/SocialMediaContext';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
 import { SocialMediaFilters } from './calendar/SocialMediaFilters';
 import { ViewToggle } from './calendar/ViewToggle';
-import { PostsDisplay } from './PostsDisplay';
-import { DialogCreate } from './SocialMediaPostDialog';
+import { PostsDisplay } from '../PostsDisplay';
+import { DialogCreate } from '../SocialMediaPostDialog';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from 'sonner';
 import { useAccessibility } from '@/context/AccessibilityContext';
@@ -38,7 +37,6 @@ export function SocialMediaContent() {
   
   const { screenReaderFriendly } = useAccessibility();
   
-  // Handle filter submission
   const handleFilterSubmit = (e: FormEvent) => {
     e.preventDefault();
     
@@ -50,39 +48,33 @@ export function SocialMediaContent() {
       endDate: format(endOfMonth(currentMonth), 'yyyy-MM-dd')
     });
     
-    // Provide feedback
     toast.success('Filters applied successfully');
   };
   
-  // Clear all filters
   const handleClearFilters = () => {
     setSearchQuery('');
     setSelectedPlatform('');
     setSelectedStatus('');
     clearFilters();
     
-    // Provide feedback
     toast.info('Filters have been cleared');
   };
   
-  // Format the error object correctly for PostsDisplay
   const formattedError = error 
     ? (error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error')) 
     : null;
   
-  // Handle create post with feedback
   const handleCreatePost = async (data: any) => {
     try {
-      await createPost(data);
+      const result = await createPost(data);
       toast.success('Post created successfully');
-      return { success: true };
+      return result;
     } catch (err) {
       toast.error('Failed to create post');
       return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };
   
-  // Handle delete post with confirmation
   const handleDeletePost = async (postId: string) => {
     try {
       await deletePost(postId);
@@ -94,7 +86,6 @@ export function SocialMediaContent() {
     }
   };
   
-  // Handle schedule post with feedback
   const handleSchedulePost = async (postId: string) => {
     try {
       await schedule(postId);
@@ -106,10 +97,8 @@ export function SocialMediaContent() {
     }
   };
   
-  // Handle approve post with feedback
   const handleApprovePost = async (postId: string, notes?: string) => {
     try {
-      // Only pass notes if they exist
       if (notes) {
         await approve(postId, notes);
       } else {
@@ -125,13 +114,11 @@ export function SocialMediaContent() {
   
   return (
     <div className="space-y-6">
-      {/* Header */}
       <SocialMediaHeader 
         onCreatePost={openCreateDialog} 
         aria-label={screenReaderFriendly ? "Social Media Calendar Header with Create Post button" : undefined}
       />
       
-      {/* Filters */}
       <SocialMediaFilters 
         currentMonth={currentMonth}
         onMonthChange={setCurrentMonth}
@@ -146,7 +133,6 @@ export function SocialMediaContent() {
         aria-label={screenReaderFriendly ? "Social Media Content Filters" : undefined}
       />
       
-      {/* View Toggle */}
       <ViewToggle 
         view={view}
         onViewChange={setView}
@@ -154,7 +140,6 @@ export function SocialMediaContent() {
         aria-label={screenReaderFriendly ? "Toggle between list and calendar view" : undefined}
       />
       
-      {/* Content Display */}
       <PostsDisplay
         view={view}
         posts={posts}
@@ -169,7 +154,6 @@ export function SocialMediaContent() {
         aria-label={screenReaderFriendly ? "Social Media Posts List View" : undefined}
       />
       
-      {/* Create Post Dialog */}
       <DialogCreate
         open={isCreateDialogOpen}
         onOpenChange={closeCreateDialog}
