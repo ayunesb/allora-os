@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Lead } from '@/models/lead';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +20,7 @@ export function useLeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [formattedCampaigns, setFormattedCampaigns] = useState<{value: string, label: string}[]>([]);
+  const [isPending, startTransition] = useTransition();
   
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   
@@ -46,7 +47,9 @@ export function useLeadsPage() {
         
       if (error) throw error;
       
-      setLeads(data || []);
+      startTransition(() => {
+        setLeads(data || []);
+      });
       
       // Fetch campaigns for the filters
       const { data: campaigns } = await supabase
@@ -55,9 +58,11 @@ export function useLeadsPage() {
         .eq('company_id', profile.company_id);
         
       if (campaigns) {
-        setFormattedCampaigns(
-          campaigns.map(c => ({ value: c.id, label: c.name }))
-        );
+        startTransition(() => {
+          setFormattedCampaigns(
+            campaigns.map(c => ({ value: c.id, label: c.name }))
+          );
+        });
       }
     } catch (error: any) {
       console.error('Error fetching leads:', error);
@@ -66,16 +71,18 @@ export function useLeadsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [profile?.company_id, sortBy, sortOrder]);
+  }, [profile?.company_id, sortBy, sortOrder, startTransition]);
   
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
   
   const toggleSort = useCallback((column: typeof sortBy) => {
-    setSortBy(column);
-    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-  }, []);
+    startTransition(() => {
+      setSortBy(column);
+      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    });
+  }, [startTransition]);
   
   // Apply filters and search
   const filteredLeads = useCallback(() => {
@@ -97,22 +104,26 @@ export function useLeadsPage() {
   
   // Lead selection
   const handleLeadSelect = useCallback((leadId: string, isSelected: boolean) => {
-    setSelectedLeads(prev => {
-      if (isSelected) {
-        return [...prev, leadId];
-      } else {
-        return prev.filter(id => id !== leadId);
-      }
+    startTransition(() => {
+      setSelectedLeads(prev => {
+        if (isSelected) {
+          return [...prev, leadId];
+        } else {
+          return prev.filter(id => id !== leadId);
+        }
+      });
     });
-  }, []);
+  }, [startTransition]);
   
   const handleSelectAll = useCallback((isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedLeads(filteredLeads().map(lead => lead.id));
-    } else {
-      setSelectedLeads([]);
-    }
-  }, [filteredLeads]);
+    startTransition(() => {
+      if (isSelected) {
+        setSelectedLeads(filteredLeads().map(lead => lead.id));
+      } else {
+        setSelectedLeads([]);
+      }
+    });
+  }, [filteredLeads, startTransition]);
   
   // Bulk actions
   const handleBulkStatusUpdate = useCallback(async (newStatus: Lead['status']) => {
@@ -128,18 +139,22 @@ export function useLeadsPage() {
       
       toast.success(`Updated ${selectedLeads.length} leads to ${newStatus}`);
       fetchLeads();
-      setSelectedLeads([]);
+      startTransition(() => {
+        setSelectedLeads([]);
+      });
     } catch (error: any) {
       console.error('Error updating leads:', error);
       toast.error('Failed to update leads');
     }
-  }, [selectedLeads, fetchLeads]);
+  }, [selectedLeads, fetchLeads, startTransition]);
   
   // Lead detail view
   const handleViewLead = useCallback((lead: Lead) => {
-    setSelectedLead(lead);
-    setIsDrawerOpen(true);
-  }, []);
+    startTransition(() => {
+      setSelectedLead(lead);
+      setIsDrawerOpen(true);
+    });
+  }, [startTransition]);
   
   // Lead actions
   const handleLeadStatusUpdate = useCallback(async (leadId: string, newStatus: Lead['status']) => {
@@ -156,13 +171,15 @@ export function useLeadsPage() {
       
       // Update the selected lead if it's open
       if (selectedLead && selectedLead.id === leadId) {
-        setSelectedLead(prev => prev ? { ...prev, status: newStatus } : null);
+        startTransition(() => {
+          setSelectedLead(prev => prev ? { ...prev, status: newStatus } : null);
+        });
       }
     } catch (error: any) {
       console.error('Error updating lead status:', error);
       toast.error('Failed to update lead status');
     }
-  }, [fetchLeads, selectedLead]);
+  }, [fetchLeads, selectedLead, startTransition]);
   
   const handleLeadDelete = useCallback(async (leadId: string) => {
     try {
@@ -178,14 +195,16 @@ export function useLeadsPage() {
       
       // Close the drawer if the deleted lead was selected
       if (selectedLead && selectedLead.id === leadId) {
-        setIsDrawerOpen(false);
-        setSelectedLead(null);
+        startTransition(() => {
+          setIsDrawerOpen(false);
+          setSelectedLead(null);
+        });
       }
     } catch (error: any) {
       console.error('Error deleting lead:', error);
       toast.error('Failed to delete lead');
     }
-  }, [fetchLeads, selectedLead]);
+  }, [fetchLeads, selectedLead, startTransition]);
 
   return {
     leads,
@@ -200,6 +219,7 @@ export function useLeadsPage() {
     selectedLead,
     isDrawerOpen,
     formattedCampaigns,
+    isPending,
     
     setSearchQuery,
     toggleSort,

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useBreakpoint } from '@/hooks/use-mobile';
@@ -14,8 +14,27 @@ import {
   AddLeadDialog 
 } from '@/components/admin/leads';
 import { Lead } from '@/models/lead';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function AdminLeads() {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<LeadsLoading />}>
+        <LeadsContent />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function LeadsLoading() {
+  return (
+    <div className="flex justify-center items-center py-8">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
+}
+
+function LeadsContent() {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
@@ -76,9 +95,7 @@ export default function AdminLeads() {
       </div>
       
       {isLoading ? (
-        <div className="flex justify-center items-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <LeadsLoading />
       ) : (
         <>
           {/* Desktop view */}

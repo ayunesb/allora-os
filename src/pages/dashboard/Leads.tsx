@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { LeadsHeader } from '@/components/dashboard/leads/LeadsHeader';
 import { LeadsEmptyState } from '@/components/dashboard/leads/LeadsEmptyState';
@@ -8,8 +8,23 @@ import { LeadsErrorState } from '@/components/dashboard/leads/LeadsErrorState';
 import { LeadsContent } from '@/components/dashboard/leads/LeadsContent';
 import { LeadProfileDrawer } from '@/components/dashboard/leads/LeadProfileDrawer';
 import { useLeadsPage } from '@/hooks/dashboard/useLeadsPage';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function DashboardLeads() {
+  const breakpoint = useBreakpoint();
+  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<LeadsLoading />}>
+        <LeadsContent />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+// Extracted content component to better handle suspense
+function LeadsContent() {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   
@@ -26,6 +41,7 @@ export default function DashboardLeads() {
     selectedLead,
     isDrawerOpen,
     formattedCampaigns,
+    isPending,
     
     setSearchQuery,
     toggleSort,
@@ -46,7 +62,7 @@ export default function DashboardLeads() {
     <div className={`animate-fadeIn space-y-6 ${isMobileView ? "px-0" : ""}`}>
       <LeadsHeader isMobileView={isMobileView} />
       
-      {isLoading ? (
+      {isLoading || isPending ? (
         <LeadsLoading />
       ) : leadsError ? (
         <LeadsErrorState onRetry={refetchLeads} />

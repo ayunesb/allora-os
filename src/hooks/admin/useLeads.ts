@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Lead, LeadStatus } from '@/models/lead';
 import { supabase } from '@/backend/supabase';
@@ -15,16 +16,19 @@ export function useLeads() {
   const [sortBy, setSortBy] = useState<'name' | 'created_at'>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const [isPending, startTransition] = useTransition();
 
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
 
   const toggleSort = (column: 'name' | 'created_at') => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortOrder('asc');
-    }
+    startTransition(() => {
+      if (sortBy === column) {
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortBy(column);
+        setSortOrder('asc');
+      }
+    });
   };
 
   const refetchLeads = useCallback(async () => {
@@ -41,10 +45,12 @@ export function useLeads() {
         setError(error);
         toast.error(`Error fetching leads: ${error.message}`);
       } else {
-        const typedData: Lead[] = data ? data.map(item => ({
-          ...item,
-        })) : [];
-        setLeads(typedData);
+        startTransition(() => {
+          const typedData: Lead[] = data ? data.map(item => ({
+            ...item,
+          })) : [];
+          setLeads(typedData);
+        });
       }
     } catch (err: any) {
       setError(err);
@@ -52,7 +58,7 @@ export function useLeads() {
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearchQuery, sortBy, sortOrder]);
+  }, [debouncedSearchQuery, sortBy, sortOrder, startTransition]);
 
   useEffect(() => {
     refetchLeads();
@@ -202,6 +208,7 @@ export function useLeads() {
     handleStatusUpdate,
     handleDelete,
     addLead,
-    refetchLeads
+    refetchLeads,
+    isPending
   };
 }

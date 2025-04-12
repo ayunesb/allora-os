@@ -1,5 +1,5 @@
 
-import { Component, ErrorInfo, ReactNode } from "react";
+import { Component, ErrorInfo, ReactNode, Suspense } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
@@ -79,7 +79,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       );
     }
 
-    return this.props.children;
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center p-8"><RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
+        {this.props.children}
+      </Suspense>
+    );
   }
 }
 
