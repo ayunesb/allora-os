@@ -20,7 +20,7 @@ const mockOnSubmit = jest.fn(() => Promise.resolve({ success: true }));
 
 describe('SocialMediaPostForm', () => {
   it('renders the form with empty fields when no post is provided', () => {
-    render(<SocialMediaPostForm onSubmit={mockOnSubmit} />);
+    render(<SocialMediaPostForm onSubmit={mockOnSubmit} isSubmitting={false} />);
 
     expect(screen.getByLabelText('Post Title')).toBeInTheDocument();
     expect(screen.getByLabelText('Post Content')).toBeInTheDocument();
@@ -45,14 +45,14 @@ describe('SocialMediaPostForm', () => {
       updated_at: '2023-10-01'
     };
 
-    render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} />);
+    render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} isSubmitting={false} />);
 
     expect(screen.getByLabelText('Post Title')).toHaveValue('Test Post');
     expect(screen.getByLabelText('Post Content')).toHaveValue('This is test content');
   });
 
   it('calls onSubmit with the correct values when the form is submitted', async () => {
-    render(<SocialMediaPostForm onSubmit={mockOnSubmit} />);
+    render(<SocialMediaPostForm onSubmit={mockOnSubmit} isSubmitting={false} />);
 
     fireEvent.change(screen.getByLabelText('Post Title'), { target: { value: 'New Post' } });
     fireEvent.change(screen.getByLabelText('Post Content'), { target: { value: 'New Content' } });
@@ -77,7 +77,7 @@ describe('SocialMediaPostForm', () => {
 
   it('handles form submission errors', async () => {
     const mockOnSubmitError = jest.fn(() => Promise.resolve({ success: false, error: 'Test Error' }));
-    render(<SocialMediaPostForm onSubmit={mockOnSubmitError} />);
+    render(<SocialMediaPostForm onSubmit={mockOnSubmitError} isSubmitting={false} />);
 
     fireEvent.change(screen.getByLabelText('Post Title'), { target: { value: 'Error Post' } });
     fireEvent.click(screen.getByText('Create Post'));
@@ -105,7 +105,7 @@ describe('SocialMediaPostForm', () => {
       updated_at: '2023-10-25'
     };
 
-    render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} />);
+    render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} isSubmitting={false} />);
 
     fireEvent.change(screen.getByLabelText('Post Title'), { target: { value: 'Updated Post' } });
     fireEvent.click(screen.getByText('Update Post'));

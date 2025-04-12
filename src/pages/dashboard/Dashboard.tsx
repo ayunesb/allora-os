@@ -52,13 +52,20 @@ export default function Dashboard() {
   }, [queryClient]);
   
   // Handle recommendation approval with enhanced feedback
-  const handleRecommendationApproval = async (id: string) => {
+  const handleRecommendationApproval = async (index: number) => {
     try {
       toast.info("Processing approval...");
-      await handleApproveRecommendation(id);
-      toast.success("Recommendation approved successfully", {
-        description: "The approved recommendation will be implemented shortly"
-      });
+      // Convert index to string if the handleApproveRecommendation expects a string ID
+      // or get the ID from the recommendations array using the index
+      if (aiRecommendations && aiRecommendations[index]) {
+        const recommendationId = aiRecommendations[index].id;
+        await handleApproveRecommendation(recommendationId);
+        toast.success("Recommendation approved successfully", {
+          description: "The approved recommendation will be implemented shortly"
+        });
+      } else {
+        throw new Error("Recommendation not found");
+      }
     } catch (error) {
       console.error("Error approving recommendation:", error);
       toast.error("Failed to approve recommendation", {
@@ -80,7 +87,7 @@ export default function Dashboard() {
         role={screenReaderFriendly ? "main" : undefined}
         aria-label={screenReaderFriendly ? "Dashboard" : undefined}
       >
-        <DashboardHeader pendingApprovals={pendingApprovals} />
+        <DashboardHeader pendingApprovals={pendingApprovals ? pendingApprovals : 0} />
         
         {/* Refresh button for manual data refresh */}
         <div className="flex justify-end">

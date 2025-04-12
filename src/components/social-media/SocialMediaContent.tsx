@@ -7,7 +7,6 @@ import { ViewToggle } from './calendar/ViewToggle';
 import { PostsDisplay } from './PostsDisplay';
 import { DialogCreate } from './SocialMediaPostDialog';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import SocialMediaCalendarView from './calendar/SocialMediaCalendarView';
 import { toast } from 'sonner';
 import { useAccessibility } from '@/context/AccessibilityContext';
 
@@ -151,31 +150,19 @@ export function SocialMediaContent() {
       />
       
       {/* Content Display */}
-      {view === 'calendar' ? (
-        <SocialMediaCalendarView
-          posts={posts}
-          currentMonth={currentMonth}
-          onEditPost={(post) => console.log('Edit post', post)}
-          onDeletePost={handleDeletePost}
-          onSchedulePost={handleSchedulePost}
-          onApprovePost={handleApprovePost}
-          aria-label={screenReaderFriendly ? "Social Media Calendar View" : undefined}
-        />
-      ) : (
-        <PostsDisplay
-          view={view}
-          posts={posts}
-          isLoading={isLoading}
-          error={formattedError}
-          currentMonth={currentMonth}
-          onEditPost={(post) => console.log('Edit post', post)}
-          onDeletePost={handleDeletePost}
-          onSchedulePost={handleSchedulePost}
-          onApprovePost={handleApprovePost}
-          onCreatePost={openCreateDialog}
-          aria-label={screenReaderFriendly ? "Social Media Posts List View" : undefined}
-        />
-      )}
+      <PostsDisplay
+        view={view}
+        posts={posts}
+        isLoading={isLoading}
+        error={formattedError}
+        currentMonth={currentMonth}
+        onEditPost={(post) => console.log('Edit post', post)}
+        onDeletePost={handleDeletePost}
+        onSchedulePost={handleSchedulePost}
+        onApprovePost={handleApprovePost}
+        onCreatePost={openCreateDialog}
+        aria-label={screenReaderFriendly ? "Social Media Posts List View" : undefined}
+      />
       
       {/* Create Post Dialog */}
       <DialogCreate
