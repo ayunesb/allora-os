@@ -1,5 +1,5 @@
 
-import React, { FormEvent } from 'react';
+import React, { FormEvent, Suspense, lazy } from 'react';
 import { useSocialMediaContext } from '@/context/SocialMediaContext';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
 import { SocialMediaFilters } from './calendar/SocialMediaFilters';
@@ -9,6 +9,8 @@ import { DialogCreate } from './SocialMediaPostDialog';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from 'sonner';
 import { useAccessibility } from '@/context/AccessibilityContext';
+import { Skeleton } from "@/components/ui/skeleton";
+import { standardizeApiResponse } from '@/utils/api/responseHandler';
 
 export function SocialMediaContent() {
   const {
@@ -68,44 +70,76 @@ export function SocialMediaContent() {
   const handleCreatePost = async (data: any) => {
     try {
       const result = await createPost(data);
-      toast.success('Post created successfully');
-      return result;
+      const response = standardizeApiResponse(result, 'Post created successfully');
+      
+      if (response.success) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+      
+      return response;
     } catch (err) {
-      toast.error('Failed to create post');
-      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+      const errorResponse = standardizeApiResponse(null, 'Failed to create post', err);
+      toast.error(errorResponse.message);
+      return errorResponse;
     }
   };
   
   const handleDeletePost = async (postId: string) => {
     try {
-      await deletePost(postId);
-      toast.success('Post deleted successfully');
-      return { success: true };
+      const result = await deletePost(postId);
+      const response = standardizeApiResponse(result, 'Post deleted successfully');
+      
+      if (response.success) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+      
+      return response;
     } catch (err) {
-      toast.error('Failed to delete post');
-      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+      const errorResponse = standardizeApiResponse(null, 'Failed to delete post', err);
+      toast.error(errorResponse.message);
+      return errorResponse;
     }
   };
   
   const handleSchedulePost = async (postId: string) => {
     try {
-      await schedule(postId);
-      toast.success('Post scheduled successfully');
-      return { success: true };
+      const result = await schedule(postId);
+      const response = standardizeApiResponse(result, 'Post scheduled successfully');
+      
+      if (response.success) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+      
+      return response;
     } catch (err) {
-      toast.error('Failed to schedule post');
-      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+      const errorResponse = standardizeApiResponse(null, 'Failed to schedule post', err);
+      toast.error(errorResponse.message);
+      return errorResponse;
     }
   };
   
   const handleApprovePost = async (postId: string) => {
     try {
-      await approve(postId);
-      toast.success('Post approved successfully');
-      return { success: true };
+      const result = await approve(postId);
+      const response = standardizeApiResponse(result, 'Post approved successfully');
+      
+      if (response.success) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+      
+      return response;
     } catch (err) {
-      toast.error('Failed to approve post');
-      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+      const errorResponse = standardizeApiResponse(null, 'Failed to approve post', err);
+      toast.error(errorResponse.message);
+      return errorResponse;
     }
   };
   

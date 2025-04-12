@@ -1,18 +1,21 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
 import { useCampaignTracking } from "@/hooks/campaigns/useCampaignTracking";
-import CampaignsList from "@/components/campaigns/CampaignsList";
-import CampaignHeader from "@/components/campaigns/CampaignHeader";
-import { CampaignAnalytics } from "@/components/campaigns/CampaignAnalytics";
-import CampaignWizard, { CampaignWizardData } from "@/components/campaigns/CampaignWizard";
-import { executiveBots } from "@/backend/executiveBots";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { toast } from "sonner";
 import { Campaign, Platform, ExecutiveBot } from "@/models/campaign";
 import { Button } from "@/components/ui/button";
 import { DownloadIcon } from "lucide-react";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load components for better performance
+const CampaignsList = lazy(() => import("@/components/campaigns/CampaignsList"));
+const CampaignHeader = lazy(() => import("@/components/campaigns/CampaignHeader"));
+const CampaignWizard = lazy(() => import("@/components/campaigns/CampaignWizard"));
+import { CampaignAnalytics } from "@/components/campaigns/CampaignAnalytics";
+import type { CampaignWizardData } from "@/components/campaigns/CampaignWizard";
 
 export default function Campaigns() {
   const [editingCampaignId, setEditingCampaignId] = useState<string | null>(null);
@@ -38,8 +41,7 @@ export default function Campaigns() {
   const { trackAction } = useSelfLearning();
   
   useEffect(() => {
-    const allExecs = Object.values(executiveBots).flat();
-    
+    // Track page view
     trackAction(
       'view_page',
       'page_view',
@@ -63,7 +65,7 @@ export default function Campaigns() {
       });
     } else {
       const allExecs = Object.values(executiveBots).flat();
-      // Fixed: Use the provided executiveBot name if available, otherwise get random exec name
+      // Use the provided executiveBot name if available, otherwise get random exec name
       const randomExec: string = data.executiveBot || allExecs[Math.floor(Math.random() * allExecs.length)];
       
       createCampaign({
@@ -84,7 +86,6 @@ export default function Campaigns() {
         { 
           name: data.name,
           platform: data.platform,
-          // Fixed the type issues with executiveBot
           executiveBot: randomExec
         }
       );
@@ -112,7 +113,7 @@ export default function Campaigns() {
   const handleApproveCampaign = (campaignId: string) => {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
-      // Fixed: Extract string name from executiveBot if it's an object
+      // Extract string name from executiveBot if it's an object
       const execBotName = typeof campaign.executiveBot === 'string' 
         ? campaign.executiveBot 
         : campaign.executiveBot?.name || '';
@@ -139,7 +140,7 @@ export default function Campaigns() {
       toast.success(`${format.toUpperCase()} export complete`);
     }, 1500);
 
-    // Fixed: Extract string name from executiveBot if it's an object
+    // Extract string name from executiveBot if it's an object
     const execBotName = typeof campaign.executiveBot === 'string' 
       ? campaign.executiveBot 
       : campaign.executiveBot?.name || '';
@@ -195,16 +196,29 @@ export default function Campaigns() {
     };
   };
 
+  // Define executives for selection
+  const executiveBots = {
+    ceo: ["Elon Musk", "Jeff Bezos", "Tim Cook", "Satya Nadella"],
+    cmo: ["Seth Godin", "Neil Patel", "Gary Vaynerchuk"],
+    cfo: ["Warren Buffett", "Charlie Munger"],
+    sales_business_development: ["Jill Konrath", "Grant Cardone"],
+    marketing: ["Mari Smith", "Ryan Deiss", "Amy Porterfield"]
+  };
+
   return (
     <Tabs defaultValue="main">
       <TabsContent value="main">
         <div className="container mx-auto px-4 py-8">
-          <CampaignHeader onNewCampaign={handleNewCampaign} />
+          <Suspense fallback={<Skeleton className="h-16 w-full mb-4" />}>
+            <CampaignHeader onNewCampaign={handleNewCampaign} />
+          </Suspense>
           
-          {/* Update the props to match what CampaignAnalytics expects */}
+          {/* CampaignAnalytics with correct props */}
           <CampaignAnalytics 
             campaignName="All Campaigns Overview"
             isComparison={false}
+            campaigns={campaigns}
+            isLoading={isLoading}
           />
           
           <div className="flex justify-between items-center mb-4">
@@ -224,24 +238,28 @@ export default function Campaigns() {
             )}
           </div>
           
-          <CampaignsList 
-            campaigns={campaigns}
-            isLoading={isLoading}
-            handleEditCampaign={handleEditCampaign}
-            deleteCampaign={deleteCampaign}
-            onCreateCampaign={handleNewCampaign}
-            onApproveCampaign={handleApproveCampaign}
-            onExportCampaign={handleExportCampaign}
-          />
+          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+            <CampaignsList 
+              campaigns={campaigns}
+              isLoading={isLoading}
+              handleEditCampaign={handleEditCampaign}
+              deleteCampaign={deleteCampaign}
+              onCreateCampaign={handleNewCampaign}
+              onApproveCampaign={handleApproveCampaign}
+              onExportCampaign={handleExportCampaign}
+            />
+          </Suspense>
           
-          <CampaignWizard
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onSubmit={onSubmit}
-            defaultValues={getWizardDefaultValues()}
-            isSubmitting={isCreating || isUpdating}
-            isEditing={!!editingCampaignId}
-          />
+          <Suspense fallback={null}>
+            <CampaignWizard
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onSubmit={onSubmit}
+              defaultValues={getWizardDefaultValues()}
+              isSubmitting={isCreating || isUpdating}
+              isEditing={!!editingCampaignId}
+            />
+          </Suspense>
         </div>
       </TabsContent>
     </Tabs>
