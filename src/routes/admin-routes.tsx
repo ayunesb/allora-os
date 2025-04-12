@@ -10,6 +10,7 @@ import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
 import DatabaseVerification from "@/pages/admin/DatabaseVerification";
 import LaunchCheck from "@/pages/admin/LaunchCheck";
 import LaunchPrep from "@/pages/admin/LaunchPrep";
+import TechnicalImprovements from "@/pages/dashboard/TechnicalImprovements";
 
 export const adminRoutes: RouteObject = {
   path: "/admin",
@@ -50,6 +51,10 @@ export const adminRoutes: RouteObject = {
     {
       path: "launch-prep",
       element: <LaunchPrep />,
+    },
+    {
+      path: "technical-improvements",
+      element: <TechnicalImprovements />,
     }
   ],
 };

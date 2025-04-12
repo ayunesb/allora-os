@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Users, Building2, Webhook, Key, Database, RocketIcon } from 'lucide-react';
+import { Users, Building2, Webhook, Key, Database, RocketIcon, BarChart3 } from 'lucide-react';
 
 const AdminNav = () => {
   return (
@@ -93,6 +93,17 @@ const AdminNav = () => {
       >
         <RocketIcon className="mr-2 h-4 w-4" />
         <span className="truncate">Launch Preparation</span>
+      </NavLink>
+      <NavLink
+        to="/admin/technical-improvements"
+        className={({ isActive }) =>
+          `flex items-center px-3 py-2 text-sm rounded-md ${
+            isActive ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-primary/5'
+          }`
+        }
+      >
+        <BarChart3 className="mr-2 h-4 w-4" />
+        <span className="truncate">Technical Improvements</span>
       </NavLink>
     </nav>
   );

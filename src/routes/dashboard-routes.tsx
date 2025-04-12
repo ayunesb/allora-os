@@ -36,10 +36,10 @@ const Integrations = lazy(() => import("@/pages/dashboard/Integrations"));
 const TechnicalImprovements = lazy(() => import("@/pages/dashboard/TechnicalImprovements"));
 
 // Wrap each route component with ProtectedRoute to ensure auth context is available
-const wrapInProtectedRoute = (Component: React.ComponentType) => {
+const wrapInProtectedRoute = (Component: React.ComponentType, adminOnly: boolean = false) => {
   return (
     <ErrorBoundary>
-      <ProtectedRoute>
+      <ProtectedRoute adminOnly={adminOnly}>
         <Component />
       </ProtectedRoute>
     </ErrorBoundary>
@@ -75,7 +75,7 @@ export const dashboardRoutes: RouteObject[] = [
       { path: "linkedin-auth-callback", element: wrapInProtectedRoute(LinkedInAuthCallback) },
       { path: "linkedin-integration", element: wrapInProtectedRoute(LinkedInIntegration) },
       { path: "integrations", element: wrapInProtectedRoute(Integrations) },
-      { path: "technical-improvements", element: wrapInProtectedRoute(TechnicalImprovements) },
+      { path: "technical-improvements", element: wrapInProtectedRoute(TechnicalImprovements, true) },
       { path: "*", element: <Navigate to="/dashboard" replace /> },
     ],
   },
