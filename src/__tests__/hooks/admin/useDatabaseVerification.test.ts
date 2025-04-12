@@ -1,6 +1,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-hooks'; // Corrected import
 import { useDatabaseVerification } from '@/hooks/admin/useDatabaseVerification';
 import { toast } from 'sonner';
 import * as databaseVerification from '@/utils/admin/databaseVerification';
