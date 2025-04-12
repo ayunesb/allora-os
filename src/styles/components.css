@@ -152,3 +152,85 @@
 .strategy-card {
   @apply bg-secondary/30 backdrop-blur-md rounded-xl border border-white/10 overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30;
 }
+
+/* Data visualization enhancements */
+.chart-container {
+  @apply bg-gradient-to-b from-secondary/40 to-background/30 rounded-xl border border-white/10 p-4 overflow-hidden;
+}
+
+.chart-axis {
+  @apply text-xs text-muted-foreground;
+}
+
+.chart-line {
+  @apply stroke-primary stroke-2;
+  filter: drop-shadow(0 0 3px rgba(99, 179, 237, 0.5));
+}
+
+.chart-bar {
+  @apply fill-primary/80 hover:fill-primary transition-all;
+}
+
+.chart-tooltip {
+  @apply bg-background/90 backdrop-blur-md border border-white/10 shadow-lg px-3 py-2 rounded-lg text-xs;
+}
+
+/* Data metrics styling */
+.metric-container {
+  @apply glassmorphism p-4 transition-all hover:border-primary/30;
+}
+
+.metric-value {
+  @apply text-2xl font-bold gradient-text;
+}
+
+.metric-label {
+  @apply text-xs text-muted-foreground mt-1;
+}
+
+.metric-change-positive {
+  @apply text-green-400 text-sm flex items-center gap-1;
+}
+
+.metric-change-negative {
+  @apply text-red-400 text-sm flex items-center gap-1;
+}
+
+/* Button enhancements */
+.glow-button {
+  @apply relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 shadow-lg;
+}
+
+.glow-button::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 transition-opacity duration-300;
+}
+
+.glow-button:hover::before {
+  @apply opacity-30;
+}
+
+.glow-button:hover {
+  box-shadow: 0 0 15px rgba(99, 179, 237, 0.6);
+}
+
+/* Loading animations */
+.shimmer-effect {
+  @apply relative overflow-hidden;
+}
+
+.shimmer-effect::after {
+  content: '';
+  @apply absolute top-0 left-0 w-full h-full;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
