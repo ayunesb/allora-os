@@ -3,30 +3,30 @@ import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
-interface DateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: DateRange;
+// Fix the interface by not extending HTMLAttributes
+export interface DateRangePickerProps {
+  className?: string;
   onChange: (date: DateRange) => void;
-  align?: "start" | "center" | "end";
+  value: DateRange;
 }
 
 export function DateRangePicker({
+  className,
   value,
   onChange,
-  className,
-  align = "start",
-  ...props
 }: DateRangePickerProps) {
   return (
-    <div className={cn("grid gap-2", className)} {...props}>
+    <div className={cn("grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -52,7 +52,7 @@ export function DateRangePicker({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align={align}>
+        <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             initialFocus
             mode="range"

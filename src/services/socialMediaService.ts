@@ -110,22 +110,13 @@ export async function fetchSocialMediaPosts(
  * @returns Promise with the post or null if not found
  */
 export async function fetchSocialMediaPost(postId: string): Promise<SocialMediaPost | null> {
-  return apiRequest<SocialMediaPost>(
-    wrapSupabaseQuery(async () => {
-      const result = await supabase
-        .from('social_media_posts')
-        .select('*')
-        .eq('id', postId)
-        .maybeSingle();
-      
-      return { data: result.data || null, error: result.error };
-    }),
-    {
-      errorMessage: `Failed to fetch social media post ${postId}`,
-      cacheKey: `social_media_post_${postId}`,
-      cacheTTL: 60000 // 1 minute cache
-    }
-  ).then(response => response.data || null);
+  const result = await supabase
+    .from('social_media_posts')
+    .select('*')
+    .eq('id', postId)
+    .maybeSingle();
+  
+  return { data: result.data, error: result.error };
 }
 
 /**
@@ -270,8 +261,8 @@ export async function updateSocialMediaPost(
     }
     
     // Get the current post data to determine company ID for cache invalidation
-    const currentPost = await fetchSocialMediaPost(validatedData.id);
-    if (!currentPost) {
+    const updatedPost = await fetchSocialMediaPost(validatedData.id);
+    if (!updatedPost) {
       return {
         success: false,
         error: 'Post not found'
@@ -316,8 +307,8 @@ export async function updateSocialMediaPost(
     
     // Clear the specific post cache and the posts list cache
     clearApiCache(`social_media_post_${validatedData.id}`);
-    if (currentPost.company_id) {
-      clearApiCache(getSocialMediaCacheKey(currentPost.company_id));
+    if (updatedPost.company_id) {
+      clearApiCache(getSocialMediaCacheKey(updatedPost.company_id));
     }
     
     // Log the successful update
@@ -408,8 +399,8 @@ export async function schedulePost(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get the current post data to determine company ID for cache invalidation
-    const initialPost = await fetchSocialMediaPost(postId);
-    if (!initialPost) {
+    const updatedPost = await fetchSocialMediaPost(postId);
+    if (!updatedPost) {
       return {
         success: false,
         error: 'Post not found'
@@ -417,10 +408,10 @@ export async function schedulePost(
     }
     
     // Check if the post is already scheduled or published
-    if (initialPost.status === 'scheduled' || initialPost.status === 'published') {
+    if (updatedPost.status === 'scheduled' || updatedPost.status === 'published') {
       return {
         success: false,
-        error: `Post is already ${initialPost.status}`
+        error: `Post is already ${updatedPost.status}`
       };
     }
     
@@ -486,8 +477,8 @@ export async function approvePost(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get the current post data to determine company ID for cache invalidation
-    const initialPost = await fetchSocialMediaPost(postId);
-    if (!initialPost) {
+    const updatedPost = await fetchSocialMediaPost(postId);
+    if (!updatedPost) {
       return {
         success: false,
         error: 'Post not found'
@@ -495,7 +486,7 @@ export async function approvePost(
     }
     
     // Check if the post is already approved
-    if (initialPost.is_approved) {
+    if (updatedPost.is_approved) {
       return {
         success: false,
         error: 'Post is already approved'
@@ -510,7 +501,7 @@ export async function approvePost(
           .update({
             is_approved: true,
             approval_notes: notes,
-            status: initialPost.status === 'draft' ? 'approved' : initialPost.status,
+            status: updatedPost.status === 'draft' ? 'approved' : updatedPost.status,
             updated_at: new Date().toISOString()
           })
           .eq('id', postId);

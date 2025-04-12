@@ -1,14 +1,31 @@
 
 export interface SocialMediaPost {
   id: string;
-  company_id: string;
+  name: string;
+  platform: Platform;
+  budget?: number;
+  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  executiveBot?: string | { name: string };
+  justification?: string;
+  roi?: string;
+  healthScore?: 'good' | 'warning' | 'critical';
+  impressions?: number;
+  clicks?: number;
+  leads?: number;
+  company_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  is_archived?: boolean;
+  aiGenerated?: boolean;
+  collaborators?: string[];
+  description?: string;
+  
+  // Social media specific fields
   title: string;
   content: string;
-  platform: string;
   scheduled_date: string;
   publish_time: string;
-  status: 'draft' | 'approved' | 'scheduled' | 'published' | 'failed';
-  content_type: string;
+  content_type: ContentType;
   media_urls?: string[];
   campaign_id?: string;
   is_approved: boolean;
@@ -18,18 +35,25 @@ export interface SocialMediaPost {
   hashtags?: string[];
   location?: string;
   link_url?: string;
-  created_at: string;
-  updated_at: string;
   author_id?: string;
 }
+
+export type Platform = "Google" | "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Email" | "Twitter";
+export type ExecutiveBot = string;
+
+// Add these new type definitions
+export type SocialPlatform = "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Twitter";
+export type PostStatus = "draft" | "approved" | "scheduled" | "published" | "failed";
+export type ContentType = "text" | "image" | "video" | "link" | "carousel" | "poll";
+export type PostContentType = ContentType;
 
 export interface CreatePostInput {
   title: string;
   content: string;
-  platform: string;
+  platform: SocialPlatform;
   scheduled_date: string;
   publish_time: string;
-  content_type: string;
+  content_type: PostContentType;
   media_urls?: string[];
   campaign_id?: string;
   is_approved?: boolean;
@@ -44,11 +68,11 @@ export interface UpdatePostInput {
   id: string;
   title?: string;
   content?: string;
-  platform?: string;
+  platform?: SocialPlatform;
   scheduled_date?: string;
   publish_time?: string;
-  status?: string;
-  content_type?: string;
+  status?: PostStatus;
+  content_type?: PostContentType;
   media_urls?: string[];
   campaign_id?: string;
   is_approved?: boolean;
@@ -61,9 +85,9 @@ export interface UpdatePostInput {
 }
 
 export interface SocialMediaCalendarFilters {
-  platform?: string;
-  status?: string;
-  content_type?: string;
+  platform?: SocialPlatform;
+  status?: PostStatus;
+  content_type?: PostContentType;
   campaign_id?: string;
   author_id?: string;
   startDate?: string;

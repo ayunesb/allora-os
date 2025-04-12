@@ -16,7 +16,7 @@ interface LineChartProps {
   categories: string[];
   index: string;
   colors?: string[];
-  valueFormatter?: (value: number, category?: string) => string;
+  valueFormatter?: (value: number) => string;
   yAxisWidth?: number;
   className?: string;
 }
@@ -30,7 +30,13 @@ export function LineChart({
   yAxisWidth = 40,
   className
 }: LineChartProps) {
-  const formatValue = valueFormatter || ((value) => `${value}`);
+  // Create a simpler formatter function that matches the expected type
+  const formatValue = (value: any) => {
+    if (valueFormatter && typeof value === 'number') {
+      return valueFormatter(value);
+    }
+    return `${value}`;
+  };
 
   return (
     <ResponsiveContainer width="100%" height={300} className={className}>
@@ -39,7 +45,7 @@ export function LineChart({
         <XAxis dataKey={index} />
         <YAxis width={yAxisWidth} tickFormatter={formatValue} />
         <Tooltip 
-          formatter={(value, name) => [formatValue(Number(value), name as string), name]}
+          formatter={(value) => [formatValue(value), ""]}
         />
         <Legend />
         {categories.map((category, idx) => (
