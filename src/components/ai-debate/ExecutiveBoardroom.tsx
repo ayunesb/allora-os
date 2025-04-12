@@ -105,7 +105,7 @@ const ExecutiveBoardroom: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="bg-secondary/10 rounded-lg p-4">
-                <p>{debateSummary || "No summary is available for this debate yet."}</p>
+                <p>{typeof debateSummary === 'string' ? debateSummary : "No summary is available for this debate yet."}</p>
               </div>
             </CardContent>
           </Card>
