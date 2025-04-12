@@ -1,7 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, Calendar } from "lucide-react";
 import ComplianceLayout from "@/components/ComplianceLayout";
+import ComplianceUpdateNotification from "@/components/compliance/ComplianceUpdateNotification";
+import { useCompliance } from "@/context/ComplianceContext";
+import React, { useState } from "react";
 
 export default function ComplianceOverview() {
   // Mock compliance scores
@@ -12,8 +17,31 @@ export default function ComplianceOverview() {
     sox: 85
   };
   
+  const { 
+    pendingUpdates, 
+    checkForUpdates, 
+    isCheckingUpdates,
+    scheduleComplianceCheck
+  } = useCompliance();
+  
+  const [scheduleDays, setScheduleDays] = useState(5);
+  const [isScheduling, setIsScheduling] = useState(false);
+  
+  const handleScheduleCheck = async () => {
+    setIsScheduling(true);
+    try {
+      await scheduleComplianceCheck(scheduleDays);
+    } finally {
+      setIsScheduling(false);
+    }
+  };
+  
   return (
     <ComplianceLayout>
+      {pendingUpdates.length > 0 && (
+        <ComplianceUpdateNotification className="mb-6" />
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -80,7 +108,77 @@ export default function ComplianceOverview() {
           </CardContent>
         </Card>
         
-        <Card className="md:col-span-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Automatic Compliance Checks</CardTitle>
+            <CardDescription>Schedule regular checks for regulatory updates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-5 w-5 text-muted-foreground" />
+                <span>Currently checking every <strong>{scheduleDays} days</strong> for updates</span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <label htmlFor="days" className="text-sm">Check frequency (days):</label>
+                <select 
+                  id="days" 
+                  className="border rounded p-1 text-sm"
+                  value={scheduleDays}
+                  onChange={(e) => setScheduleDays(parseInt(e.target.value))}
+                >
+                  <option value="1">Daily</option>
+                  <option value="3">Every 3 days</option>
+                  <option value="5">Every 5 days</option>
+                  <option value="7">Weekly</option>
+                  <option value="14">Every 2 weeks</option>
+                  <option value="30">Monthly</option>
+                </select>
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={checkForUpdates}
+                  disabled={isCheckingUpdates}
+                >
+                  {isCheckingUpdates ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Checking...
+                    </>
+                  ) : (
+                    "Check Now"
+                  )}
+                </Button>
+                
+                <Button
+                  size="sm"
+                  onClick={handleScheduleCheck}
+                  disabled={isScheduling}
+                >
+                  {isScheduling ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Scheduling...
+                    </>
+                  ) : (
+                    "Schedule Automatic Checks"
+                  )}
+                </Button>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mt-2">
+                Automatic compliance checks help ensure your legal documents stay up-to-date
+                with the latest regulatory requirements.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
           <CardHeader>
             <CardTitle>Upcoming Compliance Deadlines</CardTitle>
             <CardDescription>Important dates for regulatory submissions</CardDescription>

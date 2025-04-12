@@ -114,6 +114,61 @@ export const setupAutomaticUpdates = (
   return () => clearInterval(interval);
 };
 
+// New function to schedule regular compliance checks (every X days)
+export const scheduleRegularComplianceCheck = async (
+  intervalDays: number = 5, 
+  onUpdateAvailable: (documents: string[]) => void
+): Promise<void> => {
+  console.log(`Scheduling regular compliance check every ${intervalDays} days`);
+  
+  // Calculate milliseconds based on days
+  const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
+  
+  // Immediate first check
+  try {
+    const result = await checkForDocumentUpdates();
+    if (result.documentsNeedingUpdate.length > 0) {
+      onUpdateAvailable(result.documentsNeedingUpdate);
+      
+      // Log that we found regulatory updates through automatic check
+      logComplianceChange(
+        'system',
+        `Scheduled compliance check found ${result.documentsNeedingUpdate.length} documents needing updates`,
+        { documents: result.documentsNeedingUpdate, checkInterval: `${intervalDays} days` }
+      );
+    }
+  } catch (error) {
+    console.error("Error in initial compliance check:", error);
+  }
+  
+  // Set up the interval for regular checks
+  const intervalId = setInterval(async () => {
+    try {
+      console.log(`Running scheduled compliance check (every ${intervalDays} days)`);
+      const result = await checkForDocumentUpdates();
+      
+      if (result.documentsNeedingUpdate.length > 0) {
+        onUpdateAvailable(result.documentsNeedingUpdate);
+        
+        // Log that we found regulatory updates through automatic check
+        logComplianceChange(
+          'system',
+          `Scheduled compliance check found ${result.documentsNeedingUpdate.length} documents needing updates`,
+          { documents: result.documentsNeedingUpdate, checkInterval: `${intervalDays} days` }
+        );
+      }
+    } catch (error) {
+      console.error("Error in scheduled compliance check:", error);
+    }
+  }, intervalMs);
+  
+  // Store interval ID in localStorage to persist across sessions
+  localStorage.setItem('complianceCheckInterval', String(intervalId));
+  localStorage.setItem('complianceCheckIntervalDays', String(intervalDays));
+  
+  return Promise.resolve();
+};
+
 export const enableAutoUpdatesForDocument = async (
   documentId: string, 
   enabled: boolean

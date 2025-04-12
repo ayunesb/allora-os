@@ -1,5 +1,7 @@
 
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, Clock } from 'lucide-react';
 
 interface DocumentHeaderProps {
   onCheckForUpdates: () => void;
@@ -7,30 +9,46 @@ interface DocumentHeaderProps {
   lastChecked: Date | null;
 }
 
-export default function DocumentHeader({ 
-  onCheckForUpdates, 
+export default function DocumentHeader({
+  onCheckForUpdates,
   isCheckingUpdates,
-  lastChecked 
+  lastChecked
 }: DocumentHeaderProps) {
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium">Document Version Tracker</h3>
-        <Button 
-          variant="outline" 
-          size="sm"
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0 mb-4">
+      <div>
+        <h2 className="text-xl font-semibold">Legal Document Tracker</h2>
+        <p className="text-sm text-muted-foreground">
+          Monitor and update your compliance documents
+        </p>
+      </div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+        <div className="flex items-center text-xs text-muted-foreground">
+          <Clock className="h-3 w-3 mr-1" />
+          {lastChecked ? (
+            <span>Last checked: {lastChecked.toLocaleString()}</span>
+          ) : (
+            <span>Not checked yet</span>
+          )}
+        </div>
+        <Button
           onClick={onCheckForUpdates}
           disabled={isCheckingUpdates}
+          size="sm"
         >
-          {isCheckingUpdates ? "Checking..." : "Check for Updates"}
+          {isCheckingUpdates ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Checking for updates...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Check for updates
+            </>
+          )}
         </Button>
       </div>
-      
-      {lastChecked && (
-        <p className="text-sm text-muted-foreground mb-4">
-          Last checked: {lastChecked.toLocaleString()}
-        </p>
-      )}
-    </>
+    </div>
   );
 }

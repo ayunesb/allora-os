@@ -4,7 +4,8 @@ import {
   checkForDocumentUpdates, 
   applyDocumentUpdate, 
   setupAutomaticUpdates, 
-  enableAutoUpdatesForDocument 
+  enableAutoUpdatesForDocument,
+  scheduleRegularComplianceCheck
 } from '@/services/complianceService';
 import { toast } from 'sonner';
 
@@ -17,6 +18,7 @@ interface ComplianceContextType {
   applyUpdate: (documentId: string) => Promise<void>;
   applyAllUpdates: () => Promise<void>;
   setAutoUpdate: (documentId: string, enabled: boolean) => Promise<void>;
+  scheduleComplianceCheck: (intervalDays: number) => Promise<void>;
 }
 
 const ComplianceContext = createContext<ComplianceContextType | undefined>(undefined);
@@ -45,6 +47,16 @@ export const ComplianceProvider: React.FC<ComplianceProviderProps> = ({ children
       if (documents.length > 0) {
         setPendingUpdates(documents);
         toast.info(`Updates available for ${documents.length} document(s)`, {
+          description: "New regulatory updates are available for some compliance documents."
+        });
+      }
+    });
+    
+    // Schedule initial compliance check (every 5 days)
+    scheduleRegularComplianceCheck(5, (updatedDocs) => {
+      if (updatedDocs.length > 0) {
+        setPendingUpdates(prev => [...new Set([...prev, ...updatedDocs])]);
+        toast.info(`Updates available for ${updatedDocs.length} document(s)`, {
           description: "New regulatory updates are available for some compliance documents."
         });
       }
@@ -130,6 +142,27 @@ export const ComplianceProvider: React.FC<ComplianceProviderProps> = ({ children
       });
     }
   };
+  
+  const scheduleComplianceCheck = async (intervalDays: number) => {
+    try {
+      await scheduleRegularComplianceCheck(intervalDays, (updatedDocs) => {
+        if (updatedDocs.length > 0) {
+          setPendingUpdates(prev => [...new Set([...prev, ...updatedDocs])]);
+          toast.info(`Updates available for ${updatedDocs.length} document(s)`, {
+            description: "New regulatory updates are available for some compliance documents."
+          });
+        }
+      });
+      toast.success("Compliance check scheduled", {
+        description: `Automatic checks will run every ${intervalDays} days.`
+      });
+    } catch (error) {
+      console.error("Error scheduling compliance check:", error);
+      toast.error("Failed to schedule compliance check", {
+        description: "There was an error scheduling automatic compliance checks."
+      });
+    }
+  };
 
   const value = {
     pendingUpdates,
@@ -139,7 +172,8 @@ export const ComplianceProvider: React.FC<ComplianceProviderProps> = ({ children
     checkForUpdates,
     applyUpdate,
     applyAllUpdates,
-    setAutoUpdate
+    setAutoUpdate,
+    scheduleComplianceCheck
   };
 
   return (
