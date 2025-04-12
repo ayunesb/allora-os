@@ -66,6 +66,12 @@ export async function checkSupabaseConnection() {
     const isAuthenticated = session !== null;
     console.log("Authentication status:", isAuthenticated ? "Authenticated" : "Not authenticated");
     
+    // If not authenticated, don't even try to check the database connection
+    if (!isAuthenticated) {
+      console.log("Not authenticated, skipping database check");
+      return { connected: false, error: new Error("Authentication required"), authenticated: false };
+    }
+    
     // Then try a simple query that should always work if the database exists
     try {
       const { data, error } = await supabase
@@ -84,9 +90,12 @@ export async function checkSupabaseConnection() {
           return { connected: false, error, authenticated: false };
         }
         
-        toast.error("Database connection error", {
-          description: error.message
-        });
+        // Only show toast for errors when not in a component that's already handling errors
+        if (!error.message.includes('silent')) {
+          toast.error("Database connection error", {
+            description: error.message
+          });
+        }
         
         return { connected: false, error, authenticated: isAuthenticated };
       }
@@ -100,9 +109,12 @@ export async function checkSupabaseConnection() {
   } catch (error) {
     console.error("Error checking Supabase connection:", error);
     
-    toast.error("Connection check failed", {
-      description: error instanceof Error ? error.message : "Unknown error"
-    });
+    // Only show toast for errors when not in a component that's already handling errors
+    if (!(error instanceof Error && error.message.includes('silent'))) {
+      toast.error("Connection check failed", {
+        description: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
     
     return { connected: false, error, authenticated: false };
   }

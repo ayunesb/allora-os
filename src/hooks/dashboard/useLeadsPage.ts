@@ -33,12 +33,24 @@ export function useLeadsPage() {
   
   // Fetch leads
   const fetchLeads = useCallback(async () => {
-    if (!profile?.company_id) return;
+    if (!profile?.company_id) {
+      setIsLoading(false);
+      return;
+    }
     
     setIsLoading(true);
     setLeadsError(null);
     
     try {
+      // First, check the Supabase connection
+      const { connected, error: connectionError } = await supabase.functions.invoke('check-connection', {
+        body: { silent: true }
+      }).catch(() => ({ connected: false, error: new Error('Connection check failed') }));
+      
+      if (!connected) {
+        throw connectionError || new Error('Unable to connect to database');
+      }
+      
       const { data, error } = await supabase
         .from('leads')
         .select('*, campaigns(name)')
@@ -52,12 +64,14 @@ export function useLeadsPage() {
       });
       
       // Fetch campaigns for the filters
-      const { data: campaigns } = await supabase
+      const { data: campaigns, error: campaignsError } = await supabase
         .from('campaigns')
         .select('id, name')
         .eq('company_id', profile.company_id);
         
-      if (campaigns) {
+      if (campaignsError) {
+        console.error('Error fetching campaigns:', campaignsError);
+      } else if (campaigns) {
         startTransition(() => {
           setFormattedCampaigns(
             campaigns.map(c => ({ value: c.id, label: c.name }))
@@ -67,14 +81,19 @@ export function useLeadsPage() {
     } catch (error: any) {
       console.error('Error fetching leads:', error);
       setLeadsError(error);
-      toast.error('Failed to load leads');
+      toast.error('Failed to load leads', { 
+        description: error.message || 'Database connection error' 
+      });
     } finally {
       setIsLoading(false);
     }
   }, [profile?.company_id, sortBy, sortOrder, startTransition]);
   
   useEffect(() => {
-    fetchLeads();
+    // Wrap the effect body in startTransition to prevent suspension during updates
+    startTransition(() => {
+      fetchLeads();
+    });
   }, [fetchLeads]);
   
   const toggleSort = useCallback((column: typeof sortBy) => {
@@ -84,8 +103,8 @@ export function useLeadsPage() {
     });
   }, [startTransition]);
   
-  // Apply filters and search
-  const filteredLeads = useCallback(() => {
+  // Apply filters and search - moved inside a memoized function
+  const getFilteredLeads = useCallback(() => {
     if (!leads) return [];
     
     return leads.filter(lead => {
@@ -101,6 +120,9 @@ export function useLeadsPage() {
       return matchesSearch && matchesFilter;
     });
   }, [leads, debouncedSearchQuery, activeFilter]);
+  
+  // Compute filtered leads using the memoized function
+  const filteredLeads = getFilteredLeads();
   
   // Lead selection
   const handleLeadSelect = useCallback((leadId: string, isSelected: boolean) => {
@@ -118,7 +140,7 @@ export function useLeadsPage() {
   const handleSelectAll = useCallback((isSelected: boolean) => {
     startTransition(() => {
       if (isSelected) {
-        setSelectedLeads(filteredLeads().map(lead => lead.id));
+        setSelectedLeads(filteredLeads.map(lead => lead.id));
       } else {
         setSelectedLeads([]);
       }
@@ -138,13 +160,17 @@ export function useLeadsPage() {
       if (error) throw error;
       
       toast.success(`Updated ${selectedLeads.length} leads to ${newStatus}`);
-      fetchLeads();
+      
       startTransition(() => {
+        fetchLeads();
         setSelectedLeads([]);
       });
+      
+      return true;
     } catch (error: any) {
       console.error('Error updating leads:', error);
       toast.error('Failed to update leads');
+      return false;
     }
   }, [selectedLeads, fetchLeads, startTransition]);
   
@@ -167,17 +193,21 @@ export function useLeadsPage() {
       if (error) throw error;
       
       toast.success(`Lead status updated to ${newStatus}`);
-      fetchLeads();
       
-      // Update the selected lead if it's open
-      if (selectedLead && selectedLead.id === leadId) {
-        startTransition(() => {
+      startTransition(() => {
+        fetchLeads();
+        
+        // Update the selected lead if it's open
+        if (selectedLead && selectedLead.id === leadId) {
           setSelectedLead(prev => prev ? { ...prev, status: newStatus } : null);
-        });
-      }
+        }
+      });
+      
+      return true;
     } catch (error: any) {
       console.error('Error updating lead status:', error);
       toast.error('Failed to update lead status');
+      return false;
     }
   }, [fetchLeads, selectedLead, startTransition]);
   
@@ -191,18 +221,22 @@ export function useLeadsPage() {
       if (error) throw error;
       
       toast.success('Lead deleted successfully');
-      fetchLeads();
       
-      // Close the drawer if the deleted lead was selected
-      if (selectedLead && selectedLead.id === leadId) {
-        startTransition(() => {
+      startTransition(() => {
+        fetchLeads();
+        
+        // Close the drawer if the deleted lead was selected
+        if (selectedLead && selectedLead.id === leadId) {
           setIsDrawerOpen(false);
           setSelectedLead(null);
-        });
-      }
+        }
+      });
+      
+      return true;
     } catch (error: any) {
       console.error('Error deleting lead:', error);
       toast.error('Failed to delete lead');
+      return false;
     }
   }, [fetchLeads, selectedLead, startTransition]);
 
@@ -214,7 +248,7 @@ export function useLeadsPage() {
     sortBy,
     sortOrder,
     activeFilter,
-    filteredLeads: filteredLeads(),
+    filteredLeads,
     selectedLeads,
     selectedLead,
     isDrawerOpen,

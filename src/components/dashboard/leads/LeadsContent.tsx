@@ -8,6 +8,7 @@ import { LeadsTable } from './LeadsTable';
 import { MobileLeadCards } from './MobileLeadCards';
 import { LeadBulkActions } from './LeadBulkActions';
 import { AddLeadDialog } from '@/components/admin/leads/AddLeadDialog';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface LeadsContentProps {
   leads: Lead[];
@@ -57,7 +58,7 @@ export const LeadsContent: React.FC<LeadsContentProps> = ({
   campaigns
 }) => {
   return (
-    <>
+    <ErrorBoundary>
       <div className={`flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center ${isMobileView ? "px-4" : ""}`}>
         <LeadFilterBar 
           searchQuery={searchQuery} 
@@ -89,33 +90,37 @@ export const LeadsContent: React.FC<LeadsContentProps> = ({
       
       {/* Desktop view */}
       {!isMobileView && (
-        <LeadsTable 
-          leads={filteredLeads}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          onSort={toggleSort}
-          onViewLead={handleViewLead}
-          onStatusUpdate={handleLeadStatusUpdate}
-          onDelete={handleLeadDelete}
-          selectedLeads={selectedLeads}
-          onLeadSelect={handleLeadSelect}
-          onSelectAll={(isSelected) => handleSelectAll(filteredLeads, isSelected)}
-          getLeadScore={getLeadScore}
-          getNextBestAction={getNextBestAction}
-        />
+        <ErrorBoundary>
+          <LeadsTable 
+            leads={filteredLeads}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={toggleSort}
+            onViewLead={handleViewLead}
+            onStatusUpdate={handleLeadStatusUpdate}
+            onDelete={handleLeadDelete}
+            selectedLeads={selectedLeads}
+            onLeadSelect={handleLeadSelect}
+            onSelectAll={(isSelected) => handleSelectAll(filteredLeads, isSelected)}
+            getLeadScore={getLeadScore}
+            getNextBestAction={getNextBestAction}
+          />
+        </ErrorBoundary>
       )}
       
       {/* Mobile view */}
       {isMobileView && (
-        <MobileLeadCards 
-          leads={filteredLeads}
-          onViewLead={handleViewLead}
-          onStatusUpdate={handleLeadStatusUpdate}
-          onDelete={handleLeadDelete}
-          getLeadScore={getLeadScore}
-          getNextBestAction={getNextBestAction}
-        />
+        <ErrorBoundary>
+          <MobileLeadCards 
+            leads={filteredLeads}
+            onViewLead={handleViewLead}
+            onStatusUpdate={handleLeadStatusUpdate}
+            onDelete={handleLeadDelete}
+            getLeadScore={getLeadScore}
+            getNextBestAction={getNextBestAction}
+          />
+        </ErrorBoundary>
       )}
-    </>
+    </ErrorBoundary>
   );
 };
