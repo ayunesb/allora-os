@@ -201,9 +201,10 @@ export default function Campaigns() {
         <div className="container mx-auto px-4 py-8">
           <CampaignHeader onNewCampaign={handleNewCampaign} />
           
+          {/* Update the props to match what CampaignAnalytics expects */}
           <CampaignAnalytics 
-            campaigns={campaigns}
-            isLoading={isLoading}
+            campaignName="All Campaigns Overview"
+            isComparison={false}
           />
           
           <div className="flex justify-between items-center mb-4">
