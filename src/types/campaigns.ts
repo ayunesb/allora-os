@@ -2,24 +2,71 @@
 export interface Campaign {
   id: string;
   name: string;
-  platform: Platform;
+  platform: string;
+  status: 'Draft' | 'Active' | 'Paused' | 'Completed';
   budget?: number;
-  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
-  executiveBot?: string | { name: string };
-  justification?: string;
-  roi?: string;
-  healthScore?: 'good' | 'warning' | 'critical';
-  impressions?: number;
-  clicks?: number;
-  leads?: number;
-  company_id?: string;
-  created_at?: string;
-  updated_at?: string;
+  start_date?: string;
+  end_date?: string;
+  company_id: string;
+  created_at: string;
+  updated_at: string;
   is_archived?: boolean;
-  aiGenerated?: boolean;
-  collaborators?: string[];
   description?: string;
+  target_audience?: string[];
+  goals?: string[];
+  kpi_targets?: Record<string, number>;
+  owner_id?: string;
+  collaborators?: string[];
 }
 
-export type Platform = "Google" | "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Email" | "Twitter";
-export type ExecutiveBot = string;
+export interface CampaignMetrics {
+  impressions: number;
+  clicks: number;
+  leads: number;
+  conversions: number;
+  ctr: number;
+  cpc: number;
+  cpa: number;
+  spend: number;
+  revenue: number;
+  roi: number;
+}
+
+export interface CampaignFilters {
+  status?: string;
+  platform?: string;
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  search?: string;
+  tags?: string[];
+}
+
+export interface CreateCampaignInput {
+  name: string;
+  platform: string;
+  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  budget?: number;
+  start_date?: string;
+  end_date?: string;
+  description?: string;
+  target_audience?: string[];
+  goals?: string[];
+  kpi_targets?: Record<string, number>;
+}
+
+export interface UpdateCampaignInput {
+  id: string;
+  name?: string;
+  platform?: string;
+  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  budget?: number;
+  start_date?: string;
+  end_date?: string;
+  description?: string;
+  target_audience?: string[];
+  goals?: string[];
+  kpi_targets?: Record<string, number>;
+  is_archived?: boolean;
+}

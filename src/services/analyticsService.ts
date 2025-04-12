@@ -1,150 +1,110 @@
 
+import { supabase } from '@/backend/supabase';
+import { Campaign } from '@/types/campaigns';
 import { AnalyticsData } from '@/types/analytics';
 
-// Sample data for demonstration purposes
-const sampleAnalyticsData: AnalyticsData = {
-  summary: {
-    impressions: 125000,
-    clicks: 7500,
-    conversions: 350,
-    ctr: 0.06,
-    conversionRate: 0.0467,
-    costPerConversion: 28.57,
-    revenue: 35000,
-    roi: 3.5,
-    cost: 10000,
-    leads: 850,
-    opportunities: 520
-  },
-  timeSeries: Array.from({ length: 30 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (29 - i));
-    return {
-      date: date.toISOString().split('T')[0],
-      metrics: {
-        impressions: 3000 + Math.round(Math.random() * 2000),
-        clicks: 200 + Math.round(Math.random() * 150),
-        conversions: 5 + Math.round(Math.random() * 15),
-        ctr: 0.05 + (Math.random() * 0.03),
-        conversionRate: 0.04 + (Math.random() * 0.02),
-        costPerConversion: 25 + (Math.random() * 10),
-        revenue: 1000 + Math.round(Math.random() * 500),
-        roi: 3 + (Math.random() * 2),
-        cost: 300 + Math.round(Math.random() * 200)
+/**
+ * Fetch analytics data for a specific campaign
+ * @param campaignId Campaign ID to fetch analytics for
+ * @param startDate Optional start date for the date range
+ * @param endDate Optional end date for the date range
+ */
+export async function fetchCampaignAnalytics(
+  campaignId: string, 
+  startDate?: Date, 
+  endDate?: Date
+): Promise<AnalyticsData> {
+  try {
+    // Format dates for the query if provided
+    const formattedStartDate = startDate ? startDate.toISOString() : undefined;
+    const formattedEndDate = endDate ? endDate.toISOString() : undefined;
+    
+    // Fetch analytics data from Supabase
+    const { data, error } = await supabase
+      .from('analytics')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .gte('date', formattedStartDate)
+      .lte('date', formattedEndDate)
+      .order('date', { ascending: true });
+    
+    if (error) throw error;
+    
+    // Transform the data for the frontend
+    // This is a placeholder, actual implementation would depend on your schema
+    const analyticsData: AnalyticsData = {
+      impressions: data.reduce((sum, item) => sum + (item.impressions || 0), 0),
+      clicks: data.reduce((sum, item) => sum + (item.clicks || 0), 0),
+      leads: data.reduce((sum, item) => sum + (item.leads || 0), 0),
+      conversions: data.reduce((sum, item) => sum + (item.conversions || 0), 0),
+      spend: data.reduce((sum, item) => sum + (item.spend || 0), 0),
+      revenue: data.reduce((sum, item) => sum + (item.revenue || 0), 0),
+      ctr: 0,
+      cpc: 0,
+      cpa: 0,
+      roas: 0,
+      dailyMetrics: data.map(item => ({
+        date: item.date,
+        impressions: item.impressions || 0,
+        clicks: item.clicks || 0,
+        leads: item.leads || 0,
+        conversions: item.conversions || 0,
+        spend: item.spend || 0,
+        revenue: item.revenue || 0
+      })),
+      platformMetrics: {},
+      comparisonData: {
+        impressions: { current: 0, previous: 0 },
+        clicks: { current: 0, previous: 0 },
+        leads: { current: 0, previous: 0 },
+        conversions: { current: 0, previous: 0 },
+        spend: { current: 0, previous: 0 },
+        revenue: { current: 0, previous: 0 }
       }
     };
-  }),
-  channelPerformance: [
-    {
-      channelName: 'Paid Search',
-      metrics: {
-        impressions: 58000,
-        clicks: 3200,
-        conversions: 145,
-        ctr: 0.0552,
-        conversionRate: 0.0453,
-        costPerConversion: 27.59,
-        revenue: 14500,
-        roi: 3.63,
-        cost: 4000
-      }
-    },
-    {
-      channelName: 'Social Media',
-      metrics: {
-        impressions: 42000,
-        clicks: 2800,
-        conversions: 112,
-        ctr: 0.0667,
-        conversionRate: 0.04,
-        costPerConversion: 26.79,
-        revenue: 11200,
-        roi: 3.73,
-        cost: 3000
-      }
-    },
-    {
-      channelName: 'Display',
-      metrics: {
-        impressions: 25000,
-        clicks: 1500,
-        conversions: 93,
-        ctr: 0.06,
-        conversionRate: 0.062,
-        costPerConversion: 32.26,
-        revenue: 9300,
-        roi: 3.1,
-        cost: 3000
-      }
+    
+    // Calculate derived metrics
+    if (analyticsData.impressions > 0 && analyticsData.clicks > 0) {
+      analyticsData.ctr = (analyticsData.clicks / analyticsData.impressions) * 100;
     }
-  ],
-  conversionTypes: [
-    { type: 'Purchase', count: 180 },
-    { type: 'Sign Up', count: 95 },
-    { type: 'Demo Request', count: 75 }
-  ],
-  audienceData: {
-    ageGroups: [
-      { group: '18-24', percentage: 15 },
-      { group: '25-34', percentage: 32 },
-      { group: '35-44', percentage: 28 },
-      { group: '45-54', percentage: 18 },
-      { group: '55+', percentage: 7 }
-    ],
-    genderDistribution: [
-      { gender: 'Male', percentage: 58 },
-      { gender: 'Female', percentage: 39 },
-      { gender: 'Other', percentage: 3 }
-    ],
-    topRegions: [
-      { region: 'California', percentage: 18 },
-      { region: 'New York', percentage: 15 },
-      { region: 'Texas', percentage: 12 },
-      { region: 'Florida', percentage: 9 },
-      { region: 'Illinois', percentage: 7 },
-      { region: 'Washington', percentage: 6 },
-      { region: 'Pennsylvania', percentage: 5 },
-      { region: 'Georgia', percentage: 4 },
-      { region: 'Ohio', percentage: 4 },
-      { region: 'Massachusetts', percentage: 3 }
-    ],
-    deviceDistribution: [
-      { device: 'Mobile', percentage: 62 },
-      { device: 'Desktop', percentage: 31 },
-      { device: 'Tablet', percentage: 6 },
-      { device: 'Other', percentage: 1 }
-    ],
-    topInterests: [
-      { interest: 'Technology', percentage: 45 },
-      { interest: 'Business', percentage: 39 },
-      { interest: 'Finance', percentage: 35 },
-      { interest: 'Travel', percentage: 28 },
-      { interest: 'Fashion', percentage: 22 },
-      { interest: 'Health', percentage: 20 },
-      { interest: 'Food', percentage: 18 },
-      { interest: 'Sports', percentage: 15 }
-    ]
+    
+    if (analyticsData.clicks > 0 && analyticsData.spend > 0) {
+      analyticsData.cpc = analyticsData.spend / analyticsData.clicks;
+    }
+    
+    if (analyticsData.conversions > 0 && analyticsData.spend > 0) {
+      analyticsData.cpa = analyticsData.spend / analyticsData.conversions;
+    }
+    
+    if (analyticsData.spend > 0 && analyticsData.revenue > 0) {
+      analyticsData.roas = analyticsData.revenue / analyticsData.spend;
+    }
+    
+    return analyticsData;
+  } catch (error) {
+    console.error('Error fetching campaign analytics:', error);
+    // Return default empty data
+    return {
+      impressions: 0,
+      clicks: 0,
+      leads: 0,
+      conversions: 0,
+      spend: 0,
+      revenue: 0,
+      ctr: 0,
+      cpc: 0,
+      cpa: 0,
+      roas: 0,
+      dailyMetrics: [],
+      platformMetrics: {},
+      comparisonData: {
+        impressions: { current: 0, previous: 0 },
+        clicks: { current: 0, previous: 0 },
+        leads: { current: 0, previous: 0 },
+        conversions: { current: 0, previous: 0 },
+        spend: { current: 0, previous: 0 },
+        revenue: { current: 0, previous: 0 }
+      }
+    };
   }
-};
-
-/**
- * Fetch analytics data for a campaign
- * @param options - Campaign analytics options
- * @returns Promise with analytics data
- */
-export const fetchCampaignAnalytics = async (options: {
-  campaignId: string;
-  startDate: string;
-  endDate: string;
-  timeFrame: string;
-  forceRefresh?: boolean;
-}): Promise<AnalyticsData> => {
-  // For demo purposes, we'll return sample data
-  console.log('Fetching campaign analytics with options:', options);
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // Return sample data
-  return sampleAnalyticsData;
-};
+}

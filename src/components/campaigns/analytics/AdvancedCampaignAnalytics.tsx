@@ -1,165 +1,252 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { DownloadIcon } from "lucide-react";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { Calendar } from 'react-day-picker';
-import { addDays, format } from "date-fns";
-import { Campaign } from "@/models/campaign";
-import { useCampaigns } from "@/hooks/campaigns";
-import { Skeleton } from "@/components/ui/skeleton";
-import { exportToCSV, exportToPDF } from "@/utils/exportUtils";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend
-} from 'recharts';
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DateRange } from 'react-day-picker';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { BarChart, LineChart } from '@/components/charts';
+import { Download, Filter, RefreshCw, ChevronDown } from 'lucide-react';
+import { fetchCampaignAnalytics } from '@/services/analyticsService';
+import { format } from '@/utils/exportUtils';
+import { formatCurrency, formatNumber, calculatePercentChange } from '@/utils/formatters';
+import { Campaign } from '@/types/campaigns';
+import { AnalyticsData, MetricComparison, PlatformMetrics } from '@/types/analytics';
+import { MetricCard } from './MetricCard';
+import { PerformanceTable } from './PerformanceTable';
+import { ConversionFunnel } from './ConversionFunnel';
 
-interface AnalyticsData {
-  date: string;
-  impressions: number;
-  clicks: number;
-  conversions: number;
-  spend: number;
+interface AnalyticsTab {
+  label: string;
+  value: string;
 }
 
-const mockAnalyticsData: AnalyticsData[] = [
-  { date: '2023-01-01', impressions: 1000, clicks: 100, conversions: 10, spend: 25 },
-  { date: '2023-01-08', impressions: 1200, clicks: 110, conversions: 12, spend: 30 },
-  { date: '2023-01-15', impressions: 1500, clicks: 130, conversions: 15, spend: 35 },
-  { date: '2023-01-22', impressions: 1800, clicks: 160, conversions: 20, spend: 40 },
-  { date: '2023-01-29', impressions: 2000, clicks: 180, conversions: 25, spend: 45 },
-  { date: '2023-02-05', impressions: 2200, clicks: 200, conversions: 30, spend: 50 },
-  { date: '2023-02-12', impressions: 2500, clicks: 230, conversions: 35, spend: 55 },
-  { date: '2023-02-19', impressions: 2800, clicks: 260, conversions: 40, spend: 60 },
-  { date: '2023-02-26', impressions: 3000, clicks: 280, conversions: 45, spend: 65 },
+const analyticsTabs: AnalyticsTab[] = [
+  { label: 'Overview', value: 'overview' },
+  { label: 'Performance', value: 'performance' },
+  { label: 'Conversions', value: 'conversions' },
+  { label: 'Platforms', value: 'platforms' },
 ];
 
-interface AdvancedCampaignAnalyticsProps {
-  campaign: Campaign;
-}
+export default function AdvancedCampaignAnalytics({ campaign }: { campaign: Campaign }) {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
-export default function AdvancedCampaignAnalytics({ campaign }: AdvancedCampaignAnalyticsProps) {
-  const { campaignId } = useParams();
-  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
-    from: addDays(new Date(), -30),
+  // Set default date range to last 30 days
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   });
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [exportFormat, setExportFormat] = useState<'csv' | 'pdf'>('csv');
-  const { campaigns } = useCampaigns();
 
-  const campaignData = campaigns?.find((c) => c.id === campaignId);
-
-  const formatDateForAnalytics = (date: Date): string => {
-    return format(date, 'yyyy-MM-dd');
+  // Format date range for display
+  const formatDateRange = () => {
+    if (!dateRange?.from || !dateRange?.to) return 'Select Date Range';
+    const fromDate = dateRange.from.toLocaleDateString();
+    const toDate = dateRange.to.toLocaleDateString();
+    return `${fromDate} - ${toDate}`;
   };
 
-  const fetchAnalyticsData = useCallback(async () => {
+  // Fetch data
+  const fetchData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      // Mock data fetching - replace with actual API call
-      const filteredData = mockAnalyticsData.filter(item => {
-        const itemDate = new Date(item.date);
-        return (dateRange.from && itemDate >= dateRange.from) && (dateRange.to && itemDate <= dateRange.to);
-      });
-      setAnalyticsData(filteredData);
-    } catch (error) {
-      console.error("Failed to fetch analytics data:", error);
+      if (!campaign.id) throw new Error('Campaign ID is required');
+      const data = await fetchCampaignAnalytics(campaign.id, dateRange?.from, dateRange?.to);
+      setAnalyticsData(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch analytics data');
     } finally {
       setIsLoading(false);
     }
-  }, [dateRange.from, dateRange.to]);
+  };
 
   useEffect(() => {
-    fetchAnalyticsData();
-  }, [fetchAnalyticsData]);
+    fetchData();
+  }, [campaign.id, dateRange]);
 
-  const handleExport = () => {
-    if (!campaign) return;
+  // Refresh data
+  const refreshData = () => {
+    fetchData();
+  };
 
-    if (exportFormat === 'csv') {
-      exportToCSV(analyticsData, `campaign_analytics_${campaign.id}`);
-    } else if (exportFormat === 'pdf') {
-      exportToPDF(analyticsData, `campaign_analytics_${campaign.id}`, "Campaign Analytics");
+  // Handle date range change
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    if (range) {
+      setDateRange(range);
+    }
+  };
+
+  // Prepare data for export
+  const prepareExportData = () => {
+    if (!analyticsData) return [];
+    const overviewData = {
+      Impressions: analyticsData.impressions,
+      Clicks: analyticsData.clicks,
+      Leads: analyticsData.leads,
+      Conversions: analyticsData.conversions,
+      Spend: analyticsData.spend,
+      Revenue: analyticsData.revenue,
+      CTR: analyticsData.ctr,
+      CPC: analyticsData.cpc,
+      CPA: analyticsData.cpa,
+      ROAS: analyticsData.roas,
+    };
+    const dailyMetricsData = analyticsData.dailyMetrics.map((item) => ({
+      Date: item.date,
+      Impressions: item.impressions,
+      Clicks: item.clicks,
+      Leads: item.leads,
+      Conversions: item.conversions,
+      Spend: item.spend,
+      Revenue: item.revenue,
+    }));
+    return [overviewData, ...dailyMetricsData];
+  };
+
+  // Export data
+  const handleExport = (type: 'csv' | 'pdf') => {
+    const exportData = prepareExportData();
+    if (type === 'csv') {
+      format.csv(exportData, `${campaign.name}-analytics`);
+    } else {
+      format.pdf(exportData, `${campaign.name}-analytics`);
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <CardTitle className="text-xl font-semibold">Advanced Analytics</CardTitle>
-        <div className="space-x-2">
-          <select
-            value={exportFormat}
-            onChange={(e) => setExportFormat(e.target.value as 'csv' | 'pdf')}
-            className="border rounded px-2 py-1"
-          >
-            <option value="csv">CSV</option>
-            <option value="pdf">PDF</option>
-          </select>
-          <Button onClick={handleExport} disabled={isLoading}>
-            <DownloadIcon className="mr-2 h-4 w-4" />
-            Export Data
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h2 className="text-3xl font-bold">Campaign Analytics</h2>
+        <div className="flex flex-wrap gap-3">
+          <DateRangePicker
+            value={dateRange}
+            onChange={handleDateRangeChange}
+            className="w-[280px]"
+          />
+          <Button variant="outline" onClick={refreshData} disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
+          <div className="relative">
+            <Button variant="outline" onClick={() => setShowExportMenu(!showExportMenu)}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+              <ChevronDown className="h-4 w-4 ml-2" />
+            </Button>
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-10">
+                <div className="py-1">
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => handleExport('csv')}
+                  >
+                    Export as CSV
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => handleExport('pdf')}
+                  >
+                    Export as PDF
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Data Range</CardTitle>
-          <CardDescription>Select a date range to analyze campaign performance.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <DateRangePicker
-            onChange={(range) => {
-              // Ensure 'to' property is always set (with fallback to 'from' if missing)
-              setDateRange({ 
-                from: range.from, 
-                to: range.to || range.from 
-              });
-            }}
-            value={{
-              from: dateRange.from,
-              to: dateRange.to,
-            }}
-            className="w-full"
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Performance Over Time</CardTitle>
-          <CardDescription>Visual representation of key metrics over the selected period.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <Skeleton className="h-[300px]" />
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={analyticsData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Area type="monotone" dataKey="impressions" stroke="#8884d8" fill="#8884d8" name="Impressions" />
-                <Area type="monotone" dataKey="clicks" stroke="#82ca9d" fill="#82ca9d" name="Clicks" />
-                <Area type="monotone" dataKey="conversions" stroke="#ffc658" fill="#ffc658" name="Conversions" />
-                <Area type="monotone" dataKey="spend" stroke="#a45de3" fill="#a45de3" name="Spend" />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList>
+          {analyticsTabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <MetricCard
+              title="Impressions"
+              value={formatNumber(analyticsData?.impressions)}
+              change={calculatePercentChange(analyticsData?.comparisonData?.impressions?.previous, analyticsData?.comparisonData?.impressions?.current)}
+            />
+            <MetricCard
+              title="Clicks"
+              value={formatNumber(analyticsData?.clicks)}
+              change={calculatePercentChange(analyticsData?.comparisonData?.clicks?.previous, analyticsData?.comparisonData?.clicks?.current)}
+            />
+            <MetricCard
+              title="Leads"
+              value={formatNumber(analyticsData?.leads)}
+              change={calculatePercentChange(analyticsData?.comparisonData?.leads?.previous, analyticsData?.comparisonData?.leads?.current)}
+            />
+            <MetricCard
+              title="Conversions"
+              value={formatNumber(analyticsData?.conversions)}
+              change={calculatePercentChange(analyticsData?.comparisonData?.conversions?.previous, analyticsData?.comparisonData?.conversions?.current)}
+            />
+            <MetricCard
+              title="Spend"
+              value={formatCurrency(analyticsData?.spend)}
+              change={calculatePercentChange(analyticsData?.comparisonData?.spend?.previous, analyticsData?.comparisonData?.spend?.current)}
+            />
+            <MetricCard
+              title="Revenue"
+              value={formatCurrency(analyticsData?.revenue)}
+              change={calculatePercentChange(analyticsData?.comparisonData?.revenue?.previous, analyticsData?.comparisonData?.revenue?.current)}
+            />
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Daily Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {analyticsData?.dailyMetrics && analyticsData?.dailyMetrics.length > 0 ? (
+                <LineChart
+                  data={analyticsData?.dailyMetrics}
+                  index="date"
+                  categories={['impressions', 'clicks', 'leads', 'conversions']}
+                />
+              ) : (
+                <p>No daily metrics data available.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="performance" className="space-y-4">
+          <PerformanceTable campaign={campaign} analyticsData={analyticsData} />
+        </TabsContent>
+        <TabsContent value="conversions" className="space-y-4">
+          <ConversionFunnel campaign={campaign} analyticsData={analyticsData} />
+        </TabsContent>
+        <TabsContent value="platforms" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Platform Metrics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {analyticsData?.platformMetrics && Object.keys(analyticsData?.platformMetrics).length > 0 ? (
+                <BarChart
+                  data={Object.entries(analyticsData?.platformMetrics).map(([platform, metrics]) => ({
+                    platform,
+                    impressions: metrics.impressions,
+                    clicks: metrics.clicks,
+                    leads: metrics.leads,
+                    conversions: metrics.conversions,
+                  }))}
+                  index="platform"
+                  categories={['impressions', 'clicks', 'leads', 'conversions']}
+                />
+              ) : (
+                <p>No platform metrics data available.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

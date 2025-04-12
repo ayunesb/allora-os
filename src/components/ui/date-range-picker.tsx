@@ -13,11 +13,10 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
-// Fix the interface by not extending HTMLAttributes
 export interface DateRangePickerProps {
   className?: string;
-  onChange: (date: DateRange) => void;
-  value: DateRange;
+  onChange: (date: DateRange | undefined) => void;
+  value: DateRange | undefined;
 }
 
 export function DateRangePicker({

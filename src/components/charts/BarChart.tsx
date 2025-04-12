@@ -49,16 +49,16 @@ export function BarChart({
         {layout === 'horizontal' ? (
           <>
             <XAxis dataKey={index} />
-            <YAxis tickFormatter={formatValue} />
+            <YAxis tickFormatter={(value: any) => formatValue(value)} />
           </>
         ) : (
           <>
-            <XAxis type="number" tickFormatter={formatValue} />
+            <XAxis type="number" tickFormatter={(value: any) => formatValue(value)} />
             <YAxis type="category" dataKey={index} width={120} />
           </>
         )}
         <Tooltip 
-          formatter={(value) => [formatValue(value), ""]}
+          formatter={(value: any) => [formatValue(value), ""]}
         />
         <Legend />
         {categories.map((category, idx) => (

@@ -12,7 +12,8 @@ import {
   CreatePostInput, 
   UpdatePostInput, 
   SocialMediaCalendarFilters,
-  BatchPostResponse
+  BatchPostResponse,
+  PostStatus
 } from '@/types/socialMedia';
 import { 
   validateCreatePost, 
@@ -399,8 +400,8 @@ export async function schedulePost(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get the current post data to determine company ID for cache invalidation
-    const updatedPost = await fetchSocialMediaPost(postId);
-    if (!updatedPost) {
+    const currentPost = await fetchSocialMediaPost(postId);
+    if (!currentPost) {
       return {
         success: false,
         error: 'Post not found'
@@ -408,25 +409,25 @@ export async function schedulePost(
     }
     
     // Check if the post is already scheduled or published
-    if (updatedPost.status === 'scheduled' || updatedPost.status === 'published') {
+    if (currentPost.status === 'Scheduled' || currentPost.status === 'Published') {
       return {
         success: false,
-        error: `Post is already ${updatedPost.status}`
+        error: `Post is already ${currentPost.status}`
       };
     }
     
     // Schedule the post
     await apiRequest(
       wrapSupabaseQuery(async () => {
-        const result = await supabase
+        const { error } = await supabase
           .from('social_media_posts')
           .update({
-            status: 'scheduled',
+            status: 'Scheduled' as PostStatus,
             updated_at: new Date().toISOString()
           })
           .eq('id', postId);
         
-        if (result.error) throw result.error;
+        if (error) throw error;
         
         return { data: null, error: null };
       }),
@@ -436,21 +437,21 @@ export async function schedulePost(
       }
     );
     
-    // Get updated post information for cache invalidation and logging
+    // Get post information for cache invalidation
     const updatedPost = await fetchSocialMediaPost(postId);
     if (updatedPost) {
       // Clear the specific post cache and the posts list cache
       clearApiCache(`social_media_post_${postId}`);
-      clearApiCache(getSocialMediaCacheKey(updatedPost.company_id));
-      
-      // Log the successful scheduling
-      logger.info('Social media post scheduled', { 
-        postId, 
-        companyId: updatedPost.company_id,
-        scheduledDate: updatedPost.scheduled_date,
-        publishTime: updatedPost.publish_time
-      });
+      clearApiCache(getSocialMediaCacheKey(updatedPost.company_id || ''));
     }
+    
+    // Log the successful scheduling
+    logger.info('Social media post scheduled', { 
+      postId, 
+      companyId: currentPost.company_id,
+      scheduledDate: currentPost.scheduled_date,
+      publishTime: currentPost.publish_time
+    });
     
     return { success: true };
   } catch (error: any) {
@@ -477,8 +478,8 @@ export async function approvePost(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get the current post data to determine company ID for cache invalidation
-    const updatedPost = await fetchSocialMediaPost(postId);
-    if (!updatedPost) {
+    const currentPost = await fetchSocialMediaPost(postId);
+    if (!currentPost) {
       return {
         success: false,
         error: 'Post not found'
@@ -486,7 +487,7 @@ export async function approvePost(
     }
     
     // Check if the post is already approved
-    if (updatedPost.is_approved) {
+    if (currentPost.is_approved) {
       return {
         success: false,
         error: 'Post is already approved'
@@ -496,17 +497,17 @@ export async function approvePost(
     // Approve the post
     await apiRequest(
       wrapSupabaseQuery(async () => {
-        const result = await supabase
+        const { error } = await supabase
           .from('social_media_posts')
           .update({
             is_approved: true,
             approval_notes: notes,
-            status: updatedPost.status === 'draft' ? 'approved' : updatedPost.status,
+            status: currentPost.status === 'Draft' ? ('Approved' as PostStatus) : currentPost.status,
             updated_at: new Date().toISOString()
           })
           .eq('id', postId);
         
-        if (result.error) throw result.error;
+        if (error) throw error;
         
         return { data: null, error: null };
       }),
@@ -516,20 +517,20 @@ export async function approvePost(
       }
     );
     
-    // Get updated post information for cache invalidation and logging
+    // Get post information for cache invalidation
     const updatedPost = await fetchSocialMediaPost(postId);
     if (updatedPost) {
       // Clear the specific post cache and the posts list cache
       clearApiCache(`social_media_post_${postId}`);
-      clearApiCache(getSocialMediaCacheKey(updatedPost.company_id));
-      
-      // Log the successful approval
-      logger.info('Social media post approved', { 
-        postId, 
-        companyId: updatedPost.company_id,
-        withNotes: !!notes
-      });
+      clearApiCache(getSocialMediaCacheKey(updatedPost.company_id || ''));
     }
+    
+    // Log the successful approval
+    logger.info('Social media post approved', { 
+      postId, 
+      companyId: currentPost.company_id,
+      withNotes: !!notes
+    });
     
     return { success: true };
   } catch (error: any) {

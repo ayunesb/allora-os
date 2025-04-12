@@ -4,7 +4,7 @@ export interface SocialMediaPost {
   name: string;
   platform: Platform;
   budget?: number;
-  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  status?: PostStatus;
   executiveBot?: string | { name: string };
   justification?: string;
   roi?: string;
@@ -41,9 +41,9 @@ export interface SocialMediaPost {
 export type Platform = "Google" | "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Email" | "Twitter";
 export type ExecutiveBot = string;
 
-// Add these new type definitions
+// Harmonized type definitions to avoid inconsistencies
 export type SocialPlatform = "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Twitter";
-export type PostStatus = "draft" | "approved" | "scheduled" | "published" | "failed";
+export type PostStatus = "Draft" | "Active" | "Paused" | "Completed"; 
 export type ContentType = "text" | "image" | "video" | "link" | "carousel" | "poll";
 export type PostContentType = ContentType;
 

@@ -1,158 +1,133 @@
-
 import React from 'react';
-import { SocialMediaPost } from '@/types/socialMedia';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Edit, Trash2, Clock, ThumbsUp, Copy, ExternalLink } from 'lucide-react';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Badge
+} from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Pencil, Trash2, CheckCircle, Clock } from 'lucide-react';
+import { SocialMediaPost } from '@/types/socialMedia';
 import { formatDate } from '@/utils/formatters';
 
 interface SocialMediaPostListProps {
   posts: SocialMediaPost[];
   onEditPost: (post: SocialMediaPost) => void;
-  onDeletePost: (postId: string) => Promise<{ success: boolean; error?: string }>;
-  onSchedulePost: (postId: string) => Promise<{ success: boolean; error?: string }>;
-  onApprovePost: (postId: string, notes?: string) => Promise<{ success: boolean; error?: string }>;
+  onDeletePost: (postId: string) => void;
+  onSchedulePost: (postId: string) => void;
+  onApprovePost: (postId: string) => void;
 }
 
-/**
- * List view for social media posts
- * Displays posts in a table format with actions
- */
-export default function SocialMediaPostList({
+export function SocialMediaPostList({ 
   posts,
   onEditPost,
   onDeletePost,
   onSchedulePost,
   onApprovePost
 }: SocialMediaPostListProps) {
-  // Platform badge styles
-  const getPlatformBadge = (platform: string) => {
-    switch (platform) {
-      case 'Facebook':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Facebook</Badge>;
-      case 'Instagram':
-        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Instagram</Badge>;
-      case 'LinkedIn':
-        return <Badge variant="outline" className="bg-blue-900 text-white">LinkedIn</Badge>;
-      case 'Twitter':
-        return <Badge variant="outline" className="bg-blue-400 text-white">Twitter</Badge>;
-      case 'TikTok':
-        return <Badge variant="outline" className="bg-black text-white">TikTok</Badge>;
-      default:
-        return <Badge variant="outline">{platform}</Badge>;
-    }
-  };
-  
-  // Status badge styles
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Draft</Badge>;
-      case 'scheduled':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Scheduled</Badge>;
-      case 'published':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Published</Badge>;
-      case 'failed':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Failed</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-  
-  // Sort posts by scheduled date (most recent first)
-  const sortedPosts = [...posts].sort((a, b) => 
-    new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime()
-  );
-  
   return (
-    <Card>
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Title</TableHead>
             <TableHead>Platform</TableHead>
-            <TableHead>Scheduled Date</TableHead>
+            <TableHead>Date</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Approved</TableHead>
+            <TableHead>Content Type</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedPosts.map((post) => (
-            <TableRow key={post.id}>
-              <TableCell className="font-medium">{post.title}</TableCell>
-              <TableCell>{getPlatformBadge(post.platform)}</TableCell>
-              <TableCell>{formatDate(post.scheduled_date, post.publish_time !== undefined, 'medium')}</TableCell>
-              <TableCell>{getStatusBadge(post.status)}</TableCell>
-              <TableCell>
-                {post.is_approved ? (
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Yes</Badge>
-                ) : (
-                  <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">No</Badge>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                      >
-                        <circle cx="12" cy="12" r="1" />
-                        <circle cx="19" cy="12" r="1" />
-                        <circle cx="5" cy="12" r="1" />
-                      </svg>
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEditPost(post)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    
-                    {post.status === 'draft' && (
-                      <DropdownMenuItem onClick={() => onSchedulePost(post.id)}>
-                        <Clock className="mr-2 h-4 w-4" />
-                        Schedule
-                      </DropdownMenuItem>
-                    )}
-                    
-                    {!post.is_approved && (
-                      <DropdownMenuItem onClick={() => onApprovePost(post.id)}>
-                        <ThumbsUp className="mr-2 h-4 w-4" />
-                        Approve
-                      </DropdownMenuItem>
-                    )}
-                    
-                    <DropdownMenuItem onClick={() => onDeletePost(post.id)}>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+          {posts.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-8">
+                No posts found. Create your first post to get started.
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            posts.map((post) => (
+              <TableRow key={post.id}>
+                <TableCell className="font-medium">{post.title}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="capitalize">
+                    {post.platform}
+                  </Badge>
+                </TableCell>
+                <TableCell>{formatDate(post.scheduled_date)}</TableCell>
+                <TableCell>
+                  <StatusBadge status={post.status || 'Draft'} />
+                </TableCell>
+                <TableCell className="capitalize">{post.content_type}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEditPost(post)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                      <span className="sr-only">Edit</span>
+                    </Button>
+                    
+                    {!post.is_approved && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onApprovePost(post.id)}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="sr-only">Approve</span>
+                      </Button>
+                    )}
+                    
+                    {post.status !== 'Scheduled' && post.status !== 'Published' && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onSchedulePost(post.id)}
+                      >
+                        <Clock className="h-4 w-4" />
+                        <span className="sr-only">Schedule</span>
+                      </Button>
+                    )}
+                    
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDeletePost(post.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
-    </Card>
+    </div>
   );
+}
+
+// Helper component for displaying status badges
+function StatusBadge({ status }: { status: string }) {
+  switch (status) {
+    case 'Draft':
+      return <Badge variant="outline">Draft</Badge>;
+    case 'Scheduled':
+      return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">Scheduled</Badge>;
+    case 'Published':
+      return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">Published</Badge>;
+    case 'Approved':
+      return <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-300">Approved</Badge>;
+    default:
+      return <Badge variant="outline">{status}</Badge>;
+  }
 }

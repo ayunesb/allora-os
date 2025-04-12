@@ -46,7 +46,7 @@ export const calculatePercentChange = (
  */
 export const formatPercent = (value: number | undefined | null): string => {
   if (value === undefined || value === null) return '0%';
-  return `${(value * 100).toFixed(1)}%`;
+  return `${value.toFixed(1)}%`;
 };
 
 /**

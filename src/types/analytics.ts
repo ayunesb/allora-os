@@ -1,70 +1,57 @@
 
-export interface AnalyticsData {
-  summary: AnalyticsMetrics;
-  timeSeries: TimeSeriesDataPoint[];
-  channelPerformance: ChannelPerformance[];
-  conversionTypes?: ConversionType[];
-  audienceData?: AudienceData;
-}
-
-export interface AnalyticsMetrics {
+export interface DailyMetric {
+  date: string;
   impressions: number;
   clicks: number;
+  leads: number;
   conversions: number;
-  ctr: number;
-  conversionRate: number;
-  costPerConversion: number;
+  spend: number;
   revenue: number;
-  roi: number;
-  leads?: number;
-  opportunities?: number;
-  cost?: number;
 }
 
-export interface TimeSeriesDataPoint {
-  date: string;
-  metrics: AnalyticsMetrics;
+export interface MetricComparison {
+  current: number;
+  previous: number;
 }
 
-export interface ChannelPerformance {
-  channelName: string;
-  metrics: AnalyticsMetrics;
+export interface ComparisonData {
+  impressions: MetricComparison;
+  clicks: MetricComparison;
+  leads: MetricComparison;
+  conversions: MetricComparison;
+  spend: MetricComparison;
+  revenue: MetricComparison;
 }
 
-export interface ConversionType {
-  type: string;
-  count: number;
+export interface PlatformMetric {
+  impressions: number;
+  clicks: number;
+  leads: number;
+  conversions: number;
+  spend: number;
+  revenue: number;
+  ctr: number;
+  cpc: number;
+  cpa: number;
+  roas: number;
 }
 
-export interface AudienceData {
-  ageGroups: AgeGroup[];
-  genderDistribution: GenderDistribution[];
-  topRegions: Region[];
-  deviceDistribution: DeviceDistribution[];
-  topInterests: Interest[];
+export interface PlatformMetrics {
+  [platform: string]: PlatformMetric;
 }
 
-export interface AgeGroup {
-  group: string;
-  percentage: number;
-}
-
-export interface GenderDistribution {
-  gender: string;
-  percentage: number;
-}
-
-export interface Region {
-  region: string;
-  percentage: number;
-}
-
-export interface DeviceDistribution {
-  device: string;
-  percentage: number;
-}
-
-export interface Interest {
-  interest: string;
-  percentage: number;
+export interface AnalyticsData {
+  impressions: number;
+  clicks: number;
+  leads: number;
+  conversions: number;
+  spend: number;
+  revenue: number;
+  ctr: number;
+  cpc: number;
+  cpa: number;
+  roas: number;
+  dailyMetrics: DailyMetric[];
+  platformMetrics: PlatformMetrics;
+  comparisonData: ComparisonData;
 }

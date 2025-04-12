@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { SocialMediaHeader } from './calendar/SocialMediaHeader';
 import { SocialMediaFilters } from './calendar/SocialMediaFilters';
 import { ViewToggle } from './calendar/ViewToggle';
-import { SocialPlatform, PostStatus } from '@/types/socialMedia';
+import { PostStatus, SocialPlatform } from '@/types/socialMedia';
 import { DialogCreate } from './SocialMediaPostDialog';
 import { PostsDisplay } from './PostsDisplay';
 import { toast } from 'sonner';

@@ -43,9 +43,12 @@ export function LineChart({
       <RechartsLineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey={index} />
-        <YAxis width={yAxisWidth} tickFormatter={formatValue} />
+        <YAxis 
+          width={yAxisWidth} 
+          tickFormatter={(value: any) => formatValue(value)}
+        />
         <Tooltip 
-          formatter={(value) => [formatValue(value), ""]}
+          formatter={(value: any) => [formatValue(value), ""]}
         />
         <Legend />
         {categories.map((category, idx) => (
