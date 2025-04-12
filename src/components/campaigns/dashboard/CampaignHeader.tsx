@@ -36,7 +36,7 @@ export function CampaignHeader({ onRefresh, onCreateCampaign, isRefreshing }: Ca
       <div className="flex gap-2">
         <Button
           variant="outline"
-          onClick={() => onRefresh()}
+          onClick={onRefresh}
           disabled={isRefreshing}
           aria-label={isRefreshing ? "Refreshing campaign data" : "Refresh campaign data"}
         >

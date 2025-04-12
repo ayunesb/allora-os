@@ -5,6 +5,7 @@ import { useCampaigns } from '@/hooks/campaigns';
 import { useFilteredCampaigns } from '@/hooks/campaigns/useFilteredCampaigns';
 import { useAdPlatformConnections } from '@/hooks/campaigns/useAdPlatformConnections';
 import { refreshCampaignData } from '@/components/campaigns/dashboard/CampaignRefresh';
+import { toast } from 'sonner';
 
 // Component imports
 import { CampaignHeader } from '@/components/campaigns/dashboard/CampaignHeader';
@@ -45,12 +46,19 @@ export default function CampaignDashboard() {
    * Refreshes campaign data from ad platforms
    * Returns a Promise to match the expected type in CampaignHeader
    */
-  const handleRefreshData = (): Promise<void> => {
-    return refreshCampaignData({
-      campaigns,
-      onComplete: refetch,
-      setIsRefreshing
-    });
+  const handleRefreshData = async (): Promise<void> => {
+    try {
+      return refreshCampaignData({
+        campaigns,
+        onComplete: refetch,
+        setIsRefreshing
+      });
+    } catch (error) {
+      console.error('Error refreshing campaigns:', error);
+      toast.error('Failed to refresh campaign data');
+      setIsRefreshing(false);
+      return Promise.resolve();
+    }
   };
 
   if (isLoading) {
@@ -58,7 +66,7 @@ export default function CampaignDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8">
       {/* Header with title and actions */}
       <CampaignHeader 
         onRefresh={handleRefreshData}
