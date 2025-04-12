@@ -15,7 +15,11 @@ import {
   Calendar
 } from "lucide-react";
 
-export function DashboardTabs() {
+interface DashboardTabsProps {
+  navItems?: Array<{ label: string; path: string }>;
+}
+
+export function DashboardTabs({ navItems }: DashboardTabsProps = {}) {
   const location = useLocation();
   const pathname = location.pathname;
 

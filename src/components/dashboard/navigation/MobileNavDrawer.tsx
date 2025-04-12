@@ -21,10 +21,30 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
-export function MobileNavDrawer() {
+interface MobileNavDrawerProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  navItems?: Array<{ label: string; path: string }>;
+  currentPath?: string;
+  onNavigateToProfile?: () => void;
+  onSignOut?: () => Promise<void>;
+}
+
+export function MobileNavDrawer({ 
+  open, 
+  onOpenChange, 
+  navItems,
+  currentPath,
+  onNavigateToProfile,
+  onSignOut
+}: MobileNavDrawerProps = {}) {
   const location = useLocation();
   const pathname = location.pathname;
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  
+  // Use either provided state or internal state
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
 
   const tabs = [
     {
@@ -85,7 +105,7 @@ export function MobileNavDrawer() {
   ];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="md:hidden">
           <svg
@@ -117,7 +137,7 @@ export function MobileNavDrawer() {
               <Link
                 key={tab.name}
                 to={tab.href}
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
                 className={cn(
                   "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
                   tab.match
