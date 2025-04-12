@@ -64,14 +64,6 @@ interface SocialMediaPostFormProps {
  * - Form validation using Zod schema
  * - Input sanitization for security
  * - Integration with campaign selection
- * 
- * @example
- * // Create a new post
- * <SocialMediaPostForm onSubmit={handleCreatePost} />
- * 
- * @example
- * // Edit an existing post
- * <SocialMediaPostForm post={existingPost} onSubmit={handleUpdatePost} />
  */
 export default function SocialMediaPostForm({
   post,
@@ -85,7 +77,7 @@ export default function SocialMediaPostForm({
     ? {
         title: sanitizeInput(post.title),
         content: sanitizeInput(post.content),
-        platform: post.platform as SocialPlatform, // Cast to SocialPlatform
+        platform: post.platform as SocialPlatform,
         content_type: post.content_type,
         scheduled_date: post.scheduled_date,
         publish_time: post.publish_time,

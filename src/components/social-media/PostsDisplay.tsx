@@ -2,25 +2,30 @@
 import React from 'react';
 import { SocialMediaPost } from '@/types/socialMedia';
 import { Card, CardContent } from '@/components/ui/card';
-import { CalendarIcon, Plus } from 'lucide-react';
+import { CalendarIcon, List, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SocialMediaPostList } from './SocialMediaPostList';
-import SocialMediaCalendarView from './SocialMediaCalendarView';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ErrorRecoveryWrapper } from '@/components/dashboard/ErrorRecoveryWrapper';
 
 interface PostsDisplayProps {
   view: 'calendar' | 'list';
   posts: SocialMediaPost[];
   isLoading: boolean;
-  error: string | null;
+  error: Error | null;
   currentMonth: Date;
   onEditPost: (post: SocialMediaPost) => void;
-  onDeletePost: (postId: string) => Promise<{ success: boolean; error?: string }>;
-  onSchedulePost: (postId: string) => Promise<{ success: boolean; error?: string }>;
-  onApprovePost: (postId: string, notes?: string) => Promise<{ success: boolean; error?: string }>;
+  onDeletePost: (id: string) => void;
+  onSchedulePost: (id: string) => void;
+  onApprovePost: (id: string) => void;
   onCreatePost: () => void;
 }
 
-export function PostsDisplay({
+/**
+ * Component to display posts in either list or calendar view
+ * Handles loading, error, and empty states
+ */
+export function PostsDisplay({ 
   view,
   posts,
   isLoading,
@@ -32,66 +37,106 @@ export function PostsDisplay({
   onApprovePost,
   onCreatePost
 }: PostsDisplayProps) {
-  // Loading State
+  
+  // Loading state
   if (isLoading) {
+    return <LoadingState />;
+  }
+  
+  // Error state
+  if (error) {
     return (
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <ErrorRecoveryWrapper>
+        <Card className="w-full p-6">
+          <CardContent className="pt-6 text-center space-y-4">
+            <p className="text-destructive">Failed to load social media posts</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+            <Button onClick={() => window.location.reload()}>Retry</Button>
+          </CardContent>
+        </Card>
+      </ErrorRecoveryWrapper>
     );
   }
   
-  // Error State
-  if (error && !isLoading) {
-    return (
-      <Card className="border-destructive">
-        <CardContent className="p-4 text-destructive">
-          <p>Error loading social media posts: {error}</p>
-        </CardContent>
-      </Card>
-    );
+  // Empty state
+  if (posts.length === 0) {
+    return <EmptyState onCreatePost={onCreatePost} />;
   }
   
-  // Empty State
-  if (!isLoading && !error && posts.length === 0) {
+  // Calendar view not yet implemented - fallback to list view
+  if (view === 'calendar') {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No posts found</h3>
-          <p className="text-muted-foreground text-center max-w-md mb-6">
-            You don't have any social media posts for this period. Create a new post to get started.
+      <Card className="w-full p-6">
+        <CardContent className="pt-6 text-center space-y-4">
+          <CalendarIcon className="w-12 h-12 mx-auto text-muted-foreground" />
+          <h3 className="text-lg font-medium">Calendar View</h3>
+          <p className="text-sm text-muted-foreground">
+            Calendar view is not yet available. Showing list view instead.
           </p>
-          <Button onClick={onCreatePost}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Your First Post
-          </Button>
+          <div className="mt-6">
+            <SocialMediaPostList
+              posts={posts}
+              onEditPost={onEditPost}
+              onDeletePost={onDeletePost}
+              onSchedulePost={onSchedulePost}
+              onApprovePost={onApprovePost}
+            />
+          </div>
         </CardContent>
       </Card>
     );
   }
   
-  // Content Based on View
+  // List view (default)
   return (
-    <>
-      {view === 'calendar' ? (
-        <SocialMediaCalendarView 
-          posts={posts} 
-          currentMonth={currentMonth}
-          onEditPost={onEditPost}
-          onDeletePost={onDeletePost}
-          onSchedulePost={onSchedulePost}
-          onApprovePost={onApprovePost}
-        />
-      ) : (
-        <SocialMediaPostList 
-          posts={posts} 
-          onEditPost={onEditPost}
-          onDeletePost={onDeletePost}
-          onSchedulePost={onSchedulePost}
-          onApprovePost={onApprovePost}
-        />
-      )}
-    </>
+    <SocialMediaPostList
+      posts={posts}
+      onEditPost={onEditPost}
+      onDeletePost={onDeletePost}
+      onSchedulePost={onSchedulePost}
+      onApprovePost={onApprovePost}
+    />
+  );
+}
+
+// Loading state component
+function LoadingState() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map(i => (
+        <Card key={i} className="w-full">
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-5 w-20" />
+              </div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-1/4" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// Empty state component
+function EmptyState({ onCreatePost }: { onCreatePost: () => void }) {
+  return (
+    <Card className="w-full min-h-[300px] flex flex-col items-center justify-center p-6">
+      <CardContent className="pt-6 text-center space-y-4">
+        <List className="w-12 h-12 mx-auto text-muted-foreground" />
+        <h3 className="text-lg font-medium">No posts yet</h3>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          Create your first social media post to start building your content calendar.
+        </p>
+        <Button onClick={onCreatePost} className="mt-4">
+          <Plus className="mr-2 h-4 w-4" />
+          Create Post
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,8 +1,13 @@
 
+/**
+ * Social Media Types
+ * Consistent type definitions for social media functionality
+ */
+
 export interface SocialMediaPost {
   id: string;
   name: string;
-  platform: Platform;
+  platform: SocialPlatform;
   budget?: number;
   status?: PostStatus;
   executiveBot?: string | { name: string };
@@ -38,19 +43,20 @@ export interface SocialMediaPost {
   author_id?: string;
 }
 
-export type Platform = "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Twitter" | "Google" | "Email";
-export type ExecutiveBot = string;
-
-// Harmonized type definitions to avoid inconsistencies
+// Consistent platform types
 export type SocialPlatform = "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Twitter";
 export type PostStatus = "Draft" | "Scheduled" | "Paused" | "Completed" | "Published" | "Approved"; 
 export type ContentType = "text" | "image" | "video" | "link" | "carousel" | "poll";
+
+// Legacy type aliases for backward compatibility
+export type Platform = SocialPlatform | "Google" | "Email";
+export type ExecutiveBot = string;
 export type PostContentType = ContentType;
 
 export interface CreatePostInput {
   title: string;
   content: string;
-  platform: SocialPlatform; // Changed from Platform to SocialPlatform
+  platform: SocialPlatform;
   scheduled_date: string;
   publish_time: string;
   content_type: PostContentType;
@@ -68,7 +74,7 @@ export interface UpdatePostInput {
   id: string;
   title?: string;
   content?: string;
-  platform?: SocialPlatform; // Changed from Platform to SocialPlatform
+  platform?: SocialPlatform;
   scheduled_date?: string;
   publish_time?: string;
   status?: PostStatus;
@@ -85,7 +91,7 @@ export interface UpdatePostInput {
 }
 
 export interface SocialMediaCalendarFilters {
-  platform?: SocialPlatform; // Changed from Platform to SocialPlatform
+  platform?: SocialPlatform;
   status?: PostStatus;
   content_type?: PostContentType;
   campaign_id?: string;
