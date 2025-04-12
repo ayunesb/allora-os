@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCampaigns } from '@/hooks/campaigns';
-import { syncCampaignData } from '@/services/campaignService';
-import { toast } from 'sonner';
-import { getAdPlatformConnections } from '@/services/adPlatformService';
 import { useFilteredCampaigns } from '@/hooks/campaigns/useFilteredCampaigns';
+import { useAdPlatformConnections } from '@/hooks/campaigns/useAdPlatformConnections';
+import { refreshCampaignData } from '@/components/campaigns/dashboard/CampaignRefresh';
 
 // Component imports
 import { CampaignHeader } from '@/components/campaigns/dashboard/CampaignHeader';
@@ -19,25 +18,11 @@ export default function CampaignDashboard() {
   const { campaigns, isLoading, refetch } = useCampaigns();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('all');
-  const [hasAdPlatformConnections, setHasAdPlatformConnections] = useState(false);
+  const { hasAdPlatformConnections } = useAdPlatformConnections();
   
   // Get filtered campaigns based on active tab
   const filteredCampaigns = useFilteredCampaigns(campaigns, activeTab);
   
-  // Check for ad platform connections
-  React.useEffect(() => {
-    const checkConnections = async () => {
-      try {
-        const connections = await getAdPlatformConnections();
-        setHasAdPlatformConnections(connections.length > 0);
-      } catch (error) {
-        console.error('Error checking ad platform connections:', error);
-      }
-    };
-
-    checkConnections();
-  }, []);
-
   const handleCreateCampaign = () => {
     if (hasAdPlatformConnections) {
       navigate('/dashboard/campaigns/create');
@@ -47,34 +32,11 @@ export default function CampaignDashboard() {
   };
 
   const handleRefreshData = async () => {
-    setIsRefreshing(true);
-    
-    try {
-      // Only refresh deployed campaigns
-      const deployedCampaigns = campaigns.filter(c => 
-        c.deployment_status === 'deployed' && c.payment_status === 'paid'
-      );
-      
-      if (deployedCampaigns.length === 0) {
-        await refetch();
-        toast.success('Campaign list refreshed');
-        return;
-      }
-      
-      // Sync data for each deployed campaign
-      for (const campaign of deployedCampaigns) {
-        await syncCampaignData(campaign.id);
-      }
-      
-      // Refetch campaigns
-      await refetch();
-      toast.success('Campaign data refreshed');
-    } catch (error: any) {
-      console.error('Error refreshing campaign data:', error);
-      toast.error('Failed to refresh campaign data');
-    } finally {
-      setIsRefreshing(false);
-    }
+    await refreshCampaignData({
+      campaigns,
+      onComplete: refetch,
+      setIsRefreshing
+    });
   };
 
   if (isLoading) {
