@@ -6,6 +6,7 @@ import { useFilteredCampaigns } from '@/hooks/campaigns/useFilteredCampaigns';
 import { useAdPlatformConnections } from '@/hooks/campaigns/useAdPlatformConnections';
 import { refreshCampaignData } from '@/components/campaigns/dashboard/CampaignRefresh';
 import { toast } from 'sonner';
+import { refreshData } from '@/utils/shared/dataRefresh';
 
 // Component imports
 import { CampaignHeader } from '@/components/campaigns/dashboard/CampaignHeader';
@@ -48,10 +49,22 @@ export default function CampaignDashboard() {
    */
   const handleRefreshData = async (): Promise<void> => {
     try {
-      return refreshCampaignData({
-        campaigns,
-        onComplete: refetch,
-        setIsRefreshing
+      // Use the shared refreshData utility for consistent refresh behavior
+      return refreshData({
+        fetchFn: async () => {
+          // Call the specific campaign refresh function
+          await refreshCampaignData({
+            campaigns,
+            onComplete: refetch,
+            setIsRefreshing
+          });
+        },
+        onComplete: async () => {
+          await refetch();
+        },
+        setIsRefreshing,
+        successMessage: 'Campaign data refreshed successfully',
+        errorMessage: 'Failed to refresh campaign data'
       });
     } catch (error) {
       console.error('Error refreshing campaigns:', error);
