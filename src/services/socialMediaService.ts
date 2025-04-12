@@ -19,7 +19,7 @@ import {
   validateUpdatePost, 
   validateMediaUrl 
 } from '@/utils/validators/socialMediaValidator';
-import { apiRequest } from '@/utils/api/apiClient';
+import { apiRequest, clearApiCache } from '@/utils/api/apiClient';
 import { wrapSupabaseQuery } from '@/utils/api/supabaseWrapper';
 import { logger } from '@/utils/loggingService';
 
@@ -43,7 +43,7 @@ export async function fetchSocialMediaPosts(
   filters?: SocialMediaCalendarFilters
 ): Promise<SocialMediaPost[]> {
   return apiRequest<SocialMediaPost[]>(
-    async () => {
+    wrapSupabaseQuery(async () => {
       let query = supabase
         .from('social_media_posts')
         .select('*')
@@ -94,7 +94,7 @@ export async function fetchSocialMediaPosts(
       query = query.order('scheduled_date', { ascending: true });
       
       return await query;
-    },
+    }),
     {
       errorMessage: 'Failed to fetch social media posts',
       cacheKey: getSocialMediaCacheKey(companyId),
@@ -111,13 +111,13 @@ export async function fetchSocialMediaPosts(
  */
 export async function fetchSocialMediaPost(postId: string): Promise<SocialMediaPost | null> {
   return apiRequest<SocialMediaPost>(
-    async () => {
+    wrapSupabaseQuery(async () => {
       return await supabase
         .from('social_media_posts')
         .select('*')
         .eq('id', postId)
         .maybeSingle();
-    },
+    }),
     {
       errorMessage: `Failed to fetch social media post ${postId}`,
       cacheKey: `social_media_post_${postId}`,
@@ -168,7 +168,7 @@ export async function createSocialMediaPost(
     
     // Insert post into database
     const result = await apiRequest<{ id: string }>(
-      async () => {
+      wrapSupabaseQuery(async () => {
         return await supabase
           .from('social_media_posts')
           .insert({
@@ -193,7 +193,7 @@ export async function createSocialMediaPost(
           })
           .select('id')
           .single();
-      },
+      }),
       {
         successMessage: 'Social media post created successfully',
         errorMessage: 'Failed to create social media post'
@@ -278,7 +278,7 @@ export async function updateSocialMediaPost(
     
     // Update post in database
     await apiRequest(
-      async () => {
+      wrapSupabaseQuery(async () => {
         const { error } = await supabase
           .from('social_media_posts')
           .update({
@@ -305,7 +305,7 @@ export async function updateSocialMediaPost(
         if (error) throw error;
         
         return { data: null };
-      },
+      }),
       {
         successMessage: 'Social media post updated successfully',
         errorMessage: 'Failed to update social media post'
@@ -360,7 +360,7 @@ export async function deleteSocialMediaPost(
     
     // Delete the post
     await apiRequest(
-      async () => {
+      wrapSupabaseQuery(async () => {
         const { error } = await supabase
           .from('social_media_posts')
           .delete()
@@ -369,7 +369,7 @@ export async function deleteSocialMediaPost(
         if (error) throw error;
         
         return { data: null };
-      },
+      }),
       {
         successMessage: 'Social media post deleted successfully',
         errorMessage: 'Failed to delete social media post'
@@ -424,7 +424,7 @@ export async function schedulePost(
     
     // Schedule the post
     await apiRequest(
-      async () => {
+      wrapSupabaseQuery(async () => {
         const { error } = await supabase
           .from('social_media_posts')
           .update({
@@ -436,16 +436,20 @@ export async function schedulePost(
         if (error) throw error;
         
         return { data: null };
-      },
+      }),
       {
         successMessage: 'Post scheduled successfully',
         errorMessage: 'Failed to schedule post'
       }
     );
     
-    // Clear the specific post cache and the posts list cache
-    clearApiCache(`social_media_post_${postId}`);
-    clearApiCache(getSocialMediaCacheKey(post.company_id));
+    // Get post information for cache invalidation
+    const post = await fetchSocialMediaPost(postId);
+    if (post) {
+      // Clear the specific post cache and the posts list cache
+      clearApiCache(`social_media_post_${postId}`);
+      clearApiCache(getSocialMediaCacheKey(post.company_id));
+    }
     
     // Log the successful scheduling
     logger.info('Social media post scheduled', { 
@@ -498,7 +502,7 @@ export async function approvePost(
     
     // Approve the post
     await apiRequest(
-      async () => {
+      wrapSupabaseQuery(async () => {
         const { error } = await supabase
           .from('social_media_posts')
           .update({
@@ -512,16 +516,20 @@ export async function approvePost(
         if (error) throw error;
         
         return { data: null };
-      },
+      }),
       {
         successMessage: 'Post approved successfully',
         errorMessage: 'Failed to approve post'
       }
     );
     
-    // Clear the specific post cache and the posts list cache
-    clearApiCache(`social_media_post_${postId}`);
-    clearApiCache(getSocialMediaCacheKey(post.company_id));
+    // Get post information for cache invalidation
+    const post = await fetchSocialMediaPost(postId);
+    if (post) {
+      // Clear the specific post cache and the posts list cache
+      clearApiCache(`social_media_post_${postId}`);
+      clearApiCache(getSocialMediaCacheKey(post.company_id));
+    }
     
     // Log the successful approval
     logger.info('Social media post approved', { 

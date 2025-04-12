@@ -68,7 +68,7 @@ export function AdvancedCampaignAnalytics({
   const totalConversions = metrics.conversions.reduce((a, b) => a + b, 0);
   const totalCost = metrics.cost.reduce((a, b) => a + b, 0);
   
-  // Fix type issues with these calculated values
+  // Fix type issues with these calculated values by explicitly converting to numbers
   const avgCPC = totalClicks ? (totalCost / totalClicks).toFixed(2) : '0';
   const avgCTR = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : '0';
   const conversionRate = totalClicks ? ((totalConversions / totalClicks) * 100).toFixed(2) : '0';
