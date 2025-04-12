@@ -980,6 +980,10 @@ export type Database = {
           rls_enabled: boolean
         }[]
       }
+      check_table_rls: {
+        Args: { table_name: string }
+        Returns: boolean
+      }
       get_company_integrations: {
         Args: { p_company_id: string }
         Returns: {

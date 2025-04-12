@@ -6,7 +6,7 @@ import { DatabaseTablesCheck } from './DatabaseTablesCheck';
 import { RlsPoliciesCheck } from './RlsPoliciesCheck';
 import { DatabaseFunctionsCheck } from './DatabaseFunctionsCheck';
 import { DatabaseVerificationResult } from './types';
-import { RefreshCw, Database, Shield, Code, AlertTriangle, Info, CheckCircle } from 'lucide-react';
+import { RefreshCw, Database, Shield, Code, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -84,7 +84,22 @@ export function DatabaseVerificationDashboard({
     setConnectionError(null);
     
     try {
-      // Test direct connection with a specific table instead of information_schema
+      // First check if we can access our new check_table_rls function
+      const { data: rlsCheckData, error: rlsCheckError } = await supabase
+        .rpc('check_table_rls', { table_name: 'profiles' });
+      
+      if (!rlsCheckError) {
+        console.log("Successfully checked RLS with our new function:", rlsCheckData);
+        setIsCheckingConnection(false);
+        await onVerify();
+        setLastVerifiedAt(new Date());
+        return true;
+      }
+      
+      // Fall back to direct table queries if the function doesn't work
+      console.log("RLS check function failed, falling back to direct table tests:", rlsCheckError);
+      
+      // Test direct connection with a specific table
       const { data, error } = await supabase
         .from('profiles')
         .select('id')
@@ -136,9 +151,19 @@ export function DatabaseVerificationDashboard({
     await checkConnection();
   };
   
+  // Quick check of database connection issue indicators
+  const getConnectionStatus = () => {
+    if (connectionError) return "error";
+    if (!hasTablesData && !isVerifying && !isCheckingConnection) return "unknown";
+    if (issueCount === 0 && hasTablesData) return "success";
+    return "warning";
+  };
+  
+  const connectionStatus = getConnectionStatus();
+  
   return (
     <div className="space-y-6">
-      <Card className="border-border/50 shadow-sm">
+      <Card className={`border-${connectionStatus === "success" ? "green" : connectionStatus === "error" ? "red" : connectionStatus === "warning" ? "amber" : "border"}/50 shadow-sm`}>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -157,6 +182,7 @@ export function DatabaseVerificationDashboard({
             </div>
             {isReady === true && <CheckCircle className="h-5 w-5 text-green-500" />}
             {isReady === false && <AlertTriangle className="h-5 w-5 text-amber-500" />}
+            {isReady === null && <Info className="h-5 w-5 text-blue-500" />}
           </CardTitle>
           <CardDescription className="flex justify-between items-center">
             <span>
