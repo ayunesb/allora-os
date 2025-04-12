@@ -1,6 +1,8 @@
 
 import { createBrowserRouter } from "react-router-dom";
 import { NavigationManager } from "@/components/NavigationManager";
+import { HelpProvider } from "@/context/HelpContext";
+import { HelpModal } from "@/components/help/HelpModal";
 
 import { publicRoutes } from "./public-routes";
 import { dashboardRoutes } from "./dashboard-routes";
@@ -11,35 +13,61 @@ import { marketingRoutes } from "./marketing-routes";
 import ZoomCallback from "@/components/integration/ZoomCallback";
 import NotFound from "@/pages/NotFound";
 
-// Add NavigationManager to each route that isn't the admin routes
-const withNavigationManager = (routes) => {
+// Add NavigationManager and HelpProvider to each route
+const withNavigationAndHelp = (routes) => {
   return routes.map(route => ({
     ...route,
     element: (
-      <>
+      <HelpProvider>
         <NavigationManager />
         {route.element}
-      </>
+        <HelpModal />
+      </HelpProvider>
     )
   }));
 };
 
-// Handle special case for dashboard route and admin routes which are objects not arrays
-const withNavigationManagerForObject = (routeObj, skipNavManager = false) => {
+// Special handling for dashboard and admin routes which are objects not arrays
+const withNavigationAndHelpForObject = (routeObj, skipNavManager = false) => {
   if (skipNavManager) {
-    return routeObj; // Return without NavigationManager for admin routes
+    return {
+      ...routeObj,
+      element: (
+        <HelpProvider>
+          {routeObj.element}
+          <HelpModal />
+        </HelpProvider>
+      ),
+      children: routeObj.children ? routeObj.children.map(child => ({
+        ...child,
+        element: (
+          <HelpProvider>
+            {child.element}
+            <HelpModal />
+          </HelpProvider>
+        )
+      })) : routeObj.children
+    };
   }
   
   if (routeObj.children) {
     return {
       ...routeObj,
+      element: (
+        <HelpProvider>
+          <NavigationManager />
+          {routeObj.element}
+          <HelpModal />
+        </HelpProvider>
+      ),
       children: routeObj.children.map(childRoute => ({
         ...childRoute,
         element: (
-          <>
+          <HelpProvider>
             <NavigationManager />
             {childRoute.element}
-          </>
+            <HelpModal />
+          </HelpProvider>
         )
       }))
     };
@@ -48,39 +76,42 @@ const withNavigationManagerForObject = (routeObj, skipNavManager = false) => {
   return {
     ...routeObj,
     element: (
-      <>
+      <HelpProvider>
         <NavigationManager />
         {routeObj.element}
-      </>
+        <HelpModal />
+      </HelpProvider>
     )
   };
 };
 
 // Collect all routes as a flat array
 const routes = [
-  ...withNavigationManager(publicRoutes),
-  withNavigationManagerForObject(dashboardRoutes),
-  ...withNavigationManager(onboardingRoutes),
-  ...withNavigationManager(authRoutes),
-  withNavigationManagerForObject(adminRoutes, true), // Skip NavigationManager for admin
-  ...withNavigationManager(marketingRoutes),
+  ...withNavigationAndHelp(publicRoutes),
+  withNavigationAndHelpForObject(dashboardRoutes),
+  ...withNavigationAndHelp(onboardingRoutes),
+  ...withNavigationAndHelp(authRoutes),
+  withNavigationAndHelpForObject(adminRoutes, true), // Skip NavigationManager for admin
+  ...withNavigationAndHelp(marketingRoutes),
   {
     path: "/zoom-callback",
     element: (
-      <>
+      <HelpProvider>
         <NavigationManager />
         <ZoomCallback />
-      </>
+        <HelpModal />
+      </HelpProvider>
     ),
   },
   // Add a catch-all route for 404 pages
   {
     path: "*",
     element: (
-      <>
+      <HelpProvider>
         <NavigationManager />
         <NotFound />
-      </>
+        <HelpModal />
+      </HelpProvider>
     ),
   },
 ];
