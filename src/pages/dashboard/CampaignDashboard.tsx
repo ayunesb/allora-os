@@ -55,7 +55,7 @@ export default function CampaignDashboard() {
           // Call the specific campaign refresh function
           await refreshCampaignData({
             campaigns,
-            onComplete: refetch,
+            onComplete: async () => { await refetch(); },
             setIsRefreshing
           });
         },

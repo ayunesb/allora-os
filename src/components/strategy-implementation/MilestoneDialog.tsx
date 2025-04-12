@@ -3,16 +3,17 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, AlertCircle } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ImplementationStatus, StrategyMilestone } from "@/models/strategyImplementation";
 import { createMilestone, updateMilestone, deleteMilestone } from "@/utils/strategyImplementation/implementationUtils";
-import { StrategyMilestone, ImplementationStatus } from "@/models/strategyImplementation";
 
 interface MilestoneDialogProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ interface MilestoneDialogProps {
   strategyId: string;
   milestone: StrategyMilestone | null;
   onSave: (milestone: StrategyMilestone) => void;
-  onDelete: (id: string) => void;
+  onDelete: (milestoneId: string) => void;
 }
 
 const MilestoneDialog: React.FC<MilestoneDialogProps> = ({
@@ -34,20 +35,20 @@ const MilestoneDialog: React.FC<MilestoneDialogProps> = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<ImplementationStatus>("not_started");
-  const [progress, setProgress] = useState(0);
   const [dueDate, setDueDate] = useState<Date>(new Date());
+  const [progress, setProgress] = useState<number>(0);
   const [owner, setOwner] = useState("");
   const [notes, setNotes] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Set form values when milestone changes
   useEffect(() => {
     if (milestone) {
       setTitle(milestone.title);
       setDescription(milestone.description || "");
       setStatus(milestone.status);
-      setProgress(milestone.progress);
       setDueDate(new Date(milestone.dueDate));
+      setProgress(milestone.progress);
       setOwner(milestone.owner || "");
       setNotes(milestone.notes || "");
     } else {
@@ -55,90 +56,77 @@ const MilestoneDialog: React.FC<MilestoneDialogProps> = ({
       setTitle("");
       setDescription("");
       setStatus("not_started");
-      setProgress(0);
       setDueDate(new Date());
+      setProgress(0);
       setOwner("");
       setNotes("");
     }
   }, [milestone]);
 
   const handleSave = async () => {
-    if (!title.trim()) {
-      setError("Title is required");
-      return;
-    }
-
-    setIsSaving(true);
-    setError("");
-
+    if (!title.trim()) return;
+    
+    setIsSubmitting(true);
+    
     try {
       const milestoneData = {
         strategyId,
         title,
         description,
         status,
-        progress,
         dueDate: dueDate.toISOString(),
+        progress,
         owner,
-        notes,
+        notes
       };
-
+      
       let savedMilestone;
-
+      
       if (milestone) {
         // Update existing milestone
-        const success = await updateMilestone(milestone.id, milestoneData);
-        if (success) {
-          savedMilestone = {
-            ...milestone,
-            ...milestoneData,
-          };
-        } else {
-          throw new Error("Failed to update milestone");
-        }
+        await updateMilestone(milestone.id, milestoneData);
+        savedMilestone = {
+          ...milestone,
+          ...milestoneData
+        };
       } else {
         // Create new milestone
         savedMilestone = await createMilestone(milestoneData);
-        if (!savedMilestone) {
-          throw new Error("Failed to create milestone");
-        }
       }
-
-      onSave(savedMilestone);
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+      
+      if (savedMilestone) {
+        onSave(savedMilestone);
+      }
+    } catch (error) {
+      console.error("Error saving milestone:", error);
     } finally {
-      setIsSaving(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteMilestone = async () => {
+  const handleDelete = async () => {
     if (!milestone) return;
     
-    setIsSaving(true);
-    const success = await deleteMilestone(milestone.id);
-    setIsSaving(false);
+    setIsSubmitting(true);
     
-    if (success) {
+    try {
+      await deleteMilestone(milestone.id);
       onDelete(milestone.id);
       onClose();
+    } catch (error) {
+      console.error("Error deleting milestone:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{milestone ? "Edit Milestone" : "Add Milestone"}</DialogTitle>
+          <DialogTitle>{milestone ? "Edit Milestone" : "Add New Milestone"}</DialogTitle>
         </DialogHeader>
-
-        {error && (
-          <div className="bg-destructive/10 p-3 rounded-md flex items-start gap-2 text-sm text-destructive mb-4">
-            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
+        
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="title">Title</Label>
@@ -149,23 +137,23 @@ const MilestoneDialog: React.FC<MilestoneDialogProps> = ({
               placeholder="Milestone title"
             />
           </div>
-
+          
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description of this milestone"
-              rows={2}
+              placeholder="Describe this milestone..."
+              rows={3}
             />
           </div>
-
+          
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
               <Select value={status} onValueChange={(value) => setStatus(value as ImplementationStatus)}>
-                <SelectTrigger id="status">
+                <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,18 +164,17 @@ const MilestoneDialog: React.FC<MilestoneDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
-
+            
             <div className="grid gap-2">
-              <Label htmlFor="dueDate">Due Date</Label>
+              <Label>Due Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={"outline"}
-                    className="justify-start text-left font-normal"
-                    id="dueDate"
+                    variant="outline"
+                    className={cn("justify-start text-left font-normal", !dueDate && "text-muted-foreground")}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(dueDate, "PPP")}
+                    {dueDate ? format(dueDate, "PPP") : "Select date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -201,7 +188,7 @@ const MilestoneDialog: React.FC<MilestoneDialogProps> = ({
               </Popover>
             </div>
           </div>
-
+          
           <div className="grid gap-2">
             <div className="flex justify-between">
               <Label htmlFor="progress">Progress ({progress}%)</Label>
@@ -212,48 +199,51 @@ const MilestoneDialog: React.FC<MilestoneDialogProps> = ({
               max={100}
               step={5}
               value={[progress]}
-              onValueChange={(value) => setProgress(value[0])}
+              onValueChange={(values) => setProgress(values[0])}
             />
           </div>
-
+          
           <div className="grid gap-2">
-            <Label htmlFor="owner">Owner (Optional)</Label>
+            <Label htmlFor="owner">Owner</Label>
             <Input
               id="owner"
               value={owner}
               onChange={(e) => setOwner(e.target.value)}
-              placeholder="Person responsible for this milestone"
+              placeholder="Responsible person"
             />
           </div>
-
+          
           <div className="grid gap-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Additional notes or context"
+              placeholder="Additional notes..."
               rows={2}
             />
           </div>
         </div>
-
+        
         <DialogFooter className="flex items-center justify-between">
           {milestone && (
-            <Button
-              variant="destructive"
-              onClick={handleDeleteMilestone}
-              disabled={isSaving}
+            <Button 
+              variant="destructive" 
+              onClick={handleDelete} 
+              disabled={isSubmitting}
             >
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Delete
             </Button>
           )}
+          
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isSaving}>
+            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save"}
+            <Button onClick={handleSave} disabled={isSubmitting || !title.trim()}>
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Save
             </Button>
           </div>
         </DialogFooter>

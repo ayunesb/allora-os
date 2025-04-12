@@ -2,64 +2,44 @@
 import { toast } from 'sonner';
 
 /**
- * Generic data refresh utility
+ * A shared utility function to handle consistent data refresh operations across the application
  * 
- * Can be used by both campaign and social media features to handle
- * data refresh operations consistently.
- * 
- * @param fetchFn - Function that fetches data from external source
- * @param onComplete - Callback to run after refresh completes
- * @param setIsRefreshing - State setter for refresh status
- * @param successMessage - Message to show on success
- * @param errorMessage - Message to show on error
- * @returns Promise that resolves when refresh completes
+ * @param options.fetchFn - The function that performs the actual data fetching/refresh
+ * @param options.onComplete - Optional callback to run after successful fetch
+ * @param options.setIsRefreshing - State setter function to track loading state
+ * @param options.successMessage - Optional message to display on success
+ * @param options.errorMessage - Optional message to display on error
+ * @returns Promise that resolves when refresh is complete
  */
-export async function refreshData<T>({
-  fetchFn,
-  onComplete,
-  setIsRefreshing,
+export const refreshData = async ({ 
+  fetchFn, 
+  onComplete, 
+  setIsRefreshing, 
   successMessage = 'Data refreshed successfully',
   errorMessage = 'Failed to refresh data'
 }: {
-  fetchFn: () => Promise<T>;
-  onComplete: () => Promise<void>;
+  fetchFn: () => Promise<void>;
+  onComplete?: () => Promise<void>;
   setIsRefreshing: (isRefreshing: boolean) => void;
   successMessage?: string;
   errorMessage?: string;
-}): Promise<void> {
+}): Promise<void> => {
   setIsRefreshing(true);
   
   try {
     await fetchFn();
-    await onComplete();
+    
+    if (onComplete) {
+      await onComplete();
+    }
+    
     toast.success(successMessage);
-  } catch (error: unknown) {
+    return Promise.resolve();
+  } catch (error) {
     console.error('Error refreshing data:', error);
     toast.error(errorMessage);
-    
-    if (error instanceof Error) {
-      console.error('Error details:', error.message);
-    }
+    return Promise.reject(error);
   } finally {
     setIsRefreshing(false);
   }
-}
-
-/**
- * Formats pagination information for display
- * 
- * @param totalItems - Total number of items
- * @param currentPage - Current page number
- * @param itemsPerPage - Number of items per page
- * @returns Formatted pagination string
- */
-export function formatPaginationInfo(
-  totalItems: number,
-  currentPage: number,
-  itemsPerPage: number
-): string {
-  const start = (currentPage - 1) * itemsPerPage + 1;
-  const end = Math.min(currentPage * itemsPerPage, totalItems);
-  
-  return `Showing ${start}-${end} of ${totalItems} items`;
-}
+};
