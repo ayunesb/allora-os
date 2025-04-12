@@ -43,12 +43,15 @@ export function useLeadsPage() {
     
     try {
       // First, check the Supabase connection
-      const { connected, error: connectionError } = await supabase.functions.invoke('check-connection', {
+      const response = await supabase.functions.invoke('check-connection', {
         body: { silent: true }
-      }).catch(() => ({ connected: false, error: new Error('Connection check failed') }));
+      }).catch(() => ({ data: { connected: false, error: new Error('Connection check failed') }}));
       
-      if (!connected) {
-        throw connectionError || new Error('Unable to connect to database');
+      // Check if we have a valid response and connection
+      const connectionInfo = response.data || { connected: false, error: new Error('Invalid connection response') };
+      
+      if (!connectionInfo.connected) {
+        throw connectionInfo.error || new Error('Unable to connect to database');
       }
       
       const { data, error } = await supabase

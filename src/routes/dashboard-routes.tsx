@@ -3,6 +3,8 @@ import React from "react";
 import { RouteObject } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Navigate } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const { lazy } = React;
 
@@ -33,36 +35,47 @@ const LinkedInIntegration = lazy(() => import("@/pages/dashboard/LinkedInIntegra
 const Integrations = lazy(() => import("@/pages/dashboard/Integrations"));
 const TechnicalImprovements = lazy(() => import("@/pages/dashboard/TechnicalImprovements"));
 
+// Wrap each route component with ProtectedRoute to ensure auth context is available
+const wrapInProtectedRoute = (Component: React.ComponentType) => {
+  return (
+    <ErrorBoundary>
+      <ProtectedRoute>
+        <Component />
+      </ProtectedRoute>
+    </ErrorBoundary>
+  );
+};
+
 export const dashboardRoutes: RouteObject[] = [
   {
     path: "/dashboard",
     element: <DashboardLayout />,
     children: [
-      { index: true, element: <Index /> },
-      { path: "analytics", element: <Analytics /> },
-      { path: "ai-bots", element: <AiBots /> },
-      { path: "ai-bots/:botId", element: <BotDetail /> },
-      { path: "profile", element: <Profile /> },
-      { path: "debate", element: <Debate /> },
-      { path: "settings", element: <Settings /> },
-      { path: "strategies", element: <Strategies /> },
-      { path: "leads", element: <Leads /> },
-      { path: "leads/follow-up-sequences", element: <LeadFollowUpSequences /> },
-      { path: "calls", element: <Calls /> },
-      { path: "campaigns", element: <Campaigns /> },
-      { path: "campaigns/create", element: <CampaignCreate /> },
-      { path: "campaigns/:campaignId", element: <CampaignDetail /> },
-      { path: "ad-accounts/connect", element: <AdAccountsConnect /> },
-      { path: "campaign-dashboard", element: <CampaignDashboard /> },
-      { path: "campaign/payment-success", element: <CampaignPaymentSuccess /> },
-      { path: "shopify-optimization", element: <ShopifyOptimization /> },
-      { path: "social-media-calendar", element: <SocialMediaCalendar /> },
-      { path: "approvals", element: <Approvals /> },
-      { path: "ai-settings", element: <AISettings /> },
-      { path: "linkedin-auth-callback", element: <LinkedInAuthCallback /> },
-      { path: "linkedin-integration", element: <LinkedInIntegration /> },
-      { path: "integrations", element: <Integrations /> },
-      { path: "technical-improvements", element: <TechnicalImprovements /> },
+      { index: true, element: wrapInProtectedRoute(Index) },
+      { path: "analytics", element: wrapInProtectedRoute(Analytics) },
+      { path: "ai-bots", element: wrapInProtectedRoute(AiBots) },
+      { path: "ai-bots/:botId", element: wrapInProtectedRoute(BotDetail) },
+      { path: "profile", element: wrapInProtectedRoute(Profile) },
+      { path: "debate", element: wrapInProtectedRoute(Debate) },
+      { path: "settings", element: wrapInProtectedRoute(Settings) },
+      { path: "strategies", element: wrapInProtectedRoute(Strategies) },
+      { path: "leads", element: wrapInProtectedRoute(Leads) },
+      { path: "leads/follow-up-sequences", element: wrapInProtectedRoute(LeadFollowUpSequences) },
+      { path: "calls", element: wrapInProtectedRoute(Calls) },
+      { path: "campaigns", element: wrapInProtectedRoute(Campaigns) },
+      { path: "campaigns/create", element: wrapInProtectedRoute(CampaignCreate) },
+      { path: "campaigns/:campaignId", element: wrapInProtectedRoute(CampaignDetail) },
+      { path: "ad-accounts/connect", element: wrapInProtectedRoute(AdAccountsConnect) },
+      { path: "campaign-dashboard", element: wrapInProtectedRoute(CampaignDashboard) },
+      { path: "campaign/payment-success", element: wrapInProtectedRoute(CampaignPaymentSuccess) },
+      { path: "shopify-optimization", element: wrapInProtectedRoute(ShopifyOptimization) },
+      { path: "social-media-calendar", element: wrapInProtectedRoute(SocialMediaCalendar) },
+      { path: "approvals", element: wrapInProtectedRoute(Approvals) },
+      { path: "ai-settings", element: wrapInProtectedRoute(AISettings) },
+      { path: "linkedin-auth-callback", element: wrapInProtectedRoute(LinkedInAuthCallback) },
+      { path: "linkedin-integration", element: wrapInProtectedRoute(LinkedInIntegration) },
+      { path: "integrations", element: wrapInProtectedRoute(Integrations) },
+      { path: "technical-improvements", element: wrapInProtectedRoute(TechnicalImprovements) },
       { path: "*", element: <Navigate to="/dashboard" replace /> },
     ],
   },
