@@ -7,7 +7,6 @@ import { ViewToggle } from './ViewToggle';
 import { PostsDisplay } from '../PostsDisplay';
 import { DialogCreate } from '../SocialMediaPostDialog';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import SocialMediaCalendarView from './SocialMediaCalendarView';
 
 export function SocialMediaContent() {
   const {
@@ -88,29 +87,18 @@ export function SocialMediaContent() {
       />
       
       {/* Content Display */}
-      {view === 'calendar' ? (
-        <SocialMediaCalendarView
-          posts={posts}
-          currentMonth={currentMonth}
-          onEditPost={(post) => console.log('Edit post', post)}
-          onDeletePost={deletePost}
-          onSchedulePost={schedule}
-          onApprovePost={approve}
-        />
-      ) : (
-        <PostsDisplay
-          view={view}
-          posts={posts}
-          isLoading={isLoading}
-          error={formattedError}
-          currentMonth={currentMonth}
-          onEditPost={(post) => console.log('Edit post', post)}
-          onDeletePost={deletePost}
-          onSchedulePost={schedule}
-          onApprovePost={approve}
-          onCreatePost={openCreateDialog}
-        />
-      )}
+      <PostsDisplay
+        view={view}
+        posts={posts}
+        isLoading={isLoading}
+        error={formattedError}
+        currentMonth={currentMonth}
+        onEditPost={(post) => console.log('Edit post', post)}
+        onDeletePost={deletePost}
+        onSchedulePost={schedule}
+        onApprovePost={approve}
+        onCreatePost={openCreateDialog}
+      />
       
       {/* Create Post Dialog */}
       <DialogCreate

@@ -56,8 +56,7 @@ export function useCampaigns() {
       }
       
       // Use API to create the campaign
-      // Instead of using createCampaignMutation, we'll execute the campaign creation directly
-      const result = await createCampaignInDatabase(campaignData);
+      const result = await createCampaignInDatabase(newCampaign);
       return standardizeApiResponse(result, "Campaign created successfully");
     } catch (err: any) {
       console.error("Error creating campaign:", err);
@@ -69,11 +68,6 @@ export function useCampaigns() {
   }, [companyId, trackAction, profile]);
   
   const updateCampaign = useCallback(async (campaignData: CampaignUpdate) => {
-    if (!campaignData.id) {
-      toast.error("Campaign ID is required for updates");
-      return null;
-    }
-    
     setIsUpdating(true);
     
     try {
@@ -92,7 +86,6 @@ export function useCampaigns() {
       }
       
       // Use API to update the campaign
-      // Instead of using updateCampaignMutation, we'll execute the campaign update directly
       const result = await updateCampaignInDatabase(campaignData);
       return standardizeApiResponse(result, "Campaign updated successfully");
     } catch (err: any) {
@@ -120,7 +113,6 @@ export function useCampaigns() {
       }
       
       // Use API to delete the campaign
-      // Instead of using deleteCampaignMutation, we'll execute the campaign deletion directly
       const result = await deleteCampaignFromDatabase(campaignId);
       return standardizeApiResponse(result, "Campaign deleted successfully");
     } catch (err: any) {
@@ -133,10 +125,10 @@ export function useCampaigns() {
   }, [trackAction, profile]);
   
   // Helper functions for API calls
-  const createCampaignInDatabase = async (campaignData: CampaignCreate) => {
+  const createCampaignInDatabase = async (campaign: Campaign) => {
     // Implement API call to create campaign
     // This is a placeholder that would be replaced with your actual API call
-    return { id: uuidv4(), ...campaignData };
+    return { id: campaign.id, ...campaign };
   };
   
   const updateCampaignInDatabase = async (campaignData: CampaignUpdate) => {

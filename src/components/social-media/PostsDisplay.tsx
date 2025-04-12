@@ -4,14 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
-import { SocialMediaPost } from '@/types/socialMedia';
+import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
 
 // Lazy load the calendar and list views for better performance
 const CalendarView = lazy(() => import('./calendar/CalendarView'));
 const ListView = lazy(() => import('./list/ListView'));
 
-export interface Post extends SocialMediaPost {
-  status: string; // Make status required for backward compatibility
+// Create a utility function to ensure a post has a status
+function ensurePostStatus(post: SocialMediaPost): SocialMediaPost & { status: PostStatus } {
+  return {
+    ...post,
+    status: (post.status || 'Draft') as PostStatus
+  };
 }
 
 interface PostsDisplayProps {
@@ -87,12 +91,15 @@ export function PostsDisplay({
     );
   }
   
+  // Ensure all posts have a status property
+  const postsWithStatus = posts.map(ensurePostStatus);
+  
   return (
     <div className="space-y-4" aria-label={ariaLabel}>
       <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-md" />}>
         {view === 'calendar' ? (
           <CalendarView 
-            posts={posts}
+            posts={postsWithStatus}
             currentMonth={currentMonth}
             onEditPost={onEditPost}
             onDeletePost={onDeletePost}
@@ -102,7 +109,7 @@ export function PostsDisplay({
           />
         ) : (
           <ListView 
-            posts={posts}
+            posts={postsWithStatus}
             onEditPost={onEditPost}
             onDeletePost={onDeletePost}
             onSchedulePost={onSchedulePost}

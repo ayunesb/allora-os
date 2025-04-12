@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { SocialMediaPost } from '@/types/socialMedia';
+import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
 import { 
   format, 
   startOfMonth, 
@@ -14,7 +14,7 @@ import {
 } from 'date-fns';
 
 interface CalendarViewProps {
-  posts: SocialMediaPost[];
+  posts: (SocialMediaPost & { status: PostStatus })[];
   currentMonth: Date;
   onEditPost: (post: SocialMediaPost) => void;
   onDeletePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
