@@ -103,7 +103,7 @@ export function handleApiError(error: any, options: {
   
   // Log error
   if (logError) {
-    logger.error('API Error:', {
+    logger.error('API Error:', error, {
       errorCode: errorDetails.code,
       message: errorDetails.message,
       status: errorDetails.statusCode,
