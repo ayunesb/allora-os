@@ -1,15 +1,18 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useSelfLearning } from "@/hooks/useSelfLearning";
 import { toast } from "sonner";
 
-// Import our new components
+// Import our components
 import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
 import AnalyticsInsightCards from "@/components/analytics/AnalyticsInsightCards";
 import OverviewTabContent from "@/components/analytics/OverviewTabContent";
 import BehaviorTabContent from "@/components/analytics/BehaviorTabContent";
 import RecommendationsTabContent from "@/components/analytics/RecommendationsTabContent";
+import { PredictiveAnalytics } from "@/components/analytics/PredictiveAnalytics";
+import { CustomReportBuilder } from "@/components/analytics/CustomReportBuilder";
+import { EnhancedVisualization } from "@/components/analytics/EnhancedVisualizations";
 
 export default function Analytics() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -123,6 +126,35 @@ export default function Analytics() {
       return acc;
     }, []);
 
+  // Sample data for funnel analysis
+  const funnelData = [
+    { name: "Website Visitors", value: 5800 },
+    { name: "Lead Captures", value: 2200 },
+    { name: "Qualified Leads", value: 1300 },
+    { name: "Proposals Sent", value: 700 },
+    { name: "Negotiations", value: 350 },
+    { name: "Closed Deals", value: 180 }
+  ];
+
+  // Sample data for heatmap (engagement by weekday/hour)
+  const generateHeatmapData = () => {
+    const data = [];
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    
+    for (const weekday of weekdays) {
+      for (const hour of hours) {
+        data.push({
+          name: `${weekday} ${hour}:00`,
+          weekday,
+          hour,
+          value: Math.floor(Math.random() * 100)
+        });
+      }
+    }
+    return data;
+  };
+
   return (
     <div className="animate-fadeIn space-y-6">
       <AnalyticsHeader isRefreshing={isRefreshing} onRefresh={fetchAnalyticsData} />
@@ -134,10 +166,12 @@ export default function Analytics() {
       <AnalyticsInsightCards insights={analyticsData.insights} />
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-6">
+        <TabsList className="grid grid-cols-5 mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="behavior">User Behavior</TabsTrigger>
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+          <TabsTrigger value="predictive">Predictive Analytics</TabsTrigger>
+          <TabsTrigger value="reports">Custom Reports</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
@@ -145,6 +179,28 @@ export default function Analytics() {
             timelineData={timelineData}
             activityTypeData={activityTypeData}
           />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <EnhancedVisualization
+              type="funnel"
+              data={funnelData}
+              title="Lead Conversion Funnel"
+              description="Visualization of your lead conversion pipeline"
+            />
+            <EnhancedVisualization
+              type="treemap"
+              data={[
+                { name: "Marketing", value: 40 },
+                { name: "Sales", value: 25 },
+                { name: "Product", value: 15 },
+                { name: "Support", value: 10 },
+                { name: "Operations", value: 8 },
+                { name: "Finance", value: 2 }
+              ]}
+              title="Budget Allocation"
+              description="Current budget distribution across departments"
+            />
+          </div>
         </TabsContent>
         
         <TabsContent value="behavior" className="space-y-6">
@@ -153,10 +209,28 @@ export default function Analytics() {
             riskData={riskData}
             activityData={analyticsData.activityData}
           />
+          
+          <div className="grid grid-cols-1 gap-6 mt-6">
+            <EnhancedVisualization
+              type="heatmap"
+              data={generateHeatmapData()}
+              title="User Engagement Heatmap"
+              description="Engagement patterns by time of day and day of week"
+              config={{ min: 0, max: 100 }}
+            />
+          </div>
         </TabsContent>
         
         <TabsContent value="recommendations" className="space-y-6">
           <RecommendationsTabContent recommendations={analyticsData.recommendations} />
+        </TabsContent>
+        
+        <TabsContent value="predictive" className="space-y-6">
+          <PredictiveAnalytics onRefresh={fetchAnalyticsData} />
+        </TabsContent>
+        
+        <TabsContent value="reports" className="space-y-6">
+          <CustomReportBuilder />
         </TabsContent>
       </Tabs>
     </div>
