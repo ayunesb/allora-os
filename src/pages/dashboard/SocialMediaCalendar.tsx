@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
 import SocialMediaCalendar from '@/components/social-media/SocialMediaCalendar';
 
 /**
@@ -9,14 +8,8 @@ import SocialMediaCalendar from '@/components/social-media/SocialMediaCalendar';
  */
 export default function SocialMediaCalendarPage() {
   return (
-    <>
-      <Helmet>
-        <title>Social Media Calendar - Allora AI</title>
-      </Helmet>
-      
-      <div className="container mx-auto px-4 py-6">
-        <SocialMediaCalendar />
-      </div>
-    </>
+    <div className="container mx-auto px-4 py-6">
+      <SocialMediaCalendar />
+    </div>
   );
 }
