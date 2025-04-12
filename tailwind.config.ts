@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -41,7 +42,7 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#5A67D8',
+					DEFAULT: '#63B3ED',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
@@ -139,6 +140,22 @@ export default {
 						transform: 'translateY(0)',
 						opacity: '1'
 					}
+				},
+				'glow-pulse': {
+					'0%, 100%': {
+						boxShadow: '0 0 5px rgba(99, 179, 237, 0.4)'
+					},
+					'50%': {
+						boxShadow: '0 0 15px rgba(99, 179, 237, 0.7)'
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'50%': {
+						transform: 'translateY(-5px)'
+					}
 				}
 			},
 			animation: {
@@ -147,13 +164,19 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'fade-out': 'fade-out 0.3s ease-out',
 				'slide-in-up': 'slide-in-up 0.4s ease-out',
-				'slide-in-down': 'slide-in-down 0.4s ease-out'
+				'slide-in-down': 'slide-in-down 0.4s ease-out',
+				'glow-pulse': 'glow-pulse 2s infinite',
+				'float': 'float 3s ease-in-out infinite'
 			},
 			spacing: {
 				'safe-top': 'env(safe-area-inset-top)',
 				'safe-bottom': 'env(safe-area-inset-bottom)',
 				'safe-left': 'env(safe-area-inset-left)',
 				'safe-right': 'env(safe-area-inset-right)',
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
 			},
 		}
 	},

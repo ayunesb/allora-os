@@ -47,7 +47,7 @@ export default function DashboardLayout() {
         
         <DashboardHeader />
         
-        <div className="bg-card border-b border-border sticky top-0 z-10">
+        <div className="glassmorphism border-b border-border/30 sticky top-0 z-10 backdrop-blur-md">
           <div className={`container mx-auto ${isMobile ? 'px-2 py-1' : 'px-4 py-2'}`}>
             <div className="flex items-center justify-between">            
               <div className="flex items-center w-full">
@@ -71,10 +71,12 @@ export default function DashboardLayout() {
           </div>
         </div>
         
-        <div className="flex flex-1">
-          <main className="flex-1">
+        <div className="flex flex-1 bg-gradient-radial from-background to-background/80">
+          <main className="flex-1 w-full">
             <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
-              <Outlet />
+              <div className="animate-fadeIn">
+                <Outlet />
+              </div>
             </div>
           </main>
         </div>

@@ -32,6 +32,15 @@
   }
 }
 
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(99, 179, 237, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(99, 179, 237, 0.7);
+  }
+}
+
 @keyframes pulse-once {
   0%, 100% {
     opacity: 1;
@@ -50,28 +59,43 @@
   }
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-  20%, 40%, 60%, 80% { transform: translateX(3px); }
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
-@keyframes flash {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0.5; }
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @layer utilities {
   .animate-fadeIn {
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.4s ease-in-out forwards;
   }
   
   .animate-slideIn {
-    animation: slideIn 0.4s ease-out;
+    animation: slideIn 0.5s ease-out forwards;
   }
 
   .animate-scaleIn {
-    animation: scaleIn 0.3s ease-out;
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+  
+  .animate-glow {
+    animation: glow 2s infinite;
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
   }
   
   .animate-pulse-once {
@@ -82,12 +106,8 @@
     animation: bounce-once 0.3s ease-in-out;
   }
   
-  .animate-shake {
-    animation: shake 0.5s ease-in-out;
-  }
-  
-  .animate-flash {
-    animation: flash 0.7s ease-in-out;
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
   }
   
   .transition-all-fast {
@@ -98,11 +118,48 @@
     @apply transition-transform duration-200 hover:scale-105;
   }
   
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 12px rgba(99, 179, 237, 0.6);
+  }
+  
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .card-gradient {
+    @apply bg-gradient-to-br from-secondary/90 to-secondary/40 backdrop-blur-sm;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-600;
+  }
+  
+  .button-glow {
+    @apply relative overflow-hidden;
+  }
+  
+  .button-glow::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300 bg-gradient-to-r from-blue-400/20 to-purple-500/20;
+  }
+  
+  .button-glow:hover::after {
+    @apply opacity-100;
+  }
+  
   .error-card {
     @apply bg-red-950/10 border-red-300/20 text-red-300 animate-fadeIn;
   }
   
   .retry-button {
     @apply bg-primary/80 hover:bg-primary transition-colors duration-200 animate-pulse-once;
+  }
+  
+  .blur-bg {
+    @apply backdrop-blur-md bg-background/60;
   }
 }
