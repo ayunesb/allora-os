@@ -35,6 +35,7 @@ export interface SubscriptionStatus {
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string;
   status?: 'active' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'past_due' | 'trialing' | 'unpaid';
+  error?: string;
 }
 
 export interface SubscriptionDetails extends SubscriptionStatus {
