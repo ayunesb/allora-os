@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useDatabaseVerification } from '@/hooks/admin/useDatabaseVerification';
 import { toast } from 'sonner';
-import * as databaseVerification from '@/utils/admin/databaseVerification';
+import * as databaseVerification from '@/utils/admin/database-verification';
 
 // Mock the dependencies
 vi.mock('sonner', () => ({
@@ -13,7 +13,7 @@ vi.mock('sonner', () => ({
   }
 }));
 
-vi.mock('@/utils/admin/databaseVerification', () => ({
+vi.mock('@/utils/admin/database-verification', () => ({
   verifyDatabaseTables: vi.fn(),
   verifyRlsPolicies: vi.fn(),
   verifyDatabaseFunctions: vi.fn(),

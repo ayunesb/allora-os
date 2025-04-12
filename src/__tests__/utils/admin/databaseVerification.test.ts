@@ -5,7 +5,7 @@ import {
   verifyRlsPolicies, 
   verifyDatabaseFunctions,
   displayVerificationResults
-} from '@/utils/admin/databaseVerification';
+} from '@/utils/admin/database-verification';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
