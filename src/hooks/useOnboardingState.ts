@@ -20,6 +20,9 @@ export default function useOnboardingState() {
     communicationChannels: ["email", "phone", "zoom"],
     primaryColor: "#4f46e5",
     secondaryColor: "#ffffff",
+    companySize: "10-50",
+    marketingBudget: "$5,000-$10,000",
+    targetMarkets: ["North America"],
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
