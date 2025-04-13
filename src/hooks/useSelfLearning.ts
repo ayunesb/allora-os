@@ -1,123 +1,108 @@
 
-import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/backend/supabase";
-import { getLearningInsights, getPersonalizedRecommendations } from "@/utils/selfLearning";
+/**
+ * Self-Learning Hook for Allora AI
+ * 
+ * This hook provides functionality to track user actions and system events
+ * for continuous learning and improvement of the platform.
+ */
+
+import { useState, useCallback, useContext } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
+import { logger } from '@/utils/loggingService';
+
+// Define types for tracking actions
+export interface ActionData {
+  actionType: string;
+  category: string;
+  entityId?: string;
+  entityType?: string;
+  metadata?: Record<string, any>;
+  timestamp?: string;
+}
 
 export function useSelfLearning() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const [isTracking, setIsTracking] = useState<boolean>(true);
   
   /**
-   * Track a user action for self-learning
+   * Tracks a user action for self-learning purposes
    */
-  const trackAction = async (
-    action: string,
-    category: string,
-    entityId: string,
-    entityType: string,
-    metadata: Record<string, any> = {}
-  ) => {
-    if (!user?.id) return;
-    
-    try {
-      const timestamp = new Date().toISOString();
+  const trackAction = useCallback(
+    (
+      actionType: string,
+      category: string,
+      entityId?: string,
+      entityType?: string,
+      metadata?: Record<string, any>
+    ) => {
+      if (!isTracking) return;
       
-      // In a real app, this would be sent to the backend
-      console.log('Tracking user action:', {
-        userId: user.id,
-        action,
-        category,
-        entityId,
-        entityType,
-        metadata,
-        timestamp
-      });
-      
-      // Store in Supabase if available
       try {
-        await supabase.rpc('insert_user_action', {
-          p_user_id: user.id,
-          p_action: action,
-          p_category: category,
-          p_entity_id: entityId,
-          p_entity_type: entityType,
-          p_metadata: metadata,
-          p_timestamp: timestamp
-        });
-      } catch (error) {
-        // Fallback to local storage if Supabase is not connected
-        const storedActions = JSON.parse(localStorage.getItem('user_actions') || '[]');
-        storedActions.push({
-          userId: user.id,
-          action,
+        const actionData: ActionData = {
+          actionType,
           category,
           entityId,
           entityType,
           metadata,
-          timestamp
+          timestamp: new Date().toISOString()
+        };
+        
+        // Log the action to console in development
+        logger.info(`[Self-Learning] Action tracked: ${actionType}`, {
+          category,
+          userId: user?.id || 'anonymous',
+          companyId: profile?.company_id || 'unknown',
+          entityId,
+          entityType
         });
-        localStorage.setItem('user_actions', JSON.stringify(storedActions));
+        
+        // In a real implementation, we would store this in the database
+        // For now, we'll just store it in localStorage for demonstration
+        const storedActions = localStorage.getItem('allora_tracked_actions');
+        const actions = storedActions ? JSON.parse(storedActions) : [];
+        actions.push({
+          ...actionData,
+          userId: user?.id || 'anonymous',
+          companyId: profile?.company_id || 'unknown'
+        });
+        localStorage.setItem('allora_tracked_actions', JSON.stringify(actions));
+        
+        return true;
+      } catch (error) {
+        logger.error('Error tracking action for self-learning', error);
+        return false;
       }
-    } catch (error) {
-      console.error('Error tracking user action:', error);
-    }
-  };
+    },
+    [isTracking, user?.id, profile?.company_id]
+  );
   
   /**
-   * Get learning insights based on user behavior
+   * Enables or disables action tracking
    */
-  const getInsights = async () => {
-    if (!user?.id) {
-      return getDefaultInsights();
-    }
+  const setTrackingEnabled = useCallback((enabled: boolean) => {
+    setIsTracking(enabled);
+    localStorage.setItem('allora_tracking_enabled', String(enabled));
     
-    try {
-      // In a real app, this would call the backend service
-      return await getLearningInsights(user.id);
-    } catch (error) {
-      console.error('Error getting insights:', error);
-      return getDefaultInsights();
+    if (enabled) {
+      toast.success('Self-learning tracking enabled');
+    } else {
+      toast.info('Self-learning tracking disabled');
     }
-  };
+  }, []);
   
   /**
-   * Get personalized recommendations based on user behavior
+   * Clears all tracked actions
    */
-  const getRecommendations = async () => {
-    if (!user?.id) {
-      return {
-        strategies: [],
-        executives: [],
-        topics: []
-      };
-    }
-    
-    try {
-      // In a real app, this would call the backend service
-      return await getPersonalizedRecommendations(user.id);
-    } catch (error) {
-      console.error('Error getting recommendations:', error);
-      return {
-        strategies: [],
-        executives: [],
-        topics: []
-      };
-    }
-  };
-  
-  // Default insights for when data is unavailable
-  const getDefaultInsights = () => {
-    return [
-      { title: 'Behavioral Pattern', value: 'No data', description: 'Your most common interaction with the platform' },
-      { title: 'Risk Appetite', value: 'medium', description: 'Based on your strategy selections and decisions' },
-      { title: 'Learning Progress', value: '0/10', description: 'How well we understand your preferences' },
-      { title: 'Usage Pattern', value: 'No pattern', description: 'When you tend to use the platform most' }
-    ];
-  };
+  const clearTrackedActions = useCallback(() => {
+    localStorage.removeItem('allora_tracked_actions');
+    toast.success('Self-learning data cleared');
+  }, []);
   
   return {
     trackAction,
-    getInsights,
-    getRecommendations,
-    isLoggedIn: !!user?.id
+    isTracking,
+    setTrackingEnabled,
+    clearTrackedActions
   };
 }

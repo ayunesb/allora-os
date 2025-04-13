@@ -1,76 +1,151 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { ArrowRight, Send } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Zap, GlassWater, User, Briefcase, CheckCircle2 } from "lucide-react";
+import { useZapier } from '@/lib/zapier';
+import type { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
+import { useToast } from "@/components/ui/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ZapierWebhookDemoProps {
   webhookUrl: string;
 }
 
 const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => {
-  const [isSending, setIsSending] = React.useState(false);
-  
-  const sendTestData = async () => {
-    setIsSending(true);
+  const { triggerWorkflow } = useZapier();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+
+  const demoEvents: Array<{
+    id: string;
+    name: string;
+    icon: React.ReactNode;
+    title: string;
+    type: BusinessEventType;
+    payload: BusinessEventPayload;
+  }> = [
+    {
+      id: 'new_lead',
+      name: 'New Lead Created',
+      icon: <User className="h-4 w-4" />,
+      title: 'Generate a lead created event',
+      type: 'lead_created',
+      payload: {
+        leadName: 'John Smith',
+        companyName: 'Acme, Inc.',
+        email: 'john@example.com',
+        source: 'Website Demo',
+        timestamp: new Date().toISOString()
+      }
+    },
+    {
+      id: 'new_strategy',
+      name: 'Strategy Approved',
+      icon: <Briefcase className="h-4 w-4" />,
+      title: 'Generate a strategy approved event',
+      type: 'strategy_approved',
+      payload: {
+        strategyTitle: 'Market Expansion Strategy',
+        approvedBy: 'Executive Team',
+        riskLevel: 'Medium',
+        timestamp: new Date().toISOString()
+      }
+    },
+    {
+      id: 'revenue_milestone',
+      name: 'Revenue Milestone',
+      icon: <CheckCircle2 className="h-4 w-4" />,
+      title: 'Generate a revenue milestone event',
+      type: 'revenue_milestone_reached',
+      payload: {
+        amount: 100000,
+        companyName: 'Acme, Inc.',
+        milestone: 'First $100K',
+        timestamp: new Date().toISOString()
+      }
+    }
+  ];
+
+  const handleTriggerDemo = async (demoEvent: typeof demoEvents[0]) => {
+    setIsLoading(prev => ({ ...prev, [demoEvent.id]: true }));
     
     try {
-      // Using no-cors mode to handle CORS issues
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors',
-        body: JSON.stringify({
-          action: 'test',
-          timestamp: new Date().toISOString(),
-          data: {
-            message: 'This is a test event from Allora AI',
-            source: 'Webhook Management Dashboard',
-          }
-        }),
-      });
+      const result = await triggerWorkflow(
+        webhookUrl,
+        demoEvent.type,
+        demoEvent.payload,
+        `demo-${demoEvent.id}`,
+        'demo'
+      );
       
-      // Since we're using no-cors, we can't actually check the response
-      // So we'll just assume it worked
-      toast.success('Test data sent to Zapier webhook');
-    } catch (error) {
-      console.error('Error sending webhook data:', error);
-      toast.error('Failed to send test data to Zapier webhook');
+      if (result.success) {
+        toast({
+          title: "Demo event sent",
+          description: `Successfully sent ${demoEvent.name} event to Zapier`,
+        });
+      } else {
+        toast({
+          title: "Failed to send event",
+          description: result.message || "An error occurred while sending the event to Zapier",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to trigger Zapier webhook",
+        variant: "destructive",
+      });
     } finally {
-      setIsSending(false);
+      setIsLoading(prev => ({ ...prev, [demoEvent.id]: false }));
     }
   };
-  
+
   return (
-    <div className="mt-4 border rounded-md p-4 bg-card">
-      <h4 className="text-sm font-medium mb-2">Test Zapier Integration</h4>
-      
-      <p className="text-xs text-muted-foreground mb-4">
-        Send test data to your Zapier webhook to verify your Zap is working correctly.
-      </p>
-      
-      <div className="space-y-4">
-        <div className="flex items-center space-x-2 text-xs">
-          <div className="bg-primary/10 p-2 rounded">
-            <code>{"{ action: 'test', timestamp: '2025-04-13T12:00:00Z', ... }"}</code>
-          </div>
-          <ArrowRight className="h-4 w-4 text-muted-foreground" />
-          <div className="bg-green-500/10 p-2 rounded text-green-500">
-            Zapier
-          </div>
-        </div>
-        
-        <Button 
-          size="sm" 
-          onClick={sendTestData}
-          disabled={isSending}
-        >
-          <Send className="h-4 w-4 mr-2" />
-          {isSending ? 'Sending...' : 'Send Test Data'}
-        </Button>
-      </div>
+    <div className="mt-4">
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="demo-events">
+          <AccordionTrigger className="text-sm font-medium">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-blue-400" />
+              Test Zapier Integration
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="text-sm text-muted-foreground mb-3">
+              Send demo events to test your Zapier integration. These events simulate real business events that would trigger automations.
+            </div>
+            
+            <Card className="border-dashed">
+              <CardContent className="p-4">
+                <div className="grid gap-3">
+                  {demoEvents.map((demoEvent) => (
+                    <div key={demoEvent.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {demoEvent.icon}
+                        <span className="text-sm">{demoEvent.name}</span>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleTriggerDemo(demoEvent)}
+                        disabled={isLoading[demoEvent.id]}
+                      >
+                        {isLoading[demoEvent.id] ? "Sending..." : "Send Event"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="text-xs text-muted-foreground mt-3">
+              Note: You need to configure a Zap in Zapier that listens for these events using the Webhook trigger.
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 };
