@@ -1,3 +1,4 @@
+
 /**
  * Zapier Integration Helper
  * Enables triggering automation workflows via Zapier webhooks
@@ -9,6 +10,7 @@ import { sanitizeInput } from '@/utils/sanitizers';
 import { executeAndLogWebhook } from '@/utils/webhookUtils'; 
 import { validateApiCredential } from '@/utils/apiCredentialValidator';
 import { secureStorage } from '@/utils/cryptoUtils';
+import { useSelfLearning } from '@/hooks/useSelfLearning';
 
 // Use export type for type re-exports
 export type { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
@@ -98,6 +100,7 @@ export const triggerZap = async (event: string, payload: Record<string, any>) =>
 
 // React hook for using Zapier within components
 export const useZapier = () => {
+  // Get the self-learning tracking function
   const { trackAction } = useSelfLearning();
   
   // Regular component-based webhook triggering (for buttons, etc)
