@@ -54,9 +54,10 @@ export function PageErrorBoundary({ children, pageName }: PageErrorBoundaryProps
 
   return (
     <ErrorBoundary
-      fallbackRender={({ error, resetErrorBoundary }) => 
-        <ErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} />
-      }
+      fallback={<ErrorFallback 
+        error={new Error("An error occurred")} 
+        resetErrorBoundary={() => window.location.reload()} 
+      />}
       onError={(error, info) => {
         console.error(`Error in ${pageName}:`, error);
         console.error("Component stack:", info.componentStack);
