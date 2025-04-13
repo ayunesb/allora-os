@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Settings, Shield, Bell, Webhook } from "lucide-react";
 import WebhooksTab from "@/components/admin/WebhooksTab";
 import { SecurityTab } from "@/components/admin/security";
-import { NotificationsTab } from "@/components/admin/NotificationsTab";
+import NotificationsTab from "@/components/admin/NotificationsTab";
 
 export default function AdminSettings() {
   const [activeTab, setActiveTab] = React.useState("webhooks");

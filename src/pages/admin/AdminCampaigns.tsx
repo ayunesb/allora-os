@@ -14,12 +14,16 @@ export default function AdminCampaigns() {
   const breakpoint = useBreakpoint();
   const isMobile = ['xs', 'mobile'].includes(breakpoint);
 
+  // Mock data for campaigns
+  const activeCampaigns = [];
+  const scheduledCampaigns = [];
+  const completedCampaigns = [];
+
   return (
     <PageErrorBoundary pageName="Campaign Management">
       <div className="container mx-auto px-4 py-6 space-y-6">
         <CampaignHeader 
-          title="Campaign Management" 
-          description="Create, monitor, and manage marketing campaigns"
+          onCreateClick={() => setIsCreateDialogOpen(true)}
         />
 
         <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
@@ -60,31 +64,25 @@ export default function AdminCampaigns() {
           <CardContent className={isMobile ? "px-3 pb-3" : ""}>
             <TabsContent value="active" className="m-0 pt-2">
               <CampaignTable 
-                status="active"
-                emptyState={{
-                  title: "No active campaigns",
-                  description: "You don't have any active campaigns. Create one to start reaching your audience."
-                }}
+                campaigns={activeCampaigns}
+                isLoading={false}
+                error={null}
               />
             </TabsContent>
             
             <TabsContent value="scheduled" className="m-0 pt-2">
               <CampaignTable 
-                status="scheduled"
-                emptyState={{
-                  title: "No scheduled campaigns",
-                  description: "You don't have any scheduled campaigns. Plan your next campaign in advance."
-                }}
+                campaigns={scheduledCampaigns}
+                isLoading={false}
+                error={null}
               />
             </TabsContent>
             
             <TabsContent value="completed" className="m-0 pt-2">
               <CampaignTable 
-                status="completed"
-                emptyState={{
-                  title: "No completed campaigns",
-                  description: "You don't have any completed campaigns yet. Completed campaigns will be shown here."
-                }}
+                campaigns={completedCampaigns}
+                isLoading={false}
+                error={null}
               />
             </TabsContent>
           </CardContent>
@@ -94,6 +92,16 @@ export default function AdminCampaigns() {
       <CreateCampaignDialog 
         open={isCreateDialogOpen} 
         onOpenChange={setIsCreateDialogOpen}
+        formData={{
+          name: '',
+          platform: '',
+          budget: 0,
+          company_id: ''
+        }}
+        onChange={() => {}}
+        onSubmit={() => {}}
+        companies={[]}
+        isSubmitting={false}
       />
     </PageErrorBoundary>
   );

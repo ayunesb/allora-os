@@ -9,6 +9,7 @@ import {
   MobileLeadCards 
 } from "@/components/admin/leads";
 import { useBreakpoint } from "@/hooks/use-mobile";
+import { Lead } from "@/models/lead";
 
 export default function AdminLeads() {
   const [isAddLeadDialogOpen, setIsAddLeadDialogOpen] = React.useState(false);
@@ -17,37 +18,62 @@ export default function AdminLeads() {
   const breakpoint = useBreakpoint();
   const isMobile = ['xs', 'mobile'].includes(breakpoint);
 
+  // Mock data
+  const leads: Lead[] = [];
+  const campaigns = [];
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
+    console.log("Update lead status:", leadId, status);
+    return Promise.resolve(true);
+  };
+
+  const handleDelete = async (leadId: string) => {
+    console.log("Delete lead:", leadId);
+    return Promise.resolve(true);
+  };
+
+  const handleRefetchLeads = () => {
+    console.log("Refetching leads...");
   };
 
   return (
     <PageErrorBoundary pageName="Lead Management">
       <div className="container mx-auto px-4 py-6 space-y-6">
-        <LeadsHeader onAddLead={() => setIsAddLeadDialogOpen(true)} />
+        <LeadsHeader 
+          isMobileView={isMobile}
+          onAddLead={() => setIsAddLeadDialogOpen(true)} 
+        />
         
         <LeadsSearchBar 
           searchQuery={searchQuery} 
-          onSearch={handleSearch}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
+          onSearchChange={handleSearch}
         />
         
         {isMobile ? (
           <MobileLeadCards 
-            searchQuery={searchQuery}
-            statusFilter={statusFilter}
+            leads={leads}
+            onStatusUpdate={handleStatusUpdate}
+            onDelete={handleDelete}
           />
         ) : (
           <LeadsTable 
-            searchQuery={searchQuery}
-            statusFilter={statusFilter}
+            leads={leads}
+            sortBy="name"
+            sortOrder="asc"
+            onSort={() => {}}
+            onStatusUpdate={handleStatusUpdate}
+            onDelete={handleDelete}
           />
         )}
         
         <AddLeadDialog 
-          open={isAddLeadDialogOpen} 
-          onOpenChange={setIsAddLeadDialogOpen} 
+          campaigns={campaigns}
+          onLeadAdded={handleRefetchLeads}
+          isMobileView={isMobile}
         />
       </div>
     </PageErrorBoundary>

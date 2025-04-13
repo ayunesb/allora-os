@@ -10,21 +10,38 @@ import {
 export default function AdminCompanies() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  
+  // Mock data for companies
+  const companies = [];
+  const isLoading = false;
+
+  const handleViewUsers = (companyId: string) => {
+    console.log("View users for company:", companyId);
+  };
+
+  const handleCreateCompany = async (companyData: { name: string; industry: string }) => {
+    console.log("Create company:", companyData);
+    setIsCreateDialogOpen(false);
+    return Promise.resolve();
+  };
 
   return (
     <PageErrorBoundary pageName="Company Management">
       <div className="container mx-auto px-4 py-6 space-y-6">
         <CompanyHeader 
-          onCreateCompany={() => setIsCreateDialogOpen(true)}
-          searchQuery={searchQuery}
-          onSearch={setSearchQuery}
+          onAddCompanyClick={() => setIsCreateDialogOpen(true)}
         />
         
-        <CompanyTable searchQuery={searchQuery} />
+        <CompanyTable 
+          companies={companies}
+          isLoading={isLoading}
+          onViewUsers={handleViewUsers}
+        />
         
         <CreateCompanyDialog 
           open={isCreateDialogOpen} 
-          onOpenChange={setIsCreateDialogOpen} 
+          onOpenChange={setIsCreateDialogOpen}
+          onCreateCompany={handleCreateCompany}
         />
       </div>
     </PageErrorBoundary>
