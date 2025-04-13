@@ -13,7 +13,7 @@ export default function LeadsPage() {
       id: 'lead-1', 
       name: 'John Doe', 
       email: 'john@example.com', 
-      company: 'Acme Inc.', 
+      companyId: 'company-1', 
       status: 'new', 
       score: 85, 
       lastContact: '2025-04-01', 
@@ -24,7 +24,7 @@ export default function LeadsPage() {
       id: 'lead-2', 
       name: 'Jane Smith', 
       email: 'jane@example.com', 
-      company: 'Tech Solutions', 
+      companyId: 'company-2', 
       status: 'contacted', 
       score: 72, 
       lastContact: '2025-03-25', 
@@ -35,7 +35,7 @@ export default function LeadsPage() {
       id: 'lead-3', 
       name: 'Bob Johnson', 
       email: 'bob@example.com', 
-      company: 'Global Corp', 
+      companyId: 'company-3', 
       status: 'qualified', 
       score: 90, 
       lastContact: '2025-04-05', 
@@ -88,7 +88,6 @@ export default function LeadsPage() {
         sortBy={sortBy}
         sortOrder={sortOrder}
         onSort={handleSort}
-        onDeleteLead={handleDeleteLead}
         onEditLead={() => {}}
         isMobileView={isMobileView}
         onStatusUpdate={handleStatusUpdate}

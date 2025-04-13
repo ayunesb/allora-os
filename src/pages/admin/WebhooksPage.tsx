@@ -78,7 +78,7 @@ export default function WebhooksPage() {
             isLoading={false}
             currentPage={1}
             totalPages={2}
-            onPageChange={() => {}}
+            onPageChange={(page) => console.log(`Page changed to ${page}`)}
             onFilterChange={() => {}}
             onDateRangeChange={() => {}}
             onStatusChange={() => {}}

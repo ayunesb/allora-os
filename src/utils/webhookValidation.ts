@@ -31,3 +31,64 @@ export const validateWebhookUrl = (url: string, type: WebhookType): boolean => {
     return false;
   }
 };
+
+// Add the missing sanitizeWebhookUrl function
+export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
+  if (!url || !url.trim()) return '';
+  
+  try {
+    const urlObj = new URL(url.trim());
+    return urlObj.toString();
+  } catch (e) {
+    return '';
+  }
+};
+
+// Add the missing testWebhook function
+export const testWebhook = async (url: string, type: WebhookType): Promise<{ success: boolean; message?: string }> => {
+  if (!validateWebhookUrl(url, type)) {
+    return { success: false, message: 'Invalid webhook URL' };
+  }
+  
+  try {
+    // In a real app, you would actually send a test payload to the webhook
+    // Here we're just simulating a successful response
+    return { success: true };
+  } catch (error: any) {
+    return { 
+      success: false, 
+      message: error.message || 'Failed to test webhook' 
+    };
+  }
+};
+
+// Helper function to execute and log webhook calls
+export const executeAndLogWebhook = async (
+  url: string, 
+  payload: any, 
+  type: WebhookType,
+  eventType: string
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+    
+    // Log the successful webhook call here in a real app
+    return { success: true };
+  } catch (error: any) {
+    // Log the failed webhook call here in a real app
+    return { 
+      success: false, 
+      message: error.message || 'Failed to execute webhook' 
+    };
+  }
+};
