@@ -1,58 +1,69 @@
 
-import React from "react";
+import React, { ReactNode } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { GlobalErrorBoundary } from "@/components/errorHandling/GlobalErrorBoundary";
-import { ErrorRecoveryWrapper } from "@/components/dashboard/ErrorRecoveryWrapper";
-import { toast } from "sonner";
-import { logger } from "@/utils/loggingService";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PageErrorBoundaryProps {
-  children: React.ReactNode;
+  children: ReactNode;
   pageName: string;
-  fallback?: React.ReactNode;
 }
 
-/**
- * A specialized error boundary component for pages that provides:
- * 1. Multiple levels of error handling (component-level and page-level)
- * 2. Automatic error logging and recovery
- * 3. User-friendly error messages
- */
-export function PageErrorBoundary({ children, pageName, fallback }: PageErrorBoundaryProps) {
-  // Handle component-level errors
-  const handleComponentError = (error: Error, errorInfo: React.ErrorInfo) => {
-    logger.error(`Component error in ${pageName}:`, error, {
-      componentStack: errorInfo.componentStack,
-      pageName
-    });
-    
-    toast.error(`Error in ${pageName}`, {
-      description: "We're having trouble with part of this page. Our team has been notified.",
-      duration: 5000
-    });
-  };
-  
-  // Handle page-level errors
-  const handlePageError = (error: Error, errorInfo: React.ErrorInfo) => {
-    logger.error(`Page-level error in ${pageName}:`, error, {
-      componentStack: errorInfo.componentStack,
-      pageName
-    });
-    
-    // Additional analytics or error reporting could be added here
-  };
-  
-  // Nested error boundaries to provide better UX
+export function PageErrorBoundary({ children, pageName }: PageErrorBoundaryProps) {
+  const navigate = useNavigate();
+
+  const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => (
+    <div className="container mx-auto px-4 py-12 flex justify-center">
+      <Card className="w-full max-w-lg">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
+            <CardTitle>Error in {pageName}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-4">
+            We encountered an error while loading this page. Our team has been notified of the issue.
+          </p>
+          <div className="bg-muted p-3 rounded-md text-xs font-mono overflow-auto max-h-40">
+            {error.message}
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-1"
+          >
+            <Home className="h-4 w-4" />
+            Home
+          </Button>
+          <Button
+            onClick={resetErrorBoundary}
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Try Again
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+
   return (
-    <GlobalErrorBoundary onError={handlePageError} fallback={fallback}>
-      <ErrorBoundary onError={handleComponentError}>
-        <ErrorRecoveryWrapper 
-          errorTitle={`Error in ${pageName}`}
-          errorMessage="We encountered an issue loading this page. Try refreshing or navigating to another section."
-        >
-          {children}
-        </ErrorRecoveryWrapper>
-      </ErrorBoundary>
-    </GlobalErrorBoundary>
+    <ErrorBoundary
+      fallback={({ error, resetErrorBoundary }) => 
+        <ErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} />
+      }
+      onError={(error, info) => {
+        console.error(`Error in ${pageName}:`, error);
+        console.error("Component stack:", info.componentStack);
+        // Here you could also send to a monitoring service like Sentry
+      }}
+    >
+      {children}
+    </ErrorBoundary>
   );
 }

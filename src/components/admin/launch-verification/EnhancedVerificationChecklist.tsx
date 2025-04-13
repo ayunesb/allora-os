@@ -1,24 +1,22 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle, AlertTriangle, Server, Users, Brain, 
   LayoutDashboard, MessageSquare, CreditCard, ShieldCheck, 
-  Webhook, Scale, Smartphone, RefreshCw, Download, Save
+  Webhook, Scale, Smartphone
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
   ChecklistItem, 
-  ChecklistCategory, 
-  EnhancedVerificationState 
+  ChecklistCategory
 } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
+import { SeverityCounts } from './SeverityCounts';
+import { ChecklistProgress } from './ChecklistProgress';
+import { ChecklistCategoryComponent } from './ChecklistCategory';
+import { ChecklistActions } from './ChecklistActions';
 
 // Define categories with icons and labels
 const categories: Record<ChecklistCategory, { icon: React.ReactNode, label: string }> = {
@@ -166,7 +164,7 @@ const initialChecklist: ChecklistItem[] = [
 ];
 
 // Calculate initial progress
-const calculateProgress = (items: ChecklistItem[]): EnhancedVerificationState['progress'] => {
+const calculateProgress = (items: ChecklistItem[]) => {
   const progress: any = {};
   
   Object.keys(categories).forEach(category => {
@@ -183,11 +181,11 @@ const calculateProgress = (items: ChecklistItem[]): EnhancedVerificationState['p
   return progress;
 };
 
-const calculateOverallProgress = (progress: EnhancedVerificationState['progress']): EnhancedVerificationState['overallProgress'] => {
+const calculateOverallProgress = (progress: any) => {
   let total = 0;
   let completed = 0;
   
-  Object.values(progress).forEach(categoryProgress => {
+  Object.values(progress).forEach((categoryProgress: any) => {
     total += categoryProgress.total;
     completed += categoryProgress.completed;
   });
@@ -257,7 +255,6 @@ export function EnhancedVerificationChecklist() {
         const savedItems = data.checklist_data as ChecklistItem[];
         
         // Merge saved item state with current checklist structure
-        // This ensures new items added to the checklist still appear
         setChecklist(initialChecklist.map(item => {
           const savedItem = savedItems.find(saved => saved.id === item.id);
           return savedItem ? { ...item, checked: savedItem.checked } : item;
@@ -289,9 +286,11 @@ export function EnhancedVerificationChecklist() {
           company_id: profile.company_id,
           checklist_data: checklist,
           last_updated: new Date().toISOString()
-        }, { onConflict: 'company_id' });
+        });
         
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
       toast.success("Checklist saved successfully");
     } catch (error) {
@@ -301,187 +300,63 @@ export function EnhancedVerificationChecklist() {
       setIsSaving(false);
     }
   };
-  
-  // Export checklist as JSON
-  const exportChecklist = () => {
-    const dataStr = JSON.stringify({
-      items: checklist,
-      progress,
-      overallProgress,
-      exportDate: new Date().toISOString(),
-    }, null, 2);
-    
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `launch-verification-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+
+  const getCategoryItems = (category: ChecklistCategory) => {
+    return checklist.filter(item => item.category === category);
   };
-  
+
   return (
-    <Card className="border-border/40 shadow-md">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Enhanced Launch Verification Checklist
-          <Badge className={overallProgress.percentage === 100 ? 'bg-green-500' : ''}>
-            {overallProgress.completed}/{overallProgress.total} ({overallProgress.percentage}%)
-          </Badge>
-        </CardTitle>
+        <CardTitle>Launch Verification Checklist</CardTitle>
         <CardDescription>
-          Comprehensive verification system for Allora AI platform readiness
+          Comprehensive verification of all systems before production launch
         </CardDescription>
         
-        <div className="mt-4">
-          <Progress value={overallProgress.percentage} className="h-2" />
-          
-          <div className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="outline" className="border-red-500 text-red-500">
-              Critical: {severityCounts.critical}
-            </Badge>
-            <Badge variant="outline" className="border-orange-500 text-orange-500">
-              High: {severityCounts.high}
-            </Badge>
-            <Badge variant="outline" className="border-yellow-500 text-yellow-500">
-              Medium: {severityCounts.medium}
-            </Badge>
-            <Badge variant="outline" className="border-blue-500 text-blue-500">
-              Low: {severityCounts.low}
-            </Badge>
-          </div>
-        </div>
+        <SeverityCounts counts={severityCounts} />
+        <ChecklistProgress 
+          progress={progress} 
+          overallProgress={overallProgress} 
+          activeTab={activeTab}
+        />
       </CardHeader>
-      
-      <Tabs defaultValue="platform_stability" value={activeTab} onValueChange={(v) => setActiveTab(v as ChecklistCategory)}>
-        <div className="px-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-4">
+      <CardContent>
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => setActiveTab(value as ChecklistCategory)}
+        >
+          <TabsList className="mb-4 flex flex-wrap h-auto">
             {Object.entries(categories).map(([key, { icon, label }]) => (
               <TabsTrigger 
                 key={key} 
                 value={key}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 data-[state=active]:text-primary"
               >
                 {icon}
-                <span className="hidden md:inline-block">{label}</span>
-                <span className="md:hidden">{label.split(' ')[0]}</span>
-                {progress[key as ChecklistCategory].completed === progress[key as ChecklistCategory].total && 
-                  progress[key as ChecklistCategory].total > 0 && (
-                  <CheckCircle className="h-3 w-3 text-green-500 ml-1" />
-                )}
+                <span className="hidden sm:inline">{label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
-        </div>
-        
-        <CardContent>
-          {Object.entries(categories).map(([key, { label }]) => (
-            <TabsContent key={key} value={key} className="mt-0 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">{label}</h3>
-                <Badge variant="outline">
-                  {progress[key as ChecklistCategory].completed}/{progress[key as ChecklistCategory].total}
-                </Badge>
-              </div>
-              
-              <Progress 
-                value={progress[key as ChecklistCategory].percentage} 
-                className="h-2 mb-6" 
+
+          {Object.keys(categories).map((categoryKey) => (
+            <TabsContent key={categoryKey} value={categoryKey}>
+              <ChecklistCategoryComponent
+                categoryKey={categoryKey as ChecklistCategory}
+                items={getCategoryItems(categoryKey as ChecklistCategory)}
+                icon={categories[categoryKey as ChecklistCategory].icon}
+                onCheckItem={handleCheckItem}
               />
-              
-              <div className="space-y-4">
-                {checklist
-                  .filter(item => item.category === key)
-                  .map(item => (
-                    <div 
-                      key={item.id} 
-                      className={`flex items-start p-3 rounded-md border ${
-                        item.checked ? 'bg-muted/50 border-muted' : 
-                        item.severity === 'critical' ? 'border-red-200 bg-red-50' :
-                        item.severity === 'high' ? 'border-orange-200 bg-orange-50' :
-                        item.severity === 'medium' ? 'border-yellow-100 bg-yellow-50' :
-                        'border-blue-100 bg-blue-50'
-                      }`}
-                    >
-                      <Checkbox 
-                        id={item.id} 
-                        checked={item.checked}
-                        onCheckedChange={(checked) => handleCheckItem(item.id, checked as boolean)} 
-                        className="mt-1"
-                      />
-                      <div className="ml-3 space-y-1">
-                        <label 
-                          htmlFor={item.id} 
-                          className="font-medium cursor-pointer"
-                        >
-                          {item.label}
-                          {item.severity === 'critical' && (
-                            <Badge variant="destructive" className="ml-2 text-[10px] py-0">CRITICAL</Badge>
-                          )}
-                          {item.severity === 'high' && (
-                            <Badge className="ml-2 text-[10px] py-0 bg-orange-500">HIGH</Badge>
-                          )}
-                        </label>
-                        {item.description && (
-                          <p className="text-sm text-muted-foreground">{item.description}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                }
-              </div>
             </TabsContent>
           ))}
-        </CardContent>
-      </Tabs>
-      
-      <CardFooter className="flex justify-between border-t pt-6">
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={loadChecklist} 
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Loading...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Load Saved
-              </>
-            )}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={exportChecklist}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
-        
-        <Button onClick={saveChecklist} disabled={isSaving}>
-          {isSaving ? (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-2" />
-              Save Progress
-            </>
-          )}
-        </Button>
-      </CardFooter>
+        </Tabs>
+
+        <ChecklistActions
+          isSaving={isSaving}
+          isLoading={isLoading}
+          onLoadChecklist={loadChecklist}
+          onSaveChecklist={saveChecklist}
+        />
+      </CardContent>
     </Card>
   );
 }
