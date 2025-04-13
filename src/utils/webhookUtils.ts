@@ -131,8 +131,8 @@ export const executeAndLogWebhook = async (
     if (eventId) {
       updateWebhookLog(eventId, {
         status: 'success',
-        responseCode: result.status,
-        response: result.data,
+        responseCode: result.success ? 200 : 400, // Set default response codes based on success flag
+        response: result, // Store the entire result object
         duration
       });
     }
