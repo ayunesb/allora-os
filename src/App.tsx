@@ -5,7 +5,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
 import { AuthProvider } from '@/context/AuthContext';
-import { NavigationManager } from '@/components/NavigationManager';
 
 function App() {
   return (
@@ -13,7 +12,6 @@ function App() {
       <AuthProvider>
         <AccessibilityProvider>
           <RouterProvider router={router} />
-          <NavigationManager />
           <Toaster />
         </AccessibilityProvider>
       </AuthProvider>
