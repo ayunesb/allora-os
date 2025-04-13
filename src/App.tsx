@@ -4,14 +4,17 @@ import { router } from './routes/router';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="allora-ui-theme">
-      <AccessibilityProvider>
-        <RouterProvider router={router} />
-        <Toaster />
-      </AccessibilityProvider>
+      <AuthProvider>
+        <AccessibilityProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </AccessibilityProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
