@@ -39,22 +39,26 @@ export default {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
+				background: '#0A0A23',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#63B3ED',
+					DEFAULT: '#5A67D8',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
+					DEFAULT: '#63B3ED',
 					foreground: 'hsl(var(--secondary-foreground))'
 				},
 				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
+					DEFAULT: '#E53E3E',
 					foreground: 'hsl(var(--destructive-foreground))'
 				},
+				success: {
+					DEFAULT: '#48BB78',
+					foreground: '#ffffff'
+				},
 				muted: {
-					DEFAULT: 'hsl(var(--muted))',
+					DEFAULT: '#1A202C',
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
@@ -83,10 +87,13 @@ export default {
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				xl: '1rem',
+				'2xl': '1.25rem',
+				'3xl': '1.5rem',
 			},
 			fontFamily: {
-				sans: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
+				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
@@ -159,10 +166,10 @@ export default {
 				},
 				'glow': {
 					'0%, 100%': {
-						boxShadow: '0 0 5px rgba(59, 130, 246, 0.4)'
+						boxShadow: '0 0 5px rgba(90, 103, 216, 0.4)'
 					},
 					'50%': {
-						boxShadow: '0 0 15px rgba(59, 130, 246, 0.7)'
+						boxShadow: '0 0 15px rgba(90, 103, 216, 0.7)'
 					}
 				}
 			},

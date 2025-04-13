@@ -19,6 +19,13 @@ export function ChecklistProgress({ completed, total, categories }: ChecklistPro
     if (percentage >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
+
+  // Determine progress bar color based on percentage
+  const getProgressColor = () => {
+    if (percentage >= 90) return 'bg-green-500';
+    if (percentage >= 60) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
   
   return (
     <div className="space-y-2">
@@ -33,13 +40,8 @@ export function ChecklistProgress({ completed, total, categories }: ChecklistPro
       
       <Progress 
         value={percentage} 
-        className={`h-2 ${
-          percentage >= 90 
-            ? 'bg-green-100' 
-            : percentage >= 60 
-            ? 'bg-yellow-100' 
-            : 'bg-red-100'
-        }`}
+        className="h-2 bg-secondary/30"
+        indicatorClassName={getProgressColor()}
       />
       
       <div className="flex justify-between text-sm">
