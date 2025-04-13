@@ -36,12 +36,17 @@ export function VerificationContent({ results, isChecking }: VerificationContent
     !['databaseTables', 'databaseIndexes', 'rlsPolicies', 'databaseFunctions', 'overallStatus'].includes(key)
   );
 
+  // Type guard function to check if an object has the valid/message structure
+  const isValidationResult = (obj: any): obj is { valid: boolean; message: string } => {
+    return obj && typeof obj === 'object' && 'valid' in obj && 'message' in obj;
+  };
+
   return (
     <div className="space-y-3">
       {coreValidationKeys.map(key => {
         const result = results[key as keyof ValidationResultsUI];
-        // Check if the result has the specific structure expected by ValidationResultItem
-        if (typeof result === 'object' && result !== null && 'valid' in result && 'message' in result) {
+        // Use the type guard to safely render ValidationResultItem
+        if (isValidationResult(result)) {
           return <ValidationResultItem key={key} name={key} result={result} />;
         }
         return null;
