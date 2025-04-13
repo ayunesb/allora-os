@@ -6,13 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/context/AuthContext";
 import { runTestCompanySetup } from "@/utils/company/test";
 import { toast } from "sonner";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { BellRing, Globe, Mail, MessageSquare, Phone } from "lucide-react";
 
 export default function Settings() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const { preferences, isLoading: prefsLoading, updatePreference } = useUserPreferences();
 
   const handleSetupTestCompany = async () => {
     if (!user?.email) {
@@ -35,6 +39,10 @@ export default function Settings() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleNotificationToggle = (type: string, value: boolean) => {
+    toast.success(`${type} notifications ${value ? 'enabled' : 'disabled'}`);
   };
 
   return (
@@ -105,11 +113,96 @@ export default function Settings() {
               <CardTitle>Notification Preferences</CardTitle>
               <CardDescription>Manage how you receive notifications</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Notification settings will be available soon.
-              </p>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Email Notifications</p>
+                    <p className="text-sm text-muted-foreground">Receive updates and alerts via email</p>
+                  </div>
+                </div>
+                <Switch 
+                  onCheckedChange={(checked) => handleNotificationToggle('Email', checked)}
+                  defaultChecked
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <BellRing className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Push Notifications</p>
+                    <p className="text-sm text-muted-foreground">Receive in-app notifications</p>
+                  </div>
+                </div>
+                <Switch 
+                  onCheckedChange={(checked) => handleNotificationToggle('Push', checked)}
+                  defaultChecked
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Phone className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">SMS Notifications</p>
+                    <p className="text-sm text-muted-foreground">Receive important alerts via text message</p>
+                  </div>
+                </div>
+                <Switch 
+                  onCheckedChange={(checked) => handleNotificationToggle('SMS', checked)}
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Team Mentions</p>
+                    <p className="text-sm text-muted-foreground">Get notified when someone mentions you</p>
+                  </div>
+                </div>
+                <Switch 
+                  onCheckedChange={(checked) => handleNotificationToggle('Team Mentions', checked)} 
+                  defaultChecked
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Globe className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Marketing Updates</p>
+                    <p className="text-sm text-muted-foreground">Receive updates about new features and promotions</p>
+                  </div>
+                </div>
+                <Switch 
+                  onCheckedChange={(checked) => handleNotificationToggle('Marketing', checked)}
+                />
+              </div>
             </CardContent>
+            <CardFooter>
+              <Button className="w-full">Save Notification Preferences</Button>
+            </CardFooter>
           </Card>
         </TabsContent>
         
