@@ -1,12 +1,14 @@
 
+import { WebhookType } from '@/utils/webhookValidation';
+
 export interface WebhookEvent {
   id: string;
+  webhookType: WebhookType;
+  eventType?: string;
+  targetUrl: string;
   source: string;
-  status: string;
+  status: 'success' | 'failed' | 'pending';
   timestamp: string;
   payload: any;
   response: any;
-  webhookType: string;
-  eventType: string;
-  targetUrl: string;
 }

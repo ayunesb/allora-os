@@ -1,20 +1,11 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Save, Loader2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import WebhookForm from "./WebhookForm";
+import { WebhookType } from "@/utils/webhookValidation";
 
-// Update import paths for the webhook sections
-import StripeWebhookSection from '../StripeWebhookSection';
-import ZapierWebhookSection from '../ZapierWebhookSection';
-import GitHubWebhookSection from '../GitHubWebhookSection';
-import SlackWebhookSection from '../SlackWebhookSection';
-import CustomWebhookSection from '../CustomWebhookSection';
-
-interface WebhookConfigTabProps {
+export interface WebhookConfigTabProps {
   stripeWebhook: string;
   zapierWebhook: string;
   githubWebhook: string;
@@ -25,20 +16,20 @@ interface WebhookConfigTabProps {
   onGithubWebhookChange: (value: string) => void;
   onSlackWebhookChange: (value: string) => void;
   onCustomWebhookChange: (value: string) => void;
-  onTestZapierWebhook: () => void;
-  onTestGithubWebhook: () => void;
-  onTestSlackWebhook: () => void;
-  onTestCustomWebhook: () => void;
-  onTestStripeWebhook: () => void;
+  onTestStripeWebhook: () => Promise<boolean>;
+  onTestZapierWebhook: () => Promise<boolean>;
+  onTestGithubWebhook: () => Promise<boolean>;
+  onTestSlackWebhook: () => Promise<boolean>;
+  onTestCustomWebhook: () => Promise<boolean>;
   onSave: () => void;
   isSaving: boolean;
-  testingWebhook: string | null;
+  testingWebhook: WebhookType | null;
   testLoading: boolean;
-  isStripeWebhookValid: boolean | null;
-  isZapierWebhookValid: boolean | null;
-  isGithubWebhookValid: boolean | null;
-  isSlackWebhookValid: boolean | null;
-  isCustomWebhookValid: boolean | null;
+  isStripeWebhookValid: boolean;
+  isZapierWebhookValid: boolean;
+  isGithubWebhookValid: boolean;
+  isSlackWebhookValid: boolean;
+  isCustomWebhookValid: boolean;
 }
 
 const WebhookConfigTab: React.FC<WebhookConfigTabProps> = ({
@@ -52,11 +43,11 @@ const WebhookConfigTab: React.FC<WebhookConfigTabProps> = ({
   onGithubWebhookChange,
   onSlackWebhookChange,
   onCustomWebhookChange,
+  onTestStripeWebhook,
   onTestZapierWebhook,
   onTestGithubWebhook,
   onTestSlackWebhook,
   onTestCustomWebhook,
-  onTestStripeWebhook,
   onSave,
   isSaving,
   testingWebhook,
@@ -65,91 +56,108 @@ const WebhookConfigTab: React.FC<WebhookConfigTabProps> = ({
   isZapierWebhookValid,
   isGithubWebhookValid,
   isSlackWebhookValid,
-  isCustomWebhookValid,
+  isCustomWebhookValid
 }) => {
-  const { toast } = useToast();
-  const [isAutomaticEventsEnabled, setIsAutomaticEventsEnabled] = React.useState(localStorage.getItem('automatic_events_enabled') === 'true');
-
-  const handleAutomaticEventsToggle = (checked: boolean) => {
-    setIsAutomaticEventsEnabled(checked);
-    localStorage.setItem('automatic_events_enabled', String(checked));
-    
-    toast({
-      title: "Automatic Events",
-      description: checked ? "Automatic event triggering enabled." : "Automatic event triggering disabled.",
-    })
-  };
-
   return (
-    <div className="space-y-6">
-      <StripeWebhookSection
-        stripeWebhook={stripeWebhook}
-        onStripeWebhookChange={onStripeWebhookChange}
-        isTestLoading={testingWebhook === 'stripe' && testLoading}
-        onTestWebhook={onTestStripeWebhook}
-        isValid={isStripeWebhookValid}
-      />
-      
-      <ZapierWebhookSection
-        zapierWebhook={zapierWebhook}
-        onZapierWebhookChange={onZapierWebhookChange}
-        onTestWebhook={onTestZapierWebhook}
-        isTestLoading={testingWebhook === 'zapier' && testLoading}
-      />
-      
-      <GitHubWebhookSection
-        githubWebhook={githubWebhook}
-        onGithubWebhookChange={onGithubWebhookChange}
-        onTestWebhook={onTestGithubWebhook}
-        isTestLoading={testingWebhook === 'github' && testLoading}
-      />
-      
-      <SlackWebhookSection
-        slackWebhook={slackWebhook}
-        onSlackWebhookChange={onSlackWebhookChange}
-        onTestWebhook={onTestSlackWebhook}
-        isTestLoading={testingWebhook === 'slack' && testLoading}
-      />
-      
-      <CustomWebhookSection
-        customWebhook={customWebhook}
-        onCustomWebhookChange={onCustomWebhookChange}
-        onTestWebhook={onTestCustomWebhook}
-        isTestLoading={testingWebhook === 'custom' && testLoading}
-      />
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Automatic Event Triggering</CardTitle>
-          <CardDescription>
-            Enable or disable automatic triggering of business events to Zapier.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="automatic-events">Enable Automatic Events</Label>
-            <Switch 
-              id="automatic-events" 
-              checked={isAutomaticEventsEnabled}
-              onCheckedChange={handleAutomaticEventsToggle}
+    <Card>
+      <CardHeader>
+        <CardTitle>Webhook Configuration</CardTitle>
+        <CardDescription>
+          Configure webhooks to integrate with external services
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="stripe">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="stripe">Stripe</TabsTrigger>
+            <TabsTrigger value="zapier">Zapier</TabsTrigger>
+            <TabsTrigger value="github">GitHub</TabsTrigger>
+            <TabsTrigger value="slack">Slack</TabsTrigger>
+            <TabsTrigger value="custom">Custom</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="stripe">
+            <WebhookForm
+              title="Stripe Webhook"
+              description="Configure a webhook endpoint for Stripe payment events"
+              placeholder="https://api.stripe.com/webhook"
+              value={stripeWebhook}
+              onChange={onStripeWebhookChange}
+              onTest={onTestStripeWebhook}
+              onSave={onSave}
+              isSaving={isSaving}
+              isValid={isStripeWebhookValid}
+              isTestLoading={testLoading && testingWebhook === 'stripe'}
+              webhookType="stripe"
             />
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Button onClick={onSave} disabled={isSaving}>
-        {isSaving ? (
-          <>
-            Saving <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-          </>
-        ) : (
-          <>
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
-          </>
-        )}
-      </Button>
-    </div>
+          </TabsContent>
+          
+          <TabsContent value="zapier">
+            <WebhookForm
+              title="Zapier Webhook"
+              description="Send data to Zapier workflows"
+              placeholder="https://hooks.zapier.com/hooks/catch/"
+              value={zapierWebhook}
+              onChange={onZapierWebhookChange}
+              onTest={onTestZapierWebhook}
+              onSave={onSave}
+              isSaving={isSaving}
+              isValid={isZapierWebhookValid}
+              isTestLoading={testLoading && testingWebhook === 'zapier'}
+              webhookType="zapier"
+            />
+          </TabsContent>
+          
+          <TabsContent value="github">
+            <WebhookForm
+              title="GitHub Webhook"
+              description="Trigger GitHub workflows or actions"
+              placeholder="https://api.github.com/repos/owner/repo/hooks"
+              value={githubWebhook}
+              onChange={onGithubWebhookChange}
+              onTest={onTestGithubWebhook}
+              onSave={onSave}
+              isSaving={isSaving}
+              isValid={isGithubWebhookValid}
+              isTestLoading={testLoading && testingWebhook === 'github'}
+              webhookType="github"
+            />
+          </TabsContent>
+          
+          <TabsContent value="slack">
+            <WebhookForm
+              title="Slack Webhook"
+              description="Send notifications to Slack channels"
+              placeholder="https://hooks.slack.com/services/"
+              value={slackWebhook}
+              onChange={onSlackWebhookChange}
+              onTest={onTestSlackWebhook}
+              onSave={onSave}
+              isSaving={isSaving}
+              isValid={isSlackWebhookValid}
+              isTestLoading={testLoading && testingWebhook === 'slack'}
+              webhookType="slack"
+            />
+          </TabsContent>
+          
+          <TabsContent value="custom">
+            <WebhookForm
+              title="Custom Webhook"
+              description="Configure a custom webhook endpoint"
+              placeholder="https://your-api.com/webhook"
+              value={customWebhook}
+              onChange={onCustomWebhookChange}
+              onTest={onTestCustomWebhook}
+              onSave={onSave}
+              isSaving={isSaving}
+              isValid={isCustomWebhookValid}
+              isTestLoading={testLoading && testingWebhook === 'custom'}
+              webhookType="custom"
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

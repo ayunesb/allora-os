@@ -1,44 +1,44 @@
 
-// Import necessary modules and components
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useToast } from "@/components/ui/use-toast";
-import { WebhookHistoryContent } from "@/components/admin/webhooks/history/WebhookHistoryContent";
+import { toast } from "@/components/ui/use-toast";
 import WebhookConfigTab from "@/components/admin/webhooks/config/WebhookConfigTab";
-import { CalendarIcon } from "lucide-react";
-import { format } from 'date-fns';
-import { DateRange } from "react-day-picker";
-import { cn } from "@/lib/utils";
+import { WebhookHistoryContent } from "@/components/admin/webhooks/history/WebhookHistoryContent";
 import { WebhookType } from "@/utils/webhookValidation";
-import { useWebhooks } from "@/components/admin/webhooks/useWebhooks";
-import { useWebhookValidation } from "@/components/admin/webhooks/useWebhookValidation";
+import { useWebhooks } from "@/hooks/admin/useWebhooks";
+import { useWebhookValidation } from "@/hooks/admin/useWebhookValidation";
+import { WebhookEvent } from "@/types/webhooks";
 
+/**
+ * WebhooksPage Component
+ * 
+ * Provides an interface for configuring webhooks and viewing webhook event history.
+ * Supports configuration for Stripe, Zapier, GitHub, Slack and custom webhooks.
+ */
 const WebhooksPage = () => {
+  // Active tab state
   const [activeTab, setActiveTab] = useState("config");
-  const [allEvents, setAllEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
-  const [paginatedEvents, setPaginatedEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  
+  // Event pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [statusOptions, setStatusOptions] = useState(['success', 'failed', 'pending']);
-  const [typeOptions, setTypeOptions] = useState(['stripe', 'zapier', 'github', 'slack', 'custom']);
-  const [eventTypeOptions, setEventTypeOptions] = useState(['payment.success', 'payment.failed', 'order.created']);
+  
+  // Event data state
+  const [allEvents, setAllEvents] = useState<WebhookEvent[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<WebhookEvent[]>([]);
+  const [paginatedEvents, setPaginatedEvents] = useState<WebhookEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Filter state
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedType, setSelectedType] = useState('');
-  const [selectedEventType, setSelectedEventType] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-  const { toast } = useToast();
-
+  
+  // Available options for filtering
+  const statusOptions = ['success', 'failed', 'pending'];
+  const typeOptions = ['stripe', 'zapier', 'github', 'slack', 'custom'];
+  const eventTypeOptions = ['payment.success', 'payment.failed', 'order.created'];
+  
   // Use the hooks to get webhook data and validation
   const {
     stripeWebhook,
@@ -63,42 +63,129 @@ const WebhooksPage = () => {
   } = useWebhooks();
 
   // Validation hooks
-  const { isValid: isStripeWebhookValid } = useWebhookValidation('stripe');
-  const { isValid: isZapierWebhookValid } = useWebhookValidation('zapier');
-  const { isValid: isGithubWebhookValid } = useWebhookValidation('github');
-  const { isValid: isSlackWebhookValid } = useWebhookValidation('slack');
-  const { isValid: isCustomWebhookValid } = useWebhookValidation('custom');
+  const { isValid: isStripeWebhookValid } = useWebhookValidation('stripe', stripeWebhook);
+  const { isValid: isZapierWebhookValid } = useWebhookValidation('zapier', zapierWebhook);
+  const { isValid: isGithubWebhookValid } = useWebhookValidation('github', githubWebhook);
+  const { isValid: isSlackWebhookValid } = useWebhookValidation('slack', slackWebhook);
+  const { isValid: isCustomWebhookValid } = useWebhookValidation('custom', customWebhook);
 
-  // Mock event data with the required properties
-  const mockEvents = [
-    {
-      id: '1',
-      webhookType: 'stripe' as WebhookType,
-      eventType: 'payment.success',
-      targetUrl: 'https://api.example.com/webhooks/stripe',
-      source: 'stripe',
-      status: 'success',
-      timestamp: '2025-03-15T10:30:00Z',
-      payload: { data: 'payment data' },
-      response: { status: '200' }
-    },
-    // Add more mock events as needed with the correct types
-  ];
-
+  // Mock event data for demonstration purposes
+  useEffect(() => {
+    const mockEvents: WebhookEvent[] = [
+      {
+        id: '1',
+        webhookType: 'stripe',
+        eventType: 'payment.success',
+        targetUrl: 'https://api.example.com/webhooks/stripe',
+        source: 'stripe',
+        status: 'success',
+        timestamp: '2025-03-15T10:30:00Z',
+        payload: { data: 'payment data' },
+        response: { status: '200' }
+      },
+      {
+        id: '2',
+        webhookType: 'zapier',
+        eventType: 'lead.created',
+        targetUrl: 'https://hooks.zapier.com/hooks/catch/123456/abcdef/',
+        source: 'app',
+        status: 'success',
+        timestamp: '2025-03-14T14:45:00Z',
+        payload: { data: 'lead data' },
+        response: { status: '200' }
+      },
+      {
+        id: '3',
+        webhookType: 'github',
+        eventType: 'push',
+        targetUrl: 'https://api.github.com/webhooks/123',
+        source: 'github',
+        status: 'failed',
+        timestamp: '2025-03-13T09:15:00Z',
+        payload: { data: 'commit data' },
+        response: { status: '400', error: 'Invalid payload' }
+      }
+    ];
+    
+    setAllEvents(mockEvents);
+    setFilteredEvents(mockEvents);
+  }, []);
+  
+  // Calculate paginated events whenever filtered events or pagination settings change
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setPaginatedEvents(filteredEvents.slice(startIndex, endIndex));
+  }, [filteredEvents, currentPage, itemsPerPage]);
+  
+  // Handle webhooks filter
+  useEffect(() => {
+    if (!allEvents.length) return;
+    
+    setIsLoading(true);
+    
+    // Apply filters
+    let result = [...allEvents];
+    
+    if (searchQuery) {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      result = result.filter(
+        event => 
+          event.webhookType.toLowerCase().includes(lowerCaseQuery) ||
+          (event.eventType && event.eventType.toLowerCase().includes(lowerCaseQuery)) ||
+          event.targetUrl.toLowerCase().includes(lowerCaseQuery)
+      );
+    }
+    
+    if (selectedStatus) {
+      result = result.filter(event => event.status === selectedStatus);
+    }
+    
+    if (selectedType) {
+      result = result.filter(event => event.webhookType === selectedType);
+    }
+    
+    // Set filtered events and reset to first page if filters changed
+    setFilteredEvents(result);
+    setCurrentPage(1);
+    setIsLoading(false);
+  }, [allEvents, searchQuery, selectedStatus, selectedType]);
+  
   const handleFilterEvents = () => {
     console.log('Filtering events with:', {
       selectedStatus,
       selectedType,
-      selectedEventType,
-      searchQuery,
-      startDate,
-      endDate
+      searchQuery
     });
   };
 
   const handleClearFilters = () => {
-    console.log('Clearing all filters');
+    setSearchQuery('');
+    setSelectedStatus('');
+    setSelectedType('');
   };
+  
+  const handleExportHistory = useCallback(() => {
+    toast({
+      title: "Export Started",
+      description: "Webhooks history export has started."
+    });
+    
+    // In a real application, this would trigger an actual export process
+    setTimeout(() => {
+      toast({
+        title: "Export Complete",
+        description: "Webhooks history has been exported successfully."
+      });
+    }, 1500);
+  }, [toast]);
+  
+  const handleClearHistory = useCallback(() => {
+    toast({
+      title: "Clear History",
+      description: "This would clear all webhook history in a real application."
+    });
+  }, [toast]);
 
   const handleSave = () => {
     handleSaveWebhooks(
@@ -110,7 +197,6 @@ const WebhooksPage = () => {
     );
   };
 
-  // When rendering the WebhookHistoryContent component, add the onPageChange prop
   return (
     <div className="space-y-8">
       <div>
@@ -158,7 +244,7 @@ const WebhooksPage = () => {
             webhookEvents={allEvents}
             filteredEvents={filteredEvents}
             paginatedEvents={paginatedEvents}
-            isLoading={false}
+            isLoading={isLoading}
             searchTerm={searchQuery}
             setSearchTerm={setSearchQuery}
             statusFilter={selectedStatus}
@@ -166,12 +252,12 @@ const WebhooksPage = () => {
             typeFilter={selectedType}
             setTypeFilter={setSelectedType}
             currentPage={currentPage}
-            totalPages={5}
+            totalPages={Math.ceil(filteredEvents.length / itemsPerPage)}
             pageSize={itemsPerPage}
-            handlePageChange={(page) => setCurrentPage(page)}
+            handlePageChange={setCurrentPage}
             webhookTypes={typeOptions}
-            handleExportHistory={() => console.log('Export clicked')}
-            handleClearHistory={() => console.log('Clear clicked')}
+            handleExportHistory={handleExportHistory}
+            handleClearHistory={handleClearHistory}
           />
         </TabsContent>
       </Tabs>

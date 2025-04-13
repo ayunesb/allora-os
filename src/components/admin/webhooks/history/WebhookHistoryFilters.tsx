@@ -1,19 +1,9 @@
 
-import React, { useState } from 'react';
-import { Search, Filter, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectGroup, 
-  SelectItem, 
-  SelectLabel, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import React from 'react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Filter, X } from 'lucide-react';
 
 interface WebhookHistoryFiltersProps {
   searchTerm: string;
@@ -23,223 +13,85 @@ interface WebhookHistoryFiltersProps {
   typeFilter: string;
   setTypeFilter: (value: string) => void;
   webhookTypes: string[];
-  filteredEventsCount: number;
-  totalCount: number;
-  currentPage: number;
-  pageSize: number;
-  handleExportHistory: () => void;
-  handleClearHistory: () => void;
 }
 
-export const WebhookHistoryFilters: React.FC<WebhookHistoryFiltersProps> = ({
+export function WebhookHistoryFilters({
   searchTerm,
   setSearchTerm,
   statusFilter,
   setStatusFilter,
   typeFilter,
   setTypeFilter,
-  webhookTypes,
-  filteredEventsCount,
-  totalCount,
-  currentPage,
-  pageSize,
-  handleExportHistory,
-  handleClearHistory
-}) => {
-  const startIndex = (currentPage - 1) * pageSize;
-  const hasActiveFilters = statusFilter !== 'all' || typeFilter !== 'all' || searchTerm;
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
-  const [showFilters, setShowFilters] = useState(false);
+  webhookTypes
+}: WebhookHistoryFiltersProps) {
+  const statusOptions = ['success', 'failed', 'pending'];
   
-  // Reset function to clear all filters
-  const resetFilters = () => {
+  const handleClearFilters = () => {
     setSearchTerm('');
-    setStatusFilter('all');
-    setTypeFilter('all');
+    setStatusFilter('');
+    setTypeFilter('');
   };
-
+  
+  const hasFilters = searchTerm || statusFilter || typeFilter;
+  
   return (
-    <>
-      {/* Mobile filter toggle */}
-      {isMobileView && (
-        <div className="flex justify-between items-center mb-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </Button>
-          
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleExportHistory}
-            >
-              Export
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleClearHistory}
-            >
-              Clear
-            </Button>
-          </div>
-        </div>
-      )}
-    
-      {/* Filters */}
-      {(!isMobileView || showFilters) && (
-        <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mb-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search webhooks..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <div className="flex-initial w-full md:w-40">
-            <Select 
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Status</SelectLabel>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="success">Success</SelectItem>
-                  <SelectItem value="error">Error</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="flex-initial w-full md:w-40">
-            <Select 
-              value={typeFilter}
-              onValueChange={setTypeFilter}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Webhook Type</SelectLabel>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {webhookTypes.map(type => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {!isMobileView && (
-            <div className="flex space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleExportHistory}
-              >
-                Export
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleClearHistory}
-              >
-                Clear
-              </Button>
-            </div>
-          )}
-          
-          {isMobileView && hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetFilters}
-              className="flex items-center text-muted-foreground"
-            >
-              <X className="h-4 w-4 mr-1" />
-              Reset Filters
-            </Button>
-          )}
-        </div>
-      )}
-      
-      {/* Active filters */}
-      {hasActiveFilters && !isMobileView && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {statusFilter !== 'all' && (
-            <Badge variant="outline" className="flex items-center">
-              Status: {statusFilter}
-              <X 
-                className="h-3 w-3 ml-1 cursor-pointer" 
-                onClick={() => setStatusFilter('all')} 
-              />
-            </Badge>
-          )}
-          
-          {typeFilter !== 'all' && (
-            <Badge variant="outline" className="flex items-center">
-              Type: {typeFilter}
-              <X 
-                className="h-3 w-3 ml-1 cursor-pointer" 
-                onClick={() => setTypeFilter('all')} 
-              />
-            </Badge>
-          )}
-          
-          {searchTerm && (
-            <Badge variant="outline" className="flex items-center">
-              Search: {searchTerm}
-              <X 
-                className="h-3 w-3 ml-1 cursor-pointer" 
-                onClick={() => setSearchTerm('')} 
-              />
-            </Badge>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={resetFilters}
-            className="text-xs h-7 px-2"
-          >
-            Reset All
-          </Button>
-        </div>
-      )}
-      
-      {/* Event count */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Showing {filteredEventsCount === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + pageSize, filteredEventsCount)} of {filteredEventsCount} events
-        </div>
+    <div className="space-y-4 mb-4">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Input
+          placeholder="Search webhooks..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="sm:max-w-xs"
+        />
         
-        {!isMobileView && (
-          <div className="flex space-x-2 items-center">
-            <Badge variant="outline">
-              <Filter className="h-3 w-3 mr-1" />
-              Filters: {hasActiveFilters ? 'Active' : 'None'}
-            </Badge>
-          </div>
-        )}
+        <div className="flex flex-1 gap-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Statuses</SelectItem>
+              {statusOptions.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Webhook Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Types</SelectItem>
+              {webhookTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {hasFilters && (
+            <Button variant="ghost" size="icon" onClick={handleClearFilters} className="h-10 w-10">
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
-    </>
+      
+      {hasFilters && (
+        <div className="flex items-center text-sm">
+          <Filter className="mr-2 h-4 w-4" />
+          <span>
+            Filtering by:
+            {searchTerm && <span className="ml-1 font-medium">Search term "{searchTerm}"</span>}
+            {statusFilter && <span className="ml-1 font-medium">Status "{statusFilter}"</span>}
+            {typeFilter && <span className="ml-1 font-medium">Type "{typeFilter}"</span>}
+          </span>
+        </div>
+      )}
+    </div>
   );
-};
+}
