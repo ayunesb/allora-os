@@ -35,7 +35,8 @@ export function SocialMediaContent() {
     createPost,
     deletePost,
     schedule,
-    approve
+    approve,
+    refreshPosts
   } = useSocialMediaContext();
   
   const { screenReaderFriendly } = useAccessibility();
@@ -182,6 +183,7 @@ export function SocialMediaContent() {
         onSchedulePost={handleSchedulePost}
         onApprovePost={handleApprovePost}
         onCreatePost={openCreateDialog}
+        onRefresh={refreshPosts}
         aria-label={screenReaderFriendly ? "Social Media Posts List View" : undefined}
       />
       

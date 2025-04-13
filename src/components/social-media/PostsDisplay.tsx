@@ -29,6 +29,7 @@ interface PostsDisplayProps {
   onSchedulePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onApprovePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
   onCreatePost: () => void;
+  onRefresh?: () => void;
   'aria-label'?: string;
 }
 
@@ -43,6 +44,7 @@ export function PostsDisplay({
   onSchedulePost,
   onApprovePost,
   onCreatePost,
+  onRefresh,
   'aria-label': ariaLabel,
 }: PostsDisplayProps) {
   if (isLoading) {
@@ -67,7 +69,7 @@ export function PostsDisplay({
             <h3 className="text-lg font-medium text-red-600 mb-2">Error Loading Posts</h3>
             <p className="text-gray-500 mb-4">{error.message}</p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
-              <Button variant="outline" onClick={() => window.location.reload()}>
+              <Button variant="outline" onClick={onRefresh}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Try Again
               </Button>

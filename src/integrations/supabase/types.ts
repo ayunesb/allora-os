@@ -717,6 +717,96 @@ export type Database = {
           },
         ]
       }
+      social_media_posts: {
+        Row: {
+          approval_notes: string | null
+          author_id: string | null
+          campaign_id: string | null
+          company_id: string
+          content: string
+          content_type: string
+          created_at: string
+          hashtags: string[] | null
+          id: string
+          is_approved: boolean | null
+          link_url: string | null
+          location: string | null
+          media_urls: string[] | null
+          mentions: string[] | null
+          platform: string
+          publish_time: string | null
+          published_date: string | null
+          scheduled_date: string
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approval_notes?: string | null
+          author_id?: string | null
+          campaign_id?: string | null
+          company_id: string
+          content: string
+          content_type: string
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          is_approved?: boolean | null
+          link_url?: string | null
+          location?: string | null
+          media_urls?: string[] | null
+          mentions?: string[] | null
+          platform: string
+          publish_time?: string | null
+          published_date?: string | null
+          scheduled_date: string
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approval_notes?: string | null
+          author_id?: string | null
+          campaign_id?: string | null
+          company_id?: string
+          content?: string
+          content_type?: string
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          is_approved?: boolean | null
+          link_url?: string | null
+          location?: string | null
+          media_urls?: string[] | null
+          mentions?: string[] | null
+          platform?: string
+          publish_time?: string | null
+          published_date?: string | null
+          scheduled_date?: string
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_media_posts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_media_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategies: {
         Row: {
           company_id: string

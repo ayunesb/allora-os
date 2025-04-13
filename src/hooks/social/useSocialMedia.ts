@@ -10,13 +10,14 @@ import {
   approvePost
 } from '@/services/socialMedia/socialMediaService';
 import { logger } from '@/utils/loggingService';
+import { toast } from 'sonner';
 
 /**
  * Main hook for social media functionality
  */
 export function useSocialMedia() {
   const { profile } = useAuth();
-  const companyId = profile?.company_id || 'default-company';
+  const companyId = profile?.company_id;
   
   // State
   const [posts, setPosts] = useState<SocialMediaPost[]>([]);
@@ -27,6 +28,11 @@ export function useSocialMedia() {
   // Fetch posts whenever filters or company ID changes
   useEffect(() => {
     async function loadPosts() {
+      if (!companyId) {
+        setError('No company ID available. Please complete your profile setup.');
+        return;
+      }
+      
       setIsLoading(true);
       setError(null);
       
@@ -39,6 +45,7 @@ export function useSocialMedia() {
         setError(new Error('Unable to load posts. The social media feature might not be fully set up.'));
         // Set empty posts array to prevent undefined errors
         setPosts([]);
+        toast.error('Could not load social media posts');
       } finally {
         setIsLoading(false);
       }
@@ -59,14 +66,19 @@ export function useSocialMedia() {
   
   // Refresh posts
   const refreshPosts = useCallback(async () => {
-    if (!companyId) return;
+    if (!companyId) {
+      toast.error('No company ID available');
+      return;
+    }
     
     setIsLoading(true);
     try {
       const data = await fetchSocialMediaPosts(companyId, filters);
       setPosts(data);
+      toast.success('Posts refreshed successfully');
     } catch (err: any) {
       logger.error('Failed to refresh social media posts', err);
+      toast.error('Failed to refresh posts');
       // Don't update the error state during refresh to prevent UI flicker
     } finally {
       setIsLoading(false);
@@ -76,13 +88,17 @@ export function useSocialMedia() {
   // Create a new post
   const createPost = useCallback(async (postData: CreatePostInput) => {
     if (!companyId) {
+      toast.error('No company ID available');
       return { success: false, error: 'No company ID available' };
     }
     
     const result = await createSocialMediaPost(companyId, postData);
     
     if (result.success) {
+      toast.success('Post created successfully');
       refreshPosts();
+    } else {
+      toast.error(result.error || 'Failed to create post');
     }
     
     return result;
@@ -93,7 +109,38 @@ export function useSocialMedia() {
     const result = await deleteSocialMediaPost(postId);
     
     if (result.success) {
+      toast.success('Post deleted successfully');
       refreshPosts();
+    } else {
+      toast.error(result.error || 'Failed to delete post');
+    }
+    
+    return result;
+  }, [refreshPosts]);
+  
+  // Schedule a post
+  const schedulePostAction = useCallback(async (postId: string) => {
+    const result = await schedulePost(postId);
+    
+    if (result.success) {
+      toast.success('Post scheduled successfully');
+      refreshPosts();
+    } else {
+      toast.error(result.error || 'Failed to schedule post');
+    }
+    
+    return result;
+  }, [refreshPosts]);
+  
+  // Approve a post
+  const approvePostAction = useCallback(async (postId: string) => {
+    const result = await approvePost(postId);
+    
+    if (result.success) {
+      toast.success('Post approved successfully');
+      refreshPosts();
+    } else {
+      toast.error(result.error || 'Failed to approve post');
     }
     
     return result;
@@ -113,17 +160,10 @@ export function useSocialMedia() {
     // CRUD operations
     createPost,
     deletePost,
+    refreshPosts,
     
     // Post actions
-    schedule: async (postId: string) => {
-      const result = await schedulePost(postId);
-      if (result.success) refreshPosts();
-      return result;
-    },
-    approve: async (postId: string) => {
-      const result = await approvePost(postId);
-      if (result.success) refreshPosts();
-      return result;
-    }
+    schedule: schedulePostAction,
+    approve: approvePostAction
   };
 }

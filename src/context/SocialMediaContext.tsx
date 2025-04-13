@@ -26,6 +26,7 @@ interface SocialMediaContextType {
   deletePost: (id: string) => Promise<{ success: boolean; error?: string }>;
   schedule: (id: string) => Promise<{ success: boolean; error?: string }>;
   approve: (id: string) => Promise<{ success: boolean; error?: string }>;
+  refreshPosts: () => Promise<void>;
   
   // Dialog state
   isCreateDialogOpen: boolean;
@@ -55,7 +56,8 @@ export function SocialMediaProvider({ children }: { children: ReactNode }) {
     createPost,
     deletePost,
     schedule,
-    approve
+    approve,
+    refreshPosts
   } = useSocialMedia();
   
   // Local UI state
@@ -109,6 +111,7 @@ export function SocialMediaProvider({ children }: { children: ReactNode }) {
     deletePost,
     schedule,
     approve,
+    refreshPosts,
     isCreateDialogOpen,
     openCreateDialog,
     closeCreateDialog,

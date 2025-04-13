@@ -2,63 +2,7 @@
 import { supabase } from '@/backend/supabase';
 import { SocialMediaPost, CreatePostInput, SocialMediaCalendarFilters } from '@/types/socialMedia';
 import { api } from '@/services/api/apiClient';
-
-// Mock data for social media posts
-const MOCK_POSTS: SocialMediaPost[] = [
-  {
-    id: "1",
-    title: "New Product Launch",
-    content: "We're excited to announce our new product line!",
-    platform: "Facebook",
-    status: "draft",
-    scheduled_date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
-    media_urls: [],
-    content_type: "text",
-    author_id: "user1",
-    company_id: "company1",
-    tags: ["product", "launch"]
-  },
-  {
-    id: "2",
-    title: "Summer Sale Promotion",
-    content: "Get 30% off all summer items this week!",
-    platform: "Instagram",
-    status: "scheduled",
-    scheduled_date: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString(),
-    media_urls: ["https://example.com/summer.jpg"],
-    content_type: "image",
-    author_id: "user1",
-    company_id: "company1",
-    tags: ["sale", "summer"]
-  },
-  {
-    id: "3",
-    title: "Customer Testimonial",
-    content: "Hear what our customers are saying about us!",
-    platform: "LinkedIn",
-    status: "published",
-    scheduled_date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
-    published_date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
-    media_urls: ["https://example.com/testimonial.jpg"],
-    content_type: "image",
-    author_id: "user2",
-    company_id: "company1",
-    tags: ["testimonial", "customer"]
-  },
-  {
-    id: "4",
-    title: "Industry Tips",
-    content: "Check out our top 5 industry tips for success!",
-    platform: "Twitter",
-    status: "draft",
-    scheduled_date: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(),
-    media_urls: [],
-    content_type: "text",
-    author_id: "user2",
-    company_id: "company1",
-    tags: ["tips", "industry"]
-  }
-];
+import { logger } from '@/utils/loggingService';
 
 /**
  * Fetch all social media posts for a company with optional filters
@@ -68,60 +12,69 @@ export async function fetchSocialMediaPosts(
   filters?: SocialMediaCalendarFilters
 ): Promise<SocialMediaPost[]> {
   try {
-    // Instead of querying Supabase, return mock data
-    console.log('Using mock data for social media posts');
+    logger.info('Fetching social media posts from database', { companyId, filters });
     
-    // Apply filters to mock data
-    let filteredPosts = [...MOCK_POSTS];
+    let query = supabase
+      .from('social_media_posts')
+      .select('*')
+      .eq('company_id', companyId);
     
+    // Apply filters if provided
     if (filters) {
       if (filters.platform) {
-        filteredPosts = filteredPosts.filter(post => 
-          post.platform.toLowerCase() === filters.platform?.toLowerCase()
-        );
+        query = query.eq('platform', filters.platform);
       }
       
       if (filters.status) {
-        filteredPosts = filteredPosts.filter(post => 
-          post.status?.toLowerCase() === filters.status?.toLowerCase()
-        );
+        query = query.eq('status', filters.status.toLowerCase());
+      }
+      
+      if (filters.content_type) {
+        query = query.eq('content_type', filters.content_type);
+      }
+      
+      if (filters.campaign_id) {
+        query = query.eq('campaign_id', filters.campaign_id);
+      }
+      
+      if (filters.author_id) {
+        query = query.eq('author_id', filters.author_id);
       }
       
       if (filters.startDate && filters.endDate) {
-        filteredPosts = filteredPosts.filter(post => {
-          const postDate = new Date(post.scheduled_date);
-          return postDate >= new Date(filters.startDate as string) && 
-                 postDate <= new Date(filters.endDate as string);
-        });
+        query = query.gte('scheduled_date', filters.startDate)
+                     .lte('scheduled_date', filters.endDate);
       } else if (filters.startDate) {
-        filteredPosts = filteredPosts.filter(post => 
-          new Date(post.scheduled_date) >= new Date(filters.startDate as string)
-        );
+        query = query.gte('scheduled_date', filters.startDate);
       } else if (filters.endDate) {
-        filteredPosts = filteredPosts.filter(post => 
-          new Date(post.scheduled_date) <= new Date(filters.endDate as string)
-        );
+        query = query.lte('scheduled_date', filters.endDate);
       }
       
       if (filters.search) {
-        const search = filters.search.toLowerCase();
-        filteredPosts = filteredPosts.filter(post => 
-          post.title.toLowerCase().includes(search) || 
-          post.content.toLowerCase().includes(search)
-        );
+        query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+      }
+      
+      if (filters.tags && filters.tags.length > 0) {
+        query = query.overlaps('tags', filters.tags);
       }
     }
     
-    // Sort posts by scheduled date
-    filteredPosts.sort((a, b) => 
-      new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()
-    );
+    // Order by scheduled date
+    query = query.order('scheduled_date', { ascending: true });
     
-    return Promise.resolve(filteredPosts);
+    const { data, error } = await query;
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
     
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    throw error;
+    logger.error('Error fetching posts from database:', error);
+    
+    // Return a fallback if there's an error (for better UX)
+    return [];
   }
 }
 
@@ -133,17 +86,52 @@ export async function createSocialMediaPost(
   postData: CreatePostInput
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
-    console.log('Creating mock post:', postData);
+    logger.info('Creating new social media post in database', { companyId, postData });
     
-    // Generate a random ID
-    const postId = Math.random().toString(36).substring(2, 15);
+    // Get the current authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
     
-    // In a real app, we would store this in the database
+    if (!user) {
+      return { 
+        success: false, 
+        error: 'Not authenticated' 
+      };
+    }
+    
+    // Insert post into database
+    const { data, error } = await supabase
+      .from('social_media_posts')
+      .insert({
+        company_id: companyId,
+        author_id: user.id,
+        title: postData.title,
+        content: postData.content,
+        platform: postData.platform,
+        scheduled_date: postData.scheduled_date,
+        publish_time: postData.publish_time,
+        status: 'draft',
+        content_type: postData.content_type,
+        media_urls: postData.media_urls,
+        campaign_id: postData.campaign_id,
+        is_approved: postData.is_approved || false,
+        tags: postData.tags || [],
+        mentions: postData.mentions || [],
+        hashtags: postData.hashtags || [],
+        location: postData.location,
+        link_url: postData.link_url
+      })
+      .select('id')
+      .single();
+    
+    if (error) throw error;
+    
     return { 
       success: true, 
-      postId 
+      postId: data.id 
     };
   } catch (error: any) {
+    logger.error('Error creating post in database:', error);
+    
     return { 
       success: false, 
       error: error.message || 'Failed to create post' 
@@ -158,11 +146,19 @@ export async function deleteSocialMediaPost(
   postId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('Deleting mock post:', postId);
+    logger.info('Deleting social media post from database', { postId });
     
-    // In a real app, we would delete this from the database
+    const { error } = await supabase
+      .from('social_media_posts')
+      .delete()
+      .eq('id', postId);
+    
+    if (error) throw error;
+    
     return { success: true };
   } catch (error: any) {
+    logger.error('Error deleting post from database:', error);
+    
     return { 
       success: false, 
       error: error.message || 'Failed to delete post' 
@@ -177,11 +173,19 @@ export async function schedulePost(
   postId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('Scheduling mock post:', postId);
+    logger.info('Scheduling post in database', { postId });
     
-    // In a real app, we would update this in the database
+    const { error } = await supabase
+      .from('social_media_posts')
+      .update({ status: 'scheduled' })
+      .eq('id', postId);
+    
+    if (error) throw error;
+    
     return { success: true };
   } catch (error: any) {
+    logger.error('Error scheduling post in database:', error);
+    
     return { 
       success: false, 
       error: error.message || 'Failed to schedule post' 
@@ -197,11 +201,23 @@ export async function approvePost(
   notes?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('Approving mock post:', postId, notes);
+    logger.info('Approving post in database', { postId, notes });
     
-    // In a real app, we would update this in the database
+    const { error } = await supabase
+      .from('social_media_posts')
+      .update({ 
+        is_approved: true,
+        approval_notes: notes,
+        status: 'approved'
+      })
+      .eq('id', postId);
+    
+    if (error) throw error;
+    
     return { success: true };
   } catch (error: any) {
+    logger.error('Error approving post in database:', error);
+    
     return { 
       success: false, 
       error: error.message || 'Failed to approve post' 
