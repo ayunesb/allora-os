@@ -30,7 +30,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       name: 'New Lead Created',
       icon: <User className="h-4 w-4" />,
       title: 'Generate a lead created event',
-      type: 'lead_created',
+      type: 'new_lead_added',  // Fixed to match BusinessEventType
       payload: {
         leadName: 'John Smith',
         companyName: 'Acme, Inc.',
@@ -44,7 +44,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       name: 'Strategy Approved',
       icon: <Briefcase className="h-4 w-4" />,
       title: 'Generate a strategy approved event',
-      type: 'strategy_approved',
+      type: 'new_strategy_approved',  // Fixed to match BusinessEventType
       payload: {
         strategyTitle: 'Market Expansion Strategy',
         approvedBy: 'Executive Team',
@@ -57,7 +57,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       name: 'Revenue Milestone',
       icon: <CheckCircle2 className="h-4 w-4" />,
       title: 'Generate a revenue milestone event',
-      type: 'revenue_milestone_reached',
+      type: 'revenue_milestone',  // Fixed to match BusinessEventType
       payload: {
         amount: 100000,
         companyName: 'Acme, Inc.',
