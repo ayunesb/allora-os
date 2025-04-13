@@ -14,10 +14,19 @@ import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { BellRing, Globe, Mail, MessageSquare, Phone } from "lucide-react";
 import MarketingPlatformIntegrations from "@/components/integrations/MarketingPlatformIntegrations";
 import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
+import { checkSupabaseConnection } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Settings() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isTestingApi, setIsTestingApi] = useState(false);
+  const [apiEndpoint, setApiEndpoint] = useState<string>("");
+  const [apiMethod, setApiMethod] = useState<string>("GET");
+  const [apiResponse, setApiResponse] = useState<string>("");
+  const [apiHeaders, setApiHeaders] = useState<string>("{\n  \"Content-Type\": \"application/json\"\n}");
+  const [apiBody, setApiBody] = useState<string>("{}");
   const { preferences, isLoading: prefsLoading, updatePreference } = useUserPreferences();
 
   const handleSetupTestCompany = async () => {
@@ -43,8 +52,87 @@ export default function Settings() {
     }
   };
 
+  const handleApiTest = async () => {
+    if (!apiEndpoint) {
+      toast.error("API endpoint is required");
+      return;
+    }
+
+    setIsTestingApi(true);
+    setApiResponse("");
+    
+    try {
+      // Prepare headers
+      let headers = {};
+      try {
+        headers = JSON.parse(apiHeaders);
+      } catch (e) {
+        toast.error("Invalid JSON format in headers");
+        return;
+      }
+      
+      // Prepare body for POST, PUT, PATCH
+      let bodyData = undefined;
+      if (["POST", "PUT", "PATCH"].includes(apiMethod)) {
+        try {
+          bodyData = JSON.parse(apiBody);
+        } catch (e) {
+          toast.error("Invalid JSON format in request body");
+          return;
+        }
+      }
+      
+      // Make the request
+      const response = await fetch(apiEndpoint, {
+        method: apiMethod,
+        headers,
+        body: bodyData ? JSON.stringify(bodyData) : undefined,
+      });
+      
+      // Get response as text first
+      const responseText = await response.text();
+      
+      // Try to parse as JSON for pretty display
+      try {
+        const responseJson = JSON.parse(responseText);
+        setApiResponse(JSON.stringify(responseJson, null, 2));
+      } catch (e) {
+        // If not valid JSON, show as text
+        setApiResponse(responseText);
+      }
+      
+      toast.success(`API request completed with status: ${response.status}`);
+    } catch (error: any) {
+      console.error("API test error:", error);
+      setApiResponse(`Error: ${error.message}`);
+      toast.error(`API request failed: ${error.message}`);
+    } finally {
+      setIsTestingApi(false);
+    }
+  };
+
   const handleNotificationToggle = (type: string, value: boolean) => {
     toast.success(`${type} notifications ${value ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleDatabaseTest = async () => {
+    setIsLoading(true);
+    try {
+      const result = await checkSupabaseConnection();
+      
+      if (result.connected) {
+        toast.success(result.message || "Database connection successful");
+      } else {
+        toast.error(result.message || "Database connection failed");
+      }
+      
+      console.log("Database connection test result:", result);
+    } catch (error: any) {
+      console.error("Database test error:", error);
+      toast.error(`Database test failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -217,35 +305,123 @@ export default function Settings() {
         </TabsContent>
         
         <TabsContent value="development">
-          <Card>
-            <CardHeader>
-              <CardTitle>Development Tools</CardTitle>
-              <CardDescription>Tools for testing and debugging</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium mb-2">Test Data</h3>
-                <p className="text-muted-foreground mb-4">
-                  Set up test company data for the current user.
-                </p>
-                <Button 
-                  onClick={handleSetupTestCompany} 
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Setting up..." : "Set Up Test Company"}
-                </Button>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <h3 className="text-lg font-medium mb-2">API Testing</h3>
-                <p className="text-muted-foreground">
-                  API testing tools will be available soon.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Development Tools</CardTitle>
+                <CardDescription>Tools for testing and debugging</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Test Data</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Set up test company data for the current user.
+                  </p>
+                  <Button 
+                    onClick={handleSetupTestCompany} 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Setting up..." : "Set Up Test Company"}
+                  </Button>
+                </div>
+                
+                <Separator />
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Database Connection Test</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Verify your connection to the database.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleDatabaseTest} 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Testing..." : "Test Database Connection"}
+                  </Button>
+                </div>
+                
+                <Separator />
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-2">API Testing</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Test API endpoints and view responses.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="api-endpoint">API Endpoint</Label>
+                      <Input 
+                        id="api-endpoint" 
+                        placeholder="https://api.example.com/data" 
+                        value={apiEndpoint}
+                        onChange={(e) => setApiEndpoint(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="api-method">Method</Label>
+                      <Select value={apiMethod} onValueChange={setApiMethod}>
+                        <SelectTrigger id="api-method">
+                          <SelectValue placeholder="Select method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="GET">GET</SelectItem>
+                          <SelectItem value="POST">POST</SelectItem>
+                          <SelectItem value="PUT">PUT</SelectItem>
+                          <SelectItem value="PATCH">PATCH</SelectItem>
+                          <SelectItem value="DELETE">DELETE</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="api-headers">Headers (JSON)</Label>
+                      <Textarea 
+                        id="api-headers" 
+                        placeholder='{"Content-Type": "application/json"}'
+                        value={apiHeaders}
+                        onChange={(e) => setApiHeaders(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                    
+                    {["POST", "PUT", "PATCH"].includes(apiMethod) && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="api-body">Request Body (JSON)</Label>
+                        <Textarea 
+                          id="api-body" 
+                          placeholder='{"key": "value"}'
+                          value={apiBody}
+                          onChange={(e) => setApiBody(e.target.value)}
+                          rows={5}
+                        />
+                      </div>
+                    )}
+                    
+                    <Button 
+                      onClick={handleApiTest} 
+                      disabled={isTestingApi || !apiEndpoint}
+                    >
+                      {isTestingApi ? "Testing..." : "Test API"}
+                    </Button>
+                    
+                    {apiResponse && (
+                      <div className="mt-4">
+                        <Label htmlFor="api-response">Response</Label>
+                        <div className="mt-2 p-4 bg-secondary/20 rounded-md overflow-auto max-h-80">
+                          <pre id="api-response" className="text-sm whitespace-pre-wrap">
+                            {apiResponse}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
