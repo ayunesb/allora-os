@@ -89,7 +89,6 @@ export default function DashboardLayout() {
             </main>
           </div>
           
-          {/* Help modal needs to be rendered within the HelpProvider */}
           <HelpModal />
         </div>
       </HelpProvider>

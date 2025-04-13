@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 
 type HelpContent = {
   title: string;
@@ -24,14 +23,16 @@ const HelpContext = createContext<HelpContextType | undefined>(undefined);
 export function HelpProvider({ children }: { children: React.ReactNode }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [currentHelp, setCurrentHelp] = useState<HelpContent | null>(null);
-  const location = useLocation();
-
-  // Close help when route changes
+  
+  // Remove dependency on useLocation here
   useEffect(() => {
-    if (isHelpOpen) {
-      setIsHelpOpen(false);
-    }
-  }, [location.pathname]);
+    // Close help when component unmounts
+    return () => {
+      if (isHelpOpen) {
+        setIsHelpOpen(false);
+      }
+    };
+  }, []);
 
   const openHelp = () => setIsHelpOpen(true);
   const closeHelp = () => setIsHelpOpen(false);

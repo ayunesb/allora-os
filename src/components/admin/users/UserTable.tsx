@@ -17,14 +17,23 @@ import { useBreakpoint } from '@/hooks/use-mobile';
 
 interface UserTableProps {
   users: User[];
-  onUpdateUser: (userId: string, data: any) => void;
+  isLoading?: boolean; // Make isLoading optional
+  onUpdateUser: (userId: string, data: Partial<User>) => void;
   onDeleteUser: (userId: string, userName: string) => void;
 }
 
-export const UserTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps) => {
+export const UserTable = ({ users, isLoading = false, onUpdateUser, onDeleteUser }: UserTableProps) => {
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   const isTabletView = breakpoint === 'tablet';
+  
+  if (isLoading) {
+    return (
+      <div className="text-center py-8 border border-white/10 rounded-md text-gray-400 bg-[#111827]">
+        Loading users...
+      </div>
+    );
+  }
   
   if (users.length === 0) {
     return (

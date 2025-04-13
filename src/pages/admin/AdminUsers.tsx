@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
-import { UserManagementHeader, UserTable, InviteUserDialog } from "@/components/admin/users";
+import { UserManagementHeader, UserTable } from "@/components/admin/users";
 import { User } from "@/models/user";
 import { toast } from "sonner";
 
@@ -33,8 +33,8 @@ export default function AdminUsers() {
     toast.success("User updated");
   };
 
-  const handleDeleteUser = (userId: string) => {
-    console.log("Delete user:", userId);
+  const handleDeleteUser = (userId: string, userName: string) => {
+    console.log("Delete user:", userId, userName);
     toast.success("User deleted");
   };
 
@@ -53,8 +53,6 @@ export default function AdminUsers() {
           onUpdateUser={handleUpdateUser}
           onDeleteUser={handleDeleteUser}
         />
-        
-        {/* The InviteUserDialog is now handled within UserManagementHeader */}
       </div>
     </PageErrorBoundary>
   );
