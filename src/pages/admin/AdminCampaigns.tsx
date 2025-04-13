@@ -47,7 +47,13 @@ import {
   Filter, 
   Download, 
   PlusCircle, 
-  MoreHorizontal 
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  ExternalLink,
+  PauseCircle,
+  PlayCircle,
+  CheckCircle 
 } from "lucide-react";
 
 export default function AdminCampaigns() {
@@ -252,31 +258,26 @@ export default function AdminCampaigns() {
                                 {campaign.status || 'Draft'}
                               </Badge>
                             </TableCell>
-                            <TableCell>${campaign.budget}</TableCell>
-                            <TableCell>
-                              {new Date(campaign.created_at).toLocaleDateString()}
-                            </TableCell>
+                            <TableCell>${campaign.budget?.toLocaleString() || '0'}</TableCell>
+                            <TableCell>{new Date(campaign.created_at).toLocaleDateString()}</TableCell>
                             <TableCell className="text-right">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
+                                  <Button variant="ghost" size="sm">
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Active')}>
-                                    Set as Active
+                                  <DropdownMenuItem>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Paused')}>
-                                    Set as Paused
+                                  <DropdownMenuItem>
+                                    <ExternalLink className="mr-2 h-4 w-4" />
+                                    View Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Completed')}>
-                                    Set as Completed
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    className="text-destructive" 
-                                    onClick={() => handleDeleteCampaign(campaign.id)}
-                                  >
+                                  <DropdownMenuItem onClick={() => handleDeleteCampaign(campaign.id)}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -295,19 +296,21 @@ export default function AdminCampaigns() {
         
         <TabsContent value="campaigns">
           <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>All Campaigns</CardTitle>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleExportCampaigns('csv')}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                </div>
+            <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <CardTitle>All Campaigns</CardTitle>
+              <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+                <Button variant="outline" size="sm" onClick={() => setSelectedStatus('all')}>
+                  All
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setSelectedStatus('Active')}>
+                  Active
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setSelectedStatus('Draft')}>
+                  Draft
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setSelectedStatus('Paused')}>
+                  Paused
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -355,31 +358,42 @@ export default function AdminCampaigns() {
                                 {campaign.status || 'Draft'}
                               </Badge>
                             </TableCell>
-                            <TableCell>${campaign.budget}</TableCell>
-                            <TableCell>
-                              {new Date(campaign.created_at).toLocaleDateString()}
-                            </TableCell>
+                            <TableCell>${campaign.budget?.toLocaleString() || '0'}</TableCell>
+                            <TableCell>{new Date(campaign.created_at).toLocaleDateString()}</TableCell>
                             <TableCell className="text-right">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
+                                  <Button variant="ghost" size="sm">
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Active')}>
-                                    Set as Active
+                                  <DropdownMenuItem>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Paused')}>
-                                    Set as Paused
+                                  <DropdownMenuItem>
+                                    <ExternalLink className="mr-2 h-4 w-4" />
+                                    View Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Completed')}>
-                                    Set as Completed
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    className="text-destructive" 
-                                    onClick={() => handleDeleteCampaign(campaign.id)}
-                                  >
+                                  {campaign.status === 'Active' ? (
+                                    <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Paused')}>
+                                      <PauseCircle className="mr-2 h-4 w-4" />
+                                      Pause Campaign
+                                    </DropdownMenuItem>
+                                  ) : campaign.status === 'Paused' ? (
+                                    <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Active')}>
+                                      <PlayCircle className="mr-2 h-4 w-4" />
+                                      Resume Campaign
+                                    </DropdownMenuItem>
+                                  ) : campaign.status === 'Draft' ? (
+                                    <DropdownMenuItem onClick={() => handleStatusUpdate(campaign.id, 'Active')}>
+                                      <CheckCircle className="mr-2 h-4 w-4" />
+                                      Activate Campaign
+                                    </DropdownMenuItem>
+                                  ) : null}
+                                  <DropdownMenuItem onClick={() => handleDeleteCampaign(campaign.id)}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -402,41 +416,50 @@ export default function AdminCampaigns() {
               <CardTitle>Campaign Performance Metrics</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={performanceData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="impressions" stroke="#8884d8" name="Impressions" />
-                      <Line type="monotone" dataKey="clicks" stroke="#82ca9d" name="Clicks" />
-                      <Line type="monotone" dataKey="leads" stroke="#ffc658" name="Leads" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={platformData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="campaigns" fill="#8884d8" name="Campaigns" />
-                      <Bar dataKey="leads" fill="#82ca9d" name="Leads" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={performanceData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
+                    <Line yAxisId="left" type="monotone" dataKey="impressions" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    <Line yAxisId="left" type="monotone" dataKey="clicks" stroke="#82ca9d" />
+                    <Line yAxisId="right" type="monotone" dataKey="leads" stroke="#ff7300" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">127,493</div>
+                      <p className="text-muted-foreground">Total Impressions</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">9,847</div>
+                      <p className="text-muted-foreground">Total Clicks</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">1,283</div>
+                      <p className="text-muted-foreground">Total Leads</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>

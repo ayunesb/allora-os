@@ -1,3 +1,4 @@
+
 /**
  * Centralized logging service for consistent logging across the application
  * Enhanced with better structured logs and monitoring capabilities
@@ -117,8 +118,19 @@ const sendToMonitoring = (
   }
 };
 
+// Define the Logger interface for better type checking
+interface Logger {
+  debug: (message: string, meta?: LogMetadata) => void;
+  info: (message: string, meta?: LogMetadata) => void;
+  warn: (message: string, meta?: LogMetadata) => void;
+  error: (message: string, error?: any, meta?: LogMetadata) => void;
+  time: (label: string, meta?: Omit<LogMetadata, 'duration'>) => (() => number);
+  group: (groupName: string, fn: () => void) => void;
+  createChildLogger: (defaultMeta: LogMetadata) => Omit<Logger, 'group' | 'createChildLogger'>;
+}
+
 // Create the enhanced logger object with methods for each log level
-export const logger = {
+export const logger: Logger = {
   debug: (message: string, meta?: LogMetadata): void => {
     if (!shouldLog('debug')) return;
     
@@ -183,8 +195,8 @@ export const logger = {
     const start = performance.now();
     const timeRequestId = currentRequestId || generateRequestId();
     
-    // Use optional chaining to safely access logger.debug
-    logger?.debug(`⏱️ TIMER START: ${label}`, {
+    // Fixed: Use optional chaining to safely access logger.debug
+    logger.debug?.(`⏱️ TIMER START: ${label}`, {
       ...meta,
       requestId: timeRequestId,
       timerLabel: label,
@@ -194,8 +206,8 @@ export const logger = {
     return () => {
       const duration = performance.now() - start;
       
-      // Use optional chaining to safely access logger.debug
-      logger?.debug(`⏱️ TIMER END: ${label} completed in ${duration.toFixed(2)}ms`, {
+      // Fixed: Use optional chaining to safely access logger.debug
+      logger.debug?.(`⏱️ TIMER END: ${label} completed in ${duration.toFixed(2)}ms`, {
         ...meta,
         requestId: timeRequestId,
         timerLabel: label,
