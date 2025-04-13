@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { testWebhook, sanitizeWebhookUrl, validateWebhookUrl } from '@/utils/webhookValidation';
 import { WebhookType } from '@/utils/webhookValidation';
@@ -23,7 +23,7 @@ export function useWebhooks() {
   const { saveWebhookSettings, loadWebhookSettings } = useWebhookStorage();
   
   // Load stored webhook settings on component mount
-  useState(() => {
+  useEffect(() => {
     const loadSettings = async () => {
       const settings = await loadWebhookSettings();
       if (settings) {

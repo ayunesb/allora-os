@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import WebhookHistoryTab from './webhooks/WebhookHistoryTab';
-import { useWebhooks } from './webhooks/useWebhooks';
-import { useWebhookValidation } from './webhooks/useWebhookValidation';
+import { useWebhooks } from '@/hooks/admin/useWebhooks';
+import { useWebhookValidation } from '@/hooks/admin/useWebhookValidation';
 import WebhookHeader from './webhooks/WebhookHeader';
 import WebhookConfigTab from './webhooks/config/WebhookConfigTab';
 import { useBreakpoint } from "@/hooks/use-mobile";
@@ -91,6 +91,13 @@ const WebhooksTab = () => {
       isCustomWebhookValid
     );
   };
+  
+  // Test handlers that correctly return Promise<boolean>
+  const testStripeWebhook = () => handleTestStripeWebhook(isStripeWebhookValid);
+  const testZapierWebhook = () => handleTestZapierWebhook(isZapierWebhookValid);
+  const testGithubWebhook = () => handleTestGithubWebhook(isGithubWebhookValid);
+  const testSlackWebhook = () => handleTestSlackWebhook(isSlackWebhookValid);
+  const testCustomWebhook = () => handleTestCustomWebhook(isCustomWebhookValid);
 
   return (
     <Card>
@@ -115,11 +122,11 @@ const WebhooksTab = () => {
               onGithubWebhookChange={handleGithubWebhookChange}
               onSlackWebhookChange={handleSlackWebhookChange}
               onCustomWebhookChange={handleCustomWebhookChange}
-              onTestStripeWebhook={() => handleTestStripeWebhook(isStripeWebhookValid)}
-              onTestZapierWebhook={() => handleTestZapierWebhook(isZapierWebhookValid)}
-              onTestGithubWebhook={() => handleTestGithubWebhook(isGithubWebhookValid)}
-              onTestSlackWebhook={() => handleTestSlackWebhook(isSlackWebhookValid)}
-              onTestCustomWebhook={() => handleTestCustomWebhook(isCustomWebhookValid)}
+              onTestStripeWebhook={testStripeWebhook}
+              onTestZapierWebhook={testZapierWebhook}
+              onTestGithubWebhook={testGithubWebhook}
+              onTestSlackWebhook={testSlackWebhook}
+              onTestCustomWebhook={testCustomWebhook}
               onSave={handleSave}
               isSaving={isSaving}
               testingWebhook={testingWebhook}

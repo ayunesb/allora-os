@@ -2,23 +2,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { WebhookType } from '@/utils/webhookValidation';
-
-/**
- * Interface for webhook event data structure
- */
-export interface WebhookEvent {
-  id: string;
-  timestamp: string;
-  webhookType: WebhookType;
-  eventType: string;
-  targetUrl: string;
-  payload: any;
-  status: 'success' | 'error' | 'pending';
-  responseCode?: number;
-  response?: any;
-  errorMessage?: string;
-  duration?: number;
-}
+import { WebhookEvent } from '@/types/webhooks';
 
 /**
  * Interface for webhook local storage data
@@ -147,7 +131,7 @@ export const useWebhookHistory = () => {
   /**
    * Generate a test webhook event for demonstration purposes
    */
-  const generateTestEvent = (type: WebhookType = 'stripe', status: 'success' | 'error' = 'success') => {
+  const generateTestEvent = (type: WebhookType = 'stripe', status: 'success' | 'failed' = 'success') => {
     const payload = {
       event: 'test_event',
       timestamp: new Date().toISOString(),
@@ -159,16 +143,14 @@ export const useWebhookHistory = () => {
     
     const newEvent: WebhookEvent = {
       id: `wh_${Date.now()}_${Math.floor(Math.random() * 1000000)}`,
-      timestamp: new Date().toISOString(),
       webhookType: type,
       eventType: 'test_webhook',
       targetUrl: `https://api.${type}.com/webhooks/test`,
+      source: 'Webhook Testing',
+      status: status === 'success' ? 'success' : 'failed',
+      timestamp: new Date().toISOString(),
       payload,
-      status,
-      responseCode: status === 'success' ? 200 : 400,
-      response: status === 'success' ? { received: true } : null,
-      errorMessage: status === 'error' ? 'Connection refused' : undefined,
-      duration: Math.floor(Math.random() * 1000) + 100,
+      response: status === 'success' ? { received: true } : null
     };
     
     addWebhookEvent(newEvent);
