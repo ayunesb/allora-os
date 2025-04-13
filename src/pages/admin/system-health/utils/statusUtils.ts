@@ -2,7 +2,7 @@
 import React from 'react';
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
-type ServiceStatus = 'healthy' | 'degraded' | 'down';
+export type ServiceStatus = 'healthy' | 'degraded' | 'down';
 
 /**
  * Returns the appropriate icon component for the given status
@@ -10,11 +10,11 @@ type ServiceStatus = 'healthy' | 'degraded' | 'down';
 export const getStatusIcon = (status: ServiceStatus): React.ReactNode => {
   switch (status) {
     case 'healthy':
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
+      return React.createElement(CheckCircle, { className: "h-4 w-4 text-green-500" });
     case 'degraded':
-      return <AlertTriangle className="h-4 w-4 text-amber-500" />;
+      return React.createElement(AlertTriangle, { className: "h-4 w-4 text-amber-500" });
     case 'down':
-      return <XCircle className="h-4 w-4 text-red-500" />;
+      return React.createElement(XCircle, { className: "h-4 w-4 text-red-500" });
     default:
       return null;
   }
