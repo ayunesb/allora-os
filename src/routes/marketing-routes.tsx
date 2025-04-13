@@ -38,3 +38,5 @@ export const marketingRoutes: RouteObject[] = [
     element: <FAQ />,
   },
 ];
+
+export default marketingRoutes;

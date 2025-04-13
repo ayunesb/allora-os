@@ -30,6 +30,7 @@ export const NavigationManager = () => {
   useEffect(() => {
     try {
       logger.info(`NavigationManager: Current route changed to: ${location.pathname}`);
+      console.log('Current route path:', location.pathname);
     } catch (error) {
       logger.error('Error logging current route:', error);
     }

@@ -12,6 +12,7 @@ import { logger } from '@/utils/loggingService';
 // Initialize error handlers
 const handleError = (error: Error) => {
   logger.error('Caught React error in main:', error);
+  console.error('React error caught in main.tsx:', error);
 };
 
 // Initialize QueryClient with default options
@@ -23,6 +24,10 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Log initialization
+logger.info('Application initializing');
+console.log('Application initializing - main.tsx');
 
 // Render the app with proper providers
 ReactDOM.createRoot(document.getElementById('root')!).render(

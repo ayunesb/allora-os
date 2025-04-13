@@ -13,3 +13,5 @@ export const devRoutes: RouteObject[] = [
     element: <DevHelperRedirect />,
   }
 ];
+
+export default devRoutes;

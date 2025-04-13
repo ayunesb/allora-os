@@ -6,6 +6,8 @@ import { publicRoutes } from "./public-routes";
 import { authRoutes } from "./auth-routes";
 import { dashboardRoutes } from "./dashboard-routes"; 
 import { onboardingRoutes } from "./onboarding-routes";
+import { marketingRoutes } from "./marketing-routes";
+import { devRoutes } from "./dev-routes";
 import { NavigationManager } from "@/components/NavigationManager";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
@@ -69,13 +71,15 @@ export const router = createBrowserRouter([
             path: "*",
             element: <NotFound />,
           },
-          // Adding spread operators for route arrays - fixed to use the arrays directly
+          // Properly spreading all route arrays
           ...adminRoutes,
           ...complianceRoutes,
           ...publicRoutes,
           ...authRoutes,
           ...dashboardRoutes,
-          ...onboardingRoutes
+          ...onboardingRoutes,
+          ...marketingRoutes,
+          ...devRoutes
         ]
       }
     ]

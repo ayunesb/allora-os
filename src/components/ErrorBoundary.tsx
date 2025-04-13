@@ -25,6 +25,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     logger.error('ErrorBoundary caught an error:', error);
+    console.error('ErrorBoundary caught an error:', error);
     return { hasError: true, error, errorInfo: null };
   }
 
@@ -34,6 +35,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       componentStack: errorInfo.componentStack,
       componentName: this.constructor.name
     });
+    
+    console.error("Component error stack:", errorInfo.componentStack);
     
     // Update state with error info
     this.setState({ errorInfo });
@@ -64,10 +67,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 An unexpected error occurred. Our team has been notified.
               </p>
               {this.state.error && (
-                <div className="bg-muted p-3 rounded-md overflow-auto max-h-32 text-xs">
+                <div className="bg-muted p-3 rounded-md overflow-auto max-h-40 text-xs">
                   <p className="font-mono">{this.state.error.toString()}</p>
                   {this.state.errorInfo && (
-                    <pre className="mt-2 text-xs font-mono overflow-auto max-h-32">
+                    <pre className="mt-2 text-xs font-mono overflow-auto max-h-40">
                       {this.state.errorInfo.componentStack}
                     </pre>
                   )}
