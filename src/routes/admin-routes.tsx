@@ -14,8 +14,6 @@ const adminRoutes: RouteObject[] = [
   }
 ];
 
-// Export both the array and the object form with routes property
+// Export the routes array directly
 export { adminRoutes };
-export default {
-  routes: adminRoutes
-};
+export default adminRoutes;

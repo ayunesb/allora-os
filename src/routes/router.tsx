@@ -69,13 +69,13 @@ export const router = createBrowserRouter([
             path: "*",
             element: <NotFound />,
           },
-          // Adding spread operators for route arrays
-          ...(adminRoutes.routes || []),
-          ...(complianceRoutes || []),
-          ...(publicRoutes || []),
-          ...(authRoutes || []),
-          ...(dashboardRoutes || []),
-          ...(onboardingRoutes || [])
+          // Adding spread operators for route arrays - fixed to use the arrays directly
+          ...adminRoutes,
+          ...complianceRoutes,
+          ...publicRoutes,
+          ...authRoutes,
+          ...dashboardRoutes,
+          ...onboardingRoutes
         ]
       }
     ]

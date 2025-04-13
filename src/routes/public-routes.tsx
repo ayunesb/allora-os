@@ -71,7 +71,5 @@ export const publicRoutes: RouteObject[] = [
   },
 ];
 
-// Provide an object form with a routes property for ease of use in the main router
-export const publicRoutesObj = {
-  routes: publicRoutes
-};
+// Export the routes array directly
+export default publicRoutes;
