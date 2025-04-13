@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,15 +10,16 @@ import { useAuth } from "@/context/AuthContext";
 import { runTestCompanySetup } from "@/utils/company/test";
 import { toast } from "sonner";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { BellRing, Globe, Mail, MessageSquare, Phone } from "lucide-react";
+import { BellRing, Globe, Lock, Mail, MessageSquare, Phone } from "lucide-react";
 import MarketingPlatformIntegrations from "@/components/integrations/MarketingPlatformIntegrations";
 import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
 import { checkSupabaseConnection } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isTestingApi, setIsTestingApi] = useState(false);
   const [apiEndpoint, setApiEndpoint] = useState<string>("");
@@ -28,6 +28,8 @@ export default function Settings() {
   const [apiHeaders, setApiHeaders] = useState<string>("{\n  \"Content-Type\": \"application/json\"\n}");
   const [apiBody, setApiBody] = useState<string>("{}");
   const { preferences, isLoading: prefsLoading, updatePreference } = useUserPreferences();
+  
+  const isAdmin = profile?.role === 'admin';
 
   const handleSetupTestCompany = async () => {
     if (!user?.email) {
@@ -145,7 +147,14 @@ export default function Settings() {
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
-          <TabsTrigger value="development">Development</TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="development" className="flex items-center gap-2">
+              Development
+              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs">
+                Admin Only
+              </Badge>
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="account">
@@ -304,125 +313,130 @@ export default function Settings() {
           </div>
         </TabsContent>
         
-        <TabsContent value="development">
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Development Tools</CardTitle>
-                <CardDescription>Tools for testing and debugging</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Test Data</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Set up test company data for the current user.
-                  </p>
-                  <Button 
-                    onClick={handleSetupTestCompany} 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Setting up..." : "Set Up Test Company"}
-                  </Button>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Database Connection Test</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Verify your connection to the database.
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleDatabaseTest} 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Testing..." : "Test Database Connection"}
-                  </Button>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-2">API Testing</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Test API endpoints and view responses.
-                  </p>
+        {isAdmin && (
+          <TabsContent value="development">
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    Development Tools
+                    <Lock className="h-4 w-4 text-yellow-600" />
+                  </CardTitle>
+                  <CardDescription>Tools for testing and debugging</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Test Data</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Set up test company data for the current user.
+                    </p>
+                    <Button 
+                      onClick={handleSetupTestCompany} 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Setting up..." : "Set Up Test Company"}
+                    </Button>
+                  </div>
                   
-                  <div className="space-y-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="api-endpoint">API Endpoint</Label>
-                      <Input 
-                        id="api-endpoint" 
-                        placeholder="https://api.example.com/data" 
-                        value={apiEndpoint}
-                        onChange={(e) => setApiEndpoint(e.target.value)}
-                      />
-                    </div>
+                  <Separator />
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Database Connection Test</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Verify your connection to the database.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleDatabaseTest} 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Testing..." : "Test Database Connection"}
+                    </Button>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">API Testing</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Test API endpoints and view responses.
+                    </p>
                     
-                    <div className="grid gap-2">
-                      <Label htmlFor="api-method">Method</Label>
-                      <Select value={apiMethod} onValueChange={setApiMethod}>
-                        <SelectTrigger id="api-method">
-                          <SelectValue placeholder="Select method" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="GET">GET</SelectItem>
-                          <SelectItem value="POST">POST</SelectItem>
-                          <SelectItem value="PUT">PUT</SelectItem>
-                          <SelectItem value="PATCH">PATCH</SelectItem>
-                          <SelectItem value="DELETE">DELETE</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="grid gap-2">
-                      <Label htmlFor="api-headers">Headers (JSON)</Label>
-                      <Textarea 
-                        id="api-headers" 
-                        placeholder='{"Content-Type": "application/json"}'
-                        value={apiHeaders}
-                        onChange={(e) => setApiHeaders(e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                    
-                    {["POST", "PUT", "PATCH"].includes(apiMethod) && (
+                    <div className="space-y-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="api-body">Request Body (JSON)</Label>
-                        <Textarea 
-                          id="api-body" 
-                          placeholder='{"key": "value"}'
-                          value={apiBody}
-                          onChange={(e) => setApiBody(e.target.value)}
-                          rows={5}
+                        <Label htmlFor="api-endpoint">API Endpoint</Label>
+                        <Input 
+                          id="api-endpoint" 
+                          placeholder="https://api.example.com/data" 
+                          value={apiEndpoint}
+                          onChange={(e) => setApiEndpoint(e.target.value)}
                         />
                       </div>
-                    )}
-                    
-                    <Button 
-                      onClick={handleApiTest} 
-                      disabled={isTestingApi || !apiEndpoint}
-                    >
-                      {isTestingApi ? "Testing..." : "Test API"}
-                    </Button>
-                    
-                    {apiResponse && (
-                      <div className="mt-4">
-                        <Label htmlFor="api-response">Response</Label>
-                        <div className="mt-2 p-4 bg-secondary/20 rounded-md overflow-auto max-h-80">
-                          <pre id="api-response" className="text-sm whitespace-pre-wrap">
-                            {apiResponse}
-                          </pre>
-                        </div>
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="api-method">Method</Label>
+                        <Select value={apiMethod} onValueChange={setApiMethod}>
+                          <SelectTrigger id="api-method">
+                            <SelectValue placeholder="Select method" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="GET">GET</SelectItem>
+                            <SelectItem value="POST">POST</SelectItem>
+                            <SelectItem value="PUT">PUT</SelectItem>
+                            <SelectItem value="PATCH">PATCH</SelectItem>
+                            <SelectItem value="DELETE">DELETE</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                    )}
+                      
+                      <div className="grid gap-2">
+                        <Label htmlFor="api-headers">Headers (JSON)</Label>
+                        <Textarea 
+                          id="api-headers" 
+                          placeholder='{"Content-Type": "application/json"}'
+                          value={apiHeaders}
+                          onChange={(e) => setApiHeaders(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      
+                      {["POST", "PUT", "PATCH"].includes(apiMethod) && (
+                        <div className="grid gap-2">
+                          <Label htmlFor="api-body">Request Body (JSON)</Label>
+                          <Textarea 
+                            id="api-body" 
+                            placeholder='{"key": "value"}'
+                            value={apiBody}
+                            onChange={(e) => setApiBody(e.target.value)}
+                            rows={5}
+                          />
+                        </div>
+                      )}
+                      
+                      <Button 
+                        onClick={handleApiTest} 
+                        disabled={isTestingApi || !apiEndpoint}
+                      >
+                        {isTestingApi ? "Testing..." : "Test API"}
+                      </Button>
+                      
+                      {apiResponse && (
+                        <div className="mt-4">
+                          <Label htmlFor="api-response">Response</Label>
+                          <div className="mt-2 p-4 bg-secondary/20 rounded-md overflow-auto max-h-80">
+                            <pre id="api-response" className="text-sm whitespace-pre-wrap">
+                              {apiResponse}
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
