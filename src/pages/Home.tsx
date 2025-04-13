@@ -7,33 +7,26 @@ import { ArrowRight } from "lucide-react";
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                  Allora AI - Business Acceleration Platform
-                </h1>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  Accelerate your business with AI-powered executive advisory services, personalized strategies, and competitive insights.
-                </p>
-              </div>
-              <div className="space-x-4">
-                <Button asChild>
-                  <Link to="/dashboard">
-                    Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/login">
-                    Log In
-                  </Link>
-                </Button>
-              </div>
-            </div>
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto text-center mt-12">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Allora AI - Business Acceleration Platform
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8">
+            AI-powered executive advisory to accelerate your business growth
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg">
+              <Link to="/dashboard">
+                Go to Dashboard
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/signup">Sign Up</Link>
+            </Button>
           </div>
-        </section>
+        </div>
       </main>
     </div>
   );

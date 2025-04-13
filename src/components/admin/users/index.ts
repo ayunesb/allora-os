@@ -1,5 +1,3 @@
 
-export * from './UserTable';
-export * from './InviteUserDialog';
-export * from './UserListSkeleton';
-export * from './UserManagementHeader';
+export { UserManagementHeader } from './UserManagementHeader';
+export { UserTable } from './UserTable';

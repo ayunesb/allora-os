@@ -10,7 +10,6 @@ interface AccessibilityContextType {
   toggleReducedMotion: () => void;
   screenReaderFriendly: boolean;
   toggleScreenReaderFriendly: () => void;
-  // Add missing largeText and toggleLargeText properties
   largeText: boolean;
   toggleLargeText: () => void;
 }
