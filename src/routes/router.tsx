@@ -11,18 +11,11 @@ import { devRoutes } from "./dev-routes";
 import { NavigationManager } from "@/components/NavigationManager";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
-import SystemHealthPage from "@/pages/admin/system-health/SystemHealthPage";
-import AdminLayout from "@/components/AdminLayout";
-import AdminRoute from "@/components/AdminRoute";
-
-// Import pages explicitly to avoid any import issues
 import Page404 from "@/pages/404";
 import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
-import LaunchPlan from "@/pages/admin/LaunchPlan";
-import LaunchCheck from "@/pages/admin/LaunchCheck";
 import { logger } from "@/utils/loggingService";
 
 // Create a navigation layout that includes NavigationManager
@@ -38,34 +31,6 @@ const NavigationLayout = () => {
     </ErrorBoundary>
   );
 };
-
-// Admin layout wrapper with proper TypeScript props
-const AdminLayoutWrapper = () => {
-  return (
-    <AdminRoute>
-      <AdminLayout>
-        <Outlet />
-      </AdminLayout>
-    </AdminRoute>
-  );
-};
-
-// Handle all admin routes with proper layout
-const adminRoutesWithLayout = [
-  {
-    path: "/admin",
-    element: <AdminLayoutWrapper />,
-    children: [
-      { path: "", element: <Index /> },
-      { path: "system-health", element: <SystemHealthPage /> },
-      { path: "launch-plan", element: <LaunchPlan /> },
-      { path: "launch-check", element: <LaunchCheck /> },
-      { path: "launch-prep", element: <LaunchPlan /> },
-      // Add other admin routes that need the admin layout
-      { path: "*", element: <Page404 /> }
-    ]
-  }
-];
 
 // Export the router to use in main.tsx or App.tsx
 export const router = createBrowserRouter([
@@ -102,7 +67,7 @@ export const router = createBrowserRouter([
           },
           
           // Properly spreading all route arrays
-          ...adminRoutesWithLayout,
+          ...adminRoutes,
           ...complianceRoutes,
           ...publicRoutes,
           ...authRoutes,

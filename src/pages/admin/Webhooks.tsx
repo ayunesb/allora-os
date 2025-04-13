@@ -2,18 +2,18 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function UserOnboarding() {
+export default function Webhooks() {
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>User Onboarding</CardTitle>
+          <CardTitle>Webhook Management</CardTitle>
           <CardDescription>
-            Configure the onboarding process for new users
+            Configure integrations with external services
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p>User onboarding configuration content will be displayed here.</p>
+          <p>Webhook configuration content will be displayed here.</p>
         </CardContent>
       </Card>
     </div>
