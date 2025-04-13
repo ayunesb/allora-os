@@ -1,187 +1,227 @@
 
-import { useState, useEffect } from 'react';
-import { toast } from "sonner";
+import { useState, useEffect, useCallback } from 'react';
+import { WebhookEvent } from '@/types/webhooks';
+import { toast } from 'sonner';
 import { WebhookType } from '@/utils/webhookValidation';
-
-/**
- * Interface for webhook event
- */
-export interface WebhookEvent {
-  id: string;
-  webhookType: WebhookType;
-  eventType: string;
-  targetUrl: string;
-  source: string;
-  status: 'success' | 'failed' | 'pending';
-  timestamp: string;
-  payload: any;
-  response: any;
-  duration?: number;
-  errorMessage?: string;
-  responseCode?: string;
-}
-
-/**
- * Interface for webhook local storage data
- */
-interface WebhookHistoryStorage {
-  version: number;
-  events: WebhookEvent[];
-  lastUpdated: string;
-}
 
 /**
  * Custom hook for managing webhook event history
  */
 export const useWebhookHistory = () => {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize] = useState<number>(10);
+  
+  // Event data state
   const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<WebhookEvent[]>([]);
+  const [paginatedEvents, setPaginatedEvents] = useState<WebhookEvent[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // Load webhook history from localStorage on mount
+  
+  // Filter state
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<string>('');
+  
+  // Available options for filtering
+  const webhookTypes: WebhookType[] = ['stripe', 'zapier', 'github', 'slack', 'custom'];
+  
+  // Load events from localStorage (or in a real app, from the database)
   useEffect(() => {
-    loadWebhookHistory();
-  }, []);
-
-  /**
-   * Load webhook history from localStorage
-   */
-  const loadWebhookHistory = () => {
-    setIsLoading(true);
-    try {
-      const storedHistory = localStorage.getItem('webhook_event_history');
+    const loadEvents = () => {
+      setIsLoading(true);
       
-      if (storedHistory) {
-        const parsedHistory: WebhookHistoryStorage = JSON.parse(storedHistory);
-        // Sort by timestamp, most recent first
-        const sortedEvents = parsedHistory.events.sort((a, b) => 
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        );
-        setWebhookEvents(sortedEvents);
-      } else {
+      try {
+        // In a real app, you would fetch from your API or database
+        const storedHistory = localStorage.getItem('webhook_event_history');
+        
+        if (!storedHistory) {
+          setWebhookEvents([]);
+          setFilteredEvents([]);
+          setIsLoading(false);
+          return;
+        }
+        
+        const history = JSON.parse(storedHistory);
+        const eventsList = history.events || [];
+        
+        // Add sample events for demo if none exist
+        if (eventsList.length === 0) {
+          const sampleEvents: WebhookEvent[] = [
+            {
+              id: 'wh_1',
+              webhookType: 'zapier',
+              eventType: 'lead_created',
+              targetUrl: 'https://hooks.zapier.com/hooks/catch/12345/abcdef/',
+              source: 'app',
+              status: 'success',
+              timestamp: new Date().toISOString(),
+              payload: { data: 'lead data' },
+              response: { status: '200' },
+              duration: 120
+            },
+            {
+              id: 'wh_2',
+              webhookType: 'stripe',
+              eventType: 'payment.success',
+              targetUrl: 'https://api.example.com/webhooks/stripe',
+              source: 'stripe',
+              status: 'success',
+              timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+              payload: { data: 'payment data' },
+              response: { status: '200' },
+              duration: 89
+            },
+            {
+              id: 'wh_3',
+              webhookType: 'slack',
+              eventType: 'notification',
+              targetUrl: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX',
+              source: 'app',
+              status: 'failed',
+              timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+              payload: { message: 'Test notification' },
+              response: { error: 'Invalid token' },
+              duration: 67,
+              errorMessage: 'Authentication failed'
+            }
+          ];
+          
+          // Save sample events to localStorage for demo
+          localStorage.setItem('webhook_event_history', JSON.stringify({
+            version: 1,
+            events: sampleEvents,
+            lastUpdated: new Date().toISOString()
+          }));
+          
+          setWebhookEvents(sampleEvents);
+          setFilteredEvents(sampleEvents);
+        } else {
+          setWebhookEvents(eventsList);
+          setFilteredEvents(eventsList);
+        }
+      } catch (error) {
+        console.error('Error loading webhook history:', error);
         setWebhookEvents([]);
+        setFilteredEvents([]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading webhook history:', error);
-      setWebhookEvents([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Save webhook history to localStorage
-   */
-  const saveWebhookHistory = (events: WebhookEvent[]) => {
-    try {
-      const historyData: WebhookHistoryStorage = {
-        version: 1,
-        events,
-        lastUpdated: new Date().toISOString()
-      };
-      
-      localStorage.setItem('webhook_event_history', JSON.stringify(historyData));
-      setWebhookEvents(events);
-    } catch (error) {
-      console.error('Error saving webhook history:', error);
-      toast.error('Failed to save webhook event history');
-    }
-  };
-
-  /**
-   * Add a new webhook event to history
-   */
-  const addWebhookEvent = (event: WebhookEvent) => {
-    const updatedEvents = [event, ...webhookEvents];
-    saveWebhookHistory(updatedEvents);
-    return event.id; // Return the ID for potential future references
-  };
-
-  /**
-   * Update an existing webhook event (useful for updating status after completion)
-   */
-  const updateWebhookEvent = (eventId: string, updates: Partial<WebhookEvent>) => {
-    const updatedEvents = webhookEvents.map(event => 
-      event.id === eventId ? { ...event, ...updates } : event
-    );
+    };
     
-    saveWebhookHistory(updatedEvents);
-  };
-
-  /**
-   * Clear all webhook history
-   */
-  const clearHistory = () => {
-    localStorage.removeItem('webhook_event_history');
-    setWebhookEvents([]);
-    toast.success('Webhook event history cleared');
-  };
-
-  /**
-   * Export webhook history as JSON file
-   */
-  const exportHistory = () => {
+    loadEvents();
+  }, []);
+  
+  // Calculate paginated events whenever filtered events or pagination settings change
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    setPaginatedEvents(filteredEvents.slice(startIndex, endIndex));
+  }, [filteredEvents, currentPage, pageSize]);
+  
+  // Apply filters when they change
+  useEffect(() => {
+    if (!webhookEvents.length) return;
+    
+    setIsLoading(true);
+    
+    // Apply filters
+    let result = [...webhookEvents];
+    
+    if (searchTerm) {
+      const lowerCaseQuery = searchTerm.toLowerCase();
+      result = result.filter(
+        event => 
+          event.webhookType.toLowerCase().includes(lowerCaseQuery) ||
+          (event.eventType && event.eventType.toLowerCase().includes(lowerCaseQuery)) ||
+          event.targetUrl.toLowerCase().includes(lowerCaseQuery)
+      );
+    }
+    
+    if (statusFilter) {
+      result = result.filter(event => event.status === statusFilter);
+    }
+    
+    if (typeFilter) {
+      result = result.filter(event => event.webhookType === typeFilter);
+    }
+    
+    // Set filtered events and reset to first page if filters changed
+    setFilteredEvents(result);
+    if (result.length > 0 && result.length !== filteredEvents.length) {
+      setCurrentPage(1);
+    }
+    
+    setIsLoading(false);
+  }, [webhookEvents, searchTerm, statusFilter, typeFilter]);
+  
+  // Calculate total pages based on filtered results
+  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / pageSize));
+  
+  // Handle exporting history
+  const handleExportHistory = useCallback(() => {
     try {
-      const historyData: WebhookHistoryStorage = {
-        version: 1,
-        events: webhookEvents,
-        lastUpdated: new Date().toISOString()
+      // Prepare data
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        events: webhookEvents
       };
       
-      const dataStr = JSON.stringify(historyData, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
-      const exportFileDefaultName = `webhook-history-${new Date().toISOString().substring(0, 10)}.json`;
-      
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-      linkElement.remove();
+      // Create blob and download
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `webhook-history-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       
       toast.success('Webhook history exported successfully');
     } catch (error) {
       console.error('Error exporting webhook history:', error);
       toast.error('Failed to export webhook history');
     }
-  };
-
-  /**
-   * Generate a test webhook event for demonstration purposes
-   */
-  const generateTestEvent = (type: WebhookType = 'stripe', status: 'success' | 'failed' = 'success') => {
-    const payload = {
-      event: 'test_event',
-      timestamp: new Date().toISOString(),
-      data: {
-        id: `test_${Math.floor(Math.random() * 1000000)}`,
-        source: 'Webhook Testing Tool'
-      }
-    };
-    
-    const newEvent: WebhookEvent = {
-      id: `wh_${Date.now()}_${Math.floor(Math.random() * 1000000)}`,
-      webhookType: type,
-      eventType: 'test_webhook',
-      targetUrl: `https://api.${type}.com/webhooks/test`,
-      source: 'Webhook Testing',
-      status: status === 'success' ? 'success' : 'failed',
-      timestamp: new Date().toISOString(),
-      payload,
-      response: status === 'success' ? { received: true } : null
-    };
-    
-    addWebhookEvent(newEvent);
-    toast.success('Test webhook event generated');
-    return newEvent.id;
-  };
+  }, [webhookEvents]);
+  
+  // Handle clearing history
+  const handleClearHistory = useCallback(() => {
+    try {
+      // Clear from localStorage (or in a real app, from the database)
+      localStorage.setItem('webhook_event_history', JSON.stringify({
+        version: 1,
+        events: [],
+        lastUpdated: new Date().toISOString()
+      }));
+      
+      setWebhookEvents([]);
+      setFilteredEvents([]);
+      
+      toast.success('Webhook history cleared successfully');
+    } catch (error) {
+      console.error('Error clearing webhook history:', error);
+      toast.error('Failed to clear webhook history');
+    }
+  }, []);
 
   return {
     webhookEvents,
+    filteredEvents,
+    paginatedEvents,
     isLoading,
-    addWebhookEvent,
-    updateWebhookEvent,
-    clearHistory,
-    exportHistory,
-    generateTestEvent
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    typeFilter,
+    setTypeFilter,
+    currentPage,
+    totalPages,
+    pageSize,
+    handlePageChange: setCurrentPage,
+    webhookTypes,
+    handleExportHistory,
+    handleClearHistory
   };
 };

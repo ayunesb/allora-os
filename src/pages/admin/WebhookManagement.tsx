@@ -1,14 +1,24 @@
 
 import React from "react";
+import { WebhooksTab } from "@/components/admin";
+import { Helmet } from "react-helmet-async";
 
 export default function WebhookManagement() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Webhook Management</h1>
-      <p className="text-muted-foreground mb-4">Configure and manage webhooks.</p>
-      <div className="bg-muted/50 p-8 rounded-lg text-center">
-        <p>Webhook management functionality will be implemented here.</p>
+    <>
+      <Helmet>
+        <title>Webhook Management | Allora AI</title>
+      </Helmet>
+      <div className="space-y-4">
+        <div>
+          <h1 className="text-2xl font-bold">Webhook Management</h1>
+          <p className="text-muted-foreground mb-4">
+            Configure and manage webhooks to integrate with external services
+          </p>
+        </div>
+        
+        <WebhooksTab />
       </div>
-    </div>
+    </>
   );
 }

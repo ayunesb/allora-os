@@ -1,9 +1,16 @@
 
 import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Filter, X } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search, X } from 'lucide-react';
+import { WebhookType } from '@/utils/webhookValidation';
 
 interface WebhookHistoryFiltersProps {
   searchTerm: string;
@@ -12,10 +19,10 @@ interface WebhookHistoryFiltersProps {
   setStatusFilter: (value: string) => void;
   typeFilter: string;
   setTypeFilter: (value: string) => void;
-  webhookTypes: string[];
+  webhookTypes: WebhookType[];
 }
 
-export function WebhookHistoryFilters({
+export const WebhookHistoryFilters: React.FC<WebhookHistoryFiltersProps> = ({
   searchTerm,
   setSearchTerm,
   statusFilter,
@@ -23,75 +30,60 @@ export function WebhookHistoryFilters({
   typeFilter,
   setTypeFilter,
   webhookTypes
-}: WebhookHistoryFiltersProps) {
-  const statusOptions = ['success', 'failed', 'pending'];
-  
+}) => {
   const handleClearFilters = () => {
     setSearchTerm('');
     setStatusFilter('');
     setTypeFilter('');
   };
   
-  const hasFilters = searchTerm || statusFilter || typeFilter;
+  const hasActiveFilters = searchTerm || statusFilter || typeFilter;
   
   return (
-    <div className="space-y-4 mb-4">
-      <div className="flex flex-col sm:flex-row gap-4">
+    <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="relative flex-1">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search webhooks..."
+          placeholder="Search events..."
+          className="pl-8"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="sm:max-w-xs"
         />
-        
-        <div className="flex flex-1 gap-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
-              {statusOptions.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Webhook Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
-              {webhookTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          {hasFilters && (
-            <Button variant="ghost" size="icon" onClick={handleClearFilters} className="h-10 w-10">
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
       </div>
       
-      {hasFilters && (
-        <div className="flex items-center text-sm">
-          <Filter className="mr-2 h-4 w-4" />
-          <span>
-            Filtering by:
-            {searchTerm && <span className="ml-1 font-medium">Search term "{searchTerm}"</span>}
-            {statusFilter && <span className="ml-1 font-medium">Status "{statusFilter}"</span>}
-            {typeFilter && <span className="ml-1 font-medium">Type "{typeFilter}"</span>}
-          </span>
-        </div>
-      )}
+      <div className="flex gap-2">
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="success">Success</SelectItem>
+            <SelectItem value="failed">Failed</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Types</SelectItem>
+            {webhookTypes.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
+        {hasActiveFilters && (
+          <Button variant="ghost" size="icon" onClick={handleClearFilters} title="Clear filters">
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
-}
+};
