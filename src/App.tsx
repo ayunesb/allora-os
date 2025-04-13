@@ -23,7 +23,7 @@ const App = () => {
         {/* Public Routes */}
         <Route path="/" element={<Dashboard />} />
         
-        {/* Admin routes */}
+        {/* Admin routes - properly using AdminRoute */}
         <Route path="/admin" element={<AdminRoute><Dashboard /></AdminRoute>} />
         <Route path="/admin/system-health" element={<AdminRoute><SystemHealthPage /></AdminRoute>} />
         <Route path="/admin/webhooks" element={<AdminRoute><WebhooksTab /></AdminRoute>} />
@@ -35,7 +35,7 @@ const App = () => {
         <Route path="/admin/launch-check" element={<AdminRoute><LaunchCheck /></AdminRoute>} />
         <Route path="/admin/launch-prep" element={<AdminRoute><LaunchPlan /></AdminRoute>} />
         
-        {/* Dev Helper Redirect */}
+        {/* Dev Helper Routes */}
         <Route path="/dev-helper-redirect" element={<DevHelperRedirect />} />
         <Route path="/dev-admin-helper" element={<DevAdminHelper />} />
         
