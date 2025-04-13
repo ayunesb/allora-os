@@ -8,13 +8,13 @@ import { authRoutes } from "./auth-routes";
 import { dashboardRoutes } from "./dashboard-routes"; 
 import { onboardingRoutes } from "./onboarding-routes";
 import NotFound from "@/pages/NotFound";
-import Pricing from "@/pages/Pricing";
 import { Navigate } from "react-router-dom";
 import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import { NavigationManager } from "@/components/NavigationManager";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
+import Pricing from "@/pages/Pricing";
 
 // Create a navigation layout that includes NavigationManager
 const NavigationLayout = () => {

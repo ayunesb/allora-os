@@ -3,10 +3,12 @@ import { Component, ErrorInfo, ReactNode, Suspense } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import { logger } from "@/utils/loggingService";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
 interface ErrorBoundaryState {
@@ -25,11 +27,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error("Uncaught error:", error);
-    console.error("Error info:", errorInfo);
+    logger.error("Uncaught error:", error, { errorInfo });
     
-    // Here you could log the error to an error reporting service
-    // Example: logErrorToService(error, errorInfo);
+    // Call the onError prop if provided
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
+    }
   }
 
   render() {
