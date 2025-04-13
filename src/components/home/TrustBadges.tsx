@@ -28,16 +28,16 @@ const TrustBadges = () => {
   ];
 
   return (
-    <div className="w-full bg-background py-6 md:py-8">
+    <div className="w-full bg-gradient-to-r from-[#0A0F24] to-[#1B1B3A] py-8 md:py-10">
       <div className="container mx-auto">
         <div className="flex flex-wrap justify-center gap-4 md:gap-8">
           <TooltipProvider>
             {badges.map((badge, index) => (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2 border border-primary/20 bg-background/80 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors">
+                  <div className="flex items-center gap-2 border border-white/20 bg-white/5 px-4 py-2 rounded-lg hover:bg-white/10 hover:border-white/30 transition-all duration-300">
                     <badge.icon className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-medium">{badge.label}</span>
+                    <span className="text-white/90 font-medium">{badge.label}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
