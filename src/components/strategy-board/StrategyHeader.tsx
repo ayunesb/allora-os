@@ -1,22 +1,30 @@
 
-import React, { ReactNode } from "react";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface StrategyHeaderProps {
-  title: string;
-  subtitle?: string;
-  children?: ReactNode;
+  onCreateNew: () => void;
 }
 
-export default function StrategyHeader({ title, subtitle, children }: StrategyHeaderProps) {
+export default function StrategyHeader({ onCreateNew }: StrategyHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-6 pb-4 gap-4">
-      <div className="space-y-1">
-        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{title}</h2>
-        {subtitle && <p className="text-muted-foreground text-sm sm:text-base">{subtitle}</p>}
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+      <div className="mb-4 md:mb-0">
+        <h1 className="text-3xl md:text-4xl font-bold">📈 Your Growth Strategies</h1>
+        <p className="text-gray-400 mt-2">
+          Built by your AI Executive Team. Ready to dominate your market.
+        </p>
       </div>
       
-      <div className="flex flex-wrap gap-2 self-start">
-        {children}
+      <div className="flex gap-3">
+        <Button 
+          onClick={onCreateNew} 
+          className="bg-purple-600 hover:bg-purple-700 transition-all"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Create New Strategy
+        </Button>
       </div>
     </div>
   );

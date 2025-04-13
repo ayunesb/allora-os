@@ -3,7 +3,8 @@ import { logger } from '@/utils/loggingService';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { integrateExecutiveOS } from './executiveOS';
-import { executiveBoosts } from './executiveOS';
+import { getExecutiveEnhancements, determinePersonalityTraits } from './executiveBoostService';
+import { determineStrategicFocus } from './roleStrategies';
 
 /**
  * Service to handle the integration of Executive OS capabilities with AI bots
@@ -24,42 +25,6 @@ export interface UpgradedExecutiveBot {
   strategicFocus: string;
 }
 
-// Default strategic focuses for various executive roles
-const defaultStrategicFocuses: Record<string, string> = {
-  ceo: "Aligning company vision with market opportunities",
-  cfo: "Optimizing capital allocation for growth and stability",
-  cmo: "Enhancing brand positioning and customer acquisition channels",
-  cio: "Accelerating digital transformation initiatives",
-  cto: "Developing technological competitive advantages",
-  chro: "Building high-performance organizational culture",
-  strategy: "Identifying new market opportunities and competitive advantages",
-  sales: "Optimizing sales pipeline and conversion processes",
-  operations: "Streamlining operational efficiency and scalability"
-};
-
-/**
- * Get personalized enhancements for an executive
- */
-export function getExecutiveEnhancements(botName: string) {
-  // Default enhancements if executive is not found in the map
-  const defaultEnhancements = {
-    boost: { name: "Strategic thinking", type: "cognitive" },
-    model: { name: "first_principles", type: "mental" }
-  };
-  
-  // Find the executive in the boost map
-  const boostInfo = executiveBoosts[botName];
-  
-  if (!boostInfo) {
-    return defaultEnhancements;
-  }
-  
-  return {
-    boost: { name: boostInfo.boost, type: "cognitive" },
-    model: { name: boostInfo.model, type: "mental" }
-  };
-}
-
 /**
  * Integrate Executive OS capabilities with an AI bot
  */
@@ -74,15 +39,7 @@ export async function upgradeExecutiveBot(
     const enhancements = getExecutiveEnhancements(botName);
     
     // Determine strategic focus based on role
-    const roleLower = botRole.toLowerCase();
-    let strategicFocus = "Optimizing business performance and innovation";
-    
-    for (const [roleKey, focus] of Object.entries(defaultStrategicFocuses)) {
-      if (roleLower.includes(roleKey)) {
-        strategicFocus = focus;
-        break;
-      }
-    }
+    const strategicFocus = determineStrategicFocus(botRole);
     
     // Log the integration
     const integrationResult = integrateExecutiveOS(
@@ -165,44 +122,4 @@ export async function upgradeAllExecutiveBots(
     failed: failedCount,
     upgraded
   };
-}
-
-/**
- * Helper function to determine personality traits based on executive name and role
- */
-function determinePersonalityTraits(name: string, role: string): string[] {
-  const roleLower = role.toLowerCase();
-  
-  // Specific executives
-  if (name === 'Elon Musk') {
-    return ['Visionary', 'Disruptive', 'Determined', 'Technical'];
-  } else if (name === 'Jeff Bezos') {
-    return ['Customer-obsessed', 'Long-term thinker', 'Detail-oriented', 'Analytical'];
-  } else if (name === 'Satya Nadella') {
-    return ['Empathetic', 'Growth mindset', 'Collaborative', 'Transformative'];
-  } else if (name === 'Warren Buffett') {
-    return ['Patient', 'Value-focused', 'Risk-aware', 'Clear communicator'];
-  } else if (name === 'Sheryl Sandberg') {
-    return ['Empowering', 'Structured', 'Communicative', 'Results-driven'];
-  }
-  
-  // Role-based traits
-  if (roleLower.includes('ceo')) {
-    return ['Visionary', 'Decisive', 'Strategic', 'Leadership-focused'];
-  } else if (roleLower.includes('cfo')) {
-    return ['Analytical', 'Prudent', 'Detail-oriented', 'Risk-aware'];
-  } else if (roleLower.includes('cto') || roleLower.includes('cio')) {
-    return ['Innovative', 'Technical', 'Solutions-oriented', 'Forward-thinking'];
-  } else if (roleLower.includes('cmo')) {
-    return ['Creative', 'Customer-focused', 'Brand-oriented', 'Data-driven'];
-  } else if (roleLower.includes('chro')) {
-    return ['Empathetic', 'People-focused', 'Culture-builder', 'Inclusive'];
-  } else if (roleLower.includes('strategy')) {
-    return ['Analytical', 'Forward-thinking', 'Systems-oriented', 'Innovative'];
-  } else if (roleLower.includes('sales')) {
-    return ['Persuasive', 'Relationship-builder', 'Goal-oriented', 'Resilient'];
-  }
-  
-  // Default traits
-  return ['Strategic', 'Analytical', 'Collaborative', 'Results-oriented'];
 }
