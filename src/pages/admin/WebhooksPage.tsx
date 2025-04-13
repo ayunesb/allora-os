@@ -15,6 +15,8 @@ import { format } from 'date-fns';
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { WebhookType } from "@/utils/webhookValidation";
+import { useWebhooks } from "@/components/admin/webhooks/useWebhooks";
+import { useWebhookValidation } from "@/components/admin/webhooks/useWebhookValidation";
 
 const WebhooksPage = () => {
   const [activeTab, setActiveTab] = useState("config");
@@ -36,6 +38,36 @@ const WebhooksPage = () => {
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const { toast } = useToast();
+
+  // Use the hooks to get webhook data and validation
+  const {
+    stripeWebhook,
+    setStripeWebhook,
+    zapierWebhook,
+    setZapierWebhook,
+    githubWebhook,
+    setGithubWebhook,
+    slackWebhook,
+    setSlackWebhook,
+    customWebhook,
+    setCustomWebhook,
+    isSaving,
+    testLoading,
+    testingWebhook,
+    handleSaveWebhooks,
+    handleTestZapierWebhook,
+    handleTestGithubWebhook,
+    handleTestSlackWebhook,
+    handleTestCustomWebhook,
+    handleTestStripeWebhook
+  } = useWebhooks();
+
+  // Validation hooks
+  const { isValid: isStripeWebhookValid } = useWebhookValidation('stripe');
+  const { isValid: isZapierWebhookValid } = useWebhookValidation('zapier');
+  const { isValid: isGithubWebhookValid } = useWebhookValidation('github');
+  const { isValid: isSlackWebhookValid } = useWebhookValidation('slack');
+  const { isValid: isCustomWebhookValid } = useWebhookValidation('custom');
 
   // Mock event data with the required properties
   const mockEvents = [
@@ -68,6 +100,16 @@ const WebhooksPage = () => {
     console.log('Clearing all filters');
   };
 
+  const handleSave = () => {
+    handleSaveWebhooks(
+      isStripeWebhookValid, 
+      isZapierWebhookValid,
+      isGithubWebhookValid,
+      isSlackWebhookValid,
+      isCustomWebhookValid
+    );
+  };
+
   // When rendering the WebhookHistoryContent component, add the onPageChange prop
   return (
     <div className="space-y-8">
@@ -84,7 +126,32 @@ const WebhooksPage = () => {
           <TabsTrigger value="history">Event History</TabsTrigger>
         </TabsList>
         <TabsContent value="config">
-          <WebhookConfigTab />
+          <WebhookConfigTab 
+            stripeWebhook={stripeWebhook}
+            zapierWebhook={zapierWebhook}
+            githubWebhook={githubWebhook}
+            slackWebhook={slackWebhook}
+            customWebhook={customWebhook}
+            onStripeWebhookChange={setStripeWebhook}
+            onZapierWebhookChange={setZapierWebhook}
+            onGithubWebhookChange={setGithubWebhook}
+            onSlackWebhookChange={setSlackWebhook}
+            onCustomWebhookChange={setCustomWebhook}
+            onTestStripeWebhook={() => handleTestStripeWebhook(isStripeWebhookValid)}
+            onTestZapierWebhook={() => handleTestZapierWebhook(isZapierWebhookValid)}
+            onTestGithubWebhook={() => handleTestGithubWebhook(isGithubWebhookValid)}
+            onTestSlackWebhook={() => handleTestSlackWebhook(isSlackWebhookValid)}
+            onTestCustomWebhook={() => handleTestCustomWebhook(isCustomWebhookValid)}
+            onSave={handleSave}
+            isSaving={isSaving}
+            testingWebhook={testingWebhook}
+            testLoading={testLoading}
+            isStripeWebhookValid={isStripeWebhookValid}
+            isZapierWebhookValid={isZapierWebhookValid}
+            isGithubWebhookValid={isGithubWebhookValid}
+            isSlackWebhookValid={isSlackWebhookValid}
+            isCustomWebhookValid={isCustomWebhookValid}
+          />
         </TabsContent>
         <TabsContent value="history">
           <WebhookHistoryContent 
