@@ -1,4 +1,3 @@
-
 /**
  * Centralized logging service for consistent logging across the application
  * Enhanced with better structured logs and monitoring capabilities
@@ -195,8 +194,8 @@ export const logger: Logger = {
     const start = performance.now();
     const timeRequestId = currentRequestId || generateRequestId();
     
-    // Fixed: Use optional chaining to safely access logger.debug
-    logger.debug?.(`⏱️ TIMER START: ${label}`, {
+    // Use logger methods directly rather than using 'this' which might be undefined
+    logger.debug(`⏱️ TIMER START: ${label}`, {
       ...meta,
       requestId: timeRequestId,
       timerLabel: label,
@@ -206,8 +205,7 @@ export const logger: Logger = {
     return () => {
       const duration = performance.now() - start;
       
-      // Fixed: Use optional chaining to safely access logger.debug
-      logger.debug?.(`⏱️ TIMER END: ${label} completed in ${duration.toFixed(2)}ms`, {
+      logger.debug(`⏱️ TIMER END: ${label} completed in ${duration.toFixed(2)}ms`, {
         ...meta,
         requestId: timeRequestId,
         timerLabel: label,

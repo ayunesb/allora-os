@@ -13,7 +13,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
 
 // Import pages explicitly to avoid any import issues
-import NotFound from "@/pages/NotFound";
+import Page404 from "@/pages/404";
 import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
@@ -38,7 +38,7 @@ const NavigationLayout = () => {
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
-    errorElement: <NotFound />,
+    errorElement: <Page404 />,
     children: [
       {
         element: <NavigationLayout />,
@@ -69,7 +69,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "*",
-            element: <NotFound />,
+            element: <Page404 />,
           },
           // Properly spreading all route arrays
           ...adminRoutes,
