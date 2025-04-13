@@ -14,9 +14,10 @@ import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import { NavigationManager } from "@/components/NavigationManager";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import RootLayout from "@/components/layouts/RootLayout";
 
-// Create a root layout that includes NavigationManager
-const RootLayout = () => {
+// Create a navigation layout that includes NavigationManager
+const NavigationLayout = () => {
   return (
     <ErrorBoundary>
       <>
@@ -34,39 +35,44 @@ export const router = createBrowserRouter([
     errorElement: <NotFound />,
     children: [
       {
-        path: "/",
-        element: <Index />,
-      },
-      {
-        path: "/home",
-        element: <Home />,
-      },
-      {
-        path: "/diagnostics",
-        element: <SystemDiagnostics />,
-      },
-      {
-        path: "/pricing",
-        element: <Pricing />,
-      },
-      {
-        path: "/calendar",
-        element: <Navigate to="/dashboard" replace />,
-      },
-      {
-        path: "/shop",
-        element: <Navigate to="/dashboard" replace />,
-      },
-      {
-        path: "*",
-        element: <NotFound />,
-      },
-      adminRoutes,
-      ...complianceRoutes,
-      ...publicRoutes,
-      ...authRoutes,
-      ...dashboardRoutes,
-      ...onboardingRoutes
+        element: <NavigationLayout />,
+        children: [
+          {
+            path: "/",
+            element: <Index />,
+          },
+          {
+            path: "/home",
+            element: <Home />,
+          },
+          {
+            path: "/diagnostics",
+            element: <SystemDiagnostics />,
+          },
+          {
+            path: "/pricing",
+            element: <Pricing />,
+          },
+          {
+            path: "/calendar",
+            element: <Navigate to="/dashboard" replace />,
+          },
+          {
+            path: "/shop",
+            element: <Navigate to="/dashboard" replace />,
+          },
+          {
+            path: "*",
+            element: <NotFound />,
+          },
+          adminRoutes,
+          ...complianceRoutes,
+          ...publicRoutes,
+          ...authRoutes,
+          ...dashboardRoutes,
+          ...onboardingRoutes
+        ]
+      }
     ]
   }
 ]);

@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import './styles/index.css';
 import './App.css';
 
@@ -23,12 +24,12 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <React.ErrorBoundary fallback={<div>Something went wrong. Please refresh the page.</div>} onError={handleError}>
+    <ErrorBoundary fallback={<div>Something went wrong. Please refresh the page.</div>} onError={handleError}>
       <QueryClientProvider client={queryClient}>
         <HelmetProvider>
           <App />
         </HelmetProvider>
       </QueryClientProvider>
-    </React.ErrorBoundary>
+    </ErrorBoundary>
   </React.StrictMode>
 );
