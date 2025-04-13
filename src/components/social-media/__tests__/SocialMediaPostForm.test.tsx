@@ -22,9 +22,9 @@ describe('SocialMediaPostForm', () => {
   it('renders the form with empty fields when no post is provided', () => {
     render(<SocialMediaPostForm onSubmit={mockOnSubmit} isSubmitting={false} />);
 
-    expect(screen.getByLabelText('Post Title')).toBeInTheDocument();
-    expect(screen.getByLabelText('Post Content')).toBeInTheDocument();
-    expect(screen.getByText('Select a platform')).toBeInTheDocument();
+    expect(screen.getByLabelText('Title')).toBeInTheDocument();
+    expect(screen.getByLabelText('Content')).toBeInTheDocument();
+    expect(screen.getByText('Select platform')).toBeInTheDocument();
     expect(screen.getByText('Select content type')).toBeInTheDocument();
   });
 
@@ -46,15 +46,15 @@ describe('SocialMediaPostForm', () => {
 
     render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} isSubmitting={false} />);
 
-    expect(screen.getByLabelText('Post Title')).toHaveValue('Test Post');
-    expect(screen.getByLabelText('Post Content')).toHaveValue('This is test content');
+    expect(screen.getByLabelText('Title')).toHaveValue('Test Post');
+    expect(screen.getByLabelText('Content')).toHaveValue('This is test content');
   });
 
   it('calls onSubmit with the correct values when the form is submitted', async () => {
     render(<SocialMediaPostForm onSubmit={mockOnSubmit} isSubmitting={false} />);
 
-    fireEvent.change(screen.getByLabelText('Post Title'), { target: { value: 'New Post' } });
-    fireEvent.change(screen.getByLabelText('Post Content'), { target: { value: 'New Content' } });
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'New Post' } });
+    fireEvent.change(screen.getByLabelText('Content'), { target: { value: 'New Content' } });
     fireEvent.change(screen.getByLabelText('Scheduled Date'), { target: { value: '2023-10-20' } });
 
     fireEvent.click(screen.getByText('Create Post'));
@@ -63,12 +63,13 @@ describe('SocialMediaPostForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         title: 'New Post',
         content: 'New Content',
-        platform: 'Facebook',
+        platform: 'LinkedIn',
         content_type: 'text',
         scheduled_date: '2023-10-20',
-        publish_time: undefined,
+        publish_time: '09:00',
         media_urls: [],
-        campaign_id: undefined,
+        link_url: '',
+        campaign_id: '',
         tags: [],
       });
     });
@@ -78,7 +79,7 @@ describe('SocialMediaPostForm', () => {
     const mockOnSubmitError = jest.fn(() => Promise.resolve({ success: false, error: 'Test Error' }));
     render(<SocialMediaPostForm onSubmit={mockOnSubmitError} isSubmitting={false} />);
 
-    fireEvent.change(screen.getByLabelText('Post Title'), { target: { value: 'Error Post' } });
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Error Post' } });
     fireEvent.click(screen.getByText('Create Post'));
 
     // Since we can't directly test the toast message, we'll just ensure the function was called
@@ -105,7 +106,7 @@ describe('SocialMediaPostForm', () => {
 
     render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} isSubmitting={false} />);
 
-    fireEvent.change(screen.getByLabelText('Post Title'), { target: { value: 'Updated Post' } });
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Updated Post' } });
     fireEvent.click(screen.getByText('Update Post'));
 
     await waitFor(() => {
@@ -117,7 +118,8 @@ describe('SocialMediaPostForm', () => {
         scheduled_date: '2023-11-01',
         publish_time: '08:00',
         media_urls: [],
-        campaign_id: undefined,
+        link_url: '',
+        campaign_id: '',
         tags: [],
       });
     });

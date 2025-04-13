@@ -1,8 +1,9 @@
 
+// Social media platform types
 export type SocialMediaPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'Other';
-export type PostStatus = 'draft' | 'scheduled' | 'published' | 'approved';
+export type PostStatus = 'draft' | 'scheduled' | 'published' | 'approved' | 'Draft' | 'Scheduled' | 'Published' | 'Approved';
 
-// Adding missing types
+// Adding required types
 export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok';
 export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
 export type PostContentType = ContentType;
@@ -53,8 +54,8 @@ export interface SocialMediaPost {
   id: string;
   title: string;
   content: string;
-  platform: SocialMediaPlatform | string;
-  status?: string;
+  platform: SocialMediaPlatform | SocialPlatform | string;
+  status?: PostStatus | string;
   scheduled_date?: string;
   published_date?: string;
   author_id?: string;
@@ -73,7 +74,7 @@ export interface SocialMediaPost {
   aiGenerated?: boolean;
   aiSuggestions?: string[];
   
-  // Adding missing properties
+  // Adding required properties
   publish_time?: string;
   content_type?: ContentType;
   is_approved?: boolean;

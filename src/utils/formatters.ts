@@ -1,100 +1,82 @@
 
 /**
- * Format a number with commas as thousands separators
+ * Formatting utility functions for displaying data in a readable format
  */
-export const formatNumber = (value: number | undefined | null): string => {
-  if (value === undefined || value === null) return '0';
-  return new Intl.NumberFormat('en-US').format(value);
-};
 
 /**
- * Format a number as currency (USD)
+ * Format a number as a percentage
+ * @param value - The number to format
+ * @param decimals - Number of decimal places (default: 1)
+ * @returns Formatted percentage string
  */
-export const formatCurrency = (value: number | undefined | null): string => {
-  if (value === undefined || value === null) return '$0';
+export function formatPercent(value: number, decimals = 1): string {
+  return `${value.toFixed(decimals)}%`;
+}
+
+/**
+ * Format a metric with appropriate units
+ * @param value - The value to format
+ * @param units - Optional units to append (default: '')
+ * @returns Formatted metric string
+ */
+export function formatMetric(value: number, units = ''): string {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M${units}`;
+  } else if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}K${units}`;
+  }
+  return `${value}${units}`;
+}
+
+/**
+ * Format a percentage change with appropriate indicators
+ * @param value - The change value
+ * @param showPlus - Whether to show + for positive values (default: true)
+ * @returns Formatted percentage change string
+ */
+export function formatPercentChange(value: number, showPlus = true): string {
+  const prefix = value > 0 && showPlus ? '+' : '';
+  return `${prefix}${value.toFixed(1)}%`;
+}
+
+/**
+ * Format a currency value
+ * @param value - The value to format
+ * @param currency - Currency code (default: 'USD')
+ * @returns Formatted currency string
+ */
+export function formatCurrency(value: number, currency = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency,
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(value);
-};
+}
 
 /**
- * Calculate the percentage change between two values
+ * Format a date value
+ * @param date - Date to format
+ * @param format - Format style (default: 'medium')
+ * @returns Formatted date string
  */
-export const calculatePercentChange = (
-  oldValue: number | undefined | null, 
-  newValue: number | undefined | null
-): number => {
-  // Convert undefined/null to 0
-  const oldVal = Number(oldValue || 0);
-  const newVal = Number(newValue || 0);
-  
-  // If both values are 0, return 0 (no change)
-  if (oldVal === 0 && newVal === 0) return 0;
-  
-  // If old value is 0, but new value is not, it's a "new" metric (100% increase)
-  if (oldVal === 0) return 100;
-  
-  // Calculate percentage change
-  return ((newVal - oldVal) / oldVal) * 100;
-};
-
-/**
- * Format a percentage value with % sign
- */
-export const formatPercent = (value: number | undefined | null): string => {
-  if (value === undefined || value === null) return '0%';
-  return `${value.toFixed(1)}%`;
-};
-
-/**
- * Format a percent change value with % sign and +/- prefix
- */
-export const formatPercentChange = (
-  oldValue: number | undefined | null, 
-  newValue: number | undefined | null
-): string => {
-  const change = calculatePercentChange(oldValue, newValue);
-  const prefix = change > 0 ? '+' : '';
-  return `${prefix}${change.toFixed(1)}%`;
-};
-
-/**
- * Format a number with appropriate unit (K, M, B)
- */
-export const formatMetric = (value: number | undefined | null): string => {
-  if (value === undefined || value === null) return '0';
-  
-  const num = Number(value);
-  if (num === 0) return '0';
-  
-  if (Math.abs(num) >= 1000000000) {
-    return `${(num / 1000000000).toFixed(1)}B`;
-  }
-  
-  if (Math.abs(num) >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M`;
-  }
-  
-  if (Math.abs(num) >= 1000) {
-    return `${(num / 1000).toFixed(1)}K`;
-  }
-  
-  return num.toString();
-};
-
-/**
- * Format a date to a readable string
- */
-export const formatDate = (date: string | Date): string => {
-  if (!date) return '';
-  
+export function formatDate(date: Date | string, format: 'short' | 'medium' | 'long' = 'medium'): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return dateObj.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-};
+  
+  const options: Intl.DateTimeFormatOptions = { 
+    year: 'numeric', 
+    month: format === 'short' ? 'numeric' : 'long', 
+    day: 'numeric' 
+  };
+  
+  return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+}
+
+/**
+ * Format a number with thousands separators
+ * @param value - Number to format
+ * @returns Formatted number string
+ */
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value);
+}

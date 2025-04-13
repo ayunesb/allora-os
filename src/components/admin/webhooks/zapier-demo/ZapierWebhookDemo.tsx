@@ -1,97 +1,77 @@
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useZapier, BusinessEventType, BusinessEventPayload } from '@/lib/zapier';
-import { ZapierWebhookDemoTabs } from './ZapierWebhookDemoTabs';
+import { ArrowRight, Send } from "lucide-react";
 
 interface ZapierWebhookDemoProps {
   webhookUrl: string;
 }
 
 const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => {
-  const { triggerWorkflow, triggerBusinessEvent } = useZapier();
-  const [isTriggering, setIsTriggering] = React.useState<string | null>(null);
-
-  const triggerSample = async (event: string, payload: Record<string, any>) => {
-    if (!webhookUrl) {
-      toast.error("Please enter and save a Zapier webhook URL first");
-      return;
-    }
-
-    setIsTriggering(event);
+  const [isSending, setIsSending] = React.useState(false);
+  
+  const sendTestData = async () => {
+    setIsSending(true);
     
     try {
-      const result = await triggerWorkflow(
-        webhookUrl,
-        event,
-        payload
-      );
-      
-      if (result.success) {
-        toast.success(`Successfully triggered "${event}" event`);
-      } else {
-        toast.error(`Failed to trigger "${event}" event: ${result.message || result.error?.message || "Unknown error"}`);
-      }
-    } catch (error: any) {
-      console.error(`Error triggering "${event}" event:`, error);
-      toast.error(`Error: ${error.message || `Failed to trigger "${event}" event`}`);
-    } finally {
-      setIsTriggering(null);
-    }
-  };
-
-  const triggerBusinessSample = async (
-    eventType: BusinessEventType, 
-    payload: BusinessEventPayload
-  ) => {
-    if (!webhookUrl) {
-      toast.error("Please enter and save a Zapier webhook URL first");
-      return;
-    }
-
-    setIsTriggering(eventType);
-    
-    try {
-      const result = await triggerBusinessEvent(eventType, {
-        ...payload,
-        webhookUrl
+      // Using no-cors mode to handle CORS issues
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
+          action: 'test',
+          timestamp: new Date().toISOString(),
+          data: {
+            message: 'This is a test event from Allora AI',
+            source: 'Webhook Management Dashboard',
+          }
+        }),
       });
       
-      if (result.success) {
-        toast.success(`Successfully triggered "${eventType}" business event`);
-      } else {
-        toast.error(`Failed to trigger "${eventType}" business event: ${result.message || "Unknown error"}`);
-      }
-    } catch (error: any) {
-      console.error(`Error triggering "${eventType}" business event:`, error);
-      toast.error(`Error: ${error.message || `Failed to trigger "${eventType}" business event`}`);
+      // Since we're using no-cors, we can't actually check the response
+      // So we'll just assume it worked
+      toast.success('Test data sent to Zapier webhook');
+    } catch (error) {
+      console.error('Error sending webhook data:', error);
+      toast.error('Failed to send test data to Zapier webhook');
     } finally {
-      setIsTriggering(null);
+      setIsSending(false);
     }
   };
-
+  
   return (
-    <Card className="mt-6">
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-primary" />
-          <CardTitle>Zapier Integration Demo</CardTitle>
+    <div className="mt-4 border rounded-md p-4 bg-card">
+      <h4 className="text-sm font-medium mb-2">Test Zapier Integration</h4>
+      
+      <p className="text-xs text-muted-foreground mb-4">
+        Send test data to your Zapier webhook to verify your Zap is working correctly.
+      </p>
+      
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 text-xs">
+          <div className="bg-primary/10 p-2 rounded">
+            <code>{"{ action: 'test', timestamp: '2025-04-13T12:00:00Z', ... }"}</code>
+          </div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          <div className="bg-green-500/10 p-2 rounded text-green-500">
+            Zapier
+          </div>
         </div>
-        <CardDescription>
-          Test and demonstrate business events with your Zapier webhook
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ZapierWebhookDemoTabs
-          webhookUrl={webhookUrl}
-          isTriggering={isTriggering}
-          triggerSample={triggerSample}
-          triggerBusinessSample={triggerBusinessSample}
-        />
-      </CardContent>
-    </Card>
+        
+        <Button 
+          size="sm" 
+          onClick={sendTestData}
+          disabled={isSending}
+        >
+          <Send className="h-4 w-4 mr-2" />
+          {isSending ? 'Sending...' : 'Send Test Data'}
+        </Button>
+      </div>
+    </div>
   );
 };
 
