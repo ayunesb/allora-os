@@ -12,8 +12,9 @@ import { SessionRefreshBar } from "@/components/dashboard/SessionRefreshBar";
 import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
 import { HelpProvider } from "@/context/HelpContext";
 import { HelpModal } from "@/components/help/HelpModal";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Suspense } from "react";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 export default function DashboardLayout() {
   const { user, isLoading } = useAuth();
@@ -43,55 +44,57 @@ export default function DashboardLayout() {
 
   return (
     <ErrorBoundary>
-      <HelpProvider>
-        <div className="min-h-screen flex flex-col">
-          {needsSessionRefresh && (
-            <SessionRefreshBar onRefreshSession={handleRefreshSession} />
-          )}
-          
-          <DashboardHeader />
-          
-          <div className="glassmorphism border-b border-border/30 sticky top-0 z-10 backdrop-blur-md">
-            <div className={`container mx-auto ${isMobile ? 'px-2 py-1' : 'px-4 py-2'}`}>
-              <div className="flex items-center justify-between">            
-                <div className="flex items-center w-full">
-                  {isMobile ? (
-                    <div className="flex justify-between w-full items-center">
-                      <MobileNavDrawer 
-                        currentPath={currentPath}
-                        open={mobileMenuOpen}
-                        onOpenChange={setMobileMenuOpen}
-                      />
-                      <UserDropdown onSignOut={handleSignOut} />
-                    </div>
-                  ) : (
-                    <>
-                      <DashboardTabs />
-                      <UserDropdown onSignOut={handleSignOut} />
-                    </>
-                  )}
+      <AccessibilityProvider>
+        <HelpProvider>
+          <div className="min-h-screen flex flex-col">
+            {needsSessionRefresh && (
+              <SessionRefreshBar onRefreshSession={handleRefreshSession} />
+            )}
+            
+            <DashboardHeader />
+            
+            <div className="glassmorphism border-b border-border/30 sticky top-0 z-10 backdrop-blur-md">
+              <div className={`container mx-auto ${isMobile ? 'px-2 py-1' : 'px-4 py-2'}`}>
+                <div className="flex items-center justify-between">            
+                  <div className="flex items-center w-full">
+                    {isMobile ? (
+                      <div className="flex justify-between w-full items-center">
+                        <MobileNavDrawer 
+                          currentPath={currentPath}
+                          open={mobileMenuOpen}
+                          onOpenChange={setMobileMenuOpen}
+                        />
+                        <UserDropdown onSignOut={handleSignOut} />
+                      </div>
+                    ) : (
+                      <>
+                        <DashboardTabs />
+                        <UserDropdown onSignOut={handleSignOut} />
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <div className="flex flex-1 bg-gradient-radial from-background to-background/80">
-            <main className="flex-1 w-full">
-              <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
-                <div className="animate-fadeIn">
-                  <ErrorBoundary>
-                    <Suspense fallback={<DashboardLoadingState />}>
-                      <Outlet />
-                    </Suspense>
-                  </ErrorBoundary>
+            
+            <div className="flex flex-1 bg-gradient-radial from-background to-background/80">
+              <main className="flex-1 w-full">
+                <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
+                  <div className="animate-fadeIn">
+                    <ErrorBoundary>
+                      <Suspense fallback={<DashboardLoadingState />}>
+                        <Outlet />
+                      </Suspense>
+                    </ErrorBoundary>
+                  </div>
                 </div>
-              </div>
-            </main>
+              </main>
+            </div>
+            
+            <HelpModal />
           </div>
-          
-          <HelpModal />
-        </div>
-      </HelpProvider>
+        </HelpProvider>
+      </AccessibilityProvider>
     </ErrorBoundary>
   );
 }
