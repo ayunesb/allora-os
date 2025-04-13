@@ -1,6 +1,7 @@
 
 import { WebhookType } from './webhookValidation';
-import { useWebhookHistory } from '@/components/admin/webhooks/useWebhookHistory';
+import { executeWithRetry } from './webhookRetry';
+import { logger } from '@/utils/loggingService';
 
 /**
  * Integration with useWebhookHistory for logging webhook events
@@ -46,7 +47,7 @@ export const logWebhookCall = async (
     
     return eventId;
   } catch (error) {
-    console.error('Error logging webhook call:', error);
+    logger.error('Error logging webhook call:', error);
     return null;
   }
 };
@@ -83,13 +84,13 @@ export const updateWebhookLog = (
     // Save to localStorage
     localStorage.setItem('webhook_event_history', JSON.stringify(history));
   } catch (error) {
-    console.error('Error updating webhook log:', error);
+    logger.error('Error updating webhook log:', error);
   }
 };
 
 /**
  * Execute a webhook call and track it in history
- * Improved to better handle CORS issues
+ * Improved with retry mechanism
  * @param url The webhook URL to call
  * @param payload The data to send to the webhook
  * @param type The type of webhook service
@@ -106,62 +107,37 @@ export const executeAndLogWebhook = async (
   const eventId = await logWebhookCall(url, payload, type, eventType);
   
   try {
-    // For Zapier and some other services, we need to handle CORS
-    // We'll try two different approaches
+    // Use our new retry utility
+    const result = await executeWithRetry(url, payload, type, eventType, {
+      maxRetries: 3,
+      initialDelay: 1000,
+      onRetry: (attempt, delay, error) => {
+        // Update the webhook log with retry information
+        if (eventId) {
+          updateWebhookLog(eventId, {
+            status: 'error',
+            errorMessage: `Retry ${attempt} scheduled after ${delay}ms. Error: ${error?.message || 'Unknown error'}`,
+            duration: Date.now() - startTime
+          });
+        }
+      }
+    });
     
-    // Try first with 'no-cors' mode
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors', // This prevents CORS errors but also prevents reading the response
-        body: JSON.stringify(payload),
+    const duration = Date.now() - startTime;
+    
+    // Update the webhook log with the final result
+    if (eventId) {
+      updateWebhookLog(eventId, {
+        status: result.success ? 'success' : 'error',
+        responseCode: 200, // This is an estimation for no-cors mode
+        response: { success: result.success, message: result.message },
+        errorMessage: result.success ? undefined : result.message,
+        duration
       });
-      
-      const duration = Date.now() - startTime;
-      
-      // With no-cors, we don't get a proper response, but the request is likely sent
-      if (eventId) {
-        updateWebhookLog(eventId, {
-          status: 'success',
-          responseCode: 200, // We assume success since we can't read the actual response
-          response: { success: true, note: "Response not available due to CORS restrictions" },
-          duration
-        });
-      }
-      
-      return {
-        success: true,
-        message: "Webhook triggered successfully. Check the service to confirm receipt.",
-        eventId
-      };
-    } catch (initialError) {
-      // If 'no-cors' fails, try with a proxy service or fallback method
-      // For now we'll just show a more informative message
-      console.warn("Primary webhook method failed, using fallback:", initialError);
-      
-      // Log the attempt
-      const duration = Date.now() - startTime;
-      if (eventId) {
-        updateWebhookLog(eventId, {
-          status: 'success', // We're optimistic here since the request was sent
-          responseCode: 0,   // We don't know the actual response code
-          response: { success: true, note: "Response not available, but request was sent" },
-          duration
-        });
-      }
-      
-      // Return a message that explains the situation
-      return {
-        success: true, // We're optimistic that it worked
-        message: "Request sent to webhook. Due to browser security (CORS), we can't confirm receipt - check your Zapier dashboard to verify.",
-        eventId
-      };
     }
     
-  } catch (error) {
+    return result;
+  } catch (error: any) {
     const duration = Date.now() - startTime;
     
     if (eventId) {
@@ -172,15 +148,9 @@ export const executeAndLogWebhook = async (
       });
     }
     
-    // For Zapier specifically, provide a more helpful message
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const zapierSpecificMessage = type === 'zapier' 
-      ? "Error occurred, but the webhook may still have been triggered. Check your Zap's task history."
-      : `Failed to trigger webhook: ${errorMessage}`;
-    
     return {
       success: false,
-      message: zapierSpecificMessage,
+      message: `Failed to trigger webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
       eventId
     };
   }

@@ -7,7 +7,9 @@
 import { useSelfLearning } from '@/hooks/useSelfLearning';
 import { ActionCategory } from '@/utils/selfLearning';
 import { sanitizeInput } from '@/utils/sanitizers';
-import { executeAndLogWebhook } from '@/utils/webhookUtils';
+import { executeWebhook } from '@/utils/webhookRetry'; // Updated import
+import { validateApiCredential } from '@/utils/apiCredentialValidator';
+import { logger } from '@/utils/loggingService';
 
 // Business event types for better type safety
 export type BusinessEventType = 
@@ -48,6 +50,8 @@ export type BusinessEventPayload = {
 // Base function to trigger a Zapier webhook with proper validation
 export const triggerZap = async (event: string, payload: Record<string, any>) => {
   try {
+    logger.info(`Triggering Zapier webhook for event: ${event}`, { event });
+    
     // Validate webhook URL
     const webhookUrl = payload.webhookUrl;
     
@@ -55,16 +59,18 @@ export const triggerZap = async (event: string, payload: Record<string, any>) =>
       throw new Error("Zapier webhook URL not provided");
     }
     
-    // Basic URL validation
-    try {
-      new URL(webhookUrl);
-    } catch (e) {
-      throw new Error("Invalid Zapier webhook URL format");
-    }
+    // Validate the webhook URL format
+    const isValid = await validateApiCredential(webhookUrl, 'zapier', {
+      logAttempts: true,
+      redactSensitive: false
+    });
     
-    // Verify it's a Zapier webhook
-    if (!webhookUrl.includes('hooks.zapier.com')) {
-      console.warn('The webhook URL does not appear to be from Zapier');
+    if (!isValid) {
+      logger.warn(`Invalid Zapier webhook URL format: ${webhookUrl}`);
+      return { 
+        success: false, 
+        message: "Invalid Zapier webhook URL format" 
+      };
     }
     
     // Sanitize event name and payload values to prevent injection
@@ -83,26 +89,29 @@ export const triggerZap = async (event: string, payload: Record<string, any>) =>
       source: 'Allora AI Platform'
     };
     
-    // Use the executeAndLogWebhook utility which handles CORS properly
-    const result = await executeAndLogWebhook(webhookUrl, requestBody, 'zapier', `zapier_${sanitizedEvent}`);
+    // Use the improved webhook execution with retries
+    const result = await executeWebhook(webhookUrl, requestBody, 'zapier', `zapier_${sanitizedEvent}`, {
+      maxRetries: 3,
+      initialDelay: 1000,
+      backoffFactor: 2,
+      maxDelay: 15000
+    });
     
     // Track this zapier event in our self-learning system if we have userId
     if (sanitizedPayload.userId) {
-      console.log('Would track Zapier event:', {
+      logger.info('Tracking Zapier event', {
         action: 'trigger_zapier_webhook',
         category: 'automation',
         entityId: sanitizedPayload.entityId,
         entityType: sanitizedPayload.entityType,
-        metadata: {
-          event: sanitizedEvent,
-          success: true
-        }
+        event: sanitizedEvent,
+        success: result.success
       });
     }
     
     return { success: result.success, message: result.message };
   } catch (error: any) {
-    console.error("Error triggering Zapier webhook:", error);
+    logger.error("Error triggering Zapier webhook:", error);
     return { success: false, error };
   }
 };
@@ -155,7 +164,7 @@ export const useZapier = () => {
     const webhookUrl = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
     
     if (!webhookUrl) {
-      console.warn("No Zapier webhook URL configured. Business event not sent.");
+      logger.warn("No Zapier webhook URL configured. Business event not sent.");
       return { success: false, error: new Error("No Zapier webhook URL configured") };
     }
     
@@ -167,7 +176,11 @@ export const useZapier = () => {
       source: 'Allora AI Business Event'
     };
     
-    console.log(`Triggering business event: ${eventType}`, fullPayload);
+    logger.info(`Triggering business event: ${eventType}`, { 
+      eventType, 
+      entityId: payload.entityId, 
+      entityType: payload.entityType 
+    });
     
     const result = await triggerZap(eventType, fullPayload);
     
@@ -201,7 +214,7 @@ export const triggerBusinessEvent = async (
   const webhookUrl = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
   
   if (!webhookUrl) {
-    console.warn("No Zapier webhook URL configured. Business event not sent.");
+    logger.warn("No Zapier webhook URL configured. Business event not sent.");
     return { success: false, error: new Error("No Zapier webhook URL configured") };
   }
   
