@@ -12,11 +12,16 @@ import Compliance from "@/pages/Compliance";
 import LegalDocument from "@/pages/LegalDocument";
 import DevAdminHelper from "@/pages/DevAdminHelper";
 import FAQ from "@/pages/FAQ";
+import Home from "@/pages/Home";
 
 export const publicRoutes: RouteObject[] = [
   {
-    path: "/",
+    path: "/welcome",
     element: <Index />,
+  },
+  {
+    path: "/home",
+    element: <Home />,
   },
   {
     path: "/pricing",

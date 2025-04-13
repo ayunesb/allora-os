@@ -6,12 +6,23 @@ import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { publicRoutes } from "./public-routes";
 import { authRoutes } from "./auth-routes";
 import { dashboardRoutes } from "./dashboard-routes"; 
+import { onboardingRoutes } from "./onboarding-routes";
 import NotFound from "@/pages/NotFound";
 import Pricing from "@/pages/Pricing";
 import { Navigate } from "react-router-dom";
+import Index from "@/pages/Index";
+import Home from "@/pages/Home";
 
 // Export the router to use in main.tsx or App.tsx
 export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Index />,
+  },
+  {
+    path: "/home",
+    element: <Home />,
+  },
   {
     path: "/diagnostics",
     element: <SystemDiagnostics />,
@@ -36,5 +47,6 @@ export const router = createBrowserRouter([
   ...complianceRoutes,
   ...publicRoutes,
   ...authRoutes,
-  ...dashboardRoutes
+  ...dashboardRoutes,
+  ...onboardingRoutes
 ]);
