@@ -18,8 +18,12 @@ type LeadsTableProps = {
   sortBy: 'name' | 'created_at';
   sortOrder: 'asc' | 'desc';
   onSort: (column: 'name' | 'created_at') => void;
-  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<boolean>;
   onDelete: (leadId: string) => Promise<boolean>;
+  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<boolean>;
+  // Add the properties used in LeadsPage
+  onDeleteLead?: (leadId: string) => void;
+  onEditLead?: () => void;
+  isMobileView?: boolean;
 };
 
 export const LeadsTable: React.FC<LeadsTableProps> = ({
@@ -28,7 +32,10 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
   sortOrder,
   onSort,
   onStatusUpdate,
-  onDelete
+  onDelete,
+  onDeleteLead,
+  onEditLead,
+  isMobileView
 }) => {
   // Handle status update with void return to match component props
   const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
@@ -37,7 +44,11 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
 
   // Handle delete with void return to match component props
   const handleDelete = async (leadId: string) => {
-    await onDelete(leadId);
+    if (onDeleteLead) {
+      onDeleteLead(leadId);
+    } else {
+      await onDelete(leadId);
+    }
   };
 
   return (

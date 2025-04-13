@@ -10,7 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DatabaseVerificationResult } from '@/types/databaseVerification';
+import { 
+  DatabaseVerificationResult, 
+  DatabaseTableStatus, 
+  PolicyStatus, 
+  FunctionStatus 
+} from '@/types/databaseVerification';
 
 export default function DatabaseVerificationPage() {
   const [activeTab, setActiveTab] = useState('tables');
@@ -198,19 +203,16 @@ export default function DatabaseVerificationPage() {
           <TabsContent value="tables" className="mt-0">
             <DatabaseTablesCheck 
               tables={verificationData.tables}
-              isLoading={verificationData.isVerifying}
             />
           </TabsContent>
           <TabsContent value="policies" className="mt-0">
             <RlsPoliciesCheck 
               policies={verificationData.policies}
-              isLoading={verificationData.isVerifying}
             />
           </TabsContent>
           <TabsContent value="functions" className="mt-0">
             <DatabaseFunctionsCheck 
               functions={verificationData.functions}
-              isLoading={verificationData.isVerifying}
             />
           </TabsContent>
         </CardContent>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { UserTable, UserManagementHeader } from "@/components/admin/users";
-import { User } from "@/types/user";
+import { User } from "@/models/user";
 
 export default function UserManagementPage() {
   const [companies, setCompanies] = useState([

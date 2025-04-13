@@ -1,13 +1,14 @@
 
 import React, { useState } from "react";
 import { CompanyHeader, CompanyTable } from "@/components/admin/companies";
-import { Company } from "@/types/company";
+import { Company } from "@/models/company";
 
 export default function CompaniesPage() {
+  // Update the company data to match the required model.Company type
   const [companies, setCompanies] = useState<Company[]>([
-    { id: 'company-1', name: 'Acme Inc.', industry: 'Technology', created_at: '2025-01-15', usersCount: 12 },
-    { id: 'company-2', name: 'Global Tech', industry: 'Manufacturing', created_at: '2025-02-20', usersCount: 8 },
-    { id: 'company-3', name: 'Future Solutions', industry: 'Healthcare', created_at: '2025-03-10', usersCount: 15 }
+    { id: 'company-1', name: 'Acme Inc.', industry: 'Technology', created_at: '2025-01-15' },
+    { id: 'company-2', name: 'Global Tech', industry: 'Manufacturing', created_at: '2025-02-20' },
+    { id: 'company-3', name: 'Future Solutions', industry: 'Healthcare', created_at: '2025-03-10' }
   ]);
   
   const [isLoading, setIsLoading] = useState(false);

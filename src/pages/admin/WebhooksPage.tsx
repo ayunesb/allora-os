@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { WebhookHeader, WebhookConfigTab, WebhookHistoryContent } from "@/components/admin/webhooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { WebhookEvent } from "@/types/webhooks";
+import { WebhookEvent } from "@/components/admin/webhooks/useWebhookHistory";
+import { WebhookType } from "@/utils/webhookValidation";
 
 export default function WebhooksPage() {
   const [activeTab, setActiveTab] = useState("config");
@@ -18,11 +19,11 @@ export default function WebhooksPage() {
   const mockWebhookEvents: WebhookEvent[] = Array(10).fill(null).map((_, index) => ({
     id: `event-${index}`,
     source: ['stripe', 'zapier', 'github', 'slack', 'custom'][index % 5],
-    status: ['success', 'error', 'pending'][index % 3],
+    status: ['success', 'error', 'pending'][index % 3] as 'success' | 'error' | 'pending',
     timestamp: new Date(Date.now() - index * 3600000).toISOString(),
     payload: { data: `Sample payload ${index}` },
     response: { status: index % 3 === 0 ? 'error' : 'success' },
-    webhookType: ['incoming', 'outgoing'][index % 2],
+    webhookType: ['stripe', 'zapier', 'github', 'slack', 'custom'][index % 5] as WebhookType,
     eventType: ['payment.success', 'customer.created', 'lead.added'][index % 3],
     targetUrl: `https://api.example.com/webhooks/${['stripe', 'zapier', 'github', 'slack', 'custom'][index % 5]}`
   }));
