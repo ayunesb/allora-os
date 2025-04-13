@@ -1,194 +1,257 @@
-
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
-import { triggerBusinessEvent } from '@/lib/zapier';
-import { BusinessEventType } from '@/utils/webhookTypes';
+import { Zap, Send, FileText, Bell, GitBranch, Users, CreditCard, BarChart } from "lucide-react";
+import { toast } from "sonner";
+import { useZapier, BusinessEventType, BusinessEventPayload } from '@/lib/zapier';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function ZapierWebhookDemo() {
-  const { toast } = useToast();
-  const [isLeadLoading, setIsLeadLoading] = useState(false);
-  const [isStrategyLoading, setIsStrategyLoading] = useState(false);
-  const [isRevenueLoading, setIsRevenueLoading] = useState(false);
-  
-  const handleSendLeadEvent = async () => {
-    setIsLeadLoading(true);
+interface ZapierWebhookDemoProps {
+  webhookUrl: string;
+}
+
+const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => {
+  const { triggerWorkflow, triggerBusinessEvent } = useZapier();
+  const [isTriggering, setIsTriggering] = React.useState<string | null>(null);
+  const [activeTab, setActiveTab] = React.useState<string>("manual");
+
+  const triggerSample = async (event: string, payload: Record<string, any>) => {
+    if (!webhookUrl) {
+      toast.error("Please enter and save a Zapier webhook URL first");
+      return;
+    }
+
+    setIsTriggering(event);
+    
     try {
-      const result = await triggerBusinessEvent('new_lead_added', {
-        companyId: "demo-company-123",
-        entityType: "lead",
-        lead_name: "Demo Lead",
-        source: "Zapier Demo",
-        timestamp: new Date().toISOString()
+      const result = await triggerWorkflow(
+        webhookUrl,
+        event,
+        payload
+      );
+      
+      if (result.success) {
+        toast.success(`Successfully triggered "${event}" event`);
+      } else {
+        toast.error(`Failed to trigger "${event}" event: ${result.message || result.error?.message || "Unknown error"}`);
+      }
+    } catch (error: any) {
+      console.error(`Error triggering "${event}" event:`, error);
+      toast.error(`Error: ${error.message || `Failed to trigger "${event}" event`}`);
+    } finally {
+      setIsTriggering(null);
+    }
+  };
+
+  const triggerBusinessSample = async (
+    eventType: BusinessEventType, 
+    payload: BusinessEventPayload
+  ) => {
+    if (!webhookUrl) {
+      toast.error("Please enter and save a Zapier webhook URL first");
+      return;
+    }
+
+    setIsTriggering(eventType);
+    
+    try {
+      const result = await triggerBusinessEvent(eventType, {
+        ...payload,
+        webhookUrl
       });
       
       if (result.success) {
-        toast({
-          title: "Success",
-          description: "Lead event sent to Zapier webhook",
-        });
+        toast.success(`Successfully triggered "${eventType}" business event`);
       } else {
-        throw new Error(result.message || "Failed to send lead event");
+        toast.error(`Failed to trigger "${eventType}" business event: ${result.message || "Unknown error"}`);
       }
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send lead event to Zapier",
-        variant: "destructive",
-      });
+      console.error(`Error triggering "${eventType}" business event:`, error);
+      toast.error(`Error: ${error.message || `Failed to trigger "${eventType}" business event`}`);
     } finally {
-      setIsLeadLoading(false);
+      setIsTriggering(null);
     }
   };
-  
-  const handleSendStrategyEvent = async () => {
-    setIsStrategyLoading(true);
-    try {
-      const result = await triggerBusinessEvent('new_strategy_approved', {
-        companyId: "demo-company-123",
+
+  const manualTriggers = [
+    {
+      icon: <FileText className="h-4 w-4" />,
+      title: "Document Created",
+      event: "document_created",
+      payload: { 
+        document_id: "doc_" + Math.random().toString(36).substring(2, 10),
+        title: "Sample Document",
+        created_at: new Date().toISOString()
+      }
+    },
+    {
+      icon: <Bell className="h-4 w-4" />,
+      title: "Notification Event",
+      event: "notification_event",
+      payload: {
+        type: "info",
+        message: "This is a sample notification",
+        timestamp: new Date().toISOString()
+      }
+    },
+    {
+      icon: <Send className="h-4 w-4" />,
+      title: "Message Sent",
+      event: "message_sent",
+      payload: {
+        message_id: "msg_" + Math.random().toString(36).substring(2, 10),
+        recipient: "sample@example.com",
+        subject: "Sample Subject",
+        sent_at: new Date().toISOString()
+      }
+    }
+  ];
+
+  const businessEventSamples = [
+    {
+      icon: <GitBranch className="h-4 w-4" />,
+      title: "Strategy Approved",
+      event: "strategy_approved",
+      payload: {
+        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
+        entityId: "strat_" + Math.random().toString(36).substring(2, 8),
         entityType: "strategy",
-        strategy_title: "Expansion Strategy",
-        suggested_by: "AI Executive Team",
+        strategyName: "Global Expansion Strategy",
+        botName: "Elon Musk",
+        suggestedBy: "Reed Hastings",
+        riskLevel: "Medium",
         timestamp: new Date().toISOString()
-      });
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: "Strategy event sent to Zapier webhook",
-        });
-      } else {
-        throw new Error(result.message || "Failed to send strategy event");
       }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send strategy event to Zapier",
-        variant: "destructive",
-      });
-    } finally {
-      setIsStrategyLoading(false);
-    }
-  };
-  
-  const handleSendRevenueEvent = async () => {
-    setIsRevenueLoading(true);
-    try {
-      const result = await triggerBusinessEvent('revenue_milestone', {
-        companyId: "demo-company-123",
+    },
+    {
+      icon: <Users className="h-4 w-4" />,
+      title: "Lead Converted to Client",
+      event: "lead_converted",
+      payload: {
+        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
+        entityId: "lead_" + Math.random().toString(36).substring(2, 8),
+        entityType: "lead",
+        name: "Jane Smith",
+        company: "Innovatech Solutions",
+        previousStatus: "Qualified",
+        status: "Client",
+        botName: "Pat Wadors",
+        timestamp: new Date().toISOString()
+      }
+    },
+    {
+      icon: <BarChart className="h-4 w-4" />,
+      title: "Campaign Launched",
+      event: "campaign_launched",
+      payload: {
+        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
+        entityId: "camp_" + Math.random().toString(36).substring(2, 8),
+        entityType: "campaign",
+        name: "Q2 LinkedIn Campaign",
+        platform: "LinkedIn",
+        budget: 5000,
+        botName: "Antonio Lucio",
+        timestamp: new Date().toISOString()
+      }
+    },
+    {
+      icon: <CreditCard className="h-4 w-4" />,
+      title: "Revenue Milestone Reached",
+      event: "revenue_milestone_reached",
+      payload: {
+        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
+        entityId: "rev_" + Math.random().toString(36).substring(2, 8),
         entityType: "revenue",
-        company_name: "Demo Company",
         amount: 100000,
+        milestone: "100K",
+        botName: "Warren Buffett",
         timestamp: new Date().toISOString()
-      });
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: "Revenue milestone event sent to Zapier webhook",
-        });
-      } else {
-        throw new Error(result.message || "Failed to send revenue event");
       }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send revenue event to Zapier",
-        variant: "destructive",
-      });
-    } finally {
-      setIsRevenueLoading(false);
     }
-  };
-  
+  ];
+
   return (
-    <Card>
+    <Card className="mt-6">
       <CardHeader>
-        <CardTitle>Test Zapier Webhooks</CardTitle>
+        <div className="flex items-center gap-2">
+          <Zap className="h-5 w-5 text-primary" />
+          <CardTitle>Zapier Integration Demo</CardTitle>
+        </div>
         <CardDescription>
-          Send test events to your Zapier webhooks to verify integration
+          Test and demonstrate business events with your Zapier webhook
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">New Lead</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Trigger actions when a new lead is added to the system
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                onClick={handleSendLeadEvent} 
-                disabled={isLeadLoading}
-                className="w-full"
-              >
-                {isLeadLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : "Send Test Event"}
-              </Button>
-            </CardFooter>
-          </Card>
+      <CardContent>
+        <Tabs defaultValue="business" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="business">Business Events</TabsTrigger>
+            <TabsTrigger value="manual">Manual Triggers</TabsTrigger>
+          </TabsList>
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Strategy Approved</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Trigger actions when a new business strategy is approved
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                onClick={handleSendStrategyEvent} 
-                disabled={isStrategyLoading}
-                className="w-full"
-              >
-                {isStrategyLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : "Send Test Event"}
-              </Button>
-            </CardFooter>
-          </Card>
+          <TabsContent value="business" className="mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {businessEventSamples.map((trigger) => (
+                <Card key={trigger.event} className="h-full">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      {trigger.icon}
+                      <CardTitle className="text-sm">{trigger.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="text-xs text-muted-foreground">
+                    <p className="mb-1">Event: <code>{trigger.event}</code></p>
+                    <p className="mb-1">Bot: <code>{trigger.payload.botName}</code></p>
+                    <p>Payload: <code>{JSON.stringify(trigger.payload).substring(0, 60)}...</code></p>
+                  </CardContent>
+                  <CardFooter className="pb-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => triggerBusinessSample(trigger.event as BusinessEventType, trigger.payload)}
+                      disabled={isTriggering === trigger.event || !webhookUrl}
+                    >
+                      {isTriggering === trigger.event ? "Sending..." : "Trigger Business Event"}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Revenue Milestone</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Trigger actions when a revenue milestone is achieved
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                onClick={handleSendRevenueEvent} 
-                disabled={isRevenueLoading}
-                className="w-full"
-              >
-                {isRevenueLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : "Send Test Event"}
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
+          <TabsContent value="manual" className="mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {manualTriggers.map((trigger) => (
+                <Card key={trigger.event} className="h-full">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      {trigger.icon}
+                      <CardTitle className="text-sm">{trigger.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="text-xs text-muted-foreground">
+                    <p className="mb-1">Event: <code>{trigger.event}</code></p>
+                    <p>Payload: <code>{JSON.stringify(trigger.payload).substring(0, 60)}...</code></p>
+                  </CardContent>
+                  <CardFooter className="pb-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => triggerSample(trigger.event, trigger.payload)}
+                      disabled={isTriggering === trigger.event || !webhookUrl}
+                    >
+                      {isTriggering === trigger.event ? "Sending..." : "Trigger Event"}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
-}
+};
+
+export default ZapierWebhookDemo;
