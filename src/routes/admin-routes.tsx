@@ -2,11 +2,15 @@
 import { RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { logger } from "@/utils/loggingService";
+import AdminRoute from "@/components/AdminRoute";
 
 // Import components directly to avoid module resolution issues
 import Index from "@/pages/admin/Index";
 import AdminCampaigns from "@/pages/admin/AdminCampaigns";
 import PageNotFound from "@/pages/PageNotFound";
+import SystemHealthPage from "@/pages/admin/system-health/SystemHealthPage";
+import LaunchPlan from "@/pages/admin/LaunchPlan";
+import LaunchCheck from "@/pages/admin/LaunchCheck";
 
 // Create loading fallback for lazy-loaded components
 const LazyLoadingFallback = () => (
@@ -26,17 +30,33 @@ const LazyAdminCompanies = lazy(() => import("@/pages/admin/AdminCompanies"));
 const adminRoutes: RouteObject[] = [
   {
     path: "/admin",
-    element: <Index />,
+    element: <AdminRoute><Index /></AdminRoute>,
   },
   {
     path: "/admin/campaigns",
-    element: <AdminCampaigns />
+    element: <AdminRoute><AdminCampaigns /></AdminRoute>
+  },
+  {
+    path: "/admin/system-health",
+    element: <AdminRoute><SystemHealthPage /></AdminRoute>
+  },
+  {
+    path: "/admin/launch-plan",
+    element: <AdminRoute><LaunchPlan /></AdminRoute>
+  },
+  {
+    path: "/admin/launch-check",
+    element: <AdminRoute><LaunchCheck /></AdminRoute>
+  },
+  {
+    path: "/admin/launch-prep",
+    element: <AdminRoute><LaunchPlan /></AdminRoute>
   },
   {
     path: "/admin/settings",
     element: (
       <Suspense fallback={<LazyLoadingFallback />}>
-        <LazyAdminSettings />
+        <AdminRoute><LazyAdminSettings /></AdminRoute>
       </Suspense>
     )
   },
@@ -44,7 +64,7 @@ const adminRoutes: RouteObject[] = [
     path: "/admin/users",
     element: (
       <Suspense fallback={<LazyLoadingFallback />}>
-        <LazyAdminUsers />
+        <AdminRoute><LazyAdminUsers /></AdminRoute>
       </Suspense>
     )
   },
@@ -52,7 +72,7 @@ const adminRoutes: RouteObject[] = [
     path: "/admin/analytics",
     element: (
       <Suspense fallback={<LazyLoadingFallback />}>
-        <LazyAdminAnalytics />
+        <AdminRoute><LazyAdminAnalytics /></AdminRoute>
       </Suspense>
     )
   },
@@ -60,7 +80,7 @@ const adminRoutes: RouteObject[] = [
     path: "/admin/leads",
     element: (
       <Suspense fallback={<LazyLoadingFallback />}>
-        <LazyAdminLeads />
+        <AdminRoute><LazyAdminLeads /></AdminRoute>
       </Suspense>
     )
   },
@@ -68,7 +88,7 @@ const adminRoutes: RouteObject[] = [
     path: "/admin/companies",
     element: (
       <Suspense fallback={<LazyLoadingFallback />}>
-        <LazyAdminCompanies />
+        <AdminRoute><LazyAdminCompanies /></AdminRoute>
       </Suspense>
     )
   },
