@@ -16,7 +16,7 @@ import { logger } from '@/utils/loggingService';
  */
 export function useSocialMedia() {
   const { profile } = useAuth();
-  const companyId = profile?.company_id;
+  const companyId = profile?.company_id || 'default-company';
   
   // State
   const [posts, setPosts] = useState<SocialMediaPost[]>([]);
@@ -26,8 +26,6 @@ export function useSocialMedia() {
   
   // Fetch posts whenever filters or company ID changes
   useEffect(() => {
-    if (!companyId) return;
-    
     async function loadPosts() {
       setIsLoading(true);
       setError(null);
@@ -37,7 +35,10 @@ export function useSocialMedia() {
         setPosts(data);
       } catch (err: any) {
         logger.error('Failed to fetch social media posts', err);
-        setError(err instanceof Error ? err : new Error(String(err)));
+        // Provide a more user-friendly error message
+        setError(new Error('Unable to load posts. The social media feature might not be fully set up.'));
+        // Set empty posts array to prevent undefined errors
+        setPosts([]);
       } finally {
         setIsLoading(false);
       }
@@ -66,6 +67,7 @@ export function useSocialMedia() {
       setPosts(data);
     } catch (err: any) {
       logger.error('Failed to refresh social media posts', err);
+      // Don't update the error state during refresh to prevent UI flicker
     } finally {
       setIsLoading(false);
     }

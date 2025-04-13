@@ -3,7 +3,7 @@ import React, { Suspense, lazy } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus } from "lucide-react";
+import { Plus, AlertCircle, RefreshCw } from "lucide-react";
 import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
 
 // Lazy load the calendar and list views for better performance
@@ -63,11 +63,19 @@ export function PostsDisplay({
       <Card className="w-full h-[300px] flex items-center justify-center">
         <CardContent>
           <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-2" />
             <h3 className="text-lg font-medium text-red-600 mb-2">Error Loading Posts</h3>
             <p className="text-gray-500 mb-4">{error.message}</p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              Try Again
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Button>
+              <Button onClick={onCreatePost}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Post
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
