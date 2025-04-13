@@ -1,29 +1,28 @@
 
 import React from 'react';
-import { Loader2, CheckCircle2 } from 'lucide-react';
-
-interface LaunchProgressProps {
-  isComplete: boolean;
-  launchStep: string | null;
-}
+import { CheckCircle, Loader } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { LaunchProgressProps } from './types';
 
 export function LaunchProgress({ isComplete, launchStep }: LaunchProgressProps) {
   return (
-    <div className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
-      <div className="flex items-center gap-3">
+    <div className="space-y-3 bg-primary/5 p-4 rounded-lg border border-primary/20">
+      <div className="flex items-center justify-between">
+        <h3 className="font-medium text-primary">
+          {isComplete ? 'Launch Completed!' : 'Launching Allora AI...'}
+        </h3>
         {isComplete ? (
-          <CheckCircle2 className="h-5 w-5 text-green-500" />
+          <CheckCircle className="h-5 w-5 text-green-500" />
         ) : (
-          <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
+          <Loader className="h-5 w-5 text-primary animate-spin" />
         )}
-        <span className="font-medium">{launchStep}</span>
       </div>
       
-      {isComplete && (
-        <p className="text-sm text-muted-foreground">
-          Allora AI has been successfully launched as its own first customer. Redirecting to dashboard...
-        </p>
-      )}
+      <Progress value={isComplete ? 100 : 75} className="h-2" />
+      
+      <p className="text-sm text-muted-foreground">
+        {launchStep || 'Initializing...'}
+      </p>
     </div>
   );
 }

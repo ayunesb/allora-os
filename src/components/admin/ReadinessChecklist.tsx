@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   LaunchExecutionPlan, 
@@ -27,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, CheckCircle2, XCircle, AlertTriangle, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { LaunchButton } from './launch-verification/LaunchButton';
 
 export default function ReadinessChecklist() {
   const [plan, setPlan] = useState<LaunchExecutionPlan | null>(null);
@@ -156,20 +156,18 @@ export default function ReadinessChecklist() {
       </div>
       
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Overall Progress</CardTitle>
+        <CardHeader>
+          <CardTitle>Launch Allora AI</CardTitle>
           <CardDescription>
-            Implementation progress across all phases
+            Initialize the platform with your company as the first customer
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>{calculateOverallProgress()}% Complete</span>
-              <span>{plan.phases.length} Phases</span>
-            </div>
-            <Progress value={calculateOverallProgress()} className="h-2" />
-          </div>
+          <p className="text-muted-foreground mb-4">
+            This will set up Allora AI as its own first customer, generate initial strategies, 
+            campaigns, and marketing materials to showcase the platform's capabilities.
+          </p>
+          <LaunchButton className="mt-4" />
         </CardContent>
       </Card>
       
@@ -333,7 +331,6 @@ export default function ReadinessChecklist() {
   );
 }
 
-// Helper function to find a dependency item by id
 function findDependency(plan: LaunchExecutionPlan, depId: string): LaunchPlanItem | undefined {
   for (const phase of plan.phases) {
     const item = phase.items.find(item => item.id === depId);
@@ -342,7 +339,6 @@ function findDependency(plan: LaunchExecutionPlan, depId: string): LaunchPlanIte
   return undefined;
 }
 
-// Format validation key for display
 function formatValidationKey(key: string): string {
   return key
     .split(/(?=[A-Z])/)
