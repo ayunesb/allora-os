@@ -127,13 +127,12 @@ export const executeAndLogWebhook = async (
     
     const duration = Date.now() - startTime;
     
-    // Update the webhook log with the final result
+    // Update the webhook log with success information
     if (eventId) {
       updateWebhookLog(eventId, {
-        status: result.success ? 'success' : 'error',
-        responseCode: 200, // This is an estimation for no-cors mode
-        response: { success: result.success, message: result.message },
-        errorMessage: result.success ? undefined : result.message,
+        status: 'success',
+        responseCode: result.status,
+        response: result.data,
         duration
       });
     }
@@ -142,27 +141,15 @@ export const executeAndLogWebhook = async (
   } catch (error: any) {
     const duration = Date.now() - startTime;
     
+    // Update the webhook log with error information
     if (eventId) {
       updateWebhookLog(eventId, {
         status: 'error',
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorMessage: error.message || 'Unknown error',
         duration
       });
     }
     
-    // Log detailed error information
-    logger.error('Webhook execution failed', error, {
-      url,
-      type,
-      eventType,
-      duration,
-      eventId
-    });
-    
-    return {
-      success: false,
-      message: `Failed to trigger webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      eventId
-    };
+    throw error;
   }
 };
