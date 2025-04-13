@@ -9,6 +9,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { monitoring } from '@/utils/monitoring';
 
+const getSeverityColor = (severity: string) => {
+  switch (severity) {
+    case 'critical':
+      return 'bg-red-500 text-white';
+    case 'error':
+      return 'bg-red-400 text-white';
+    case 'warning':
+      return 'bg-amber-500 text-white';
+    case 'info':
+    default:
+      return 'bg-blue-500 text-white';
+  }
+};
+
 interface AlertsPanelProps {
   maxAlerts?: number;
   showControls?: boolean;
