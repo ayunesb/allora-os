@@ -12,6 +12,7 @@ import { NavigationManager } from "@/components/NavigationManager";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
 import SystemHealthPage from "@/pages/admin/system-health/SystemHealthPage";
+import AdminLayout from "@/components/AdminLayout";
 import AdminRoute from "@/components/AdminRoute";
 
 // Import pages explicitly to avoid any import issues
@@ -23,7 +24,6 @@ import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import LaunchPlan from "@/pages/admin/LaunchPlan";
 import LaunchCheck from "@/pages/admin/LaunchCheck";
 import { logger } from "@/utils/loggingService";
-import AdminLayout from "@/components/AdminLayout";
 
 // Create a navigation layout that includes NavigationManager
 const NavigationLayout = () => {
