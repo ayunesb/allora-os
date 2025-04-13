@@ -5,9 +5,8 @@
  */
 
 import { logger } from '@/utils/loggingService';
-
-// Define the webhook types supported by the application
-export type WebhookType = 'stripe' | 'zapier' | 'github' | 'slack' | 'custom';
+import { WebhookType, WebhookResult } from './webhookTypes';
+import { executeWebhook } from './webhookRetry';
 
 // Regex patterns for different webhook services
 const WEBHOOK_PATTERNS = {
@@ -78,7 +77,7 @@ export const sanitizeWebhookUrl = (webhookUrl: string, type: WebhookType): strin
 export const testWebhook = async (
   webhookUrl: string, 
   type: WebhookType
-): Promise<{ success: boolean; message?: string }> => {
+): Promise<WebhookResult> => {
   // First validate the URL format
   if (!validateWebhookUrlFormat(webhookUrl, type)) {
     return { 
@@ -87,60 +86,19 @@ export const testWebhook = async (
     };
   }
   
+  // Create a test payload that identifies itself as a test
+  const testPayload = {
+    event: "test",
+    timestamp: new Date().toISOString(),
+    source: "Allora AI Platform",
+    test: true,
+    message: "This is a test webhook from Allora AI"
+  };
+
   try {
-    logger.info(`Testing webhook: ${type} at ${webhookUrl}`);
-    
-    // Create a test payload that identifies itself as a test
-    const testPayload = {
-      event: "test",
-      timestamp: new Date().toISOString(),
-      source: "Allora AI Platform",
-      test: true,
-      message: "This is a test webhook from Allora AI"
-    };
-    
-    // Use a timeout to prevent long-running requests
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-    
-    // Special handling for Zapier (which may require no-cors mode)
-    const requestOptions: RequestInit = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(testPayload),
-      signal: controller.signal
-    };
-    
-    // For Zapier, we need to use no-cors mode since it doesn't implement CORS
-    if (type === 'zapier') {
-      requestOptions.mode = 'no-cors';
-    }
-    
-    // Send the test request
-    const response = await fetch(webhookUrl, requestOptions);
-    
-    // Clear the timeout
-    clearTimeout(timeoutId);
-    
-    // With no-cors, we don't get response details
-    if (type === 'zapier' && response.type === 'opaque') {
-      return { 
-        success: true, 
-        message: "Request sent successfully. Due to CORS restrictions, we cannot confirm receipt."
-      };
-    }
-    
-    // For regular responses, check status
-    if (!response.ok) {
-      throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-    }
-    
-    return { 
-      success: true, 
-      message: "Webhook test successful!" 
-    };
+    // Use our improved executeWebhook function
+    const result = await executeWebhook(webhookUrl, testPayload, type, 'webhook_test');
+    return result;
   } catch (error: any) {
     // Log and return the error
     const message = error.message || "Unknown error occurred";
@@ -148,7 +106,8 @@ export const testWebhook = async (
     
     return { 
       success: false, 
-      message: `Test failed: ${message}` 
+      message: `Test failed: ${message}`,
+      error
     };
   }
 };

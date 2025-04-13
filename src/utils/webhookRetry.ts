@@ -1,16 +1,6 @@
 
-import { WebhookType } from './webhookValidation';
+import { WebhookType, WebhookResult, RetryOptions } from './webhookTypes';
 import { logger } from '@/utils/loggingService';
-import { WebhookResult } from './webhookUtils';
-
-interface RetryOptions {
-  maxRetries?: number;
-  initialDelay?: number;
-  backoffFactor?: number;
-  maxDelay?: number;
-  jitter?: boolean;
-  onRetry?: (attempt: number, delay: number, error?: Error) => void;
-}
 
 /**
  * Helper to add jitter to retry delay to prevent thundering herd
@@ -56,10 +46,12 @@ export const executeWebhook = async (
       });
       
       const endTime = performance.now();
-      logger.info(`Webhook execution completed in ${(endTime - startTime).toFixed(2)}ms`, {
+      const duration = endTime - startTime;
+      
+      logger.info(`Webhook execution completed in ${duration.toFixed(2)}ms`, {
         webhookType: type,
         eventType,
-        duration: endTime - startTime
+        duration
       });
       
       // Since we're using no-cors, we can't actually check the response status
@@ -68,7 +60,8 @@ export const executeWebhook = async (
         success: true,
         message: 'Webhook executed successfully (no-cors mode)',
         statusCode: 200,
-        responseData: { mode: 'no-cors' }
+        responseData: { mode: 'no-cors' },
+        duration
       };
     } finally {
       clearTimeout(timeoutId);

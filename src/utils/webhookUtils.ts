@@ -1,35 +1,8 @@
 
-import { WebhookType } from './webhookValidation';
+import { WebhookType, WebhookResult, WebhookEvent } from './webhookTypes';
 import { executeWithRetry } from './webhookRetry';
 import { logger } from '@/utils/loggingService';
-
-/**
- * Result interface from webhook execution
- */
-export interface WebhookResult {
-  success: boolean;
-  message?: string;
-  statusCode?: number;
-  responseData?: any;
-  error?: Error;
-}
-
-/**
- * Webhook event interface for localStorage
- */
-interface WebhookEvent {
-  id: string;
-  timestamp: string;
-  webhookType: WebhookType;
-  eventType: string;
-  targetUrl: string;
-  payload: any;
-  status: 'pending' | 'success' | 'error';
-  responseCode?: number;
-  response?: any;
-  errorMessage?: string;
-  duration?: number;
-}
+import { secureStorage } from '@/utils/cryptoUtils';
 
 /**
  * Secure the webhook URL by storing only a hashed version
@@ -59,9 +32,6 @@ export const logWebhookCall = async (
   type: WebhookType,
   eventType: string = 'webhook_call'
 ): Promise<string | null> => {
-  // Get storage functions from useWebhookHistory
-  // Note: We're accessing localStorage directly here since this is a utility function
-  // not a component, and we can't use hooks in regular functions
   try {
     // Generate a unique ID for this webhook event
     const eventId = `wh_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
@@ -77,16 +47,16 @@ export const logWebhookCall = async (
       status: 'pending'
     };
     
-    // Load existing events
-    const storedHistory = localStorage.getItem('webhook_event_history');
+    // Load existing events using the secure storage
+    const storedHistory = secureStorage.getItem('webhook_event_history');
     const history = storedHistory ? JSON.parse(storedHistory) : { version: 1, events: [], lastUpdated: new Date().toISOString() };
     
     // Add the new event
     history.events = [initialEvent, ...history.events];
     history.lastUpdated = new Date().toISOString();
     
-    // Save to localStorage
-    localStorage.setItem('webhook_event_history', JSON.stringify(history));
+    // Save to secure storage
+    secureStorage.setItem('webhook_event_history', JSON.stringify(history));
     
     return eventId;
   } catch (error) {
@@ -108,11 +78,12 @@ export const updateWebhookLog = (
     response?: any;
     errorMessage?: string;
     duration?: number;
+    retryCount?: number;
   }
 ): void => {
   try {
-    // Load existing events
-    const storedHistory = localStorage.getItem('webhook_event_history');
+    // Load existing events from secure storage
+    const storedHistory = secureStorage.getItem('webhook_event_history');
     if (!storedHistory) return;
     
     const history = JSON.parse(storedHistory);
@@ -124,8 +95,8 @@ export const updateWebhookLog = (
     
     history.lastUpdated = new Date().toISOString();
     
-    // Save to localStorage
-    localStorage.setItem('webhook_event_history', JSON.stringify(history));
+    // Save to secure storage
+    secureStorage.setItem('webhook_event_history', JSON.stringify(history));
   } catch (error) {
     logger.error('Error updating webhook log:', error);
   }
@@ -162,7 +133,8 @@ export const executeAndLogWebhook = async (
           updateWebhookLog(eventId, {
             status: 'error',
             errorMessage: `Retry ${attempt} scheduled after ${delay}ms. Error: ${error?.message || 'Unknown error'}`,
-            duration: Date.now() - startTime
+            duration: Date.now() - startTime,
+            retryCount: attempt
           });
         }
       }
@@ -215,5 +187,34 @@ export const executeAndLogWebhook = async (
       message: error.message || 'Unknown error during webhook execution',
       error
     };
+  }
+};
+
+/**
+ * Get webhook history from secure storage
+ */
+export const getWebhookHistory = (): WebhookEvent[] => {
+  try {
+    const storedHistory = secureStorage.getItem('webhook_event_history');
+    if (!storedHistory) return [];
+    
+    const history = JSON.parse(storedHistory);
+    return history.events || [];
+  } catch (error) {
+    logger.error('Error retrieving webhook history:', error);
+    return [];
+  }
+};
+
+/**
+ * Clear webhook history from secure storage
+ */
+export const clearWebhookHistory = (): boolean => {
+  try {
+    secureStorage.removeItem('webhook_event_history');
+    return true;
+  } catch (error) {
+    logger.error('Error clearing webhook history:', error);
+    return false;
   }
 };
