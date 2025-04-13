@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { WebhookEvent } from '../useWebhookHistory';
+import { WebhookEvent } from '@/types/webhooks';
 
 interface EventDetailsPanelProps {
   event: WebhookEvent;

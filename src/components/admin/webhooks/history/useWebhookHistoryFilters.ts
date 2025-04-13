@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useEffect } from 'react';
-import { WebhookEvent } from '../useWebhookHistory';
+import { WebhookEvent } from '@/types/webhooks';
 
 export const useWebhookHistoryFilters = (webhookEvents: WebhookEvent[], pageSize = 10) => {
   // State for filters

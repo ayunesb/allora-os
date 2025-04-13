@@ -2,7 +2,24 @@
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { WebhookType } from '@/utils/webhookValidation';
-import { WebhookEvent } from '@/types/webhooks';
+
+/**
+ * Interface for webhook event
+ */
+export interface WebhookEvent {
+  id: string;
+  webhookType: WebhookType;
+  eventType: string;
+  targetUrl: string;
+  source: string;
+  status: 'success' | 'failed' | 'pending';
+  timestamp: string;
+  payload: any;
+  response: any;
+  duration?: number;
+  errorMessage?: string;
+  responseCode?: string;
+}
 
 /**
  * Interface for webhook local storage data

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Check, X, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
-import { WebhookEvent } from '../useWebhookHistory';
+import { WebhookEvent } from '@/types/webhooks';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDistance } from 'date-fns';

@@ -4,7 +4,7 @@ import {
   Table, 
   TableBody
 } from "@/components/ui/table";
-import { WebhookEvent } from './useWebhookHistory';
+import { WebhookEvent } from '@/types/webhooks';
 import { 
   EventTableRow, 
   EmptyState,
