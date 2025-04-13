@@ -1,27 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { Alert } from '@/utils/monitoring';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, X, AlertTriangle, Info, AlertCircle as AlertIcon, CheckCircle2 } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { AlertCircle, X } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { monitoring } from '@/utils/monitoring';
-
-const getSeverityColor = (severity: string) => {
-  switch (severity) {
-    case 'critical':
-      return 'bg-red-500 text-white';
-    case 'error':
-      return 'bg-red-400 text-white';
-    case 'warning':
-      return 'bg-amber-500 text-white';
-    case 'info':
-    default:
-      return 'bg-blue-500 text-white';
-  }
-};
+import { AlertList } from './AlertList';
+import { CollapsedAlertButton } from './CollapsedAlertButton';
 
 interface AlertsPanelProps {
   maxAlerts?: number;
@@ -93,33 +80,12 @@ export default function AlertsPanel({
     return null;
   }
   
-  const getAlertIcon = (severity: string) => {
-    switch (severity) {
-      case 'critical':
-        return <AlertIcon className="h-5 w-5 text-red-600" />;
-      case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
-      case 'info':
-      default:
-        return <Info className="h-5 w-5 text-blue-500" />;
-    }
-  };
-  
   if (isCollapsed) {
     return (
-      <div className={`fixed bottom-4 right-4 z-50 ${className}`}>
-        <Button 
-          size="sm" 
-          variant="outline" 
-          className="rounded-full p-2" 
-          onClick={() => setIsCollapsed(false)}
-        >
-          {getAlertIcon(alerts[0].severity)}
-          <span className="ml-2">{alerts.length} Alert{alerts.length !== 1 ? 's' : ''}</span>
-        </Button>
-      </div>
+      <CollapsedAlertButton 
+        alerts={alerts} 
+        onClick={() => setIsCollapsed(false)} 
+      />
     );
   }
 
@@ -128,7 +94,7 @@ export default function AlertsPanel({
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg flex items-center">
-            <AlertIcon className="h-5 w-5 mr-2 text-red-500" />
+            <AlertCircle className="h-5 w-5 mr-2 text-red-500" />
             System Alerts
           </CardTitle>
           {showControls && (
@@ -150,55 +116,12 @@ export default function AlertsPanel({
         </CardDescription>
       </CardHeader>
       <Separator />
-      <ScrollArea className="h-[250px]">
-        <CardContent className="pt-3">
-          <div className="space-y-3">
-            {alerts.map(alert => (
-              <div 
-                key={alert.id} 
-                className={`rounded-md p-3 border ${
-                  alert.acknowledged 
-                    ? 'bg-gray-50 border-gray-200' 
-                    : `bg-${alert.severity === 'critical' ? 'red' : 'amber'}-50 border-${alert.severity === 'critical' ? 'red' : 'amber'}-200`
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex items-start gap-2">
-                    {getAlertIcon(alert.severity)}
-                    <div>
-                      <h4 className={`font-medium ${alert.acknowledged ? 'text-gray-700' : 'text-gray-900'}`}>
-                        {alert.title}
-                      </h4>
-                      <p className={`text-sm mt-0.5 ${alert.acknowledged ? 'text-gray-500' : 'text-gray-700'}`}>
-                        {alert.message}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge className={getSeverityColor(alert.severity)}>
-                    {alert.severity}
-                  </Badge>
-                </div>
-                <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
-                  <span>
-                    {new Date(alert.timestamp).toLocaleTimeString()}
-                  </span>
-                  {!alert.acknowledged && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-6 text-xs"
-                      onClick={() => handleAcknowledge(alert.id)}
-                    >
-                      <CheckCircle2 className="h-3 w-3 mr-1" /> 
-                      Acknowledge
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </ScrollArea>
+      <CardContent className="pt-3 p-0">
+        <AlertList 
+          alerts={alerts}
+          onAcknowledge={handleAcknowledge}
+        />
+      </CardContent>
       {showControls && alerts.filter(a => !a.acknowledged).length > 0 && (
         <>
           <Separator />
