@@ -22,7 +22,11 @@ import { Button } from '@/components/ui/button';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import AdminNav from '@/components/admin/AdminNav';
 
-export default function AdminLayout() {
+export interface AdminLayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
@@ -147,6 +151,7 @@ export default function AdminLayout() {
             </div>
           )}
           <Outlet />
+          {children}
         </div>
       </div>
     );
@@ -192,6 +197,7 @@ export default function AdminLayout() {
         )}
         <div className="p-6 max-w-full">
           <Outlet />
+          {children}
         </div>
       </div>
     </div>
