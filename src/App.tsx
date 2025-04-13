@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/dashboard/Dashboard';
-import SystemHealth from './pages/admin/SystemHealth';
+import SystemHealth from './pages/admin/system-health/SystemHealthPage';
 import DevHelperRedirect from './pages/admin/DevHelperRedirect';
 import DevAdminHelper from './pages/DevAdminHelper';
 import WebhooksTab from './components/admin/WebhooksTab';
