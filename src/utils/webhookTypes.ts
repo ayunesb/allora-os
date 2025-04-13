@@ -6,12 +6,12 @@
 export type WebhookType = 'stripe' | 'zapier' | 'github' | 'slack' | 'custom';
 
 export type BusinessEventType = 
-  | 'new_strategy_approved'
-  | 'new_lead_added'
+  | 'strategy_approved'
+  | 'lead_added'
   | 'campaign_launched'
   | 'shopify_order_placed'
   | 'new_client_signed'
-  | 'revenue_milestone';
+  | 'revenue_milestone_reached';
 
 export interface BusinessEventPayload {
   companyId?: string;

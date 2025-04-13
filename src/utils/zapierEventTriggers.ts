@@ -13,13 +13,15 @@ export async function onStrategyApproved(strategy: {
   company: string;
   strategyTitle: string;
   suggestedBy: string;
+  strategyId?: string;
+  companyId?: string;
 }) {
-  return await triggerBusinessEvent('new_strategy_approved', {
-    companyId: strategy.company,
+  return await triggerBusinessEvent('strategy_approved', {
+    companyId: strategy.companyId || strategy.company,
+    entityId: strategy.strategyId,
     entityType: 'strategy',
-    company: strategy.company,
-    strategy_title: strategy.strategyTitle,
-    suggested_by: strategy.suggestedBy,
+    strategyName: strategy.strategyTitle,
+    suggestedBy: strategy.suggestedBy,
     timestamp: new Date().toISOString()
   });
 }
@@ -32,13 +34,13 @@ export async function onNewLeadAdded(lead: {
   leadName: string;
   source: string;
   leadId?: string;
+  companyId?: string;
 }) {
-  return await triggerBusinessEvent('new_lead_added', {
-    companyId: lead.company,
+  return await triggerBusinessEvent('lead_added', {
+    companyId: lead.companyId || lead.company,
     entityId: lead.leadId,
     entityType: 'lead',
-    company: lead.company,
-    lead_name: lead.leadName,
+    leadName: lead.leadName,
     source: lead.source,
     timestamp: new Date().toISOString()
   });
@@ -58,7 +60,7 @@ export async function onCampaignLaunched(campaign: {
     companyId: campaign.companyId,
     entityId: campaign.campaignId,
     entityType: 'campaign',
-    campaign_title: campaign.campaignTitle,
+    campaignTitle: campaign.campaignTitle,
     platform: campaign.platform,
     owner: campaign.owner,
     timestamp: new Date().toISOString()
@@ -78,8 +80,8 @@ export async function onShopifyOrderPlaced(order: {
     companyId: order.companyId,
     entityId: order.orderId,
     entityType: 'order',
-    order_id: order.orderId,
-    customer_name: order.customerName,
+    orderNumber: order.orderId,
+    customerName: order.customerName,
     revenue: order.revenue,
     timestamp: new Date().toISOString()
   });
@@ -92,13 +94,14 @@ export async function onNewClientSignup(client: {
   companyName: string;
   clientName: string;
   clientId?: string;
+  companyId?: string;
 }) {
   return await triggerBusinessEvent('new_client_signed', {
-    companyId: client.companyName,
+    companyId: client.companyId || client.companyName,
     entityId: client.clientId,
     entityType: 'client',
-    company_name: client.companyName,
-    client_name: client.clientName,
+    companyName: client.companyName,
+    clientName: client.clientName,
     timestamp: new Date().toISOString()
   });
 }
@@ -109,12 +112,20 @@ export async function onNewClientSignup(client: {
 export async function onRevenueMilestone(milestone: {
   companyName: string;
   amount: number;
+  milestoneId?: string;
+  companyId?: string;
 }) {
-  return await triggerBusinessEvent('revenue_milestone', {
-    companyId: milestone.companyName,
+  return await triggerBusinessEvent('revenue_milestone_reached', {
+    companyId: milestone.companyId || milestone.companyName,
+    entityId: milestone.milestoneId,
     entityType: 'revenue',
-    company_name: milestone.companyName,
+    companyName: milestone.companyName,
     amount: milestone.amount,
+    milestone: milestone.amount >= 1000000 ? '$1M+' : 
+               milestone.amount >= 500000 ? '$500K+' : 
+               milestone.amount >= 100000 ? '$100K+' : 
+               milestone.amount >= 50000 ? '$50K+' : 
+               milestone.amount >= 10000 ? '$10K+' : '$1K+',
     timestamp: new Date().toISOString()
   });
 }
