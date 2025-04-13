@@ -1,9 +1,8 @@
-
 import { RouteObject } from "react-router-dom";
 import AdminRoute from "@/components/AdminRoute";
 import AdminLayout from "@/components/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
-import UserManagement from "@/pages/admin/UserManagement";
+import UserManagementPage from "@/pages/admin/UserManagementPage";
 import Companies from "@/pages/admin/Companies";
 import WebhookManagement from "@/pages/admin/WebhookManagement";
 import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
@@ -35,7 +34,7 @@ export const adminRoutes: RouteObject = {
     },
     {
       path: "users",
-      element: <UserManagement />,
+      element: <UserManagementPage />,
     },
     {
       path: "companies",
