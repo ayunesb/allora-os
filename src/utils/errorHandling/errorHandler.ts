@@ -8,6 +8,7 @@ interface ErrorHandlingOptions {
   logError?: boolean;
   context?: Record<string, unknown>;
   a11yContext?: string; // For improved accessibility
+  toastDuration?: number;
 }
 
 /**
@@ -21,7 +22,8 @@ export function handleError(
     showToast = true, 
     logError = true,
     context = {},
-    a11yContext
+    a11yContext,
+    toastDuration = 5000
   } = options;
   
   // Default values for unknown errors
@@ -85,6 +87,7 @@ export function handleError(
   if (showToast) {
     toast.error(processedError.message, {
       id: `error-${processedError.type}-${Date.now()}`,
+      duration: toastDuration
     });
     
     // Add ARIA live region for accessibility

@@ -4,7 +4,7 @@ import { router } from './routes/router';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
 import { AuthProvider } from '@/context/AuthContext';
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { GlobalErrorBoundary } from "@/components/errorHandling/GlobalErrorBoundary";
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as SonnerToaster } from 'sonner';
 import { logger } from '@/utils/loggingService';
@@ -13,7 +13,7 @@ function App() {
   logger.info('App component rendering');
 
   return (
-    <ErrorBoundary>
+    <GlobalErrorBoundary>
       <ThemeProvider defaultTheme="dark" storageKey="allora-ui-theme">
         <AuthProvider>
           <AccessibilityProvider>
@@ -23,7 +23,7 @@ function App() {
           </AccessibilityProvider>
         </AuthProvider>
       </ThemeProvider>
-    </ErrorBoundary>
+    </GlobalErrorBoundary>
   );
 }
 

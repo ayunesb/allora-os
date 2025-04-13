@@ -1,363 +1,441 @@
 
-import React, { useState, useEffect } from "react";
-import { Helmet } from "react-helmet-async";
-import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Save, Shield, User, Mail, Key } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-// Form schemas
-const profileFormSchema = z.object({
-  fullName: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  company: z.string().optional(),
-  jobTitle: z.string().optional(),
-});
-
-const securityFormSchema = z.object({
-  currentPassword: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-  newPassword: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-  confirmPassword: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
-type SecurityFormValues = z.infer<typeof securityFormSchema>;
+import { toast } from 'sonner';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  User, Save, Mail, Phone, Globe, Building, MapPin, 
+  Shield, Bell, Key, Trash, AlertTriangle 
+} from 'lucide-react';
 
 export default function Account() {
-  const { toast } = useToast();
-  const { user, profile, updateProfile } = useAuth();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-
-  // Profile form
-  const profileForm = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues: {
-      fullName: profile?.name || "",
-      email: user?.email || "",
-      company: profile?.company || "",
-      jobTitle: profile?.job_title || "",
-    },
+  const [formData, setFormData] = useState({
+    name: profile?.name || '',
+    email: user?.email || '',
+    phone: profile?.phone || '',
+    website: profile?.website || '',
+    company: profile?.company || '',
+    location: profile?.location || '',
+    bio: profile?.bio || ''
   });
 
-  // Update form values when profile data is available
-  useEffect(() => {
-    if (profile) {
-      profileForm.reset({
-        fullName: profile.name || "",
-        email: user?.email || "",
-        company: profile.company || "",
-        jobTitle: profile.job_title || "",
-      });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user?.id) {
+      toast.error("You must be logged in to update your profile");
+      return;
     }
-  }, [profile, user, profileForm]);
 
-  // Security form
-  const securityForm = useForm<SecurityFormValues>({
-    resolver: zodResolver(securityFormSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-  });
-
-  async function onProfileSubmit(data: ProfileFormValues) {
     setIsLoading(true);
-    
     try {
-      if (!user) {
-        throw new Error("You must be logged in to update your profile");
-      }
-      
-      // Update profile in database
-      const updatedProfile = {
-        name: data.fullName,
-        company: data.company || null,
-        job_title: data.jobTitle || null,
-      };
-      
-      await updateProfile(updatedProfile);
-      
-      // Update email if changed
-      if (data.email !== user.email) {
-        const { error } = await supabase.auth.updateUser({
-          email: data.email,
-        });
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Email update initiated",
-          description: "Please check your new email address for a confirmation link.",
-        });
-      }
-      
-      toast({
-        title: "Profile updated",
-        description: "Your profile information has been updated successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Failed to update profile",
-        description: error.message || "There was an error updating your profile.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: formData.name,
+          phone: formData.phone,
+          website: formData.website,
+          company: formData.company,
+          location: formData.location,
+          bio: formData.bio
+        })
+        .eq('id', user.id);
 
-  async function onSecuritySubmit(data: SecurityFormValues) {
-    setIsLoading(true);
-    
-    try {
-      // Verify current password by attempting a sign in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user?.email || "",
-        password: data.currentPassword,
-      });
-      
-      if (signInError) {
-        throw new Error("Current password is incorrect");
-      }
-      
-      // Update password
-      const { error } = await supabase.auth.updateUser({
-        password: data.newPassword,
-      });
-      
       if (error) throw error;
-      
-      toast({
-        title: "Password updated",
-        description: "Your password has been updated successfully.",
-      });
-      
-      securityForm.reset({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      toast.success("Profile updated successfully");
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Failed to update password",
-        description: error.message || "There was an error updating your password.",
-      });
+      toast.error(`Error updating profile: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  // Don't render anything if user is not logged in
+  if (!user) {
+    return (
+      <div className="container mx-auto py-8 flex flex-col items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Account Access</CardTitle>
+            <CardDescription>You must be logged in to view this page</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button onClick={() => navigate('/auth/login')} className="w-full">
+              Log In
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <>
-      <Helmet>
-        <title>Account Settings - Allora AI</title>
-      </Helmet>
-      <PageErrorBoundary pageName="Account Settings">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold tracking-tight mb-2">Account Settings</h1>
-          <p className="text-muted-foreground mb-8">Manage your account settings and preferences</p>
-          
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Profile
-              </TabsTrigger>
-              <TabsTrigger value="security" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Security
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="profile">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
-                  <CardDescription>
-                    Update your personal information and company details.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...profileForm}>
-                    <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
-                      <FormField
-                        control={profileForm.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Your name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email Address</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="your.email@example.com" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                              Changing your email will require verification.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="company"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Company</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Your company name" {...field} value={field.value || ""} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="jobTitle"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Job Title</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Your job title" {...field} value={field.value || ""} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <Button type="submit" disabled={isLoading} className="flex items-center gap-2">
-                        {isLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Save className="h-4 w-4" />
-                        )}
-                        Save Profile
+    <ErrorBoundary>
+      <div className="container mx-auto py-8 space-y-8">
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="md:w-1/3 w-full space-y-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle>Account</CardTitle>
+                <CardDescription>Manage your personal information</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center justify-center py-6">
+                <Avatar className="h-24 w-24 mb-4">
+                  <AvatarImage src={profile?.avatar_url || ''} alt={profile?.name || 'User'} />
+                  <AvatarFallback className="text-lg">
+                    {getInitials(profile?.name || 'User')}
+                  </AvatarFallback>
+                </Avatar>
+                <h3 className="text-lg font-medium">{profile?.name || 'User'}</h3>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                  <Building className="h-3 w-3" />
+                  {profile?.company || 'No company'}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle>Subscription</CardTitle>
+                <CardDescription>Your current plan information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Plan:</span>
+                    <span className="text-sm font-medium">
+                      {profile?.subscription_status ? profile.subscription_plan_id : 'Free Plan'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Status:</span>
+                    <span className="text-sm font-medium">
+                      {profile?.subscription_status || 'Inactive'}
+                    </span>
+                  </div>
+                  {profile?.subscription_expires_at && (
+                    <div className="flex justify-between">
+                      <span className="text-sm">Expires:</span>
+                      <span className="text-sm font-medium">
+                        {new Date(profile.subscription_expires_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">
+                  Manage Subscription
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          <div className="md:w-2/3 w-full">
+            <Tabs defaultValue="profile" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+                <TabsTrigger value="notifications">Notifications</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="profile" className="mt-4 space-y-4">
+                <Card>
+                  <form onSubmit={handleSaveProfile}>
+                    <CardHeader>
+                      <CardTitle>Profile Information</CardTitle>
+                      <CardDescription>
+                        Update your account details and public profile
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Full Name</Label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              id="name" 
+                              name="name" 
+                              placeholder="Your name" 
+                              value={formData.name} 
+                              onChange={handleChange} 
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              id="email" 
+                              name="email" 
+                              value={formData.email} 
+                              disabled
+                              className="pl-10 bg-muted"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone">Phone Number</Label>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              id="phone" 
+                              name="phone" 
+                              placeholder="Your phone number" 
+                              value={formData.phone} 
+                              onChange={handleChange} 
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="website">Website</Label>
+                          <div className="relative">
+                            <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              id="website" 
+                              name="website" 
+                              placeholder="Your website" 
+                              value={formData.website} 
+                              onChange={handleChange} 
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="company">Company</Label>
+                          <div className="relative">
+                            <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              id="company" 
+                              name="company" 
+                              placeholder="Your company" 
+                              value={formData.company} 
+                              onChange={handleChange} 
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="location">Location</Label>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              id="location" 
+                              name="location" 
+                              placeholder="Your location" 
+                              value={formData.location} 
+                              onChange={handleChange} 
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="bio">Bio</Label>
+                        <textarea
+                          id="bio"
+                          name="bio"
+                          rows={4}
+                          placeholder="Tell us a bit about yourself"
+                          value={formData.bio || ''}
+                          onChange={handleChange}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter className="border-t px-6 py-4">
+                      <Button type="submit" disabled={isLoading}>
+                        {isLoading ? 'Saving...' : 'Save Changes'}
+                        {!isLoading && <Save className="ml-2 h-4 w-4" />}
                       </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="security">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>
-                    Update your password and security preferences.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...securityForm}>
-                    <form onSubmit={securityForm.handleSubmit(onSecuritySubmit)} className="space-y-6">
-                      <FormField
-                        control={securityForm.control}
-                        name="currentPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Current Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="Your current password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    </CardFooter>
+                  </form>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="security" className="mt-4 space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Security Settings</CardTitle>
+                    <CardDescription>
+                      Manage your password and account security settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Change Password</Label>
+                      <div className="grid gap-4">
+                        <div className="relative">
+                          <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type="password" 
+                            placeholder="Current password" 
+                            className="pl-10"
+                          />
+                        </div>
+                        <div className="relative">
+                          <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type="password" 
+                            placeholder="New password" 
+                            className="pl-10"
+                          />
+                        </div>
+                        <div className="relative">
+                          <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            type="password" 
+                            placeholder="Confirm new password" 
+                            className="pl-10"
+                          />
+                        </div>
+                      </div>
+                      <Button className="mt-2">Update Password</Button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Security Options</h3>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-muted-foreground" />
+                          <span>Two-factor authentication</span>
+                        </div>
+                        <Button variant="outline" size="sm">Enable</Button>
+                      </div>
                       
-                      <FormField
-                        control={securityForm.control}
-                        name="newPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>New Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="Your new password" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                              Password must be at least 8 characters long.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span>Email verification</span>
+                        </div>
+                        <Button variant="outline" size="sm" disabled>Verified</Button>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-4 border-t">
+                      <h3 className="text-lg font-medium text-destructive mb-2">Danger Zone</h3>
+                      <div className="flex items-center justify-between bg-destructive/10 p-4 rounded-md">
+                        <div className="flex items-center gap-2">
+                          <Trash className="h-4 w-4 text-destructive" />
+                          <div>
+                            <span className="font-medium">Delete Account</span>
+                            <p className="text-sm text-muted-foreground">
+                              Once deleted, your account cannot be recovered
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="destructive" size="sm">Delete</Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="notifications" className="mt-4 space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Notification Preferences</CardTitle>
+                    <CardDescription>
+                      Manage how and when we contact you
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Bell className="h-4 w-4 text-muted-foreground" />
+                          <span>Email notifications</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="email-notifications"
+                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </div>
+                      </div>
                       
-                      <FormField
-                        control={securityForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirm New Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="Confirm new password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Bell className="h-4 w-4 text-muted-foreground" />
+                          <span>SMS notifications</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="sms-notifications"
+                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </div>
+                      </div>
                       
-                      <Button type="submit" disabled={isLoading} className="flex items-center gap-2">
-                        {isLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Key className="h-4 w-4" />
-                        )}
-                        Update Password
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Bell className="h-4 w-4 text-muted-foreground" />
+                          <span>Marketing emails</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="marketing-emails"
+                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="bg-muted/50 p-4 rounded-md mt-4 flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5" />
+                        <div className="text-sm">
+                          <p className="font-medium">Communication Preference Note</p>
+                          <p className="text-muted-foreground">
+                            We respect your communication preferences. You can manage your email 
+                            subscription settings at any time. By opting in, you agree to receive 
+                            communications from Allora AI.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="border-t px-6 py-4">
+                    <Button>Save Preferences</Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
-      </PageErrorBoundary>
-    </>
+      </div>
+    </ErrorBoundary>
   );
 }

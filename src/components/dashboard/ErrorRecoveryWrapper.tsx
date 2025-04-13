@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,8 @@ import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
 
 interface ErrorRecoveryWrapperProps {
-  children: React.ReactNode;
-  fallbackComponent?: React.ReactNode;
+  children: ReactNode;
+  fallbackComponent?: ReactNode;
   onReset?: () => void;
   errorTitle?: string;
   errorMessage?: string;
@@ -106,7 +106,7 @@ export function ErrorRecoveryWrapper({
 
 // Class component is required for error boundaries
 class ErrorBoundaryClass extends React.Component<{
-  children: React.ReactNode;
+  children: ReactNode;
   onError: (error: Error, errorInfo: React.ErrorInfo) => void;
 }> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {

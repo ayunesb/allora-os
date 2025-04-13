@@ -5,9 +5,16 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { logger } from "@/utils/loggingService";
 
+type FallbackProps = {
+  error: Error;
+  resetErrorBoundary: () => void;
+};
+
+type FallbackType = ReactNode | ((props: FallbackProps) => ReactNode);
+
 interface ErrorBoundaryProps {
   children: ReactNode;
-  fallback?: ReactNode | ((props: { error: Error, resetErrorBoundary: () => void }) => ReactNode);
+  fallback?: FallbackType;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
