@@ -31,8 +31,6 @@ describe('SocialMediaPostForm', () => {
   it('renders the form with pre-filled fields when a post is provided', () => {
     const mockPost: SocialMediaPost = {
       id: '1',
-      name: 'Test Post',
-      company_id: 'company123',
       title: 'Test Post',
       content: 'This is test content',
       platform: 'Facebook' as SocialPlatform,
@@ -42,7 +40,8 @@ describe('SocialMediaPostForm', () => {
       status: 'Draft' as PostStatus,
       is_approved: false,
       created_at: '2023-10-01',
-      updated_at: '2023-10-01'
+      updated_at: '2023-10-01',
+      company_id: 'company123'
     };
 
     render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} isSubmitting={false} />);
@@ -91,8 +90,6 @@ describe('SocialMediaPostForm', () => {
   it('correctly updates a post when a post object is provided', async () => {
     const mockPost: SocialMediaPost = {
       id: '1',
-      name: 'Original Post',
-      company_id: 'company123',
       title: 'Original Post',
       content: 'Original Content',
       platform: 'Twitter' as SocialPlatform,
@@ -102,7 +99,8 @@ describe('SocialMediaPostForm', () => {
       status: 'Approved' as PostStatus,
       is_approved: true,
       created_at: '2023-10-25',
-      updated_at: '2023-10-25'
+      updated_at: '2023-10-25',
+      company_id: 'company123'
     };
 
     render(<SocialMediaPostForm post={mockPost} onSubmit={mockOnSubmit} isSubmitting={false} />);
