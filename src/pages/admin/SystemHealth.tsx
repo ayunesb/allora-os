@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Activity, Shield, Cpu, Globe, CheckCircle2, XCircle, BarChart3, RefreshCw } from 'lucide-react';
 import PerformanceMetrics from '@/components/monitoring/PerformanceMetrics';
 import AlertsPanel from '@/components/monitoring/AlertsPanel';
-import { monitoring, reportWarning, reportInfo } from '@/utils/monitoring';
+import { monitoring } from '@/utils/monitoring';
 import { useToast } from '@/components/ui/use-toast';
 
 interface SystemService {
@@ -85,9 +85,10 @@ export default function SystemHealth() {
           service.message = 'High latency detected';
           
           // Log warning for degraded services
-          reportWarning(
+          monitoring.triggerAlert(
             `${service.name} Degraded`,
             `${service.name} is experiencing high latency (${service.latency}ms)`,
+            'warning',
             { service: service.name, latency: service.latency }
           );
         } else if (service.status === 'down') {
@@ -114,9 +115,10 @@ export default function SystemHealth() {
       setLoading(false);
       
       // Log success
-      reportInfo(
+      monitoring.triggerAlert(
         'Health Check Completed',
         `Checked ${mockServices.length} services`,
+        'info',
         { 
           healthy: mockServices.filter(s => s.status === 'healthy').length,
           degraded: mockServices.filter(s => s.status === 'degraded').length,
@@ -304,7 +306,7 @@ export default function SystemHealth() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <AlertsPanel maxAlerts={3} showControls={false} />
+                  <AlertsPanel maxAlerts={3} />
                 </CardContent>
               </Card>
               

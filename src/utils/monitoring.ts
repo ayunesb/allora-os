@@ -1,3 +1,4 @@
+
 /**
  * Monitoring utility module for handling system alerts and monitoring
  */
@@ -12,11 +13,13 @@ export interface Alert {
   timestamp: Date;
   metadata?: Record<string, any>;
   dismissed?: boolean;
+  acknowledged?: boolean; // Added acknowledged property
 }
 
 class MonitoringService {
   private alerts: Alert[] = [];
   private listeners: ((alerts: Alert[]) => void)[] = [];
+  private metrics: Record<string, number> = {}; // Store for gauge metrics
 
   constructor() {
     // Initialize with some sample alerts
@@ -101,6 +104,40 @@ class MonitoringService {
   }
 
   /**
+   * Acknowledge an alert
+   */
+  acknowledgeAlert(alertId: string): boolean {
+    const alertIndex = this.alerts.findIndex(a => a.id === alertId);
+    if (alertIndex === -1) return false;
+    
+    this.alerts[alertIndex].acknowledged = true;
+    this.notifyListeners();
+    return true;
+  }
+
+  /**
+   * Set a gauge metric value
+   */
+  setGauge(metricName: string, value: number): void {
+    this.metrics[metricName] = value;
+  }
+
+  /**
+   * Get a gauge metric value
+   */
+  getGauge(metricName: string): number {
+    return this.metrics[metricName] || 0;
+  }
+
+  /**
+   * Record timing information
+   */
+  recordTiming(metricName: string, durationMs: number, metadata?: Record<string, any>): void {
+    console.log(`[TIMING] ${metricName}: ${durationMs}ms`, metadata);
+    // In a real implementation, this would store the timing data for analytics
+  }
+
+  /**
    * Add a listener for alert changes
    */
   addListener(callback: (alerts: Alert[]) => void): () => void {
@@ -123,6 +160,34 @@ class MonitoringService {
 
 // Export a singleton instance of the MonitoringService
 export const monitoring = new MonitoringService();
+
+// Add timing utility functions
+export const startApiTimer = (endpoint: string) => {
+  const startTime = performance.now();
+  return () => {
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    monitoring.recordTiming(`api.${endpoint}`, duration, { endpoint });
+    return duration;
+  };
+};
+
+// Helper functions for reporting different severity levels
+export const reportInfo = (title: string, message: string, metadata?: Record<string, any>) => {
+  return monitoring.triggerAlert(title, message, 'info', metadata);
+};
+
+export const reportWarning = (title: string, message: string, metadata?: Record<string, any>) => {
+  return monitoring.triggerAlert(title, message, 'warning', metadata);
+};
+
+export const reportError = (title: string, message: string, metadata?: Record<string, any>) => {
+  return monitoring.triggerAlert(title, message, 'error', metadata);
+};
+
+export const reportCritical = (title: string, message: string, metadata?: Record<string, any>) => {
+  return monitoring.triggerAlert(title, message, 'critical', metadata);
+};
 
 // Export a method to check system health
 export const checkSystemHealth = async () => {

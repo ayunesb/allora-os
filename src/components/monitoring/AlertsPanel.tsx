@@ -9,9 +9,10 @@ import { Info, AlertTriangle, AlertCircle, BellRing, X, RefreshCw } from 'lucide
 interface AlertsPanelProps {
   maxAlerts?: number;
   severity?: AlertSeverity | 'all';
+  showControls?: boolean; // Added the missing property
 }
 
-export default function AlertsPanel({ maxAlerts = 5, severity = 'all' }: AlertsPanelProps) {
+export default function AlertsPanel({ maxAlerts = 5, severity = 'all', showControls = true }: AlertsPanelProps) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -113,32 +114,36 @@ export default function AlertsPanel({ maxAlerts = 5, severity = 'all' }: AlertsP
       <div className="flex flex-col items-center justify-center h-40 text-center">
         <BellRing className="h-10 w-10 text-muted-foreground opacity-20 mb-3" />
         <p className="text-muted-foreground">No alerts to display</p>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="mt-3"
-          onClick={refreshAlerts}
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        {showControls && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="mt-3"
+            onClick={refreshAlerts}
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={refreshAlerts}
-          className="gap-1"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Refresh
-        </Button>
-      </div>
+      {showControls && (
+        <div className="flex justify-end">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refreshAlerts}
+            className="gap-1"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Refresh
+          </Button>
+        </div>
+      )}
       
       <ScrollArea className="h-[320px]">
         <div className="space-y-2">

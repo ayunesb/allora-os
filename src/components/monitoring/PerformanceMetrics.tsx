@@ -5,8 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Gauge, Cpu, Database, Activity, BarChart3 } from 'lucide-react';
-import { monitoring } from '@/utils/monitoring';
-import { startApiTimer } from '@/utils/monitoring';
+import { monitoring, startApiTimer } from '@/utils/monitoring';
 
 interface PerformanceMetric {
   name: string;

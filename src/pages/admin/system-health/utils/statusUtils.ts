@@ -1,49 +1,53 @@
 
-/**
- * Utility functions for status display in system health components
- */
-
-import { CheckCircle2, Activity, XCircle } from 'lucide-react';
 import React from 'react';
+import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
-// Get the icon component for a specific status
-export const getStatusIcon = (status: 'healthy' | 'degraded' | 'down') => {
+type ServiceStatus = 'healthy' | 'degraded' | 'down';
+
+/**
+ * Returns the appropriate icon component for the given status
+ */
+export const getStatusIcon = (status: ServiceStatus): React.ReactNode => {
   switch (status) {
     case 'healthy':
-      return React.createElement(CheckCircle2, { className: "h-5 w-5 text-green-500" });
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
     case 'degraded':
-      return React.createElement(Activity, { className: "h-5 w-5 text-amber-500" });
+      return <AlertTriangle className="h-4 w-4 text-amber-500" />;
     case 'down':
-      return React.createElement(XCircle, { className: "h-5 w-5 text-red-500" });
+      return <XCircle className="h-4 w-4 text-red-500" />;
     default:
       return null;
   }
 };
 
-// Get CSS class for status indicator
-export const getStatusColorClass = (status: 'healthy' | 'degraded' | 'down') => {
+/**
+ * Returns the appropriate CSS color class for the given status
+ */
+export const getStatusColorClass = (status: ServiceStatus): string => {
   switch (status) {
     case 'healthy':
-      return 'bg-green-50 text-green-700 border-green-200';
+      return 'text-green-700 bg-green-50';
     case 'degraded':
-      return 'bg-amber-50 text-amber-700 border-amber-200';
+      return 'text-amber-700 bg-amber-50';
     case 'down':
-      return 'bg-red-50 text-red-700 border-red-200';
+      return 'text-red-700 bg-red-50';
     default:
       return '';
   }
 };
 
-// Get status description
-export const getStatusDescription = (status: 'healthy' | 'degraded' | 'down') => {
+/**
+ * Returns a descriptive text for the given status
+ */
+export const getStatusDescription = (status: ServiceStatus): string => {
   switch (status) {
     case 'healthy':
-      return 'All systems operational';
+      return 'System is operating normally';
     case 'degraded':
-      return 'Some services degraded';
+      return 'System is experiencing some issues but is still functional';
     case 'down':
-      return 'Critical services down';
+      return 'System is currently unavailable';
     default:
-      return '';
+      return 'Unknown status';
   }
 };
