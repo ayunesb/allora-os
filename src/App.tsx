@@ -7,8 +7,11 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as SonnerToaster } from 'sonner';
+import { logger } from '@/utils/loggingService';
 
 function App() {
+  logger.info('App component rendering');
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" storageKey="allora-ui-theme">

@@ -1,9 +1,11 @@
 
 import { RouteObject } from "react-router-dom";
+import { lazy } from "react";
 import Index from "@/pages/Index";
+import Home from "@/pages/Home";
+import Pricing from "@/pages/Pricing";
 import Privacy from "@/pages/Privacy";
 import Legal from "@/pages/Legal";
-import Pricing from "@/pages/Pricing";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import RefundPolicy from "@/pages/RefundPolicy";
 import CookiePolicy from "@/pages/CookiePolicy";
@@ -12,8 +14,8 @@ import Compliance from "@/pages/Compliance";
 import LegalDocument from "@/pages/LegalDocument";
 import DevAdminHelper from "@/pages/DevAdminHelper";
 import FAQ from "@/pages/FAQ";
-import Home from "@/pages/Home";
 
+// Define routes properly as an array
 export const publicRoutes: RouteObject[] = [
   {
     path: "/welcome",
@@ -68,3 +70,8 @@ export const publicRoutes: RouteObject[] = [
     element: <CheckoutSuccess />,
   },
 ];
+
+// Provide an object form with a routes property for ease of use in the main router
+export const publicRoutesObj = {
+  routes: publicRoutes
+};

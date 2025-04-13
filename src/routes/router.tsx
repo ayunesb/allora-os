@@ -1,28 +1,32 @@
 
-import { createBrowserRouter, Outlet } from "react-router-dom";
+import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
 import { adminRoutes } from "./admin-routes";
 import { complianceRoutes } from "./compliance-routes";
-import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { publicRoutes } from "./public-routes";
 import { authRoutes } from "./auth-routes";
 import { dashboardRoutes } from "./dashboard-routes"; 
 import { onboardingRoutes } from "./onboarding-routes";
-import NotFound from "@/pages/NotFound";
-import { Navigate } from "react-router-dom";
-import Index from "@/pages/Index";
-import Home from "@/pages/Home";
 import { NavigationManager } from "@/components/NavigationManager";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
+
+// Import pages explicitly to avoid any import issues
+import NotFound from "@/pages/NotFound";
+import Index from "@/pages/Index";
+import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
+import SystemDiagnostics from "@/pages/SystemDiagnostics";
+import { logger } from "@/utils/loggingService";
 
 // Create a navigation layout that includes NavigationManager
 const NavigationLayout = () => {
+  logger.info('NavigationLayout rendering');
+  
   return (
     <ErrorBoundary>
       <>
-        <Outlet />
         <NavigationManager />
+        <Outlet />
       </>
     </ErrorBoundary>
   );
@@ -65,12 +69,13 @@ export const router = createBrowserRouter([
             path: "*",
             element: <NotFound />,
           },
-          adminRoutes,
-          ...complianceRoutes,
-          ...publicRoutes,
-          ...authRoutes,
-          ...dashboardRoutes,
-          ...onboardingRoutes
+          // Adding spread operators for route arrays
+          ...(adminRoutes.routes || []),
+          ...(complianceRoutes || []),
+          ...(publicRoutes || []),
+          ...(authRoutes || []),
+          ...(dashboardRoutes || []),
+          ...(onboardingRoutes || [])
         ]
       }
     ]

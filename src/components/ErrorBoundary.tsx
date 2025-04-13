@@ -14,20 +14,29 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    logger.error('ErrorBoundary caught an error:', error);
+    return { hasError: true, error, errorInfo: null };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    logger.error("Uncaught error:", error, { errorInfo });
+    // Log the error
+    logger.error("Uncaught error in component:", error, { 
+      componentStack: errorInfo.componentStack,
+      componentName: this.constructor.name
+    });
+    
+    // Update state with error info
+    this.setState({ errorInfo });
     
     // Call the onError prop if provided
     if (this.props.onError) {
@@ -57,6 +66,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               {this.state.error && (
                 <div className="bg-muted p-3 rounded-md overflow-auto max-h-32 text-xs">
                   <p className="font-mono">{this.state.error.toString()}</p>
+                  {this.state.errorInfo && (
+                    <pre className="mt-2 text-xs font-mono overflow-auto max-h-32">
+                      {this.state.errorInfo.componentStack}
+                    </pre>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -69,7 +83,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </Button>
               <Button
                 onClick={() => {
-                  this.setState({ hasError: false, error: null });
+                  this.setState({ hasError: false, error: null, errorInfo: null });
                   window.location.reload();
                 }}
               >

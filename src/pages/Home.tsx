@@ -6,8 +6,11 @@ import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { logger } from "@/utils/loggingService";
 
 export default function Home() {
+  logger.info('Home component rendering');
+  
   return (
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col">

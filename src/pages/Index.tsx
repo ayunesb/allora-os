@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/home/Hero";
@@ -11,8 +11,14 @@ import InteractiveDemo from "@/components/home/InteractiveDemo";
 import OutcomeShowcase from "@/components/home/OutcomeShowcase";
 import CookieConsent from "@/components/CookieConsent";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { logger } from "@/utils/loggingService";
 
 export default function Index() {
+  useEffect(() => {
+    logger.info('Index component mounted');
+    return () => logger.info('Index component unmounted');
+  }, []);
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background flex flex-col">

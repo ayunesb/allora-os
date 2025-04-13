@@ -10,16 +10,16 @@ export default function RootLayout() {
   // Apply any global effects or settings when the root layout mounts
   React.useEffect(() => {
     try {
+      logger.info('RootLayout mounted');
       document.documentElement.classList.add('antialiased');
       setupAccessibleErrorHandling();
-      logger.info('Root layout mounted');
       
       return () => {
+        logger.info('RootLayout unmounted');
         document.documentElement.classList.remove('antialiased');
-        logger.info('Root layout unmounted');
       };
     } catch (error) {
-      logger.error('Error in RootLayout effect:', error);
+      logger.error('Error in RootLayout useEffect:', error);
     }
   }, []);
 

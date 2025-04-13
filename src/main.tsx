@@ -4,16 +4,17 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GlobalErrorBoundary } from '@/components/errorHandling/GlobalErrorBoundary';
 import './styles/index.css';
 import './App.css';
+import { logger } from '@/utils/loggingService';
 
-// Add error boundary for React 18
+// Initialize error handlers
 const handleError = (error: Error) => {
-  console.error('Caught React error:', error);
+  logger.error('Caught React error in main:', error);
 };
 
+// Initialize QueryClient with default options
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -23,9 +24,10 @@ const queryClient = new QueryClient({
   },
 });
 
+// Render the app with proper providers
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GlobalErrorBoundary onError={handleError} fallback={<div>Something went wrong. Please refresh the page.</div>}>
+    <GlobalErrorBoundary onError={handleError} fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}>
       <QueryClientProvider client={queryClient}>
         <HelmetProvider>
           <App />
