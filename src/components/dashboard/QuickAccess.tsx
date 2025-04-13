@@ -1,11 +1,13 @@
-
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { ArrowRight, Users, GitBranch, Phone, Bot, Zap } from "lucide-react";
+import { Activity, MessageSquare, PieChart, Phone, ShoppingCart, User, Users, BarChart, Shield } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function QuickAccess() {
-  const quickItems = [
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === 'admin';
+
+  const links = [
     {
       title: "Manage Leads",
       description: "View and manage your leads",
@@ -35,25 +37,39 @@ export default function QuickAccess() {
       description: "Performance improvements",
       icon: <Zap className="h-8 w-8 text-amber-500" />,
       link: "/dashboard/technical-improvements"
-    }
+    },
+    ...(isAdmin ? [{
+      title: "System Health",
+      description: "Monitor system performance",
+      icon: <Activity className="h-8 w-8 text-blue-500" />,
+      link: "/admin/system-health",
+      color: "bg-blue-50"
+    }] : []),
+    ...(isAdmin ? [{
+      title: "Security",
+      description: "Manage security settings",
+      icon: <Shield className="h-8 w-8 text-purple-500" />,
+      link: "/admin/security",
+      color: "bg-purple-50"
+    }] : [])
   ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Quick Access</CardTitle>
+        <CardTitle>Quick Access</CardTitle>
         <CardDescription>
-          Frequently used tools and resources
+          Shortcuts to frequently used features
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {quickItems.map((item, index) => (
-            <Link to={item.link} key={index}>
+        <div className="grid grid-cols-2 gap-4">
+          {links.map((link, index) => (
+            <Link to={link.link} key={index}>
               <div className="flex flex-col items-center justify-center p-4 rounded-lg border hover:bg-accent/50 transition-colors h-full">
-                {item.icon}
-                <h3 className="mt-3 font-medium text-sm">{item.title}</h3>
-                <p className="text-xs text-muted-foreground text-center mt-1">{item.description}</p>
+                {link.icon}
+                <h3 className="mt-3 font-medium text-sm">{link.title}</h3>
+                <p className="text-xs text-muted-foreground text-center mt-1">{link.description}</p>
               </div>
             </Link>
           ))}

@@ -8,11 +8,14 @@ export interface AuditEvent {
   details: any;
   timestamp?: string;
   ip_address?: string;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+  event_id?: string;
 }
 
 export const logAuditEvent = async (event: AuditEvent): Promise<void> => {
   try {
     const timestamp = event.timestamp || new Date().toISOString();
+    const eventId = event.event_id || `evt_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     
     console.log(`[AUDIT LOG] ${timestamp} | ${event.user} | ${event.action} | ${event.resource} | ${JSON.stringify(event.details)}`);
     
@@ -25,7 +28,9 @@ export const logAuditEvent = async (event: AuditEvent): Promise<void> => {
     //     resource: event.resource,
     //     details: event.details,
     //     timestamp: timestamp,
-    //     ip_address: event.ip_address
+    //     ip_address: event.ip_address,
+    //     severity: event.severity || 'low',
+    //     event_id: eventId
     //   });
     
     // if (error) {
@@ -49,7 +54,8 @@ export const logComplianceChange = async (
       details: {
         description,
         ...details,
-      }
+      },
+      severity: 'high'
     });
     
     console.log(`[COMPLIANCE CHANGE] ${new Date().toISOString()} | ${userId} | ${description}`);
@@ -58,27 +64,37 @@ export const logComplianceChange = async (
   }
 };
 
-// Enhanced security event logging
-export const logSecurityEvent = async (event: AuditEvent): Promise<void> => {
+// Enhanced security event logging with severity levels and traceability
+export const logSecurityEvent = async (event: AuditEvent): Promise<string> => {
   try {
     const timestamp = event.timestamp || new Date().toISOString();
+    const eventId = `sec_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     
     console.log(`[SECURITY EVENT] ${timestamp} | ${event.user} | ${event.resource} | ${JSON.stringify(event.details)}`);
     
-    // For production, we would also send critical security events to an incident management system
-    if (event.details?.severity === 'critical' || 
+    // For critical security events, implement real-time alerting
+    if (event.severity === 'critical' || 
         event.resource === 'admin_verification' || 
         event.resource === 'api_key_usage') {
+      // In production, this would trigger an alert to security teams
+      console.warn(`[CRITICAL SECURITY ALERT] ${timestamp} | ${event.resource}`);
       // alertSecurityTeam(event); // Would be implemented with a notification API
     }
     
-    return await logAuditEvent(event);
+    // Log the event with the generated event ID for traceability
+    await logAuditEvent({
+      ...event,
+      event_id: eventId
+    });
+    
+    // Return the event ID so it can be referenced in related logs
+    return eventId;
   } catch (error) {
     console.error("Failed to log security event:", error);
+    return '';
   }
 };
 
-// Add the missing logSystemChange function
 export const logSystemChange = async (
   userId: string,
   resource: string,
@@ -93,11 +109,71 @@ export const logSystemChange = async (
       details: {
         description,
         ...details,
-      }
+      },
+      severity: resource.includes('security') ? 'high' : 'medium'
     });
     
     console.log(`[SYSTEM CHANGE] ${new Date().toISOString()} | ${userId} | ${resource} | ${description}`);
   } catch (error) {
     console.error("Failed to log system change:", error);
+  }
+};
+
+// New function for data access logging
+export const logDataAccess = async (
+  userId: string,
+  resource: string,
+  operation: 'read' | 'write' | 'delete',
+  resourceId: string,
+  details?: any
+): Promise<void> => {
+  try {
+    await logAuditEvent({
+      user: userId,
+      action: 'DATA_ACCESS',
+      resource,
+      details: {
+        operation,
+        resourceId,
+        ...details
+      },
+      severity: operation === 'delete' ? 'high' : 'low'
+    });
+  } catch (error) {
+    console.error("Failed to log data access:", error);
+  }
+};
+
+// New function for failed authentication attempts
+export const logAuthAttempt = async (
+  userId: string,
+  success: boolean,
+  ipAddress?: string,
+  details?: any
+): Promise<void> => {
+  try {
+    const eventId = `auth_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    
+    await logAuditEvent({
+      user: userId,
+      action: 'SECURITY_EVENT',
+      resource: 'authentication',
+      details: {
+        success,
+        attempt_time: new Date().toISOString(),
+        ...details
+      },
+      ip_address: ipAddress,
+      severity: success ? 'low' : 'medium',
+      event_id: eventId
+    });
+    
+    // Track failed login attempts for potential brute force detection
+    if (!success) {
+      // In production, this would check for repeated failures and trigger alerts
+      console.warn(`[FAILED AUTH] ${new Date().toISOString()} | ${userId} | ${ipAddress || 'unknown'}`);
+    }
+  } catch (error) {
+    console.error("Failed to log auth attempt:", error);
   }
 };
