@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Shield, Database, User } from "lucide-react";
 
 export default function DevAdminHelper() {
@@ -16,23 +16,16 @@ export default function DevAdminHelper() {
   const [currentRole, setCurrentRole] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Safely access auth context with fallback values
-  let user = null;
-  let profile = null;
+  // Safely access auth context
+  const auth = useAuth();
+  const user = auth?.user;
+  const profile = auth?.profile;
   
-  try {
-    const auth = useAuth();
-    user = auth?.user;
-    profile = auth?.profile;
-    
-    useEffect(() => {
-      if (profile) {
-        setCurrentRole(profile.role);
-      }
-    }, [profile]);
-  } catch (error) {
-    console.error("Auth context not available:", error);
-  }
+  useEffect(() => {
+    if (profile) {
+      setCurrentRole(profile.role);
+    }
+  }, [profile]);
 
   const makeUserAdmin = async () => {
     if (!user) {
