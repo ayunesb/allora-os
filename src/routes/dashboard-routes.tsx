@@ -1,5 +1,6 @@
+
 import { RouteObject } from "react-router-dom";
-import Dashboard from "@/pages/Dashboard";
+import Dashboard from "@/pages/dashboard/Dashboard";
 import Account from "@/pages/Account";
 import Security from "@/pages/Security";
 import Notifications from "@/pages/Notifications";
@@ -7,7 +8,7 @@ import Billing from "@/pages/Billing";
 import AiBoardroom from "@/pages/AiBoardroom";
 import AISettings from "@/pages/dashboard/AISettings";
 import AIExecutiveDebate from "@/pages/dashboard/AIExecutiveDebate";
-import AiBots from "@/pages/dashboard/AiBots";
+import AiBots from "@/components/ai-bots/AiBotsPage";
 import AiExecutiveUpgrades from "@/pages/dashboard/AiExecutiveUpgrades";
 
 export const dashboardRoutes: RouteObject[] = [

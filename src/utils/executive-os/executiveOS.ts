@@ -1,196 +1,145 @@
 
-import { logger } from '@/utils/loggingService';
+import { executiveBots } from "@/backend/executiveBots";
 
-/**
- * Executive OS - Core thinking models and decision frameworks for AI executives
- */
+type ThinkingModel = 'first_principles' | 'ooda_loop' | 'inversion' | 'pareto';
+type DecisionFramework = 'eisenhower_matrix' | '3x3_priorities' | 'speed_delegated';
+type DelegationLevel = 1 | 2 | 3 | 4 | 5;
+type MentalModel = 'first_principles' | 'ooda_loop' | 'inversion' | 'pareto' | 'second_order' | 'flywheel' | 
+  '10x_thinking' | 'growth_mindset' | 'okrs' | 'circle_of_competence' | 'reality_distortion' | 'storybrand' | 
+  'triple_bottom_line' | 'meddic' | 'hunting_farming' | 'servant_leadership' | 'critical_path' | 'jobs_to_be_done' | 
+  'design_thinking' | 'build_measure_learn' | 'user_journey' | 'lean_management' | 'consumer_creation' | 
+  'bimodal_it' | 'data_lakehouse' | 'agile_marketing' | 'net_promoter' | 'digital_twin' | 'service_blueprinting' | 
+  'knowledge_distillation' | 'self_supervised' | 'alphafold' | 'work_rules_culture' | 'belonging_equity' | 
+  '360_feedback' | 'excellence_model' | 'zero_trust' | 'network_effects';
 
-// Core Thinking Models
-export const thinkingModels = {
-  firstPrinciples: {
-    name: "First Principles Thinking",
-    description: "Break down complex problems into basic elements and reassemble from the ground up",
-    application: "Used when solving complex strategic challenges that require innovation"
-  },
-  oodaLoop: {
-    name: "OODA Loop",
-    description: "Observe, Orient, Decide, Act - Decision cycle for faster reactions",
-    application: "Applied for rapid response to market changes or competitive threats"
-  },
-  inversion: {
-    name: "Inversion",
-    description: "Approach problems backward by considering what could go wrong",
-    application: "Used for risk identification and mitigation planning"
-  },
-  paretoRule: {
-    name: "80/20 Rule",
-    description: "Focus on the 20% of efforts that create 80% of results",
-    application: "Prioritization of strategic initiatives and resource allocation"
-  },
-  secondOrderThinking: {
-    name: "Second-Order Thinking",
-    description: "Consider the subsequent effects beyond immediate consequences",
-    application: "Long-term strategic planning and risk assessment"
-  },
-  flywheelEffect: {
-    name: "Flywheel Effect",
-    description: "Building momentum through reinforcing loops of success",
-    application: "Creating self-reinforcing business models and growth engines"
-  }
-};
+type StrategicFocus = 'growth' | 'innovation' | 'efficiency' | 'customer_experience' | 'quality' | 
+  'sustainability' | 'talent_development' | 'market_expansion' | 'digital_transformation' | 
+  'product_development' | 'operational_excellence' | 'financial_optimization' | 'risk_management';
 
-// Daily Decision Framework
-export const decisionFrameworks = {
-  priorities: {
-    name: "3x3 Priorities",
-    description: "Set daily priorities across innovation, execution, and customer dimensions",
-    implementation: "Morning planning session focused on key outcomes"
-  },
-  eisenhowerMatrix: {
-    name: "Eisenhower Matrix",
-    description: "Organize tasks by urgency and importance: Do, Schedule, Delegate, Eliminate",
-    implementation: "Task prioritization system for daily workflow"
-  },
-  speedDecisions: {
-    name: "Speed on Low-Stakes",
-    description: "Make quick decisions on reversible items under $1,000 or 1 hour impact",
-    implementation: "Default to action when stakes are low"
-  },
-  deliberateDecisions: {
-    name: "Deliberate on Irreversible",
-    description: "Take time and gather input on high-impact, irreversible decisions",
-    implementation: "Structured decision process for critical choices"
-  }
-};
-
-// Delegation System
-export const delegationSystem = {
-  levels: [
-    { level: 1, description: "Do exactly as I say" },
-    { level: 2, "Research and report back" },
-    { level: 3, "Recommend, then take action if approved" },
-    { level: 4, "Act, but inform immediately" },
-    { level: 5, "Act independently" }
-  ],
-  defaultLevel: 3,
-  recommendation: "Default to Level 3+ for experienced team members"
-};
-
-// Work Under Pressure System
-export const pressureSystem = {
-  recenter: {
-    name: "Mission Recentering",
-    description: "Refocus on core mission and purpose during high-pressure situations",
-    implementation: "Review mission statement and key objectives"
-  },
-  shrinkFocus: {
-    name: "1 Task, 1 Hour, 1 Win",
-    description: "Narrow focus to one immediate achievable goal to build momentum",
-    implementation: "Identify single most important immediate action"
-  },
-  defaultToAction: {
-    name: "Action over Indecision",
-    description: "Make progress through action rather than analysis paralysis",
-    implementation: "Set short timeboxes for decisions under pressure"
-  },
-  increaseDelegation: {
-    name: "Increase Delegation",
-    description: "Raise delegation levels to reduce cognitive load during crisis",
-    implementation: "Move trusted team members to Level 4-5 delegation"
-  }
-};
-
-// Executive OS Commands
-export const osCommands = {
-  dailyStandup: {
-    name: "Daily Tactical Standup",
-    description: "15-minute alignment on daily priorities and blockers",
-    implementation: "Structured daily check-in with key team members"
-  },
-  endDayReflection: {
-    name: "Build, Scale, Protect Reflection",
-    description: "End-of-day assessment of progress on building, scaling, and protecting value",
-    implementation: "Structured reflection on day's accomplishments"
-  }
-};
-
-// Decision Logging
-export interface DecisionLog {
-  date: string;
-  decision: string;
-  rationale: string;
-  risks: string[];
-  alternatives: string[];
-  finalAction: string;
+export interface ExecutiveOSFeatures {
+  thinkingModels: ThinkingModel[];
+  decisionFramework: DecisionFramework;
+  delegationLevel: DelegationLevel;
+  dailyCommands: string[];
+  crisisProtocol: boolean;
+  strategicSprints: boolean;
+  scaleUpSystem: boolean;
+  mentalModelLibrary: MentalModel[];
 }
 
-export const logDecision = (decision: DecisionLog) => {
-  logger.info(`EXECUTIVE DECISION: ${decision.decision}`, decision);
-  return decision;
+export interface CognitiveBoost {
+  type: string;
+  description: string;
+  applicationAreas: string[];
+}
+
+export interface ExecutivePersonality {
+  name: string;
+  role: string;
+  modeledAfter: string;
+  personalityTraits: string[];
+  cognitiveBoost?: CognitiveBoost;
+  mentalModel?: MentalModel;
+  strategicFocus?: StrategicFocus;
+}
+
+// Map of executives to their cognitive boosts and mental models
+export const executiveBoosts: Record<string, {boost: string, model: MentalModel, strategicFocus: StrategicFocus}> = {
+  "Elon Musk": { boost: "Moonshot thinking", model: "10x_thinking", strategicFocus: "innovation" },
+  "Jeff Bezos": { boost: "Operational scaling", model: "flywheel", strategicFocus: "operational_excellence" },
+  "Satya Nadella": { boost: "Adaptive leadership", model: "growth_mindset", strategicFocus: "digital_transformation" },
+  "Tim Cook": { boost: "Execution excellence", model: "okrs", strategicFocus: "quality" },
+  "Warren Buffett": { boost: "Risk management", model: "circle_of_competence", strategicFocus: "risk_management" },
+  "Steve Jobs": { boost: "Creative obsession", model: "reality_distortion", strategicFocus: "product_development" },
+  "Antonio Lucio": { boost: "Brand connection", model: "storybrand", strategicFocus: "market_expansion" },
+  "Keith Weed": { boost: "Sustainability-driven", model: "triple_bottom_line", strategicFocus: "sustainability" },
+  "Trish Bertuzzi": { boost: "Sales playbook", model: "meddic", strategicFocus: "growth" },
+  "Mike Weinberg": { boost: "Pipeline focus", model: "hunting_farming", strategicFocus: "growth" },
+  "Sheryl Sandberg": { boost: "Team builder", model: "servant_leadership", strategicFocus: "talent_development" },
+  "Gwynne Shotwell": { boost: "Operational moonshots", model: "critical_path", strategicFocus: "efficiency" },
+  "Clayton Christensen": { boost: "Disruption strategy", model: "jobs_to_be_done", strategicFocus: "innovation" },
+  "Brian Chesky": { boost: "Experience innovation", model: "design_thinking", strategicFocus: "customer_experience" },
+  "Reed Hastings": { boost: "Content scaling", model: "build_measure_learn", strategicFocus: "product_development" },
+  "Marissa Mayer": { boost: "UX obsession", model: "user_journey", strategicFocus: "customer_experience" },
+  "Doug McMillon": { boost: "Retail precision", model: "lean_management", strategicFocus: "operational_excellence" },
+  "Mark Parker": { boost: "Brand inspiration", model: "consumer_creation", strategicFocus: "market_expansion" },
+  "Tariq Shaukat": { boost: "Finance transformation", model: "bimodal_it", strategicFocus: "digital_transformation" },
+  "Cynthia Gaylor": { boost: "Data-informed finance", model: "data_lakehouse", strategicFocus: "financial_optimization" },
+  "Megan Clarken": { boost: "Adtech innovation", model: "agile_marketing", strategicFocus: "digital_transformation" },
+  "Toni Wittig": { boost: "Client loyalty", model: "net_promoter", strategicFocus: "customer_experience" },
+  "Martha Heller": { boost: "IT modernization", model: "digital_twin", strategicFocus: "digital_transformation" },
+  "Andy Hornby": { boost: "Service optimization", model: "service_blueprinting", strategicFocus: "efficiency" },
+  "Jeff Dean": { boost: "AI scaling", model: "knowledge_distillation", strategicFocus: "innovation" },
+  "Yann LeCun": { boost: "ML scaling", model: "self_supervised", strategicFocus: "innovation" },
+  "Demis Hassabis": { boost: "AI for discovery", model: "alphafold", strategicFocus: "innovation" },
+  "Laszlo Bock": { boost: "Talent growth", model: "work_rules_culture", strategicFocus: "talent_development" },
+  "Pat Wadors": { boost: "Inclusion engine", model: "belonging_equity", strategicFocus: "talent_development" },
+  "Jenny Dearborn": { boost: "Leadership growth", model: "360_feedback", strategicFocus: "talent_development" },
+  "Anu Monga": { boost: "Global HR", model: "excellence_model", strategicFocus: "talent_development" },
+  "Abby Kohnstamm": { boost: "Defense innovation", model: "zero_trust", strategicFocus: "risk_management" },
+  "Caterina Fake": { boost: "Community magic", model: "network_effects", strategicFocus: "growth" }
 };
 
-// Crisis Management
-export const crisisManagement = {
-  blackFlagMode: {
-    name: "Black Flag Mode",
-    description: "Emergency protocol for critical system failure or business crisis",
-    steps: [
-      "Pause non-essential operations",
-      "Assemble emergency response team",
-      "Assign single crisis owner",
-      "Identify and execute top 3 stabilization tasks"
-    ],
-    activation: (reason: string) => {
-      logger.warn(`BLACK FLAG MODE ACTIVATED: ${reason}`);
-      return {
-        status: "active",
-        reason,
-        activatedAt: new Date().toISOString()
-      };
-    }
-  }
+// Default executive personality traits by role
+export const defaultPersonalityTraits: Record<string, string[]> = {
+  "ceo": ["visionary", "strategic", "decisive", "inspiring"],
+  "cfo": ["analytical", "disciplined", "risk-aware", "forward-thinking"],
+  "cmo": ["creative", "customer-focused", "data-driven", "innovative"],
+  "cto": ["technical", "innovative", "problem-solver", "systems-thinker"],
+  "coo": ["detail-oriented", "efficient", "process-focused", "team-builder"],
+  "cio": ["technical", "security-focused", "strategic", "transformation-driven"],
+  "chro": ["empathetic", "people-focused", "culture-builder", "coach"],
+  "data_scientist": ["analytical", "curious", "methodical", "innovation-driven"],
+  "strategy": ["analytical", "forward-thinking", "problem-solver", "adaptable"],
+  "marketing": ["creative", "audience-focused", "growth-oriented", "brand-conscious"]
 };
 
-// Strategic Sprints
-export const strategicSprints = {
-  name: "Weekly Strategic Sprint",
-  description: "Focused weekly cycle targeting one major strategic objective",
-  implementation: "Set weekly strategic goal with daily progress tracking"
+// Default executive OS features
+export const defaultExecutiveOSFeatures: ExecutiveOSFeatures = {
+  thinkingModels: ["first_principles", "ooda_loop", "inversion", "pareto"],
+  decisionFramework: "eisenhower_matrix",
+  delegationLevel: 3,
+  dailyCommands: ["Run Daily Tactical Standup", "End Day with Reflection"],
+  crisisProtocol: true,
+  strategicSprints: true,
+  scaleUpSystem: true,
+  mentalModelLibrary: ["first_principles", "ooda_loop", "inversion", "pareto", "second_order", "flywheel"]
 };
 
-// Scale-Up System
-export const scaleUpSystem = {
-  stages: [
-    "Clone Best Practices",
-    "Standardize Processes",
-    "Automate Workflows",
-    "Hire and Clone Culture",
-    "Protect Culture"
-  ],
-  implementation: "Sequential focus on each stage for sustainable growth"
+// Get all bot names for executive OS installation
+export const getAllExecutiveBotNames = (): string[] => {
+  return Object.values(executiveBots).flat();
 };
 
-// Mental Model Library - Core models provided in the base system
-export const mentalModelLibrary = {
-  firstPrinciples: thinkingModels.firstPrinciples,
-  oodaLoop: thinkingModels.oodaLoop,
-  inversion: thinkingModels.inversion,
-  paretoRule: thinkingModels.paretoRule,
-  secondOrderThinking: thinkingModels.secondOrderThinking,
-  flywheelEffect: thinkingModels.flywheelEffect
+// Get all bot roles for executive OS installation
+export const getAllExecutiveBotRoles = (): string[] => {
+  return Object.keys(executiveBots);
 };
 
-// Executive OS integration function
-export const integrateExecutiveOS = (executiveName: string, cognitiveBoost: string, strategicFocus: string) => {
-  const message = `Executive OS successfully integrated for ${executiveName}. Cognitive Boost: ${cognitiveBoost} applied. Strategic Focus for next 24 hours: ${strategicFocus}.`;
-  logger.info(message);
-  console.log(message);
-  return {
-    status: "success",
-    executiveName,
-    cognitiveBoost,
-    strategicFocus,
-    timestamp: new Date().toISOString(),
-    message
+// Format role title (e.g., "ceo" to "Chief Executive Officer")
+export const formatOSRoleTitle = (role: string): string => {
+  const roleMap: Record<string, string> = {
+    "ceo": "Chief Executive Officer",
+    "cfo": "Chief Financial Officer",
+    "cmo": "Chief Marketing Officer",
+    "cto": "Chief Technology Officer",
+    "coo": "Chief Operating Officer",
+    "cio": "Chief Information Officer",
+    "chro": "Chief Human Resources Officer",
+    "vp_sales": "VP of Sales",
+    "vp_product": "VP of Product",
+    "vp_operations": "VP of Operations",
+    "data_scientist": "Data Scientist",
+    "strategy": "Strategy Consultant",
+    "marketing": "Marketing Strategist"
   };
+
+  return roleMap[role] || role.split('_').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+};
+
+// Get default personality traits for a role
+export const getDefaultPersonalityTraits = (role: string): string[] => {
+  return defaultPersonalityTraits[role] || defaultPersonalityTraits["strategy"];
 };

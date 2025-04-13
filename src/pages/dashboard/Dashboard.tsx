@@ -1,5 +1,5 @@
-
 import React, { Suspense, useCallback, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import QuickAccess from "@/components/dashboard/QuickAccess";
 import AiRecommendations from "@/components/dashboard/AiRecommendations";
