@@ -1,4 +1,3 @@
-
 /**
  * Zapier Integration Helper
  * Enables triggering automation workflows via Zapier webhooks
@@ -90,12 +89,7 @@ export const triggerZap = async (event: string, payload: Record<string, any>) =>
     };
     
     // Use the improved webhook execution with retries
-    const result = await executeWebhook(webhookUrl, requestBody, 'zapier', `zapier_${sanitizedEvent}`, {
-      maxRetries: 3,
-      initialDelay: 1000,
-      backoffFactor: 2,
-      maxDelay: 15000
-    });
+    const result = await executeWebhook(webhookUrl, requestBody, 'zapier', sanitizedEvent);
     
     // Track this zapier event in our self-learning system if we have userId
     if (sanitizedPayload.userId) {
