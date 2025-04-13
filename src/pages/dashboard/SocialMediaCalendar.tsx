@@ -29,7 +29,9 @@ export default function SocialMediaCalendarPage() {
           role="region" 
           aria-label="Social Media Calendar"
         >
-          <SocialMediaCalendar />
+          <AccessibilityProvider>
+            <SocialMediaCalendar />
+          </AccessibilityProvider>
         </Card>
       </div>
     </>
