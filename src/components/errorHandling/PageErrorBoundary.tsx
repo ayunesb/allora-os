@@ -54,7 +54,7 @@ export function PageErrorBoundary({ children, pageName }: PageErrorBoundaryProps
 
   return (
     <ErrorBoundary
-      fallback={({ error, resetErrorBoundary }) => 
+      fallbackRender={({ error, resetErrorBoundary }) => 
         <ErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} />
       }
       onError={(error, info) => {
