@@ -53,6 +53,17 @@ export const logWebhookCall = async (
 };
 
 /**
+ * Result interface from webhook execution
+ */
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  statusCode?: number;
+  responseData?: any;
+  error?: Error;
+}
+
+/**
  * Update a webhook call log with the result
  * @param eventId The ID of the webhook event to update
  * @param result The result of the webhook call
@@ -102,7 +113,7 @@ export const executeAndLogWebhook = async (
   payload: any,
   type: WebhookType,
   eventType: string = 'webhook_call'
-) => {
+): Promise<WebhookResult> => {
   const startTime = Date.now();
   const eventId = await logWebhookCall(url, payload, type, eventType);
   
@@ -131,7 +142,7 @@ export const executeAndLogWebhook = async (
     if (eventId) {
       updateWebhookLog(eventId, {
         status: 'success',
-        responseCode: result.success ? 200 : 400, // Set default response codes based on success flag
+        responseCode: result.success ? (result.statusCode || 200) : 400,
         response: result, // Store the entire result object
         duration
       });
@@ -150,6 +161,17 @@ export const executeAndLogWebhook = async (
       });
     }
     
-    throw error;
+    logger.error(`Webhook execution failed for ${type} webhook:`, {
+      url,
+      eventType,
+      error: error.message,
+      duration
+    });
+    
+    return {
+      success: false,
+      message: error.message || 'Unknown error during webhook execution',
+      error
+    };
   }
 };

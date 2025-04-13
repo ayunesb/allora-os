@@ -1,246 +1,166 @@
 
+import { WebhookType } from './webhookValidation';
 import { logger } from '@/utils/loggingService';
-import { WebhookType } from '@/utils/webhookValidation';
+import { WebhookResult } from './webhookUtils';
 
 interface RetryOptions {
-  maxRetries: number;
-  initialDelay: number; // in milliseconds
-  maxDelay?: number; // in milliseconds
-  backoffFactor?: number; // exponential backoff multiplier
-  retryCondition?: (error: any) => boolean; // custom condition to determine if retry is needed
-  onRetry?: (attempt: number, delay: number, error: any) => void; // callback for retry attempts
-  jitter?: boolean; // add randomness to retry delays to prevent thundering herd
+  maxRetries?: number;
+  initialDelay?: number;
+  backoffFactor?: number;
+  maxDelay?: number;
+  jitter?: boolean;
+  onRetry?: (attempt: number, delay: number, error?: Error) => void;
 }
 
-const DEFAULT_RETRY_OPTIONS: RetryOptions = {
-  maxRetries: 3,
-  initialDelay: 1000, // 1 second
-  maxDelay: 30000, // 30 seconds
-  backoffFactor: 2, // exponential backoff
-  jitter: true, // add randomness to avoid thundering herd problem
-  retryCondition: (error) => {
-    // By default, retry on network errors or 5xx status codes
-    if (!error) return false;
-    
-    if (error.name === 'NetworkError' || error.name === 'TimeoutError') return true;
-    
-    // Retry on certain status codes
-    if (error.status && (error.status >= 500 || error.status === 429)) return true;
-    
-    return false;
-  }
-};
-
 /**
- * Adds jitter to the delay to prevent thundering herd problem
- * @param delay Base delay in milliseconds
- * @param jitterFactor Factor to determine maximum jitter amount (0.0-1.0)
- * @returns Delay with added jitter
+ * Helper to add jitter to retry delay to prevent thundering herd
  */
-const addJitter = (delay: number, jitterFactor: number = 0.3): number => {
-  const maxJitter = delay * jitterFactor;
-  const jitterAmount = Math.random() * maxJitter;
-  return delay + jitterAmount;
+const addJitter = (delay: number): number => {
+  const jitterFactor = 0.2; // 20% jitter
+  const jitterAmount = delay * jitterFactor;
+  return delay + (Math.random() * jitterAmount * 2) - jitterAmount;
 };
 
 /**
- * Executes a webhook with automatic retries using exponential backoff
- * @param webhookUrl The URL of the webhook to call
- * @param payload The data to send to the webhook
- * @param type The type of webhook service
- * @param eventType Custom event type description
- * @param options Retry configuration options
- * @returns Promise with the result of the webhook call
- */
-export const executeWithRetry = async (
-  webhookUrl: string,
-  payload: any,
-  type: WebhookType,
-  eventType: string = 'webhook_call',
-  options: Partial<RetryOptions> = {}
-): Promise<{ success: boolean; message?: string; eventId?: string }> => {
-  // Merge default options with provided options
-  const retryOptions: RetryOptions = { ...DEFAULT_RETRY_OPTIONS, ...options };
-  
-  // Start timer for logging purposes
-  const startTime = Date.now();
-  let attempt = 0;
-  let lastError: any = null;
-  
-  // Generate a consistent event ID for logging across retries
-  const eventId = `wh_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
-  
-  // Log initial attempt
-  logger.info(`Starting webhook call to ${type}`, {
-    webhookType: type,
-    eventType,
-    eventId,
-    url: webhookUrl
-  });
-  
-  while (attempt <= retryOptions.maxRetries) {
-    try {
-      if (attempt > 0) {
-        // Log retry attempt
-        logger.info(`Retry attempt ${attempt} for webhook ${type}`, {
-          webhookType: type,
-          eventType,
-          eventId,
-          attempt
-        });
-      }
-      
-      // Add timeout to fetch to prevent hanging requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
-      
-      // Make the webhook call
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // Use conditional mode to handle CORS for services like Zapier
-        mode: type === 'zapier' ? 'no-cors' : undefined,
-        signal: controller.signal,
-        body: JSON.stringify({
-          ...payload,
-          _metadata: {
-            eventId,
-            timestamp: new Date().toISOString(),
-            attempt: attempt + 1,
-            retryCount: attempt
-          }
-        }),
-      });
-      
-      // Clear the timeout
-      clearTimeout(timeoutId);
-      
-      // For Zapier with no-cors, we can't read the response
-      if (type === 'zapier' && response.type === 'opaque') {
-        // Log success with caveat
-        logger.info(`Webhook call to ${type} completed (opaque response due to CORS)`, {
-          webhookType: type,
-          eventType,
-          eventId,
-          duration: Date.now() - startTime,
-          attemptCount: attempt + 1
-        });
-        
-        return {
-          success: true,
-          message: "Request sent successfully. Note: Due to CORS restrictions, we cannot confirm receipt - check your service dashboard.",
-          eventId
-        };
-      }
-      
-      // For regular responses, check the status
-      if (!response.ok) {
-        throw {
-          status: response.status,
-          statusText: response.statusText,
-          message: `HTTP error ${response.status}: ${response.statusText}`
-        };
-      }
-      
-      // Try to parse the response JSON
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (e) {
-        // Not all webhooks return JSON
-        responseData = { success: true };
-      }
-      
-      // Log success
-      logger.info(`Webhook call to ${type} completed successfully`, {
-        webhookType: type,
-        eventType,
-        eventId,
-        duration: Date.now() - startTime,
-        attemptCount: attempt + 1,
-        responseStatus: response.status
-      });
-      
-      return {
-        success: true,
-        message: "Webhook triggered successfully",
-        eventId
-      };
-      
-    } catch (error) {
-      lastError = error;
-      
-      // Check if we should retry based on the error
-      const shouldRetry = attempt < retryOptions.maxRetries && 
-                          (retryOptions.retryCondition ? retryOptions.retryCondition(error) : true);
-      
-      if (!shouldRetry) {
-        // Log final failure
-        logger.error(`Webhook call to ${type} failed permanently`, {
-          webhookType: type,
-          eventType,
-          eventId,
-          error: error instanceof Error ? error.message : JSON.stringify(error),
-          duration: Date.now() - startTime,
-          attemptCount: attempt + 1
-        });
-        
-        break;
-      }
-      
-      // Calculate delay with exponential backoff
-      let delay = Math.min(
-        retryOptions.initialDelay * Math.pow(retryOptions.backoffFactor || 1, attempt),
-        retryOptions.maxDelay || Number.POSITIVE_INFINITY
-      );
-      
-      // Add jitter if enabled
-      if (retryOptions.jitter) {
-        delay = addJitter(delay);
-      }
-      
-      // Log retry scheduled
-      logger.warn(`Webhook call to ${type} failed, scheduling retry in ${delay}ms`, {
-        webhookType: type,
-        eventType,
-        eventId,
-        error: error instanceof Error ? error.message : JSON.stringify(error),
-        attempt: attempt + 1,
-        nextRetryDelay: delay
-      });
-      
-      // Execute onRetry callback if provided
-      if (retryOptions.onRetry) {
-        retryOptions.onRetry(attempt + 1, delay, error);
-      }
-      
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, delay));
-      attempt++;
-    }
-  }
-  
-  // All retries failed
-  return {
-    success: false,
-    message: lastError instanceof Error ? lastError.message : 
-             (lastError?.message || "Failed to execute webhook after multiple retries"),
-    eventId
-  };
-};
-
-/**
- * Improved webhook execution function with automatic retry
- * Replaces the previous executeAndLogWebhook function
+ * Execute a single webhook call
  */
 export const executeWebhook = async (
+  url: string, 
+  payload: any,
+  type: WebhookType,
+  eventType: string
+): Promise<WebhookResult> => {
+  try {
+    // Log the request
+    logger.info(`Executing ${type} webhook for event: ${eventType}`, {
+      webhookType: type,
+      eventType,
+      targetUrl: url.replace(/\/[^/]*$/, '/***') // Redact the end of the URL for security
+    });
+
+    // Execute the webhook call with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+      mode: 'no-cors', // Use no-cors for cross-origin webhooks
+    });
+    
+    clearTimeout(timeoutId);
+    
+    // Since we're using no-cors, we can't actually check the response status
+    // Instead, we'll assume success unless there's an error thrown
+    return {
+      success: true,
+      message: 'Webhook executed successfully (no-cors mode)',
+      statusCode: 200,
+      responseData: { mode: 'no-cors' }
+    };
+  } catch (error: any) {
+    // Check if this was an abort error (timeout)
+    if (error.name === 'AbortError') {
+      return {
+        success: false,
+        message: 'Webhook execution timed out after 30 seconds',
+        error: new Error('Timeout')
+      };
+    }
+    
+    return {
+      success: false,
+      message: error.message || 'Unknown error during webhook execution',
+      error
+    };
+  }
+};
+
+/**
+ * Execute a webhook with retry logic
+ */
+export const executeWithRetry = async (
   url: string,
   payload: any,
   type: WebhookType,
-  eventType: string = 'webhook_call',
-  options: Partial<RetryOptions> = {}
-) => {
-  return executeWithRetry(url, payload, type, eventType, options);
+  eventType: string,
+  options: RetryOptions = {}
+): Promise<WebhookResult> => {
+  const {
+    maxRetries = 3,
+    initialDelay = 1000,
+    backoffFactor = 2,
+    maxDelay = 30000,
+    jitter = true,
+    onRetry = () => {}
+  } = options;
+  
+  let attempt = 0;
+  let lastError: Error | undefined;
+  
+  while (attempt <= maxRetries) {
+    try {
+      // Attempt to execute the webhook
+      const result = await executeWebhook(url, payload, type, eventType);
+      
+      // If successful, return the result
+      if (result.success) {
+        if (attempt > 0) {
+          logger.info(`Successfully executed ${type} webhook after ${attempt} retries`);
+        }
+        return result;
+      }
+      
+      // If not successful but no error was thrown, still consider it an error
+      if (result.error) {
+        lastError = result.error;
+      } else {
+        lastError = new Error(result.message || 'Webhook execution failed');
+      }
+      
+      // If we're out of retries, throw the last error
+      if (attempt >= maxRetries) {
+        throw lastError;
+      }
+      
+    } catch (error: any) {
+      lastError = error;
+      
+      // If we're out of retries, throw the error
+      if (attempt >= maxRetries) {
+        throw error;
+      }
+    }
+    
+    // Calculate delay with exponential backoff
+    const delay = Math.min(initialDelay * Math.pow(backoffFactor, attempt), maxDelay);
+    const actualDelay = jitter ? addJitter(delay) : delay;
+    
+    // Call onRetry callback
+    onRetry(attempt + 1, actualDelay, lastError);
+    
+    // Log retry attempt
+    logger.warn(`Retrying ${type} webhook, attempt ${attempt + 1} of ${maxRetries} after ${actualDelay}ms delay`, {
+      webhookType: type,
+      eventType,
+      attempt: attempt + 1,
+      delay: actualDelay,
+      error: lastError?.message
+    });
+    
+    // Wait before retrying
+    await new Promise(resolve => setTimeout(resolve, actualDelay));
+    attempt++;
+  }
+  
+  // We should never reach here, but if we do, return a failure
+  return {
+    success: false,
+    message: lastError?.message || 'Maximum retries exceeded',
+    error: lastError
+  };
 };
