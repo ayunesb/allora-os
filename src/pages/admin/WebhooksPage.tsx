@@ -1,3 +1,4 @@
+
 // Import necessary modules and components
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/use-toast";
 import { WebhookHistoryContent } from "@/components/admin/webhooks/history/WebhookHistoryContent";
-import { WebhookConfigTab } from "@/components/admin/webhooks/config/WebhookConfigTab";
+import WebhookConfigTab from "@/components/admin/webhooks/config/WebhookConfigTab";
 import { CalendarIcon } from "lucide-react";
 import { format } from 'date-fns';
 import { DateRange } from "react-day-picker";
@@ -91,28 +92,19 @@ const WebhooksPage = () => {
             filteredEvents={filteredEvents}
             paginatedEvents={paginatedEvents}
             isLoading={false}
-            error={null}
+            searchTerm={searchQuery}
+            setSearchTerm={setSearchQuery}
+            statusFilter={selectedStatus}
+            setStatusFilter={setSelectedStatus}
+            typeFilter={selectedType}
+            setTypeFilter={setSelectedType}
             currentPage={currentPage}
             totalPages={5}
-            statusOptions={statusOptions}
-            typeOptions={typeOptions}
-            eventTypeOptions={eventTypeOptions}
-            selectedStatus={selectedStatus}
-            setSelectedStatus={setSelectedStatus}
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-            selectedEventType={selectedEventType}
-            setSelectedEventType={setSelectedEventType}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            startDate={startDate}
-            setStartDate={setStartDate}
-            endDate={endDate}
-            setEndDate={setEndDate}
-            onFilter={handleFilterEvents}
-            onClearFilter={handleClearFilters}
-            onPageChange={(page) => setCurrentPage(page)}
-            onSort={() => console.log('Sort clicked')}
+            pageSize={itemsPerPage}
+            handlePageChange={(page) => setCurrentPage(page)}
+            webhookTypes={typeOptions}
+            handleExportHistory={() => console.log('Export clicked')}
+            handleClearHistory={() => console.log('Clear clicked')}
           />
         </TabsContent>
       </Tabs>
