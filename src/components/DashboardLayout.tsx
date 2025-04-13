@@ -16,7 +16,11 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Suspense } from "react";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
-export default function DashboardLayout() {
+export interface DashboardLayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -84,6 +88,7 @@ export default function DashboardLayout() {
                     <ErrorBoundary>
                       <Suspense fallback={<DashboardLoadingState />}>
                         <Outlet />
+                        {children}
                       </Suspense>
                     </ErrorBoundary>
                   </div>
