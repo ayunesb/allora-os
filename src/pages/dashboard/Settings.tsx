@@ -12,6 +12,8 @@ import { runTestCompanySetup } from "@/utils/company/test";
 import { toast } from "sonner";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { BellRing, Globe, Mail, MessageSquare, Phone } from "lucide-react";
+import MarketingPlatformIntegrations from "@/components/integrations/MarketingPlatformIntegrations";
+import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -207,17 +209,11 @@ export default function Settings() {
         </TabsContent>
         
         <TabsContent value="integrations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Connected Accounts</CardTitle>
-              <CardDescription>Manage your connected accounts and API integrations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Integration settings will be available soon.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid gap-8">
+            <MarketingPlatformIntegrations />
+            
+            <LinkedInIntegration />
+          </div>
         </TabsContent>
         
         <TabsContent value="development">
