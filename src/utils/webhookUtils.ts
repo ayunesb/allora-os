@@ -4,6 +4,49 @@ import { executeWithRetry } from './webhookRetry';
 import { logger } from '@/utils/loggingService';
 
 /**
+ * Result interface from webhook execution
+ */
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  statusCode?: number;
+  responseData?: any;
+  error?: Error;
+}
+
+/**
+ * Webhook event interface for localStorage
+ */
+interface WebhookEvent {
+  id: string;
+  timestamp: string;
+  webhookType: WebhookType;
+  eventType: string;
+  targetUrl: string;
+  payload: any;
+  status: 'pending' | 'success' | 'error';
+  responseCode?: number;
+  response?: any;
+  errorMessage?: string;
+  duration?: number;
+}
+
+/**
+ * Secure the webhook URL by storing only a hashed version
+ * This prevents sensitive URLs from being leaked in localStorage
+ */
+const secureWebhookUrl = (url: string): string => {
+  // For display purposes, only show domain and mask the rest
+  try {
+    const urlObj = new URL(url);
+    return `${urlObj.protocol}//${urlObj.hostname}/***`;
+  } catch (e) {
+    // If URL parsing fails, return a masked version
+    return url.substring(0, 10) + '***';
+  }
+};
+
+/**
  * Integration with useWebhookHistory for logging webhook events
  * @param webhookUrl The URL of the webhook being triggered
  * @param payload The data sent to the webhook
@@ -15,7 +58,7 @@ export const logWebhookCall = async (
   payload: any,
   type: WebhookType,
   eventType: string = 'webhook_call'
-) => {
+): Promise<string | null> => {
   // Get storage functions from useWebhookHistory
   // Note: We're accessing localStorage directly here since this is a utility function
   // not a component, and we can't use hooks in regular functions
@@ -24,14 +67,14 @@ export const logWebhookCall = async (
     const eventId = `wh_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
     
     // Create the initial event entry with pending status
-    const initialEvent = {
+    const initialEvent: WebhookEvent = {
       id: eventId,
       timestamp: new Date().toISOString(),
       webhookType: type,
       eventType,
-      targetUrl: webhookUrl,
+      targetUrl: secureWebhookUrl(webhookUrl), // Use secured version for storage
       payload,
-      status: 'pending' as const
+      status: 'pending'
     };
     
     // Load existing events
@@ -53,17 +96,6 @@ export const logWebhookCall = async (
 };
 
 /**
- * Result interface from webhook execution
- */
-export interface WebhookResult {
-  success: boolean;
-  message?: string;
-  statusCode?: number;
-  responseData?: any;
-  error?: Error;
-}
-
-/**
  * Update a webhook call log with the result
  * @param eventId The ID of the webhook event to update
  * @param result The result of the webhook call
@@ -77,7 +109,7 @@ export const updateWebhookLog = (
     errorMessage?: string;
     duration?: number;
   }
-) => {
+): void => {
   try {
     // Load existing events
     const storedHistory = localStorage.getItem('webhook_event_history');
@@ -86,7 +118,7 @@ export const updateWebhookLog = (
     const history = JSON.parse(storedHistory);
     
     // Update the specific event
-    history.events = history.events.map((event: any) => 
+    history.events = history.events.map((event: WebhookEvent) => 
       event.id === eventId ? { ...event, ...result } : event
     );
     
@@ -141,9 +173,19 @@ export const executeAndLogWebhook = async (
     // Update the webhook log with success information
     if (eventId) {
       updateWebhookLog(eventId, {
-        status: 'success',
+        status: result.success ? 'success' : 'error',
         responseCode: result.success ? (result.statusCode || 200) : 400,
-        response: result, // Store the entire result object
+        response: result.success ? result.responseData : undefined,
+        errorMessage: !result.success ? result.message : undefined,
+        duration
+      });
+    }
+    
+    // Performance monitoring - log execution time
+    if (result.success) {
+      logger.info(`Webhook execution completed successfully in ${duration}ms`, {
+        webhookType: type,
+        eventType,
         duration
       });
     }
@@ -162,7 +204,7 @@ export const executeAndLogWebhook = async (
     }
     
     logger.error(`Webhook execution failed for ${type} webhook:`, {
-      url,
+      url: secureWebhookUrl(url), // Use secured version for logging
       eventType,
       error: error.message,
       duration

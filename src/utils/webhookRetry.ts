@@ -22,7 +22,7 @@ const addJitter = (delay: number): number => {
 };
 
 /**
- * Execute a single webhook call
+ * Execute a single webhook call with improved error handling and logging
  */
 export const executeWebhook = async (
   url: string, 
@@ -31,7 +31,7 @@ export const executeWebhook = async (
   eventType: string
 ): Promise<WebhookResult> => {
   try {
-    // Log the request
+    // Log the request with security measures
     logger.info(`Executing ${type} webhook for event: ${eventType}`, {
       webhookType: type,
       eventType,
@@ -42,29 +42,50 @@ export const executeWebhook = async (
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-      mode: 'no-cors', // Use no-cors for cross-origin webhooks
-    });
+    const startTime = performance.now();
     
-    clearTimeout(timeoutId);
-    
-    // Since we're using no-cors, we can't actually check the response status
-    // Instead, we'll assume success unless there's an error thrown
-    return {
-      success: true,
-      message: 'Webhook executed successfully (no-cors mode)',
-      statusCode: 200,
-      responseData: { mode: 'no-cors' }
-    };
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+        mode: 'no-cors', // Use no-cors for cross-origin webhooks
+      });
+      
+      const endTime = performance.now();
+      logger.info(`Webhook execution completed in ${(endTime - startTime).toFixed(2)}ms`, {
+        webhookType: type,
+        eventType,
+        duration: endTime - startTime
+      });
+      
+      // Since we're using no-cors, we can't actually check the response status
+      // Instead, we'll assume success unless there's an error thrown
+      return {
+        success: true,
+        message: 'Webhook executed successfully (no-cors mode)',
+        statusCode: 200,
+        responseData: { mode: 'no-cors' }
+      };
+    } finally {
+      clearTimeout(timeoutId);
+    }
   } catch (error: any) {
+    // Enhanced error handling with more context
+    const errorDetails = {
+      webhookType: type,
+      eventType,
+      errorType: error.name,
+      errorMessage: error.message,
+      stack: error.stack
+    };
+    
     // Check if this was an abort error (timeout)
     if (error.name === 'AbortError') {
+      logger.warn(`Webhook execution timed out after 30 seconds`, errorDetails);
       return {
         success: false,
         message: 'Webhook execution timed out after 30 seconds',
@@ -72,6 +93,18 @@ export const executeWebhook = async (
       };
     }
     
+    // Network errors
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      logger.error(`Network error during webhook execution`, errorDetails);
+      return {
+        success: false,
+        message: 'Network error: unable to reach webhook URL',
+        error
+      };
+    }
+    
+    // Generic error fallback
+    logger.error(`Webhook execution failed with error: ${error.message}`, errorDetails);
     return {
       success: false,
       message: error.message || 'Unknown error during webhook execution',
@@ -81,7 +114,7 @@ export const executeWebhook = async (
 };
 
 /**
- * Execute a webhook with retry logic
+ * Execute a webhook with enhanced retry logic and performance monitoring
  */
 export const executeWithRetry = async (
   url: string,
@@ -102,6 +135,13 @@ export const executeWithRetry = async (
   let attempt = 0;
   let lastError: Error | undefined;
   
+  // Create a performance span for the entire retry operation
+  const retrySpan = logger.time(`webhook_retry_${type}_${eventType}`, {
+    webhookType: type,
+    eventType,
+    maxRetries
+  });
+  
   while (attempt <= maxRetries) {
     try {
       // Attempt to execute the webhook
@@ -112,6 +152,9 @@ export const executeWithRetry = async (
         if (attempt > 0) {
           logger.info(`Successfully executed ${type} webhook after ${attempt} retries`);
         }
+        
+        // Close the performance span
+        retrySpan();
         return result;
       }
       
@@ -143,19 +186,23 @@ export const executeWithRetry = async (
     // Call onRetry callback
     onRetry(attempt + 1, actualDelay, lastError);
     
-    // Log retry attempt
+    // Log retry attempt with more context
     logger.warn(`Retrying ${type} webhook, attempt ${attempt + 1} of ${maxRetries} after ${actualDelay}ms delay`, {
       webhookType: type,
       eventType,
       attempt: attempt + 1,
       delay: actualDelay,
-      error: lastError?.message
+      error: lastError?.message,
+      retryStrategy: 'exponential_backoff_with_jitter'
     });
     
     // Wait before retrying
     await new Promise(resolve => setTimeout(resolve, actualDelay));
     attempt++;
   }
+  
+  // Close the performance span
+  retrySpan();
   
   // We should never reach here, but if we do, return a failure
   return {

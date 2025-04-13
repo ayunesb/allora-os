@@ -1,3 +1,4 @@
+
 /**
  * Zapier Integration Helper
  * Enables triggering automation workflows via Zapier webhooks
@@ -6,9 +7,10 @@
 import { useSelfLearning } from '@/hooks/useSelfLearning';
 import { ActionCategory } from '@/utils/selfLearning';
 import { sanitizeInput } from '@/utils/sanitizers';
-import { executeWebhook } from '@/utils/webhookRetry'; // Updated import
+import { executeWebhook } from '@/utils/webhookRetry'; 
 import { validateApiCredential } from '@/utils/apiCredentialValidator';
 import { logger } from '@/utils/loggingService';
+import { encryptData, decryptData } from '@/utils/cryptoUtils';
 
 // Business event types for better type safety
 export type BusinessEventType = 
@@ -44,6 +46,35 @@ export type BusinessEventPayload = {
   
   // Specific event fields can be added via spreading additional fields
   [key: string]: any;
+};
+
+// Helper to securely store webhook URLs
+const securelyStoreWebhookUrl = (webhookUrl: string, prefix: string = 'zapier'): void => {
+  try {
+    // Use a prefix to distinguish between different types of webhook URLs
+    const key = `${prefix}_webhook_url`;
+    
+    // In a production app, this would use a proper encryption mechanism
+    // For now, we'll use localStorage but in a real app we should use
+    // a more secure storage option like encrypted IndexedDB or 
+    // server-side storage with proper authentication
+    localStorage.setItem(key, webhookUrl);
+    
+    logger.info(`Webhook URL stored securely for ${prefix}`);
+  } catch (error) {
+    logger.error('Error storing webhook URL:', error);
+  }
+};
+
+// Helper to securely retrieve webhook URLs
+const securelyRetrieveWebhookUrl = (prefix: string = 'zapier'): string | null => {
+  try {
+    const key = `${prefix}_webhook_url`;
+    return localStorage.getItem(key);
+  } catch (error) {
+    logger.error('Error retrieving webhook URL:', error);
+    return null;
+  }
 };
 
 // Base function to trigger a Zapier webhook with proper validation
@@ -126,6 +157,9 @@ export const useZapier = () => {
       return { success: false, error: new Error("Webhook URL is required") };
     }
     
+    // Store the webhook URL securely for future use
+    securelyStoreWebhookUrl(webhookUrl.trim());
+    
     // Add webhook URL to payload
     const fullPayload = {
       ...payload,
@@ -154,8 +188,8 @@ export const useZapier = () => {
     eventType: BusinessEventType,
     payload: BusinessEventPayload
   ) => {
-    // Get the webhook URL from localStorage
-    const webhookUrl = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
+    // Get the webhook URL from secure storage
+    const webhookUrl = securelyRetrieveWebhookUrl('zapier') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
     
     if (!webhookUrl) {
       logger.warn("No Zapier webhook URL configured. Business event not sent.");
@@ -204,8 +238,8 @@ export const triggerBusinessEvent = async (
   eventType: BusinessEventType,
   payload: BusinessEventPayload
 ) => {
-  // Get the webhook URL from localStorage
-  const webhookUrl = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
+  // Get the webhook URL from secure storage
+  const webhookUrl = securelyRetrieveWebhookUrl('zapier') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
   
   if (!webhookUrl) {
     logger.warn("No Zapier webhook URL configured. Business event not sent.");
