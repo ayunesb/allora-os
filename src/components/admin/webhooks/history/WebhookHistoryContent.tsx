@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Card,
@@ -29,7 +28,7 @@ import { WebhookHistoryPagination } from "./WebhookHistoryPagination";
 import { WebhookEvent } from "@/types/webhooks";
 import { 
   Search, 
-  FileDownload, 
+  Download, 
   Trash2, 
   RotateCcw, 
   ChevronDown,
@@ -85,7 +84,6 @@ export const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'sm', 'mobile'].includes(breakpoint);
   
-  // Status badge styling
   const getStatusBadge = (status: 'success' | 'failed' | 'pending') => {
     switch(status) {
       case 'success':
@@ -107,7 +105,6 @@ export const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({
     }
   };
   
-  // Type badge styling
   const getTypeBadge = (type: WebhookType) => {
     switch(type) {
       case 'stripe':
@@ -127,7 +124,6 @@ export const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Filters and actions */}
       <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
         <div className="relative flex-1 w-full sm:max-w-xs">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -171,7 +167,7 @@ export const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({
               title="Export History"
               onClick={handleExportHistory}
             >
-              <FileDownload className="h-4 w-4" />
+              <Download className="h-4 w-4" />
             </Button>
             <Button 
               variant="outline" 
@@ -185,7 +181,6 @@ export const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({
         </div>
       </div>
       
-      {/* Event List */}
       <Card>
         <CardHeader className="p-4">
           <CardTitle className="text-md">Webhook Events</CardTitle>
@@ -289,7 +284,6 @@ export const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({
                 </Table>
               )}
               
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center mt-4">
                   <WebhookHistoryPagination

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
@@ -36,7 +35,7 @@ const WebhooksPage = () => {
   
   // Available options for filtering
   const statusOptions = ['success', 'failed', 'pending'];
-  const typeOptions = ['stripe', 'zapier', 'github', 'slack', 'custom'];
+  const typeOptions: WebhookType[] = ['stripe', 'zapier', 'github', 'slack', 'custom'];
   const eventTypeOptions = ['payment.success', 'payment.failed', 'order.created'];
   
   // Use the hooks to get webhook data and validation
