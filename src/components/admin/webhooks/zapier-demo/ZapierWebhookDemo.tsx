@@ -1,153 +1,194 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Zap, GlassWater, User, Briefcase, CheckCircle2 } from "lucide-react";
-import { useZapier } from '@/lib/zapier';
-import type { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
 import { useToast } from "@/components/ui/use-toast";
-import { Card, CardContent } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { triggerBusinessEvent } from '@/lib/zapier';
+import { BusinessEventType } from '@/utils/webhookTypes';
 
-interface ZapierWebhookDemoProps {
-  webhookUrl: string;
-}
-
-const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => {
-  const { triggerWorkflow } = useZapier();
+export default function ZapierWebhookDemo() {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
-
-  const demoEvents: Array<{
-    id: string;
-    name: string;
-    icon: React.ReactNode;
-    title: string;
-    type: BusinessEventType;
-    payload: BusinessEventPayload;
-  }> = [
-    {
-      id: 'new_lead',
-      name: 'New Lead Created',
-      icon: <User className="h-4 w-4" />,
-      title: 'Generate a lead created event',
-      type: 'new_lead_added',  // Fixed to match BusinessEventType
-      payload: {
-        leadName: 'John Smith',
-        companyName: 'Acme, Inc.',
-        email: 'john@example.com',
-        source: 'Website Demo',
-        timestamp: new Date().toISOString()
-      }
-    },
-    {
-      id: 'new_strategy',
-      name: 'Strategy Approved',
-      icon: <Briefcase className="h-4 w-4" />,
-      title: 'Generate a strategy approved event',
-      type: 'new_strategy_approved',  // Fixed to match BusinessEventType
-      payload: {
-        strategyTitle: 'Market Expansion Strategy',
-        approvedBy: 'Executive Team',
-        riskLevel: 'Medium',
-        timestamp: new Date().toISOString()
-      }
-    },
-    {
-      id: 'revenue_milestone',
-      name: 'Revenue Milestone',
-      icon: <CheckCircle2 className="h-4 w-4" />,
-      title: 'Generate a revenue milestone event',
-      type: 'revenue_milestone',  // Fixed to match BusinessEventType
-      payload: {
-        amount: 100000,
-        companyName: 'Acme, Inc.',
-        milestone: 'First $100K',
-        timestamp: new Date().toISOString()
-      }
-    }
-  ];
-
-  const handleTriggerDemo = async (demoEvent: typeof demoEvents[0]) => {
-    setIsLoading(prev => ({ ...prev, [demoEvent.id]: true }));
-    
+  const [isLeadLoading, setIsLeadLoading] = useState(false);
+  const [isStrategyLoading, setIsStrategyLoading] = useState(false);
+  const [isRevenueLoading, setIsRevenueLoading] = useState(false);
+  
+  const handleSendLeadEvent = async () => {
+    setIsLeadLoading(true);
     try {
-      const result = await triggerWorkflow(
-        webhookUrl,
-        demoEvent.type,
-        demoEvent.payload,
-        `demo-${demoEvent.id}`,
-        'demo'
-      );
+      const result = await triggerBusinessEvent('new_lead_added', {
+        companyId: "demo-company-123",
+        entityType: "lead",
+        lead_name: "Demo Lead",
+        source: "Zapier Demo",
+        timestamp: new Date().toISOString()
+      });
       
       if (result.success) {
         toast({
-          title: "Demo event sent",
-          description: `Successfully sent ${demoEvent.name} event to Zapier`,
+          title: "Success",
+          description: "Lead event sent to Zapier webhook",
         });
       } else {
-        toast({
-          title: "Failed to send event",
-          description: result.message || "An error occurred while sending the event to Zapier",
-          variant: "destructive",
-        });
+        throw new Error(result.message || "Failed to send lead event");
       }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to trigger Zapier webhook",
+        description: error.message || "Failed to send lead event to Zapier",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(prev => ({ ...prev, [demoEvent.id]: false }));
+      setIsLeadLoading(false);
     }
   };
-
+  
+  const handleSendStrategyEvent = async () => {
+    setIsStrategyLoading(true);
+    try {
+      const result = await triggerBusinessEvent('new_strategy_approved', {
+        companyId: "demo-company-123",
+        entityType: "strategy",
+        strategy_title: "Expansion Strategy",
+        suggested_by: "AI Executive Team",
+        timestamp: new Date().toISOString()
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Strategy event sent to Zapier webhook",
+        });
+      } else {
+        throw new Error(result.message || "Failed to send strategy event");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send strategy event to Zapier",
+        variant: "destructive",
+      });
+    } finally {
+      setIsStrategyLoading(false);
+    }
+  };
+  
+  const handleSendRevenueEvent = async () => {
+    setIsRevenueLoading(true);
+    try {
+      const result = await triggerBusinessEvent('revenue_milestone', {
+        companyId: "demo-company-123",
+        entityType: "revenue",
+        company_name: "Demo Company",
+        amount: 100000,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Revenue milestone event sent to Zapier webhook",
+        });
+      } else {
+        throw new Error(result.message || "Failed to send revenue event");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send revenue event to Zapier",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRevenueLoading(false);
+    }
+  };
+  
   return (
-    <div className="mt-4">
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="demo-events">
-          <AccordionTrigger className="text-sm font-medium">
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-blue-400" />
-              Test Zapier Integration
-            </div>
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="text-sm text-muted-foreground mb-3">
-              Send demo events to test your Zapier integration. These events simulate real business events that would trigger automations.
-            </div>
-            
-            <Card className="border-dashed">
-              <CardContent className="p-4">
-                <div className="grid gap-3">
-                  {demoEvents.map((demoEvent) => (
-                    <div key={demoEvent.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {demoEvent.icon}
-                        <span className="text-sm">{demoEvent.name}</span>
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleTriggerDemo(demoEvent)}
-                        disabled={isLoading[demoEvent.id]}
-                      >
-                        {isLoading[demoEvent.id] ? "Sending..." : "Send Event"}
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            
-            <div className="text-xs text-muted-foreground mt-3">
-              Note: You need to configure a Zap in Zapier that listens for these events using the Webhook trigger.
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Test Zapier Webhooks</CardTitle>
+        <CardDescription>
+          Send test events to your Zapier webhooks to verify integration
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">New Lead</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Trigger actions when a new lead is added to the system
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={handleSendLeadEvent} 
+                disabled={isLeadLoading}
+                className="w-full"
+              >
+                {isLeadLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : "Send Test Event"}
+              </Button>
+            </CardFooter>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Strategy Approved</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Trigger actions when a new business strategy is approved
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={handleSendStrategyEvent} 
+                disabled={isStrategyLoading}
+                className="w-full"
+              >
+                {isStrategyLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : "Send Test Event"}
+              </Button>
+            </CardFooter>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Revenue Milestone</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Trigger actions when a revenue milestone is achieved
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={handleSendRevenueEvent} 
+                disabled={isRevenueLoading}
+                className="w-full"
+              >
+                {isRevenueLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : "Send Test Event"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
-
-export default ZapierWebhookDemo;
+}
