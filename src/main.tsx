@@ -1,12 +1,9 @@
 
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
-import { RouterProvider } from "react-router-dom";
-import { router } from './routes/router';
-import { ThemeProvider } from 'next-themes';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './context/AuthContext';
+import App from './App';
 import { HelmetProvider } from 'react-helmet-async';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './styles/index.css';
 import './App.css';
 
@@ -19,32 +16,12 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create a custom App component to ensure the HelmetProvider is at the root
-function AppRoutes() {
-  return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
-      <RouterProvider router={router} />
-    </Suspense>
-  );
-}
-
-// Wrap the App with all required providers
-function WrappedApp() {
-  return (
-    <ThemeProvider attribute="class" defaultTheme="dark">
-      <QueryClientProvider client={queryClient}>
-        <HelmetProvider>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </HelmetProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
-  );
-}
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <WrappedApp />
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
+    </QueryClientProvider>
   </React.StrictMode>
 );
