@@ -10,6 +10,9 @@ interface AccessibilityContextType {
   toggleReducedMotion: () => void;
   screenReaderFriendly: boolean;
   toggleScreenReaderFriendly: () => void;
+  // Add missing largeText and toggleLargeText properties
+  largeText: boolean;
+  toggleLargeText: () => void;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -19,10 +22,12 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   const [reducedMotion, setReducedMotion] = useState(false);
   const [screenReaderFriendly, setScreenReaderFriendly] = useState(true);
+  const [largeText, setLargeText] = useState(false);
 
   const toggleHighContrast = () => setHighContrast(prev => !prev);
   const toggleReducedMotion = () => setReducedMotion(prev => !prev);
   const toggleScreenReaderFriendly = () => setScreenReaderFriendly(prev => !prev);
+  const toggleLargeText = () => setLargeText(prev => !prev);
 
   return (
     <AccessibilityContext.Provider
@@ -34,7 +39,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         reducedMotion,
         toggleReducedMotion,
         screenReaderFriendly,
-        toggleScreenReaderFriendly
+        toggleScreenReaderFriendly,
+        largeText,
+        toggleLargeText
       }}
     >
       {children}

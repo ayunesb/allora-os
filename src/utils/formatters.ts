@@ -40,6 +40,19 @@ export function formatPercentChange(value: number, showPlus = true): string {
 }
 
 /**
+ * Calculate percentage change between two values
+ * @param previous - The previous value
+ * @param current - The current value
+ * @returns Calculated percentage change
+ */
+export function calculatePercentChange(previous?: number, current?: number): number {
+  if (previous === undefined || current === undefined || previous === 0) {
+    return 0;
+  }
+  return ((current - previous) / Math.abs(previous)) * 100;
+}
+
+/**
  * Format a currency value
  * @param value - The value to format
  * @param currency - Currency code (default: 'USD')
