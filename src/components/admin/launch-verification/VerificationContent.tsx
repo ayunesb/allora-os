@@ -40,7 +40,8 @@ export function VerificationContent({ results, isChecking }: VerificationContent
     <div className="space-y-3">
       {coreValidationKeys.map(key => {
         const result = results[key as keyof ValidationResultsUI];
-        if (typeof result === 'object' && 'valid' in result && 'message' in result) {
+        // Check if the result has the specific structure expected by ValidationResultItem
+        if (typeof result === 'object' && result !== null && 'valid' in result && 'message' in result) {
           return <ValidationResultItem key={key} name={key} result={result} />;
         }
         return null;
