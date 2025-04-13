@@ -10,11 +10,11 @@ import React from 'react';
 export const getStatusIcon = (status: 'healthy' | 'degraded' | 'down') => {
   switch (status) {
     case 'healthy':
-      return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      return React.createElement(CheckCircle2, { className: "h-5 w-5 text-green-500" });
     case 'degraded':
-      return <Activity className="h-5 w-5 text-amber-500" />;
+      return React.createElement(Activity, { className: "h-5 w-5 text-amber-500" });
     case 'down':
-      return <XCircle className="h-5 w-5 text-red-500" />;
+      return React.createElement(XCircle, { className: "h-5 w-5 text-red-500" });
     default:
       return null;
   }
