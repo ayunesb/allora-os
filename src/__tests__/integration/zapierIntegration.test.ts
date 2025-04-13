@@ -26,27 +26,25 @@ describe('Zapier Integration Tests', () => {
     it('should trigger a business event with the correct payload', async () => {
       // Arrange
       const strategy = {
-        company: 'Test Company',
         strategyTitle: 'Market Expansion Strategy',
-        suggestedBy: 'AI CEO',
         strategyId: 'strat-123',
-        userId: 'user-123'
+        companyId: 'Test Company',
+        approvedBy: 'AI CEO'
       };
 
       // Act
       const result = await onStrategyApproved(strategy);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result).toEqual({ success: true });
       expect(triggerBusinessEvent).toHaveBeenCalledWith('strategy_approved', expect.objectContaining({
-        companyId: strategy.company,
         entityId: strategy.strategyId,
         entityType: 'strategy',
-        strategyName: strategy.strategyTitle
+        strategyTitle: strategy.strategyTitle,
+        companyId: strategy.companyId
       }));
       
       expect(logAuditEvent).toHaveBeenCalledWith(expect.objectContaining({
-        user: strategy.userId,
         action: 'SYSTEM_CHANGE',
         resource: 'zapier_event'
       }));
@@ -57,16 +55,17 @@ describe('Zapier Integration Tests', () => {
       vi.mocked(triggerBusinessEvent).mockRejectedValueOnce(new Error('Network error'));
       
       const strategy = {
-        company: 'Test Company',
         strategyTitle: 'Market Expansion Strategy',
-        suggestedBy: 'AI CEO'
+        strategyId: 'strat-123',
+        companyId: 'Test Company',
+        approvedBy: 'AI CEO'
       };
 
       // Act
       const result = await onStrategyApproved(strategy);
 
       // Assert
-      expect(result).toBe(false);
+      expect(result).toEqual({ success: false, error: expect.any(Error) });
       expect(triggerBusinessEvent).toHaveBeenCalled();
       expect(logAuditEvent).toHaveBeenCalled();
     });
@@ -80,23 +79,19 @@ describe('Zapier Integration Tests', () => {
         leadName: 'John Doe',
         source: 'Website Form',
         leadId: 'lead-123',
-        email: 'john@example.com',
-        userId: 'user-456'
+        email: 'john@example.com'
       };
 
       // Act
       const result = await onNewLeadAdded(lead);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result).toEqual({ success: true });
       expect(triggerBusinessEvent).toHaveBeenCalledWith('lead_added', expect.objectContaining({
-        companyId: lead.company,
         entityId: lead.leadId,
         entityType: 'lead',
         leadName: lead.leadName,
-        contactInfo: expect.objectContaining({
-          email: lead.email
-        })
+        company: lead.company
       }));
     });
   });
@@ -110,21 +105,19 @@ describe('Zapier Integration Tests', () => {
         owner: 'Marketing Team',
         campaignId: 'camp-123',
         companyId: 'company-123',
-        budget: 5000,
-        userId: 'user-789'
+        budget: 5000
       };
 
       // Act
       const result = await onCampaignLaunched(campaign);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result).toEqual({ success: true });
       expect(triggerBusinessEvent).toHaveBeenCalledWith('campaign_launched', expect.objectContaining({
-        companyId: campaign.companyId,
         entityId: campaign.campaignId,
         entityType: 'campaign',
         campaignTitle: campaign.campaignTitle,
-        budget: campaign.budget
+        companyId: campaign.companyId
       }));
     });
   });

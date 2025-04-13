@@ -44,9 +44,10 @@ export function useStrategyTracking() {
     
     // Trigger Zapier event when a strategy is approved
     onStrategyApproved({
-      company: user.id,
+      strategyId,
       strategyTitle: title,
-      suggestedBy: executiveBot || 'AI Executive'
+      companyId: user.id,
+      approvedBy: executiveBot || 'AI Executive'
     });
     
     toast.success('Strategy approved! Our AI will learn from your preference.');
