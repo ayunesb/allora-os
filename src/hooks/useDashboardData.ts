@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-// Modified AiRecommendation type to include all properties required by Recommendation
+// Updated AiRecommendation type to include all properties required by Recommendation
 export interface AiRecommendation {
   id: string;
   title: string;
