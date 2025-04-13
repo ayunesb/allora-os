@@ -1,5 +1,5 @@
 
-import { WebhookType } from '@/utils/webhookValidation';
+import { WebhookType } from '@/utils/webhookTypes';
 
 export interface WebhookEvent {
   id: string;

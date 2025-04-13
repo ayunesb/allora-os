@@ -8,5 +8,5 @@ export * from './performanceValidator';
 export * from './rlsValidator';
 export * from './functionValidator';
 export * from './socialMediaValidator';
+export * from './webhookValidator';
 export * from './types';
-

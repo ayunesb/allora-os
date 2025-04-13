@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
-
-type WebhookType = 'slack' | 'github' | 'zapier' | 'stripe' | 'custom';
+import { WebhookType } from '@/utils/webhookTypes';
+import { validateWebhookUrlFormat } from '@/utils/webhookValidation';
 
 interface ValidationResult {
   isValid: boolean | null;
@@ -20,56 +20,34 @@ export function useWebhookValidation(type: WebhookType) {
       return;
     }
 
-    // Basic URL validation
     try {
-      const urlObj = new URL(url);
+      // Use the imported validateWebhookUrlFormat function
+      const isValidFormat = validateWebhookUrlFormat(url, type);
+      setIsValid(isValidFormat);
       
-      // Check for HTTPS
-      if (urlObj.protocol !== 'https:') {
-        setIsValid(false);
-        setValidationMessage('Webhook URL must use HTTPS protocol');
-        return;
+      if (!isValidFormat) {
+        switch (type) {
+          case 'stripe':
+            setValidationMessage('Invalid Stripe webhook URL format. Must start with https://api.stripe.com/');
+            break;
+          case 'zapier':
+            setValidationMessage('Invalid Zapier webhook URL. Must start with https://hooks.zapier.com/');
+            break;
+          case 'github':
+            setValidationMessage('Invalid GitHub webhook URL. Must start with https://api.github.com/');
+            break;
+          case 'slack':
+            setValidationMessage('Invalid Slack webhook URL. Must start with https://hooks.slack.com/');
+            break;
+          case 'custom':
+            setValidationMessage('Invalid URL format. Must use HTTPS protocol.');
+            break;
+          default:
+            setValidationMessage('Invalid webhook URL');
+        }
+      } else {
+        setValidationMessage(null);
       }
-
-      // Type-specific validation
-      switch (type) {
-        case 'slack':
-          if (!url.includes('hooks.slack.com/services/')) {
-            setIsValid(false);
-            setValidationMessage('Invalid Slack webhook URL format');
-            return;
-          }
-          break;
-          
-        case 'github':
-          if (!url.includes('api.github.com/')) {
-            setIsValid(false);
-            setValidationMessage('Invalid GitHub webhook URL format');
-            return;
-          }
-          break;
-          
-        case 'zapier':
-          if (!url.includes('hooks.zapier.com/')) {
-            setIsValid(false);
-            setValidationMessage('Invalid Zapier webhook URL format');
-            return;
-          }
-          break;
-          
-        case 'stripe':
-          // Just ensure it's a valid URL for Stripe
-          break;
-          
-        case 'custom':
-          // Just ensure it's a valid URL for custom webhooks
-          break;
-      }
-
-      // All checks passed
-      setIsValid(true);
-      setValidationMessage(null);
-      
     } catch (error) {
       setIsValid(false);
       setValidationMessage('Invalid URL format');

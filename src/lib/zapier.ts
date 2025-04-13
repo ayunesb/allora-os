@@ -12,6 +12,9 @@ import { logger } from '@/utils/loggingService';
 import { secureStorage } from '@/utils/cryptoUtils';
 import { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
 
+// Re-export types from webhookTypes for components to import
+export { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
+
 // Helper to securely store webhook URLs
 const securelyStoreWebhookUrl = (webhookUrl: string, prefix: string = 'zapier'): void => {
   try {
