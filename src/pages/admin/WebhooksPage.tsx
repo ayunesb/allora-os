@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
@@ -61,12 +62,12 @@ const WebhooksPage = () => {
     handleTestStripeWebhook
   } = useWebhooks();
 
-  // Validation hooks
-  const { isValid: isStripeWebhookValid } = useWebhookValidation('stripe', stripeWebhook);
-  const { isValid: isZapierWebhookValid } = useWebhookValidation('zapier', zapierWebhook);
-  const { isValid: isGithubWebhookValid } = useWebhookValidation('github', githubWebhook);
-  const { isValid: isSlackWebhookValid } = useWebhookValidation('slack', slackWebhook);
-  const { isValid: isCustomWebhookValid } = useWebhookValidation('custom', customWebhook);
+  // Create validation instances for each webhook type
+  const stripeValidation = useWebhookValidation('stripe');
+  const zapierValidation = useWebhookValidation('zapier');
+  const githubValidation = useWebhookValidation('github');
+  const slackValidation = useWebhookValidation('slack');
+  const customValidation = useWebhookValidation('custom');
 
   // Mock event data for demonstration purposes
   useEffect(() => {
@@ -188,11 +189,11 @@ const WebhooksPage = () => {
 
   const handleSave = () => {
     handleSaveWebhooks(
-      isStripeWebhookValid, 
-      isZapierWebhookValid,
-      isGithubWebhookValid,
-      isSlackWebhookValid,
-      isCustomWebhookValid
+      stripeValidation.isValid, 
+      zapierValidation.isValid,
+      githubValidation.isValid,
+      slackValidation.isValid,
+      customValidation.isValid
     );
   };
 
@@ -222,20 +223,20 @@ const WebhooksPage = () => {
             onGithubWebhookChange={setGithubWebhook}
             onSlackWebhookChange={setSlackWebhook}
             onCustomWebhookChange={setCustomWebhook}
-            onTestStripeWebhook={() => handleTestStripeWebhook(isStripeWebhookValid)}
-            onTestZapierWebhook={() => handleTestZapierWebhook(isZapierWebhookValid)}
-            onTestGithubWebhook={() => handleTestGithubWebhook(isGithubWebhookValid)}
-            onTestSlackWebhook={() => handleTestSlackWebhook(isSlackWebhookValid)}
-            onTestCustomWebhook={() => handleTestCustomWebhook(isCustomWebhookValid)}
+            onTestStripeWebhook={() => handleTestStripeWebhook(stripeValidation.isValid)}
+            onTestZapierWebhook={() => handleTestZapierWebhook(zapierValidation.isValid)}
+            onTestGithubWebhook={() => handleTestGithubWebhook(githubValidation.isValid)}
+            onTestSlackWebhook={() => handleTestSlackWebhook(slackValidation.isValid)}
+            onTestCustomWebhook={() => handleTestCustomWebhook(customValidation.isValid)}
             onSave={handleSave}
             isSaving={isSaving}
             testingWebhook={testingWebhook}
             testLoading={testLoading}
-            isStripeWebhookValid={isStripeWebhookValid}
-            isZapierWebhookValid={isZapierWebhookValid}
-            isGithubWebhookValid={isGithubWebhookValid}
-            isSlackWebhookValid={isSlackWebhookValid}
-            isCustomWebhookValid={isCustomWebhookValid}
+            isStripeWebhookValid={stripeValidation.isValid}
+            isZapierWebhookValid={zapierValidation.isValid}
+            isGithubWebhookValid={githubValidation.isValid}
+            isSlackWebhookValid={slackValidation.isValid}
+            isCustomWebhookValid={customValidation.isValid}
           />
         </TabsContent>
         <TabsContent value="history">
