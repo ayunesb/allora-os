@@ -1,21 +1,23 @@
 
 import React from 'react';
-import { Info } from 'lucide-react';
+import { Info } from "lucide-react";
 import { LaunchInfoBoxProps } from './types';
 
-export function LaunchInfoBox({ className }: LaunchInfoBoxProps) {
+export function LaunchInfoBox({ className = '' }: LaunchInfoBoxProps) {
   return (
-    <div className={`bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-700 text-sm ${className}`}>
+    <div className={`bg-blue-50 border border-blue-200 rounded-lg p-3 ${className}`}>
       <div className="flex gap-2">
-        <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+        <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="font-medium mb-1">What happens when you launch?</p>
-          <ul className="list-disc list-inside space-y-1 text-blue-600">
-            <li>Allora AI is set up as its first customer</li>
-            <li>Initial strategies, campaigns, and scripts are generated</li>
-            <li>Executive debate is simulated for your business</li>
-            <li>Zapier webhooks are initialized</li>
-            <li>Data is preloaded to showcase the platform</li>
+          <p className="text-sm text-blue-800">
+            By launching Allora AI, you'll create a self-demo environment showing how the platform works with your own company as the first client.
+          </p>
+          <ul className="text-sm text-blue-700 mt-2 list-disc pl-5 space-y-1">
+            <li>Creates an example company profile for "Allora AI"</li>
+            <li>Generates AI business strategies tailored to your industry</li>
+            <li>Sets up sample marketing campaigns for different platforms</li>
+            <li>Creates sample leads with communication history</li>
+            <li>Configures Zapier webhook integrations</li>
           </ul>
         </div>
       </div>

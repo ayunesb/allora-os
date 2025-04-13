@@ -1,139 +1,166 @@
-
-import { useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useSelfLearning } from '@/hooks/useSelfLearning';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 import { onStrategyApproved } from '@/utils/zapierEventTriggers';
 
 export function useStrategyTracking() {
-  const { user } = useAuth();
-  const { trackAction } = useSelfLearning();
-  
-  /**
-   * Track when a user views a strategy detail
-   */
-  const trackStrategyView = useCallback((strategyId: string, title: string) => {
-    if (!user?.id) return;
-    
-    trackAction(
-      'view_strategy',
-      'strategy_view',
-      strategyId,
-      'strategy',
-      { title }
-    );
-  }, [user, trackAction]);
-  
-  /**
-   * Track when a user approves a strategy
-   */
-  const trackStrategyApprove = useCallback((strategyId: string, title: string, executiveBot?: string) => {
-    if (!user?.id) return;
-    
-    trackAction(
-      'strategy_approve',
-      'strategy_feedback',
-      strategyId,
-      'strategy',
-      { 
-        title,
-        executiveBot,
-        action: 'approve'
-      }
-    );
-    
-    // Trigger Zapier event when a strategy is approved
-    onStrategyApproved({
-      strategyId,
-      strategyTitle: title,
-      companyId: user.id,
-      approvedBy: executiveBot || 'AI Executive'
-    });
-    
-    toast.success('Strategy approved! Our AI will learn from your preference.');
-  }, [user, trackAction]);
-  
-  /**
-   * Track when a user rejects a strategy
-   */
-  const trackStrategyReject = useCallback((strategyId: string, title: string, executiveBot?: string, reason?: string) => {
-    if (!user?.id) return;
-    
-    trackAction(
-      'strategy_reject',
-      'strategy_feedback',
-      strategyId,
-      'strategy',
-      { 
-        title,
-        executiveBot,
-        reason,
-        action: 'reject' 
-      }
-    );
-    
-    toast.success('Feedback recorded. We\'ll improve our recommendations.');
-  }, [user, trackAction]);
-  
-  /**
-   * Track when a user deletes a strategy
-   */
-  const trackStrategyDelete = useCallback((strategyId: string) => {
-    if (!user?.id) return;
-    
-    trackAction(
-      'delete_strategy',
-      'strategy_management',
-      strategyId,
-      'strategy',
-      { action: 'delete' }
-    );
-  }, [user, trackAction]);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const { user, profile } = useAuth();
 
-  /**
-   * Track when a user updates a strategy
-   */
-  const trackStrategyUpdate = useCallback((strategyId: string, title: string, riskLevel?: string) => {
-    if (!user?.id) return;
-    
-    trackAction(
-      'update_strategy',
-      'strategy_management',
-      strategyId,
-      'strategy',
-      { 
-        title,
-        riskLevel,
-        action: 'update' 
+  const trackApproval = useCallback(async (strategyId: string, strategyTitle: string) => {
+    if (!user?.id || !profile?.company_id) {
+      toast.error('You must be logged in to approve strategies');
+      return false;
+    }
+
+    setIsApproving(true);
+
+    try {
+      // Record the approval action in the strategy_actions table
+      const { error } = await supabase.from('strategy_actions').insert({
+        strategy_id: strategyId,
+        user_id: user.id,
+        action_type: 'approve',
+        details: {
+          approved_at: new Date().toISOString(),
+          approved_by: user.email || 'Unknown user'
+        }
+      });
+
+      if (error) {
+        console.error('Error recording strategy approval:', error);
+        toast.error('Failed to record strategy approval');
+        return false;
       }
-    );
-  }, [user, trackAction]);
-  
-  /**
-   * Track when a user applies a filter
-   */
-  const trackStrategyFilter = useCallback((filterType: string, filterValue: string) => {
-    if (!user?.id) return;
-    
-    trackAction(
-      'filter_strategies',
-      'strategy_interaction',
-      filterType,
-      'filter',
-      { 
-        filterType,
-        filterValue 
+
+      // Update the strategy status
+      const { error: updateError } = await supabase
+        .from('strategies')
+        .update({ status: 'approved', approved_by: user.id, approved_at: new Date().toISOString() })
+        .eq('id', strategyId);
+
+      if (updateError) {
+        console.error('Error updating strategy status:', updateError);
+        toast.error('Failed to update strategy status');
+        return false;
       }
-    );
-  }, [user, trackAction]);
-  
+
+      // Trigger Zapier workflow for strategy approval
+      await onStrategyApproved({
+        strategyTitle,
+        strategyId,
+        companyId: profile.company_id,
+        approvedBy: user.email || user.id
+      });
+
+      toast.success('Strategy approved successfully');
+      return true;
+    } catch (error) {
+      console.error('Error in strategy approval process:', error);
+      toast.error('An unexpected error occurred');
+      return false;
+    } finally {
+      setIsApproving(false);
+    }
+  }, [user, profile]);
+
+  const trackRejection = useCallback(async (strategyId: string, reason: string) => {
+    if (!user?.id) {
+      toast.error('You must be logged in to reject strategies');
+      return false;
+    }
+
+    setIsRejecting(true);
+
+    try {
+      // Record the rejection action in the strategy_actions table
+      const { error } = await supabase.from('strategy_actions').insert({
+        strategy_id: strategyId,
+        user_id: user.id,
+        action_type: 'reject',
+        details: {
+          rejected_at: new Date().toISOString(),
+          rejected_by: user.email || 'Unknown user',
+          reason: reason
+        }
+      });
+
+      if (error) {
+        console.error('Error recording strategy rejection:', error);
+        toast.error('Failed to record strategy rejection');
+        return false;
+      }
+
+      // Update the strategy status
+      const { error: updateError } = await supabase
+        .from('strategies')
+        .update({ status: 'rejected', rejected_by: user.id, rejected_at: new Date().toISOString() })
+        .eq('id', strategyId);
+
+      if (updateError) {
+        console.error('Error updating strategy status:', updateError);
+        toast.error('Failed to update strategy status');
+        return false;
+      }
+
+      toast.success('Strategy rejected successfully');
+      return true;
+    } catch (error) {
+      console.error('Error in strategy rejection process:', error);
+      toast.error('An unexpected error occurred');
+      return false;
+    } finally {
+      setIsRejecting(false);
+    }
+  }, [user]);
+
+  const trackShare = useCallback(async (strategyId: string, shareDetails: object) => {
+    if (!user?.id) {
+      toast.error('You must be logged in to share strategies');
+      return false;
+    }
+
+    setIsSharing(true);
+
+    try {
+      // Record the share action in the strategy_actions table
+      const { error } = await supabase.from('strategy_actions').insert({
+        strategy_id: strategyId,
+        user_id: user.id,
+        action_type: 'share',
+        details: {
+          shared_at: new Date().toISOString(),
+          shared_by: user.email || 'Unknown user',
+          ...shareDetails
+        }
+      });
+
+      if (error) {
+        console.error('Error recording strategy share:', error);
+        toast.error('Failed to record strategy share');
+        return false;
+      }
+
+      toast.success('Strategy shared successfully');
+      return true;
+    } catch (error) {
+      console.error('Error in strategy share process:', error);
+      toast.error('An unexpected error occurred');
+      return false;
+    } finally {
+      setIsSharing(false);
+    }
+  }, [user]);
+
   return {
-    trackStrategyView,
-    trackStrategyApprove,
-    trackStrategyReject,
-    trackStrategyDelete,
-    trackStrategyUpdate,
-    trackStrategyFilter,
-    isLoggedIn: !!user?.id
+    trackApproval,
+    trackRejection,
+    trackShare,
+    isApproving,
+    isRejecting,
+    isSharing
   };
 }

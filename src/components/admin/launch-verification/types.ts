@@ -1,4 +1,71 @@
 
+export interface ChecklistItem {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'completed' | 'in-progress' | 'pending' | 'warning' | 'error';
+  statusMessage?: string;
+  details?: string;
+  isRequired?: boolean;
+}
+
+export interface ChecklistCategory {
+  id: string;
+  name: string;
+  description?: string;
+  items: ChecklistItem[];
+}
+
+export interface ValidationResultsUI {
+  apis: {
+    heygen: ApiStatus;
+    postmark: ApiStatus;
+    stripe: ApiStatus; 
+    twilio: ApiStatus;
+    openai: ApiStatus;
+    zapier?: ApiStatus;
+  };
+  database: {
+    status: 'ready' | 'error';
+    message?: string;
+    tables?: DatabaseTableStatus[];
+  };
+  features: {
+    authentication: boolean;
+    onboarding: boolean;
+    strategies: boolean;
+    campaigns: boolean;
+    aiDebate: boolean;
+    welcomeVideo: boolean;
+    billing: boolean;
+  };
+  compliance: {
+    whatsappOptIn: boolean;
+    emailUnsubscribe: boolean;
+    billingCompliance: boolean;
+    apiSecurityLevel: 'high' | 'medium' | 'low';
+  };
+  overallStatus: 'ready' | 'warning' | 'not_ready';
+}
+
+export type ApiStatus = 'connected' | 'error' | 'not_configured';
+
+export interface DatabaseTableStatus {
+  name: string;
+  exists: boolean;
+  rowCount?: number;
+  hasRls?: boolean;
+  error?: string;
+}
+
+export interface EnhancedVerificationState {
+  categories: ChecklistCategory[];
+  completedItems: number;
+  totalItems: number;
+  overallStatus: 'ready' | 'warning' | 'not_ready';
+  isLoading: boolean;
+}
+
 export interface LaunchButtonProps {
   className?: string;
 }
@@ -10,100 +77,4 @@ export interface LaunchProgressProps {
 
 export interface LaunchInfoBoxProps {
   className?: string;
-}
-
-export type ChecklistCategory = 
-  | 'platform_stability' 
-  | 'user_onboarding' 
-  | 'ai_bot_logic' 
-  | 'dashboard_modules' 
-  | 'communication_tools' 
-  | 'payment_system' 
-  | 'admin_controls' 
-  | 'api_integrations' 
-  | 'legal_compliance' 
-  | 'cross_device_testing';
-
-export interface ChecklistItem {
-  id: string;
-  label: string;
-  checked: boolean;
-  category: ChecklistCategory;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  description?: string;
-}
-
-export interface EnhancedVerificationState {
-  progress: Record<ChecklistCategory, {
-    total: number;
-    completed: number;
-    percentage: number;
-  }>;
-  overallProgress: {
-    total: number;
-    completed: number;
-    percentage: number;
-  };
-}
-
-export interface ValidationResultsUI {
-  legalAcceptance?: {
-    valid: boolean;
-    message: string;
-  };
-  apiConnections?: {
-    valid: boolean;
-    message: string;
-  };
-  userAuthentication?: {
-    valid: boolean;
-    message: string;
-  };
-  executiveBoardroom?: {
-    valid: boolean;
-    message: string;
-  };
-  databaseSecurity?: {
-    valid: boolean;
-    message: string;
-  };
-  performanceOptimization?: {
-    valid: boolean;
-    message: string;
-  };
-  rlsPolicies?: Array<{
-    table: string;
-    status: string;
-    message: string;
-  }>;
-  databaseFunctions?: Array<{
-    name: string;
-    status: string;
-    message: string;
-  }>;
-  databaseTables?: Record<string, DatabaseTableStatus>;
-  databaseIndexes?: Array<{
-    name: string;
-    status: string;
-    message: string;
-  }>;
-}
-
-export interface DatabaseTableStatus {
-  exists: boolean;
-  message: string;
-  rls: boolean;
-}
-
-export interface PolicyStatus {
-  table: string;
-  exists: boolean;
-  message: string;
-}
-
-export interface FunctionStatus {
-  name: string;
-  exists: boolean;
-  isSecure: boolean;
-  message: string;
 }
