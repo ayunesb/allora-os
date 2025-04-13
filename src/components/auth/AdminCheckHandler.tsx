@@ -22,7 +22,7 @@ export const AdminCheckHandler = ({
   const [isUserAdmin, setIsUserAdmin] = useState(false);
   const [verificationAttempts, setVerificationAttempts] = useState(0);
 
-  // Check admin status directly from the database with enhanced security logging
+  // Enhanced security check with detailed logging
   useEffect(() => {
     const verifyAdminStatus = async () => {
       if (user && (adminOnly || roleRequired === 'admin')) {

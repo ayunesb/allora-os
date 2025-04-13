@@ -14,7 +14,6 @@ export const logAuditEvent = async (event: AuditEvent): Promise<void> => {
   try {
     const timestamp = event.timestamp || new Date().toISOString();
     
-    // In a real app, this would write to a proper audit log table
     console.log(`[AUDIT LOG] ${timestamp} | ${event.user} | ${event.action} | ${event.resource} | ${JSON.stringify(event.details)}`);
     
     // For production, we would use a Supabase table for auditing
@@ -54,20 +53,6 @@ export const logComplianceChange = async (
     });
     
     console.log(`[COMPLIANCE CHANGE] ${new Date().toISOString()} | ${userId} | ${description}`);
-    
-    // For production, we would also store this in a specific compliance table
-    // const { error } = await supabase
-    //   .from('compliance_audit')
-    //   .insert({
-    //     user_id: userId,
-    //     description, 
-    //     details,
-    //     timestamp: new Date().toISOString()
-    //   });
-      
-    // if (error) {
-    //   console.error("Error logging compliance change:", error);
-    // }
   } catch (error) {
     console.error("Failed to log compliance change:", error);
   }
@@ -112,7 +97,6 @@ export const logSystemChange = async (
     });
     
     console.log(`[SYSTEM CHANGE] ${new Date().toISOString()} | ${userId} | ${resource} | ${description}`);
-    
   } catch (error) {
     console.error("Failed to log system change:", error);
   }
