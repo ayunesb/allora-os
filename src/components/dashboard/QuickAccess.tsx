@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, MessageSquare, PieChart, Phone, ShoppingCart, User, Users, BarChart, Shield } from 'lucide-react';
+import { Activity, MessageSquare, PieChart, Phone, ShoppingCart, User, Users, BarChart, Shield, GitBranch, Bot, Zap } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function QuickAccess() {
   const { profile } = useAuth();

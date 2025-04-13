@@ -385,10 +385,22 @@ class MonitoringSystem {
   
   // Start periodic health checks
   private startHealthChecks(): void {
-    // Check memory usage
+    // Check memory usage (safely)
     setInterval(() => {
-      if (typeof performance?.memory !== 'undefined') {
-        const memory = performance.memory;
+      if (typeof performance !== 'undefined' && 
+          'memory' in performance && 
+          performance.memory && 
+          typeof performance.memory === 'object' &&
+          'usedJSHeapSize' in performance.memory &&
+          'jsHeapSizeLimit' in performance.memory) {
+        
+        // TypeScript doesn't know about non-standard browser APIs
+        // so we need to use type assertion to access these properties
+        const memory = performance.memory as unknown as {
+          usedJSHeapSize: number;
+          jsHeapSizeLimit: number;
+        };
+        
         const usedHeap = memory.usedJSHeapSize;
         const totalHeap = memory.jsHeapSizeLimit;
         const usagePercent = (usedHeap / totalHeap) * 100;

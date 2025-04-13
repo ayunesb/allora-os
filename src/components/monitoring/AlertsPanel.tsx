@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Alert } from '@/utils/monitoring';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert as AlertIcon, X, AlertTriangle, Info, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, X, AlertTriangle, Info, AlertCircle as AlertIcon, CheckCircle2 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,17 +27,14 @@ export default function AlertsPanel({
   const { toast } = useToast();
 
   useEffect(() => {
-    // Initial load of alerts
     setAlerts(monitoring.getAlerts().slice(0, maxAlerts));
     
-    // Subscribe to new alerts
     const unsubscribe = monitoring.onAlert((alert) => {
       setAlerts(prevAlerts => {
         const newAlerts = [alert, ...prevAlerts].slice(0, maxAlerts);
         return newAlerts;
       });
       
-      // Show toast for critical alerts
       if (alert.severity === 'critical') {
         toast({
           title: "Critical Alert",
@@ -56,14 +52,12 @@ export default function AlertsPanel({
   const handleAcknowledge = (alertId: string) => {
     monitoring.acknowledgeAlert(alertId);
     
-    // Update our local state
     setAlerts(prevAlerts => 
       prevAlerts.map(alert => 
         alert.id === alertId ? { ...alert, acknowledged: true } : alert
       )
     );
     
-    // Call handler if provided
     if (onAcknowledge) {
       onAcknowledge(alertId);
     }
@@ -76,18 +70,15 @@ export default function AlertsPanel({
       }
     });
     
-    // Update local state
     setAlerts(prevAlerts => 
       prevAlerts.map(alert => ({ ...alert, acknowledged: true }))
     );
   };
   
-  // No alerts to show
   if (alerts.length === 0) {
     return null;
   }
   
-  // Function to render the appropriate icon
   const getAlertIcon = (severity: string) => {
     switch (severity) {
       case 'critical':
@@ -102,22 +93,6 @@ export default function AlertsPanel({
     }
   };
   
-  // Function to get severity badge color
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'error':
-        return 'bg-red-50 text-red-600 border-red-100';
-      case 'warning':
-        return 'bg-amber-50 text-amber-600 border-amber-100';
-      case 'info':
-      default:
-        return 'bg-blue-50 text-blue-600 border-blue-100';
-    }
-  };
-  
-  // If collapsed, show a minimal version
   if (isCollapsed) {
     return (
       <div className={`fixed bottom-4 right-4 z-50 ${className}`}>
