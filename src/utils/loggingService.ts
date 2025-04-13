@@ -183,8 +183,8 @@ export const logger = {
     const start = performance.now();
     const timeRequestId = currentRequestId || generateRequestId();
     
-    // Fix for line 186 - Using the logger object directly with optional chaining
-    logger?.debug?.(`⏱️ TIMER START: ${label}`, {
+    // Use optional chaining to safely access logger.debug
+    logger?.debug(`⏱️ TIMER START: ${label}`, {
       ...meta,
       requestId: timeRequestId,
       timerLabel: label,
@@ -194,8 +194,8 @@ export const logger = {
     return () => {
       const duration = performance.now() - start;
       
-      // Fix for line 196 - Using the logger object directly with optional chaining
-      logger?.debug?.(`⏱️ TIMER END: ${label} completed in ${duration.toFixed(2)}ms`, {
+      // Use optional chaining to safely access logger.debug
+      logger?.debug(`⏱️ TIMER END: ${label} completed in ${duration.toFixed(2)}ms`, {
         ...meta,
         requestId: timeRequestId,
         timerLabel: label,

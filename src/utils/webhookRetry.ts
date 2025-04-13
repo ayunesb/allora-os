@@ -9,6 +9,7 @@ interface RetryOptions {
   backoffFactor?: number; // exponential backoff multiplier
   retryCondition?: (error: any) => boolean; // custom condition to determine if retry is needed
   onRetry?: (attempt: number, delay: number, error: any) => void; // callback for retry attempts
+  jitter?: boolean; // add randomness to retry delays to prevent thundering herd
 }
 
 const DEFAULT_RETRY_OPTIONS: RetryOptions = {
@@ -16,6 +17,7 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = {
   initialDelay: 1000, // 1 second
   maxDelay: 30000, // 30 seconds
   backoffFactor: 2, // exponential backoff
+  jitter: true, // add randomness to avoid thundering herd problem
   retryCondition: (error) => {
     // By default, retry on network errors or 5xx status codes
     if (!error) return false;
@@ -27,6 +29,18 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = {
     
     return false;
   }
+};
+
+/**
+ * Adds jitter to the delay to prevent thundering herd problem
+ * @param delay Base delay in milliseconds
+ * @param jitterFactor Factor to determine maximum jitter amount (0.0-1.0)
+ * @returns Delay with added jitter
+ */
+const addJitter = (delay: number, jitterFactor: number = 0.3): number => {
+  const maxJitter = delay * jitterFactor;
+  const jitterAmount = Math.random() * maxJitter;
+  return delay + jitterAmount;
 };
 
 /**
@@ -76,6 +90,10 @@ export const executeWithRetry = async (
         });
       }
       
+      // Add timeout to fetch to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
+      
       // Make the webhook call
       const response = await fetch(webhookUrl, {
         method: 'POST',
@@ -84,6 +102,7 @@ export const executeWithRetry = async (
         },
         // Use conditional mode to handle CORS for services like Zapier
         mode: type === 'zapier' ? 'no-cors' : undefined,
+        signal: controller.signal,
         body: JSON.stringify({
           ...payload,
           _metadata: {
@@ -94,6 +113,9 @@ export const executeWithRetry = async (
           }
         }),
       });
+      
+      // Clear the timeout
+      clearTimeout(timeoutId);
       
       // For Zapier with no-cors, we can't read the response
       if (type === 'zapier' && response.type === 'opaque') {
@@ -169,10 +191,15 @@ export const executeWithRetry = async (
       }
       
       // Calculate delay with exponential backoff
-      const delay = Math.min(
+      let delay = Math.min(
         retryOptions.initialDelay * Math.pow(retryOptions.backoffFactor || 1, attempt),
         retryOptions.maxDelay || Number.POSITIVE_INFINITY
       );
+      
+      // Add jitter if enabled
+      if (retryOptions.jitter) {
+        delay = addJitter(delay);
+      }
       
       // Log retry scheduled
       logger.warn(`Webhook call to ${type} failed, scheduling retry in ${delay}ms`, {

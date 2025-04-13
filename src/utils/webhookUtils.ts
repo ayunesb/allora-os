@@ -90,7 +90,7 @@ export const updateWebhookLog = (
 
 /**
  * Execute a webhook call and track it in history
- * Improved with retry mechanism
+ * Improved with enhanced retry mechanism and more comprehensive logging
  * @param url The webhook URL to call
  * @param payload The data to send to the webhook
  * @param type The type of webhook service
@@ -107,10 +107,12 @@ export const executeAndLogWebhook = async (
   const eventId = await logWebhookCall(url, payload, type, eventType);
   
   try {
-    // Use our new retry utility
+    // Use our enhanced retry utility with improved configurations
     const result = await executeWithRetry(url, payload, type, eventType, {
-      maxRetries: 3,
+      maxRetries: 5, // Increased for better resilience
       initialDelay: 1000,
+      maxDelay: 60000, // Up to 1 minute max delay for critical calls
+      jitter: true,   // Add randomness to avoid thundering herd
       onRetry: (attempt, delay, error) => {
         // Update the webhook log with retry information
         if (eventId) {
@@ -147,6 +149,15 @@ export const executeAndLogWebhook = async (
         duration
       });
     }
+    
+    // Log detailed error information
+    logger.error('Webhook execution failed', error, {
+      url,
+      type,
+      eventType,
+      duration,
+      eventId
+    });
     
     return {
       success: false,
