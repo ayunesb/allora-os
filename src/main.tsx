@@ -32,7 +32,10 @@ console.log('Application initializing - main.tsx');
 // Render the app with proper providers
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GlobalErrorBoundary onError={handleError} fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}>
+    <GlobalErrorBoundary 
+      onError={handleError} 
+      fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}
+    >
       <QueryClientProvider client={queryClient}>
         <HelmetProvider>
           <App />

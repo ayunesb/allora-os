@@ -9,9 +9,11 @@ import { logger } from '@/utils/loggingService';
 
 interface GlobalErrorBoundaryProps {
   children: React.ReactNode;
+  onError?: (error: Error, errorInfo?: React.ErrorInfo) => void;
+  fallback?: React.ReactNode;
 }
 
-export function GlobalErrorBoundary({ children }: GlobalErrorBoundaryProps) {
+export function GlobalErrorBoundary({ children, onError, fallback }: GlobalErrorBoundaryProps) {
   const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
     // Log to our centralized logging service
     logger.error('Global application error:', error, {
@@ -23,6 +25,11 @@ export function GlobalErrorBoundary({ children }: GlobalErrorBoundaryProps) {
     // Here you could also integrate with error monitoring services like Sentry
     console.error('Global error caught:', error);
     console.error('Component stack:', errorInfo.componentStack);
+    
+    // Call the onError prop if provided
+    if (onError) {
+      onError(error, errorInfo);
+    }
   };
   
   const GlobalErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => (
@@ -77,7 +84,7 @@ export function GlobalErrorBoundary({ children }: GlobalErrorBoundaryProps) {
   
   return (
     <ErrorBoundary
-      fallback={({ error, resetErrorBoundary }) => (
+      fallback={fallback ? fallback : ({ error, resetErrorBoundary }) => (
         <GlobalErrorFallback error={error} resetErrorBoundary={resetErrorBoundary} />
       )}
       onError={handleError}
