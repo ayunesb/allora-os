@@ -1,3 +1,4 @@
+
 import { RouteObject } from "react-router-dom";
 import AdminRoute from "@/components/AdminRoute";
 import AdminLayout from "@/components/AdminLayout";
@@ -19,6 +20,7 @@ import PlatformStability from "@/pages/admin/PlatformStability";
 import UserOnboarding from "@/pages/admin/UserOnboarding";
 import AiBotLogic from "@/pages/admin/AiBotLogic";
 import DashboardModules from "@/pages/admin/DashboardModules";
+import ApiKeysPage from "@/pages/admin/ApiKeysPage";
 
 export const adminRoutes: RouteObject = {
   path: "/admin",
