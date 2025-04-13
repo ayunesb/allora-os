@@ -39,7 +39,7 @@ const NavigationLayout = () => {
   );
 };
 
-// Admin layout wrapper to provide admin UI structure
+// Admin layout wrapper with proper TypeScript props
 const AdminLayoutWrapper = () => {
   return (
     <AdminRoute>
