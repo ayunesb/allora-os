@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from './routes/router';
 import { GlobalErrorBoundary } from '@/components/errorHandling/GlobalErrorBoundary';
 import { logger } from '@/utils/loggingService';
+import { AccessibilityProvider } from '@/context/AccessibilityContext';
 
 // Handle errors gracefully
 const handleError = (error: Error) => {
@@ -17,7 +18,9 @@ const App = () => {
       onError={handleError}
       fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}
     >
-      <RouterProvider router={router} />
+      <AccessibilityProvider>
+        <RouterProvider router={router} />
+      </AccessibilityProvider>
     </GlobalErrorBoundary>
   );
 };
