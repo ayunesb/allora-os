@@ -3,7 +3,7 @@ import { logger } from '@/utils/loggingService';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { integrateExecutiveOS } from './executiveOS';
-import { getExecutiveEnhancements } from './personalizedModels';
+import { executiveBoosts } from './executiveOS';
 
 /**
  * Service to handle the integration of Executive OS capabilities with AI bots
@@ -36,6 +36,29 @@ const defaultStrategicFocuses: Record<string, string> = {
   sales: "Optimizing sales pipeline and conversion processes",
   operations: "Streamlining operational efficiency and scalability"
 };
+
+/**
+ * Get personalized enhancements for an executive
+ */
+export function getExecutiveEnhancements(botName: string) {
+  // Default enhancements if executive is not found in the map
+  const defaultEnhancements = {
+    boost: { name: "Strategic thinking", type: "cognitive" },
+    model: { name: "first_principles", type: "mental" }
+  };
+  
+  // Find the executive in the boost map
+  const boostInfo = executiveBoosts[botName];
+  
+  if (!boostInfo) {
+    return defaultEnhancements;
+  }
+  
+  return {
+    boost: { name: boostInfo.boost, type: "cognitive" },
+    model: { name: boostInfo.model, type: "mental" }
+  };
+}
 
 /**
  * Integrate Executive OS capabilities with an AI bot

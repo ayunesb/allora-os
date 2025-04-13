@@ -1,4 +1,3 @@
-
 import { executiveBots } from "@/backend/executiveBots";
 
 type ThinkingModel = 'first_principles' | 'ooda_loop' | 'inversion' | 'pareto';
@@ -105,6 +104,31 @@ export const defaultExecutiveOSFeatures: ExecutiveOSFeatures = {
   scaleUpSystem: true,
   mentalModelLibrary: ["first_principles", "ooda_loop", "inversion", "pareto", "second_order", "flywheel"]
 };
+
+// Adding the missing function that was causing the error
+export function integrateExecutiveOS(
+  botName: string, 
+  cognitiveBoost: string, 
+  strategicFocus: string
+): { success: boolean; message: string } {
+  console.log(`Integrating Executive OS for ${botName} with ${cognitiveBoost} boost and focus on ${strategicFocus}`);
+  
+  // In a real implementation, this would involve more complex logic
+  // This is a simplified version for demonstration purposes
+  const isKnownExecutive = Object.values(executiveBots).flat().includes(botName);
+  
+  if (!isKnownExecutive) {
+    return {
+      success: false,
+      message: `Failed to integrate Executive OS: Unknown executive ${botName}`
+    };
+  }
+  
+  return {
+    success: true,
+    message: `Successfully integrated Executive OS for ${botName} with ${cognitiveBoost} boost and focus on ${strategicFocus}`
+  };
+}
 
 // Get all bot names for executive OS installation
 export const getAllExecutiveBotNames = (): string[] => {

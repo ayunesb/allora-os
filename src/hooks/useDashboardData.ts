@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-// Mock recommendation type
+// Modified AiRecommendation type to include all properties required by Recommendation
 export interface AiRecommendation {
   id: string;
   title: string;
@@ -11,6 +11,14 @@ export interface AiRecommendation {
   effort: "high" | "medium" | "low";
   approved: boolean;
   pending: boolean;
+  // Additional properties to make it compatible with Recommendation type
+  type: string;
+  executiveBot: {
+    name: string;
+    role: string;
+  };
+  expectedImpact: number;
+  timeframe: string;
 }
 
 export function useDashboardData() {
@@ -27,7 +35,7 @@ export function useDashboardData() {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Mock data
+        // Mock data with additional properties to match Recommendation type
         setAiRecommendations([
           {
             id: "rec-1",
@@ -36,7 +44,15 @@ export function useDashboardData() {
             impact: "high",
             effort: "medium",
             approved: false,
-            pending: true
+            pending: true,
+            // Added properties
+            type: "strategy",
+            executiveBot: {
+              name: "Antonio Lucio",
+              role: "cmo"
+            },
+            expectedImpact: 78,
+            timeframe: "3-6 months"
           },
           {
             id: "rec-2",
@@ -45,7 +61,15 @@ export function useDashboardData() {
             impact: "medium",
             effort: "high",
             approved: false,
-            pending: true
+            pending: true,
+            // Added properties
+            type: "strategy",
+            executiveBot: {
+              name: "Satya Nadella",
+              role: "ceo"
+            },
+            expectedImpact: 65,
+            timeframe: "6-12 months"
           },
           {
             id: "rec-3",
@@ -54,7 +78,15 @@ export function useDashboardData() {
             impact: "high",
             effort: "low",
             approved: false,
-            pending: true
+            pending: true,
+            // Added properties
+            type: "strategy",
+            executiveBot: {
+              name: "Warren Buffett",
+              role: "cfo"
+            },
+            expectedImpact: 82,
+            timeframe: "1-3 months"
           }
         ]);
         
