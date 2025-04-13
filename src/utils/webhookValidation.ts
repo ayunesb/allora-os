@@ -8,8 +8,8 @@ import { WebhookType, WebhookResult } from './webhookTypes';
 import { executeWebhook } from './webhookRetry';
 import { validateWebhookUrlFormat, sanitizeWebhookUrl } from './validators/webhookValidator';
 
-// Re-export types and functions so other modules can import them from webhookValidation
-export { WebhookType } from './webhookTypes';
+// Use export type for type re-export
+export type { WebhookType } from './webhookTypes';
 export { validateWebhookUrlFormat, sanitizeWebhookUrl };
 
 /**

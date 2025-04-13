@@ -1,19 +1,17 @@
-
 /**
  * Zapier Integration Helper
  * Enables triggering automation workflows via Zapier webhooks
  */
 
-import { useSelfLearning } from '@/hooks/useSelfLearning';
+import { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
+import { logger } from '@/utils/loggingService';
 import { sanitizeInput } from '@/utils/sanitizers';
 import { executeAndLogWebhook } from '@/utils/webhookUtils'; 
 import { validateApiCredential } from '@/utils/apiCredentialValidator';
-import { logger } from '@/utils/loggingService';
 import { secureStorage } from '@/utils/cryptoUtils';
-import { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
 
-// Re-export types from webhookTypes for components to import
-export { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
+// Use export type for type re-exports
+export type { BusinessEventType, BusinessEventPayload } from '@/utils/webhookTypes';
 
 // Helper to securely store webhook URLs
 const securelyStoreWebhookUrl = (webhookUrl: string, prefix: string = 'zapier'): void => {
