@@ -11,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { runTestCompanySetup } from "@/utils/company/test";
 import { toast } from "sonner";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { BellRing, Globe, Mail, MessageSquare, Phone } from "lucide-react";
+import { BellRing, Globe, Mail, MessageSquare, Phone, ShieldAlert } from "lucide-react";
 import MarketingPlatformIntegrations from "@/components/integrations/MarketingPlatformIntegrations";
 import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
 import { checkSupabaseConnection } from "@/integrations/supabase/client";
@@ -137,8 +137,14 @@ export default function Settings() {
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Settings</h1>
-      <p className="text-muted-foreground mb-8">Manage your preferences and system settings</p>
+      <div className="flex items-center gap-2 mb-2">
+        <h1 className="text-3xl font-bold">Admin Settings</h1>
+        <div className="bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100 px-2 py-1 rounded-md flex items-center text-xs font-medium">
+          <ShieldAlert className="h-3.5 w-3.5 mr-1" />
+          Admin Only
+        </div>
+      </div>
+      <p className="text-muted-foreground mb-8">Manage system preferences and settings</p>
 
       <Tabs defaultValue="account">
         <TabsList className="mb-8">

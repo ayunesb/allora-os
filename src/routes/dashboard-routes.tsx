@@ -57,7 +57,7 @@ export const dashboardRoutes: RouteObject[] = [
       { path: "ai-bots/:botId", element: wrapInProtectedRoute(BotDetail) },
       { path: "profile", element: wrapInProtectedRoute(Profile) },
       { path: "debate", element: wrapInProtectedRoute(Debate) },
-      { path: "settings", element: wrapInProtectedRoute(Settings) },
+      { path: "settings", element: wrapInProtectedRoute(Settings, true) }, // Updated to be admin-only
       { path: "strategies", element: wrapInProtectedRoute(Strategies) },
       { path: "leads", element: wrapInProtectedRoute(Leads) },
       { path: "leads/follow-up-sequences", element: wrapInProtectedRoute(LeadFollowUpSequences) },
