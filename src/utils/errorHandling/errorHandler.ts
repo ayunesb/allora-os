@@ -7,6 +7,7 @@ interface ErrorHandlingOptions {
   showToast?: boolean;
   logError?: boolean;
   context?: Record<string, unknown>;
+  a11yContext?: string; // For improved accessibility
 }
 
 /**
@@ -19,7 +20,8 @@ export function handleError(
   const { 
     showToast = true, 
     logError = true,
-    context = {}
+    context = {},
+    a11yContext
   } = options;
   
   // Default values for unknown errors
@@ -46,6 +48,10 @@ export function handleError(
       processedError.type = ErrorType.NETWORK_ERROR;
     } else if (error.name === 'ValidationError') {
       processedError.type = ErrorType.VALIDATION_ERROR;
+    } else if (error.name === 'AuthenticationError') {
+      processedError.type = ErrorType.AUTHENTICATION_ERROR;
+    } else if (error.name === 'AuthorizationError') {
+      processedError.type = ErrorType.AUTHORIZATION_ERROR;
     }
   } else if (typeof error === 'string') {
     processedError.message = error;
@@ -77,11 +83,43 @@ export function handleError(
   
   // Show toast notification
   if (showToast) {
-    toast.error(processedError.message);
+    toast.error(processedError.message, {
+      id: `error-${processedError.type}-${Date.now()}`,
+    });
+    
+    // Add ARIA live region for accessibility
+    const ariaLiveRegion = document.getElementById('aria-live-polite');
+    if (ariaLiveRegion && a11yContext) {
+      ariaLiveRegion.textContent = `${processedError.message}. ${a11yContext}`;
+    }
   }
   
   return processedError;
 }
 
+// Setup ARIA live regions for accessibility
+export function setupAccessibleErrorHandling() {
+  if (!document.getElementById('aria-live-polite')) {
+    const ariaLivePolite = document.createElement('div');
+    ariaLivePolite.id = 'aria-live-polite';
+    ariaLivePolite.setAttribute('aria-live', 'polite');
+    ariaLivePolite.className = 'sr-only';
+    document.body.appendChild(ariaLivePolite);
+  }
+  
+  if (!document.getElementById('aria-live-assertive')) {
+    const ariaLiveAssertive = document.createElement('div');
+    ariaLiveAssertive.id = 'aria-live-assertive';
+    ariaLiveAssertive.setAttribute('aria-live', 'assertive');
+    ariaLiveAssertive.className = 'sr-only';
+    document.body.appendChild(ariaLiveAssertive);
+  }
+}
+
 // Re-export ErrorType for convenience
 export { ErrorType };
+
+// Automatically set up accessible error handling when this module is imported
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', setupAccessibleErrorHandling);
+}

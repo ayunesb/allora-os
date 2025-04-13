@@ -7,7 +7,7 @@ import { logger } from "@/utils/loggingService";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
-  fallback?: ReactNode;
+  fallback?: ReactNode | ((props: { error: Error, resetErrorBoundary: () => void }) => ReactNode);
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
@@ -21,6 +21,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
+    this.resetErrorBoundary = this.resetErrorBoundary.bind(this);
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -47,9 +48,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     }
   }
 
+  resetErrorBoundary(): void {
+    this.setState({ hasError: false, error: null, errorInfo: null });
+  }
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
+        if (typeof this.props.fallback === 'function') {
+          return this.props.fallback({
+            error: this.state.error || new Error('Unknown error'),
+            resetErrorBoundary: this.resetErrorBoundary
+          });
+        }
         return this.props.fallback;
       }
 
@@ -86,7 +97,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </Button>
               <Button
                 onClick={() => {
-                  this.setState({ hasError: false, error: null, errorInfo: null });
+                  this.resetErrorBoundary();
                   window.location.reload();
                 }}
               >

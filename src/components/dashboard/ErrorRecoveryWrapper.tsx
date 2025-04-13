@@ -12,6 +12,7 @@ interface ErrorRecoveryWrapperProps {
   onReset?: () => void;
   errorTitle?: string;
   errorMessage?: string;
+  componentName?: string;
 }
 
 export function ErrorRecoveryWrapper({
@@ -19,7 +20,8 @@ export function ErrorRecoveryWrapper({
   fallbackComponent,
   onReset,
   errorTitle = "Something went wrong",
-  errorMessage = "We encountered an error loading this component. Your data is safe, and you can try again."
+  errorMessage = "We encountered an error loading this component. Your data is safe, and you can try again.",
+  componentName = "unknown component"
 }: ErrorRecoveryWrapperProps) {
   const [hasError, setHasError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -45,8 +47,8 @@ export function ErrorRecoveryWrapper({
   
   const handleCatchError = (error: Error, errorInfo: React.ErrorInfo) => {
     // Log the error
-    logger.error("Component error:", error, {
-      component: "ErrorRecoveryWrapper",
+    logger.error(`Error in ${componentName}:`, error, {
+      component: componentName,
       errorInfo: errorInfo.componentStack
     });
     

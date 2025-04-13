@@ -20,6 +20,8 @@ export interface ApiErrorDetails {
   statusCode?: number;
   context?: Record<string, any>;
   a11yContext?: string; // Additional context for screen readers
+  timestamp?: number;
+  path?: string;
 }
 
 /**
@@ -81,16 +83,23 @@ export function handleApiError(error: any, options: {
   } = options;
   
   // Determine error type
-  let errorDetails: ApiErrorDetails;
+  let errorDetails: ApiErrorDetails = {
+    code: 'UNKNOWN_ERROR',
+    message: 'An unknown error occurred',
+    timestamp: Date.now(),
+    path: window.location.pathname
+  };
   
   if (error.name === 'AbortError') {
     errorDetails = {
+      ...errorDetails,
       code: 'TIMEOUT',
       message: 'Request timed out',
       a11yContext
     };
   } else if (error.message === 'Network Error' || !navigator.onLine) {
     errorDetails = {
+      ...errorDetails,
       code: 'NETWORK_ERROR',
       message: 'Network connection error',
       a11yContext
@@ -98,6 +107,7 @@ export function handleApiError(error: any, options: {
   } else if (error.status || error.statusCode) {
     const status = error.status || error.statusCode;
     errorDetails = {
+      ...errorDetails,
       code: mapHttpStatusToErrorCode(status),
       message: error.message || error.error || 'An error occurred',
       statusCode: status,
@@ -106,6 +116,7 @@ export function handleApiError(error: any, options: {
     };
   } else {
     errorDetails = {
+      ...errorDetails,
       code: 'UNKNOWN_ERROR',
       message: error.message || 'Unknown error occurred',
       context: error,
@@ -113,14 +124,24 @@ export function handleApiError(error: any, options: {
     };
   }
   
+  // For auth errors, we can automatically redirect to login
+  if (errorDetails.code === 'AUTHENTICATION_ERROR' && !window.location.pathname.includes('/auth/')) {
+    // Add a small delay to allow the error message to be seen
+    setTimeout(() => {
+      window.location.href = '/auth/login?session_expired=true';
+    }, 2000);
+  }
+  
   // Log error
   if (logError) {
-    logger.error('API Error:', error, {
+    logger.error('API Error:', {
       errorCode: errorDetails.code,
       message: errorDetails.message,
       status: errorDetails.statusCode,
       context: errorDetails.context,
-      a11yContext: errorDetails.a11yContext
+      a11yContext: errorDetails.a11yContext,
+      url: window.location.href,
+      timestamp: new Date().toISOString()
     });
   }
   
