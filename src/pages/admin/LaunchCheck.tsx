@@ -12,7 +12,13 @@ import { toast } from "sonner";
 
 export default function LaunchCheck() {
   const [activeTab, setActiveTab] = useState("readiness");
-  const { verificationState, runVerification, isVerifying } = useVerification();
+  const { 
+    isChecking, 
+    results, 
+    isReady, 
+    runChecks: runVerification, 
+    isVerifyingTables: isVerifying 
+  } = useVerification();
   const [readinessCheckResult, setReadinessCheckResult] = useState<any>(null);
   const [isCheckingReadiness, setIsCheckingReadiness] = useState(false);
 

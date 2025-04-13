@@ -31,30 +31,43 @@ export function VerificationContent({ results, isChecking }: VerificationContent
     );
   }
 
+  // Extract core validation keys (excluding table/db-specific checks)
+  const coreValidationKeys = Object.keys(results).filter(key => 
+    !['databaseTables', 'databaseIndexes', 'rlsPolicies', 'databaseFunctions', 'overallStatus'].includes(key)
+  );
+
   return (
     <div className="space-y-3">
-      {Object.entries(results).map(([key, result]: [string, any]) => {
-        if (['databaseTables', 'databaseIndexes', 'rlsPolicies', 'databaseFunctions'].includes(key)) return null;
-        
-        return <ValidationResultItem key={key} name={key} result={result} />;
+      {coreValidationKeys.map(key => {
+        const result = results[key as keyof ValidationResultsUI];
+        if (typeof result === 'object' && 'valid' in result && 'message' in result) {
+          return <ValidationResultItem key={key} name={key} result={result} />;
+        }
+        return null;
       })}
       
-      <DatabaseTablesSection tables={results.databaseTables} />
+      {results.databaseTables && <DatabaseTablesSection tables={results.databaseTables} />}
       
-      <DatabaseChecksSection 
-        title="Database Indexes Check" 
-        items={Array.isArray(results.databaseIndexes) ? results.databaseIndexes : null} 
-      />
+      {results.databaseIndexes && Array.isArray(results.databaseIndexes) && (
+        <DatabaseChecksSection 
+          title="Database Indexes Check" 
+          items={results.databaseIndexes} 
+        />
+      )}
       
-      <DatabaseChecksSection 
-        title="RLS Policies Check" 
-        items={Array.isArray(results.rlsPolicies) ? results.rlsPolicies : null} 
-      />
+      {results.rlsPolicies && Array.isArray(results.rlsPolicies) && (
+        <DatabaseChecksSection 
+          title="RLS Policies Check" 
+          items={results.rlsPolicies} 
+        />
+      )}
       
-      <DatabaseChecksSection 
-        title="Database Functions Check" 
-        items={Array.isArray(results.databaseFunctions) ? results.databaseFunctions : null} 
-      />
+      {results.databaseFunctions && Array.isArray(results.databaseFunctions) && (
+        <DatabaseChecksSection 
+          title="Database Functions Check" 
+          items={results.databaseFunctions} 
+        />
+      )}
     </div>
   );
 }

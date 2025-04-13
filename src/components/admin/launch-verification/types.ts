@@ -46,16 +46,25 @@ export interface ValidationResultsUI {
     apiSecurityLevel: 'high' | 'medium' | 'low';
   };
   overallStatus: 'ready' | 'warning' | 'not_ready';
+  // Add the missing properties that our components are trying to access
+  databaseTables?: Record<string, DatabaseTableStatus>;
+  databaseIndexes?: Array<{name: string; status: string; message: string}>;
+  rlsPolicies?: Array<{table: string; status: string; message: string}>;
+  databaseFunctions?: Array<{name: string; status: string; message: string}>;
+  legalAcceptance?: { valid: boolean; message: string };
 }
 
 export type ApiStatus = 'connected' | 'error' | 'not_configured';
 
 export interface DatabaseTableStatus {
-  name: string;
+  name?: string;
   exists: boolean;
   rowCount?: number;
   hasRls?: boolean;
   error?: string;
+  // Add the missing properties that our components are trying to access
+  rls?: boolean;
+  message?: string;
 }
 
 export interface EnhancedVerificationState {

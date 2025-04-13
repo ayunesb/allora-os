@@ -40,13 +40,6 @@ export function ChecklistProgress({ completed, total, categories }: ChecklistPro
             ? 'bg-yellow-100' 
             : 'bg-red-100'
         }`}
-        indicatorClassName={
-          percentage >= 90 
-            ? 'bg-green-600' 
-            : percentage >= 60 
-            ? 'bg-yellow-600' 
-            : 'bg-red-600'
-        }
       />
       
       <div className="flex justify-between text-sm">

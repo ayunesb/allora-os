@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +10,9 @@ export function useStrategyTracking() {
   const [isRejecting, setIsRejecting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const { user, profile } = useAuth();
+  
+  // Check if user is logged in
+  const isLoggedIn = !!user?.id;
 
   const trackApproval = useCallback(async (strategyId: string, strategyTitle: string) => {
     if (!user?.id || !profile?.company_id) {
@@ -155,12 +159,55 @@ export function useStrategyTracking() {
     }
   }, [user]);
 
+  // Add missing methods for strategy updates and filtering
+  const trackStrategyUpdate = useCallback(async (strategyId: string, title: string, riskLevel: string) => {
+    if (!user?.id) {
+      toast.error('You must be logged in to update strategies');
+      return false;
+    }
+
+    try {
+      // Record the update action
+      const { error } = await supabase.from('strategy_actions').insert({
+        strategy_id: strategyId,
+        user_id: user.id,
+        action_type: 'update',
+        details: {
+          updated_at: new Date().toISOString(),
+          updated_by: user.email || 'Unknown user',
+          title,
+          risk_level: riskLevel
+        }
+      });
+
+      if (error) {
+        console.error('Error recording strategy update:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error tracking strategy update:', error);
+      return false;
+    }
+  }, [user]);
+
+  const trackStrategyFilter = useCallback((filterType: string, filterValue: string) => {
+    if (!user?.id) return;
+    
+    console.log(`User filtered strategies by ${filterType}: ${filterValue}`);
+    // Here you could record this in analytics or in supabase
+  }, [user]);
+
   return {
     trackApproval,
     trackRejection,
     trackShare,
+    trackStrategyUpdate,
+    trackStrategyFilter,
     isApproving,
     isRejecting,
-    isSharing
+    isSharing,
+    isLoggedIn
   };
 }
