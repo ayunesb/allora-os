@@ -45,3 +45,33 @@ export const formatPercentage = (value: number, includeSign = true): string => {
   }
   return formatted;
 };
+
+/**
+ * Format a number with thousand separators
+ * @param value Number to format
+ * @returns Formatted number string
+ */
+export const formatNumber = (value: number): string => {
+  return new Intl.NumberFormat('en-US').format(value);
+};
+
+/**
+ * Format a metric value (adding K, M, B suffixes for large numbers)
+ * @param value Number to format
+ * @returns Formatted metric string
+ */
+export const formatMetric = (value: number): string => {
+  if (value >= 1000000000) {
+    return `${(value / 1000000000).toFixed(1)}B`;
+  } else if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`;
+  } else if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}K`;
+  }
+  return value.toString();
+};
+
+/**
+ * Alias for backward compatibility
+ */
+export const formatPercent = formatPercentage;

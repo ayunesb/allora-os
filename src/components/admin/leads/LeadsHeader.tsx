@@ -3,10 +3,12 @@ import React from 'react';
 
 type LeadsHeaderProps = {
   isMobileView: boolean;
+  onAddLead?: () => void; // Make this prop optional
 };
 
 export const LeadsHeader: React.FC<LeadsHeaderProps> = ({ 
-  isMobileView
+  isMobileView,
+  onAddLead
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -18,6 +20,11 @@ export const LeadsHeader: React.FC<LeadsHeaderProps> = ({
           View and manage all leads
         </p>
       </div>
+      {onAddLead && (
+        <div>
+          {/* Add lead button can go here if needed */}
+        </div>
+      )}
     </div>
   );
 };

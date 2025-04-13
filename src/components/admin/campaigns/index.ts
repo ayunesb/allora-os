@@ -1,3 +1,5 @@
 
-export { CampaignHeader } from './CampaignHeader';
-export { CampaignTable } from './CampaignTable';
+import CampaignHeader from './CampaignHeader';
+import CampaignTable from './CampaignTable';
+
+export { CampaignHeader, CampaignTable };
