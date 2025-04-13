@@ -13,14 +13,17 @@ import { Navigate } from "react-router-dom";
 import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import { NavigationManager } from "@/components/NavigationManager";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Create a root layout that includes NavigationManager
 const RootLayout = () => {
   return (
-    <>
-      <Outlet />
-      <NavigationManager />
-    </>
+    <ErrorBoundary>
+      <>
+        <Outlet />
+        <NavigationManager />
+      </>
+    </ErrorBoundary>
   );
 };
 
@@ -28,6 +31,7 @@ const RootLayout = () => {
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <NotFound />,
     children: [
       {
         path: "/",

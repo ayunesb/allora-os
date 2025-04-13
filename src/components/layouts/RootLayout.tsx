@@ -1,12 +1,12 @@
 
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function RootLayout() {
   // Apply any global effects or settings when the root layout mounts
-  useEffect(() => {
+  React.useEffect(() => {
     document.documentElement.classList.add('antialiased');
     return () => {
       document.documentElement.classList.remove('antialiased');
@@ -14,9 +14,11 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background font-sans antialiased">
-      <Outlet />
-      <Toaster />
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background font-sans antialiased">
+        <Outlet />
+        <Toaster />
+      </div>
+    </ErrorBoundary>
   );
 }

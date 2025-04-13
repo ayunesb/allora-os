@@ -7,6 +7,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './styles/index.css';
 import './App.css';
 
+// Add error boundary for React 18
+const handleError = (error: Error) => {
+  console.error('Caught React error:', error);
+};
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -18,10 +23,12 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <HelmetProvider>
-        <App />
-      </HelmetProvider>
-    </QueryClientProvider>
+    <React.ErrorBoundary fallback={<div>Something went wrong. Please refresh the page.</div>} onError={handleError}>
+      <QueryClientProvider client={queryClient}>
+        <HelmetProvider>
+          <App />
+        </HelmetProvider>
+      </QueryClientProvider>
+    </React.ErrorBoundary>
   </React.StrictMode>
 );

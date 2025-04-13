@@ -1,10 +1,11 @@
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { registerNavigate } from '@/utils/navigation';
 
 export const NavigationManager = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     // Register the navigate function for use outside of React components
@@ -15,6 +16,11 @@ export const NavigationManager = () => {
       console.warn('Navigation attempted after component unmounted');
     });
   }, [navigate]);
+  
+  // Log current route for debugging
+  useEffect(() => {
+    console.log(`Current route: ${location.pathname}`);
+  }, [location]);
   
   // This component doesn't render anything
   return null;
