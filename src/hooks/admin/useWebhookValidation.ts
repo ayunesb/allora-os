@@ -1,21 +1,17 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { validateWebhookUrl, WebhookType } from '@/utils/webhookValidation';
+import { validateWebhookUrlFormat, WebhookType } from '@/utils/webhookValidation';
 
 export interface WebhookValidationResult {
   isValid: boolean;
   errorMessage: string | null;
-  validateUrl: (url: string) => void; // Add the validateUrl function to the interface
+  validateUrl: (url: string) => void;
 }
 
-/**
- * Custom hook for validating webhook URLs
- */
 export function useWebhookValidation(type: WebhookType, url?: string): WebhookValidationResult {
   const [isValid, setIsValid] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // Add validateUrl function
   const validateUrl = useCallback((urlToValidate: string) => {
     if (!urlToValidate) {
       setIsValid(true); // Empty URL is considered valid (optional webhook)
@@ -24,7 +20,7 @@ export function useWebhookValidation(type: WebhookType, url?: string): WebhookVa
     }
     
     try {
-      const valid = validateWebhookUrl(urlToValidate, type);
+      const valid = validateWebhookUrlFormat(urlToValidate, type);
       setIsValid(valid);
       
       if (!valid) {

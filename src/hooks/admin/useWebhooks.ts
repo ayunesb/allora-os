@@ -1,7 +1,6 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { testWebhook, sanitizeWebhookUrl, validateWebhookUrl } from '@/utils/webhookValidation';
+import { testWebhook, sanitizeWebhookUrl, validateWebhookUrlFormat } from '@/utils/webhookValidation';
 import { WebhookType } from '@/utils/webhookValidation';
 import { useWebhookStorage } from './useWebhookStorage';
 
@@ -138,6 +137,11 @@ export function useWebhooks() {
     saveWebhookSettings
   ]);
   
+  // Update validation to use validateWebhookUrlFormat
+  const validateWebhookUrl = useCallback((url: string, type: WebhookType) => {
+    return validateWebhookUrlFormat(url, type);
+  }, []);
+  
   return {
     // Webhook values
     stripeWebhook,
@@ -164,6 +168,9 @@ export function useWebhooks() {
     handleTestZapierWebhook,
     handleTestGithubWebhook,
     handleTestSlackWebhook,
-    handleTestCustomWebhook
+    handleTestCustomWebhook,
+    
+    // Validation
+    validateWebhookUrl
   };
 }
