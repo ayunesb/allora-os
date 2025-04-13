@@ -1,103 +1,95 @@
 
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSelfLearning } from '@/hooks/useSelfLearning';
-import { Brain, TrendingUp, History, Calendar } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
+import { useSelfLearning } from "@/hooks/useSelfLearning";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-type Insight = {
-  title: string;
-  value: string;
-  description: string;
-};
-
-export default function LearningInsights() {
+export function LearningInsights() {
+  const [insights, setInsights] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { getInsights } = useSelfLearning();
-  const [insights, setInsights] = useState<Insight[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadInsights = async () => {
-      setLoading(true);
-      try {
-        const data = await getInsights();
-        setInsights(data);
-      } catch (error) {
-        console.error('Error loading insights:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadInsights();
-  }, [getInsights]);
+  }, []);
 
-  const getIconForInsight = (title: string) => {
-    switch (title) {
-      case 'Behavioral Pattern':
-        return <Brain className="h-5 w-5 text-primary" />;
-      case 'Risk Appetite':
-        return <TrendingUp className="h-5 w-5 text-primary" />;
-      case 'Learning Progress':
-        return <History className="h-5 w-5 text-primary" />;
-      case 'Usage Pattern':
-        return <Calendar className="h-5 w-5 text-primary" />;
-      default:
-        return <Brain className="h-5 w-5 text-primary" />;
+  const loadInsights = async () => {
+    setIsLoading(true);
+    try {
+      const fetchedInsights = await getInsights();
+      setInsights(fetchedInsights);
+    } catch (error) {
+      console.error("Error loading insights:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <Card className="shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl flex items-center">
-            <Brain className="mr-2 h-5 w-5 text-primary" />
-            Learning Insights
-          </CardTitle>
-          <CardDescription>
-            How Allora AI is learning from your actions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((_, i) => (
-              <div key={i} className="flex flex-col space-y-2">
-                <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-8 w-32" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
+  if (isLoading) {
+    return <LearningInsightsSkeleton />;
   }
 
   return (
     <Card className="shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl flex items-center">
-          <Brain className="mr-2 h-5 w-5 text-primary" />
-          Learning Insights
-        </CardTitle>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-xl">Learning Insights</CardTitle>
+          <Button variant="ghost" size="sm" onClick={loadInsights} className="h-8 w-8 p-0">
+            <RefreshCw className="h-4 w-4" />
+            <span className="sr-only">Refresh insights</span>
+          </Button>
+        </div>
         <CardDescription>
-          How Allora AI is learning from your actions
+          Personalized insights based on your usage patterns
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          {insights.map((insight, index) => (
-            <div key={index} className="flex flex-col">
-              <div className="flex items-center text-sm text-muted-foreground">
-                {getIconForInsight(insight.title)}
-                <span className="ml-1.5">{insight.title}</span>
+        {insights.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            <p>No insights available yet.</p>
+            <p className="text-sm mt-1">Continue using Allora AI to generate personalized insights.</p>
+          </div>
+        ) : (
+          <ul className="space-y-3">
+            {insights.map((insight, index) => (
+              <li key={index} className="flex items-start gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
+                <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full flex-shrink-0">
+                  <span className="text-primary text-sm">{index + 1}</span>
+                </div>
+                <div>
+                  <h4 className="font-medium">{insight.title}</h4>
+                  <p className="text-sm text-muted-foreground">{insight.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LearningInsightsSkeleton() {
+  return (
+    <Card className="shadow-sm">
+      <CardHeader className="pb-3">
+        <Skeleton className="h-6 w-[180px]" />
+        <Skeleton className="h-4 w-[250px] mt-2" />
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <li key={i} className="flex items-start gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
+              <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+              <div className="w-full">
+                <Skeleton className="h-5 w-[80%] mb-2" />
+                <Skeleton className="h-4 w-[90%]" />
               </div>
-              <div className="mt-1 text-2xl font-semibold">{insight.value}</div>
-              <div className="text-xs text-muted-foreground">{insight.description}</div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </CardContent>
     </Card>
   );

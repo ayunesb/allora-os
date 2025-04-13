@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import WebhookConfigTab from "@/components/admin/webhooks/config/WebhookConfigTab";
 import { WebhookHistoryContent } from "@/components/admin/webhooks/history/WebhookHistoryContent";
-import { WebhookType } from "@/utils/webhookValidation";
+import { WebhookType } from "@/utils/webhookTypes";
 import { useWebhooks } from "@/hooks/admin/useWebhooks";
 import { useWebhookValidation } from "@/hooks/admin/useWebhookValidation";
 import { WebhookEvent } from "@/types/webhooks";
@@ -178,14 +178,14 @@ const WebhooksPage = () => {
         description: "Webhooks history has been exported successfully."
       });
     }, 1500);
-  }, [toast]);
+  }, []);
   
   const handleClearHistory = useCallback(() => {
     toast({
       title: "Clear History",
       description: "This would clear all webhook history in a real application."
     });
-  }, [toast]);
+  }, []);
 
   const handleSave = () => {
     handleSaveWebhooks(
