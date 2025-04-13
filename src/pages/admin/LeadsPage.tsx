@@ -91,7 +91,6 @@ export default function LeadsPage() {
         sortBy={sortBy}
         sortOrder={sortOrder}
         onSort={handleSort}
-        onEditLead={() => {}}
         isMobileView={isMobileView}
         onStatusUpdate={handleStatusUpdate}
         onDelete={handleDelete}

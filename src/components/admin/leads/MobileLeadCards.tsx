@@ -12,8 +12,8 @@ import { LeadActions } from './LeadActions';
 
 type MobileLeadCardsProps = {
   leads: Lead[];
-  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<void>;
-  onDelete: (leadId: string) => Promise<void>;
+  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<boolean | void>;
+  onDelete: (leadId: string) => Promise<boolean | void>;
 };
 
 export const MobileLeadCards: React.FC<MobileLeadCardsProps> = ({

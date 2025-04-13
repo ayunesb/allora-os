@@ -12,8 +12,8 @@ import { Lead } from '@/models/lead';
 
 type LeadActionsProps = {
   leadId: string;
-  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<void>;
-  onDelete: (leadId: string) => Promise<void>;
+  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<void | boolean>;
+  onDelete: (leadId: string) => Promise<void | boolean>;
 };
 
 export const LeadActions: React.FC<LeadActionsProps> = ({ 
