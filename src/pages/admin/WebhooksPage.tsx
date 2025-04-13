@@ -1,108 +1,123 @@
-
-import React, { useState } from "react";
-import { WebhookHeader, WebhookConfigTab, WebhookHistoryContent } from "@/components/admin/webhooks";
+// Import necessary modules and components
+import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { WebhookEvent } from "@/components/admin/webhooks/useWebhookHistory";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useToast } from "@/components/ui/use-toast";
+import { WebhookHistoryContent } from "@/components/admin/webhooks/WebhookHistoryContent";
+import { WebhookConfigTab } from "@/components/admin/webhooks/WebhookConfigTab";
+import { CalendarIcon } from "lucide-react";
+import { format } from 'date-fns';
+import { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
 import { WebhookType } from "@/utils/webhookValidation";
 
-export default function WebhooksPage() {
+const WebhooksPage = () => {
   const [activeTab, setActiveTab] = useState("config");
-  const [mockWebhookData, setMockWebhookData] = useState({
-    stripeWebhook: "https://api.example.com/webhooks/stripe",
-    zapierWebhook: "https://hooks.zapier.com/hooks/catch/123456/abcdef/",
-    githubWebhook: "https://api.example.com/webhooks/github",
-    slackWebhook: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
-    customWebhook: "https://api.example.com/webhooks/custom",
-  });
-  
-  // Mock data for webhook history
-  const mockWebhookEvents: WebhookEvent[] = Array(10).fill(null).map((_, index) => ({
-    id: `event-${index}`,
-    source: ['stripe', 'zapier', 'github', 'slack', 'custom'][index % 5],
-    status: ['success', 'error', 'pending'][index % 3] as 'success' | 'error' | 'pending',
-    timestamp: new Date(Date.now() - index * 3600000).toISOString(),
-    payload: { data: `Sample payload ${index}` },
-    response: { status: index % 3 === 0 ? 'error' : 'success' },
-    webhookType: ['stripe', 'zapier', 'github', 'slack', 'custom'][index % 5] as WebhookType,
-    eventType: ['payment.success', 'customer.created', 'lead.added'][index % 3],
-    targetUrl: `https://api.example.com/webhooks/${['stripe', 'zapier', 'github', 'slack', 'custom'][index % 5]}`
-  }));
-  
+  const [allEvents, setAllEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [paginatedEvents, setPaginatedEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [statusOptions, setStatusOptions] = useState(['success', 'failed', 'pending']);
+  const [typeOptions, setTypeOptions] = useState(['stripe', 'zapier', 'github', 'slack', 'custom']);
+  const [eventTypeOptions, setEventTypeOptions] = useState(['payment.success', 'payment.failed', 'order.created']);
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+  const [selectedEventType, setSelectedEventType] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const { toast } = useToast();
+
+  // Mock event data with the required properties
+  const mockEvents = [
+    {
+      id: '1',
+      webhookType: 'stripe' as WebhookType,
+      eventType: 'payment.success',
+      targetUrl: 'https://api.example.com/webhooks/stripe',
+      source: 'stripe',
+      status: 'success',
+      timestamp: '2025-03-15T10:30:00Z',
+      payload: { data: 'payment data' },
+      response: { status: '200' }
+    },
+    // Add more mock events as needed with the correct types
+  ];
+
+  const handleFilterEvents = () => {
+    console.log('Filtering events with:', {
+      selectedStatus,
+      selectedType,
+      selectedEventType,
+      searchQuery,
+      startDate,
+      endDate
+    });
+  };
+
+  const handleClearFilters = () => {
+    console.log('Clearing all filters');
+  };
+
+  // When rendering the WebhookHistoryContent component, add the onPageChange prop
   return (
-    <div className="space-y-6">
-      <WebhookHeader 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab} 
-      />
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">Webhooks</h1>
+        <p className="text-muted-foreground">
+          Manage and monitor incoming webhooks to your application
+        </p>
+      </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="config">Configuration</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="history">Event History</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="config" className="space-y-4">
-          <WebhookConfigTab 
-            stripeWebhook={mockWebhookData.stripeWebhook}
-            zapierWebhook={mockWebhookData.zapierWebhook}
-            githubWebhook={mockWebhookData.githubWebhook}
-            slackWebhook={mockWebhookData.slackWebhook}
-            customWebhook={mockWebhookData.customWebhook}
-            onStripeWebhookChange={(val) => setMockWebhookData(prev => ({...prev, stripeWebhook: val}))}
-            onZapierWebhookChange={(val) => setMockWebhookData(prev => ({...prev, zapierWebhook: val}))}
-            onGithubWebhookChange={(val) => setMockWebhookData(prev => ({...prev, githubWebhook: val}))}
-            onSlackWebhookChange={(val) => setMockWebhookData(prev => ({...prev, slackWebhook: val}))}
-            onCustomWebhookChange={(val) => setMockWebhookData(prev => ({...prev, customWebhook: val}))}
-            onTestStripeWebhook={() => Promise.resolve(true)}
-            onTestZapierWebhook={() => Promise.resolve(true)}
-            onTestGithubWebhook={() => Promise.resolve(true)}
-            onTestSlackWebhook={() => Promise.resolve(true)}
-            onTestCustomWebhook={() => Promise.resolve(true)}
-            onSave={() => Promise.resolve(true)}
-            isSaving={false}
-            testingWebhook=""
-            testLoading={false}
-            isStripeWebhookValid={true}
-            isZapierWebhookValid={true}
-            isGithubWebhookValid={true}
-            isSlackWebhookValid={true}
-            isCustomWebhookValid={true}
-          />
+        <TabsContent value="config">
+          <WebhookConfigTab />
         </TabsContent>
-        
         <TabsContent value="history">
           <WebhookHistoryContent 
-            webhookEvents={mockWebhookEvents}
-            filteredEvents={mockWebhookEvents}
-            paginatedEvents={mockWebhookEvents.slice(0, 5)}
+            webhookEvents={allEvents}
+            filteredEvents={filteredEvents}
+            paginatedEvents={paginatedEvents}
             isLoading={false}
-            currentPage={1}
-            totalPages={2}
-            onPageChange={(page) => console.log(`Page changed to ${page}`)}
-            onFilterChange={() => {}}
-            onDateRangeChange={() => {}}
-            onStatusChange={() => {}}
-            onSourceChange={() => {}}
-            onClearFilters={() => {}}
-            onRefresh={() => {}}
-            filters={{
-              startDate: null,
-              endDate: null,
-              status: null,
-              source: null,
-              search: ''
-            }}
-            onViewDetails={() => {}}
-            onResend={() => {}}
-            selectedEvent={null}
-            onCloseDetails={() => {}}
-            isResending={false}
-            sortOrder="desc"
-            sortBy="timestamp"
-            onSort={() => {}}
+            error={null}
+            currentPage={currentPage}
+            totalPages={5}
+            statusOptions={statusOptions}
+            typeOptions={typeOptions}
+            eventTypeOptions={eventTypeOptions}
+            selectedStatus={selectedStatus}
+            setSelectedStatus={setSelectedStatus}
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+            selectedEventType={selectedEventType}
+            setSelectedEventType={setSelectedEventType}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            onFilter={handleFilterEvents}
+            onClearFilter={handleClearFilters}
+            onPageChange={(page) => setCurrentPage(page)}
+            onSort={() => console.log('Sort clicked')}
           />
         </TabsContent>
       </Tabs>
     </div>
   );
-}
+};
+
+export default WebhooksPage;

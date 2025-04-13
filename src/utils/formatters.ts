@@ -22,6 +22,9 @@ export const formatPercentage = (value: number): string => {
   }).format(value / 100);
 };
 
+// Alias for formatPercentage for backward compatibility
+export const formatPercent = formatPercentage;
+
 // Format number with thousands separators
 export const formatNumber = (value: number): string => {
   return new Intl.NumberFormat('en-US').format(value);
@@ -45,4 +48,10 @@ export const formatMetric = (value: number): string => {
     return `${(value / 1000).toFixed(1)}k`;
   }
   return value.toString();
+};
+
+// Calculate percentage change between two values
+export const calculatePercentChange = (current: number, previous: number): number => {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / previous) * 100;
 };

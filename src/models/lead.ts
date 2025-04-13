@@ -10,6 +10,7 @@ export type Lead = {
   created_at: string;
   campaign_id: string;
   companyId?: string;
+  company?: string;
   source?: string;
   score?: number;
   campaignId?: string;
@@ -17,6 +18,7 @@ export type Lead = {
     name: string;
   };
   // Enhanced fields for advanced lead scoring
+  lastContact?: string;
   last_contact_date?: string;
   engagement_level?: number; // 1-5 scale
   follow_up_status?: 'pending' | 'in_progress' | 'completed';

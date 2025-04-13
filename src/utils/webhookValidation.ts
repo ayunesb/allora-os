@@ -32,7 +32,7 @@ export const validateWebhookUrl = (url: string, type: WebhookType): boolean => {
   }
 };
 
-// Add the missing sanitizeWebhookUrl function
+// Add the sanitizeWebhookUrl function
 export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
   if (!url || !url.trim()) return '';
   
@@ -44,7 +44,7 @@ export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
   }
 };
 
-// Add the missing testWebhook function
+// Add the testWebhook function
 export const testWebhook = async (url: string, type: WebhookType): Promise<{ success: boolean; message?: string }> => {
   if (!validateWebhookUrl(url, type)) {
     return { success: false, message: 'Invalid webhook URL' };

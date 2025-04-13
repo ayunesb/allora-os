@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Helmet } from 'react-helmet-async';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { AccessibilityProvider } from '@/context/AccessibilityContext';
 
 /**
  * Social Media Calendar page component
