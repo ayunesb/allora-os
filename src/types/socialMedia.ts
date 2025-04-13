@@ -1,110 +1,28 @@
 
-/**
- * Social Media Types
- * Consistent type definitions for social media functionality
- */
+export type SocialMediaPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'Other';
+export type PostStatus = 'draft' | 'scheduled' | 'published' | 'approved';
 
 export interface SocialMediaPost {
   id: string;
-  name: string;
-  platform: SocialPlatform;
-  budget?: number;
-  status?: PostStatus;
-  executiveBot?: string | { name: string };
-  justification?: string;
-  roi?: string;
-  healthScore?: 'good' | 'warning' | 'critical';
-  impressions?: number;
-  clicks?: number;
-  leads?: number;
+  title: string;
+  content: string;
+  platform: SocialMediaPlatform | string;
+  status?: string;
+  scheduled_date?: string;
+  published_date?: string;
+  author_id?: string;
   company_id?: string;
+  media_urls?: string[];
+  engagement?: {
+    likes?: number;
+    shares?: number;
+    comments?: number;
+    views?: number;
+  };
+  approver?: string;
   created_at?: string;
   updated_at?: string;
-  is_archived?: boolean;
+  tags?: string[];
   aiGenerated?: boolean;
-  collaborators?: string[];
-  description?: string;
-  
-  // Social media specific fields
-  title: string;
-  content: string;
-  scheduled_date: string;
-  publish_time: string;
-  content_type: ContentType;
-  media_urls?: string[];
-  campaign_id?: string;
-  is_approved: boolean;
-  approval_notes?: string;
-  tags?: string[];
-  mentions?: string[];
-  hashtags?: string[];
-  location?: string;
-  link_url?: string;
-  author_id?: string;
-}
-
-// Consistent platform types
-export type SocialPlatform = "LinkedIn" | "Facebook" | "Instagram" | "TikTok" | "Twitter";
-export type PostStatus = "Draft" | "Scheduled" | "Paused" | "Completed" | "Published" | "Approved"; 
-export type ContentType = "text" | "image" | "video" | "link" | "carousel" | "poll";
-
-// Legacy type aliases for backward compatibility
-export type Platform = SocialPlatform | "Google" | "Email";
-export type ExecutiveBot = string;
-export type PostContentType = ContentType;
-
-export interface CreatePostInput {
-  title: string;
-  content: string;
-  platform: SocialPlatform;
-  scheduled_date: string;
-  publish_time: string;
-  content_type: PostContentType;
-  media_urls?: string[];
-  campaign_id?: string;
-  is_approved?: boolean;
-  tags?: string[];
-  mentions?: string[];
-  hashtags?: string[];
-  location?: string;
-  link_url?: string;
-}
-
-export interface UpdatePostInput {
-  id: string;
-  title?: string;
-  content?: string;
-  platform?: SocialPlatform;
-  scheduled_date?: string;
-  publish_time?: string;
-  status?: PostStatus;
-  content_type?: PostContentType;
-  media_urls?: string[];
-  campaign_id?: string;
-  is_approved?: boolean;
-  approval_notes?: string;
-  tags?: string[];
-  mentions?: string[];
-  hashtags?: string[];
-  location?: string;
-  link_url?: string;
-}
-
-export interface SocialMediaCalendarFilters {
-  platform?: SocialPlatform;
-  status?: PostStatus;
-  content_type?: PostContentType;
-  campaign_id?: string;
-  author_id?: string;
-  startDate?: string;
-  endDate?: string;
-  search?: string;
-  tags?: string[];
-}
-
-export interface BatchPostResponse {
-  success: boolean;
-  processed: number;
-  failed: number;
-  error_details?: Array<{ post_id: string; error: string }>;
+  aiSuggestions?: string[];
 }
