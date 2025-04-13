@@ -14,22 +14,38 @@ export default function DevAdminHelper() {
   const [email, setEmail] = useState("ayunesb@icloud.com");
   const [loading, setLoading] = useState(false);
   const [currentRole, setCurrentRole] = useState<string | null>(null);
-  const { user, profile } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (profile) {
-      setCurrentRole(profile.role);
-    }
-  }, [profile]);
+  
+  // Safely access auth context with fallback values
+  let user = null;
+  let profile = null;
+  
+  try {
+    const auth = useAuth();
+    user = auth?.user;
+    profile = auth?.profile;
+    
+    useEffect(() => {
+      if (profile) {
+        setCurrentRole(profile.role);
+      }
+    }, [profile]);
+  } catch (error) {
+    console.error("Auth context not available:", error);
+  }
 
   const makeUserAdmin = async () => {
+    if (!user) {
+      toast.error("User not authenticated");
+      return;
+    }
+    
     setLoading(true);
     try {
       const { error } = await supabase
         .from("profiles")
         .update({ role: "admin" })
-        .eq("id", user?.id);
+        .eq("id", user.id);
 
       if (error) throw error;
       toast.success("User role updated to admin");
