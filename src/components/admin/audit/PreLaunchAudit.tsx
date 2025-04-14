@@ -31,8 +31,6 @@ import { AuditIntegrations } from '@/components/admin/audit/AuditIntegrations';
 import { Helmet } from 'react-helmet-async';
 import { CategoryStatus } from './types';
 
-type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
-
 interface CategoryState {
   navigation: CategoryStatus;
   functional: CategoryStatus;
@@ -84,12 +82,7 @@ export default function PreLaunchAudit() {
   const runFullAudit = async () => {
     setIsRunningFullCheck(true);
     
-    updateCategoryStatus('legal', 'passed');
-    updateCategoryStatus('integrations', 'passed');
-    
     for (const category of Object.keys(categoryStatus) as Array<keyof CategoryState>) {
-      if (category === 'legal' || category === 'integrations') continue;
-      
       setCategoryStatus(prev => ({
         ...prev,
         [category]: 'in-progress'
@@ -97,7 +90,7 @@ export default function PreLaunchAudit() {
       
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const passed = Math.random() < 0.9;
+      const passed = Math.random() < 0.8;
       
       updateCategoryStatus(category, passed ? 'passed' : 'failed');
     }
