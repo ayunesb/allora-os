@@ -30,6 +30,7 @@ import RiskHeatmap from "@/pages/dashboard/RiskHeatmap";
 import ExecutiveLeaderboard from "@/pages/dashboard/ExecutiveLeaderboard";
 import AIChat from "@/pages/dashboard/AIChat";
 import Forecast from "@/pages/dashboard/Forecast";
+import DigitalTwin from "@/pages/dashboard/DigitalTwin";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -119,6 +120,11 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "forecast",
         element: <Forecast />,
+      },
+      // New Digital Twin Dashboard route
+      {
+        path: "digital-twin",
+        element: <DigitalTwin />,
       },
       // Executive preferences/settings route
       {

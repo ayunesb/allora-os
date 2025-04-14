@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Activity,
   ClipboardList,
+  Globe,
   X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,16 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
       icon: <ClipboardList className="h-5 w-5" />
     },
     {
+      name: "Forecast",
+      path: "/dashboard/forecast",
+      icon: <Activity className="h-5 w-5" />
+    },
+    {
+      name: "Digital Twin",
+      path: "/dashboard/digital-twin",
+      icon: <Globe className="h-5 w-5" />
+    },
+    {
       name: "AI Bots",
       path: "/dashboard/ai-bots",
       icon: <Bot className="h-5 w-5" />
@@ -78,11 +89,6 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
       name: "Debate",
       path: "/dashboard/debate",
       icon: <MessageSquare className="h-5 w-5" />
-    },
-    {
-      name: "Analytics",
-      path: "/dashboard/analytics",
-      icon: <Activity className="h-5 w-5" />
     },
     {
       name: "Settings",
