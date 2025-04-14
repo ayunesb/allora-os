@@ -28,6 +28,40 @@ import { Loader2, CheckCircle2, XCircle, AlertTriangle, ChevronRight } from 'luc
 import { toast } from 'sonner';
 import { LaunchButton } from './launch-verification/LaunchButton';
 
+const integrationItems = [
+  {
+    title: "Supabase Database Integration",
+    description: "Verify database connections, security, and row-level security (RLS) policies.",
+    status: "ready",
+    testComponent: "ValidateDatabase",
+  },
+  {
+    title: "Stripe Payments Integration",
+    description: "Test payment processing, subscription management, and webhook configuration.",
+    status: "ready",
+    testComponent: "ValidateStripe",
+  },
+  {
+    title: "Twilio Communication Integration",
+    description: "Verify WhatsApp and SMS messaging capabilities.",
+    status: "ready",
+    testComponent: "ValidateTwilio",
+  },
+  {
+    title: "Zapier Automation Integration",
+    description: "Confirm webhook triggers for business events like strategy approvals and lead conversions.",
+    status: "ready",
+    testComponent: "ValidateZapier",
+    testLink: "/admin/zapier-readiness"
+  },
+  {
+    title: "OpenAI LLM Integration",
+    description: "Verify AI response generation for the executive debate simulation.",
+    status: "ready",
+    testComponent: "ValidateOpenAI",
+  },
+];
+
 export default function ReadinessChecklist() {
   const [plan, setPlan] = useState<LaunchExecutionPlan | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -346,4 +380,53 @@ function formatValidationKey(key: string): string {
     .split('_')
     .join(' ')
     .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+interface ReadinessItemProps {
+  title: string;
+  description: string;
+  status: "pending" | "ready" | "failed" | "in_progress";
+  onRunTest?: () => void;
+  testLink?: string;
+}
+
+function ReadinessItem({ 
+  title, 
+  description, 
+  status, 
+  onRunTest,
+  testLink
+}: ReadinessItemProps) {
+  return (
+    <div className="flex items-start justify-between space-x-4 border-b pb-4">
+      <div className="space-y-1">
+        <p className="font-medium">{title}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="flex gap-2">
+        {testLink && (
+          <Button variant="outline" size="sm" asChild>
+            <Link to={testLink}>View Tests</Link>
+          </Button>
+        )}
+        {onRunTest && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onRunTest}
+            disabled={status === "in_progress"}
+          >
+            {status === "in_progress" ? (
+              <>
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                Running...
+              </>
+            ) : (
+              "Run Test"
+            )}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }
