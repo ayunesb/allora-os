@@ -1,6 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
 import AdminUsers from "./AdminUsers";
@@ -16,7 +17,23 @@ import {
 import { LayoutDashboard } from "lucide-react";
 
 export default function EntitiesPage() {
-  const [activeTab, setActiveTab] = useState<string>("users");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState<string>(tabFromUrl === "companies" ? "companies" : "users");
+
+  // Update the URL when the tab changes
+  useEffect(() => {
+    if (tabFromUrl !== activeTab) {
+      setSearchParams({ tab: activeTab });
+    }
+  }, [activeTab, setSearchParams, tabFromUrl]);
+
+  // Handle URL parameter changes
+  useEffect(() => {
+    if (tabFromUrl === "companies" || tabFromUrl === "users") {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   return (
     <PageErrorBoundary pageName="Entities Management">

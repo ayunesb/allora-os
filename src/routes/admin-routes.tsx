@@ -1,5 +1,6 @@
+
 import { RouteObject } from "react-router-dom";
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import EntitiesPage from "@/pages/admin/EntitiesPage";
 import AuditPage from "@/pages/admin/AuditPage";
@@ -32,7 +33,7 @@ export const adminRoutes: RouteObject[] = [
       },
       {
         path: "dashboard",
-        element: <AdminDashboard />,
+        element: <Navigate to="/admin" replace />,
       },
       {
         path: "entities",
@@ -60,11 +61,11 @@ export const adminRoutes: RouteObject[] = [
       },
       {
         path: "users",
-        element: <EntitiesPage />,  // Redirect to entities page with users tab active
+        element: <Navigate to="/admin/entities?tab=users" replace />,
       },
       {
         path: "companies",
-        element: <EntitiesPage />,  // Redirect to entities page with companies tab active
+        element: <Navigate to="/admin/entities?tab=companies" replace />,
       },
       {
         path: "campaigns",

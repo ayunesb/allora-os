@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle, Home, ArrowRight, RefreshCw } from "lucide-react";
+import { logger } from "@/utils/loggingService";
+import { normalizeRoute } from "@/utils/navigation";
 
 export default function NotFound() {
   const location = useLocation();
@@ -12,51 +14,78 @@ export default function NotFound() {
   
   useEffect(() => {
     const currentPath = location.pathname;
-    console.log("404 Page: Current path is", currentPath);
+    logger.info(`404 Page: Current path is ${currentPath}`);
     
-    // Add better suggestions based on path prefix
-    if (currentPath.includes('/admin')) {
-      setSuggestedPath('/admin');
-      
-      // Add specific admin route suggestions
-      if (currentPath.includes('/user')) {
-        setAlternativeRoutes(['/admin/users']);
-      } else if (currentPath.includes('/compan')) {
-        setAlternativeRoutes(['/admin/companies']);
-      } else if (currentPath.includes('/campaign')) {
-        setAlternativeRoutes(['/admin/campaigns']);
-      } else if (currentPath.includes('/lead')) {
-        setAlternativeRoutes(['/admin/leads']);
-      } else if (currentPath.includes('/analytic')) {
-        setAlternativeRoutes(['/admin/analytics']);
-      } else if (currentPath.includes('/setting')) {
-        setAlternativeRoutes(['/admin/settings']);
-      } else if (currentPath.includes('/launch')) {
-        setAlternativeRoutes(['/admin/launch-prep']);
-      } else {
-        setAlternativeRoutes([
-          '/admin/users',
-          '/admin/companies',
-          '/admin/campaigns',
-          '/admin/leads'
-        ]);
-      }
-    } else if (currentPath.includes('/dashboard')) {
-      setSuggestedPath('/dashboard');
-      
-      // Specific dashboard route suggestions
-      if (currentPath.includes('/strategy')) {
-        setAlternativeRoutes(['/dashboard/strategies']);
-      } else if (currentPath.includes('/settings') || currentPath.includes('/account')) {
-        setAlternativeRoutes(['/dashboard/profile', '/dashboard/settings']);
-      }
-    } else if (currentPath.includes('/onboarding')) {
-      setSuggestedPath('/onboarding');
-    } else if (currentPath.includes('/compliance')) {
-      setSuggestedPath('/compliance');
+    // Try to normalize the route - maybe it's just a casing issue or a common typo
+    const normalizedPath = normalizeRoute(currentPath);
+    
+    // If the normalized path is different, we could suggest it
+    if (normalizedPath !== currentPath) {
+      setSuggestedPath(normalizedPath);
     } else {
-      setSuggestedPath('/');
+      // Add better suggestions based on path prefix
+      if (currentPath.includes('/admin')) {
+        setSuggestedPath('/admin');
+        
+        // Add specific admin route suggestions
+        if (currentPath.includes('/user')) {
+          setAlternativeRoutes(['/admin/entities?tab=users']);
+        } else if (currentPath.includes('/compan')) {
+          setAlternativeRoutes(['/admin/entities?tab=companies']);
+        } else if (currentPath.includes('/campaign')) {
+          setAlternativeRoutes(['/admin/campaigns']);
+        } else if (currentPath.includes('/lead')) {
+          setAlternativeRoutes(['/admin/leads']);
+        } else if (currentPath.includes('/analytic')) {
+          setAlternativeRoutes(['/admin/analytics']);
+        } else if (currentPath.includes('/setting')) {
+          setAlternativeRoutes(['/admin/settings']);
+        } else if (currentPath.includes('/launch')) {
+          setAlternativeRoutes(['/admin/launch-prep']);
+        } else {
+          setAlternativeRoutes([
+            '/admin',
+            '/admin/entities',
+            '/admin/campaigns',
+            '/admin/leads'
+          ]);
+        }
+      } else if (currentPath.includes('/dashboard')) {
+        setSuggestedPath('/dashboard');
+        
+        // Specific dashboard route suggestions
+        if (currentPath.includes('/strategy')) {
+          setAlternativeRoutes(['/dashboard/strategies']);
+        } else if (currentPath.includes('/settings') || currentPath.includes('/account')) {
+          setAlternativeRoutes(['/dashboard/profile', '/dashboard/settings']);
+        } else {
+          setAlternativeRoutes([
+            '/dashboard/strategies',
+            '/dashboard/leads',
+            '/dashboard/campaigns'
+          ]);
+        }
+      } else if (currentPath.includes('/onboarding')) {
+        setSuggestedPath('/onboarding');
+      } else if (currentPath.includes('/compliance')) {
+        setSuggestedPath('/compliance');
+      } else if (currentPath.includes('/login') || currentPath.includes('/signin')) {
+        setSuggestedPath('/login');
+      } else if (currentPath.includes('/signup') || currentPath.includes('/register')) {
+        setSuggestedPath('/signup');
+      } else {
+        setSuggestedPath('/');
+        setAlternativeRoutes(['/login', '/signup', '/dashboard']);
+      }
     }
+    
+    // Log 404 for analytics
+    logger.error(`404 Error: No route found for ${currentPath}`, {
+      path: currentPath,
+      referrer: document.referrer,
+      timestamp: new Date().toISOString()
+    });
+    
   }, [location]);
   
   const goBack = () => {
@@ -129,20 +158,20 @@ export default function NotFound() {
             <RefreshCw className="mr-2 h-5 w-5" />
             Refresh
           </Button>
-          
-          {suggestedPath && suggestedPath !== '/' && (
-            <Button 
-              asChild 
-              variant="secondary" 
-              className="w-full sm:w-auto mt-3 sm:mt-0 bg-white/10 text-white hover:bg-white/20"
-            >
-              <Link to={suggestedPath} className="flex items-center">
-                Go to {suggestedPath.replace('/', '').charAt(0).toUpperCase() + suggestedPath.replace('/', '').slice(1)}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          )}
         </div>
+        
+        {suggestedPath && suggestedPath !== '/' && (
+          <Button 
+            asChild 
+            variant="secondary" 
+            className="w-full mt-5 bg-white/10 text-white hover:bg-white/20"
+          >
+            <Link to={suggestedPath} className="flex items-center">
+              Go to {suggestedPath.replace('/', '').charAt(0).toUpperCase() + suggestedPath.replace('/', '').slice(1)}
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );
