@@ -1,7 +1,7 @@
 
-import React, { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stars } from "@react-three/drei";
+import React, { Suspense, useState, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Stars, Html } from "@react-three/drei";
 import KpiAxes from "./KpiAxes";
 import LoadingScreen from "./LoadingScreen";
 import KpiSphere from "./KpiSphere";
@@ -50,7 +50,7 @@ export default function DigitalTwinScene() {
               name={kpi.name}
               value={kpi.value}
               color={kpi.color}
-              size={normalizedValue * 0.8 + 0.2} // Scale size between 0.2 and 1.0
+              size={normalizedValue * 0.8 + 0.2} // Scale size between a minimum of 0.2 and a maximum of 1.0
             />
           );
         })}
