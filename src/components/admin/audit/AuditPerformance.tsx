@@ -1,235 +1,172 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, AlertCircle, Gauge } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Loader2, Gauge } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
+import { AuditComponentProps, AuditCheckItem } from './types';
 
-type CheckStatus = 'pending' | 'passed' | 'failed';
-type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
-
-interface CheckItem {
-  id: string;
-  name: string;
-  description: string;
-  status: CheckStatus;
-  notes?: string;
-  value?: string;
-}
-
-interface AuditPerformanceProps {
-  status: CategoryStatus;
-  onStatusChange: (status: CategoryStatus) => void;
-}
-
-export const AuditPerformance: React.FC<AuditPerformanceProps> = ({ status, onStatusChange }) => {
-  const [checks, setChecks] = useState<CheckItem[]>([
+export function AuditPerformance({ status, onStatusChange }: AuditComponentProps) {
+  const [isRunning, setIsRunning] = useState(false);
+  const [items, setItems] = useState<AuditCheckItem[]>([
     {
-      id: 'perf-load',
-      name: 'Initial Page Load',
-      description: 'Measure initial page load time',
+      id: 'perf-1',
+      title: 'Initial Page Load',
+      description: 'Target < 2s load time',
       status: 'pending',
-      notes: 'Target < 2s load time',
-      value: ''
+      required: true
     },
     {
-      id: 'perf-api',
-      name: 'API Response Times',
-      description: 'Measure Supabase API response times',
+      id: 'perf-2',
+      title: 'API Response Times',
+      description: 'Supabase APIs under 500ms',
       status: 'pending',
-      notes: 'Supabase APIs under 500ms',
-      value: ''
+      required: true
     },
     {
-      id: 'perf-assets',
-      name: 'Static Assets Optimization',
-      description: 'Check asset optimization',
+      id: 'perf-3',
+      title: 'Static Assets Optimization',
+      description: 'Images compressed (Logo, backgrounds)',
       status: 'pending',
-      notes: 'Images compressed (Logo, backgrounds)',
-      value: ''
+      required: false
     },
     {
-      id: 'perf-splitting',
-      name: 'Code Splitting',
-      description: 'Verify proper code splitting',
+      id: 'perf-4',
+      title: 'Code Splitting',
+      description: 'Pages split properly for performance',
       status: 'pending',
-      notes: 'React pages split properly',
-      value: ''
+      required: false
     },
     {
-      id: 'perf-lazy',
-      name: 'Lazy Loading',
-      description: 'Verify lazy loading implementation',
+      id: 'perf-5',
+      title: 'Lazy Loading',
+      description: 'Images and heavy components lazy loaded',
       status: 'pending',
-      notes: 'Images and heavy components lazy loaded',
-      value: ''
+      required: false
     },
     {
-      id: 'perf-seo',
-      name: 'SEO Tags',
-      description: 'Check SEO meta tags',
+      id: 'perf-6',
+      title: 'SEO Tags',
+      description: 'Title, Description, Open Graph meta tags set',
       status: 'pending',
-      notes: 'Title, Description, Open Graph meta tags set',
-      value: ''
+      required: true
     }
   ]);
-  
-  const [isRunningChecks, setIsRunningChecks] = useState(false);
-  
-  const updateCheckStatus = (id: string, status: CheckStatus, notes?: string, value?: string) => {
-    setChecks(prevChecks => 
-      prevChecks.map(check => 
-        check.id === id 
-          ? { ...check, status, notes: notes || check.notes, value } 
-          : check
-      )
-    );
-  };
-  
-  const runChecks = async () => {
-    setIsRunningChecks(true);
-    onStatusChange('in-progress');
+
+  const runTest = async () => {
+    setIsRunning(true);
     
-    // Simulate running performance checks
-    // Initial Page Load
-    toast.info("Measuring initial page load time...");
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    const loadTime = (Math.random() * 1.5 + 0.5).toFixed(2);
-    const loadTimePassed = parseFloat(loadTime) < 2.0;
-    updateCheckStatus(
-      'perf-load', 
-      loadTimePassed ? 'passed' : 'failed', 
-      undefined, 
-      `${loadTime}s`
-    );
+    // Reset all items to pending
+    setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
     
-    // API Response Times
-    toast.info("Measuring API response times...");
-    await new Promise(resolve => setTimeout(resolve, 800));
-    const apiTime = (Math.random() * 400 + 50).toFixed(0);
-    const apiTimePassed = parseInt(apiTime) < 500;
-    updateCheckStatus(
-      'perf-api', 
-      apiTimePassed ? 'passed' : 'failed', 
-      undefined, 
-      `${apiTime}ms`
-    );
-    
-    // Rest of the checks
-    for (const check of checks.filter(c => c.id !== 'perf-load' && c.id !== 'perf-api')) {
-      toast.info(`Checking: ${check.name}...`);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const passed = Math.random() < 0.9;
-      updateCheckStatus(check.id, passed ? 'passed' : 'failed');
+    // Simulate testing each item sequentially
+    for (let i = 0; i < items.length; i++) {
+      // Update current item to in-progress
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: 'in-progress' } : item
+      ));
       
-      if (passed) {
-        toast.success(`Passed: ${check.name}`);
-      } else {
-        toast.error(`Failed: ${check.name}`);
-      }
+      // Simulate test running
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // Set random result (85% pass rate for demo)
+      const passed = Math.random() < 0.85;
+      
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+      ));
     }
     
-    // Determine overall section status
-    const failedChecks = checks.filter(check => check.status === 'failed');
-    if (failedChecks.length === 0) {
-      onStatusChange('passed');
-      toast.success("All performance checks passed!");
+    setIsRunning(false);
+    
+    // Check results
+    const allPassed = items.every(item => item.status === 'passed');
+    const requiredPassed = items
+      .filter(item => item.required)
+      .every(item => item.status === 'passed');
+    
+    const overallStatus = allPassed ? 'passed' : requiredPassed ? 'passed' : 'failed';
+    
+    onStatusChange(overallStatus);
+    
+    if (allPassed) {
+      toast.success('Performance Audit passed!');
+    } else if (requiredPassed) {
+      toast.success('Performance Audit passed with warnings. Non-critical items need attention.');
     } else {
-      onStatusChange('failed');
-      toast.error(`${failedChecks.length} performance checks failed`);
+      toast.error('Performance Audit failed. Please review and fix critical issues.');
     }
-    
-    setIsRunningChecks(false);
   };
-  
-  const getStatusIcon = (status: CheckStatus) => {
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'passed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'failed':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
+      case 'passed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'in-progress': return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+      default: return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
-  
+
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="flex items-center gap-2">
-            <Gauge className="h-5 w-5" />
-            Performance & Optimization Audit
-          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Gauge className="h-5 w-5 text-primary/80" />
+            <CardTitle>Performance & Optimization Audit</CardTitle>
+          </div>
           <Button 
-            onClick={runChecks} 
-            disabled={isRunningChecks || status === 'in-progress'}
-            variant="outline"
+            onClick={runTest}
+            disabled={isRunning}
             size="sm"
           >
-            {isRunningChecks ? (
+            {isRunning ? (
               <>
-                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-b-2 border-current" />
-                Running Checks...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Testing...
               </>
             ) : (
-              'Run Checks'
+              'Run Test'
             )}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 font-medium">Area</th>
-                <th className="text-left py-2 font-medium w-24">Status</th>
-                <th className="text-left py-2 font-medium">Notes</th>
-                <th className="text-left py-2 font-medium w-24">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checks.map((check) => (
-                <tr key={check.id} className="border-b">
-                  <td className="py-3">
-                    <div className="font-medium">{check.name}</div>
-                    <div className="text-sm text-muted-foreground">{check.description}</div>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center">
-                      {getStatusIcon(check.status)}
-                    </div>
-                  </td>
-                  <td className="py-3 text-sm">{check.notes}</td>
-                  <td className="py-3 text-sm font-medium">{check.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {status === 'failed' && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
-              <div className="font-medium">Performance Issues:</div>
-              <ul className="list-disc pl-5 mt-1">
-                {checks.filter(check => check.status === 'failed').map(check => (
-                  <li key={check.id}>
-                    {check.name} {check.value ? `(${check.value})` : ''}
-                  </li>
-                ))}
-              </ul>
+          {items.map((item) => (
+            <div 
+              key={item.id} 
+              className="flex items-start space-x-2"
+            >
+              <div className="mt-0.5">
+                {getStatusIcon(item.status)}
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{item.title}</span>
+                  {!item.required && (
+                    <span className="text-xs bg-primary/10 text-primary/90 px-1.5 py-0.5 rounded">Optional</span>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground">{item.description}</div>
+              </div>
+              <div className="ml-auto flex items-center">
+                <Checkbox 
+                  id={item.id}
+                  checked={item.status === 'passed'}
+                  disabled={isRunning}
+                  onCheckedChange={(checked) => {
+                    setItems(prev => prev.map(i => 
+                      i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
+                    ));
+                  }}
+                />
+              </div>
             </div>
-          )}
-          
-          {status === 'passed' && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-800 text-sm">
-              <div className="font-medium">All performance checks passed!</div>
-              <p className="mt-1">
-                The application is optimized and performs well.
-              </p>
-            </div>
-          )}
+          ))}
         </div>
       </CardContent>
     </Card>
   );
-};
+}

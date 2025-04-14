@@ -4,10 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
-  CheckCircle, 
+  CheckCircle2, 
   XCircle, 
   AlertCircle, 
   Search, 
@@ -30,6 +29,7 @@ import { AuditUX } from '@/components/admin/audit/AuditUX';
 import { AuditAI } from '@/components/admin/audit/AuditAI';
 import { AuditLegal } from '@/components/admin/audit/AuditLegal';
 import { AuditIntegrations } from '@/components/admin/audit/AuditIntegrations';
+import { Helmet } from 'react-helmet-async';
 
 type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
 
@@ -122,7 +122,7 @@ export default function PreLaunchAudit() {
   const getStatusIcon = (status: CategoryStatus) => {
     switch (status) {
       case 'passed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
       case 'failed':
         return <XCircle className="h-5 w-5 text-red-500" />;
       case 'in-progress':
@@ -147,6 +147,10 @@ export default function PreLaunchAudit() {
   
   return (
     <div className="container py-6 space-y-6 animate-fadeIn">
+      <Helmet>
+        <title>Pre-Launch Audit | Allora AI</title>
+      </Helmet>
+      
       <div className="flex flex-col lg:flex-row justify-between gap-4 items-start lg:items-center">
         <div>
           <h1 className="text-3xl font-bold">Pre-Launch Audit Checklist</h1>
@@ -181,25 +185,25 @@ export default function PreLaunchAudit() {
       {/* Launch Ready Alert */}
       {isLaunchReady && (
         <Alert className="bg-green-50 border-green-200">
-          <CheckCircle className="h-5 w-5 text-green-600" />
+          <CheckCircle2 className="h-5 w-5 text-green-600" />
           <AlertTitle className="text-green-800 font-bold">Allora AI is 100% Launch Ready!</AlertTitle>
           <AlertDescription className="text-green-700">
             🚀 NASA+ Audit Passed: Full End-to-End Verification
             <div className="mt-2 space-y-1">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <span>Proceed to Public Launch</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <span>Enable Stripe Billing</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <span>Enable Zapier Webhooks</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <span>Announce on Website, Email List, and Social Media</span>
               </div>
             </div>

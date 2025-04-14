@@ -2,211 +2,171 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, AlertCircle, CreditCard, MessageSquare, Mail, Video, ShoppingBag, Zap } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Loader2, Settings } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
+import { AuditComponentProps, AuditCheckItem } from './types';
 
-type CheckStatus = 'pending' | 'passed' | 'failed';
-type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
-
-interface CheckItem {
-  id: string;
-  name: string;
-  description: string;
-  status: CheckStatus;
-  notes?: string;
-  icon?: React.ReactNode;
-}
-
-interface AuditIntegrationsProps {
-  status: CategoryStatus;
-  onStatusChange: (status: CategoryStatus) => void;
-}
-
-export const AuditIntegrations: React.FC<AuditIntegrationsProps> = ({ status, onStatusChange }) => {
-  const [checks, setChecks] = useState<CheckItem[]>([
+export function AuditIntegrations({ status, onStatusChange }: AuditComponentProps) {
+  const [isRunning, setIsRunning] = useState(false);
+  const [items, setItems] = useState<AuditCheckItem[]>([
     {
-      id: 'int-stripe',
-      name: 'Stripe Billing',
-      description: 'Test payment processing',
+      id: 'int-1',
+      title: 'Stripe Billing',
+      description: 'Create customer, handle payment, check webhook callbacks',
       status: 'pending',
-      notes: 'Create customer, handle payment, check webhook callbacks',
-      icon: <CreditCard className="h-4 w-4" />
+      required: true
     },
     {
-      id: 'int-twilio',
-      name: 'Twilio WhatsApp',
-      description: 'Test messaging',
+      id: 'int-2',
+      title: 'Twilio WhatsApp',
+      description: 'Send/Receive WhatsApp messages post onboarding',
       status: 'pending',
-      notes: 'Send/Receive WhatsApp messages post onboarding',
-      icon: <MessageSquare className="h-4 w-4" />
+      required: true
     },
     {
-      id: 'int-postmark',
-      name: 'Postmark Emails',
-      description: 'Test email sending',
+      id: 'int-3',
+      title: 'Postmark Emails',
+      description: 'Trigger Welcome Emails and Campaign Emails',
       status: 'pending',
-      notes: 'Trigger Welcome Emails and Campaign Emails',
-      icon: <Mail className="h-4 w-4" />
+      required: true
     },
     {
-      id: 'int-heygen',
-      name: 'Heygen AI Videos',
-      description: 'Test video generation',
+      id: 'int-4',
+      title: 'Heygen AI Videos',
+      description: 'Generate intro video scripts based on company profile',
       status: 'pending',
-      notes: 'Generate intro video scripts based on company profile',
-      icon: <Video className="h-4 w-4" />
+      required: false
     },
     {
-      id: 'int-shopify',
-      name: 'Shopify API (if used)',
-      description: 'Test product sync',
+      id: 'int-5',
+      title: 'Shopify API',
+      description: 'Sync sample products/orders (if used)',
       status: 'pending',
-      notes: 'Sync sample products/orders',
-      icon: <ShoppingBag className="h-4 w-4" />
+      required: false
     },
     {
-      id: 'int-zapier',
-      name: 'Zapier Flows',
-      description: 'Test automation',
+      id: 'int-6',
+      title: 'Zapier Flows',
+      description: 'Test each webhook automatically without user clicks',
       status: 'pending',
-      notes: 'Test each webhook automatically without user clicks',
-      icon: <Zap className="h-4 w-4" />
+      required: true
     }
   ]);
-  
-  const [isRunningChecks, setIsRunningChecks] = useState(false);
-  
-  const updateCheckStatus = (id: string, status: CheckStatus, notes?: string) => {
-    setChecks(prevChecks => 
-      prevChecks.map(check => 
-        check.id === id 
-          ? { ...check, status, notes: notes || check.notes } 
-          : check
-      )
-    );
-  };
-  
-  const runChecks = async () => {
-    setIsRunningChecks(true);
-    onStatusChange('in-progress');
+
+  const runTest = async () => {
+    setIsRunning(true);
     
-    // Simulate running checks
-    for (const check of checks) {
-      // Update status to show we're checking this item
-      toast.info(`Testing ${check.name} integration...`);
+    // Reset all items to pending
+    setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
+    
+    // Simulate testing each item sequentially
+    for (let i = 0; i < items.length; i++) {
+      // Update current item to in-progress
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: 'in-progress' } : item
+      ));
       
-      // Simulate an audit check taking time
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate test running
+      await new Promise(resolve => setTimeout(resolve, 1200));
       
-      // For demo purposes, randomly pass/fail with 90% success rate
-      const passed = Math.random() < 0.9;
-      updateCheckStatus(check.id, passed ? 'passed' : 'failed');
+      // Set random result (80% pass rate for demo - integrations can be finicky)
+      const passed = Math.random() < 0.8;
       
-      if (passed) {
-        toast.success(`Passed: ${check.name}`);
-      } else {
-        toast.error(`Failed: ${check.name}`);
-      }
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+      ));
     }
     
-    // Determine overall section status
-    const failedChecks = checks.filter(check => check.status === 'failed');
-    if (failedChecks.length === 0) {
-      onStatusChange('passed');
-      toast.success("All integration checks passed!");
+    setIsRunning(false);
+    
+    // Check results
+    const allPassed = items.every(item => item.status === 'passed');
+    const requiredPassed = items
+      .filter(item => item.required)
+      .every(item => item.status === 'passed');
+    
+    const overallStatus = allPassed ? 'passed' : requiredPassed ? 'passed' : 'failed';
+    
+    onStatusChange(overallStatus);
+    
+    if (allPassed) {
+      toast.success('API Integrations Testing passed!');
+    } else if (requiredPassed) {
+      toast.success('Critical API Integrations Testing passed with minor issues!');
     } else {
-      onStatusChange('failed');
-      toast.error(`${failedChecks.length} integration checks failed`);
+      toast.error('API Integrations Testing failed. Please fix critical issues.');
     }
-    
-    setIsRunningChecks(false);
   };
-  
-  const getStatusIcon = (status: CheckStatus) => {
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'passed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'failed':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
+      case 'passed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'in-progress': return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+      default: return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
-  
+
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle>Critical API Integrations Testing</CardTitle>
+          <div className="flex items-center gap-2">
+            <Settings className="h-5 w-5 text-primary/80" />
+            <CardTitle>Critical API Integrations Testing</CardTitle>
+          </div>
           <Button 
-            onClick={runChecks} 
-            disabled={isRunningChecks || status === 'in-progress'}
-            variant="outline"
+            onClick={runTest}
+            disabled={isRunning}
             size="sm"
           >
-            {isRunningChecks ? (
+            {isRunning ? (
               <>
-                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-b-2 border-current" />
-                Testing Integrations...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Testing...
               </>
             ) : (
-              'Run Integration Tests'
+              'Run Tests'
             )}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 font-medium">Integration</th>
-                <th className="text-left py-2 font-medium w-24">Status</th>
-                <th className="text-left py-2 font-medium">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checks.map((check) => (
-                <tr key={check.id} className="border-b">
-                  <td className="py-3">
-                    <div className="font-medium flex items-center gap-2">
-                      {check.icon}
-                      {check.name}
-                    </div>
-                    <div className="text-sm text-muted-foreground">{check.description}</div>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center">
-                      {getStatusIcon(check.status)}
-                    </div>
-                  </td>
-                  <td className="py-3 text-sm">{check.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {status === 'failed' && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
-              <div className="font-medium">Integration Issues:</div>
-              <ul className="list-disc pl-5 mt-1">
-                {checks.filter(check => check.status === 'failed').map(check => (
-                  <li key={check.id}>{check.name}</li>
-                ))}
-              </ul>
+          {items.map((item) => (
+            <div 
+              key={item.id} 
+              className="flex items-start space-x-2"
+            >
+              <div className="mt-0.5">
+                {getStatusIcon(item.status)}
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{item.title}</span>
+                  {!item.required && (
+                    <span className="text-xs bg-primary/10 text-primary/90 px-1.5 py-0.5 rounded">Optional</span>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground">{item.description}</div>
+              </div>
+              <div className="ml-auto flex items-center">
+                <Checkbox 
+                  id={item.id}
+                  checked={item.status === 'passed'}
+                  disabled={isRunning}
+                  onCheckedChange={(checked) => {
+                    setItems(prev => prev.map(i => 
+                      i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
+                    ));
+                  }}
+                />
+              </div>
             </div>
-          )}
-          
-          {status === 'passed' && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-800 text-sm">
-              <div className="font-medium">All integration tests passed!</div>
-              <p className="mt-1">
-                All third-party integrations are working correctly.
-              </p>
-            </div>
-          )}
+          ))}
         </div>
       </CardContent>
     </Card>
   );
-};
+}

@@ -2,194 +2,147 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
+import { AuditComponentProps, AuditCheckItem } from './types';
 
-type CheckStatus = 'pending' | 'passed' | 'failed';
-type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
-
-interface CheckItem {
-  id: string;
-  name: string;
-  description: string;
-  status: CheckStatus;
-  notes?: string;
-}
-
-interface AuditNavigationProps {
-  status: CategoryStatus;
-  onStatusChange: (status: CategoryStatus) => void;
-}
-
-export const AuditNavigation: React.FC<AuditNavigationProps> = ({ status, onStatusChange }) => {
-  const [checks, setChecks] = useState<CheckItem[]>([
+export function AuditNavigation({ status, onStatusChange }: AuditComponentProps) {
+  const [isRunning, setIsRunning] = useState(false);
+  const [items, setItems] = useState<AuditCheckItem[]>([
     {
-      id: 'nav-404',
-      name: '404 Page Functionality',
-      description: 'Confirm 404 page works when accessing non-existent routes',
+      id: 'nav-1',
+      title: '404 Page Functionality',
+      description: 'Confirm 404 page is working and styled properly',
       status: 'pending',
-      notes: 'Should display styled 404 page with navigation back to dashboard'
+      required: true
     },
     {
-      id: 'nav-internal-links',
-      name: 'All Internal Links',
-      description: 'Test every link in the navigation and sidebars',
+      id: 'nav-2',
+      title: 'All Internal Links',
+      description: 'Test every link (dashboard, strategies, campaigns, leads, calls, AI Bots)',
       status: 'pending',
-      notes: 'Test dashboard, strategies, campaigns, leads, calls, AI Bots links'
+      required: true
     },
     {
-      id: 'nav-redirects',
-      name: 'Redirects',
-      description: 'Confirm main redirects work correctly',
+      id: 'nav-3',
+      title: 'Redirects',
+      description: 'Confirm /login, /signup, /dashboard, /admin/* correctly redirect',
       status: 'pending',
-      notes: 'Confirm /login, /signup, /dashboard, /admin/* redirect correctly'
+      required: true
     },
     {
-      id: 'nav-smart-redirects',
-      name: 'Smart Redirects',
-      description: 'Test user-specific redirects',
+      id: 'nav-4',
+      title: 'Smart Redirects',
+      description: 'Test new users go to onboarding automatically',
       status: 'pending',
-      notes: 'New users should go to onboarding automatically'
+      required: true
     },
     {
-      id: 'nav-logout-redirect',
-      name: 'Logout Redirect',
-      description: 'User should logout and redirect to login page',
+      id: 'nav-5',
+      title: 'Logout Redirect',
+      description: 'User should logout and be redirected to /login',
       status: 'pending',
-      notes: 'After logout, user should be at /login'
+      required: true
     }
   ]);
-  
-  const [isRunningChecks, setIsRunningChecks] = useState(false);
-  
-  const updateCheckStatus = (id: string, status: CheckStatus, notes?: string) => {
-    setChecks(prevChecks => 
-      prevChecks.map(check => 
-        check.id === id 
-          ? { ...check, status, notes: notes || check.notes } 
-          : check
-      )
-    );
-  };
-  
-  const runChecks = async () => {
-    setIsRunningChecks(true);
-    onStatusChange('in-progress');
+
+  const runTest = async () => {
+    setIsRunning(true);
     
-    // Simulate running checks
-    for (const check of checks) {
-      // Update status to show we're checking this item
-      toast.info(`Checking: ${check.name}...`);
+    // Reset all items to pending
+    setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
+    
+    // Simulate testing each item sequentially
+    for (let i = 0; i < items.length; i++) {
+      // Update current item to in-progress
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: 'in-progress' } : item
+      ));
       
-      // Simulate an audit check taking time
+      // Simulate test running
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo purposes, randomly pass/fail with 90% success rate
+      // Set random result (90% pass rate for demo)
       const passed = Math.random() < 0.9;
-      updateCheckStatus(check.id, passed ? 'passed' : 'failed');
       
-      if (passed) {
-        toast.success(`Passed: ${check.name}`);
-      } else {
-        toast.error(`Failed: ${check.name}`);
-      }
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+      ));
     }
     
-    // Determine overall section status
-    const failedChecks = checks.filter(check => check.status === 'failed');
-    if (failedChecks.length === 0) {
-      onStatusChange('passed');
-      toast.success("All navigation checks passed!");
+    setIsRunning(false);
+    
+    // Check results
+    const allPassed = items.every(item => item.status === 'passed');
+    const overallStatus = allPassed ? 'passed' : 'failed';
+    
+    onStatusChange(overallStatus);
+    
+    if (allPassed) {
+      toast.success('Navigation & URL Integrity Audit passed!');
     } else {
-      onStatusChange('failed');
-      toast.error(`${failedChecks.length} navigation checks failed`);
+      toast.error('Navigation & URL Integrity Audit failed. Please review and fix issues.');
     }
-    
-    setIsRunningChecks(false);
   };
-  
-  const getStatusIcon = (status: CheckStatus) => {
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'passed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'failed':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
+      case 'passed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'in-progress': return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+      default: return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
-  
+
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle>Navigation & URL Integrity Audit</CardTitle>
           <Button 
-            onClick={runChecks} 
-            disabled={isRunningChecks || status === 'in-progress'}
-            variant="outline"
+            onClick={runTest}
+            disabled={isRunning}
             size="sm"
           >
-            {isRunningChecks ? (
+            {isRunning ? (
               <>
-                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-b-2 border-current" />
-                Running Checks...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Running...
               </>
             ) : (
-              'Run Checks'
+              'Run Test'
             )}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 font-medium">Check</th>
-                <th className="text-left py-2 font-medium w-24">Status</th>
-                <th className="text-left py-2 font-medium">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checks.map((check) => (
-                <tr key={check.id} className="border-b">
-                  <td className="py-3">
-                    <div className="font-medium">{check.name}</div>
-                    <div className="text-sm text-muted-foreground">{check.description}</div>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center">
-                      {getStatusIcon(check.status)}
-                    </div>
-                  </td>
-                  <td className="py-3 text-sm">{check.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {status === 'failed' && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
-              <div className="font-medium">Failed Checks:</div>
-              <ul className="list-disc pl-5 mt-1">
-                {checks.filter(check => check.status === 'failed').map(check => (
-                  <li key={check.id}>{check.name}</li>
-                ))}
-              </ul>
+          {items.map((item) => (
+            <div key={item.id} className="flex items-start space-x-2">
+              <div className="mt-0.5">
+                {getStatusIcon(item.status)}
+              </div>
+              <div className="space-y-1">
+                <div className="text-sm font-medium">{item.title}</div>
+                <div className="text-xs text-muted-foreground">{item.description}</div>
+              </div>
+              <div className="ml-auto flex items-center">
+                <Checkbox 
+                  id={item.id}
+                  checked={item.status === 'passed'}
+                  disabled={isRunning}
+                  onCheckedChange={(checked) => {
+                    setItems(prev => prev.map(i => 
+                      i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
+                    ));
+                  }}
+                />
+              </div>
             </div>
-          )}
-          
-          {status === 'passed' && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-800 text-sm">
-              <div className="font-medium">All navigation checks passed!</div>
-              <p className="mt-1">
-                All links, redirects, and navigation paths are working correctly.
-              </p>
-            </div>
-          )}
+          ))}
         </div>
       </CardContent>
     </Card>
   );
-};
+}

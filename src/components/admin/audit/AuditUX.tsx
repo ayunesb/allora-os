@@ -2,215 +2,178 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, AlertCircle, Smartphone, Tablet, Monitor } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Loader2, Palette } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
+import { AuditComponentProps, AuditCheckItem } from './types';
 
-type CheckStatus = 'pending' | 'passed' | 'failed';
-type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
-
-interface CheckItem {
-  id: string;
-  name: string;
-  description: string;
-  status: CheckStatus;
-  notes?: string;
-  icon?: React.ReactNode;
-}
-
-interface AuditUXProps {
-  status: CategoryStatus;
-  onStatusChange: (status: CategoryStatus) => void;
-}
-
-export const AuditUX: React.FC<AuditUXProps> = ({ status, onStatusChange }) => {
-  const [checks, setChecks] = useState<CheckItem[]>([
+export function AuditUX({ status, onStatusChange }: AuditComponentProps) {
+  const [isRunning, setIsRunning] = useState(false);
+  const [items, setItems] = useState<AuditCheckItem[]>([
     {
-      id: 'ux-mobile',
-      name: 'Mobile Responsiveness',
+      id: 'ux-1',
+      title: 'Mobile Responsiveness',
       description: 'Test on iOS Safari, Chrome Android',
       status: 'pending',
-      notes: 'All pages should be fully responsive on mobile',
-      icon: <Smartphone className="h-4 w-4" />
+      required: true
     },
     {
-      id: 'ux-tablet',
-      name: 'Tablet Responsiveness',
-      description: 'iPad, Android tablet views',
+      id: 'ux-2',
+      title: 'Tablet Responsiveness',
+      description: 'iPad, Android tablet views clean',
       status: 'pending',
-      notes: 'All pages should work well on tablets',
-      icon: <Tablet className="h-4 w-4" />
+      required: true
     },
     {
-      id: 'ux-desktop',
-      name: 'Desktop Responsiveness',
-      description: 'Full-size desktop views',
+      id: 'ux-3',
+      title: 'Desktop Responsiveness',
+      description: 'Full-size desktop views clean',
       status: 'pending',
-      notes: 'Optimized for large screens',
-      icon: <Monitor className="h-4 w-4" />
+      required: true
     },
     {
-      id: 'ux-a11y',
-      name: 'Accessibility (A11y)',
-      description: 'Test accessibility features',
+      id: 'ux-4',
+      title: 'Accessibility (A11y)',
+      description: 'Test contrast ratios, alt text for images, keyboard navigation',
       status: 'pending',
-      notes: 'Test contrast ratios, alt text for images, keyboard navigation'
+      required: true
     },
     {
-      id: 'ux-flow',
-      name: 'UX Flow',
-      description: 'Verify smooth user journeys',
+      id: 'ux-5',
+      title: 'UX Flow',
+      description: 'Smooth user journeys: onboarding → dashboard → actions',
       status: 'pending',
-      notes: 'Smooth flows: onboarding → dashboard → actions'
+      required: true
     },
     {
-      id: 'ux-branding',
-      name: 'Consistent Branding',
-      description: 'Check branding elements',
+      id: 'ux-6',
+      title: 'Consistent Branding',
+      description: 'Allora AI logo, color scheme, typography consistent',
       status: 'pending',
-      notes: 'Allora AI logo, color scheme, typography consistent'
+      required: true
     },
     {
-      id: 'ux-empty',
-      name: 'Empty States',
-      description: 'Check empty state displays',
+      id: 'ux-7',
+      title: 'Empty States',
+      description: 'Friendly messages when no strategies/leads/campaigns yet',
       status: 'pending',
-      notes: 'Friendly messages when no strategies/leads/campaigns yet'
+      required: false
     }
   ]);
-  
-  const [isRunningChecks, setIsRunningChecks] = useState(false);
-  
-  const updateCheckStatus = (id: string, status: CheckStatus, notes?: string) => {
-    setChecks(prevChecks => 
-      prevChecks.map(check => 
-        check.id === id 
-          ? { ...check, status, notes: notes || check.notes } 
-          : check
-      )
-    );
-  };
-  
-  const runChecks = async () => {
-    setIsRunningChecks(true);
-    onStatusChange('in-progress');
+
+  const runTest = async () => {
+    setIsRunning(true);
     
-    // Simulate running checks
-    for (const check of checks) {
-      // Update status to show we're checking this item
-      toast.info(`Checking: ${check.name}...`);
+    // Reset all items to pending
+    setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
+    
+    // Simulate testing each item sequentially
+    for (let i = 0; i < items.length; i++) {
+      // Update current item to in-progress
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: 'in-progress' } : item
+      ));
       
-      // Simulate an audit check taking time
+      // Simulate test running
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo purposes, randomly pass/fail with 90% success rate
+      // Set random result (90% pass rate for demo)
       const passed = Math.random() < 0.9;
-      updateCheckStatus(check.id, passed ? 'passed' : 'failed');
       
-      if (passed) {
-        toast.success(`Passed: ${check.name}`);
-      } else {
-        toast.error(`Failed: ${check.name}`);
-      }
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+      ));
     }
     
-    // Determine overall section status
-    const failedChecks = checks.filter(check => check.status === 'failed');
-    if (failedChecks.length === 0) {
-      onStatusChange('passed');
-      toast.success("All UX checks passed!");
+    setIsRunning(false);
+    
+    // Check results
+    const allPassed = items.every(item => item.status === 'passed');
+    const requiredPassed = items
+      .filter(item => item.required)
+      .every(item => item.status === 'passed');
+    
+    const overallStatus = allPassed ? 'passed' : requiredPassed ? 'passed' : 'failed';
+    
+    onStatusChange(overallStatus);
+    
+    if (allPassed) {
+      toast.success('UI/UX Design Review passed!');
+    } else if (requiredPassed) {
+      toast.success('UI/UX Design Review passed with minor issues!');
     } else {
-      onStatusChange('failed');
-      toast.error(`${failedChecks.length} UX checks failed`);
+      toast.error('UI/UX Design Review failed. Please fix critical issues.');
     }
-    
-    setIsRunningChecks(false);
   };
-  
-  const getStatusIcon = (status: CheckStatus) => {
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'passed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'failed':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
+      case 'passed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'in-progress': return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+      default: return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
-  
+
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle>UI/UX Design Review</CardTitle>
+          <div className="flex items-center gap-2">
+            <Palette className="h-5 w-5 text-primary/80" />
+            <CardTitle>UI/UX Design Review</CardTitle>
+          </div>
           <Button 
-            onClick={runChecks} 
-            disabled={isRunningChecks || status === 'in-progress'}
-            variant="outline"
+            onClick={runTest}
+            disabled={isRunning}
             size="sm"
           >
-            {isRunningChecks ? (
+            {isRunning ? (
               <>
-                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-b-2 border-current" />
-                Running Checks...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Testing...
               </>
             ) : (
-              'Run Checks'
+              'Run Review'
             )}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 font-medium">Area</th>
-                <th className="text-left py-2 font-medium w-24">Status</th>
-                <th className="text-left py-2 font-medium">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checks.map((check) => (
-                <tr key={check.id} className="border-b">
-                  <td className="py-3">
-                    <div className="font-medium flex items-center gap-2">
-                      {check.icon}
-                      {check.name}
-                    </div>
-                    <div className="text-sm text-muted-foreground">{check.description}</div>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center">
-                      {getStatusIcon(check.status)}
-                    </div>
-                  </td>
-                  <td className="py-3 text-sm">{check.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {status === 'failed' && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
-              <div className="font-medium">UX Issues:</div>
-              <ul className="list-disc pl-5 mt-1">
-                {checks.filter(check => check.status === 'failed').map(check => (
-                  <li key={check.id}>{check.name}</li>
-                ))}
-              </ul>
+          {items.map((item) => (
+            <div 
+              key={item.id} 
+              className="flex items-start space-x-2"
+            >
+              <div className="mt-0.5">
+                {getStatusIcon(item.status)}
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{item.title}</span>
+                  {!item.required && (
+                    <span className="text-xs bg-primary/10 text-primary/90 px-1.5 py-0.5 rounded">Optional</span>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground">{item.description}</div>
+              </div>
+              <div className="ml-auto flex items-center">
+                <Checkbox 
+                  id={item.id}
+                  checked={item.status === 'passed'}
+                  disabled={isRunning}
+                  onCheckedChange={(checked) => {
+                    setItems(prev => prev.map(i => 
+                      i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
+                    ));
+                  }}
+                />
+              </div>
             </div>
-          )}
-          
-          {status === 'passed' && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-800 text-sm">
-              <div className="font-medium">All UI/UX checks passed!</div>
-              <p className="mt-1">
-                The application provides a good user experience across all devices.
-              </p>
-            </div>
-          )}
+          ))}
         </div>
       </CardContent>
     </Card>
   );
-};
+}

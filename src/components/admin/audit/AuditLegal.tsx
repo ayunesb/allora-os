@@ -2,207 +2,171 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, AlertCircle, FileText } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Loader2, FileText } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
+import { AuditComponentProps, AuditCheckItem } from './types';
 
-type CheckStatus = 'pending' | 'passed' | 'failed';
-type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
-
-interface CheckItem {
-  id: string;
-  name: string;
-  description: string;
-  status: CheckStatus;
-  notes?: string;
-}
-
-interface AuditLegalProps {
-  status: CategoryStatus;
-  onStatusChange: (status: CategoryStatus) => void;
-}
-
-export const AuditLegal: React.FC<AuditLegalProps> = ({ status, onStatusChange }) => {
-  const [checks, setChecks] = useState<CheckItem[]>([
+export function AuditLegal({ status, onStatusChange }: AuditComponentProps) {
+  const [isRunning, setIsRunning] = useState(false);
+  const [items, setItems] = useState<AuditCheckItem[]>([
     {
-      id: 'legal-terms',
-      name: '/legal Terms Page',
-      description: 'Check Terms of Service',
+      id: 'legal-1',
+      title: '/legal Terms Page',
+      description: 'Updated Terms of Service (support@all-or-a.com, 3-day cancellation)',
       status: 'pending',
-      notes: 'Updated Terms of Service (support@all-or-a.com, 3-day cancellation)'
+      required: true
     },
     {
-      id: 'legal-privacy',
-      name: '/privacy Policy Page',
-      description: 'Check Privacy Policy',
+      id: 'legal-2',
+      title: '/privacy Policy Page',
+      description: 'GDPR/CCPA Compliant',
       status: 'pending',
-      notes: 'GDPR/CCPA Compliant'
+      required: true
     },
     {
-      id: 'legal-cookies',
-      name: '/cookies Policy Page',
-      description: 'Check Cookies Policy',
+      id: 'legal-3',
+      title: '/cookies Policy Page',
+      description: 'Transparent cookies usage',
       status: 'pending',
-      notes: 'Transparent cookies usage'
+      required: true
     },
     {
-      id: 'legal-dpa',
-      name: 'Data Processing Addendum (DPA)',
-      description: 'Check DPA availability',
+      id: 'legal-4',
+      title: 'Data Processing Addendum (DPA)',
+      description: 'Prepared if needed for EU customers',
       status: 'pending',
-      notes: 'Prepared if needed for EU customers'
+      required: false
     },
     {
-      id: 'legal-stripe',
-      name: 'Stripe Terms Acceptance',
-      description: 'Check billing terms',
+      id: 'legal-5',
+      title: 'Stripe Terms Acceptance',
+      description: 'Users must accept Billing Terms at checkout',
       status: 'pending',
-      notes: 'Users must accept Billing Terms at checkout'
+      required: true
     },
     {
-      id: 'legal-whatsapp',
-      name: 'Email Opt-In for WhatsApp',
-      description: 'Check messaging consent',
+      id: 'legal-6',
+      title: 'Email Opt-In for WhatsApp',
+      description: 'Explicit opt-in checkbox added before WhatsApp messaging',
       status: 'pending',
-      notes: 'Explicit opt-in checkbox added before WhatsApp messaging'
+      required: true
     }
   ]);
-  
-  const [isRunningChecks, setIsRunningChecks] = useState(false);
-  
-  const updateCheckStatus = (id: string, status: CheckStatus, notes?: string) => {
-    setChecks(prevChecks => 
-      prevChecks.map(check => 
-        check.id === id 
-          ? { ...check, status, notes: notes || check.notes } 
-          : check
-      )
-    );
-  };
-  
-  const runChecks = async () => {
-    setIsRunningChecks(true);
-    onStatusChange('in-progress');
+
+  const runTest = async () => {
+    setIsRunning(true);
     
-    // Simulate running checks
-    for (const check of checks) {
-      // Update status to show we're checking this item
-      toast.info(`Checking: ${check.name}...`);
+    // Reset all items to pending
+    setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
+    
+    // Simulate testing each item sequentially
+    for (let i = 0; i < items.length; i++) {
+      // Update current item to in-progress
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: 'in-progress' } : item
+      ));
       
-      // Simulate an audit check taking time
+      // Simulate test running
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo purposes, randomly pass/fail with 90% success rate
+      // Set random result (90% pass rate for demo)
       const passed = Math.random() < 0.9;
-      updateCheckStatus(check.id, passed ? 'passed' : 'failed');
       
-      if (passed) {
-        toast.success(`Passed: ${check.name}`);
-      } else {
-        toast.error(`Failed: ${check.name}`);
-      }
+      setItems(prev => prev.map((item, idx) => 
+        idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+      ));
     }
     
-    // Determine overall section status
-    const failedChecks = checks.filter(check => check.status === 'failed');
-    if (failedChecks.length === 0) {
-      onStatusChange('passed');
-      toast.success("All legal compliance checks passed!");
+    setIsRunning(false);
+    
+    // Check results
+    const allPassed = items.every(item => item.status === 'passed');
+    const requiredPassed = items
+      .filter(item => item.required)
+      .every(item => item.status === 'passed');
+    
+    const overallStatus = allPassed ? 'passed' : requiredPassed ? 'passed' : 'failed';
+    
+    onStatusChange(overallStatus);
+    
+    if (allPassed) {
+      toast.success('Legal Compliance Check passed!');
+    } else if (requiredPassed) {
+      toast.success('Legal Compliance Check passed with minor issues!');
     } else {
-      onStatusChange('failed');
-      toast.error(`${failedChecks.length} legal compliance checks failed`);
+      toast.error('Legal Compliance Check failed. Please fix critical issues.');
     }
-    
-    setIsRunningChecks(false);
   };
-  
-  const getStatusIcon = (status: CheckStatus) => {
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'passed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'failed':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
+      case 'passed': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'in-progress': return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+      default: return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
-  
+
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Legal Compliance Check
-          </CardTitle>
+          <div className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary/80" />
+            <CardTitle>Legal Compliance Check</CardTitle>
+          </div>
           <Button 
-            onClick={runChecks} 
-            disabled={isRunningChecks || status === 'in-progress'}
-            variant="outline"
+            onClick={runTest}
+            disabled={isRunning}
             size="sm"
           >
-            {isRunningChecks ? (
+            {isRunning ? (
               <>
-                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-b-2 border-current" />
-                Running Checks...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Checking...
               </>
             ) : (
-              'Run Checks'
+              'Run Check'
             )}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 font-medium">Item</th>
-                <th className="text-left py-2 font-medium w-24">Status</th>
-                <th className="text-left py-2 font-medium">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checks.map((check) => (
-                <tr key={check.id} className="border-b">
-                  <td className="py-3">
-                    <div className="font-medium">{check.name}</div>
-                    <div className="text-sm text-muted-foreground">{check.description}</div>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex items-center">
-                      {getStatusIcon(check.status)}
-                    </div>
-                  </td>
-                  <td className="py-3 text-sm">{check.notes}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {status === 'failed' && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
-              <div className="font-medium">Legal Compliance Issues:</div>
-              <ul className="list-disc pl-5 mt-1">
-                {checks.filter(check => check.status === 'failed').map(check => (
-                  <li key={check.id}>{check.name}</li>
-                ))}
-              </ul>
-              <p className="mt-2 font-medium">
-                ⚠️ These legal compliance issues must be fixed before launch!
-              </p>
+          {items.map((item) => (
+            <div 
+              key={item.id} 
+              className="flex items-start space-x-2"
+            >
+              <div className="mt-0.5">
+                {getStatusIcon(item.status)}
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{item.title}</span>
+                  {!item.required && (
+                    <span className="text-xs bg-primary/10 text-primary/90 px-1.5 py-0.5 rounded">Optional</span>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground">{item.description}</div>
+              </div>
+              <div className="ml-auto flex items-center">
+                <Checkbox 
+                  id={item.id}
+                  checked={item.status === 'passed'}
+                  disabled={isRunning}
+                  onCheckedChange={(checked) => {
+                    setItems(prev => prev.map(i => 
+                      i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
+                    ));
+                  }}
+                />
+              </div>
             </div>
-          )}
-          
-          {status === 'passed' && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-800 text-sm">
-              <div className="font-medium">All legal compliance checks passed!</div>
-              <p className="mt-1">
-                All required legal documents and compliance measures are in place.
-              </p>
-            </div>
-          )}
+          ))}
         </div>
       </CardContent>
     </Card>
   );
-};
+}
