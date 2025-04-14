@@ -14,9 +14,10 @@ import ScrollableTabs, { TabItem } from "@/components/ui/scrollable-tabs";
 interface CallTabsProps {
   activeTab: string;
   onTabChange: (value: string) => void;
+  isLoading?: boolean;
 }
 
-export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
+export default function CallTabs({ activeTab, onTabChange, isLoading = false }: CallTabsProps) {
   const tabs: TabItem[] = [
     {
       id: "timeline",
@@ -69,6 +70,7 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       tabs={tabs} 
       activeTab={activeTab}
       onTabChange={onTabChange}
+      isLoading={isLoading}
       className="w-full"
     />
   );

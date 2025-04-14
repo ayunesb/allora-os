@@ -14,6 +14,10 @@ import { Suspense, useRef } from "react";
 import { BackendConnectionAlert } from "@/components/dashboard/BackendConnectionAlert";
 import { useEffect } from "react";
 import { initializeAutoExecutorCron } from '@/utils/executorCron';
+import CookieConsent from "@/components/CookieConsent";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
+import AccessibilityAnnouncer from "@/components/accessibility/AccessibilityAnnouncer";
+import SkipToContent from "@/components/accessibility/SkipToContent";
 
 // Set up error logging
 setupErrorLogging();
@@ -73,22 +77,27 @@ function App() {
         <meta name="description" content="AI-powered executive advisory platform designed to help businesses make strategic decisions and develop growth strategies" />
       </Helmet>
       
-      <AuthRedirectProvider>
-        <AuthProvider>
-          <ExecutiveWorkflowProvider>
-            <LanguageProvider>
-              <div className="flex flex-col min-h-screen">
-                <BackendConnectionAlert />
-                <Suspense fallback={<AppLoadingFallback />}>
-                  <RouterProvider router={router} />
-                </Suspense>
-                <Toaster richColors />
-                <GlobalErrorModal />
-              </div>
-            </LanguageProvider>
-          </ExecutiveWorkflowProvider>
-        </AuthProvider>
-      </AuthRedirectProvider>
+      <AccessibilityProvider>
+        <AuthRedirectProvider>
+          <AuthProvider>
+            <ExecutiveWorkflowProvider>
+              <LanguageProvider>
+                <div className="flex flex-col min-h-screen">
+                  <SkipToContent />
+                  <BackendConnectionAlert />
+                  <Suspense fallback={<AppLoadingFallback />}>
+                    <RouterProvider router={router} />
+                  </Suspense>
+                  <Toaster richColors />
+                  <GlobalErrorModal />
+                  <CookieConsent />
+                  <AccessibilityAnnouncer />
+                </div>
+              </LanguageProvider>
+            </ExecutiveWorkflowProvider>
+          </AuthProvider>
+        </AuthRedirectProvider>
+      </AccessibilityProvider>
     </HelmetProvider>
   );
 }

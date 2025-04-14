@@ -1,56 +1,56 @@
 
-/* Core accessibility classes */
-.high-contrast {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  
-  /* Increase contrast in text */
-  --muted-foreground: 240 3.8% 26.1%;
-  
-  /* High contrast focus styles */
-  *:focus {
-    outline: 3px solid hsl(240, 5.9%, 10%) !important;
-    outline-offset: 2px !important;
-  }
-  
-  /* Enhance buttons and interactive elements */
-  button, 
-  a, 
-  [role="button"] {
-    border: 1px solid currentColor !important;
-  }
-  
-  /* Enhance form controls */
-  input, 
-  select, 
-  textarea {
-    border: 2px solid hsl(240, 3.7%, 15.9%) !important;
-  }
+/* Accessibility-focused CSS */
+
+/* Skip to main content link - visually hidden but appears on focus */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  padding: 8px;
+  z-index: 100;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  transition: top 0.3s ease;
 }
 
-/* Font size adjustments */
+.skip-link:focus {
+  top: 0;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 80%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 20%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 0 0% 25%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 40%;
+  --ring: 0 0% 80%;
+}
+
+/* Font size classes */
 .text-size-small {
-  --font-multiplier: 0.95;
+  font-size: 0.9rem;
 }
 
 .text-size-medium {
-  --font-multiplier: 1;
+  font-size: 1rem;
 }
 
 .text-size-large {
-  --font-multiplier: 1.1;
+  font-size: 1.2rem;
 }
 
 /* Large text mode */
 .large-text {
-  font-size: 110%;
-  line-height: 1.5;
+  font-size: 1.25rem;
 }
 
 .large-text h1 {
@@ -69,48 +69,10 @@
 .large-text input,
 .large-text select,
 .large-text textarea {
-  font-size: 1.1rem;
-  padding: 0.5rem 1rem;
-}
-
-.large-text .text-xs {
-  font-size: 0.875rem;
-}
-
-.large-text .text-sm {
-  font-size: 1rem;
-}
-
-.large-text .text-base {
   font-size: 1.2rem;
 }
 
-.large-text .text-lg {
-  font-size: 1.3rem;
-}
-
-.large-text .text-xl {
-  font-size: 1.5rem;
-}
-
-.large-text .text-2xl {
-  font-size: 1.8rem;
-}
-
-/* Improved text spacing for dyslexia and reading disorders */
-.improved-text-spacing {
-  letter-spacing: 0.05em;
-  word-spacing: 0.1em;
-  line-height: 1.8;
-}
-
-.improved-text-spacing p,
-.improved-text-spacing li,
-.improved-text-spacing label {
-  margin-bottom: 1em;
-}
-
-/* Reduced motion preferences */
+/* Reduced motion */
 .reduced-motion * {
   transition-duration: 0.001ms !important;
   animation-duration: 0.001ms !important;
@@ -118,17 +80,9 @@
   scroll-behavior: auto !important;
 }
 
-/* Screen reader enhancements */
-.screen-reader-friendly .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+/* Screen reader friendly styles */
+.screen-reader-friendly:focus {
+  outline: 3px solid var(--primary) !important;
 }
 
 .screen-reader-friendly [aria-hidden="true"] {
@@ -136,91 +90,38 @@
 }
 
 /* Enhanced focus styles */
-.enhanced-focus *:focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 3px;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 0 3px hsl(var(--background)), 0 0 0 6px hsla(var(--primary), 0.4);
+.enhanced-focus :focus {
+  outline: 3px solid var(--primary) !important;
+  outline-offset: 2px !important;
 }
 
-/* Skip link for keyboard navigation */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--primary);
-  color: white;
-  padding: 8px;
-  z-index: 100;
-  transition: top 0.2s;
+.enhanced-focus button:focus,
+.enhanced-focus a:focus,
+.enhanced-focus input:focus,
+.enhanced-focus select:focus,
+.enhanced-focus textarea:focus {
+  box-shadow: 0 0 0 3px var(--primary) !important;
 }
 
-.skip-link:focus {
-  top: 0;
+/* Improved text spacing for dyslexia and readability */
+.improved-text-spacing {
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+  line-height: 1.5;
 }
 
-/* Improve form validation feedback */
-input:invalid,
-select:invalid,
-textarea:invalid {
-  border-color: hsl(var(--destructive));
+.improved-text-spacing p {
+  margin-bottom: 1.2em;
 }
 
-[aria-invalid="true"] {
-  border-color: hsl(var(--destructive));
-}
-
-/* Improved focus indication for interactive elements */
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 3px solid hsl(var(--primary));
-  outline-offset: 2px;
-}
-
-/* Add announcement region styling */
-[aria-live] {
-  border: 0;
-  clip: rect(0, 0, 0, 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
-}
-
-/* Improved keyboard navigation indicators */
-[data-focus-visible-added] {
-  box-shadow: 0 0 0 3px hsl(var(--primary));
-}
-
-/* Improved color contrast utilities */
-.text-accessible {
-  color: hsl(240, 10%, 3.9%) !important;
-}
-
-.bg-accessible {
-  background-color: hsl(0, 0%, 100%) !important;
-}
-
-.dark .text-accessible {
-  color: hsl(0, 0%, 98%) !important;
-}
-
-.dark .bg-accessible {
-  background-color: hsl(240, 10%, 3.9%) !important;
-}
-
-/* Add focus visible polyfill styling */
-.js-focus-visible :focus:not(.focus-visible) {
-  outline: none !important;
-}
-
-/* Higher contrast borders */
-.high-contrast-border {
-  border-color: hsl(var(--foreground)) !important;
-  border-width: 2px !important;
+/* Ensure enough touch target size for mobile */
+@media (max-width: 640px) {
+  .enhanced-focus button,
+  .enhanced-focus a,
+  .enhanced-focus [role="button"],
+  .enhanced-focus input[type="checkbox"],
+  .enhanced-focus input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
