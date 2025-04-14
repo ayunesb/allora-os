@@ -13,9 +13,9 @@ import {
 const StrategyAdoption: React.FC = () => {
   // Sample data - would come from an API in a real application
   const strategyData = [
-    { name: 'High Risk', value: 20, color: '#ef4444' },
-    { name: 'Medium Risk', value: 45, color: '#f59e0b' },
-    { name: 'Low Risk', value: 35, color: '#10b981' },
+    { name: 'High Risk', value: 20, color: 'var(--risk-high-DEFAULT, #ea384c)' },
+    { name: 'Medium Risk', value: 45, color: 'var(--risk-medium-DEFAULT, #f97316)' },
+    { name: 'Low Risk', value: 35, color: 'var(--risk-low-DEFAULT, #0ea5e9)' },
   ];
 
   return (

@@ -36,13 +36,13 @@ export default function RiskProfileForm({
         onValueChange={(value) => setRiskAppetite(value as 'low' | 'medium' | 'high')}
         className="grid gap-4"
       >
-        <Card className={`border ${riskAppetite === 'low' ? 'border-primary' : 'border-muted'}`}>
+        <Card className={`border ${riskAppetite === 'low' ? 'border-risk-low-DEFAULT' : 'border-muted'}`}>
           <CardContent className="pt-4">
             <div className="flex items-start gap-4">
               <RadioGroupItem value="low" id="risk-low" className="mt-1" />
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <ShieldAlert className="h-5 w-5 text-blue-500" />
+                  <ShieldAlert className="h-5 w-5 text-risk-low" />
                   <Label htmlFor="risk-low" className="font-medium">Conservative (Low Risk)</Label>
                 </div>
                 <div className="text-sm text-muted-foreground pl-7">
@@ -54,13 +54,13 @@ export default function RiskProfileForm({
           </CardContent>
         </Card>
 
-        <Card className={`border ${riskAppetite === 'medium' ? 'border-primary' : 'border-muted'}`}>
+        <Card className={`border ${riskAppetite === 'medium' ? 'border-risk-medium-DEFAULT' : 'border-muted'}`}>
           <CardContent className="pt-4">
             <div className="flex items-start gap-4">
               <RadioGroupItem value="medium" id="risk-medium" className="mt-1" />
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-5 w-5 text-risk-medium" />
                   <Label htmlFor="risk-medium" className="font-medium">Balanced (Moderate Risk)</Label>
                 </div>
                 <div className="text-sm text-muted-foreground pl-7">
@@ -72,13 +72,13 @@ export default function RiskProfileForm({
           </CardContent>
         </Card>
 
-        <Card className={`border ${riskAppetite === 'high' ? 'border-primary' : 'border-muted'}`}>
+        <Card className={`border ${riskAppetite === 'high' ? 'border-risk-high-DEFAULT' : 'border-muted'}`}>
           <CardContent className="pt-4">
             <div className="flex items-start gap-4">
               <RadioGroupItem value="high" id="risk-high" className="mt-1" />
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-yellow-500" />
+                  <Zap className="h-5 w-5 text-risk-high" />
                   <Label htmlFor="risk-high" className="font-medium">Aggressive (High Risk)</Label>
                 </div>
                 <div className="text-sm text-muted-foreground pl-7">

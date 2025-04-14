@@ -20,15 +20,15 @@ export const LeadScoreBadge: React.FC<LeadScoreBadgeProps> = ({
   const badges = {
     hot: {
       icon: <Flame className="h-3 w-3 mr-1" />,
-      class: "bg-gradient-to-r from-red-500 to-orange-400 border-red-400/30"
+      class: "bg-gradient-to-r from-risk-high-DEFAULT to-risk-high-dark/80 border-risk-high-DEFAULT/30"
     },
     warm: {
       icon: <ThermometerSun className="h-3 w-3 mr-1" />,
-      class: "bg-gradient-to-r from-amber-500 to-yellow-400 border-amber-400/30"
+      class: "bg-gradient-to-r from-risk-medium-DEFAULT to-risk-medium-dark/80 border-risk-medium-DEFAULT/30"
     },
     cold: {
       icon: <ThermometerSnowflake className="h-3 w-3 mr-1" />,
-      class: "bg-gradient-to-r from-blue-500 to-cyan-400 border-blue-400/30"
+      class: "bg-gradient-to-r from-risk-low-DEFAULT to-risk-low-dark/80 border-risk-low-DEFAULT/30"
     }
   };
 

@@ -24,6 +24,19 @@ const StrategyDetailModal: React.FC<StrategyDetailModalProps> = ({
   
   if (!strategy) return null;
 
+  // Get risk-based classes for styling
+  const getRiskClasses = (risk: string | undefined) => {
+    switch (risk) {
+      case 'Low':
+        return 'bg-risk-low text-risk-low-DEFAULT dark:text-risk-low-dark';
+      case 'High':
+        return 'bg-risk-high text-risk-high-DEFAULT dark:text-risk-high-dark';
+      case 'Medium':
+      default:
+        return 'bg-risk-medium text-risk-medium-DEFAULT dark:text-risk-medium-dark';
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-[#0c0f1f] border-gray-800 text-white">
@@ -60,10 +73,7 @@ const StrategyDetailModal: React.FC<StrategyDetailModalProps> = ({
                 <div className="bg-gray-800/50 p-4 rounded-lg">
                   <h3 className="text-sm font-medium text-gray-300 mb-2">Risk Level</h3>
                   <div className="flex items-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium 
-                      ${strategy.risk === 'Low' ? 'bg-blue-900/20 text-blue-300' : 
-                        strategy.risk === 'Medium' ? 'bg-amber-900/20 text-amber-300' : 
-                        'bg-rose-900/20 text-rose-300'}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskClasses(strategy.risk)}`}>
                       {strategy.risk} Risk
                     </span>
                   </div>

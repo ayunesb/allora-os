@@ -25,32 +25,32 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
         return {
           title: "Conservative Strategy Overview",
           message: `We've developed a conservative approach for ${companyName} focusing on stable, sustainable growth in ${industry}. Our analysis shows potential for measured expansion while minimizing exposure to market volatility.`,
-          icon: <TrendingDown className="h-5 w-5 text-blue-500" />,
-          cardClass: "border-blue-200 bg-blue-50 dark:bg-blue-950/20",
-          titleClass: "text-blue-900 dark:text-blue-100",
-          textClass: "text-blue-800 dark:text-blue-200",
-          buttonClass: "text-white bg-blue-600 hover:bg-blue-700"
+          icon: <TrendingDown className="h-5 w-5 text-risk-low" />,
+          cardClass: "border-risk-low bg-risk-low",
+          titleClass: "text-risk-low",
+          textClass: "text-risk-low-DEFAULT dark:text-risk-low-dark",
+          buttonClass: "text-white bg-risk-low-DEFAULT hover:bg-risk-low-dark"
         };
       case 'high':
         return {
           title: "Aggressive Growth Strategy",
           message: `Our analysis indicates several high-potential opportunities for ${companyName} in ${industry}. While these approaches carry higher risk, they also offer significantly greater returns and market disruption potential.`,
-          icon: <TrendingUp className="h-5 w-5 text-red-500" />,
-          cardClass: "border-red-200 bg-red-50 dark:bg-red-950/20",
-          titleClass: "text-red-900 dark:text-red-100",
-          textClass: "text-red-800 dark:text-red-200",
-          buttonClass: "text-white bg-red-600 hover:bg-red-700"
+          icon: <TrendingUp className="h-5 w-5 text-risk-high" />,
+          cardClass: "border-risk-high bg-risk-high",
+          titleClass: "text-risk-high",
+          textClass: "text-risk-high-DEFAULT dark:text-risk-high-dark",
+          buttonClass: "text-white bg-risk-high-DEFAULT hover:bg-risk-high-dark"
         };
       case 'medium':
       default:
         return {
           title: "Balanced Strategy Overview",
           message: `We've analyzed ${companyName}'s position in ${industry} and developed a balanced approach combining stable growth with strategic opportunities. This provides a mix of reliable returns and potential for breakthrough results.`,
-          icon: <Lightbulb className="h-5 w-5 text-amber-500" />,
-          cardClass: "border-amber-200 bg-amber-50 dark:bg-amber-950/20",
-          titleClass: "text-amber-900 dark:text-amber-100",
-          textClass: "text-amber-800 dark:text-amber-200",
-          buttonClass: "text-white bg-amber-600 hover:bg-amber-700"
+          icon: <Lightbulb className="h-5 w-5 text-risk-medium" />,
+          cardClass: "border-risk-medium bg-risk-medium",
+          titleClass: "text-risk-medium",
+          textClass: "text-risk-medium-DEFAULT dark:text-risk-medium-dark",
+          buttonClass: "text-white bg-risk-medium-DEFAULT hover:bg-risk-medium-dark"
         };
     }
   };

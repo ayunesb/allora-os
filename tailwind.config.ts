@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -93,6 +92,24 @@ export default {
 					'accent-foreground': '#FFFFFF',
 					border: 'rgba(255, 255, 255, 0.1)',
 					ring: '#5A67D8'
+				},
+				'risk-low': {
+					DEFAULT: '#0EA5E9',
+					light: '#D3E4FD',
+					dark: '#33C3F0',
+					foreground: '#FFFFFF'
+				},
+				'risk-medium': {
+					DEFAULT: '#F97316',
+					light: '#FEC6A1',
+					dark: '#FDBA74',
+					foreground: '#FFFFFF'
+				},
+				'risk-high': {
+					DEFAULT: '#EA384C',
+					light: '#FEE2E2',
+					dark: '#FCA5A5',
+					foreground: '#FFFFFF'
 				}
 			},
 			borderRadius: {

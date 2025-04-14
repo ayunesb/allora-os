@@ -18,12 +18,29 @@ export default function StrategyCard({ strategy, onDebate, onExport, onClick }: 
   // Determine the risk level from any of the possible properties
   const riskLevel = strategy.risk || strategy.risk_level || "Medium";
   
-  // Create a mapping of risk levels to badge variants
-  const riskBadgeVariant = {
-    "Low": "success",
-    "Medium": "warning",
-    "High": "destructive"
-  }[riskLevel] as "success" | "warning" | "destructive" | "default";
+  // Create a mapping of risk levels to badge variants and color classes
+  const getRiskStyles = (risk: string) => {
+    switch(risk) {
+      case "Low":
+        return {
+          variant: "outline",
+          className: "bg-risk-low border-risk-low text-risk-low-DEFAULT dark:text-risk-low-dark"
+        };
+      case "High":
+        return {
+          variant: "outline",
+          className: "bg-risk-high border-risk-high text-risk-high-DEFAULT dark:text-risk-high-dark"
+        };
+      case "Medium":
+      default:
+        return {
+          variant: "outline",
+          className: "bg-risk-medium border-risk-medium text-risk-medium-DEFAULT dark:text-risk-medium-dark"
+        };
+    }
+  };
+  
+  const riskStyles = getRiskStyles(riskLevel);
   
   // Format the date for display
   const formattedDate = new Date(strategy.created_at).toLocaleDateString(undefined, {
@@ -59,7 +76,7 @@ export default function StrategyCard({ strategy, onDebate, onExport, onClick }: 
     <Card className="hover:shadow-md transition-shadow overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start mb-2">
-          <Badge variant={riskBadgeVariant} className="capitalize">
+          <Badge variant="outline" className={`capitalize ${riskStyles.className}`}>
             {riskLevel} Risk
           </Badge>
           <span className="text-xs text-muted-foreground">{formattedDate}</span>

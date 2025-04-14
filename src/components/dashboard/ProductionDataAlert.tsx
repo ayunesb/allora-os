@@ -43,7 +43,13 @@ export default function ProductionDataAlert() {
   }
   
   return (
-    <Alert variant={isProductionReady ? "default" : "destructive"} className="border-amber-300 bg-amber-50 text-amber-900">
+    <Alert 
+      variant={isProductionReady ? "default" : "destructive"} 
+      className={isProductionReady 
+        ? "border-risk-low-light bg-risk-low-light/20 text-risk-low-DEFAULT dark:text-risk-low-dark" 
+        : "border-amber-300 bg-amber-50 text-amber-900"
+      }
+    >
       <div className="flex justify-between items-center">
         <div className="flex items-start gap-3">
           {isProductionReady ? (
@@ -52,10 +58,10 @@ export default function ProductionDataAlert() {
             <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
           )}
           <div>
-            <AlertTitle className="text-amber-800">
+            <AlertTitle className={isProductionReady ? "text-risk-low-DEFAULT dark:text-risk-low-dark" : "text-amber-800"}>
               {isProductionReady ? "Ready for Production" : "Development Environment"}
             </AlertTitle>
-            <AlertDescription className="text-amber-700 mt-1">
+            <AlertDescription className={isProductionReady ? "text-risk-low-DEFAULT/80 dark:text-risk-low-dark/80 mt-1" : "text-amber-700 mt-1"}>
               {isProductionReady 
                 ? "Your data is validated and ready for production use." 
                 : "You're viewing demo data. Set up production data before going live."}

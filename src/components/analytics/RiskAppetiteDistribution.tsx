@@ -9,8 +9,12 @@ interface RiskAppetiteDistributionProps {
 }
 
 const RiskAppetiteDistribution: React.FC<RiskAppetiteDistributionProps> = ({ data }) => {
-  // Colors for chart
-  const COLORS = ["#10B981", "#F97316", "#8B5CF6"];
+  // Colors for chart - now using our risk color system
+  const COLORS = [
+    "var(--risk-low-DEFAULT, #0ea5e9)", 
+    "var(--risk-medium-DEFAULT, #f97316)", 
+    "var(--risk-high-DEFAULT, #ea384c)"
+  ];
   
   return (
     <Card>
