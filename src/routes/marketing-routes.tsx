@@ -9,6 +9,7 @@ import Compliance from "@/pages/Compliance";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
 import TermsOfService from "@/pages/TermsOfService";
+import MessagingConsent from "@/pages/MessagingConsent";
 
 export const marketingRoutes: RouteObject[] = [
   {
@@ -32,6 +33,10 @@ export const marketingRoutes: RouteObject[] = [
     element: <RefundPolicy />,
   },
   {
+    path: "/messaging-consent",
+    element: <MessagingConsent />,
+  },
+  {
     path: "/compliance",
     element: <Compliance />,
   },
@@ -45,6 +50,10 @@ export const marketingRoutes: RouteObject[] = [
   },
   {
     path: "/legal/terms-of-service",
+    element: <TermsOfService />,
+  },
+  {
+    path: "/terms",
     element: <TermsOfService />,
   },
 ];

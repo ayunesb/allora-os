@@ -1,6 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { normalizeRoute, trackRouteVisit } from '@/utils/navigation';
+import { trackRouteAccess } from '@/utils/routeTracker';
 import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
 import { useAuth } from '@/context/AuthContext';
@@ -21,6 +23,9 @@ export default function NavigationFixer() {
     
     // Track visited route for analytics and smart suggestions
     trackRouteVisit(location.pathname);
+    
+    // Also track route access for legal pages specifically
+    trackRouteAccess(location.pathname);
   }, [location.pathname]);
   
   useEffect(() => {
@@ -28,6 +33,7 @@ export default function NavigationFixer() {
     
     // Skip processing for known valid routes
     const knownValidPaths = [
+      '/',
       '/login', 
       '/signup', 
       '/dashboard', 
@@ -48,7 +54,10 @@ export default function NavigationFixer() {
       '/faq',
       '/legal',
       '/privacy',
-      '/terms'
+      '/terms',
+      '/cookie-policy',
+      '/refund-policy',
+      '/messaging-consent'
     ];
     
     const isKnownValid = knownValidPaths.some(path => 
@@ -142,7 +151,12 @@ export default function NavigationFixer() {
       '/legal/cookies',
       '/legal/compliance',
       '/legal/refund-policy',
-      '/legal/messaging-consent'
+      '/legal/messaging-consent',
+      '/privacy',
+      '/terms',
+      '/cookie-policy',
+      '/refund-policy',
+      '/messaging-consent'
     ];
     
     // Log any navigation to legal routes for tracking

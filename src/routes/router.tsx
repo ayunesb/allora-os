@@ -72,12 +72,16 @@ const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
 
 // Create dynamic routes with lazy loading
 const createLazyRoutes = () => {
-  // Public routes
-  const publicRoutes: RouteObject[] = [
+  // Root route must be added first
+  const rootRoutes: RouteObject[] = [
     {
       path: "/",
       element: withSuspense(Index),
     },
+  ];
+  
+  // Public routes
+  const publicRoutes: RouteObject[] = [
     {
       path: "/home",
       element: withSuspense(Home),
@@ -118,8 +122,9 @@ const createLazyRoutes = () => {
     },
   ];
 
-  // Combine all routes
+  // Combine all routes - ensure rootRoutes are first
   const routes: RouteObject[] = [
+    ...rootRoutes,
     ...publicRoutes,
     ...authRoutes,
     ...adminRoutes,
@@ -127,11 +132,17 @@ const createLazyRoutes = () => {
     ...onboardingRoutes,
     ...marketingRoutes, 
     ...devRoutes,
-    ...globalRoutes,
     // Add the compliance routes wrapper
     {
       path: "compliance/*",
       element: withSuspense(() => <ComplianceRoutesWrapper />)
+    },
+    // Global routes should be last (except for the catch-all 404)
+    ...globalRoutes.filter(route => route.path !== "*"),
+    // The 404 catch-all route must be the very last one
+    {
+      path: "*",
+      element: withSuspense(NotFound),
     }
   ];
 

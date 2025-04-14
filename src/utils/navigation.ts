@@ -1,3 +1,4 @@
+
 // A utility for navigation that doesn't depend on the useNavigate hook directly
 // This will be used in contexts or services that need to navigate but can't access useNavigate
 
@@ -56,6 +57,14 @@ const COMMON_ROUTE_CORRECTIONS: Record<string, string> = {
   '/admin/system': '/admin/system-health',
   '/admin/diag': '/admin/diagnostics',
   '/admin/diagnostic': '/admin/diagnostics',
+  // Legal page redirections
+  '/terms': '/legal/terms-of-service',
+  '/tos': '/legal/terms-of-service',
+  '/privacy-policy': '/privacy',
+  '/cookies': '/cookie-policy',
+  '/cookie': '/cookie-policy',
+  '/refund': '/refund-policy',
+  '/messaging': '/messaging-consent',
 };
 
 // Route normalization function to handle common URL variants
@@ -131,6 +140,32 @@ export const normalizeRoute = (route: string): string => {
   
   if (route === '/diagnostics' || route === '/system/diagnostics') {
     return '/admin/diagnostics';
+  }
+  
+  // Legal page normalizations
+  if (route.includes('/term') && !route.includes('/terms-of-service')) {
+    return '/legal/terms-of-service';
+  }
+  
+  if ((route.includes('/privacy') || route.includes('/gdpr')) && route !== '/privacy') {
+    return '/privacy';
+  }
+  
+  if (route.includes('/cookie') && route !== '/cookie-policy') {
+    return '/cookie-policy';
+  }
+  
+  if (route.includes('/refund') && route !== '/refund-policy') {
+    return '/refund-policy';
+  }
+  
+  if (route.includes('/message') && !route.includes('/messaging-consent')) {
+    return '/messaging-consent';
+  }
+  
+  // Handle root path
+  if (route === '') {
+    return '/';
   }
   
   return route;
