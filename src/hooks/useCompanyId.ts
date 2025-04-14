@@ -15,6 +15,7 @@ export function useCompanyId(): string | undefined {
   const [validatedCompanyId, setValidatedCompanyId] = useState<string | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
   const [isProductionMode, setIsProductionMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export function useCompanyId(): string | undefined {
 
   useEffect(() => {
     // Function to validate if a company ID exists in the database
+    // and is not a test/demo company
     const validateCompanyId = async (companyId: string) => {
       if (!companyId) return false;
       
@@ -41,6 +43,7 @@ export function useCompanyId(): string | undefined {
             .not('name', 'ilike', '%test%')
             .not('name', 'ilike', '%demo%')
             .not('name', 'ilike', '%example%')
+            .not('name', 'ilike', '%sample%')
             .single();
           
           return !error && data;
@@ -64,6 +67,7 @@ export function useCompanyId(): string | undefined {
       if (isValidating || validatedCompanyId) return;
       
       setIsValidating(true);
+      setError(null);
       
       try {
         // First check if profile has a company_id
@@ -78,6 +82,7 @@ export function useCompanyId(): string | undefined {
             // If we're in production mode and the company ID is invalid, 
             // redirect to onboarding
             console.error("Invalid company ID in user profile:", profile.company_id);
+            setError("Your company information appears to be incomplete or contains test data.");
             toast.error("Your company information appears to be incomplete. Please complete onboarding.");
             navigate("/onboarding");
             setIsValidating(false);
@@ -109,10 +114,14 @@ export function useCompanyId(): string | undefined {
             
             setIsValidating(false);
             return;
-          } else if (isProductionMode) {
-            // If the stored ID is invalid and we're in production, clear it
+          } else {
+            // If the stored ID is invalid, clear it
             console.error("Invalid company ID in localStorage:", storedCompanyId);
             localStorage.removeItem('allora_company_id');
+            
+            if (isProductionMode) {
+              setError("Your stored company information is invalid or contains test data.");
+            }
           }
         }
         
@@ -120,13 +129,14 @@ export function useCompanyId(): string | undefined {
         // In production mode, this is a problem - redirect to onboarding
         if (isProductionMode && user) {
           console.error("No valid company ID found for user");
+          setError("Your company information appears to be incomplete or invalid.");
           toast.error("Your company information appears to be incomplete. Please complete onboarding.");
           navigate("/onboarding");
           setIsValidating(false);
           return;
         }
         
-        // Try to find any company associated with this user
+        // Try to find any real company associated with this user
         if (user) {
           // In production mode, search for real companies only
           let query = supabase
@@ -135,12 +145,13 @@ export function useCompanyId(): string | undefined {
             .order('created_at', { ascending: false })
             .limit(1);
           
-          // Add additional filters for production mode
+          // Add additional filters for production mode to exclude test data
           if (isProductionMode) {
             query = query
               .not('name', 'ilike', '%test%')
               .not('name', 'ilike', '%demo%')
-              .not('name', 'ilike', '%example%');
+              .not('name', 'ilike', '%example%')
+              .not('name', 'ilike', '%sample%');
           }
           
           const { data, error } = await query;
@@ -163,8 +174,9 @@ export function useCompanyId(): string | undefined {
               }
             }
           } else if (isProductionMode) {
-            // In production mode with no companies, redirect to onboarding
-            console.error("No companies found for this user in production mode");
+            // In production mode with no real companies, redirect to onboarding
+            setError("No valid company found for your account.");
+            console.error("No real companies found for this user in production mode");
             toast.error("Please complete company onboarding to access the dashboard");
             navigate("/onboarding");
           } else {
@@ -173,6 +185,8 @@ export function useCompanyId(): string | undefined {
         }
       } catch (err) {
         console.error("Error in company ID validation:", err);
+        setError(`Error validating company information: ${err.message}`);
+        
         if (isProductionMode) {
           toast.error("Error validating company information");
           navigate("/onboarding");
@@ -186,10 +200,17 @@ export function useCompanyId(): string | undefined {
   }, [isProfileLoading, profile, user, isValidating, validatedCompanyId, isProductionMode, navigate]);
   
   // Return priority: validated ID > profile ID > localStorage ID
+  // BUT NEVER RETURN UNVALIDATED IDs IN PRODUCTION MODE
   if (validatedCompanyId) {
     return validatedCompanyId;
   }
   
+  if (isProductionMode) {
+    // In production, don't return potentially invalid IDs
+    return undefined;
+  }
+  
+  // In dev environment, we can be more lenient for testing
   if (!isProfileLoading && profile?.company_id) {
     return profile.company_id;
   }

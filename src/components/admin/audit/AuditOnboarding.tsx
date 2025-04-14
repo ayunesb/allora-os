@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,10 +104,10 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
         }
       }
       
-      // Check if we have real companies data
+      // Check if we have real companies data (not test/demo)
       let query = supabase
         .from('companies')
-        .select('id, name')
+        .select('id, name, details')
         .order('created_at', { ascending: false })
         .limit(5);
       
@@ -115,7 +116,8 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
         query = query
           .not('name', 'ilike', '%test%')
           .not('name', 'ilike', '%demo%')
-          .not('name', 'ilike', '%example%');
+          .not('name', 'ilike', '%example%')
+          .not('name', 'ilike', '%sample%');
       }
       
       const { data: companies, error: companiesError } = await query;
@@ -125,29 +127,43 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
         if (isProductionMode) {
           // In production, show the error and don't auto-pass
           toast.error("Could not verify company data: " + companiesError.message);
-          runTest(false); // Don't force pass in production
+          onStatusChange('pending');
         } else {
-          // In development, still run the simulated test
-          runTest(true);
+          // In development, mark as passed for testing
+          onStatusChange('passed');
         }
-      } else if (companies && companies.length > 0) {
+        setIsLiveChecking(false);
+        return;
+      }
+      
+      if (companies && companies.length > 0) {
         console.log("Found real companies:", companies);
+        
+        // We found companies, but we need to verify they have real data
+        const hasValidCompanyData = companies.some(company => {
+          // Check if company has key fields filled out (not just empty strings)
+          const hasName = company.name && company.name.trim().length > 0;
+          const hasDetails = company.details && 
+            (company.details.industry || company.details.goals || company.details.size);
+          
+          return hasName && hasDetails;
+        });
         
         // We have real data, mark company check as passed
         setItems(prev => {
           const newItems = [...prev];
           const companyItem = newItems.find(item => item.id === 'onb-3');
           if (companyItem) {
-            companyItem.status = 'passed';
+            companyItem.status = hasValidCompanyData ? 'passed' : 'pending';
           }
           return newItems;
         });
         
-        // Run additional checks
-        const profiles = await checkProfiles();
+        // Continue with additional checks
+        const hasValidProfiles = await checkProfiles();
         
-        if (profiles && isProductionMode) {
-          // Only mark overall as passed if we found both profiles and companies
+        if (hasValidCompanyData && hasValidProfiles) {
+          // Only mark overall as passed if we found both valid profiles and companies
           toast.success('Verified real company data');
           setItems(prev => prev.map(item => ({ ...item, status: 'passed' })));
           onStatusChange('passed');
@@ -155,26 +171,34 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
           // Store the first company ID in localStorage for reference
           localStorage.setItem('allora_company_id', companies[0].id);
         } else {
-          // If specific checks failed, run the test but don't force pass in production
-          runTest(isProductionMode ? false : true);
+          if (isProductionMode) {
+            // In production mode, we require complete real data
+            toast.warning("Found companies but data appears incomplete. Please complete onboarding.");
+            onStatusChange('pending');
+          } else {
+            // In dev, be more lenient for testing
+            onStatusChange('passed');
+          }
         }
       } else {
-        // If no real data is found, run the simulated test
-        console.log("No real companies found, running simulated check");
+        // No real companies found
+        console.log("No real companies found");
         if (isProductionMode) {
-          toast.warning("No company data found. Please complete onboarding first.");
-          runTest(false); // Don't force pass in production
+          toast.warning("No valid company data found. Please complete onboarding first.");
+          onStatusChange('pending');
         } else {
-          runTest(true);
+          // In dev, be more lenient
+          onStatusChange('passed');
         }
       }
     } catch (err) {
       console.error("Error checking for real data:", err);
       if (isProductionMode) {
         toast.error("Error verifying company data");
-        runTest(false); // Don't force pass in production
+        onStatusChange('pending');
       } else {
-        runTest(true); // Still pass in development
+        // Still pass in development for testing
+        onStatusChange('passed');
       }
     } finally {
       setIsLiveChecking(false);
@@ -183,9 +207,10 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
   
   const checkProfiles = async () => {
     try {
+      // Check for profiles with proper company associations
       const { data: profiles, error } = await supabase
         .from('profiles')
-        .select('id, company_id')
+        .select('id, company_id, company, industry')
         .not('company_id', 'is', null)
         .limit(5);
         
@@ -203,15 +228,20 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
       }
       
       if (profiles && profiles.length > 0) {
+        // Check for complete profile data
+        const hasCompleteProfiles = profiles.some(profile => 
+          profile.company_id && profile.company && profile.industry
+        );
+        
         setItems(prev => {
           const newItems = [...prev];
           const profileItem = newItems.find(item => item.id === 'onb-2');
           if (profileItem) {
-            profileItem.status = 'passed';
+            profileItem.status = hasCompleteProfiles ? 'passed' : 'pending';
           }
           return newItems;
         });
-        return true;
+        return hasCompleteProfiles;
       } else {
         setItems(prev => {
           const newItems = [...prev];
@@ -229,61 +259,112 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
     }
   };
 
-  const checkOnboardingData = async (forcePass = false) => {
-    // In production mode, ensure all tests pass only if real data is found
-    if (isProductionMode && !forcePass) {
-      // Keep current item statuses
-      return items.every(item => item.status === 'passed');
-    }
-    
-    // For development, simulate a real check
-    // Update all items to in-progress
-    setItems(prev => prev.map(item => ({ ...item, status: 'in-progress' })));
-    
-    // Simulate a delay for checks to appear realistic
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // In development or if forcePass is true, mark all checks as passed
-    setItems(prev => prev.map(item => ({ ...item, status: 'passed' })));
-    
-    // Return true to indicate all passed
-    return true;
-  };
-
-  const runTest = async (forcePass = false) => {
+  const runTest = async () => {
     setIsRunning(true);
     
     try {
-      // Run verification for onboarding data
-      const allPassed = await checkOnboardingData(forcePass);
+      // Update all items to in-progress
+      setItems(prev => prev.map(item => ({ ...item, status: 'in-progress' })));
       
-      // Update status based on verification result
-      onStatusChange(allPassed ? 'passed' : 'pending');
+      // Run actual database checks
+      const validationResults = await validateAndCleanProductionData();
       
-      if (allPassed) {
-        if (isProductionMode) {
+      // Check if we have real companies in the database
+      const { data: companies, error: companyError } = await supabase
+        .from('companies')
+        .select('id, name, details')
+        .not('name', 'ilike', '%test%')
+        .not('name', 'ilike', '%demo%')
+        .not('name', 'ilike', '%example%')
+        .limit(5);
+        
+      if (companyError) {
+        throw new Error(`Error checking companies: ${companyError.message}`);
+      }
+      
+      const hasRealCompanies = companies && companies.length > 0;
+      
+      // Check for profiles with real data
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, company_id, company, industry')
+        .not('company_id', 'is', null)
+        .limit(5);
+        
+      if (profileError) {
+        throw new Error(`Error checking profiles: ${profileError.message}`);
+      }
+      
+      const hasRealProfiles = profiles && profiles.length > 0;
+      
+      // Update status based on database checks
+      if (isProductionMode) {
+        // In production mode, require real data and no validation errors
+        const isPassing = hasRealCompanies && 
+                        hasRealProfiles && 
+                        validationResults.success;
+        
+        // Update UI based on check results
+        setItems(prev => {
+          const newItems = [...prev];
+          
+          // Update company check
+          const companyItem = newItems.find(item => item.id === 'onb-3');
+          if (companyItem) {
+            companyItem.status = hasRealCompanies ? 'passed' : 'failed';
+          }
+          
+          // Update profile check  
+          const profileItem = newItems.find(item => item.id === 'onb-2');
+          if (profileItem) {
+            profileItem.status = hasRealProfiles ? 'passed' : 'failed';
+          }
+          
+          // Update validation check
+          const validationItem = newItems.find(item => item.id === 'onb-5');
+          if (validationItem) {
+            validationItem.status = validationResults.success ? 'passed' : 'failed';
+          }
+          
+          // Mark other checks as passed (less critical)
+          return newItems.map(item => {
+            if (!['onb-3', 'onb-2', 'onb-5'].includes(item.id)) {
+              return { ...item, status: 'passed' };
+            }
+            return item;
+          });
+        });
+        
+        onStatusChange(isPassing ? 'passed' : 'pending');
+        
+        if (isPassing) {
           toast.success('Production audit passed!');
         } else {
-          toast.success('Onboarding audit passed!');
+          toast.warning('Some audit checks failed. Please ensure you have real company data.');
         }
       } else {
-        if (isProductionMode) {
-          toast.warning('Some audit checks failed. Please complete company onboarding first.');
-        } else {
-          toast.info('Some checks need attention in development mode.');
-        }
+        // In development mode, be more lenient
+        setItems(prev => prev.map(item => ({ ...item, status: 'passed' })));
+        onStatusChange('passed');
+        toast.success('Onboarding audit passed in development mode');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Audit error:', error);
       
       // In production, don't automatically pass on error
       if (isProductionMode) {
         onStatusChange('pending');
         toast.error('Production audit failed: ' + error.message);
+        
+        // Mark items as failed
+        setItems(prev => prev.map(item => ({ ...item, status: 'failed' })));
       } else {
         // Still allow passing in development
         onStatusChange('passed');
         toast.info('Onboarding audit completed with simulated data');
+        
+        // Mark items as passed for dev
+        setItems(prev => prev.map(item => ({ ...item, status: 'passed' })));
       }
     } finally {
       setIsRunning(false);
@@ -310,7 +391,7 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
             </CardTitle>
           </div>
           <Button 
-            onClick={() => runTest(false)}
+            onClick={runTest}
             disabled={isRunning || isLiveChecking}
             size="sm"
           >
@@ -340,8 +421,11 @@ export function AuditOnboarding({ status, onStatusChange }: AuditComponentProps)
                 <Checkbox 
                   id={item.id}
                   checked={item.status === 'passed'}
-                  disabled={isRunning || isLiveChecking}
+                  disabled={isRunning || isLiveChecking || isProductionMode}
                   onCheckedChange={(checked) => {
+                    // Only allow manual changes in development mode
+                    if (isProductionMode) return;
+                    
                     setItems(prev => prev.map(i => 
                       i.id === item.id ? { ...i, status: checked ? 'passed' : 'pending' } : i
                     ));
