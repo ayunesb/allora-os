@@ -3,38 +3,38 @@ import { ExecutivePersona } from '@/types/executives';
 
 export const chiefProductOfficer: ExecutivePersona = {
   id: 'chief-product-officer',
-  name: 'Dr. Lisa Morgan',
+  name: 'David Kim',
   title: 'Chief Product Officer',
   shortTitle: 'CPO',
   avatar: '/assets/avatars/cpo-avatar.jpg',
-  color: '#4169E1', // Royal blue
-  introduction: 'Dr. Lisa Morgan is the Chief Product Officer at Allora AI, with expertise in product strategy, user experience, and innovation management.',
+  color: '#9932CC', // Dark Orchid
+  introduction: 'David Kim is the Chief Product Officer at Allora AI, with expertise in product development, innovation, and user experience.',
   expertise: [
     'Product Strategy',
-    'User Experience Design',
     'Product Development',
+    'User Experience',
+    'Product Management',
     'Innovation Management',
+    'Market Validation',
     'Product Roadmapping',
-    'Market Analysis',
-    'Product-Market Fit',
-    'Feature Prioritization'
+    'Design Thinking'
   ],
   leadership: {
-    style: 'Collaborative and user-centered',
-    strengths: 'Balancing innovation with market needs',
-    philosophy: 'Building products that solve real problems and deliver exceptional user experiences'
+    style: 'Innovative and user-focused',
+    strengths: 'Product vision and user-centered design',
+    philosophy: 'Building products that solve real user problems and create sustainable competitive advantage'
   },
   background: {
-    education: 'PhD in Human-Computer Interaction, MIT',
-    experience: '15+ years in product leadership at leading tech companies'
+    education: 'MSc in Human-Computer Interaction, Stanford University',
+    experience: '14+ years in product leadership and innovation'
   },
-  approach: 'I develop product strategies that balance innovation with market demand. My focus is on creating solutions that address real user needs while driving business growth.',
-  communicationStyle: 'User-focused, analytical, and forward-thinking',
+  approach: 'I help you develop products that your customers love by focusing on user needs, innovation, and effective product management.',
+  communicationStyle: 'Visual, user-centric, and innovation-focused',
   questionExamples: [
-    'What product features should we prioritize?',
-    'How can we improve our user experience?',
-    'What gaps exist in our product offering?',
-    'How should we structure our product roadmap?',
-    'What market trends should inform our product strategy?'
+    'How can we improve our product strategy?',
+    'What should be on our product roadmap?',
+    'How can we better understand our users?',
+    'What innovation process should we implement?',
+    'How can we measure product success?'
   ]
 };

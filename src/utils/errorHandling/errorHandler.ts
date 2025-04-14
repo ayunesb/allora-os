@@ -9,6 +9,7 @@ export interface ErrorHandlingOptions {
   logToService?: boolean;
   context?: Record<string, any>;
   friendlyMessage?: string;
+  type?: ErrorType; // Add support for type property
 }
 
 export function handleError(
@@ -20,7 +21,8 @@ export function handleError(
     logToConsole = true,
     logToService = true,
     context = {},
-    friendlyMessage = "An error occurred. Please try again."
+    friendlyMessage = "An error occurred. Please try again.",
+    type
   } = options;
 
   // Extract error message
@@ -28,6 +30,7 @@ export function handleError(
   const errorDetails = {
     message: errorMessage,
     stack: error?.stack,
+    type: type || (error?.type || ErrorType.UNEXPECTED_ERROR),
     ...context
   };
 

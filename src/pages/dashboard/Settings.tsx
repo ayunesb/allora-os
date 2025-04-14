@@ -1,93 +1,30 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/context/AuthContext";
-import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { Badge } from "@/components/ui/badge";
-import { Lock, Mic } from "lucide-react";
-
-// Import our component tabs
-import AccountTab from "@/components/settings/AccountTab";
-import NotificationsTab from "@/components/settings/NotificationsTab";
-import DevelopmentToolsTab from "@/components/settings/DevelopmentToolsTab";
-import MarketingPlatformIntegrations from "@/components/integrations/MarketingPlatformIntegrations";
-import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
-import ProfileDiagnostics from "@/components/settings/ProfileDiagnostics";
-import { PersonalizationPreferencesForm } from "@/components/user-preferences/PersonalizationPreferencesForm";
-import { SystemHealthCheck } from "@/components/settings/SystemHealthCheck";
-import { VoiceTranscription } from "@/components/voice/VoiceTranscription";
+import React from 'react';
+import { PageTitle } from '@/components/ui/page-title';
 
 export default function Settings() {
-  const { user, profile } = useAuth();
-  const { preferences, isLoading: prefsLoading, updatePreference } = useUserPreferences();
-  
-  const isAdmin = profile?.role === 'admin';
-
   return (
-    <div className="container max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Settings</h1>
-      <p className="text-muted-foreground mb-8">Manage your preferences and system settings</p>
-
-      {/* Add the diagnostic component at the top */}
-      <ProfileDiagnostics />
-
-      <Tabs defaultValue="account">
-        <TabsList className="mb-8">
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="integrations">Integrations</TabsTrigger>
-          <TabsTrigger value="personalization">AI Personalization</TabsTrigger>
-          <TabsTrigger value="voice">
-            <div className="flex items-center gap-1">
-              <Mic className="h-4 w-4" />
-              <span>Voice</span>
-            </div>
-          </TabsTrigger>
-          <TabsTrigger value="health">System Health</TabsTrigger>
-          {isAdmin && (
-            <TabsTrigger value="development" className="flex items-center gap-2">
-              Development
-              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs">
-                Admin Only
-              </Badge>
-            </TabsTrigger>
-          )}
-        </TabsList>
-
-        <TabsContent value="account">
-          <AccountTab />
-        </TabsContent>
+    <div className="container mx-auto py-6">
+      <PageTitle title="Settings" description="Manage your account and application settings">
+        Settings
+      </PageTitle>
+      
+      <div className="mt-6 space-y-6">
+        <div className="p-4 border rounded-lg">
+          <h3 className="text-lg font-medium">Account Settings</h3>
+          <p className="text-muted-foreground">Manage your account preferences</p>
+        </div>
         
-        <TabsContent value="notifications">
-          <NotificationsTab />
-        </TabsContent>
+        <div className="p-4 border rounded-lg">
+          <h3 className="text-lg font-medium">Notification Settings</h3>
+          <p className="text-muted-foreground">Configure how you receive notifications</p>
+        </div>
         
-        <TabsContent value="integrations">
-          <div className="grid gap-8">
-            <MarketingPlatformIntegrations />
-            <LinkedInIntegration />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="personalization">
-          <PersonalizationPreferencesForm />
-        </TabsContent>
-        
-        <TabsContent value="voice">
-          <VoiceTranscription />
-        </TabsContent>
-        
-        <TabsContent value="health">
-          <SystemHealthCheck />
-        </TabsContent>
-        
-        {isAdmin && (
-          <TabsContent value="development">
-            <DevelopmentToolsTab />
-          </TabsContent>
-        )}
-      </Tabs>
+        <div className="p-4 border rounded-lg">
+          <h3 className="text-lg font-medium">Privacy Settings</h3>
+          <p className="text-muted-foreground">Manage your privacy preferences</p>
+        </div>
+      </div>
     </div>
   );
 }

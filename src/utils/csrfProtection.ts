@@ -33,3 +33,14 @@ export const getCsrfToken = (): string | null => {
 export const clearCsrfToken = (): void => {
   localStorage.removeItem('csrf_token');
 };
+
+/**
+ * Add CSRF token to form data
+ */
+export const addCsrfToFormData = (formData: FormData): FormData => {
+  const token = getCsrfToken();
+  if (token) {
+    formData.append('csrf_token', token);
+  }
+  return formData;
+};

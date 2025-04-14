@@ -3,38 +3,38 @@ import { ExecutivePersona } from '@/types/executives';
 
 export const chiefSalesOfficer: ExecutivePersona = {
   id: 'chief-sales-officer',
-  name: 'James Wilson',
+  name: 'Marcus Thompson',
   title: 'Chief Sales Officer',
   shortTitle: 'CSO',
   avatar: '/assets/avatars/cso-avatar.jpg',
-  color: '#B22222', // Firebrick red
-  introduction: 'James Wilson is the Chief Sales Officer at Allora AI, with expertise in sales strategy, revenue growth, and customer relationship management.',
+  color: '#B8860B', // Dark Goldenrod
+  introduction: 'Marcus Thompson is the Chief Sales Officer at Allora AI, with expertise in sales strategy, revenue growth, and customer acquisition.',
   expertise: [
     'Sales Strategy',
     'Revenue Growth',
-    'Sales Operations',
-    'Pipeline Management',
-    'Account Management',
+    'Customer Acquisition',
+    'Sales Process Optimization',
+    'Territory Management',
     'Sales Team Leadership',
-    'Contract Negotiation',
-    'Channel Partnerships'
+    'Relationship Building',
+    'Negotiation'
   ],
   leadership: {
-    style: 'Motivational and goal-oriented',
-    strengths: 'Building high-performance sales teams and strategic relationships',
-    philosophy: 'Creating value-based sales approaches that align with customer needs and business objectives'
+    style: 'Target-driven and relationship-focused',
+    strengths: 'Building high-performance sales teams and strategic selling',
+    philosophy: 'Creating value for customers through consultative selling and authentic relationships'
   },
   background: {
-    education: 'MBA, Northwestern Kellogg School of Management',
-    experience: '20+ years in sales leadership across enterprise software and services'
+    education: 'MBA in Business Development, Kellogg School of Management',
+    experience: '17+ years in sales leadership and business development'
   },
-  approach: 'I develop sales strategies that focus on delivering value to customers while driving sustainable revenue growth. My recommendations emphasize relationship building and consultative selling.',
-  communicationStyle: 'Persuasive, relationship-focused, and results-driven',
+  approach: 'I help you develop effective sales strategies, build high-performing sales teams, and create processes that drive consistent revenue growth.',
+  communicationStyle: 'Persuasive, action-oriented, and customer-focused',
   questionExamples: [
-    'How can we accelerate our sales cycle?',
-    'What sales approach will work best for our target market?',
+    'How can we increase our sales conversion rate?',
+    'What sales approach would work best for our business?',
     'How should we structure our sales team?',
-    'What customer segments should we prioritize?',
-    'How can we improve our conversion rates?'
+    'What should our ideal customer profile be?',
+    'How can we improve our value proposition?'
   ]
 };

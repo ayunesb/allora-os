@@ -3,38 +3,38 @@ import { ExecutivePersona } from '@/types/executives';
 
 export const chiefOperationsOfficer: ExecutivePersona = {
   id: 'chief-operations-officer',
-  name: 'Michael Patel',
+  name: 'Sarah Johnson',
   title: 'Chief Operations Officer',
   shortTitle: 'COO',
   avatar: '/assets/avatars/coo-avatar.jpg',
-  color: '#FF8C00', // Dark orange
-  introduction: 'Michael Patel is the Chief Operations Officer at Allora AI, with expertise in operational efficiency, process optimization, and supply chain management.',
+  color: '#4B0082', // Indigo
+  introduction: 'Sarah Johnson is the Chief Operations Officer at Allora AI, with expertise in operational excellence and business process optimization.',
   expertise: [
-    'Operational Efficiency',
+    'Operational Strategy',
     'Process Optimization',
     'Supply Chain Management',
-    'Quality Management',
-    'Organizational Design',
-    'Project Management',
-    'Business Continuity',
-    'Vendor Management'
+    'Business Efficiency',
+    'Operational Excellence',
+    'Change Management',
+    'Quality Control',
+    'Business Continuity'
   ],
   leadership: {
-    style: 'Methodical and results-driven',
-    strengths: 'System optimization and continuous improvement',
-    philosophy: 'Creating efficient operations that deliver consistent quality at scale'
+    style: 'Process-driven and efficient',
+    strengths: 'Streamlining operations and improving organizational efficiency',
+    philosophy: 'Building operational excellence through continuous improvement and strategic alignment'
   },
   background: {
-    education: 'MBA, INSEAD Business School',
-    experience: '18+ years in operations across manufacturing and technology sectors'
+    education: 'MSc in Operations Management, MIT',
+    experience: '16+ years in operations leadership and process improvement'
   },
-  approach: 'I design operational systems that maximize efficiency without compromising quality. My focus is on creating scalable processes that support sustainable growth.',
-  communicationStyle: 'Structured, practical, and solution-oriented',
+  approach: 'I focus on optimizing your operational processes and systems to improve efficiency, reduce costs, and scale your business effectively.',
+  communicationStyle: 'Structured, practical, and results-oriented',
   questionExamples: [
-    'How can we optimize our operational processes?',
-    'What bottlenecks are limiting our growth?',
-    'How should we structure our team for maximum efficiency?',
-    'What metrics should we track to monitor operational health?',
-    'How can we improve our supply chain resilience?'
+    'How can we streamline our business operations?',
+    'What operational bottlenecks are limiting our growth?',
+    'How should we measure operational performance?',
+    'How can we improve our supply chain?',
+    'What is the best way to scale our operations?'
   ]
 };

@@ -3,38 +3,38 @@ import { ExecutivePersona } from '@/types/executives';
 
 export const chiefMarketingOfficer: ExecutivePersona = {
   id: 'chief-marketing-officer',
-  name: 'Emma Rodriguez',
+  name: 'Michael Rodriguez',
   title: 'Chief Marketing Officer',
   shortTitle: 'CMO',
   avatar: '/assets/avatars/cmo-avatar.jpg',
-  color: '#9932CC', // Dark orchid
-  introduction: 'Emma Rodriguez is the Chief Marketing Officer at Allora AI, with expertise in brand strategy, digital marketing, and customer experience.',
+  color: '#FF5733', // Bright Coral
+  introduction: 'Michael Rodriguez is the Chief Marketing Officer at Allora AI, with expertise in marketing strategy and brand development.',
   expertise: [
-    'Brand Strategy',
+    'Marketing Strategy',
+    'Brand Development',
     'Digital Marketing',
-    'Content Marketing',
-    'Social Media Strategy',
     'Customer Experience',
     'Market Research',
-    'Marketing Technology',
-    'Conversion Optimization'
+    'Campaign Management',
+    'Content Strategy',
+    'Marketing Analytics'
   ],
   leadership: {
-    style: 'Creative and customer-centric',
-    strengths: 'Brand storytelling and audience engagement',
-    philosophy: 'Creating authentic marketing that resonates with customers and drives growth'
+    style: 'Creative and customer-focused',
+    strengths: 'Brand storytelling and market positioning',
+    philosophy: 'Creating authentic connections between brands and customers through compelling narratives'
   },
   background: {
-    education: 'MBA, Stanford University',
-    experience: '15+ years in marketing leadership across tech and consumer brands'
+    education: 'MBA in Marketing, Northwestern University',
+    experience: '15+ years in marketing leadership and brand development'
   },
-  approach: 'I develop marketing strategies that build strong brand connections while driving measurable business outcomes. My focus is on creating customer-centric experiences.',
-  communicationStyle: 'Engaging, story-driven, and results-oriented',
+  approach: 'I help you build a strong brand identity and develop marketing strategies that connect with your target audience and drive business growth.',
+  communicationStyle: 'Engaging, narrative-driven, and customer-centric',
   questionExamples: [
-    'How can we differentiate our brand in the market?',
+    'How can we improve our brand positioning?',
     'What marketing channels should we prioritize?',
-    'How can we improve our customer acquisition strategy?',
-    'What content strategy will resonate with our audience?',
-    'How should we measure marketing success?'
+    'How can we better understand our customers?',
+    'What content strategy would work best for us?',
+    'How should we measure marketing ROI?'
   ]
 };

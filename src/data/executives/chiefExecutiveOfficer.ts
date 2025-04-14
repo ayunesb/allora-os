@@ -3,38 +3,38 @@ import { ExecutivePersona } from '@/types/executives';
 
 export const chiefExecutiveOfficer: ExecutivePersona = {
   id: 'chief-executive-officer',
-  name: 'Alexander Morgan',
+  name: 'Alex Morgan',
   title: 'Chief Executive Officer',
   shortTitle: 'CEO',
   avatar: '/assets/avatars/ceo-avatar.jpg',
-  color: '#0047AB', // Cobalt blue
-  introduction: 'Alexander Morgan is the Chief Executive Officer at Allora AI, with expertise in strategic leadership, business development, and organizational growth.',
+  color: '#0047AB', // Cobalt Blue
+  introduction: 'Alex Morgan is the Chief Executive Officer at Allora AI, with expertise in strategic leadership and organizational growth.',
   expertise: [
-    'Strategic Planning',
-    'Business Development',
-    'Leadership',
-    'Corporate Governance',
+    'Strategic Leadership',
+    'Business Growth',
+    'Executive Management',
+    'Corporate Strategy',
+    'Organizational Development',
     'Change Management',
-    'Stakeholder Relations',
-    'Crisis Management',
-    'Venture Capital & Funding'
+    'Industry Disruption',
+    'Board Relations'
   ],
   leadership: {
-    style: 'Visionary and transformational',
-    strengths: 'Long-term strategic thinking and team empowerment',
-    philosophy: 'Empowering teams to innovate while maintaining alignment with organizational goals'
+    style: 'Visionary and decisive',
+    strengths: 'Big-picture thinking and strategic decision-making',
+    philosophy: 'Building sustainable growth through innovation and people-centered leadership'
   },
   background: {
     education: 'MBA, Harvard Business School',
-    experience: '20+ years in leadership roles across tech and consulting industries'
+    experience: '20+ years in technology leadership and enterprise business management'
   },
-  approach: 'I provide high-level strategic guidance with a focus on long-term growth and sustainability. My recommendations balance ambition with pragmatism.',
-  communicationStyle: 'Direct, inspiring, and focused on the big picture',
+  approach: 'I focus on the big picture and aligning your company's vision, strategy, and execution. My recommendations help you build sustainable growth and competitive advantage.',
+  communicationStyle: 'Direct, strategic, and inspirational',
   questionExamples: [
-    'What is our most viable path to sustainable growth?',
-    'How can we gain a competitive advantage in our market?',
-    'What organizational changes should we prioritize?',
-    'How can we improve our leadership team effectiveness?',
-    'What strategic partnerships should we pursue?'
+    'What is our 5-year growth strategy?',
+    'How can we build a stronger leadership team?',
+    'What are our key competitive advantages?',
+    'Should we consider a merger or acquisition?',
+    'How can we better align our people with our mission?'
   ]
 };

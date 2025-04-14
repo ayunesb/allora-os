@@ -7,7 +7,8 @@ export enum ErrorType {
   API_ERROR = "API_ERROR",
   DATABASE_ERROR = "DATABASE_ERROR",
   INTERNAL_ERROR = "INTERNAL_ERROR",
-  UNEXPECTED_ERROR = "UNEXPECTED_ERROR"
+  UNEXPECTED_ERROR = "UNEXPECTED_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR" // Add the missing UNKNOWN_ERROR type
 }
 
 export interface ApiErrorResponse {
@@ -24,4 +25,24 @@ export function mapHttpStatusToErrorType(status: number): ErrorType {
   if (status === 400 || status === 422) return ErrorType.VALIDATION_ERROR;
   if (status === 404) return ErrorType.API_ERROR;
   return ErrorType.UNEXPECTED_ERROR;
+}
+
+// Add the AppError class
+export class AppError extends Error {
+  type: ErrorType;
+  statusCode?: number;
+  details?: any;
+  
+  constructor(
+    message: string, 
+    type: ErrorType = ErrorType.UNKNOWN_ERROR, 
+    statusCode?: number,
+    details?: any
+  ) {
+    super(message);
+    this.name = 'AppError';
+    this.type = type;
+    this.statusCode = statusCode;
+    this.details = details;
+  }
 }

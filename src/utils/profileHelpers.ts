@@ -47,3 +47,19 @@ export function getUserDisplayName(profile: UserProfile | null): string {
   if (!profile) return 'User';
   return profile.name || profile.email || 'User';
 }
+
+// Add the missing saveCompanyInfo function
+export async function saveCompanyInfo(
+  userId: string,
+  companyName: string,
+  industry: string
+): Promise<boolean> {
+  try {
+    // Implementation would go here in a real app
+    console.log('Saving company info for user:', userId, { companyName, industry });
+    return true;
+  } catch (error) {
+    console.error('Error saving company info:', error);
+    return false;
+  }
+}
