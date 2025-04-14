@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { normalizeRoute, trackRouteVisit } from '@/utils/navigation';
@@ -134,6 +133,32 @@ export default function NavigationFixer() {
         navigate('/not-found', { replace: true, state: { attemptedPath: currentPath } });
       }
       setAttemptedFix(true);
+    }
+
+    // Enhanced legal route checking
+    const legalRoutes = [
+      '/legal/terms-of-service',
+      '/legal/privacy-policy',
+      '/legal/cookies',
+      '/legal/compliance',
+      '/legal/refund-policy',
+      '/legal/messaging-consent'
+    ];
+    
+    // Log any navigation to legal routes for tracking
+    if (legalRoutes.includes(currentPath)) {
+      logger.info(`Accessing legal route: ${currentPath}`);
+      toast.info(`Navigating to legal page: ${currentPath.split('/').pop()}`);
+    }
+
+    // Add specific logging for potential 404 routes
+    if (currentPath.includes('/legal') && !legalRoutes.includes(currentPath)) {
+      logger.warn(`Potential 404 for legal route: ${currentPath}`);
+      toast.error('Invalid legal document route');
+      navigate('/not-found', { 
+        replace: true, 
+        state: { attemptedPath: currentPath } 
+      });
     }
   }, [location.pathname, navigate, attemptedFix, isAuthenticated]);
   
