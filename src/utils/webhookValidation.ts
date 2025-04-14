@@ -1,6 +1,9 @@
 
 import { WebhookType, WebhookResult } from './webhookTypes';
 
+// Re-export WebhookType to make it available to importing modules
+export { WebhookType };
+
 /**
  * Validate webhook URL format based on webhook type
  */
