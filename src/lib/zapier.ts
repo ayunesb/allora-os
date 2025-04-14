@@ -87,6 +87,15 @@ export interface WorkflowTriggerResult {
   error?: any;
 }
 
+// Define an interface for the enhanced payload to fix TypeScript errors
+interface EnhancedPayload {
+  event_name: string;
+  timestamp: string;
+  entity_id?: string;
+  entity_type?: string;
+  [key: string]: any;
+}
+
 /**
  * Hook for Zapier integrations
  * Provides methods for triggering Zapier webhooks and business events
@@ -109,8 +118,8 @@ export function useZapier() {
     try {
       console.log(`Triggering Zapier webhook for "${eventName}" event:`, payload);
       
-      // Add metadata to the payload
-      const enhancedPayload = {
+      // Add metadata to the payload with proper typing
+      const enhancedPayload: EnhancedPayload = {
         event_name: eventName,
         timestamp: new Date().toISOString(),
         ...payload,
@@ -157,3 +166,4 @@ export function useZapier() {
     triggerBusinessEvent: triggerBusinessEventWithHook
   };
 }
+
