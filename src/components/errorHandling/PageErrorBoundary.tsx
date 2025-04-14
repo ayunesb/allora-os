@@ -1,20 +1,67 @@
 
-import React, { ReactNode } from "react";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import React, { ReactNode, Component, ErrorInfo } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-interface PageErrorBoundaryProps {
+interface ErrorBoundaryProps {
   children: ReactNode;
   pageName: string;
 }
 
-export function PageErrorBoundary({ children, pageName }: PageErrorBoundaryProps) {
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundaryFallback extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return {
+      hasError: true,
+      error
+    };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error(`Error in ${this.props.pageName}:`, error);
+    console.error("Component stack:", errorInfo.componentStack);
+    // Here you could also send the error to a monitoring service like Sentry
+  }
+
+  resetErrorBoundary = (): void => {
+    this.setState({
+      hasError: false,
+      error: null
+    });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallbackUI error={this.state.error!} pageName={this.props.pageName} resetErrorBoundary={this.resetErrorBoundary} />;
+    }
+
+    return this.props.children;
+  }
+}
+
+// Separate the UI component to use hooks
+function ErrorFallbackUI({ error, pageName, resetErrorBoundary }: { 
+  error: Error, 
+  pageName: string,
+  resetErrorBoundary: () => void 
+}) {
   const navigate = useNavigate();
 
-  const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => (
+  return (
     <div className="container mx-auto px-4 py-12 flex justify-center">
       <Card className="w-full max-w-lg">
         <CardHeader>
@@ -51,22 +98,13 @@ export function PageErrorBoundary({ children, pageName }: PageErrorBoundaryProps
       </Card>
     </div>
   );
+}
 
+// Wrapper component with hooks
+export function PageErrorBoundary({ children, pageName }: ErrorBoundaryProps) {
   return (
-    <ErrorBoundary
-      fallback={({ error, resetErrorBoundary }) => (
-        <ErrorFallback 
-          error={error} 
-          resetErrorBoundary={resetErrorBoundary} 
-        />
-      )}
-      onError={(error, info) => {
-        console.error(`Error in ${pageName}:`, error);
-        console.error("Component stack:", info.componentStack);
-        // Here you could also send to a monitoring service like Sentry
-      }}
-    >
+    <ErrorBoundaryFallback pageName={pageName}>
       {children}
-    </ErrorBoundary>
+    </ErrorBoundaryFallback>
   );
 }

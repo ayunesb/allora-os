@@ -10,10 +10,12 @@ import CompanySetup from "@/pages/DevAdminHelper";
 import Debate from "@/pages/dashboard/Debate";
 import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";
 import Billing from "@/pages/Billing";
-import AiBots from "@/components/ai-bots/AiBotsPage";
+import AiBots from "@/pages/dashboard/AiBots";
 import AIExecutiveDebate from "@/pages/dashboard/AIExecutiveDebate";
 import AISettings from "@/pages/dashboard/AISettings";
+import Calls from "@/pages/dashboard/Calls";
 import Page404 from "@/pages/404";
+import Executives from "@/pages/dashboard/Executives";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -72,20 +74,24 @@ export const dashboardRoutes: RouteObject[] = [
         element: <AiBoardroom />,
       },
       {
+        path: "calls",
+        element: <Calls />,
+      },
+      {
         path: "executives",
+        element: <Executives />,
+      },
+      {
+        path: "ai-bots",
         element: <AiBots />,
       },
       {
-        path: "executives/:executiveId",
+        path: "ai-bots/:botId",
         element: <AiBots />,
       },
       {
         path: "debate",
         element: <Debate />,
-      },
-      {
-        path: "ai-bots",
-        element: <AiBots />,
       },
       {
         path: "ai-settings",

@@ -71,7 +71,8 @@ export const router = createBrowserRouter([
           {
             path: "dashboard",
             element: <DashboardLayout />,
-            children: dashboardRoutes[0].children
+            children: dashboardRoutes[0].children,
+            errorElement: <Page404 />
           },
           
           // Other routes

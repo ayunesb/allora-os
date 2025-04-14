@@ -13,8 +13,9 @@ import { DashboardLoadingState } from "@/components/dashboard/LoadingState";
 import { HelpProvider } from "@/context/HelpContext";
 import { HelpModal } from "@/components/help/HelpModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
+import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode;
@@ -35,6 +36,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     handleSignOut,
     handleNavigateToProfile
   } = useDashboardNavigation();
+
+  useEffect(() => {
+    // Log navigation for debugging purposes
+    console.log("Dashboard navigation to:", currentPath);
+  }, [currentPath]);
 
   if (isLoading) {
     return <DashboardLoadingState />;
@@ -85,12 +91,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <main className="flex-1 w-full">
                 <div className={`container mx-auto ${isMobile ? 'py-2 px-2' : 'px-4 py-4 sm:py-6 md:py-8'}`}>
                   <div className="animate-fadeIn">
-                    <ErrorBoundary>
+                    <PageErrorBoundary pageName="Dashboard">
                       <Suspense fallback={<DashboardLoadingState />}>
                         <Outlet />
                         {children}
                       </Suspense>
-                    </ErrorBoundary>
+                    </PageErrorBoundary>
                   </div>
                 </div>
               </main>
