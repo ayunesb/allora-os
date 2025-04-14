@@ -1,433 +1,488 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  LaunchExecutionPlan, 
-  LaunchPlanPhase, 
-  LaunchPlanItem,
-  generateLaunchPlan,
-  executeLaunchPlan
-} from '@/utils/launchPlanner';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
-} from '@/components/ui/accordion';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, CheckCircle2, XCircle, AlertTriangle, ChevronRight } from 'lucide-react';
-import { toast } from 'sonner';
-import { LaunchButton } from './launch-verification/LaunchButton';
 
-const integrationItems = [
-  {
-    title: "Supabase Database Integration",
-    description: "Verify database connections, security, and row-level security (RLS) policies.",
-    status: "ready",
-    testComponent: "ValidateDatabase",
-  },
-  {
-    title: "Stripe Payments Integration",
-    description: "Test payment processing, subscription management, and webhook configuration.",
-    status: "ready",
-    testComponent: "ValidateStripe",
-  },
-  {
-    title: "Twilio Communication Integration",
-    description: "Verify WhatsApp and SMS messaging capabilities.",
-    status: "ready",
-    testComponent: "ValidateTwilio",
-  },
-  {
-    title: "Zapier Automation Integration",
-    description: "Confirm webhook triggers for business events like strategy approvals and lead conversions.",
-    status: "ready",
-    testComponent: "ValidateZapier",
-    testLink: "/admin/zapier-readiness"
-  },
-  {
-    title: "OpenAI LLM Integration",
-    description: "Verify AI response generation for the executive debate simulation.",
-    status: "ready",
-    testComponent: "ValidateOpenAI",
-  },
-];
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, CircleDashed, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
-export default function ReadinessChecklist() {
-  const [plan, setPlan] = useState<LaunchExecutionPlan | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [executing, setExecuting] = useState(false);
-  const [validationResults, setValidationResults] = useState<any>(null);
-  
-  useEffect(() => {
-    const loadPlan = async () => {
-      try {
-        const launchPlan = await generateLaunchPlan();
-        setPlan(launchPlan);
-      } catch (error) {
-        console.error("Error generating launch plan:", error);
-        toast.error("Failed to generate launch plan");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadPlan();
-  }, []);
-  
-  const handleExecutePlan = async () => {
-    if (!plan) return;
-    
-    setExecuting(true);
-    
-    try {
-      const results = await executeLaunchPlan(plan);
-      setValidationResults(results.validationResults);
-      
-      if (results.success) {
-        toast.success("Launch validation successful!");
-      } else {
-        toast.error("Launch validation found issues", {
-          description: results.message
-        });
-      }
-    } catch (error) {
-      console.error("Error executing launch plan:", error);
-      toast.error("Failed to execute launch plan");
-    } finally {
-      setExecuting(false);
+// Define types for our phase items and phases
+interface ChecklistItem {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  area: string;
+  tags: string[];
+  completionCriteria: string[];
+}
+
+interface ChecklistPhase {
+  id: string;
+  name: string;
+  description: string;
+  items: ChecklistItem[];
+  completedCount: number;
+}
+
+const ReadinessChecklist: React.FC = () => {
+  // This data would typically come from your backend
+  const phases: ChecklistPhase[] = [
+    {
+      id: "phase-foundation",
+      name: "Foundation",
+      description: "Technical infrastructure and security enhancements",
+      completedCount: 2,
+      items: [
+        {
+          id: "item-001",
+          title: "API Secrets Security",
+          description: "Implement secure storage and access for all API keys",
+          priority: 'critical',
+          status: 'completed',
+          area: 'infrastructure',
+          tags: ['security', 'api'],
+          completionCriteria: [
+            "All API keys stored in secure environment variables",
+            "Secret rotation mechanism implemented",
+            "Access logging for all API usage"
+          ]
+        },
+        {
+          id: "item-002",
+          title: "Database Configuration & RLS",
+          description: "Finalize database schema and row-level security policies",
+          priority: 'critical',
+          status: 'completed',
+          area: 'infrastructure',
+          tags: ['database', 'security'],
+          completionCriteria: [
+            "All tables properly configured with migrations",
+            "RLS policies implemented for all tables",
+            "Foreign key relationships properly established",
+            "Indices created for frequently queried columns"
+          ]
+        },
+        {
+          id: "item-003",
+          title: "User Authentication Flow",
+          description: "Complete user authentication with proper error handling",
+          priority: 'critical',
+          status: 'in_progress',
+          area: 'infrastructure',
+          tags: ['auth', 'security'],
+          completionCriteria: [
+            "Login functionality working with email/password",
+            "Social login options implemented",
+            "Password reset flow functional",
+            "Error states properly handled with clear messages"
+          ]
+        }
+      ]
+    },
+    {
+      id: "phase-website",
+      name: "Website Enhancement",
+      description: "Implement trust indicators and interactive demonstrations",
+      completedCount: 0,
+      items: [
+        {
+          id: "item-101",
+          title: "Trust Badges Implementation",
+          description: "Add GDPR, SOC 2, and security trust indicators",
+          priority: 'high',
+          status: 'pending',
+          area: 'website',
+          tags: ['trust', 'marketing'],
+          completionCriteria: [
+            "GDPR compliance badge added to footer",
+            "SOC 2 compliance indicator added",
+            "Data security commitment section created",
+            "Privacy policy links prominently displayed"
+          ]
+        },
+        {
+          id: "item-102",
+          title: "Interactive Demo Creation",
+          description: "Develop an interactive product demo on the homepage",
+          priority: 'high',
+          status: 'pending',
+          area: 'website',
+          tags: ['marketing', 'engagement'],
+          completionCriteria: [
+            "Interactive product demo embedded on homepage",
+            "Sample company data for demo created",
+            "Live AI strategy demonstration functional",
+            "Sample executive debate viewable without signup"
+          ]
+        },
+        {
+          id: "item-103",
+          title: "Outcome Showcases",
+          description: "Add concrete examples of business outcomes and KPIs",
+          priority: 'medium',
+          status: 'pending',
+          area: 'website',
+          tags: ['marketing', 'case-studies'],
+          completionCriteria: [
+            "Case study section with real metrics",
+            "Before/after KPI visualizations",
+            "Industry-specific outcome examples",
+            "Testimonial carousel from clients"
+          ]
+        }
+      ]
+    },
+    {
+      id: "phase-onboarding",
+      name: "Onboarding Experience",
+      description: "Create a seamless, personalized onboarding journey",
+      completedCount: 0,
+      items: [
+        {
+          id: "item-201",
+          title: "AI CEO Welcome Video",
+          description: "Implement personalized Heygen AI welcome video",
+          priority: 'high',
+          status: 'pending',
+          area: 'onboarding',
+          tags: ['personalization', 'engagement'],
+          completionCriteria: [
+            "Heygen API integration complete",
+            "Dynamic video generation with personalized greeting",
+            "Fallback mechanism for API failures",
+            "Video analytics tracking implemented"
+          ]
+        },
+        {
+          id: "item-202",
+          title: "Instant Strategy Generation",
+          description: "Develop automatic strategy generation upon onboarding completion",
+          priority: 'critical',
+          status: 'pending',
+          area: 'onboarding',
+          tags: ['ai', 'strategy'],
+          completionCriteria: [
+            "Initial strategy generation triggered after onboarding",
+            "Industry-specific strategy templates created",
+            "Risk profile factored into strategy recommendations",
+            "Strategy visualization in dashboard immediately available"
+          ]
+        },
+        {
+          id: "item-203",
+          title: "Branded Dashboard Creation",
+          description: "Implement company branding in dashboard upon onboarding",
+          priority: 'medium',
+          status: 'pending',
+          area: 'onboarding',
+          tags: ['personalization', 'ui'],
+          completionCriteria: [
+            "Company logo integration in dashboard",
+            "Color scheme customization based on industry",
+            "Personalized dashboard sections based on goals",
+            "Custom KPI visualization based on priorities"
+          ]
+        }
+      ]
+    },
+    {
+      id: "phase-executive-collective",
+      name: "Executive Collective",
+      description: "Implement the 100 virtual executives collective",
+      completedCount: 0,
+      items: [
+        {
+          id: "item-301",
+          title: "Executive Personas Database",
+          description: "Create comprehensive database of executive personas",
+          priority: 'high',
+          status: 'pending',
+          area: 'strategies',
+          tags: ['ai', 'executive-team'],
+          completionCriteria: [
+            "Database of 100 executive personas created",
+            "Executive specialties mapped to industries",
+            "Executive selection logic implemented",
+            "Executive debate style preferences defined"
+          ]
+        },
+        {
+          id: "item-302",
+          title: "Boardroom Simulation Engine",
+          description: "Implement dynamic boardroom simulation with executive debate",
+          priority: 'critical',
+          status: 'pending',
+          area: 'strategies',
+          tags: ['ai', 'debate'],
+          completionCriteria: [
+            "Real-time debate simulation working",
+            "Different viewpoints based on executive personas",
+            "Data-backed arguments in debates",
+            "Final recommendations with dissenting opinions"
+          ]
+        },
+        {
+          id: "item-303",
+          title: "Executive Communication Templates",
+          description: "Create WhatsApp, email, and call script templates from executives",
+          priority: 'high',
+          status: 'pending',
+          area: 'communication',
+          tags: ['scripts', 'templates'],
+          completionCriteria: [
+            "WhatsApp templates from industry experts",
+            "Cold call scripts from sales specialists",
+            "Email templates from marketing experts",
+            "Attribution to specific executives with reasoning"
+          ]
+        },
+        {
+          id: "item-304",
+          title: "Executive Strategy Reports",
+          description: "Generate investor-grade reports from executive collective",
+          priority: 'medium',
+          status: 'pending',
+          area: 'strategies',
+          tags: ['reporting', 'pdf'],
+          completionCriteria: [
+            "PDF report generation functionality",
+            "McKinsey-style report formatting",
+            "Financial projections included",
+            "Executive summaries and detailed strategy sections"
+          ]
+        }
+      ]
+    },
+    {
+      id: "phase-advanced-features",
+      name: "Advanced Features",
+      description: "Implement high-value advanced features",
+      completedCount: 0,
+      items: [
+        {
+          id: "item-401",
+          title: "AI Lead Scoring",
+          description: "Implement AI-powered lead scoring system",
+          priority: 'high',
+          status: 'pending',
+          area: 'campaigns',
+          tags: ['ai', 'leads'],
+          completionCriteria: [
+            "Lead scoring algorithm implemented",
+            "Integration with CRM systems",
+            "Automated lead qualification",
+            "Lead prioritization based on closing potential"
+          ]
+        },
+        {
+          id: "item-402",
+          title: "Ready-to-Launch Campaigns",
+          description: "Create platform for auto-generating ad campaigns",
+          priority: 'high',
+          status: 'pending',
+          area: 'campaigns',
+          tags: ['ads', 'marketing'],
+          completionCriteria: [
+            "Google Ads campaign generator",
+            "LinkedIn campaign generator",
+            "Facebook/Instagram campaign generator",
+            "Budget recommendations and ROI projections"
+          ]
+        },
+        {
+          id: "item-403",
+          title: "Zapier Automation Flows",
+          description: "Implement automated Zapier workflows",
+          priority: 'medium',
+          status: 'pending',
+          area: 'infrastructure',
+          tags: ['automation', 'integration'],
+          completionCriteria: [
+            "CRM integration workflows",
+            "Campaign launch automations",
+            "Finance alert automations",
+            "Document generation workflows"
+          ]
+        },
+        {
+          id: "item-404",
+          title: "Adaptive AI Learning",
+          description: "Implement self-learning AI system",
+          priority: 'medium',
+          status: 'pending',
+          area: 'infrastructure',
+          tags: ['ai', 'machine-learning'],
+          completionCriteria: [
+            "Feedback loop for AI recommendations",
+            "Performance tracking of AI suggestions",
+            "Model adaptation based on outcomes",
+            "Continuous improvement system"
+          ]
+        }
+      ]
+    },
+    {
+      id: "phase-launch-readiness",
+      name: "Launch Readiness",
+      description: "Final validation and performance optimization",
+      completedCount: 0,
+      items: [
+        {
+          id: "item-501",
+          title: "Performance Optimization",
+          description: "Optimize application performance and responsiveness",
+          priority: 'high',
+          status: 'pending',
+          area: 'infrastructure',
+          tags: ['performance', 'optimization'],
+          completionCriteria: [
+            "Page load times under 2 seconds",
+            "API response times optimized",
+            "Database query performance optimized",
+            "Asset loading optimized"
+          ]
+        },
+        {
+          id: "item-502",
+          title: "Security Audit",
+          description: "Comprehensive security audit and penetration testing",
+          priority: 'critical',
+          status: 'pending',
+          area: 'infrastructure',
+          tags: ['security', 'audit'],
+          completionCriteria: [
+            "Security vulnerabilities addressed",
+            "Authentication flows validated",
+            "Data encryption verified",
+            "API security confirmed"
+          ]
+        },
+        {
+          id: "item-503",
+          title: "Final Launch Validation",
+          description: "Run comprehensive launch validation checks",
+          priority: 'critical',
+          status: 'pending',
+          area: 'infrastructure',
+          tags: ['validation', 'launch'],
+          completionCriteria: [
+            "All critical features validated",
+            "End-to-end user flows tested",
+            "Error handling confirmed",
+            "Integration points verified"
+          ]
+        }
+      ]
     }
+  ];
+
+  // Calculate progress percentages
+  const calculateProgress = (phase: ChecklistPhase) => {
+    if (phase.items.length === 0) return 0;
+    return (phase.completedCount / phase.items.length) * 100;
   };
-  
-  const calculatePhaseProgress = (phase: LaunchPlanPhase): number => {
-    const completedItems = phase.items.filter(item => item.status === 'completed').length;
-    const totalItems = phase.items.length;
-    return totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-  };
-  
-  const calculateOverallProgress = (): number => {
-    if (!plan) return 0;
-    
-    const allItems = plan.phases.flatMap(phase => phase.items);
-    const completedItems = allItems.filter(item => item.status === 'completed').length;
-    return allItems.length > 0 ? Math.round((completedItems / allItems.length) * 100) : 0;
-  };
-  
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-  
+
+  // Status icon based on item status
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-      case 'in_progress': return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
-      case 'blocked': return <XCircle className="w-5 h-5 text-red-500" />;
-      default: return <AlertTriangle className="w-5 h-5 text-amber-500" />;
+      case 'completed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'in_progress':
+        return <Clock className="h-5 w-5 text-amber-500 animate-pulse" />;
+      default:
+        return <CircleDashed className="h-5 w-5 text-muted-foreground" />;
     }
   };
-  
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
-        <p className="text-muted-foreground">Generating launch readiness plan...</p>
-      </div>
-    );
-  }
-  
-  if (!plan) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12">
-        <XCircle className="w-8 h-8 text-red-500 mb-4" />
-        <p className="text-red-500 font-medium">Failed to generate launch plan</p>
-        <Button 
-          onClick={() => window.location.reload()} 
-          variant="outline" 
-          className="mt-4"
-        >
-          Retry
-        </Button>
-      </div>
-    );
-  }
-  
+
+  // Priority badge color
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical':
+        return 'bg-red-100 text-red-800 hover:bg-red-200';
+      case 'high':
+        return 'bg-amber-100 text-amber-800 hover:bg-amber-200';
+      case 'medium':
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+      default:
+        return 'bg-green-100 text-green-800 hover:bg-green-200';
+    }
+  };
+
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Launch Readiness</h2>
-          <p className="text-muted-foreground">Track implementation progress for Allora AI launch</p>
-        </div>
-        
-        <Button 
-          onClick={handleExecutePlan}
-          disabled={executing}
-        >
-          {executing ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Executing...
-            </>
-          ) : (
-            'Run Validation'
-          )}
-        </Button>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Launch Allora AI</CardTitle>
-          <CardDescription>
-            Initialize the platform with your company as the first customer
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
-            This will set up Allora AI as its own first customer, generate initial strategies, 
-            campaigns, and marketing materials to showcase the platform's capabilities.
-          </p>
-          <LaunchButton className="mt-4" />
-        </CardContent>
-      </Card>
-      
-      <div className="space-y-6">
-        {plan.phases.map((phase) => (
-          <Card key={phase.id} className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <CardTitle>{phase.name}</CardTitle>
-              <CardDescription>
-                {phase.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pb-1">
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span>{calculatePhaseProgress(phase)}% Complete</span>
-                  <span>{phase.items.filter(i => i.status === 'completed').length}/{phase.items.length} Tasks</span>
-                </div>
-                <Progress value={calculatePhaseProgress(phase)} className="h-2" />
+      {phases.map((phase) => (
+        <Card key={phase.id} className="bg-card">
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-xl font-bold">{phase.name}</CardTitle>
+                <p className="text-muted-foreground mt-1 text-sm">{phase.description}</p>
               </div>
-              
-              <Accordion type="single" collapsible className="w-full">
-                {phase.items.map((item) => (
-                  <AccordionItem key={item.id} value={item.id}>
-                    <AccordionTrigger className="hover:no-underline py-3">
-                      <div className="flex items-center space-x-3 text-left">
-                        <div className="flex-shrink-0">
-                          {getStatusIcon(item.status)}
-                        </div>
-                        <div className="flex-grow">
-                          <p className="font-medium">{item.title}</p>
-                          <p className="text-sm text-muted-foreground">{item.description}</p>
-                        </div>
-                        <Badge className={`ml-auto ${getPriorityColor(item.priority)}`}>
+              <div className="text-right">
+                <span className="text-sm font-medium">
+                  {Math.round(calculateProgress(phase))}% Complete
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  {phase.completedCount}/{phase.items.length} Tasks
+                </p>
+              </div>
+            </div>
+            <Progress value={calculateProgress(phase)} className="h-2 mt-2" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-5">
+              {phase.items.map((item) => (
+                <div key={item.id} className="border-b border-border/40 pb-5 last:border-0 last:pb-0">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5">
+                      {getStatusIcon(item.status)}
+                    </div>
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-start justify-between">
+                        <h3 className="font-medium text-foreground">{item.title}</h3>
+                        <Badge variant="secondary" className={getPriorityColor(item.priority)}>
                           {item.priority}
                         </Badge>
                       </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="pl-9 space-y-4 pb-2">
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {item.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="bg-secondary/50">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium">Completion Criteria</p>
-                          <div className="space-y-2">
-                            {item.completionCriteria.map((criteria, index) => (
-                              <div key={index} className="flex items-start space-x-2">
-                                <Checkbox 
-                                  id={`criteria-${item.id}-${index}`} 
-                                  checked={item.status === 'completed'}
-                                  className="mt-0.5"
-                                  disabled
-                                />
-                                <label 
-                                  htmlFor={`criteria-${item.id}-${index}`}
-                                  className="text-sm leading-tight"
-                                >
-                                  {criteria}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {item.dependencies && item.dependencies.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-sm font-medium">Dependencies</p>
-                            <div className="space-y-1">
-                              {item.dependencies.map((depId) => {
-                                const dep = findDependency(plan, depId);
-                                return (
-                                  <div key={depId} className="flex items-center text-sm">
-                                    <ChevronRight className="w-3 h-3 mr-1 text-muted-foreground" />
-                                    <span>
-                                      {dep ? dep.title : depId}
-                                      {dep && dep.status === 'completed' && (
-                                        <span className="ml-2 text-green-500">(Completed)</span>
-                                      )}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                      
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {item.tags.map((tag) => (
+                          <span 
+                            key={tag} 
+                            className="text-xs bg-muted px-2 py-1 rounded-md text-muted-foreground"
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      {validationResults && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {validationResults.valid ? (
-                <div className="flex items-center text-green-600">
-                  <CheckCircle2 className="w-5 h-5 mr-2" />
-                  Launch Validation Successful
-                </div>
-              ) : (
-                <div className="flex items-center text-red-600">
-                  <XCircle className="w-5 h-5 mr-2" />
-                  Launch Validation Failed
-                </div>
-              )}
-            </CardTitle>
-            <CardDescription>
-              {validationResults.valid 
-                ? "All systems are ready for launch."
-                : "Some issues need to be resolved before launch."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {!validationResults.valid && (
-                <div className="space-y-2">
-                  <h3 className="font-medium">Issues Found:</h3>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
-                    {Object.entries(validationResults.results)
-                      .filter(([_, result]: [string, any]) => !result.valid)
-                      .map(([key, result]: [string, any]) => (
-                        <li key={key} className="text-red-600">
-                          {key}: {result.message}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <h3 className="font-medium">Validation Results:</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  {Object.entries(validationResults.results).map(([key, result]: [string, any]) => (
-                    <div key={key} className="flex items-center">
-                      {result.valid ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-500 mr-2" />
-                      )}
-                      <span>{formatValidationKey(key)}</span>
+                      
+                      {/* Completion Criteria */}
+                      <div className="mt-3">
+                        <h4 className="text-xs uppercase text-muted-foreground font-semibold mb-1">
+                          Completion Criteria
+                        </h4>
+                        <ul className="text-xs space-y-1">
+                          {item.completionCriteria.map((criteria, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="mr-2">•</span>
+                              <span>{criteria}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
-      )}
+      ))}
     </div>
   );
-}
+};
 
-function findDependency(plan: LaunchExecutionPlan, depId: string): LaunchPlanItem | undefined {
-  for (const phase of plan.phases) {
-    const item = phase.items.find(item => item.id === depId);
-    if (item) return item;
-  }
-  return undefined;
-}
-
-function formatValidationKey(key: string): string {
-  return key
-    .split(/(?=[A-Z])/)
-    .join(' ')
-    .split('_')
-    .join(' ')
-    .replace(/\b\w/g, char => char.toUpperCase());
-}
-
-interface ReadinessItemProps {
-  title: string;
-  description: string;
-  status: "pending" | "ready" | "failed" | "in_progress";
-  onRunTest?: () => void;
-  testLink?: string;
-}
-
-function ReadinessItem({ 
-  title, 
-  description, 
-  status, 
-  onRunTest,
-  testLink
-}: ReadinessItemProps) {
-  return (
-    <div className="flex items-start justify-between space-x-4 border-b pb-4">
-      <div className="space-y-1">
-        <p className="font-medium">{title}</p>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <div className="flex gap-2">
-        {testLink && (
-          <Button variant="outline" size="sm" asChild>
-            <Link to={testLink}>View Tests</Link>
-          </Button>
-        )}
-        {onRunTest && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onRunTest}
-            disabled={status === "in_progress"}
-          >
-            {status === "in_progress" ? (
-              <>
-                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                Running...
-              </>
-            ) : (
-              "Run Test"
-            )}
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
+export default ReadinessChecklist;
