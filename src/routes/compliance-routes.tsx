@@ -1,58 +1,85 @@
 
 import { RouteObject } from "react-router-dom";
-import ComplianceOverview from "@/pages/compliance/Index";
-import ComplianceAuditLogs from "@/pages/compliance/AuditLogs";
-import ComplianceDataPolicies from "@/pages/compliance/DataPolicies";
-import ComplianceReports from "@/pages/compliance/Reports";
+import { lazy, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ComplianceProvider } from "@/context/ComplianceContext";
+
+// Lazy load all compliance pages
+const ComplianceOverview = lazy(() => import("@/pages/compliance/Index"));
+const ComplianceAuditLogs = lazy(() => import("@/pages/compliance/AuditLogs"));
+const ComplianceDataPolicies = lazy(() => import("@/pages/compliance/DataPolicies"));
+const ComplianceReports = lazy(() => import("@/pages/compliance/Reports"));
+const ComplianceLayout = lazy(() => import("@/components/ComplianceLayout"));
+
+// Loading spinner for lazy-loaded components
+const ComplianceLoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[80vh]">
+    <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <span className="sr-only">Loading compliance section...</span>
+  </div>
+);
 
 // Wrap all compliance routes with the ComplianceProvider
 const ComplianceWrapper = ({ children }: { children: React.ReactNode }) => (
   <ComplianceProvider>
-    {children}
+    <Suspense fallback={<ComplianceLoadingSpinner />}>
+      <ComplianceLayout>
+        {children}
+      </ComplianceLayout>
+    </Suspense>
   </ComplianceProvider>
 );
 
-export const complianceRoutes: RouteObject[] = [
+const complianceRoutes: RouteObject[] = [
   {
-    path: "/compliance",
+    path: "",
     element: (
       <ProtectedRoute>
         <ComplianceWrapper>
-          <ComplianceOverview />
+          <Suspense fallback={<ComplianceLoadingSpinner />}>
+            <ComplianceOverview />
+          </Suspense>
         </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
   {
-    path: "/compliance/audit-logs",
+    path: "audit-logs",
     element: (
       <ProtectedRoute>
         <ComplianceWrapper>
-          <ComplianceAuditLogs />
+          <Suspense fallback={<ComplianceLoadingSpinner />}>
+            <ComplianceAuditLogs />
+          </Suspense>
         </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
   {
-    path: "/compliance/data-policies",
+    path: "data-policies",
     element: (
       <ProtectedRoute>
         <ComplianceWrapper>
-          <ComplianceDataPolicies />
+          <Suspense fallback={<ComplianceLoadingSpinner />}>
+            <ComplianceDataPolicies />
+          </Suspense>
         </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
   {
-    path: "/compliance/reports",
+    path: "reports",
     element: (
       <ProtectedRoute>
         <ComplianceWrapper>
-          <ComplianceReports />
+          <Suspense fallback={<ComplianceLoadingSpinner />}>
+            <ComplianceReports />
+          </Suspense>
         </ComplianceWrapper>
       </ProtectedRoute>
     ),
   },
 ];
+
+// Export is changed from variable to function to support dynamic imports
+export default complianceRoutes;

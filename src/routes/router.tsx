@@ -1,8 +1,7 @@
 
-import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
+import { createBrowserRouter, Outlet, Navigate, RouteObject } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { adminRoutes } from "./admin-routes";
-import { complianceRoutes } from "./compliance-routes";
-import { publicRoutes } from "./public-routes";
 import { authRoutes } from "./auth-routes";
 import { dashboardRoutes } from "./dashboard-routes"; 
 import { onboardingRoutes } from "./onboarding-routes";
@@ -18,6 +17,21 @@ import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
+import { NavigationTracker } from "@/components/NavigationTracker";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
+
+// Lazy-load compliance routes
+const LazyComplianceRoutes = lazy(() => import('./compliance-routes').then(module => ({ default: module.complianceRoutes })));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center space-y-4">
+      <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
 
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
@@ -25,69 +39,102 @@ const NavigationLayout = () => {
   return (
     <ErrorBoundary>
       <NavigationManager />
+      <NavigationTracker />
       <Outlet />
     </ErrorBoundary>
   );
 };
 
+// Accessibility wrapper for the entire application
+const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <AccessibilityProvider>
+      {children}
+    </AccessibilityProvider>
+  );
+};
+
+// Create dynamic routes with lazy loading
+const createLazyRoutes = () => {
+  const routes: RouteObject[] = [
+    ...publicRoutes,
+    ...authRoutes,
+    ...dashboardRoutes,
+    ...onboardingRoutes,
+    ...marketingRoutes, 
+    ...devRoutes,
+    ...globalRoutes,
+  ];
+
+  // Add compliance routes with Suspense
+  return [
+    ...routes,
+    {
+      path: "compliance/*",
+      element: (
+        <Suspense fallback={<LoadingFallback />}>
+          <LazyComplianceRoutes />
+        </Suspense>
+      )
+    },
+    // Admin routes can be lazy-loaded here as well if needed
+  ];
+};
+
+// Public static routes
+const publicRoutes = [
+  {
+    path: "/",
+    element: <Index />,
+  },
+  {
+    path: "/home",
+    element: <Home />,
+  },
+  {
+    path: "/diagnostics",
+    element: <SystemDiagnostics />,
+  },
+  {
+    path: "/pricing",
+    element: <Pricing />,
+  },
+  // Common redirects for legacy/mistyped URLs
+  {
+    path: "/calendar",
+    element: <Navigate to="/dashboard" replace />,
+  },
+  {
+    path: "/shop",
+    element: <Navigate to="/dashboard" replace />,
+  },
+  {
+    path: "/dashboard/account",
+    element: <Navigate to="/dashboard/profile" replace />,
+  },
+  {
+    path: "/dashboard/dashboard-settings",
+    element: <Navigate to="/dashboard/settings" replace />,
+  },
+  {
+    path: "/my-leads",
+    element: <Navigate to="/dashboard/leads" replace />,
+  },
+];
+
 // Export the router configuration for use in App.tsx
 export const router = createBrowserRouter([
   {
-    element: <RootLayout />,
+    element: (
+      <AccessibleLayout>
+        <RootLayout />
+      </AccessibleLayout>
+    ),
     errorElement: <NotFound />,
     children: [
       {
         element: <NavigationLayout />,
-        children: [
-          {
-            path: "/",
-            element: <Index />,
-          },
-          {
-            path: "/home",
-            element: <Home />,
-          },
-          {
-            path: "/diagnostics",
-            element: <SystemDiagnostics />,
-          },
-          {
-            path: "/pricing",
-            element: <Pricing />,
-          },
-          // Common redirects for legacy/mistyped URLs
-          {
-            path: "/calendar",
-            element: <Navigate to="/dashboard" replace />,
-          },
-          {
-            path: "/shop",
-            element: <Navigate to="/dashboard" replace />,
-          },
-          {
-            path: "/dashboard/account",
-            element: <Navigate to="/dashboard/profile" replace />,
-          },
-          {
-            path: "/dashboard/dashboard-settings",
-            element: <Navigate to="/dashboard/settings" replace />,
-          },
-          {
-            path: "/my-leads",
-            element: <Navigate to="/dashboard/leads" replace />,
-          },
-          
-          // Include all route groups
-          ...publicRoutes,
-          ...authRoutes,
-          ...adminRoutes,
-          ...dashboardRoutes,
-          ...complianceRoutes,
-          ...onboardingRoutes,
-          ...marketingRoutes, 
-          ...devRoutes,
-          ...globalRoutes,
-        ]
+        children: createLazyRoutes()
       }
     ]
   }

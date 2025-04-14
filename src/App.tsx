@@ -8,9 +8,17 @@ import { ExecutiveWorkflowProvider } from "@/context/ExecutiveWorkflowContext";
 import { router } from "@/routes/router";
 import { GlobalErrorModal } from "@/components/errorHandling/GlobalErrorModal";
 import { setupErrorLogging } from "@/utils/errorHandling/errorLogging";
+import { Suspense } from "react";
 
 // Set up error logging
 setupErrorLogging();
+
+// Loading fallback for Suspense
+const AppLoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 function App() {
   return (
@@ -23,7 +31,9 @@ function App() {
       <AuthRedirectProvider>
         <AuthProvider>
           <ExecutiveWorkflowProvider>
-            <RouterProvider router={router} />
+            <Suspense fallback={<AppLoadingFallback />}>
+              <RouterProvider router={router} />
+            </Suspense>
             <Toaster richColors />
             <GlobalErrorModal />
           </ExecutiveWorkflowProvider>

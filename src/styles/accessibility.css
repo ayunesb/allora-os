@@ -1,5 +1,5 @@
 
-/* Accessibility classes */
+/* Core accessibility classes */
 .high-contrast {
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
@@ -18,8 +18,36 @@
     outline: 3px solid hsl(240, 5.9%, 10%) !important;
     outline-offset: 2px !important;
   }
+  
+  /* Enhance buttons and interactive elements */
+  button, 
+  a, 
+  [role="button"] {
+    border: 1px solid currentColor !important;
+  }
+  
+  /* Enhance form controls */
+  input, 
+  select, 
+  textarea {
+    border: 2px solid hsl(240, 3.7%, 15.9%) !important;
+  }
 }
 
+/* Font size adjustments */
+.text-size-small {
+  --font-multiplier: 0.95;
+}
+
+.text-size-medium {
+  --font-multiplier: 1;
+}
+
+.text-size-large {
+  --font-multiplier: 1.1;
+}
+
+/* Large text mode */
 .large-text {
   font-size: 110%;
   line-height: 1.5;
@@ -69,6 +97,20 @@
   font-size: 1.8rem;
 }
 
+/* Improved text spacing for dyslexia and reading disorders */
+.improved-text-spacing {
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+  line-height: 1.8;
+}
+
+.improved-text-spacing p,
+.improved-text-spacing li,
+.improved-text-spacing label {
+  margin-bottom: 1em;
+}
+
+/* Reduced motion preferences */
 .reduced-motion * {
   transition-duration: 0.001ms !important;
   animation-duration: 0.001ms !important;
@@ -76,6 +118,7 @@
   scroll-behavior: auto !important;
 }
 
+/* Screen reader enhancements */
 .screen-reader-friendly .sr-only {
   position: absolute;
   width: 1px;
@@ -92,11 +135,12 @@
   display: none !important;
 }
 
-/* Enhanced focus styles for all elements */
-*:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+/* Enhanced focus styles */
+.enhanced-focus *:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
   border-radius: 0.25rem;
+  box-shadow: 0 0 0 3px hsl(var(--background)), 0 0 0 6px hsla(var(--primary), 0.4);
 }
 
 /* Skip link for keyboard navigation */
@@ -151,4 +195,32 @@ textarea:focus-visible {
 /* Improved keyboard navigation indicators */
 [data-focus-visible-added] {
   box-shadow: 0 0 0 3px hsl(var(--primary));
+}
+
+/* Improved color contrast utilities */
+.text-accessible {
+  color: hsl(240, 10%, 3.9%) !important;
+}
+
+.bg-accessible {
+  background-color: hsl(0, 0%, 100%) !important;
+}
+
+.dark .text-accessible {
+  color: hsl(0, 0%, 98%) !important;
+}
+
+.dark .bg-accessible {
+  background-color: hsl(240, 10%, 3.9%) !important;
+}
+
+/* Add focus visible polyfill styling */
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none !important;
+}
+
+/* Higher contrast borders */
+.high-contrast-border {
+  border-color: hsl(var(--foreground)) !important;
+  border-width: 2px !important;
 }
