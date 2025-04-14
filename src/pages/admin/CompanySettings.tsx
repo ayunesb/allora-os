@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { useCompanyManagement } from "@/hooks/admin/useCompanyManagement";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { Textarea } from "@/components/ui/textarea";
+import { BrandIdentityForm } from "@/components/onboarding/BrandIdentityForm";
 
 type CompanyFormValues = {
   name: string;
@@ -30,6 +32,12 @@ export default function CompanySettings() {
   const [isSaving, setIsSaving] = useState(false);
   const breakpoint = useBreakpoint();
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
+  const [companyDetails, setCompanyDetails] = useState({
+    primaryColor: "#4F46E5",
+    secondaryColor: "#10B981",
+    brandTone: "friendly",
+    logoUrl: "",
+  });
 
   const form = useForm<CompanyFormValues>({
     defaultValues: {
@@ -59,6 +67,16 @@ export default function CompanySettings() {
         headquarters: company.details?.headquarters || "",
         phone: company.details?.phone || "",
       });
+
+      // Load branding details if available
+      if (company.details) {
+        setCompanyDetails({
+          primaryColor: company.details.primaryColor || "#4F46E5",
+          secondaryColor: company.details.secondaryColor || "#10B981",
+          brandTone: company.details.brandTone || "friendly",
+          logoUrl: company.details.logoUrl || "",
+        });
+      }
     }
   }, [companies, form]);
 
@@ -92,6 +110,40 @@ export default function CompanySettings() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const updateBrandingDetails = (details: any) => {
+    if (!companies || companies.length === 0) {
+      toast.error("No company found to update");
+      return;
+    }
+
+    setIsSaving(true);
+    const companyId = companies[0].id;
+    
+    // Update the state
+    setCompanyDetails({
+      ...companyDetails,
+      ...details
+    });
+    
+    // Update the company in the database
+    updateCompany(companyId, {
+      details: {
+        ...companies[0].details,
+        ...details
+      }
+    })
+      .then(() => {
+        toast.success("Brand identity updated successfully");
+      })
+      .catch((error) => {
+        console.error("Error updating brand identity:", error);
+        toast.error("Failed to update brand identity");
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
   };
 
   const industries = [
@@ -305,23 +357,37 @@ export default function CompanySettings() {
           </TabsContent>
 
           <TabsContent value="branding" className="space-y-4 mt-6">
-            <Card className="p-6">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Shapes className="h-5 w-5 mr-2" />
                   Brand Identity
                 </CardTitle>
                 <CardDescription>
-                  Configure your company's branding elements
+                  Configure your company's branding elements and visual identity
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md border-muted-foreground/20">
-                  <p className="text-center text-muted-foreground">
-                    Branding settings will be implemented in a future update
-                  </p>
-                </div>
+                <BrandIdentityForm 
+                  companyDetails={companyDetails}
+                  updateCompanyDetails={updateBrandingDetails}
+                />
               </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button 
+                  variant="outline" 
+                  className="mr-2"
+                  onClick={() => setCompanyDetails({
+                    primaryColor: "#4F46E5",
+                    secondaryColor: "#10B981",
+                    brandTone: "friendly",
+                    logoUrl: "",
+                  })}
+                  disabled={isSaving}
+                >
+                  Reset
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
 
