@@ -1,12 +1,11 @@
 
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/context/AuthContext";
 import { publicRoutes } from "@/routes/public-routes";
 import { dashboardRoutes } from "@/routes/dashboard-routes";
 import { globalRoutes } from "@/routes/global-routes";
-import { supabase } from "@/integrations/supabase/client";
 import { AuthRedirectProvider } from "@/context/AuthRedirectContext";
 import { ExecutiveWorkflowProvider } from "@/context/ExecutiveWorkflowContext";
 
@@ -23,9 +22,51 @@ function App() {
           <ExecutiveWorkflowProvider>
             <Toaster richColors />
             <Routes>
-              {publicRoutes}
-              {dashboardRoutes}
-              {globalRoutes}
+              {/* Render each route using the map function to create Route components */}
+              {publicRoutes.map((route) => (
+                <Route 
+                  key={route.path} 
+                  path={route.path} 
+                  element={route.element} 
+                />
+              ))}
+              
+              {/* Map through dashboard routes */}
+              {dashboardRoutes.map((route) => {
+                // Handle nested routes
+                if (route.children) {
+                  return (
+                    <Route key={route.path} path={route.path} element={route.element}>
+                      {route.children.map((childRoute) => (
+                        <Route
+                          key={childRoute.path || 'index'}
+                          path={childRoute.path}
+                          element={childRoute.element}
+                          index={childRoute.index}
+                        />
+                      ))}
+                    </Route>
+                  );
+                }
+                
+                // Handle regular routes
+                return (
+                  <Route 
+                    key={route.path} 
+                    path={route.path} 
+                    element={route.element} 
+                  />
+                );
+              })}
+              
+              {/* Map through global routes */}
+              {globalRoutes.map((route) => (
+                <Route 
+                  key={route.path} 
+                  path={route.path} 
+                  element={route.element} 
+                />
+              ))}
             </Routes>
           </ExecutiveWorkflowProvider>
         </AuthProvider>
