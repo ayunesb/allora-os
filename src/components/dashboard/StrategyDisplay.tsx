@@ -1,171 +1,37 @@
 
-import { useEffect, useState } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { useStrategies } from "@/hooks/useStrategies";
-import { Strategy } from "@/models/strategy";
-import { Loader2, Brain, TrendingUp, ArrowUpRight, FileDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { exportStrategyToPdf } from "@/utils/strategy/pdfExport";
-import { toast } from "sonner";
-import StrategyDetailModal from "../strategy-board/StrategyDetailModal";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GitBranch } from "lucide-react";
 
 export function StrategyDisplay() {
-  const { strategies, isLoading, error, refetch } = useStrategies();
-  const navigate = useNavigate();
-  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  
-  useEffect(() => {
-    // Fetch strategies on component mount
-    refetch();
-  }, [refetch]);
-  
-  const navigateToStrategies = () => {
-    navigate("/dashboard/strategies");
-  };
-  
-  const handleExportPDF = (strategy: Strategy) => {
-    toast.info("Preparing PDF export...");
-    
-    setTimeout(() => {
-      try {
-        exportStrategyToPdf(strategy);
-        toast.success("Strategy exported to PDF!");
-      } catch (error) {
-        console.error("Error exporting strategy:", error);
-        toast.error("Failed to export strategy. Please try again.");
-      }
-    }, 1000);
-  };
-
-  const handleViewStrategyDetail = (strategy: Strategy) => {
-    setSelectedStrategy(strategy);
-    setIsDetailModalOpen(true);
-  };
-  
-  if (isLoading) {
-    return (
-      <div className="p-6 text-center">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading your personalized strategy...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  if (error) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-destructive">Error loading strategies. Please try again later.</p>
-        <Button variant="outline" className="mt-4" onClick={() => refetch()}>Retry</Button>
-      </div>
-    );
-  }
-  
-  if (!strategies || strategies.length === 0) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-muted-foreground">No strategies found. Your AI Executive Team is preparing strategies for you.</p>
-        <Button variant="outline" className="mt-4" onClick={() => refetch()}>Check Again</Button>
-      </div>
-    );
-  }
-  
-  // Show only the first 3 strategies on the dashboard
-  const displayStrategies = strategies.slice(0, 3);
-  
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">🚀 Your AI-Generated Strategic Plan</h2>
-        <Button variant="outline" onClick={navigateToStrategies}>
-          View All Strategies
-        </Button>
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {displayStrategies.map((strategy: Strategy) => (
-          <StrategyCard 
-            key={strategy.id} 
-            strategy={strategy} 
-            onExport={() => handleExportPDF(strategy)}
-            onClick={() => handleViewStrategyDetail(strategy)}
-          />
-        ))}
-      </div>
-
-      {/* Strategy Detail Modal */}
-      <StrategyDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        strategy={selectedStrategy}
-      />
-    </div>
-  );
-}
-
-function StrategyCard({ strategy, onExport, onClick }: { strategy: Strategy; onExport: () => void; onClick: () => void }) {
-  // Determine a color based on risk level
-  const getRiskColor = (risk: string | undefined) => {
-    switch (risk?.toLowerCase()) {
-      case 'low':
-        return 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300';
-      case 'medium':
-        return 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300';
-      case 'high':
-        return 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300';
-      default:
-        return 'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
-    }
-  };
-  
-  return (
-    <Card className="transition-all hover:shadow-md cursor-pointer" onClick={onClick}>
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-xl">{strategy.title}</CardTitle>
-          {strategy.risk && (
-            <span className={`text-xs px-2 py-1 rounded-full font-medium ${getRiskColor(strategy.risk)}`}>
-              {strategy.risk} Risk
-            </span>
-          )}
-        </div>
-        <CardDescription className="line-clamp-2">
-          {strategy.description}
-        </CardDescription>
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xl flex items-center">
+          <GitBranch className="mr-2 h-5 w-5 text-primary" />
+          Strategy Overview
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        {strategy.impact && (
-          <div className="text-sm mb-2">
-            <span className="font-medium">Impact:</span> {strategy.impact}
+        <p className="text-muted-foreground text-sm">
+          Your current business strategies are focused on market expansion and customer retention.
+          The AI executive team has provided insights based on your company profile.
+        </p>
+        <div className="mt-4 space-y-3">
+          <div className="p-3 bg-primary/10 rounded-md">
+            <h4 className="font-medium text-sm">Market Penetration</h4>
+            <p className="text-xs text-muted-foreground mt-1">
+              Focus on existing markets with current products to increase market share.
+            </p>
           </div>
-        )}
-        {strategy.timeframe && (
-          <div className="text-sm">
-            <span className="font-medium">Timeframe:</span> {strategy.timeframe}
+          <div className="p-3 bg-primary/10 rounded-md">
+            <h4 className="font-medium text-sm">Product Development</h4>
+            <p className="text-xs text-muted-foreground mt-1">
+              Develop new products for existing markets based on customer feedback.
+            </p>
           </div>
-        )}
-      </CardContent>
-      <CardFooter className="border-t pt-4 flex justify-between">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Brain className="h-4 w-4 mr-2" />
-          <span>Proposed by: <span className="font-medium">{strategy.executiveBot || 'AI Executive Team'}</span></span>
         </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-8 px-2 text-muted-foreground hover:text-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-            onExport();
-          }}
-        >
-          <FileDown className="h-4 w-4 mr-1" />
-          PDF
-        </Button>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }

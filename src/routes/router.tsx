@@ -1,5 +1,6 @@
+
 import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
-import { adminRoutes } from "./adminRoutes";
+import { adminRoutes } from "./admin-routes";
 import { complianceRoutes } from "./compliance-routes";
 import { publicRoutes } from "./public-routes";
 import { authRoutes } from "./auth-routes";
@@ -10,7 +11,7 @@ import { devRoutes } from "./dev-routes";
 import { NavigationManager } from "@/components/NavigationManager";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
-import Page404 from "@/pages/404";
+import NotFound from "@/pages/NotFound";
 import Index from "@/pages/Index";
 import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
@@ -34,7 +35,7 @@ const NavigationLayout = () => {
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
-    errorElement: <Page404 />,
+    errorElement: <NotFound />,
     children: [
       {
         element: <NavigationLayout />,
@@ -64,18 +65,9 @@ export const router = createBrowserRouter([
             element: <Navigate to="/dashboard" replace />,
           },
           
-          // Admin routes
-          adminRoutes,
-          
-          // Dashboard routes with layout wrapper
-          {
-            path: "dashboard",
-            element: <DashboardLayout />,
-            children: dashboardRoutes[0].children,
-            errorElement: <Page404 />
-          },
-          
-          // Other routes
+          // Include all routes
+          ...adminRoutes,
+          ...dashboardRoutes,
           ...complianceRoutes,
           ...publicRoutes,
           ...authRoutes,
@@ -85,7 +77,7 @@ export const router = createBrowserRouter([
           
           {
             path: "*",
-            element: <Page404 />,
+            element: <NotFound />,
           },
         ]
       }

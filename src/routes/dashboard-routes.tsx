@@ -14,12 +14,14 @@ import AiBots from "@/pages/dashboard/AiBots";
 import AIExecutiveDebate from "@/pages/dashboard/AIExecutiveDebate";
 import AISettings from "@/pages/dashboard/AISettings";
 import Calls from "@/pages/dashboard/Calls";
-import Page404 from "@/pages/404";
+import NotFound from "@/pages/NotFound";
 import Executives from "@/pages/dashboard/Executives";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export const dashboardRoutes: RouteObject[] = [
   {
     path: "dashboard",
+    element: <DashboardLayout />,
     children: [
       {
         index: true,
@@ -123,7 +125,7 @@ export const dashboardRoutes: RouteObject[] = [
       },
       {
         path: "*",
-        element: <Page404 />,
+        element: <NotFound />,
       }
     ],
   },

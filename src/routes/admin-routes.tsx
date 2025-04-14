@@ -17,10 +17,11 @@ import AiBotLogic from "@/pages/admin/AiBotLogic";
 import UserOnboarding from "@/pages/admin/UserOnboarding";
 import DashboardModules from "@/pages/admin/DashboardModules";
 import CommunicationTools from "@/pages/admin/CommunicationTools";
+import NotFound from "@/pages/NotFound";
 
 export const adminRoutes: RouteObject[] = [
   {
-    path: "/admin",
+    path: "admin",
     element: (
       <AdminRoute>
         <AdminLayout />
@@ -28,7 +29,7 @@ export const adminRoutes: RouteObject[] = [
     ),
     children: [
       {
-        path: "",
+        index: true,
         element: <AdminDashboard />,
       },
       {
@@ -87,6 +88,10 @@ export const adminRoutes: RouteObject[] = [
         path: "launch-check",
         element: <LaunchCheck />,
       },
+      {
+        path: "*",
+        element: <NotFound />,
+      }
     ],
   },
 ];
