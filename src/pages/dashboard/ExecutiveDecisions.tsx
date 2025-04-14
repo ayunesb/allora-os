@@ -21,6 +21,10 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { FileDown } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default function ExecutiveDecisions() {
   const [decisions, setDecisions] = useState<ExecutiveDecision[]>([]);
@@ -62,6 +66,38 @@ export default function ExecutiveDecisions() {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
     }
+  };
+
+  // PDF generation function
+  const downloadDecisionsPDF = () => {
+    const doc = new jsPDF();
+
+    doc.text("Allora Executive Decision Log", 14, 20);
+    
+    const tableColumn = ["Executive", "Role", "Task", "Decision", "Priority", "Risk"];
+    const tableRows: any[] = [];
+
+    filteredDecisions.forEach((decision) => {
+      const decisionData = [
+        decision.executiveName,
+        decision.executiveRole,
+        decision.task,
+        decision.selectedOption,
+        decision.priority || "N/A",
+        decision.riskAssessment || "N/A",
+      ];
+      tableRows.push(decisionData);
+    });
+
+    // Draw the table
+    (doc as any).autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+    });
+
+    // Save the PDF
+    doc.save(`allora_decisions_log_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   // Filter the decisions based on all filter criteria
@@ -144,6 +180,14 @@ export default function ExecutiveDecisions() {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      {/* PDF Download Button */}
+      <div className="mb-4">
+        <Button onClick={downloadDecisionsPDF} variant="default" className="flex items-center gap-2">
+          <FileDown className="h-4 w-4" />
+          Download Decisions as PDF
+        </Button>
       </div>
 
       {loading ? (
