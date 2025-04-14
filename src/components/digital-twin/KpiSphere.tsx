@@ -14,6 +14,7 @@ interface KpiSphereProps {
 
 export default function KpiSphere({ position, name, value, color, size = 0.5 }: KpiSphereProps) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
   const [hovered, setHovered] = useState(false);
   const [pulsing, setPulsing] = useState(false);
   const initialY = position[1];
@@ -45,9 +46,8 @@ export default function KpiSphere({ position, name, value, color, size = 0.5 }: 
     }
     
     // Pulsing animation for anomalies
-    if (pulsing) {
-      const pulseScale = 1.0 + Math.sin(state.clock.elapsedTime * 3) * 0.1;
-      meshRef.current.material.emissiveIntensity = 0.2 + Math.sin(state.clock.elapsedTime * 3) * 0.15;
+    if (pulsing && materialRef.current) {
+      materialRef.current.emissiveIntensity = 0.2 + Math.sin(state.clock.elapsedTime * 3) * 0.15;
     }
   });
   
@@ -68,6 +68,7 @@ export default function KpiSphere({ position, name, value, color, size = 0.5 }: 
       >
         <sphereGeometry args={[size, 32, 16]} />
         <meshStandardMaterial 
+          ref={materialRef}
           color={color} 
           roughness={0.3}
           metalness={0.7}
