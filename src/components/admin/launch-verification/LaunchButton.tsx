@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Loader2, Rocket } from "lucide-react";
 import { useLaunchProcess } from '@/components/admin/launch-verification/useLaunchProcess';
+import { useProductionData } from '@/hooks/useProductionData';
 
 export function LaunchButton() {
   const [isOpen, setIsOpen] = useState(false);
   const { isLaunching, launchStep, isComplete, launchFirstCustomerFlow } = useLaunchProcess();
+  const { forceProductionMode } = useProductionData();
   
   const handleLaunch = async () => {
     if (isLaunching) return;
@@ -14,7 +16,16 @@ export function LaunchButton() {
     // Show confirmation dialog
     if (confirm("This will initialize real company data and create core business entities for your platform. Continue?")) {
       setIsOpen(true);
-      await launchFirstCustomerFlow();
+      
+      try {
+        await launchFirstCustomerFlow();
+        
+        // Force production mode after successful launch
+        forceProductionMode(true);
+        localStorage.setItem('production-alert-dismissed', 'true');
+      } catch (error) {
+        console.error("Launch failed:", error);
+      }
     }
   };
   

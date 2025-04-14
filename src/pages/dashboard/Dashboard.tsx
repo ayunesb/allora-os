@@ -14,6 +14,7 @@ import ProductionDataAlert from "@/components/dashboard/ProductionDataAlert";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { supabase } from "@/integrations/supabase/client";
 import { useStrategies } from "@/hooks/useStrategies";
+import { useProductionData } from "@/hooks/useProductionData";
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
@@ -25,7 +26,7 @@ export default function Dashboard() {
     refetch 
   } = useDashboardData(user?.id);
   
-  const [showAlert, setShowAlert] = useState(true);
+  const { isProductionMode } = useProductionData();
   const [companyName, setCompanyName] = useState<string>("your company");
   const { strategies } = useStrategies();
 
@@ -97,26 +98,7 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {showAlert && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex justify-between items-center">
-            <div className="flex-1">
-              <h3 className="font-medium text-amber-800">Development Environment</h3>
-              <p className="text-amber-700 text-sm mt-1">
-                This is a development environment with sample data. Do not use for production purposes.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleSetupProduction}>
-                Production Setup
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setShowAlert(false)}>
-                Dismiss
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {!isProductionMode && <ProductionDataAlert />}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-8">
         <div className="md:col-span-2">

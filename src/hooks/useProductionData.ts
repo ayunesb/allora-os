@@ -1,9 +1,9 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from "@/context/AuthContext";
 import { useCompanyId } from "./useCompanyId";
 import { validateAndCleanProductionData, ValidationResults } from '@/utils/productionDataValidator';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Hook to ensure the application is using real production data
@@ -17,9 +17,11 @@ export function useProductionData() {
   const { user, profile } = useAuth();
   const companyId = useCompanyId();
   
-  // Check if in production mode based on URL or environment
+  // Check if in production mode based on URL or environment or localStorage override
   useEffect(() => {
+    const forceProdMode = localStorage.getItem('allora_force_production_mode') === 'true';
     const productionMode = 
+      forceProdMode ||
       window.location.hostname === 'all-or-a.online' || 
       process.env.NODE_ENV === 'production';
     
@@ -39,6 +41,47 @@ export function useProductionData() {
     setIsValidating(true);
     
     try {
+      // First check if there's any real company data
+      let hasRealData = false;
+      
+      if (profile?.company_id) {
+        const { data: companyData, error: companyError } = await supabase
+          .from('companies')
+          .select('name, id')
+          .eq('id', profile.company_id)
+          .single();
+          
+        if (!companyError && companyData) {
+          // Check if there's at least one strategy for this company
+          const { count, error: strategyError } = await supabase
+            .from('strategies')
+            .select('*', { count: 'exact', head: true })
+            .eq('company_id', profile.company_id);
+            
+          hasRealData = !strategyError && count && count > 0;
+          
+          // If there's company data but no strategies, we're halfway there
+          if (!hasRealData && companyData.name) {
+            setIsProductionReady(true);
+          }
+        }
+      }
+      
+      // Manual override for development/demo
+      const forceProduction = localStorage.getItem('allora_force_production_mode') === 'true';
+      if (forceProduction) {
+        setIsProductionReady(true);
+        setIsProductionMode(true);
+        return;
+      }
+      
+      // Skip full validation if we already know we have real data
+      if (hasRealData) {
+        setIsProductionReady(true);
+        return;
+      }
+      
+      // Otherwise run full validation
       const results = await validateAndCleanProductionData();
       setValidationResults(results);
       setIsProductionReady(results.success);
@@ -84,7 +127,22 @@ export function useProductionData() {
     } finally {
       setIsValidating(false);
     }
-  }, [isProductionMode]);
+  }, [isProductionMode, profile?.company_id]);
+  
+  // Function to force production mode (for testing and demos)
+  const forceProductionMode = useCallback((force: boolean) => {
+    if (force) {
+      localStorage.setItem('allora_force_production_mode', 'true');
+      setIsProductionMode(true);
+      setIsProductionReady(true);
+      toast.success("Production mode activated");
+    } else {
+      localStorage.removeItem('allora_force_production_mode');
+      setIsProductionMode(false);
+      validateProductionData();
+      toast.info("Reverted to automatic mode detection");
+    }
+  }, [validateProductionData]);
   
   // Return the hook API
   return {
@@ -92,6 +150,7 @@ export function useProductionData() {
     validationResults,
     isProductionReady,
     isProductionMode,
-    validateProductionData
+    validateProductionData,
+    forceProductionMode
   };
 }

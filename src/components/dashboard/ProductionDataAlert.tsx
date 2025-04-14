@@ -8,7 +8,12 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ProductionDataAlert() {
   const [showAlert, setShowAlert] = useState(true);
-  const { isProductionReady, isProductionMode, validateProductionData } = useProductionData();
+  const { 
+    isProductionReady, 
+    isProductionMode, 
+    validateProductionData, 
+    forceProductionMode 
+  } = useProductionData();
   const navigate = useNavigate();
   
   // Check if the alert has been dismissed before
@@ -26,6 +31,11 @@ export default function ProductionDataAlert() {
   
   const handleSetupProduction = () => {
     navigate('/admin/launch-verification');
+  };
+  
+  const handleForceProduction = () => {
+    forceProductionMode(true);
+    setShowAlert(false);
   };
   
   if (!showAlert || isProductionMode) {
@@ -63,6 +73,14 @@ export default function ProductionDataAlert() {
               Setup Production
             </Button>
           )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleForceProduction}
+            className="border-green-400 bg-green-100 hover:bg-green-200 text-green-900"
+          >
+            Use Real Data
+          </Button>
           <Button 
             variant="ghost" 
             size="sm" 
