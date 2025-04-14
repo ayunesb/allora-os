@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -17,12 +16,9 @@ import {
   TabsList, 
   TabsTrigger 
 } from '@/components/ui/tabs';
-import { 
-  Switch, 
-  Label,
-  RadioGroup,
-  RadioGroupItem,
-} from '@/components/ui/switch';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { 
   Eye, 
   PanelRight, 
