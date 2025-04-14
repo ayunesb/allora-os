@@ -32,6 +32,43 @@ export const supabase = createClient(
   }
 );
 
+/**
+ * Checks the Supabase connection and authentication status
+ * @returns An object with connection status information
+ */
+export const checkSupabaseConnection = async () => {
+  try {
+    // Try to make a simple API call to test the connection
+    const { data, error } = await supabase.from('system_settings').select('id').limit(1);
+    
+    // Check if the user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (error) {
+      return {
+        connected: false,
+        authenticated: false,
+        error: error.message,
+        message: `Database connection failed: ${error.message}`
+      };
+    }
+    
+    return {
+      connected: true,
+      authenticated: !!session,
+      message: `Database connected successfully. Authentication: ${session ? 'Active' : 'Not logged in'}`
+    };
+  } catch (error) {
+    logger.error('Error checking Supabase connection:', error);
+    return {
+      connected: false,
+      authenticated: false,
+      error,
+      message: `Connection error: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
+  }
+};
+
 // Utility functions
 export const getSession = async () => {
   try {
