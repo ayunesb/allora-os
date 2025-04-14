@@ -11,6 +11,7 @@ export default function RunAudit() {
   const [isRunning, setIsRunning] = useState(true);
   const [progress, setProgress] = useState(0);
   const [auditComplete, setAuditComplete] = useState(false);
+  const [criticalIssues, setCriticalIssues] = useState(0);
   const navigate = useNavigate();
   
   // Simulate the audit running process
@@ -27,6 +28,10 @@ export default function RunAudit() {
         // Run actual validation checks in the background
         const validationResults = await validateProductionReadiness();
         
+        // Calculate found issues
+        const criticalIssuesFound = validationResults.issues.filter(i => i.severity === 'critical').length;
+        setCriticalIssues(criticalIssuesFound);
+        
         // Store audit results in localStorage for retrieval on the audit page
         localStorage.setItem('lastAuditResults', JSON.stringify({
           timestamp: new Date().toISOString(),
@@ -36,7 +41,7 @@ export default function RunAudit() {
         // Simulate progress updates
         const interval = setInterval(() => {
           setProgress(prev => {
-            const newProgress = prev + Math.floor(Math.random() * 10);
+            const newProgress = prev + Math.floor(Math.random() * 5) + 3;
             
             if (newProgress >= 100) {
               clearInterval(interval);
@@ -52,14 +57,20 @@ export default function RunAudit() {
                     type: 'full_audit', 
                     status: 'completed',
                     ready: validationResults.ready,
-                    criticalIssues: validationResults.issues.filter(i => i.severity === 'critical').length
+                    criticalIssues: criticalIssuesFound
                   }
                 });
 
-                // Show toast notification
-                toast.success('System audit completed successfully', {
-                  description: 'View detailed results on the audit page'
-                });
+                // Show toast notification with more detailed information
+                if (validationResults.ready) {
+                  toast.success('System audit completed successfully', {
+                    description: 'All critical checks passed with some recommendations'
+                  });
+                } else {
+                  toast.error('System audit identified critical issues', {
+                    description: `Found ${criticalIssuesFound} critical issues that need attention`
+                  });
+                }
                 
                 // Navigate back to audit page after a short delay
                 setTimeout(() => navigate('/admin/audit'), 1500);
@@ -69,7 +80,7 @@ export default function RunAudit() {
             
             return newProgress;
           });
-        }, 800);
+        }, 400);
         
         return () => clearInterval(interval);
       } catch (error) {
@@ -93,6 +104,7 @@ export default function RunAudit() {
             isRunning={isRunning} 
             progress={progress}
             auditComplete={auditComplete}
+            criticalIssues={criticalIssues}
           />
         </CardContent>
       </Card>

@@ -51,6 +51,20 @@ export function AuditSecurity({ status, onStatusChange }: AuditComponentProps) {
       description: 'Protection against cross-site scripting',
       status: 'pending',
       required: true
+    },
+    {
+      id: 'sec-7',
+      title: 'GDPR Compliance',
+      description: 'User data handling meets GDPR requirements',
+      status: 'pending',
+      required: true
+    },
+    {
+      id: 'sec-8',
+      title: 'Query Performance',
+      description: 'Database queries execute within recommended time',
+      status: 'pending',
+      required: true
     }
   ]);
 
@@ -66,8 +80,18 @@ export function AuditSecurity({ status, onStatusChange }: AuditComponentProps) {
         
         await new Promise(resolve => setTimeout(resolve, 700));
         
-        // For demo, let's say one security issue is found
-        const passed = items[i].id !== 'sec-3';
+        // For demo, let's identify the specific security issues mentioned by the user
+        let passed = true;
+        
+        if (items[i].id === 'sec-7') {
+          // GDPR compliance issue
+          passed = false;
+        }
+        
+        if (items[i].id === 'sec-8') {
+          // Query performance issue
+          passed = false;
+        }
         
         setItems(prev => prev.map((item, idx) => 
           idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
