@@ -5,6 +5,46 @@ import ReportsList from '@/components/compliance/reports/ReportsList';
 import CertificationsList from '@/components/compliance/reports/CertificationsList';
 import DocumentVersionTracker from '@/components/compliance/reports/DocumentVersionTracker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Report } from '@/components/compliance/reports/mockData';
+
+// Mock reports data
+const mockReports: Report[] = [
+  {
+    id: "1",
+    title: "GDPR Compliance Audit",
+    type: "Regulatory Compliance",
+    date: "April 5, 2025",
+    status: "completed"
+  },
+  {
+    id: "2",
+    title: "Data Security Assessment",
+    type: "Security Audit",
+    date: "March 15, 2025",
+    status: "completed"
+  },
+  {
+    id: "3",
+    title: "CCPA Compliance Check",
+    type: "Regulatory Compliance",
+    date: "May 10, 2025",
+    status: "scheduled"
+  },
+  {
+    id: "4",
+    title: "Privacy Policy Review",
+    type: "Document Review",
+    date: "April 20, 2025",
+    status: "scheduled"
+  },
+  {
+    id: "5",
+    title: "Annual Security Review",
+    type: "Security Audit",
+    date: "June 1, 2025",
+    status: "scheduled"
+  }
+];
 
 export default function Reports() {
   return (
@@ -22,7 +62,7 @@ export default function Reports() {
               <TabsTrigger value="documents">Document History</TabsTrigger>
             </TabsList>
             <TabsContent value="reports">
-              <ReportsList />
+              <ReportsList reports={mockReports} />
             </TabsContent>
             <TabsContent value="certifications">
               <CertificationsList />
