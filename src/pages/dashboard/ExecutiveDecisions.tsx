@@ -1,127 +1,25 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { PageTitle } from "@/components/ui/page-title";
-import { getExecutiveDecisions } from "@/agents/decisionService";
-import { ExecutiveDecision } from "@/types/agents";
-import { Card } from "@/components/ui/card";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue 
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { FileDown } from "lucide-react";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { DecisionFilters } from "@/components/executive-decisions/DecisionFilters";
+import { DecisionTable } from "@/components/executive-decisions/DecisionTable";
+import { PdfExport } from "@/components/executive-decisions/PdfExport";
+import { useDecisions } from "@/hooks/useDecisions";
+import { useDecisionFilter } from "@/hooks/useDecisionFilter";
 
 export default function ExecutiveDecisions() {
-  const [decisions, setDecisions] = useState<ExecutiveDecision[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Filter states
-  const [executiveFilter, setExecutiveFilter] = useState<string>("");
-  const [priorityFilter, setPriorityFilter] = useState<string>("");
-  const [riskFilter, setRiskFilter] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-
-  useEffect(() => {
-    async function loadDecisions() {
-      try {
-        setLoading(true);
-        const decisionsData = await getExecutiveDecisions();
-        setDecisions(decisionsData);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to load executive decisions:", err);
-        setError("Could not load executive decisions. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadDecisions();
-  }, []);
-
-  const getPriorityColor = (priority?: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-300';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-300';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  // PDF generation function
-  const downloadDecisionsPDF = () => {
-    const doc = new jsPDF();
-
-    doc.text("Allora Executive Decision Log", 14, 20);
-    
-    const tableColumn = ["Executive", "Role", "Task", "Decision", "Priority", "Risk"];
-    const tableRows: any[] = [];
-
-    filteredDecisions.forEach((decision) => {
-      const decisionData = [
-        decision.executiveName,
-        decision.executiveRole,
-        decision.task,
-        decision.selectedOption,
-        decision.priority || "N/A",
-        decision.riskAssessment || "N/A",
-      ];
-      tableRows.push(decisionData);
-    });
-
-    // Draw the table
-    (doc as any).autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 30,
-    });
-
-    // Save the PDF
-    doc.save(`allora_decisions_log_${new Date().toISOString().slice(0, 10)}.pdf`);
-  };
-
-  // Filter the decisions based on all filter criteria
-  const filteredDecisions = decisions.filter((decision) => {
-    const matchesExecutive = executiveFilter
-      ? decision.executiveName.toLowerCase().includes(executiveFilter.toLowerCase())
-      : true;
-
-    const matchesPriority = priorityFilter
-      ? decision.priority?.toLowerCase() === priorityFilter.toLowerCase()
-      : true;
-
-    const matchesRisk = riskFilter
-      ? decision.riskAssessment?.includes(riskFilter)
-      : true;
-
-    const matchesSearch = searchQuery
-      ? (decision.task.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         decision.selectedOption.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         (decision.reasoning && decision.reasoning.toLowerCase().includes(searchQuery.toLowerCase())))
-      : true;
-
-    return matchesExecutive && matchesPriority && matchesRisk && matchesSearch;
-  });
+  const { decisions, loading, error } = useDecisions();
+  const {
+    executiveFilter,
+    setExecutiveFilter,
+    priorityFilter,
+    setPriorityFilter,
+    riskFilter,
+    setRiskFilter,
+    searchQuery,
+    setSearchQuery,
+    filteredDecisions
+  } = useDecisionFilter(decisions);
 
   return (
     <div className="container mx-auto py-6">
@@ -130,127 +28,24 @@ export default function ExecutiveDecisions() {
         description="Review decisions made by your AI executive team"
       />
 
-      <div className="flex flex-wrap gap-4 mb-8">
-        {/* Search */}
-        <Input
-          type="text"
-          placeholder="Search by task or decision..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-sm"
-        />
+      <DecisionFilters
+        executiveFilter={executiveFilter}
+        setExecutiveFilter={setExecutiveFilter}
+        priorityFilter={priorityFilter}
+        setPriorityFilter={setPriorityFilter}
+        riskFilter={riskFilter}
+        setRiskFilter={setRiskFilter}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
 
-        {/* Executive Filter */}
-        <Input
-          type="text"
-          placeholder="Filter by Executive..."
-          value={executiveFilter}
-          onChange={(e) => setExecutiveFilter(e.target.value)}
-          className="max-w-sm"
-        />
+      <PdfExport decisions={filteredDecisions} />
 
-        {/* Priority Filter */}
-        <Select
-          value={priorityFilter}
-          onValueChange={setPriorityFilter}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Priorities" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Priorities</SelectItem>
-            <SelectItem value="high">High</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="low">Low</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Risk Filter */}
-        <Select
-          value={riskFilter}
-          onValueChange={setRiskFilter}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Risks" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Risks</SelectItem>
-            {[1, 2, 3, 4, 5].map((score) => (
-              <SelectItem key={score} value={score.toString()}>{score.toString()}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* PDF Download Button */}
-      <div className="mb-4">
-        <Button onClick={downloadDecisionsPDF} variant="default" className="flex items-center gap-2">
-          <FileDown className="h-4 w-4" />
-          Download Decisions as PDF
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      ) : error ? (
-        <Card className="p-6 bg-red-50 border border-red-200 text-red-800">
-          <p>{error}</p>
-        </Card>
-      ) : filteredDecisions.length === 0 ? (
-        <Card className="p-8 text-center">
-          <h3 className="text-xl font-medium mb-2">No decisions found</h3>
-          <p className="text-muted-foreground">
-            {decisions.length > 0 
-              ? "No decisions match your current filters. Try adjusting your search criteria."
-              : "Your AI executives haven't made any decisions yet. They will automatically analyze business situations and record their decisions here."}
-          </p>
-        </Card>
-      ) : (
-        <Card className="p-0 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Executive</TableHead>
-                <TableHead>Task</TableHead>
-                <TableHead>Decision</TableHead>
-                <TableHead>Risk Assessment</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDecisions.map((decision) => (
-                <TableRow key={decision.id}>
-                  <TableCell className="font-medium">
-                    <div>{decision.executiveName}</div>
-                    <div className="text-xs text-muted-foreground">{decision.executiveRole}</div>
-                  </TableCell>
-                  <TableCell>{decision.task}</TableCell>
-                  <TableCell>
-                    <div className="font-medium">{decision.selectedOption}</div>
-                    <div className="text-sm text-muted-foreground mt-1">{decision.reasoning}</div>
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    {decision.riskAssessment || "No risk assessment"}
-                  </TableCell>
-                  <TableCell>
-                    {decision.priority && (
-                      <Badge className={getPriorityColor(decision.priority)}>
-                        {decision.priority}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    {new Date(decision.timestamp).toLocaleString()}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
-      )}
+      <DecisionTable 
+        decisions={filteredDecisions}
+        loading={loading}
+        error={error}
+      />
     </div>
   );
 }
