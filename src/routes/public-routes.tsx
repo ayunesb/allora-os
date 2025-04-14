@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 import Index from "@/pages/Index";
@@ -15,8 +14,8 @@ import LegalDocument from "@/pages/LegalDocument";
 import DevAdminHelper from "@/pages/DevAdminHelper";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
+import TermsOfService from "@/pages/TermsOfService";
 
-// Define routes properly as an array
 export const publicRoutes: RouteObject[] = [
   {
     path: "/welcome",
@@ -74,7 +73,10 @@ export const publicRoutes: RouteObject[] = [
     path: "/contact",
     element: <Contact />
   },
+  {
+    path: "/legal/terms-of-service",
+    element: <TermsOfService />,
+  },
 ];
 
-// Export the routes array directly
 export default publicRoutes;

@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import Pricing from "@/pages/Pricing";
 import Legal from "@/pages/Legal";
@@ -8,6 +7,7 @@ import RefundPolicy from "@/pages/RefundPolicy";
 import Compliance from "@/pages/Compliance";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
+import TermsOfService from "@/pages/TermsOfService";
 
 export const marketingRoutes: RouteObject[] = [
   {
@@ -41,6 +41,10 @@ export const marketingRoutes: RouteObject[] = [
   {
     path: "/contact",
     element: <Contact />,
+  },
+  {
+    path: "/legal/terms-of-service",
+    element: <TermsOfService />,
   },
 ];
 
