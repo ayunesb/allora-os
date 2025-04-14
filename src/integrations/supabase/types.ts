@@ -921,6 +921,7 @@ export type Database = {
           level: string
           name: string
           promotions: number
+          resource_points: number
           role: string
           star_rating: number
           successful_actions: number
@@ -933,6 +934,7 @@ export type Database = {
           level?: string
           name: string
           promotions?: number
+          resource_points?: number
           role: string
           star_rating?: number
           successful_actions?: number
@@ -945,6 +947,7 @@ export type Database = {
           level?: string
           name?: string
           promotions?: number
+          resource_points?: number
           role?: string
           star_rating?: number
           successful_actions?: number

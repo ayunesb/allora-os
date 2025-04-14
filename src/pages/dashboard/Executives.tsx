@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageTitle } from "@/components/ui/page-title";
-import { Trophy, Star } from "lucide-react";
+import { Trophy, Star, Gem } from "lucide-react";
 
 interface Executive {
   id: string;
@@ -14,6 +14,7 @@ interface Executive {
   star_rating: number;
   successful_actions: number;
   failed_actions: number;
+  resource_points: number;
 }
 
 export default function ExecutivesDashboard() {
@@ -87,6 +88,11 @@ export default function ExecutivesDashboard() {
                   <span className="text-sm text-muted-foreground">Failed Actions</span>
                   <p className="font-bold text-red-600">{exec.failed_actions}</p>
                 </div>
+              </div>
+              <div className="flex items-center mt-2">
+                <Gem className="h-5 w-5 mr-2 text-blue-500" />
+                <span className="text-sm text-muted-foreground">Resource Points</span>
+                <span className="ml-2 font-bold">{exec.resource_points}</span>
               </div>
             </CardContent>
           </Card>
