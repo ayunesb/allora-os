@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { AuditLogTable } from '@/components/compliance/audit-logs/AuditLogTable';
-import { AuditLogFilters } from '@/components/compliance/audit-logs/AuditLogFilters';
+import AuditLogTable from '@/components/compliance/audit-logs/AuditLogTable';
+import AuditLogFilters from '@/components/compliance/audit-logs/AuditLogFilters';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AuditLogs() {

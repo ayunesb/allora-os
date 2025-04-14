@@ -2,10 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PolicyDocuments } from '@/components/compliance/data-policies/PolicyDocuments';
-import { PolicyToggles } from '@/components/compliance/data-policies/PolicyToggles';
-import { RegulatoryFrameworks } from '@/components/compliance/data-policies/RegulatoryFrameworks';
-import { ComplianceContact } from '@/components/compliance/data-policies/ComplianceContact';
+import PolicyDocuments from '@/components/compliance/data-policies/PolicyDocuments';
+import PolicyToggles from '@/components/compliance/data-policies/PolicyToggles';
+import RegulatoryFrameworks from '@/components/compliance/data-policies/RegulatoryFrameworks';
+import ComplianceContact from '@/components/compliance/data-policies/ComplianceContact';
 
 export default function DataPolicies() {
   return (

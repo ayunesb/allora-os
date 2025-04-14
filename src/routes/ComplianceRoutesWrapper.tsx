@@ -1,6 +1,6 @@
 
 import React, { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // Lazy load compliance components
 const ComplianceLayout = lazy(() => import('@/components/ComplianceLayout'));

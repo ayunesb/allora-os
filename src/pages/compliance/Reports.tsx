@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ReportsList } from '@/components/compliance/reports/ReportsList';
-import { CertificationsList } from '@/components/compliance/reports/CertificationsList';
-import { DocumentVersionTracker } from '@/components/compliance/reports/DocumentVersionTracker';
+import ReportsList from '@/components/compliance/reports/ReportsList';
+import CertificationsList from '@/components/compliance/reports/CertificationsList';
+import DocumentVersionTracker from '@/components/compliance/reports/DocumentVersionTracker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Reports() {

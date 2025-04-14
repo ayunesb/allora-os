@@ -45,59 +45,82 @@ export interface DataPoliciesState {
 }
 
 interface PolicyTogglesProps {
-  policies: DataPoliciesState;
-  onPolicyToggle: (policy: keyof DataPoliciesState) => void;
+  policies?: DataPoliciesState;
+  onPolicyToggle?: (policy: keyof DataPoliciesState) => void;
 }
 
-export default function PolicyToggles({ policies, onPolicyToggle }: PolicyTogglesProps) {
+export default function PolicyToggles({ 
+  policies = {
+    dataDeletion: true,
+    dataMinimization: true,
+    dataEncryption: true,
+    dataRetention: false,
+    accessControl: true,
+    thirdPartySharing: false
+  }, 
+  onPolicyToggle = () => {}
+}: PolicyTogglesProps) {
+  const [localPolicies, setLocalPolicies] = useState<DataPoliciesState>(policies);
+  
+  const handleToggle = (policy: keyof DataPoliciesState) => {
+    setLocalPolicies(prev => ({
+      ...prev,
+      [policy]: !prev[policy]
+    }));
+    onPolicyToggle(policy);
+  };
+  
+  // Use either the prop policies or local state
+  const currentPolicies = onPolicyToggle === () => {} ? localPolicies : policies;
+  
   return (
     <div className="space-y-6">
       <PolicyToggle
         id="data-deletion"
         label="Data Deletion Requests"
         description="Automatically process data deletion requests"
-        checked={policies.dataDeletion}
-        onCheckedChange={() => onPolicyToggle('dataDeletion')}
+        checked={currentPolicies.dataDeletion}
+        onCheckedChange={() => handleToggle('dataDeletion')}
       />
       
       <PolicyToggle
         id="data-minimization"
         label="Data Minimization"
         description="Only collect necessary data for business purposes"
-        checked={policies.dataMinimization}
-        onCheckedChange={() => onPolicyToggle('dataMinimization')}
+        checked={currentPolicies.dataMinimization}
+        onCheckedChange={() => handleToggle('dataMinimization')}
       />
       
       <PolicyToggle
         id="data-encryption"
         label="Data Encryption"
         description="Encrypt all sensitive data at rest and in transit"
-        checked={policies.dataEncryption}
-        onCheckedChange={() => onPolicyToggle('dataEncryption')}
+        checked={currentPolicies.dataEncryption}
+        onCheckedChange={() => handleToggle('dataEncryption')}
       />
       
       <PolicyToggle
         id="data-retention"
         label="Data Retention Limits"
         description="Automatically delete data after retention period"
-        checked={policies.dataRetention}
-        onCheckedChange={() => onPolicyToggle('dataRetention')}
+        checked={currentPolicies.dataRetention}
+        onCheckedChange={() => handleToggle('dataRetention')}
       />
       
       <PolicyToggle
         id="access-control"
         label="Strict Access Controls"
         description="Limit data access to authorized personnel only"
-        checked={policies.accessControl}
-        onCheckedChange={() => onPolicyToggle('accessControl')}
+        checked={currentPolicies.accessControl}
+        onCheckedChange={() => handleToggle('accessControl')}
       />
       
       <PolicyToggle
         id="third-party-sharing"
         label="Third-Party Data Sharing"
         description="Allow sharing data with third-party services"
-        checked={policies.thirdPartySharing}
-        onCheckedChange={() => onPolicyToggle('thirdPartySharing')}
+        checked={currentPolicies.thirdPartySharing}
+        onCheckedChange={() => handleToggle('thirdPartySharing')}
       />
     </div>
   );
