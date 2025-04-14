@@ -1,123 +1,77 @@
 
 import React from "react";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Strategy } from "@/models/strategy";
-import { Clock, MessageSquare, FileDown, Edit, ThumbsUp, ThumbsDown } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { formatDistanceToNow } from "date-fns";
+import { MessageSquare, BarChart2, FileDown, User } from "lucide-react";
 
 interface StrategyCardProps {
   strategy: Strategy;
-  onDebate: () => void;
-  onExport: () => void;
-  onClick: () => void;
+  onDebate: (strategy: Strategy) => void;
+  onExport: (strategy: Strategy) => void;
+  onClick: (strategy: Strategy) => void;
 }
 
 export default function StrategyCard({ strategy, onDebate, onExport, onClick }: StrategyCardProps) {
-  // Progress calculation
-  const progress = strategy.progress !== undefined 
-    ? strategy.progress 
-    : Math.floor(Math.random() * 80) + 10;
+  // Determine the risk level from any of the possible properties
+  const riskLevel = strategy.risk || strategy.riskLevel || strategy.risk_level || "Medium";
   
-  // Format the date
-  const updatedDate = new Date(strategy.updated_at || strategy.created_at);
-  const timeAgo = formatDistanceToNow(updatedDate, { addSuffix: true });
+  // Create a mapping of risk levels to badge variants
+  const riskBadgeVariant = {
+    "Low": "success",
+    "Medium": "warning",
+    "High": "destructive"
+  }[riskLevel] as "success" | "warning" | "destructive" | "default";
   
-  // Get risk data
-  const risk = strategy.risk || strategy.risk_level || 'Medium';
-  
-  // Risk badge color
-  const getRiskBadgeColor = () => {
-    switch (risk) {
-      case 'High':
-        return 'bg-red-700 text-white';
-      case 'Medium':
-        return 'bg-amber-500 text-white';
-      case 'Low':
-        return 'bg-green-700 text-white';
-      default:
-        return 'bg-blue-600 text-white';
-    }
-  };
+  // Format the date for display
+  const formattedDate = new Date(strategy.created_at).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
   
   return (
-    <div 
-      className="group bg-[#0f1526] border border-gray-800 rounded-lg overflow-hidden hover:border-gray-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/10 cursor-pointer"
-      onClick={onClick}
-    >
-      <div className="p-5">
-        {/* Status badges */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className={`px-4 py-1 rounded-full text-sm font-medium ${getRiskBadgeColor()}`}>
-            {risk} Risk
-          </span>
-          
-          <div className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-blue-900/40 border border-blue-800/50 text-blue-300">
-            <Clock className="h-3.5 w-3.5 mr-1" />
-            In Progress
-          </div>
+    <Card className="hover:shadow-md transition-shadow overflow-hidden">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start mb-2">
+          <Badge variant={riskBadgeVariant} className="capitalize">
+            {riskLevel} Risk
+          </Badge>
+          <span className="text-xs text-muted-foreground">{formattedDate}</span>
         </div>
-        
-        {/* Title */}
-        <h3 className="text-xl font-bold mb-2 text-white">{strategy.title}</h3>
-        
-        {/* Proposed by */}
-        <p className="text-sm text-gray-400 mb-3">
-          Proposed by {strategy.executiveBot || 'AI Executive Team'}
+        <CardTitle className="cursor-pointer hover:text-primary transition-colors" onClick={() => onClick(strategy)}>
+          {strategy.title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground line-clamp-3 min-h-[3em]">
+          {strategy.description}
         </p>
         
-        {/* Description */}
-        <p className="text-sm text-gray-300 mb-6 line-clamp-2">
-          {strategy.description || 'No description provided.'}
-        </p>
-        
-        {/* Progress bar */}
-        <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-400 mb-1">
-            <span>Progress</span>
-            <span>{progress}%</span>
+        {strategy.executiveBot && (
+          <div className="flex items-center mt-4 text-xs text-muted-foreground">
+            <User className="h-3 w-3 mr-1" />
+            Proposed by: {strategy.executiveBot}
           </div>
-          <Progress value={progress} className="h-2 bg-gray-800" />
-        </div>
+        )}
+      </CardContent>
+      <CardFooter className="pt-2 border-t flex justify-between gap-2">
+        <Button variant="ghost" size="sm" onClick={() => onDebate(strategy)}>
+          <MessageSquare className="h-4 w-4 mr-1" />
+          <span className="hidden sm:inline">Debate</span>
+        </Button>
         
-        {/* Footer */}
-        <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
-          <span>Updated {timeAgo}</span>
-          <span>{strategy.impact || 'Medium'} Impact</span>
-        </div>
+        <Button variant="ghost" size="sm" onClick={() => onClick(strategy)}>
+          <BarChart2 className="h-4 w-4 mr-1" />
+          <span className="hidden sm:inline">View</span>
+        </Button>
         
-        {/* Action buttons */}
-        <div className="flex gap-2">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onDebate();
-            }}
-            className="flex items-center justify-center gap-1 py-2 px-4 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 flex-1 transition-colors"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Debate
-          </button>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onExport();
-            }}
-            className="flex items-center justify-center gap-1 py-2 px-3 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 transition-colors"
-            title="Export to PDF"
-          >
-            <FileDown className="h-4 w-4" />
-            PDF
-          </button>
-          
-          <button
-            className="flex items-center justify-center py-2 px-3 bg-gray-800 hover:bg-gray-700 rounded text-sm text-gray-200 transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Edit className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    </div>
+        <Button variant="ghost" size="sm" onClick={() => onExport(strategy)}>
+          <FileDown className="h-4 w-4 mr-1" />
+          <span className="hidden sm:inline">Export</span>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

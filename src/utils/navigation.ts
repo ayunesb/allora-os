@@ -57,5 +57,10 @@ export const normalizeRoute = (route: string): string => {
     return '/login';
   }
   
+  // Fix any boardroom/strategy confusion
+  if (route.includes('/boardroom')) {
+    return route.replace('/boardroom', '/strategies');
+  }
+  
   return route;
 };

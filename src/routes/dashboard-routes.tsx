@@ -4,7 +4,7 @@ import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
 import Campaigns from "@/pages/dashboard/Campaigns";
 import Analytics from "@/pages/dashboard/Analytics";
-import AiBoardroom from "@/pages/AiBoardroom";
+import Strategies from "@/pages/dashboard/Strategies";
 import Settings from "@/pages/admin/Settings";
 import CompanySetup from "@/pages/DevAdminHelper";
 import Debate from "@/pages/dashboard/Debate";
@@ -21,6 +21,7 @@ import CampaignDetail from "@/pages/dashboard/CampaignDetail";
 import CampaignCreate from "@/pages/dashboard/CampaignCreate";
 import BotDetail from "@/pages/dashboard/BotDetail";
 import Profile from "@/pages/dashboard/Profile";
+import { Navigate } from "react-router-dom";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -64,19 +65,19 @@ export const dashboardRoutes: RouteObject[] = [
       // Strategy section - consolidated to clear naming
       {
         path: "strategies",
-        element: <AiBoardroom />,
+        element: <Strategies />,
       },
       {
         path: "strategy",
-        element: <AiBoardroom />,
+        element: <Navigate to="/dashboard/strategies" replace />,
       },
       {
         path: "strategies/new",
-        element: <AiBoardroom />,
+        element: <Debate />,
       },
       {
         path: "strategies/:strategyId",
-        element: <AiBoardroom />,
+        element: <Debate />,
       },
       {
         path: "calls",
