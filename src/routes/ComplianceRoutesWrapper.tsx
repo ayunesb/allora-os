@@ -24,7 +24,7 @@ const ComplianceRoutesWrapper = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        <Route path="/" element={<ComplianceLayout />}>
+        <Route path="/" element={<ComplianceLayout><Outlet /></ComplianceLayout>}>
           <Route index element={<Navigate to="overview" replace />} />
           <Route path="overview" element={<ComplianceOverview />} />
           <Route path="audit-logs" element={<AuditLogs />} />

@@ -1,113 +1,43 @@
 
-import { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { FileText, Lock, Shield } from "lucide-react";
-import ComplianceLayout from "@/components/ComplianceLayout";
-import PolicyToggles, { DataPoliciesState } from "@/components/compliance/data-policies/PolicyToggles";
-import RegulatoryFrameworks from "@/components/compliance/data-policies/RegulatoryFrameworks";
-import PolicyDocuments from "@/components/compliance/data-policies/PolicyDocuments";
-import ComplianceContact from "@/components/compliance/data-policies/ComplianceContact";
-import { logComplianceChange } from "@/utils/auditLogger";
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PolicyDocuments } from '@/components/compliance/data-policies/PolicyDocuments';
+import { PolicyToggles } from '@/components/compliance/data-policies/PolicyToggles';
+import { RegulatoryFrameworks } from '@/components/compliance/data-policies/RegulatoryFrameworks';
+import { ComplianceContact } from '@/components/compliance/data-policies/ComplianceContact';
 
 export default function DataPolicies() {
-  const [dataPolicies, setDataPolicies] = useState<DataPoliciesState>({
-    dataDeletion: true,
-    dataMinimization: false,
-    dataEncryption: true,
-    dataRetention: true,
-    accessControl: true,
-    thirdPartySharing: false
-  });
-  
-  const handlePolicyToggle = (policy: keyof DataPoliciesState) => {
-    const newValue = !dataPolicies[policy];
-    
-    setDataPolicies({
-      ...dataPolicies,
-      [policy]: newValue
-    });
-    
-    // Log the policy change to the audit log
-    logComplianceChange(
-      'admin', // In a real app, this would be the actual user ID
-      `Changed ${policy} setting to ${newValue}`,
-      { policyType: policy, newValue }
-    );
-  };
-  
   return (
-    <ComplianceLayout>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Shield className="mr-2 h-5 w-5 text-primary" />
-                Data Handling Policies
-              </CardTitle>
-              <CardDescription>
-                Configure how customer data is processed, stored, and shared
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PolicyToggles 
-                policies={dataPolicies} 
-                onPolicyToggle={handlePolicyToggle} 
-              />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Lock className="mr-2 h-5 w-5 text-primary" />
-                Regulatory Frameworks
-              </CardTitle>
-              <CardDescription>
-                Compliance with data protection regulations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RegulatoryFrameworks />
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="mr-2 h-5 w-5 text-primary" />
-                Policy Documents
-              </CardTitle>
-              <CardDescription>
-                Legal and compliance documents
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Data Policies</CardTitle>
+          <CardDescription>Manage your organization's data handling policies and compliance documents</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="documents" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="documents">Policy Documents</TabsTrigger>
+              <TabsTrigger value="settings">Policy Settings</TabsTrigger>
+              <TabsTrigger value="frameworks">Regulatory Frameworks</TabsTrigger>
+              <TabsTrigger value="contact">Compliance Contact</TabsTrigger>
+            </TabsList>
+            <TabsContent value="documents">
               <PolicyDocuments />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Compliance Contact</CardTitle>
-              <CardDescription>
-                Designated data protection officer
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            </TabsContent>
+            <TabsContent value="settings">
+              <PolicyToggles />
+            </TabsContent>
+            <TabsContent value="frameworks">
+              <RegulatoryFrameworks />
+            </TabsContent>
+            <TabsContent value="contact">
               <ComplianceContact />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </ComplianceLayout>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

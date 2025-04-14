@@ -1,54 +1,24 @@
 
-import { useState } from "react";
-import ComplianceLayout from "@/components/ComplianceLayout";
-import AuditLogFilters from "@/components/compliance/audit-logs/AuditLogFilters";
-import AuditLogTable from "@/components/compliance/audit-logs/AuditLogTable";
-import { mockAuditLogs } from "@/components/compliance/audit-logs/mockData";
+import React from 'react';
+import { AuditLogTable } from '@/components/compliance/audit-logs/AuditLogTable';
+import { AuditLogFilters } from '@/components/compliance/audit-logs/AuditLogFilters';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AuditLogs() {
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [actionFilter, setActionFilter] = useState<string>("all");
-  const [userFilter, setUserFilter] = useState<string>("");
-  
-  // Filter logs based on selected filters
-  const filteredLogs = mockAuditLogs.filter(log => {
-    // Filter by action type if selected
-    if (actionFilter !== "all" && log.action !== actionFilter) return false;
-    
-    // Filter by user search term
-    if (userFilter && !log.user.toLowerCase().includes(userFilter.toLowerCase())) return false;
-    
-    // Filter by date if selected
-    if (date) {
-      const logDate = new Date(log.timestamp).toDateString();
-      const selectedDate = date.toDateString();
-      if (logDate !== selectedDate) return false;
-    }
-    
-    return true;
-  });
-  
-  // Handle log export (mock function)
-  const handleExportLogs = () => {
-    console.log("Exporting logs:", filteredLogs);
-    // In a real app, this would trigger a download
-  };
-  
   return (
-    <ComplianceLayout>
-      <div className="space-y-6">
-        <AuditLogFilters 
-          actionFilter={actionFilter}
-          setActionFilter={setActionFilter}
-          userFilter={userFilter}
-          setUserFilter={setUserFilter}
-          date={date}
-          setDate={setDate}
-          onExportLogs={handleExportLogs}
-        />
-        
-        <AuditLogTable logs={filteredLogs} />
-      </div>
-    </ComplianceLayout>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Audit Logs</CardTitle>
+          <CardDescription>Track all system activities and compliance-related events</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AuditLogFilters />
+          <div className="mt-6">
+            <AuditLogTable />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

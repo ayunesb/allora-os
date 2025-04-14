@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DatabaseCheck, ServerCrash, Shield, RefreshCw, ArrowRightLeft } from 'lucide-react';
+import { Database, ServerCrash, Shield, RefreshCw, ArrowRightLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProductionDataPage() {
@@ -65,7 +65,7 @@ export default function ProductionDataPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-base">
-              <DatabaseCheck className="mr-2 h-5 w-5 text-primary" />
+              <Database className="mr-2 h-5 w-5 text-primary" />
               Database Status
             </CardTitle>
           </CardHeader>
