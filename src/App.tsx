@@ -9,6 +9,7 @@ import { router } from "@/routes/router";
 import { GlobalErrorModal } from "@/components/errorHandling/GlobalErrorModal";
 import { setupErrorLogging } from "@/utils/errorHandling/errorLogging";
 import { Suspense } from "react";
+import { BackendConnectionAlert } from "@/components/dashboard/BackendConnectionAlert";
 
 // Set up error logging
 setupErrorLogging();
@@ -31,11 +32,14 @@ function App() {
       <AuthRedirectProvider>
         <AuthProvider>
           <ExecutiveWorkflowProvider>
-            <Suspense fallback={<AppLoadingFallback />}>
-              <RouterProvider router={router} />
-            </Suspense>
-            <Toaster richColors />
-            <GlobalErrorModal />
+            <div className="flex flex-col min-h-screen">
+              <BackendConnectionAlert />
+              <Suspense fallback={<AppLoadingFallback />}>
+                <RouterProvider router={router} />
+              </Suspense>
+              <Toaster richColors />
+              <GlobalErrorModal />
+            </div>
           </ExecutiveWorkflowProvider>
         </AuthProvider>
       </AuthRedirectProvider>

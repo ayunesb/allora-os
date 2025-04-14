@@ -2,11 +2,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
+import { ArrowRight, Info } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SUPABASE_CONFIG } from "@/config/appConfig";
 
 export default function Home() {
   logger.info('Home component rendering');
@@ -15,6 +17,17 @@ export default function Home() {
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col">
         <Navbar />
+        
+        {SUPABASE_CONFIG.usingFallback && (
+          <div className="container mx-auto px-4 mt-4">
+            <Alert variant="info">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                The application is running in demo mode with limited functionality.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
         
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center mt-12">
