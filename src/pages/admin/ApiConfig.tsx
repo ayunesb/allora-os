@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import GitHubWebhookConfigSection from "@/components/admin/webhooks/GitHubWebhookConfigSection";
 
 export default function ApiConfig() {
   const navigate = useNavigate();
@@ -200,7 +200,7 @@ export default function ApiConfig() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Testing Mode Active</AlertTitle>
@@ -241,49 +241,38 @@ export default function ApiConfig() {
                       </div>
                     )}
                     
-                    <div className="space-y-2 mt-4">
+                    <div className="space-y-4 mt-6">
                       <h3 className="font-medium">Webhook Endpoints</h3>
-                      <div className="grid gap-2">
-                        <div className="flex justify-between items-center p-2 border rounded-md">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
-                            <span>Stripe Webhooks</span>
-                          </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleConfigureWebhook('stripe')}
-                          >
-                            Configure
-                          </Button>
+                      
+                      <div className="flex justify-between items-center p-2 border rounded-md">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <span>Stripe Webhooks</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 border rounded-md">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
-                            <span>Zapier Integration</span>
-                          </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleConfigureWebhook('zapier')}
-                          >
-                            Configure
-                          </Button>
-                        </div>
-                        <div className="flex justify-between items-center p-2 border rounded-md">
-                          <div className="flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4 text-red-500" />
-                            <span>GitHub Webhooks</span>
-                          </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleConfigureWebhook('github')}
-                          >
-                            Configure
-                          </Button>
-                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleConfigureWebhook('stripe')}
+                        >
+                          Configure
+                        </Button>
                       </div>
+                      
+                      <div className="flex justify-between items-center p-2 border rounded-md">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <span>Zapier Integration</span>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleConfigureWebhook('zapier')}
+                        >
+                          Configure
+                        </Button>
+                      </div>
+                      
+                      <GitHubWebhookConfigSection onConfigureWebhook={handleConfigureWebhook} />
                     </div>
                   </div>
                 </div>
