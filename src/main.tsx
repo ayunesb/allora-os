@@ -8,7 +8,6 @@ import { GlobalErrorBoundary } from '@/components/errorHandling/GlobalErrorBound
 import './styles/index.css';
 import './App.css';
 import { logger } from '@/utils/loggingService';
-import { AuthProvider } from '@/context/AuthContext';
 
 // Initialize error handlers
 const handleError = (error: Error) => {
