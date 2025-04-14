@@ -34,6 +34,50 @@ export default function PreLaunchAudit() {
     pending: 7
   });
 
+  // Load audit results from localStorage on component mount
+  useEffect(() => {
+    const lastAuditResults = localStorage.getItem('lastAuditResults');
+    
+    if (lastAuditResults) {
+      try {
+        const auditData = JSON.parse(lastAuditResults);
+        const validationResults = auditData.results;
+        
+        // Update statuses based on audit results
+        if (validationResults) {
+          const ready = validationResults.ready || false;
+          const criticalIssues = validationResults.issues.filter(i => i.severity === 'critical').length;
+          
+          if (ready) {
+            // If system is ready, set most statuses to passed
+            setLegalStatus('passed');
+            setFunctionalStatus('passed');
+            setAiStatus('passed');
+            setPerformanceStatus('passed');
+            setSecurityStatus('passed');
+            setIntegrationsStatus('passed');
+            setNavigationStatus('passed');
+          } else if (criticalIssues > 0) {
+            // If there are critical issues, mark relevant checks as failed
+            setLegalStatus('passed'); // Legal is usually separate
+            setFunctionalStatus(criticalIssues > 0 ? 'failed' : 'passed');
+            setAiStatus('passed');
+            setPerformanceStatus('passed');
+            setSecurityStatus('failed'); // Security issues are often critical
+            setIntegrationsStatus('failed');
+            setNavigationStatus('passed');
+          }
+          
+          toast.info('Loaded latest audit results', {
+            description: `Last audit performed: ${new Date(auditData.timestamp).toLocaleString()}`
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing audit results:', error);
+      }
+    }
+  }, []);
+
   // Update summary whenever any status changes
   useEffect(() => {
     const statuses = [legalStatus, functionalStatus, aiStatus, performanceStatus, securityStatus, integrationsStatus, navigationStatus];

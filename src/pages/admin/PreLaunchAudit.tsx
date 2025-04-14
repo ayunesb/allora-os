@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageTitle } from "@/components/ui/page-title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,13 +15,30 @@ import {
   FileText, 
   LayoutDashboard,
   Terminal,
-  AlertCircle
+  AlertCircle,
+  ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
 import PreLaunchAudit from "@/components/admin/audit/PreLaunchAudit";
+import { useNavigate } from 'react-router-dom';
 
 export default function AuditPage() {
   const [isRunningFullAudit, setIsRunningFullAudit] = useState(false);
+  const [lastAuditTime, setLastAuditTime] = useState<string | null>(null);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Get last audit time from localStorage
+    const lastAuditResults = localStorage.getItem('lastAuditResults');
+    if (lastAuditResults) {
+      try {
+        const auditData = JSON.parse(lastAuditResults);
+        setLastAuditTime(auditData.timestamp);
+      } catch (error) {
+        console.error('Error parsing audit results:', error);
+      }
+    }
+  }, []);
   
   const handleFullAudit = () => {
     setIsRunningFullAudit(true);
@@ -29,7 +46,7 @@ export default function AuditPage() {
     
     // Navigate to the dedicated full audit page
     setTimeout(() => {
-      window.location.href = "/admin/run-audit";
+      navigate("/admin/run-audit");
     }, 1500);
   };
   
@@ -47,6 +64,11 @@ export default function AuditPage() {
           <AlertDescription>
             Review all systems before launching to ensure optimal performance, security, and user experience.
             Use the "Run Full Audit" button to automatically check all aspects of your application.
+            {lastAuditTime && (
+              <div className="mt-2 text-sm">
+                Last audit performed: {new Date(lastAuditTime).toLocaleString()}
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       </div>
