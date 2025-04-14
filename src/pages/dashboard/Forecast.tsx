@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTitle } from "@/components/ui/page-title";
@@ -32,6 +31,13 @@ const KPI_NAMES: Record<string, string> = {
   conversion_rate: "Conversion Rate",
   executive_resources: "Executive Resources"
 };
+
+// Define chart data type with optional isForecast property
+interface ChartDataPoint {
+  period: string;
+  value: number;
+  isForecast?: boolean;
+}
 
 export default function ForecastDashboard() {
   const [kpiData, setKpiData] = useState<Record<string, number[]>>({});
@@ -167,9 +173,9 @@ export default function ForecastDashboard() {
   }, []);
 
   // Format data for charts
-  const getChartData = (kpiType: string) => {
+  const getChartData = (kpiType: string): ChartDataPoint[] => {
     const data = kpiData[kpiType] || [];
-    const chartData = data.map((value, index) => ({
+    const chartData: ChartDataPoint[] = data.map((value, index) => ({
       period: `Period ${index + 1}`,
       value
     }));
