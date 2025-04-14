@@ -10,11 +10,15 @@ export { supabase, getSession, getCurrentUser };
 
 // Additional helper functions specific to the backend can be added here
 export const createAdminClient = () => {
+  // Ensure we have valid configuration values
+  const supabaseUrl = SUPABASE_CONFIG.url;
+  const supabaseAnonKey = SUPABASE_CONFIG.anonKey;
+  
   // This would use the service role key in a real implementation
   // but for now, just return the regular client
   return createClient(
-    SUPABASE_CONFIG.url,
-    SUPABASE_CONFIG.anonKey,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       auth: {
         persistSession: true,

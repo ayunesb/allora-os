@@ -1,4 +1,3 @@
-
 /**
  * Central application configuration
  * All environment variables and configuration settings should be accessed through this file
@@ -14,9 +13,13 @@ const isDevelopment = isBrowser
 
 // Supabase configuration
 export const SUPABASE_CONFIG = {
-  // These values should be set as environment variables in production
-  url: isBrowser ? import.meta.env?.VITE_SUPABASE_URL || "" : process?.env?.SUPABASE_URL || "",
-  anonKey: isBrowser ? import.meta.env?.VITE_SUPABASE_ANON_KEY || "" : process?.env?.SUPABASE_ANON_KEY || "",
+  // These values ensure we always have valid configuration, using hardcoded values as fallback
+  url: isBrowser 
+    ? (import.meta.env?.VITE_SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co") 
+    : (process?.env?.SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co"),
+  anonKey: isBrowser 
+    ? (import.meta.env?.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo") 
+    : (process?.env?.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo"),
 }
 
 // API configuration

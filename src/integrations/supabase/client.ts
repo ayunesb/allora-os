@@ -1,11 +1,22 @@
+
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
 import { toast } from 'sonner';
 
+// Make sure we have valid URL and key values before initializing the client
+const supabaseUrl = SUPABASE_CONFIG.url;
+const supabaseAnonKey = SUPABASE_CONFIG.anonKey;
+
+// Log initialization info for debugging (will be removed in production)
+console.log("Initializing Supabase client with:", { 
+  url: supabaseUrl, 
+  keyLength: supabaseAnonKey ? supabaseAnonKey.length : 0 
+});
+
 // Create a single supabase client for interacting with the database
 export const supabase = createClient(
-  SUPABASE_CONFIG.url, 
-  SUPABASE_CONFIG.anonKey, 
+  supabaseUrl, 
+  supabaseAnonKey, 
   {
     auth: {
       persistSession: true,

@@ -8,11 +8,14 @@ export function getAppUrl() {
 }
 
 export function getSupabaseUrl() {
-  return import.meta.env.VITE_SUPABASE_URL || "";
+  // Use a fallback value for the Supabase URL if not defined in env variables
+  // This ensures we never return an empty string which would cause the client initialization to fail
+  return import.meta.env.VITE_SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co";
 }
 
 export function getSupabaseAnonKey() {
-  return import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+  // Use the hardcoded anon key as fallback if not defined in env variables
+  return import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo";
 }
 
 /**
