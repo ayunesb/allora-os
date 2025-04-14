@@ -56,6 +56,26 @@ export const marketingRoutes: RouteObject[] = [
     path: "/terms",
     element: <TermsOfService />,
   },
+  {
+    path: "/legal/privacy-policy",
+    element: <Privacy />,
+  },
+  {
+    path: "/legal/cookies",
+    element: <CookiePolicy />,
+  },
+  {
+    path: "/legal/compliance",
+    element: <Compliance />,
+  },
+  {
+    path: "/legal/refund-policy",
+    element: <RefundPolicy />,
+  },
+  {
+    path: "/legal/messaging-consent",
+    element: <MessagingConsent />,
+  },
 ];
 
 export default marketingRoutes;

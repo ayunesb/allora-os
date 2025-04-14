@@ -1,6 +1,7 @@
 
 import { RouteObject, Navigate } from "react-router-dom";
 import NotFound from "@/pages/NotFound";
+import { isValidLegalRoute } from "@/utils/routeTracker";
 
 // Global routes that should be available everywhere
 export const globalRoutes: RouteObject[] = [

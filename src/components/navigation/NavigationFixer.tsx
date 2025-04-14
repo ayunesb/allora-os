@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { normalizeRoute, trackRouteVisit } from '@/utils/navigation';
-import { trackRouteAccess } from '@/utils/routeTracker';
+import { trackRouteAccess, isValidLegalRoute, getSuggestedLegalRoutes } from '@/utils/routeTracker';
 import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
 import { useAuth } from '@/context/AuthContext';
@@ -53,16 +53,26 @@ export default function NavigationFixer() {
       '/about',
       '/faq',
       '/legal',
+    ];
+    
+    // Add all legal routes to known valid paths
+    const allValidLegalRoutes = [
       '/privacy',
       '/terms',
       '/cookie-policy',
       '/refund-policy',
-      '/messaging-consent'
+      '/messaging-consent',
+      '/legal/terms-of-service',
+      '/legal/privacy-policy',
+      '/legal/cookies',
+      '/legal/compliance',
+      '/legal/refund-policy',
+      '/legal/messaging-consent',
     ];
     
     const isKnownValid = knownValidPaths.some(path => 
       currentPath === path || currentPath.startsWith(`${path}/`)
-    );
+    ) || allValidLegalRoutes.includes(currentPath);
     
     if (isKnownValid || attemptedFix) {
       return;
@@ -120,6 +130,7 @@ export default function NavigationFixer() {
       const isLikelyCompliancePath = /^\/comp(liance)?.*/.test(currentPath);
       const isLikelySystemPath = /^\/sys(tem)?.*/.test(currentPath);
       const isLikelyDiagnosticsPath = /^\/diag(nostics)?.*/.test(currentPath);
+      const isLikelyLegalPath = /^\/(legal|terms|priv|cookie|refund|message|consent).*/.test(currentPath);
       
       if (isLikelyAdminPath) {
         navigate('/admin', { replace: true, state: { attemptedPath: currentPath } });
@@ -136,6 +147,22 @@ export default function NavigationFixer() {
       } else if (isLikelyDiagnosticsPath) {
         navigate('/admin/diagnostics', { replace: true, state: { attemptedPath: currentPath } });
         toast.info("Redirecting to diagnostics");
+      } else if (isLikelyLegalPath) {
+        // Special handling for potential legal pages with typos
+        const suggestedRoutes = getSuggestedLegalRoutes(currentPath);
+        
+        if (suggestedRoutes.length > 0) {
+          // If we have suggestions, go to the first one
+          navigate(suggestedRoutes[0].path, { 
+            replace: true, 
+            state: { attemptedPath: currentPath, suggestions: suggestedRoutes } 
+          });
+          toast.info(`Redirecting to ${suggestedRoutes[0].name}`);
+        } else {
+          // If no suggestions, go to the main legal page
+          navigate('/legal', { replace: true, state: { attemptedPath: currentPath } });
+          toast.info("Redirecting to legal information");
+        }
       } else {
         // If path doesn't match known patterns and couldn't be normalized, it's likely a 404
         logger.info(`Navigation to unknown path: ${currentPath}`);
@@ -145,34 +172,25 @@ export default function NavigationFixer() {
     }
 
     // Enhanced legal route checking
-    const legalRoutes = [
-      '/legal/terms-of-service',
-      '/legal/privacy-policy',
-      '/legal/cookies',
-      '/legal/compliance',
-      '/legal/refund-policy',
-      '/legal/messaging-consent',
-      '/privacy',
-      '/terms',
-      '/cookie-policy',
-      '/refund-policy',
-      '/messaging-consent'
-    ];
-    
-    // Log any navigation to legal routes for tracking
-    if (legalRoutes.includes(currentPath)) {
-      logger.info(`Accessing legal route: ${currentPath}`);
-      toast.info(`Navigating to legal page: ${currentPath.split('/').pop()}`);
-    }
-
-    // Add specific logging for potential 404 routes
-    if (currentPath.includes('/legal') && !legalRoutes.includes(currentPath)) {
+    if (currentPath.includes('/legal') && !isValidLegalRoute(currentPath)) {
       logger.warn(`Potential 404 for legal route: ${currentPath}`);
       toast.error('Invalid legal document route');
-      navigate('/not-found', { 
+      
+      // Get suggested legal routes
+      const suggestedRoutes = getSuggestedLegalRoutes('/legal');
+      
+      if (suggestedRoutes.length > 0) {
+        logger.info(`Suggested legal routes: ${JSON.stringify(suggestedRoutes)}`);
+      }
+      
+      navigate('/legal', { 
         replace: true, 
-        state: { attemptedPath: currentPath } 
+        state: { 
+          attemptedPath: currentPath,
+          suggestedRoutes
+        } 
       });
+      setAttemptedFix(true);
     }
   }, [location.pathname, navigate, attemptedFix, isAuthenticated]);
   
