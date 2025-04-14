@@ -1,14 +1,9 @@
 
-import { toast } from 'sonner';
-
+// Interface definitions for Zapier API
 export type BusinessEventType = 
+  | 'campaign_launched' 
+  | 'lead_added' 
   | 'strategy_approved'
-  | 'campaign_approved'
-  | 'lead_created'
-  | 'sale_completed'
-  | 'onboarding_completed'
-  | 'lead_added'
-  | 'campaign_launched'
   | 'lead_converted'
   | 'revenue_milestone_reached';
 
@@ -19,114 +14,68 @@ export interface BusinessEventPayload {
   [key: string]: any;
 }
 
-// Direct export of the triggerBusinessEvent function for external use
-export const triggerBusinessEvent = async (
+export interface TriggerEventResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+}
+
+/**
+ * Triggers a business event webhook to Zapier
+ */
+export async function triggerBusinessEvent(
   eventType: BusinessEventType,
   payload: BusinessEventPayload
-) => {
-  try {
-    // Get the webhook URL from localStorage
-    const webhookUrl = localStorage.getItem('zapier_webhook_url');
-    
-    if (!webhookUrl) {
-      console.warn('No Zapier webhook URL configured');
-      return { success: false, message: 'No webhook URL configured' };
-    }
-    
-    const result = await triggerWorkflow(
-      webhookUrl,
-      eventType,
-      payload,
-      payload.entityId,
-      payload.entityType
-    );
-    
-    return result;
-  } catch (error: any) {
-    console.error('Error triggering business event:', error);
-    return { success: false, error, message: error.message || 'Unknown error' };
+): Promise<TriggerEventResult> {
+  // Get the webhook URL for this event type from app settings
+  const webhookUrl = getWebhookUrlForEvent(eventType);
+  
+  if (!webhookUrl) {
+    console.warn(`No webhook URL configured for event type: ${eventType}`);
+    return { success: false, message: 'No webhook URL configured for this event type' };
   }
-};
-
-// Direct export of the triggerWorkflow function for external use
-export const triggerWorkflow = async (
-  webhookUrl: string, 
-  event: string, 
-  payload: Record<string, any> = {},
-  entityId?: string,
-  entityType?: string
-) => {
+  
   try {
-    // Ensure the webhook URL is valid
-    if (!webhookUrl || !webhookUrl.startsWith('http')) {
-      return { 
-        success: false, 
-        message: 'Invalid webhook URL' 
-      };
-    }
+    console.log(`Triggering Zapier webhook for ${eventType} event:`, payload);
     
-    console.log(`Triggering Zapier webhook for event: ${event}`);
-    
-    // Add event type and metadata to payload
-    const fullPayload = {
-      ...payload,
-      event_type: event,
-      entity_id: entityId,
-      entity_type: entityType,
-      platform: 'Allora AI',
-      environment: process.env.NODE_ENV || 'development'
-    };
-    
-    // Make the request using no-cors to avoid CORS issues
-    // Note: This means we won't get response data back
-    await fetch(webhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      mode: 'no-cors',
-      body: JSON.stringify(fullPayload)
+      body: JSON.stringify({
+        event_type: eventType,
+        ...payload,
+      }),
+      mode: 'no-cors', // Required for cross-origin webhook calls
     });
     
-    // Since we're using no-cors mode, assume it worked if no exception
-    return { success: true, message: 'Webhook triggered' };
-  } catch (error: any) {
-    console.error('Error triggering Zapier webhook:', error);
+    // Since we're using no-cors, we won't get the status code
+    // We just assume it worked unless there's an exception
+    return { success: true };
+  } catch (error) {
+    console.error(`Error triggering ${eventType} webhook:`, error);
     return { 
       success: false, 
       error,
-      message: error.message || 'Failed to trigger Zapier webhook' 
+      message: error.message || 'Failed to trigger webhook'
     };
   }
-};
+}
 
-export function useZapier() {
-  /**
-   * Save a Zapier webhook URL to localStorage
-   */
-  const saveWebhookUrl = (url: string) => {
-    try {
-      localStorage.setItem('zapier_webhook_url', url);
-      toast.success('Zapier webhook URL saved');
-      return true;
-    } catch (error) {
-      console.error('Error saving webhook URL:', error);
-      toast.error('Failed to save webhook URL');
-      return false;
-    }
+/**
+ * Gets the webhook URL for a specific event type from app settings
+ */
+function getWebhookUrlForEvent(eventType: BusinessEventType): string | null {
+  // This would typically come from a database or environment setting
+  // For now, we'll hardcode some sample webhook URLs for testing
+  const WEBHOOK_URLS: Record<BusinessEventType, string> = {
+    campaign_launched: process.env.ZAPIER_CAMPAIGN_WEBHOOK || 'https://hooks.zapier.com/hooks/catch/123456/abcdef/',
+    lead_added: process.env.ZAPIER_LEAD_WEBHOOK || 'https://hooks.zapier.com/hooks/catch/123456/ghijkl/',
+    strategy_approved: process.env.ZAPIER_STRATEGY_WEBHOOK || 'https://hooks.zapier.com/hooks/catch/123456/mnopqr/',
+    lead_converted: process.env.ZAPIER_CONVERSION_WEBHOOK || 'https://hooks.zapier.com/hooks/catch/123456/stuvwx/',
+    revenue_milestone_reached: process.env.ZAPIER_MILESTONE_WEBHOOK || 'https://hooks.zapier.com/hooks/catch/123456/yzabcd/'
   };
   
-  /**
-   * Get the stored Zapier webhook URL
-   */
-  const getWebhookUrl = () => {
-    return localStorage.getItem('zapier_webhook_url') || '';
-  };
-
-  return {
-    triggerWorkflow,
-    triggerBusinessEvent,
-    saveWebhookUrl,
-    getWebhookUrl
-  };
+  return WEBHOOK_URLS[eventType] || null;
 }
