@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface ServiceHealth {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -14,6 +15,183 @@ export interface HealthCheckResult {
   uptime?: number;
 }
 
+// Alert System
+export type AlertSeverity = 'info' | 'warning' | 'error' | 'critical';
+
+export interface Alert {
+  id: string;
+  title: string;
+  message: string;
+  severity: AlertSeverity;
+  timestamp: Date;
+  source?: string;
+  acknowledged?: boolean;
+  metadata?: Record<string, any>;
+}
+
+// Performance Monitoring
+export interface PerformanceMetric {
+  name: string;
+  value: number;
+  unit: string;
+  timestamp: Date;
+}
+
+type AlertListener = (alerts: Alert[]) => void;
+
+class MonitoringSystem {
+  private alerts: Alert[] = [];
+  private listeners: AlertListener[] = [];
+  private performanceMetrics: PerformanceMetric[] = [];
+  private timers: Record<string, number> = {};
+
+  constructor() {
+    // Initialize with some system alerts if needed
+    this.alerts = [];
+  }
+
+  // Alert Management
+  public getRecentAlerts(count: number = 10): Alert[] {
+    return [...this.alerts].sort((a, b) => 
+      b.timestamp.getTime() - a.timestamp.getTime()
+    ).slice(0, count);
+  }
+
+  public getAlerts(severity?: AlertSeverity): Alert[] {
+    if (!severity) return [...this.alerts];
+    return this.alerts.filter(alert => alert.severity === severity);
+  }
+
+  public triggerAlert(
+    title: string,
+    message: string,
+    severity: AlertSeverity = 'info',
+    metadata?: Record<string, any>
+  ): Alert {
+    const newAlert: Alert = {
+      id: uuidv4(),
+      title,
+      message,
+      severity,
+      timestamp: new Date(),
+      acknowledged: false,
+      metadata
+    };
+
+    this.alerts.push(newAlert);
+    
+    // Notify listeners
+    this.notifyListeners();
+    
+    // Persist to database if critical or error
+    if (severity === 'critical' || severity === 'error') {
+      this.persistAlert(newAlert);
+    }
+    
+    return newAlert;
+  }
+
+  public dismissAlert(alertId: string): void {
+    const alertIndex = this.alerts.findIndex(a => a.id === alertId);
+    if (alertIndex >= 0) {
+      this.alerts.splice(alertIndex, 1);
+      this.notifyListeners();
+    }
+  }
+
+  public acknowledgeAlert(alertId: string): void {
+    const alert = this.alerts.find(a => a.id === alertId);
+    if (alert) {
+      alert.acknowledged = true;
+      this.notifyListeners();
+    }
+  }
+
+  public clearAlerts(): void {
+    this.alerts = [];
+    this.notifyListeners();
+  }
+
+  // Listeners
+  public addListener(listener: AlertListener): () => void {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
+    };
+  }
+
+  private notifyListeners(): void {
+    for (const listener of this.listeners) {
+      listener([...this.alerts]);
+    }
+  }
+
+  // Alert Persistence
+  private async persistAlert(alert: Alert): Promise<void> {
+    try {
+      await supabase.from('system_alerts').insert({
+        alert_id: alert.id,
+        title: alert.title,
+        message: alert.message,
+        severity: alert.severity,
+        timestamp: alert.timestamp.toISOString(),
+        metadata: alert.metadata
+      });
+    } catch (error) {
+      console.error('Failed to persist alert:', error);
+    }
+  }
+
+  // Performance Tracking
+  public startApiTimer(name: string): void {
+    this.timers[name] = performance.now();
+  }
+
+  public endApiTimer(name: string): number | null {
+    if (!this.timers[name]) return null;
+    
+    const startTime = this.timers[name];
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    
+    this.recordPerformanceMetric({
+      name,
+      value: duration,
+      unit: 'ms',
+      timestamp: new Date()
+    });
+    
+    // Clean up timer
+    delete this.timers[name];
+    
+    return duration;
+  }
+
+  public recordPerformanceMetric(metric: PerformanceMetric): void {
+    this.performanceMetrics.push(metric);
+    
+    // If response time is too slow, create an alert
+    if (metric.name.includes('api') && metric.value > 1000) {
+      this.triggerAlert(
+        'Slow API Response',
+        `${metric.name} took ${metric.value}ms to complete`,
+        'warning',
+        { metric }
+      );
+    }
+  }
+
+  public getPerformanceMetrics(limit: number = 100): PerformanceMetric[] {
+    return [...this.performanceMetrics]
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, limit);
+  }
+}
+
+// Singleton instance
+export const monitoring = new MonitoringSystem();
+
+// Utility functions for health check
 export async function checkSystemHealth(): Promise<HealthCheckResult> {
   try {
     // Check Supabase connection
@@ -110,4 +288,21 @@ function determineOverallStatus(services: Record<string, ServiceHealth>): 'healt
   if (statuses.some(status => status === 'degraded')) return 'degraded';
   
   return 'healthy';
+}
+
+// Helper functions for reporting different types of alerts
+export function reportInfo(title: string, message: string, metadata?: Record<string, any>): Alert {
+  return monitoring.triggerAlert(title, message, 'info', metadata);
+}
+
+export function reportWarning(title: string, message: string, metadata?: Record<string, any>): Alert {
+  return monitoring.triggerAlert(title, message, 'warning', metadata);
+}
+
+export function reportError(title: string, message: string, metadata?: Record<string, any>): Alert {
+  return monitoring.triggerAlert(title, message, 'error', metadata);
+}
+
+export function reportCritical(title: string, message: string, metadata?: Record<string, any>): Alert {
+  return monitoring.triggerAlert(title, message, 'critical', metadata);
 }
