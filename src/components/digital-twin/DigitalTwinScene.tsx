@@ -1,102 +1,69 @@
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stars, Text } from "@react-three/drei";
-import { supabase } from "@/backend/supabase";
-import KpiSphere from "./KpiSphere";
+import { OrbitControls, Stars } from "@react-three/drei";
 import KpiAxes from "./KpiAxes";
 import LoadingScreen from "./LoadingScreen";
-
-export interface KPIData {
-  id: string;
-  kpi: string;
-  value: number;
-  timestamp: string;
-}
+import KpiSphere from "./KpiSphere";
+import { useLanguage } from "@/context/LanguageContext";
+import { getTranslation } from "@/utils/i18n";
 
 export default function DigitalTwinScene() {
-  const [kpiData, setKpiData] = useState<KPIData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
+  const t = getTranslation(language);
 
-  useEffect(() => {
-    async function fetchKPIData() {
-      try {
-        // Using forecasts data from useForecastData hook as sample data
-        const mockData: KPIData[] = [
-          { id: '1', kpi: 'revenue', value: 15000, timestamp: new Date().toISOString() },
-          { id: '2', kpi: 'churn', value: 0.12, timestamp: new Date().toISOString() },
-          { id: '3', kpi: 'user_growth', value: 250, timestamp: new Date().toISOString() },
-          { id: '4', kpi: 'retention', value: 0.78, timestamp: new Date().toISOString() },
-          { id: '5', kpi: 'conversion_rate', value: 0.25, timestamp: new Date().toISOString() }
-        ];
-        
-        setKpiData(mockData);
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch KPI data:", error);
-        setLoading(false);
-      }
-    }
-
-    fetchKPIData();
-
-    // Optional Supabase Realtime Subscription - commented out until KPI history table exists
-    /*
-    const subscription = supabase
-      .channel('kpi_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'kpi_history' }, (payload) => {
-        setKpiData((current) => [...current, payload.new as KPIData]);
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-    */
-  }, []);
-
-  if (loading) {
-    return <div className="flex h-full w-full items-center justify-center">Loading KPI data...</div>;
-  }
+  // Sample KPI data (replace with real data fetching from your API)
+  const kpiData = [
+    { id: 1, name: "Revenue", value: 1250000, maxValue: 2000000, color: "green" },
+    { id: 2, name: "User Growth", value: 7500, maxValue: 10000, color: "blue" },
+    { id: 3, name: "Churn Rate", value: 0.05, maxValue: 0.15, color: "red", isNegative: true },
+    { id: 4, name: "Conversion", value: 0.12, maxValue: 0.20, color: "purple" },
+    { id: 5, name: "Engagement", value: 0.35, maxValue: 0.50, color: "orange" }
+  ];
 
   return (
-    <Canvas>
-      <color attach="background" args={['#000814']} />
-      <ambientLight intensity={0.4} />
+    <Canvas camera={{ position: [0, 0, 15], fov: 60 }}>
+      <ambientLight intensity={0.3} />
       <pointLight position={[10, 10, 10]} intensity={1} />
+      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} />
       
       <Suspense fallback={<LoadingScreen />}>
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-        <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
         <KpiAxes />
-        
-        {kpiData.map((kpi, idx) => (
-          <KpiSphere 
-            key={kpi.id} 
-            kpi={kpi} 
-            position={[idx * 3 - 6, getScaledValue(kpi), 0]} 
-            index={idx}
-          />
-        ))}
+        {kpiData.map((kpi, index) => {
+          // Position evenly around the X axis
+          const angle = (index / kpiData.length) * Math.PI * 2;
+          const radius = 5;
+          const x = Math.cos(angle) * radius;
+          const z = Math.sin(angle) * radius;
+          
+          // Scale the value to fit our visualization
+          const normalizedValue = (kpi.isNegative ? 
+            1 - (kpi.value / kpi.maxValue) : 
+            kpi.value / kpi.maxValue);
+          
+          const y = normalizedValue * 4; // Scale to a reasonable height
+          
+          return (
+            <KpiSphere 
+              key={kpi.id}
+              position={[x, y, z]}
+              name={kpi.name}
+              value={kpi.value}
+              color={kpi.color}
+              size={normalizedValue * 0.8 + 0.2} // Scale size between 0.2 and 1.0
+            />
+          );
+        })}
       </Suspense>
+      
+      <OrbitControls 
+        enableZoom={true}
+        enablePan={true}
+        enableRotate={true}
+        zoomSpeed={0.6}
+        panSpeed={0.5}
+        rotateSpeed={0.5}
+      />
     </Canvas>
   );
-}
-
-// Helper function to scale KPI values appropriately for visualization
-function getScaledValue(kpi: KPIData): number {
-  switch (kpi.kpi) {
-    case 'revenue':
-      return (kpi.value / 5000); // Scale revenue down
-    case 'churn':
-      return kpi.value * 10; // Scale churn rate up (lower is better, but visualization higher = better)
-    case 'user_growth':
-      return kpi.value / 100;
-    case 'retention':
-      return kpi.value * 5;
-    case 'conversion_rate':
-      return kpi.value * 10;
-    default:
-      return kpi.value / 1000;
-  }
 }

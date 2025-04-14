@@ -1,9 +1,11 @@
+
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthRedirectProvider } from "@/context/AuthRedirectContext";
 import { ExecutiveWorkflowProvider } from "@/context/ExecutiveWorkflowContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { router } from "@/routes/router";
 import { GlobalErrorModal } from "@/components/errorHandling/GlobalErrorModal";
 import { setupErrorLogging } from "@/utils/errorHandling/errorLogging";
@@ -38,14 +40,16 @@ function App() {
       <AuthRedirectProvider>
         <AuthProvider>
           <ExecutiveWorkflowProvider>
-            <div className="flex flex-col min-h-screen">
-              <BackendConnectionAlert />
-              <Suspense fallback={<AppLoadingFallback />}>
-                <RouterProvider router={router} />
-              </Suspense>
-              <Toaster richColors />
-              <GlobalErrorModal />
-            </div>
+            <LanguageProvider>
+              <div className="flex flex-col min-h-screen">
+                <BackendConnectionAlert />
+                <Suspense fallback={<AppLoadingFallback />}>
+                  <RouterProvider router={router} />
+                </Suspense>
+                <Toaster richColors />
+                <GlobalErrorModal />
+              </div>
+            </LanguageProvider>
           </ExecutiveWorkflowProvider>
         </AuthProvider>
       </AuthRedirectProvider>
