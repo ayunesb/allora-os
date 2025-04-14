@@ -3,16 +3,13 @@ import { RouteObject } from "react-router-dom";
 import Onboarding from "@/pages/Onboarding";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import NotFound from "@/pages/NotFound";
-import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 
 export const onboardingRoutes: RouteObject[] = [
   {
     path: "onboarding",
     element: (
       <ProtectedRoute>
-        <OnboardingLayout>
-          <Onboarding />
-        </OnboardingLayout>
+        <Onboarding />
       </ProtectedRoute>
     ),
     children: [
