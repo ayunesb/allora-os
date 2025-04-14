@@ -1,214 +1,174 @@
 
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from "@/integrations/supabase/client";
-import { PageTitle } from "@/components/ui/page-title";
-import { Card } from "@/components/ui/card";
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BarChart2 } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ExecutiveDecision } from "@/types/agents";
+import { useState } from 'react';
+import { MessageSquare, Brain, Sparkles, Target, BarChart3 } from 'lucide-react';
+import { executiveProfiles } from '@/agents/executiveAgent';
+import { toast } from 'sonner';
+import { ExecutiveMemory } from '@/components/executives/ExecutiveMemory';
 
 export default function ExecutiveProfile() {
-  const { name } = useParams();
-  const navigate = useNavigate();
-  const [decisions, setDecisions] = useState<ExecutiveDecision[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [executiveRole, setExecutiveRole] = useState<string>("");
+  const { name } = useParams<{ name: string }>();
+  const [activeTab, setActiveTab] = useState("overview");
   
-  useEffect(() => {
-    if (!name) return;
-
-    async function fetchDecisions() {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("executive_decisions")
-          .select("*")
-          .eq("executive_name", name)
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          throw error;
-        }
-
-        const formattedData = (data || []).map(item => ({
-          id: item.id,
-          executiveName: item.executive_name,
-          executiveRole: item.executive_role,
-          task: item.task,
-          options: item.options,
-          selectedOption: item.selected_option,
-          reasoning: item.reasoning,
-          riskAssessment: item.risk_assessment,
-          timestamp: item.created_at,
-          priority: item.priority
-        }));
-
-        if (formattedData.length > 0) {
-          setExecutiveRole(formattedData[0].executiveRole);
-        }
-        
-        setDecisions(formattedData);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to load executive decisions:", err);
-        setError("Could not load decisions for this executive. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchDecisions();
-  }, [name]);
-
-  const getPriorityColor = (priority?: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-300';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-300';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const calculateAverageRisk = () => {
-    if (!decisions.length) return "N/A";
-    
-    // Count decisions with numeric risk assessments
-    let count = 0;
-    const sum = decisions.reduce((acc, decision) => {
-      if (decision.riskAssessment && !isNaN(parseInt(decision.riskAssessment))) {
-        count++;
-        return acc + parseInt(decision.riskAssessment);
-      }
-      return acc;
-    }, 0);
-    
-    return count ? (sum / count).toFixed(1) : "N/A";
-  };
-
-  const goBack = () => {
-    navigate('/dashboard/decisions');
-  };
-
-  if (loading) {
+  // Find the executive profile by name
+  const executive = Object.values(executiveProfiles).find(
+    exec => exec.name === name
+  );
+  
+  if (!executive) {
     return (
-      <div className="container mx-auto py-6">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Executive Not Found</h1>
+        <p>The executive profile you're looking for doesn't exist.</p>
       </div>
     );
   }
-
-  if (error) {
-    return (
-      <div className="container mx-auto py-6">
-        <Button onClick={goBack} variant="outline" className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Decision Log
-        </Button>
-        <Card className="p-6 bg-red-50 border border-red-200 text-red-800">
-          <p>{error}</p>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!decisions.length) {
-    return (
-      <div className="container mx-auto py-6">
-        <Button onClick={goBack} variant="outline" className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Decision Log
-        </Button>
-        <Card className="p-8 text-center">
-          <h3 className="text-xl font-medium mb-2">No decisions found</h3>
-          <p className="text-muted-foreground">
-            No decisions were found for executive: {name}
-          </p>
-        </Card>
-      </div>
-    );
-  }
-
+  
+  const handleNewTask = () => {
+    toast.info(`Creating a new task for ${executive.name}...`);
+    // Implement task creation here
+  };
+  
   return (
-    <div className="container mx-auto py-6">
-      <Button onClick={goBack} variant="outline" className="mb-4">
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Decision Log
-      </Button>
-      
-      <PageTitle 
-        title={`Executive Profile: ${name}`} 
-        description={`${executiveRole} • ${decisions.length} decisions`}
-      />
-
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2 flex items-center">
-            <BarChart2 className="mr-2 h-5 w-5 text-primary" /> 
-            Risk Assessment
-          </h3>
-          <p className="text-3xl font-bold">{calculateAverageRisk()}</p>
-          <p className="text-muted-foreground text-sm mt-1">Average risk score</p>
-        </Card>
-        
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">Decision Count</h3>
-          <p className="text-3xl font-bold">{decisions.length}</p>
-          <p className="text-muted-foreground text-sm mt-1">Total decisions made</p>
-        </Card>
-        
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">Latest Decision</h3>
-          <p className="font-medium line-clamp-2">{decisions[0].task}</p>
-          <p className="text-muted-foreground text-sm mt-1">
-            {new Date(decisions[0].timestamp).toLocaleDateString()}
-          </p>
-        </Card>
+    <div className="space-y-6">
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">{executive.name}</h1>
+          <p className="text-muted-foreground">{executive.role}</p>
+        </div>
+        <Button onClick={handleNewTask}>
+          <MessageSquare className="mr-2 h-4 w-4" />
+          New Task
+        </Button>
       </div>
-
-      <Card className="p-0 overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Task</TableHead>
-              <TableHead>Decision</TableHead>
-              <TableHead>Risk Assessment</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {decisions.map((decision) => (
-              <TableRow key={decision.id}>
-                <TableCell>{decision.task}</TableCell>
-                <TableCell>
-                  <div className="font-medium">{decision.selectedOption}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{decision.reasoning}</div>
-                </TableCell>
-                <TableCell>
-                  {decision.riskAssessment || "No risk assessment"}
-                </TableCell>
-                <TableCell>
-                  {decision.priority && (
-                    <Badge className={getPriorityColor(decision.priority)}>
-                      {decision.priority}
-                    </Badge>
-                  )}
-                </TableCell>
-                <TableCell className="whitespace-nowrap">
-                  {new Date(decision.timestamp).toLocaleString()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+      
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="memory">Memory</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Executive Profile</CardTitle>
+              <CardDescription>Key information about {executive.name}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Role</h3>
+                  <p className="text-muted-foreground">{executive.role}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Decision Style</h3>
+                  <p className="text-muted-foreground">{executive.decisionStyle || 'Balanced'}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Areas of Expertise</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {executive.expertise.map((skill, idx) => (
+                      <Badge key={idx} variant="secondary">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                {executive.personality && (
+                  <div>
+                    <h3 className="text-sm font-medium mb-1">Personality</h3>
+                    <p className="text-muted-foreground">{executive.personality}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <ExecutiveMemory executiveName={executive.name} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="memory" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Brain className="mr-2 h-5 w-5" />
+                Memory System
+              </CardTitle>
+              <CardDescription>
+                How {executive.name} remembers past decisions and interactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">
+                The executive memory system allows AI executives to recall past decisions,
+                learn from experience, and maintain consistency across interactions.
+              </p>
+              
+              <div className="rounded-md bg-secondary p-4">
+                <h4 className="font-medium mb-2">How Executive Memory Works</h4>
+                <ol className="list-decimal pl-5 space-y-2">
+                  <li>Every decision is stored in the executive's memory</li>
+                  <li>Past decisions influence future reasoning</li>
+                  <li>Memory enables consistency and learning over time</li>
+                  <li>Context-aware decisions improve with more interactions</li>
+                </ol>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <ExecutiveMemory executiveName={executive.name} />
+        </TabsContent>
+        
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <BarChart3 className="mr-2 h-5 w-5" />
+                Performance Metrics
+              </CardTitle>
+              <CardDescription>
+                Measuring the impact of {executive.name}'s decisions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Performance metrics coming soon. This feature will track decision outcomes,
+                accuracy, and business impact over time.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="tasks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Target className="mr-2 h-5 w-5" />
+                Recent Tasks
+              </CardTitle>
+              <CardDescription>
+                Tasks assigned to {executive.name}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                No tasks have been assigned yet. Use the "New Task" button to create one.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { executivePromptTemplate } from './promptTemplates';
 import { saveDecisionToDatabase, getExecutiveDecisions } from './decisionService';
 import { executiveProfiles } from './agentProfiles';
 import { getUserPreferences } from '@/utils/selfLearning/preferencesService';
+import { fetchRecentMemories, formatMemoriesForPrompt, saveDecisionToMemory } from '@/services/memoryService';
 
 /**
  * Runs the executive agent to process a task and return a decision
@@ -26,6 +27,8 @@ export async function runExecutiveAgent(
   try {
     // Get user preferences if userId is provided
     let userPreferences = null;
+    let memories = [];
+    
     if (options.userId) {
       try {
         userPreferences = await getUserPreferences(options.userId);
@@ -34,13 +37,23 @@ export async function runExecutiveAgent(
           userId: options.userId,
           preferences: userPreferences
         });
+        
+        // Fetch recent memories for this executive
+        memories = await fetchRecentMemories(options.userId, executive.name, 5);
+        logger.info(`Retrieved ${memories.length} memories for executive ${executive.name}`, {
+          component: 'executiveAgent',
+          userId: options.userId
+        });
       } catch (error) {
-        logger.warn('Failed to get user preferences, using defaults', {
+        logger.warn('Failed to get user preferences or memories, using defaults', {
           component: 'executiveAgent',
           error
         });
       }
     }
+    
+    // Format memories for the prompt
+    const memoryText = formatMemoriesForPrompt(memories);
     
     // Prepare the context variables for the prompt
     const companyContext = options.companyContext 
@@ -65,6 +78,13 @@ Adapt your decision making and communication style to match these preferences.
 `;
     }
     
+    // Add memory context to the prompt
+    const memoryContext = `
+Recent Memory Log:
+${memoryText}
+
+`;
+    
     // Format the prompt with the executive's details, task, and user preferences
     const prompt = executivePromptTemplate
       .replace('{executiveName}', executive.name)
@@ -75,7 +95,8 @@ Adapt your decision making and communication style to match these preferences.
       .replace('{personality}', executive.personality || '')
       .replace('{companyContext}', companyContext)
       .replace('{marketConditions}', marketConditions)
-      .replace('{userPreferences}', userPreferencesContext);
+      .replace('{userPreferences}', userPreferencesContext)
+      .replace('{memoryContext}', memoryContext);
 
     // Call OpenAI Edge Function with the prompt
     const response = await fetch('/api/agents/executive-think', {
@@ -155,6 +176,16 @@ Adapt your decision making and communication style to match these preferences.
     // Save to database if requested
     if (options.saveToDatabase) {
       await saveDecisionToDatabase(decision);
+    }
+    
+    // Save to memory if userId is provided
+    if (options.userId) {
+      await saveDecisionToMemory(options.userId, decision);
+      logger.info('Saved decision to memory', {
+        component: 'executiveAgent',
+        executiveName: executive.name,
+        userId: options.userId
+      });
     }
 
     return decision;

@@ -784,6 +784,36 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_memory: {
+        Row: {
+          context_embedding: string | null
+          decision: string
+          executive_name: string
+          id: string
+          task: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          context_embedding?: string | null
+          decision: string
+          executive_name: string
+          id?: string
+          task: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          context_embedding?: string | null
+          decision?: string
+          executive_name?: string
+          id?: string
+          task?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campaign_id: string

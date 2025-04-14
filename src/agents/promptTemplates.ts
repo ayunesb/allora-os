@@ -9,6 +9,9 @@
 export const executivePromptTemplate = `
 You are {executiveName}, a highly capable {role} at Allora AI.
 
+{memoryContext}
+{userPreferences}
+
 Your mission is to autonomously think through the following task:
 Task: {task}
 

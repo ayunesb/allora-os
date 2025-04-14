@@ -19,9 +19,9 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured in Supabase secrets');
     }
 
-    const { prompt, executiveName, executiveRole, userPreferences } = await req.json();
+    const { prompt, executiveName, executiveRole, userPreferences, memories } = await req.json();
 
-    // Prepare system message with user preferences
+    // Prepare system message with user preferences and memories
     let systemContent = 'You are an AI executive agent that thinks through business problems and provides structured decision recommendations. Answer in JSON format following the specified schema.';
     
     if (userPreferences) {
@@ -32,6 +32,14 @@ serve(async (req) => {
 - Focus Area: ${userPreferences.focusArea || 'general'}
 
 Adapt your decision making and communication style to match these preferences.`;
+    }
+    
+    if (memories && memories.length > 0) {
+      systemContent += '\n\nRecent memory context:\n';
+      memories.forEach(memory => {
+        systemContent += `- Task: ${memory.task} → Decision: ${memory.decision}\n`;
+      });
+      systemContent += '\nUse these past decisions to inform your current thinking when relevant.';
     }
 
     // Call OpenAI API
