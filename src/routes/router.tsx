@@ -1,3 +1,4 @@
+
 import { createBrowserRouter, Outlet, Navigate, RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { adminRoutes } from "./admin-routes";
@@ -18,6 +19,7 @@ import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
+import Compliance from "@/pages/Compliance";
 
 // Lazy-load the compliance routes wrapper component
 const ComplianceRoutesWrapper = lazy(() => import('./ComplianceRoutesWrapper'));
@@ -55,6 +57,53 @@ const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
 
 // Create dynamic routes with lazy loading
 const createLazyRoutes = () => {
+  // Public routes (not lazy-loaded)
+  const publicRoutes: RouteObject[] = [
+    {
+      path: "/",
+      element: <Index />,
+    },
+    {
+      path: "/home",
+      element: <Home />,
+    },
+    {
+      path: "/diagnostics",
+      element: <SystemDiagnostics />,
+    },
+    {
+      path: "/pricing",
+      element: <Pricing />,
+    },
+    // Root compliance page that handles setup and redirects to the compliance dashboard
+    {
+      path: "/compliance",
+      element: <Compliance />,
+    },
+    // Common redirects for legacy/mistyped URLs
+    {
+      path: "/calendar",
+      element: <Navigate to="/dashboard" replace />,
+    },
+    {
+      path: "/shop",
+      element: <Navigate to="/dashboard" replace />,
+    },
+    {
+      path: "/dashboard/account",
+      element: <Navigate to="/dashboard/profile" replace />,
+    },
+    {
+      path: "/dashboard/dashboard-settings",
+      element: <Navigate to="/dashboard/settings" replace />,
+    },
+    {
+      path: "/my-leads",
+      element: <Navigate to="/dashboard/leads" replace />,
+    },
+  ];
+
+  // Combine all routes
   const routes: RouteObject[] = [
     ...publicRoutes,
     ...authRoutes,
@@ -76,47 +125,6 @@ const createLazyRoutes = () => {
 
   return routes;
 };
-
-// Public static routes
-const publicRoutes = [
-  {
-    path: "/",
-    element: <Index />,
-  },
-  {
-    path: "/home",
-    element: <Home />,
-  },
-  {
-    path: "/diagnostics",
-    element: <SystemDiagnostics />,
-  },
-  {
-    path: "/pricing",
-    element: <Pricing />,
-  },
-  // Common redirects for legacy/mistyped URLs
-  {
-    path: "/calendar",
-    element: <Navigate to="/dashboard" replace />,
-  },
-  {
-    path: "/shop",
-    element: <Navigate to="/dashboard" replace />,
-  },
-  {
-    path: "/dashboard/account",
-    element: <Navigate to="/dashboard/profile" replace />,
-  },
-  {
-    path: "/dashboard/dashboard-settings",
-    element: <Navigate to="/dashboard/settings" replace />,
-  },
-  {
-    path: "/my-leads",
-    element: <Navigate to="/dashboard/leads" replace />,
-  },
-];
 
 // Export the router configuration for use in App.tsx
 export const router = createBrowserRouter([

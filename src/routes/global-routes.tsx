@@ -69,6 +69,23 @@ export const globalRoutes: RouteObject[] = [
     path: "/customers",
     element: <Navigate to="/dashboard/leads" replace />,
   },
+  // Compliance section redirects
+  {
+    path: "/compliance-center",
+    element: <Navigate to="/compliance" replace />,
+  },
+  {
+    path: "/audit-logs",
+    element: <Navigate to="/compliance/audit-logs" replace />,
+  },
+  {
+    path: "/data-policies",
+    element: <Navigate to="/compliance/data-policies" replace />,
+  },
+  {
+    path: "/compliance-reports",
+    element: <Navigate to="/compliance/reports" replace />,
+  },
   // The 404 catch-all route - must be last
   {
     path: "*",

@@ -36,7 +36,7 @@ const ComplianceRoutesWrapper = () => {
   return (
     <Routes>
       <Route 
-        path="/" 
+        path="/overview" 
         element={
           <ProtectedRoute>
             <ComplianceWrapper>
@@ -75,8 +75,10 @@ const ComplianceRoutesWrapper = () => {
           </ProtectedRoute>
         } 
       />
-      {/* Catch-all redirect to compliance root */}
-      <Route path="*" element={<Navigate to="/compliance" replace />} />
+      {/* Handle the root compliance path */}
+      <Route path="/" element={<Navigate to="/compliance/overview" replace />} />
+      {/* Catch-all redirect to compliance overview */}
+      <Route path="*" element={<Navigate to="/compliance/overview" replace />} />
     </Routes>
   );
 };

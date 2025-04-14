@@ -1,6 +1,6 @@
 
 import React from 'react';
-import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
+import Navbar from "@/components/Navbar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "react-router-dom";
 import { Shield } from "lucide-react";
@@ -30,8 +30,8 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
         
         <Tabs value={currentPath} className="mb-8">
           <TabsList>
-            <TabsTrigger value="/compliance" asChild>
-              <Link to="/compliance">Overview</Link>
+            <TabsTrigger value="/compliance/overview" asChild>
+              <Link to="/compliance/overview">Overview</Link>
             </TabsTrigger>
             <TabsTrigger value="/compliance/data-policies" asChild>
               <Link to="/compliance/data-policies">Data Policies</Link>
