@@ -1,18 +1,27 @@
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 
-interface PageTitleProps {
-  title: string;
-  description?: string;
+export interface PageTitleProps {
+  children: React.ReactNode;
+  title?: string;
+  className?: string;
 }
 
-export function PageTitle({ title, description }: PageTitleProps) {
+export function PageTitle({ 
+  children, 
+  title,
+  className 
+}: PageTitleProps) {
+  // If title is provided, use it, otherwise use children
+  const displayTitle = title || (typeof children === 'string' ? children : '');
+
   return (
-    <div className="mb-6">
-      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-      {description && (
-        <p className="text-muted-foreground mt-1">{description}</p>
-      )}
-    </div>
+    <h1 
+      className={cn("text-2xl font-bold tracking-tight md:text-3xl", className)}
+      title={displayTitle}
+    >
+      {children}
+    </h1>
   );
 }

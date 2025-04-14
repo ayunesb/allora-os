@@ -22,7 +22,7 @@ const GDPRCompliancePage: React.FC = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <PageTitle>GDPR Compliance</PageTitle>
+          <PageTitle title="GDPR Compliance">GDPR Compliance</PageTitle>
         </div>
 
         <Card className="mb-8">
