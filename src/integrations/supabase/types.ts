@@ -742,6 +742,39 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_actions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          id: string
+          result: string | null
+          status: string
+          task: string
+          triggered_by: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          result?: string | null
+          status?: string
+          task: string
+          triggered_by: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          result?: string | null
+          status?: string
+          task?: string
+          triggered_by?: string
+        }
+        Relationships: []
+      }
       executive_debates: {
         Row: {
           created_at: string

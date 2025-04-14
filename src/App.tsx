@@ -1,4 +1,3 @@
-
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 import { Helmet, HelmetProvider } from "react-helmet-async";
@@ -10,6 +9,8 @@ import { GlobalErrorModal } from "@/components/errorHandling/GlobalErrorModal";
 import { setupErrorLogging } from "@/utils/errorHandling/errorLogging";
 import { Suspense } from "react";
 import { BackendConnectionAlert } from "@/components/dashboard/BackendConnectionAlert";
+import { useEffect } from "react";
+import { initializeAutoExecutorCron } from '@/utils/executorCron';
 
 // Set up error logging
 setupErrorLogging();
@@ -22,6 +23,11 @@ const AppLoadingFallback = () => (
 );
 
 function App() {
+  useEffect(() => {
+    // Initialize auto-executor cron when app loads
+    initializeAutoExecutorCron();
+  }, []);
+
   return (
     <HelmetProvider>
       <Helmet>
