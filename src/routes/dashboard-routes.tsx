@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
@@ -28,6 +27,7 @@ import ExecutiveDecisions from "@/pages/dashboard/ExecutiveDecisions";
 import ExecutiveProfile from "@/pages/dashboard/executives/[name]";
 import RiskHeatmap from "@/pages/dashboard/RiskHeatmap";
 import ExecutiveLeaderboard from "@/pages/dashboard/ExecutiveLeaderboard";
+import AIChat from "@/pages/dashboard/AIChat";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -38,7 +38,7 @@ export const dashboardRoutes: RouteObject[] = [
         index: true,
         element: <Dashboard />,
       },
-      // Leads section - consolidated
+      // route definitions for leads, campaigns, etc.
       {
         path: "leads",
         element: <Leads />,
@@ -130,6 +130,11 @@ export const dashboardRoutes: RouteObject[] = [
         path: "debate",
         element: <Debate />,
       },
+      {
+        path: "ai-chat",
+        element: <AIChat />,
+      },
+      // route definitions for remaining paths
       {
         path: "ai-settings",
         element: <AISettings />,

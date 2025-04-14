@@ -1,6 +1,8 @@
 
 import React from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DebateContainer from "@/components/debate/DebateContainer";
+import AIChatDashboard from "./AIChat";
 
 export default function Debate() {
   return (
@@ -12,9 +14,20 @@ export default function Debate() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 gap-6">
-        <DebateContainer />
-      </div>
+      <Tabs defaultValue="debate" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="debate">Debate Simulator</TabsTrigger>
+          <TabsTrigger value="chat">Executive Chat</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="debate" className="space-y-4">
+          <DebateContainer />
+        </TabsContent>
+        
+        <TabsContent value="chat" className="space-y-4">
+          <AIChatDashboard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
