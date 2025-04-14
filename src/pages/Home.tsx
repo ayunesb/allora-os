@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
 import Footer from "@/components/Footer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";

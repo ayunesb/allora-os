@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, AlertCircle } from "lucide-react";

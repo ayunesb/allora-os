@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { useCompliance } from "@/context/ComplianceContext";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
@@ -14,7 +14,6 @@ interface DocumentContent {
   };
 }
 
-// Keep the DocumentContent interface and documents object...
 const documents: DocumentContent = {
   "terms-of-service": {
     title: "Terms of Service",
@@ -293,15 +292,12 @@ export default function DocumentLegalContent() {
   };
 
   useEffect(() => {
-    // When the component mounts, check if this document needs an update
     checkForUpdates();
     setLastChecked(new Date());
     
-    // Set up a notification that appears periodically if updates are needed
     let notificationTimer: NodeJS.Timeout;
     
     if (needsUpdate) {
-      // Show notification immediately
       const notificationToast = document.createElement('div');
       notificationToast.className = 'fixed top-4 right-4 bg-amber-50 border border-amber-200 p-4 rounded shadow-md z-50 animate-in fade-in slide-in-from-top-5 duration-300';
       notificationToast.innerHTML = `
@@ -321,7 +317,6 @@ export default function DocumentLegalContent() {
       `;
       document.body.appendChild(notificationToast);
       
-      // Remove after 5 seconds
       setTimeout(() => {
         if (document.body.contains(notificationToast)) {
           notificationToast.classList.add('animate-out', 'fade-out', 'slide-out-to-top-5', 'duration-300');
@@ -333,7 +328,6 @@ export default function DocumentLegalContent() {
         }
       }, 5000);
       
-      // Set up periodic reminder every 2 minutes if the user stays on the page
       notificationTimer = setInterval(() => {
         if (needsUpdate) {
           const reminderToast = document.createElement('div');
@@ -355,7 +349,6 @@ export default function DocumentLegalContent() {
           `;
           document.body.appendChild(reminderToast);
           
-          // Remove after 5 seconds
           setTimeout(() => {
             if (document.body.contains(reminderToast)) {
               reminderToast.classList.add('animate-out', 'fade-out', 'slide-out-to-top-5', 'duration-300');
@@ -367,7 +360,7 @@ export default function DocumentLegalContent() {
             }
           }, 5000);
         }
-      }, 120000); // Every 2 minutes
+      }, 120000);
     }
     
     return () => {
@@ -380,7 +373,7 @@ export default function DocumentLegalContent() {
   if (!documentId || !documents[documentId]) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar isLoggedIn={false} />
+        <Navbar />
         <div className="container mx-auto px-4 py-8 flex-1">
           <Card className="max-w-4xl mx-auto">
             <CardHeader>
@@ -402,7 +395,7 @@ export default function DocumentLegalContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar isLoggedIn={false} />
+      <Navbar />
       
       <div className="container mx-auto px-4 py-8 flex-1">
         <div className="max-w-4xl mx-auto">

@@ -1,6 +1,6 @@
 
 import React, { useEffect } from "react";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
 import Footer from "@/components/Footer";
 import Hero from "@/components/home/Hero";
 import Features from "@/components/home/Features";

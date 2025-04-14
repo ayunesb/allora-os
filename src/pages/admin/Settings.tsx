@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
 import AdminSettingsProvider from '@/components/admin/settings/AdminSettingsProvider';
 import APIKeysTab from '@/components/admin/APIKeysTab';
 import WebhooksTab from '@/components/admin/WebhooksTab';
@@ -17,7 +17,7 @@ export default function AdminSettings() {
   
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar /> {/* Removed isLoggedIn prop since it's not expected by the component */}
       
       <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="mb-8">
