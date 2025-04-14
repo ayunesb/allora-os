@@ -11,7 +11,8 @@ import {
   Bot, 
   Settings,
   MessageSquare,
-  Activity
+  Activity,
+  ClipboardList
 } from "lucide-react";
 
 const DashboardTabs = () => {
@@ -58,6 +59,11 @@ const DashboardTabs = () => {
       name: "Executives",
       path: "/dashboard/executives",
       icon: <Bot className="h-5 w-5" />
+    },
+    {
+      name: "Decisions",
+      path: "/dashboard/decisions",
+      icon: <ClipboardList className="h-5 w-5" />
     },
     {
       name: "AI Bots",

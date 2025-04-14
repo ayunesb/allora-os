@@ -24,6 +24,7 @@ import Profile from "@/pages/dashboard/Profile";
 import OnboardingWorkflow from "@/pages/dashboard/OnboardingWorkflow";
 import { Navigate } from "react-router-dom";
 import ExecutiveAgents from "@/pages/dashboard/ExecutiveAgents";
+import ExecutiveDecisions from "@/pages/dashboard/ExecutiveDecisions";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -93,6 +94,11 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "executive-agents",
         element: <ExecutiveAgents />,
+      },
+      // New Executive Decisions route
+      {
+        path: "decisions",
+        element: <ExecutiveDecisions />,
       },
       {
         path: "ai-bots",

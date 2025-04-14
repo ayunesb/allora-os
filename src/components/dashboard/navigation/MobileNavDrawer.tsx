@@ -11,6 +11,7 @@ import {
   Settings,
   MessageSquare,
   Activity,
+  ClipboardList,
   X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,11 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
       name: "Executives",
       path: "/dashboard/executives",
       icon: <Bot className="h-5 w-5" />
+    },
+    {
+      name: "Decisions",
+      path: "/dashboard/decisions",
+      icon: <ClipboardList className="h-5 w-5" />
     },
     {
       name: "AI Bots",
