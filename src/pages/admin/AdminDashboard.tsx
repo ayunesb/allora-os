@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminModuleGrid } from "@/components/admin/dashboard/AdminModuleGrid";
@@ -77,11 +76,10 @@ export default function AdminDashboard() {
           }, 0);
         }
         
-        // Get leads data for conversion calculation (excluding demo leads)
+        // Get leads data for conversion calculation (without using is_demo column)
         const { data: leads, error: leadsError } = await supabase
           .from('leads')
-          .select('status')
-          .eq('is_demo', false);
+          .select('status');
           
         if (leadsError) throw new Error(`Leads data error: ${leadsError.message}`);
         
@@ -97,7 +95,7 @@ export default function AdminDashboard() {
           ]);
         } else {
           const convertedLeads = leads?.filter(lead => 
-            lead.status === 'converted' || lead.status === 'customer'
+            lead.status === 'converted' || lead.status === 'customer' || lead.status === 'closed'
           ).length || 0;
           
           const conversionRate = (convertedLeads / totalLeads) * 100;

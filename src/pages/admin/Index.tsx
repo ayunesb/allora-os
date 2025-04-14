@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Loader2, Users, Building2, BarChart3, UserPlus, LineChart, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,8 +54,6 @@ export default function AdminIndex() {
             .not('name', 'ilike', '%example%'),
           supabase.from('campaigns').select('id', { count: 'exact' }),
           supabase.from('leads').select('id', { count: 'exact' })
-            // Exclude demo leads
-            .eq('is_demo', false)
         ]);
 
         if (usersData.error) throw new Error(`Error fetching user data: ${usersData.error.message}`);
@@ -92,13 +89,12 @@ export default function AdminIndex() {
         // Calculate conversion rate from actual leads data
         const { data: leadsStatusData, error: leadsStatusError } = await supabase
           .from('leads')
-          .select('status')
-          .eq('is_demo', false); // Exclude demo leads
+          .select('status');
           
         if (leadsStatusError) throw new Error(`Error fetching leads status data: ${leadsStatusError.message}`);
         
         const convertedLeads = leadsStatusData?.filter(lead => 
-          lead.status === 'converted' || lead.status === 'customer'
+          lead.status === 'converted' || lead.status === 'customer' || lead.status === 'closed'
         ).length || 0;
         
         const totalLeads = leadsStatusData?.length || 1; // Avoid division by zero
