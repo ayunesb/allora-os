@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { AuthRedirectProvider } from "@/context/AuthRedirectContext";
 import { ExecutiveWorkflowProvider } from "@/context/ExecutiveWorkflowContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { lazyLoad } from "@/utils/performance/lazyLoad";
 import { router } from "@/routes/router";
 import { GlobalErrorModal } from "@/components/errorHandling/GlobalErrorModal";
 import { setupErrorLogging } from "@/utils/errorHandling/errorLogging";
@@ -24,10 +25,41 @@ const AppLoadingFallback = () => (
   </div>
 );
 
+// Initialize performance monitoring
+const initializePerformanceMonitoring = () => {
+  // Record initial load time
+  if (typeof window !== 'undefined') {
+    const loadTime = window.performance.timing.domContentLoadedEventEnd - 
+                    window.performance.timing.navigationStart;
+    console.log(`App loaded in ${loadTime}ms`);
+    
+    // Monitor long tasks
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.duration > 50) { // Tasks longer than 50ms
+          console.warn('Long task detected:', entry);
+        }
+      }
+    });
+    
+    observer.observe({ entryTypes: ['longtask'] });
+  }
+};
+
 function App() {
   useEffect(() => {
     // Initialize auto-executor cron when app loads
     initializeAutoExecutorCron();
+    
+    // Initialize performance monitoring
+    initializePerformanceMonitoring();
+    
+    // Clean up performance observers when component unmounts
+    return () => {
+      if (typeof window !== 'undefined') {
+        PerformanceObserver.disconnect();
+      }
+    };
   }, []);
 
   return (
