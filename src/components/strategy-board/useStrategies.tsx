@@ -99,6 +99,10 @@ export function useStrategies() {
             riskLevel = "Low";
           }
           
+          // Store just the bot name as a string for executiveBot
+          // instead of the entire object with name, role, and avatar
+          const executiveBotName = insight.primaryBot || "AI Executive";
+          
           return {
             id: `ai-${insight.id}`,
             title: insight.title,
@@ -107,7 +111,7 @@ export function useStrategies() {
             risk_level: riskLevel,
             company_id: profile.company_id || "demo-company-id",
             created_at: insight.createdAt.toISOString(),
-            executiveBot: insight.primaryBot,
+            executiveBot: executiveBotName,
           };
         });
         
