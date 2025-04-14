@@ -89,7 +89,8 @@ export function useStrategies() {
         
         // Convert insights to strategy format
         const aiGeneratedStrategies: Strategy[] = strategyInsights.map(insight => {
-          let riskLevel = "Medium";
+          // Ensure riskLevel is one of the valid values
+          let riskLevel: "Low" | "Medium" | "High" = "Medium";
           
           // Extract risk level from description if possible
           if (insight.description.includes("high-risk") || insight.description.includes("High risk")) {
