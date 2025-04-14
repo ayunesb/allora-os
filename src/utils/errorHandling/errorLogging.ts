@@ -1,6 +1,6 @@
 
 import { logger } from '@/utils/loggingService';
-import { AppError, ErrorType, createAppError } from './errorTypes';
+import { AppError, ErrorType } from './errorTypes';
 import { errorEventBus } from './errorEventBus';
 
 // Configure Supabase error logging
@@ -14,37 +14,35 @@ export function setupErrorLogging() {
   
   // Set up global unhandled error handling
   window.addEventListener('error', (event) => {
-    const appError = createAppError(
-      ErrorType.UNKNOWN_ERROR,
-      event.message || 'Unknown error occurred',
-      {
-        originalError: event.error,
-        isCritical: true,
-        context: {
-          fileName: event.filename,
-          lineNumber: event.lineno,
-          columnNumber: event.colno,
-          stack: event.error?.stack,
-        }
+    const appError: AppError = {
+      type: ErrorType.UNKNOWN_ERROR,
+      message: event.message || 'Unknown error occurred',
+      timestamp: Date.now(),
+      originalError: event.error,
+      isCritical: true,
+      context: {
+        fileName: event.filename,
+        lineNumber: event.lineno,
+        columnNumber: event.colno,
+        stack: event.error?.stack,
       }
-    );
+    };
     
     logError(appError);
   });
   
   // Set up unhandled promise rejection handling
   window.addEventListener('unhandledrejection', (event) => {
-    const appError = createAppError(
-      ErrorType.UNKNOWN_ERROR,
-      event.reason?.message || 'Unhandled promise rejection',
-      {
-        originalError: event.reason,
-        isCritical: true,
-        context: {
-          stack: event.reason?.stack,
-        }
+    const appError: AppError = {
+      type: ErrorType.UNKNOWN_ERROR,
+      message: event.reason?.message || 'Unhandled promise rejection',
+      timestamp: Date.now(),
+      originalError: event.reason,
+      isCritical: true,
+      context: {
+        stack: event.reason?.stack,
       }
-    );
+    };
     
     logError(appError);
   });
