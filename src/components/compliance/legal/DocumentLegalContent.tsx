@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
 import { useCompliance } from "@/context/ComplianceContext";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
