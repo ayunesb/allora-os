@@ -1,10 +1,11 @@
+
 import { RouteObject } from "react-router-dom";
 import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
 import Campaigns from "@/pages/dashboard/Campaigns";
 import Analytics from "@/pages/dashboard/Analytics";
 import Strategies from "@/pages/dashboard/Strategies";
-import Settings from "@/pages/admin/Settings";
+import Settings from "@/pages/dashboard/Settings";
 import CompanySetup from "@/pages/DevAdminHelper";
 import Debate from "@/pages/dashboard/Debate";
 import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";

@@ -5,9 +5,9 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { Badge } from "@/components/ui/badge";
-import { Lock } from "lucide-react";
+import { Lock, Mic } from "lucide-react";
 
-// Import our new component tabs
+// Import our component tabs
 import AccountTab from "@/components/settings/AccountTab";
 import NotificationsTab from "@/components/settings/NotificationsTab";
 import DevelopmentToolsTab from "@/components/settings/DevelopmentToolsTab";
@@ -16,6 +16,7 @@ import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
 import ProfileDiagnostics from "@/components/settings/ProfileDiagnostics";
 import { PersonalizationPreferencesForm } from "@/components/user-preferences/PersonalizationPreferencesForm";
 import { SystemHealthCheck } from "@/components/settings/SystemHealthCheck";
+import { VoiceTranscription } from "@/components/voice/VoiceTranscription";
 
 export default function Settings() {
   const { user, profile } = useAuth();
@@ -37,6 +38,12 @@ export default function Settings() {
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="personalization">AI Personalization</TabsTrigger>
+          <TabsTrigger value="voice">
+            <div className="flex items-center gap-1">
+              <Mic className="h-4 w-4" />
+              <span>Voice</span>
+            </div>
+          </TabsTrigger>
           <TabsTrigger value="health">System Health</TabsTrigger>
           {isAdmin && (
             <TabsTrigger value="development" className="flex items-center gap-2">
@@ -65,6 +72,10 @@ export default function Settings() {
 
         <TabsContent value="personalization">
           <PersonalizationPreferencesForm />
+        </TabsContent>
+        
+        <TabsContent value="voice">
+          <VoiceTranscription />
         </TabsContent>
         
         <TabsContent value="health">
