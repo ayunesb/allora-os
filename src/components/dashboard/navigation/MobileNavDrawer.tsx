@@ -59,9 +59,9 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
       icon: <BarChart2 className="h-5 w-5" />
     },
     {
-      name: "Calendar",
-      path: "/dashboard/social-media-calendar",
-      icon: <Calendar className="h-5 w-5" />
+      name: "Executives",
+      path: "/dashboard/executives",
+      icon: <Bot className="h-5 w-5" />
     },
     {
       name: "AI Bots",
@@ -74,29 +74,9 @@ export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDr
       icon: <MessageSquare className="h-5 w-5" />
     },
     {
-      name: "Shop",
-      path: "/dashboard/shopify-optimization",
-      icon: <ShoppingCart className="h-5 w-5" />
-    },
-    {
       name: "Analytics",
       path: "/dashboard/analytics",
       icon: <Activity className="h-5 w-5" />
-    },
-    {
-      name: "Approvals",
-      path: "/dashboard/approvals",
-      icon: <Bell className="h-5 w-5" />
-    },
-    {
-      name: "Integrations",
-      path: "/dashboard/integrations",
-      icon: <Cpu className="h-5 w-5" />
-    },
-    {
-      name: "Technical",
-      path: "/dashboard/technical-improvements",
-      icon: <Zap className="h-5 w-5" />
     },
     {
       name: "Settings",

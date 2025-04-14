@@ -16,6 +16,7 @@ import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
@@ -63,11 +64,20 @@ export const router = createBrowserRouter([
             element: <Navigate to="/dashboard" replace />,
           },
           
+          // Admin routes
           adminRoutes,
+          
+          // Dashboard routes with layout wrapper
+          {
+            path: "dashboard",
+            element: <DashboardLayout />,
+            children: dashboardRoutes[0].children
+          },
+          
+          // Other routes
           ...complianceRoutes,
           ...publicRoutes,
           ...authRoutes,
-          ...dashboardRoutes,
           ...onboardingRoutes,
           ...marketingRoutes,
           ...devRoutes,
