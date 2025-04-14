@@ -25,7 +25,7 @@ export function VoiceTranscription() {
       // Convert the file to base64
       const base64Audio = await fileToBase64(audioFile);
       
-      // Call the edge function
+      // Call the API route
       const response = await fetch('/api/voice-to-text', {
         method: 'POST',
         headers: {
