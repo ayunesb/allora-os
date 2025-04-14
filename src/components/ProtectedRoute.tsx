@@ -80,14 +80,18 @@ export default function ProtectedRoute({
 
   // Handle auth errors
   if (authError) {
-    return <AuthErrorState error={authError} onRetry={refreshSession} />;
+    return <AuthErrorState 
+      error={authError} 
+      onRetry={async () => refreshSession()} 
+      isRetrying={false} 
+    />;
   }
 
   // Handle verification requirement
   if (requireVerified && !isEmailVerified && hasInitialized) {
     return <VerificationRequiredState 
-      onRefresh={refreshSession}
-      onResendVerification={() => {}}
+      onRefresh={async () => refreshSession()}
+      onResendVerification={async () => {}}
       isResending={false}
     />;
   }

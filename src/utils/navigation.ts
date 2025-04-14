@@ -40,6 +40,18 @@ export const normalizeRoute = (route: string): string => {
   if (route.includes('/admin/dashboard')) {
     return route.replace('/admin/dashboard', '/admin');
   }
+  
+  // Ensure all admin routes exist
+  if (route === '/admin/users' || 
+      route === '/admin/companies' || 
+      route === '/admin/campaigns' ||
+      route === '/admin/leads' ||
+      route === '/admin/analytics' ||
+      route === '/admin/settings' ||
+      route === '/admin/launch-prep') {
+    // These routes are valid
+    return route;
+  }
 
   if (route === '/auth/login') {
     return '/login';

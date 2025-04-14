@@ -1,5 +1,6 @@
 
 import { RouteObject } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AuditPage from "@/pages/admin/AuditPage";
 import RunAudit from "@/pages/admin/RunAudit";
@@ -42,7 +43,35 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "dev-helper",
         element: <DevHelperRedirect />,
-      }
+      },
+      {
+        path: "users",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "companies",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "campaigns",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "leads",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "analytics",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "settings",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "launch-prep",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
     ],
   }
 ];

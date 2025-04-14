@@ -14,9 +14,33 @@ export default function NotFound() {
     const currentPath = location.pathname;
     console.log("404 Page: Current path is", currentPath);
     
-    // Add basic suggestion based on path prefix
+    // Add better suggestions based on path prefix
     if (currentPath.includes('/admin')) {
       setSuggestedPath('/admin');
+      
+      // Add specific admin route suggestions
+      if (currentPath.includes('/user')) {
+        setAlternativeRoutes(['/admin/users']);
+      } else if (currentPath.includes('/compan')) {
+        setAlternativeRoutes(['/admin/companies']);
+      } else if (currentPath.includes('/campaign')) {
+        setAlternativeRoutes(['/admin/campaigns']);
+      } else if (currentPath.includes('/lead')) {
+        setAlternativeRoutes(['/admin/leads']);
+      } else if (currentPath.includes('/analytic')) {
+        setAlternativeRoutes(['/admin/analytics']);
+      } else if (currentPath.includes('/setting')) {
+        setAlternativeRoutes(['/admin/settings']);
+      } else if (currentPath.includes('/launch')) {
+        setAlternativeRoutes(['/admin/launch-prep']);
+      } else {
+        setAlternativeRoutes([
+          '/admin/users',
+          '/admin/companies',
+          '/admin/campaigns',
+          '/admin/leads'
+        ]);
+      }
     } else if (currentPath.includes('/dashboard')) {
       setSuggestedPath('/dashboard');
       

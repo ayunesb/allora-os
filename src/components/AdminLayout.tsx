@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -73,7 +74,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: <Rocket size={isMobileView ? 16 : 18} />, label: "Launch Prep", href: "/admin/launch-prep" },
   ];
 
-  const isRouteActive = (href) => {
+  const isRouteActive = (href: string) => {
     if (href === '/admin' && currentPath === '/admin') {
       return true;
     }

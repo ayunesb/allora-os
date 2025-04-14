@@ -55,15 +55,6 @@ export const router = createBrowserRouter([
             path: "/pricing",
             element: <Pricing />,
           },
-          // Admin specific redirect
-          {
-            path: "/admin",
-            element: <AdminLayout><AdminIndex /></AdminLayout>,
-          },
-          {
-            path: "/admin/dashboard",
-            element: <Navigate to="/admin" replace />,
-          },
           // Common redirects for legacy/mistyped URLs
           {
             path: "/calendar",
@@ -95,6 +86,16 @@ export const router = createBrowserRouter([
           ...onboardingRoutes,
           ...marketingRoutes, 
           ...devRoutes,
+          
+          // Remove redundant admin route that conflicts with the proper admin routes
+          // {
+          //   path: "/admin",
+          //   element: <AdminLayout><AdminIndex /></AdminLayout>,
+          // },
+          // {
+          //   path: "/admin/dashboard",
+          //   element: <Navigate to="/admin" replace />,
+          // },
           
           // Wildcard route - must be at the very end
           {
