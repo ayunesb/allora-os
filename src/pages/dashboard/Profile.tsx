@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import CompanyDetailsForm from "@/components/CompanyDetailsForm";
 import ProfileForm from "@/components/profile/ProfileForm";
+import { toast } from "sonner";
 
 export default function Profile() {
   const { user, profile, isProfileLoading, refreshProfile } = useAuth();
@@ -17,10 +17,23 @@ export default function Profile() {
   }, [user]);
 
   useEffect(() => {
-    // Log profile data for debugging
-    console.log("Profile page - profile data:", profile);
-    console.log("Profile page - isProfileLoading:", isProfileLoading);
-  }, [profile, isProfileLoading]);
+    // Detailed logging for verification
+    console.log("Current User Details:", {
+      email: user?.email,
+      userId: user?.id,
+      profileName: profile?.name,
+      profileCompany: profile?.company,
+      profileIndustry: profile?.industry
+    });
+
+    // Toast notification to make verification clear to the user
+    if (user) {
+      toast.info("User Account Verification", {
+        description: `Logged in as: ${user.email}`,
+        duration: 5000
+      });
+    }
+  }, [user, profile, isProfileLoading]);
 
   if (isProfileLoading) {
     return (
