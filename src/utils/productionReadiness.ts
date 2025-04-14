@@ -99,6 +99,14 @@ export async function validateProductionReadiness() {
           
           if (!isPerformant) {
             logger.warn(`Query performance issue detected: ${queryTime.toFixed(2)}ms execution time`);
+            // Return detailed information about the performance issue
+            return {
+              valid: false,
+              details: {
+                executionTime: queryTime.toFixed(2) + 'ms',
+                recommendation: 'Add indexes to frequently queried columns and optimize JOIN operations'
+              }
+            };
           }
           
           return isPerformant;
@@ -119,10 +127,23 @@ export async function validateProductionReadiness() {
           const hasDataDeletion = await checkFunctionExists('delete_user_data');
           const hasUserConsent = await checkUserConsentTracking();
           
+          const issues = [];
+          if (!hasDataExport) issues.push('Missing data export functionality');
+          if (!hasDataDeletion) issues.push('Missing data deletion functionality');
+          if (!hasUserConsent) issues.push('Inadequate user consent tracking');
+          
           const isGdprCompliant = hasDataExport && hasDataDeletion && hasUserConsent;
           
           if (!isGdprCompliant) {
             logger.warn("GDPR compliance issues detected");
+            // Return detailed information about GDPR compliance issues
+            return {
+              valid: false,
+              details: {
+                issues,
+                recommendation: 'Implement required GDPR functionality: data export, deletion, and consent tracking'
+              }
+            };
           }
           
           return isGdprCompliant;
@@ -175,19 +196,36 @@ export async function validateProductionReadiness() {
     }
   ];
   
+  const checkResults = {};
   const results = await Promise.all(
     checks.map(async (check) => {
       try {
-        const valid = await check.check();
+        const result = await check.check();
+        const valid = typeof result === 'object' ? result.valid : result;
+        const details = typeof result === 'object' ? result.details : undefined;
+        
+        // Add to check results for categorization
+        checkResults[check.name.toLowerCase().replace(/\s+/g, '_')] = { 
+          valid, 
+          details 
+        };
+        
         return {
           valid,
           message: `${check.name}: ${valid ? 'Passed' : 'Failed'} - ${check.description}`,
-          details: check.details,
+          details,
           severity: check.severity,
           name: check.name,
         };
       } catch (error) {
         logger.error(`Error during validation check: ${check.name}`, error);
+        
+        // Add failed check to results
+        checkResults[check.name.toLowerCase().replace(/\s+/g, '_')] = { 
+          valid: false,
+          details: { error: String(error) }
+        };
+        
         return {
           valid: false,
           message: `${check.name}: Error - ${check.description}`,
@@ -211,6 +249,7 @@ export async function validateProductionReadiness() {
     issues,
     passedChecks,
     allChecks: results,
+    checks: checkResults,  // Add categorized check results
   };
 }
 

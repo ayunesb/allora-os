@@ -32,7 +32,7 @@ export default function RunAudit() {
         const criticalIssuesFound = validationResults.issues.filter(i => i.severity === 'critical').length;
         setCriticalIssues(criticalIssuesFound);
         
-        // Store audit results in localStorage for retrieval on the audit page
+        // Store detailed audit results in localStorage for retrieval on the audit page
         localStorage.setItem('lastAuditResults', JSON.stringify({
           timestamp: new Date().toISOString(),
           results: validationResults
@@ -57,14 +57,17 @@ export default function RunAudit() {
                     type: 'full_audit', 
                     status: 'completed',
                     ready: validationResults.ready,
-                    criticalIssues: criticalIssuesFound
+                    criticalIssues: criticalIssuesFound,
+                    totalIssues: validationResults.issues.length
                   }
                 });
 
                 // Show toast notification with more detailed information
                 if (validationResults.ready) {
                   toast.success('System audit completed successfully', {
-                    description: 'All critical checks passed with some recommendations'
+                    description: validationResults.issues.length > 0 
+                      ? `Found ${validationResults.issues.length} issues to review` 
+                      : 'All systems are functioning properly'
                   });
                 } else {
                   toast.error('System audit identified critical issues', {
