@@ -18,8 +18,8 @@ export async function getLearningInsights(userId: string) {
       },
       {
         title: 'Favorite Executives',
-        value: preferences.favoriteExecutives.length > 0 
-          ? preferences.favoriteExecutives[0]
+        value: preferences.preferredExecutives.length > 0 
+          ? preferences.preferredExecutives[0]
           : 'No data yet',
         description: 'The executive whose advice you value most'
       },
