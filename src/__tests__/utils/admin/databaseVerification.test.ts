@@ -1,3 +1,4 @@
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { 
   verifyDatabaseTables, 
@@ -183,10 +184,10 @@ describe('Database Verification Utils', () => {
       // Mock RPC call for function checking
       // @ts-ignore - We're intentionally mocking a subset of the API
       supabase.rpc.mockResolvedValue({
-        data: {
+        data: [{
           function_exists: true,
           is_secure: true
-        },
+        }],
         error: null
       });
 
@@ -201,10 +202,10 @@ describe('Database Verification Utils', () => {
       // Mock RPC call for insecure function
       // @ts-ignore - We're intentionally mocking a subset of the API
       supabase.rpc.mockResolvedValue({
-        data: {
+        data: [{
           function_exists: true,
           is_secure: false
-        },
+        }],
         error: null
       });
 
@@ -218,10 +219,10 @@ describe('Database Verification Utils', () => {
       // Mock RPC call for missing function
       // @ts-ignore - We're intentionally mocking a subset of the API
       supabase.rpc.mockResolvedValue({
-        data: {
+        data: [{
           function_exists: false,
           is_secure: false
-        },
+        }],
         error: null
       });
 
@@ -264,17 +265,49 @@ describe('Database Verification Utils', () => {
   describe('displayVerificationResults', () => {
     it('should display success toast for all passing checks', () => {
       const tables = [
-        { name: 'profiles', exists: true, message: 'Table exists' },
-        { name: 'companies', exists: true, message: 'Table exists' }
+        { 
+          name: 'profiles', 
+          exists: true, 
+          hasRLS: true, 
+          status: 'success' as const, 
+          message: 'Table exists' 
+        },
+        { 
+          name: 'companies', 
+          exists: true, 
+          hasRLS: true, 
+          status: 'success' as const, 
+          message: 'Table exists' 
+        }
       ];
       
       const policies = [
-        { table: 'profiles', exists: true, message: 'RLS enabled' },
-        { table: 'companies', exists: true, message: 'RLS enabled' }
+        { 
+          table: 'profiles', 
+          name: 'auth_policy',
+          exists: true, 
+          isSecure: true,
+          status: 'success' as const, 
+          message: 'RLS enabled' 
+        },
+        { 
+          table: 'companies', 
+          name: 'auth_policy',
+          exists: true, 
+          isSecure: true,
+          status: 'success' as const, 
+          message: 'RLS enabled' 
+        }
       ];
       
       const functions = [
-        { name: 'handle_new_user', exists: true, isSecure: true, message: 'Function is secure' }
+        { 
+          name: 'handle_new_user', 
+          exists: true, 
+          isSecure: true, 
+          status: 'success' as const, 
+          message: 'Function is secure' 
+        }
       ];
       
       displayVerificationResults(tables, policies, functions);
@@ -286,16 +319,41 @@ describe('Database Verification Utils', () => {
 
     it('should display error toast for failing checks', () => {
       const tables = [
-        { name: 'profiles', exists: true, message: 'Table exists' },
-        { name: 'missing_table', exists: false, message: 'Table missing' }
+        { 
+          name: 'profiles', 
+          exists: true, 
+          hasRLS: true, 
+          status: 'success' as const, 
+          message: 'Table exists' 
+        },
+        { 
+          name: 'missing_table', 
+          exists: false, 
+          hasRLS: false, 
+          status: 'error' as const, 
+          message: 'Table missing' 
+        }
       ];
       
       const policies = [
-        { table: 'profiles', exists: false, message: 'No RLS' }
+        { 
+          table: 'profiles', 
+          name: 'auth_policy',
+          exists: false, 
+          isSecure: false,
+          status: 'error' as const, 
+          message: 'No RLS' 
+        }
       ];
       
       const functions = [
-        { name: 'handle_new_user', exists: true, isSecure: false, message: 'Not secure' }
+        { 
+          name: 'handle_new_user', 
+          exists: true, 
+          isSecure: false, 
+          status: 'warning' as const, 
+          message: 'Not secure' 
+        }
       ];
       
       displayVerificationResults(tables, policies, functions);

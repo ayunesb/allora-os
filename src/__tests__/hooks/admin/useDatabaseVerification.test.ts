@@ -30,9 +30,28 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 // Test data
-const mockTableResults = [{ name: 'profiles', exists: true, message: 'Table exists' }];
-const mockPolicyResults = [{ table: 'profiles', exists: true, message: 'RLS enabled' }];
-const mockFunctionResults = [{ name: 'handle_new_user', exists: true, isSecure: true, message: 'Function is secure' }];
+const mockTableResults = [{ 
+  name: 'profiles', 
+  exists: true, 
+  hasRLS: true, 
+  status: 'success' as const, 
+  message: 'Table exists' 
+}];
+const mockPolicyResults = [{ 
+  table: 'profiles',
+  name: 'auth_policy', 
+  exists: true, 
+  isSecure: true,
+  status: 'success' as const, 
+  message: 'RLS enabled' 
+}];
+const mockFunctionResults = [{ 
+  name: 'handle_new_user', 
+  exists: true, 
+  isSecure: true, 
+  status: 'success' as const, 
+  message: 'Function is secure' 
+}];
 
 describe('useDatabaseVerification Hook', () => {
   beforeEach(() => {
@@ -142,7 +161,13 @@ describe('useDatabaseVerification Hook', () => {
 
     it('should show error toast with count when issues are found', async () => {
       // Mock tables verification to return a failure
-      const tablesWithIssue = [{ name: 'profiles', exists: false, message: 'Table missing' }];
+      const tablesWithIssue = [{ 
+        name: 'profiles', 
+        exists: false, 
+        hasRLS: false, 
+        status: 'error' as const, 
+        message: 'Table missing' 
+      }];
       vi.mocked(databaseVerification.verifyDatabaseTables).mockResolvedValue(tablesWithIssue);
       vi.mocked(databaseVerification.verifyRlsPolicies).mockResolvedValue(mockPolicyResults);
       vi.mocked(databaseVerification.verifyDatabaseFunctions).mockResolvedValue(mockFunctionResults);

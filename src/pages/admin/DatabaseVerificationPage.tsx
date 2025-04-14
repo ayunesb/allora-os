@@ -11,10 +11,10 @@ import { AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  DatabaseVerificationResult, 
   DatabaseTableStatus, 
   PolicyStatus, 
-  FunctionStatus 
+  FunctionStatus,
+  DatabaseVerificationResult
 } from '@/types/databaseVerification';
 
 export default function DatabaseVerificationPage() {
@@ -41,18 +41,18 @@ export default function DatabaseVerificationPage() {
     setTimeout(() => {
       setVerificationData({
         tables: [
-          { name: 'profiles', exists: true, message: 'Table exists and has proper structure' },
-          { name: 'companies', exists: true, message: 'Table exists and has proper structure' },
-          { name: 'strategies', exists: true, message: 'Table exists and has proper structure' }
+          { name: 'profiles', exists: true, hasRLS: true, status: 'success', message: 'Table exists and has proper structure' },
+          { name: 'companies', exists: true, hasRLS: true, status: 'success', message: 'Table exists and has proper structure' },
+          { name: 'strategies', exists: true, hasRLS: true, status: 'success', message: 'Table exists and has proper structure' }
         ],
         policies: [
-          { table: 'profiles', exists: true, message: 'RLS policies are configured correctly' },
-          { table: 'companies', exists: true, message: 'RLS policies are configured correctly' },
-          { table: 'strategies', exists: true, message: 'RLS policies are configured correctly' }
+          { table: 'profiles', name: 'auth_policy', exists: true, isSecure: true, status: 'success', message: 'RLS policies are configured correctly' },
+          { table: 'companies', name: 'auth_policy', exists: true, isSecure: true, status: 'success', message: 'RLS policies are configured correctly' },
+          { table: 'strategies', name: 'auth_policy', exists: true, isSecure: true, status: 'success', message: 'RLS policies are configured correctly' }
         ],
         functions: [
-          { name: 'handle_new_user', exists: true, isSecure: true, message: 'Function exists and is secure' },
-          { name: 'get_user_companies', exists: true, isSecure: true, message: 'Function exists and is secure' }
+          { name: 'handle_new_user', exists: true, isSecure: true, status: 'success', message: 'Function exists and is secure' },
+          { name: 'get_user_companies', exists: true, isSecure: true, status: 'success', message: 'Function exists and is secure' }
         ],
         isVerifying: false
       });

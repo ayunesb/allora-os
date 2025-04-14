@@ -164,48 +164,30 @@ export function useDatabaseVerification() {
         verifyDatabaseFunctions()
       ]);
       
-      // Convert to the correct types required by DatabaseVerificationResult
-      const tables: DatabaseTableStatus[] = tablesResults.map(item => ({
-        name: item.name,
-        exists: item.exists,
-        message: item.message || (item.exists ? `Table '${item.name}' exists` : `Table '${item.name}' missing`)
-      }));
-      
-      const policies: PolicyStatus[] = policiesResults.map(item => ({
-        table: item.table,
-        exists: item.exists,
-        message: item.message || (item.exists ? `RLS enabled for '${item.table}'` : `RLS not enabled for '${item.table}'`)
-      }));
-      
-      const functions: FunctionStatus[] = functionsResults || [];
-      
       console.log('Verification results:', { 
-        tables, 
-        policies, 
-        functions,
-        tablesCount: tables.length,
-        policiesCount: policies.length,
-        functionsCount: functions.length
+        tables: tablesResults, 
+        policies: policiesResults, 
+        functions: functionsResults
       });
       
       // Update state with all results
       setVerificationResult({
-        tables,
-        policies,
-        functions,
+        tables: tablesResults,
+        policies: policiesResults,
+        functions: functionsResults,
         isVerifying: false
       });
       
       // Display user-friendly messages based on results
-      displayVerificationResults(tables, policies, functions);
+      displayVerificationResults(tablesResults, policiesResults, functionsResults);
       
       // Count issues
       const issuesCount = 
-        tables.filter(t => !t.exists).length +
-        policies.filter(p => !p.exists).length +
-        functions.filter(f => !f.exists || !f.isSecure).length;
+        tablesResults.filter(t => !t.exists).length +
+        policiesResults.filter(p => !p.exists).length +
+        functionsResults.filter(f => !f.exists || !f.isSecure).length;
       
-      if (tables.length === 0 && policies.length === 0 && functions.length === 0) {
+      if (tablesResults.length === 0 && policiesResults.length === 0 && functionsResults.length === 0) {
         toast.error("No database verification data returned", {
           description: "Check your Supabase connection and permissions"
         });

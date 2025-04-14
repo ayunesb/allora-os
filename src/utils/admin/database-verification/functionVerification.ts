@@ -28,6 +28,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
         name: 'authentication',
         exists: false,
         isSecure: false,
+        status: 'error',
         message: `Authentication error: ${authError.message}. Please sign in to verify database functions.`
       }];
     }
@@ -53,14 +54,20 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
               name: funcName,
               exists: false,
               isSecure: false,
+              status: 'error',
               message: `Error checking function: ${error.message}`
             });
           } else if (data && data.length > 0) {
             const result = data[0] as FunctionCheckResponse;
+            const status = result.function_exists 
+              ? (result.is_secure ? 'success' : 'warning')
+              : 'error';
+            
             functionResults.push({
               name: funcName,
               exists: result.function_exists,
               isSecure: result.is_secure,
+              status: status as 'success' | 'warning' | 'error',
               message: result.function_exists
                 ? (result.is_secure 
                   ? `Function ${funcName} exists and is secure` 
@@ -72,6 +79,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
               name: funcName,
               exists: false,
               isSecure: false,
+              status: 'error',
               message: `Could not determine if function ${funcName} exists`
             });
           }
@@ -81,6 +89,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
             name: funcName,
             exists: false,
             isSecure: false,
+            status: 'error',
             message: `Error: ${err.message || String(err)}`
           });
         }
@@ -94,6 +103,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
         name: 'function_verification',
         exists: false,
         isSecure: false,
+        status: 'error',
         message: 'The check_function_exists database function is missing. Please run the SQL setup script to add it.'
       });
     }
@@ -103,6 +113,7 @@ export async function verifyDatabaseFunctions(): Promise<FunctionStatus[]> {
       name: 'verification_process',
       exists: false,
       isSecure: false,
+      status: 'error',
       message: `Verification process error: ${err.message || String(err)}`
     });
   }
