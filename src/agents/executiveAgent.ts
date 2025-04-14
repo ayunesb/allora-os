@@ -14,6 +14,9 @@ import { generateStrategy } from "@/backend/strategy";
 import { getDecisionStyle, getPersonality } from "@/utils/agentUtils";
 import { sendExecutiveMessage } from "@/agents/meshNetwork";
 import { formatInboxForPrompt } from "./meshNetwork";
+import { executiveProfiles } from "./agentProfiles";
+
+export { executiveProfiles };
 
 /**
  * Runs an executive agent to make a strategic decision
@@ -134,6 +137,28 @@ export async function saveExecutiveDecision(
   }
 
   return data;
+}
+
+/**
+ * Fetches executive decisions from the database
+ */
+export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
+  try {
+    const { data, error } = await supabase
+      .from("executive_decisions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Failed to fetch executive decisions:", error);
+      throw new Error(`Failed to fetch executive decisions: ${error.message}`);
+    }
+
+    return data || [];
+  } catch (error: any) {
+    console.error("Error fetching executive decisions:", error);
+    return [];
+  }
 }
 
 /**

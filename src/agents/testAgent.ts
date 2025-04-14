@@ -4,13 +4,14 @@
  */
 import { runExecutiveAgent } from './executiveAgent';
 import { executiveProfiles } from './agentProfiles';
+import { ExecutiveAgentProfile } from '@/types/agents';
 
 /**
  * Run a test of the executive agent system
  */
 export async function testExecutiveAgent() {
   // Select the CEO profile
-  const executive = executiveProfiles.ceo;
+  const executive: ExecutiveAgentProfile = executiveProfiles.ceo;
   
   // Define a test task
   const task = "Launch a new AI-powered marketplace for small businesses";
@@ -22,8 +23,8 @@ export async function testExecutiveAgent() {
   
   try {
     const decision = await runExecutiveAgent(
-      executive,
       task,
+      executive,
       {
         includeRiskAssessment: true,
         marketConditions: "The market is increasingly competitive with several AI solutions emerging in the SMB space."

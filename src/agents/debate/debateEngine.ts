@@ -1,116 +1,135 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { promptTemplates } from "@/agents/promptTemplates";
+import { ExecutiveAgentProfile } from "@/types/agents";
 
-export interface ExecutiveDebateResponse {
-  executiveName: string;
-  role: string;
-  opinion: string;
-  stance: "For" | "Against" | "Neutral";
-  risks: string[];
-  opportunities: string[];
-}
-
+/**
+ * Runs a debate with a single executive 
+ */
 export async function runExecutiveDebate(
   executiveName: string,
   role: string,
   task: string,
-  riskAppetite: string = "medium",
-  businessPriority: string = "growth"
-): Promise<ExecutiveDebateResponse> {
+  riskAppetite: string = 'medium',
+  businessPriority: string = 'growth'
+): Promise<string> {
   try {
-    // Call our Supabase edge function to process the debate
-    const { data, error } = await supabase.functions.invoke('executive-think', {
+    // Call our Supabase edge function to run the debate
+    const { data, error } = await supabase.functions.invoke("executive-debate", {
       body: {
-        prompt: `
-You are ${executiveName}, a ${role} at Allora AI.
-
-The company is considering the following strategic decision:
-Task: ${task}
-
-Risk Appetite: ${riskAppetite}
-Business Priority: ${businessPriority}
-
-Please provide:
-- Your Argument FOR or AGAINST the task.
-- Two Risks and two Opportunities you see.
-- End your answer with: FINAL VERDICT: [For/Against].
-
-Be strategic and critical in your thinking, leveraging your expertise as ${role}.
-`,
         executiveName,
-        executiveRole: role,
-        userPreferences: {
-          riskAppetite,
-          focusArea: businessPriority
-        }
-      }
+        role,
+        task,
+        riskAppetite,
+        businessPriority
+      },
     });
 
     if (error) {
-      console.error('Error in debate engine:', error);
-      throw new Error(`AI Debate error: ${error.message}`);
+      console.error("Error in debate function:", error);
+      throw new Error(`AI Debate execution error: ${error.message}`);
     }
 
-    const content = data.content;
-    
-    // Parse the response to extract the stance
-    let stance: "For" | "Against" | "Neutral" = "Neutral";
-    if (content.toLowerCase().includes("final verdict: for")) {
-      stance = "For";
-    } else if (content.toLowerCase().includes("final verdict: against")) {
-      stance = "Against";
-    }
-
-    // Extract risks and opportunities (simplified parsing)
-    const risks: string[] = [];
-    const opportunities: string[] = [];
-    
-    const lines = content.split('\n');
-    let capturingRisks = false;
-    let capturingOpportunities = false;
-    
-    for (const line of lines) {
-      if (line.toLowerCase().includes("risk")) {
-        capturingRisks = true;
-        capturingOpportunities = false;
-        continue;
-      } else if (line.toLowerCase().includes("opportunit")) {
-        capturingRisks = false;
-        capturingOpportunities = true;
-        continue;
-      } else if (line.toLowerCase().includes("verdict") || line.toLowerCase().includes("conclusion")) {
-        capturingRisks = false;
-        capturingOpportunities = false;
-      }
-      
-      const trimmedLine = line.trim();
-      if (capturingRisks && trimmedLine.length > 0 && trimmedLine.match(/^[-•*]|^\d+\./)) {
-        risks.push(trimmedLine.replace(/^[-•*]|\d+\.\s*/, '').trim());
-      } else if (capturingOpportunities && trimmedLine.length > 0 && trimmedLine.match(/^[-•*]|^\d+\./)) {
-        opportunities.push(trimmedLine.replace(/^[-•*]|\d+\.\s*/, '').trim());
-      }
-    }
-
-    return {
-      executiveName,
-      role,
-      opinion: content,
-      stance,
-      risks: risks.length > 0 ? risks : ["Uncertain risk assessment"],
-      opportunities: opportunities.length > 0 ? opportunities : ["Uncertain opportunity assessment"]
-    };
-  } catch (error) {
-    console.error(`Error during ${executiveName}'s debate:`, error);
-    
-    // Return a fallback response on error
-    return {
-      executiveName,
-      role,
-      opinion: `I apologize, but I was unable to properly analyze this task due to technical issues.`,
-      stance: "Neutral",
-      risks: ["Unable to assess risks due to technical error"],
-      opportunities: ["Unable to assess opportunities due to technical error"]
-    };
+    return data.response;
+  } catch (error: any) {
+    console.error(`Error during debate execution for ${executiveName}:`, error);
+    return `As ${executiveName}, I apologize but I cannot fully analyze this task due to technical issues. However, I can offer a preliminary view that this task requires careful consideration of risks and opportunities. We should examine it further when systems are fully operational. Error details: ${error.message}`;
   }
+}
+
+/**
+ * Save a debate result to the database
+ */
+export async function saveDebateResult(
+  task: string,
+  executiveName: string,
+  role: string,
+  opinion: string
+): Promise<void> {
+  try {
+    const finalVote = opinion.includes("FINAL VERDICT: For") ? "For" : 
+                      opinion.includes("FINAL VERDICT: Against") ? "Against" : "Neutral";
+
+    const { error } = await supabase.from("executive_debates").insert([
+      {
+        task,
+        executive_name: executiveName,
+        role,
+        opinion,
+        vote: finalVote,
+      },
+    ]);
+
+    if (error) {
+      console.error("Failed to save debate result:", error);
+    } else {
+      console.log(`Debate result saved for ${executiveName}`);
+    }
+  } catch (error) {
+    console.error("Error saving debate result:", error);
+  }
+}
+
+/**
+ * Analyzes a debate response to extract stance, risks and opportunities
+ */
+export function analyzeDebateResponse(response: string): {
+  stance: 'For' | 'Against' | 'Neutral';
+  risks: string[];
+  opportunities: string[];
+} {
+  // Default values
+  let stance: 'For' | 'Against' | 'Neutral' = 'Neutral';
+  const risks: string[] = [];
+  const opportunities: string[] = [];
+
+  // Determine stance
+  if (response.includes("FINAL VERDICT: For")) {
+    stance = 'For';
+  } else if (response.includes("FINAL VERDICT: Against")) {
+    stance = 'Against';
+  }
+
+  // Extract risks
+  const riskMatch = response.match(/Risk[s]?:?(.*?)(?=Opportunit|FINAL|$)/si);
+  if (riskMatch && riskMatch[1]) {
+    const riskText = riskMatch[1].trim();
+    
+    // Split by bullet points or numbers
+    const riskItems = riskText.split(/(?:\r?\n|\r)(?:[-•*]|\d+\.)\s*/);
+    
+    for (const item of riskItems) {
+      const trimmed = item.trim();
+      if (trimmed && trimmed.length > 5) {
+        risks.push(trimmed);
+      }
+    }
+    
+    // If no bullet points were found, use the whole text
+    if (risks.length === 0 && riskText.length > 5) {
+      risks.push(riskText);
+    }
+  }
+
+  // Extract opportunities
+  const oppMatch = response.match(/Opportunit[y|ies]:?(.*?)(?=Risk|FINAL|$)/si);
+  if (oppMatch && oppMatch[1]) {
+    const oppText = oppMatch[1].trim();
+    
+    // Split by bullet points or numbers
+    const oppItems = oppText.split(/(?:\r?\n|\r)(?:[-•*]|\d+\.)\s*/);
+    
+    for (const item of oppItems) {
+      const trimmed = item.trim();
+      if (trimmed && trimmed.length > 5) {
+        opportunities.push(trimmed);
+      }
+    }
+    
+    // If no bullet points were found, use the whole text
+    if (opportunities.length === 0 && oppText.length > 5) {
+      opportunities.push(oppText);
+    }
+  }
+
+  return { stance, risks, opportunities };
 }

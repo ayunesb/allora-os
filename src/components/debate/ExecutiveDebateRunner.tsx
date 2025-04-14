@@ -6,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { runDebateSession, DebateSessionResult } from "@/agents/debate/debateSession";
+import { runDebateSession } from "@/agents/debate/debateSession";
+import { DebateSessionResult } from "@/types/agents";
 import { toast } from "sonner";
 import { Loader2, Check, X, AlertTriangle, ThumbsUp, ThumbsDown } from "lucide-react";
 

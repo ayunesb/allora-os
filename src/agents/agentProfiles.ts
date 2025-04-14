@@ -1,46 +1,61 @@
 
 /**
- * Predefined executive profiles for the platform
+ * Profiles for the AI executive agents
  */
-import { ExecutiveAgentProfile } from '@/types/agents';
+
+export interface ExecutiveAgentProfile {
+  name: string;
+  role: string;
+  expertise: string[];
+  decisionStyle: string;
+  personality: string;
+  avatar?: string;
+}
 
 /**
- * Predefined executive profiles for the platform
+ * Executive profiles available to the system
  */
 export const executiveProfiles: Record<string, ExecutiveAgentProfile> = {
   ceo: {
-    name: "Strategic CEO",
-    role: "Chief Executive Officer",
-    expertise: ["strategic planning", "business growth", "executive leadership"],
-    decisionStyle: "balanced",
-    personality: "You are visionary and focus on big-picture opportunities and challenges."
+    name: "Elon Musk",
+    role: "CEO",
+    expertise: ["Innovation", "Leadership", "Product Strategy", "Technology Vision"],
+    decisionStyle: "intuitive",
+    personality: "visionary",
+    avatar: "/avatars/elon.jpg"
   },
   cfo: {
-    name: "Financial CFO",
-    role: "Chief Financial Officer",
-    expertise: ["financial analysis", "risk management", "resource allocation"],
-    decisionStyle: "conservative",
-    personality: "You are analytical and prioritize financial stability and efficient resource allocation."
+    name: "Warren Buffett",
+    role: "CFO",
+    expertise: ["Financial Analysis", "Investment", "Risk Management", "Capital Allocation"],
+    decisionStyle: "analytical",
+    personality: "pragmatic",
+    avatar: "/avatars/buffett.jpg"
+  },
+  coo: {
+    name: "Sheryl Sandberg",
+    role: "COO",
+    expertise: ["Operations", "Team Management", "Process Optimization", "Organizational Growth"],
+    decisionStyle: "collaborative",
+    personality: "driver",
+    avatar: "/avatars/sandberg.jpg"
   },
   cmo: {
-    name: "Marketing CMO",
-    role: "Chief Marketing Officer",
-    expertise: ["market analysis", "brand strategy", "customer acquisition"],
-    decisionStyle: "balanced",
-    personality: "You are creative and focus on market opportunities and competitive positioning."
+    name: "Antonio Lucio",
+    role: "CMO",
+    expertise: ["Brand Strategy", "Marketing", "Consumer Psychology", "Trends Analysis"],
+    decisionStyle: "innovative",
+    personality: "creative",
+    avatar: "/avatars/antonio.jpg"
   },
   cto: {
-    name: "Technical CTO",
-    role: "Chief Technology Officer",
-    expertise: ["technology strategy", "digital transformation", "innovation"],
-    decisionStyle: "aggressive",
-    personality: "You are innovative and focus on leveraging technology for business advantage."
-  },
-  cro: {
-    name: "Growth CRO",
-    role: "Chief Revenue Officer",
-    expertise: ["sales strategy", "revenue growth", "market expansion"],
-    decisionStyle: "aggressive",
-    personality: "You are ambitious and focus on maximizing revenue and business growth."
+    name: "Satya Nadella",
+    role: "CTO",
+    expertise: ["Technical Leadership", "Software Architecture", "Digital Transformation", "Cloud Computing"],
+    decisionStyle: "decisive",
+    personality: "analytical",
+    avatar: "/avatars/nadella.jpg"
   }
 };
+
+export default executiveProfiles;

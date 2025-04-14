@@ -1,146 +1,129 @@
 
-import { runExecutiveDebate, type ExecutiveDebateResponse } from "./debateEngine";
-import { executiveBots } from "@/backend/executiveBots";
+import { runExecutiveDebate, saveDebateResult, analyzeDebateResponse } from "./debateEngine";
+import { DebateSessionResult, DebateEntry, DebateSummary } from "@/types/agents";
+import { executiveProfiles } from "@/agents/agentProfiles";
+import { ExecutiveAgentProfile } from "@/types/agents";
 
-// Convert the executive bots into a format usable for debates
-const getExecutivesForDebate = () => {
-  const executives = [];
-  
-  for (const [role, names] of Object.entries(executiveBots)) {
-    if (names.length > 0) {
-      executives.push({
-        name: names[0],
-        role: role.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+const executives = [
+  { name: "Elon Musk", role: "Chief Executive Officer" },
+  { name: "Sheryl Sandberg", role: "Chief Operations Officer" },
+  { name: "Warren Buffett", role: "Chief Financial Officer" },
+  { name: "Antonio Lucio", role: "Chief Marketing Officer" },
+];
+
+/**
+ * Run a debate session with multiple executives
+ */
+export async function runDebateSession(
+  task: string,
+  riskAppetite: string = 'medium',
+  businessPriority: string = 'growth'
+): Promise<DebateSessionResult> {
+  // Get profiles for executives
+  const debateResults: DebateEntry[] = [];
+  const allRisks: string[] = [];
+  const allOpportunities: string[] = [];
+
+  // Run debates for each executive
+  for (const exec of executives) {
+    try {
+      console.log(`Running debate for ${exec.name} on task: ${task}`);
+      
+      // Get the executive's opinion
+      const response = await runExecutiveDebate(
+        exec.name, 
+        exec.role, 
+        task,
+        riskAppetite,
+        businessPriority
+      );
+      
+      // Analyze the response
+      const { stance, risks, opportunities } = analyzeDebateResponse(response);
+      
+      // Add risks and opportunities to our collection
+      allRisks.push(...risks);
+      allOpportunities.push(...opportunities);
+
+      // Save the result
+      await saveDebateResult(task, exec.name, exec.role, response);
+      
+      // Add to our results
+      debateResults.push({
+        executiveName: exec.name,
+        role: exec.role,
+        opinion: response,
+        stance: stance
+      });
+      
+    } catch (error) {
+      console.error(`Error in debate for ${exec.name}:`, error);
+      
+      // Add a fallback entry
+      debateResults.push({
+        executiveName: exec.name,
+        role: exec.role,
+        opinion: `Unable to process debate due to technical issues: ${error}`,
+        stance: 'Neutral'
       });
     }
   }
-  
-  // Limit to 5 executives for reasonable debate time
-  return executives.slice(0, 5);
-};
 
-export interface DebateSessionResult {
-  task: string;
-  debates: ExecutiveDebateResponse[];
-  summary: DebateSummary;
-  timestamp: string;
-}
-
-export interface DebateSummary {
-  totalExecutives: number;
-  forVotes: number;
-  againstVotes: number;
-  neutralVotes: number;
-  majority: "For" | "Against" | "Tie";
-  confidenceScore: number; // 0-1 scale of consensus
-  topRisks: string[];
-  topOpportunities: string[];
-}
-
-export async function runDebateSession(
-  task: string,
-  riskAppetite: string = "medium", 
-  businessPriority: string = "growth",
-  customExecutives?: Array<{name: string, role: string}>
-): Promise<DebateSessionResult> {
-  const executives = customExecutives || getExecutivesForDebate();
-  const debateResults: ExecutiveDebateResponse[] = [];
-
-  // Run debates in parallel for efficiency
-  const debatePromises = executives.map(exec => 
-    runExecutiveDebate(exec.name, exec.role, task, riskAppetite, businessPriority)
-  );
-  
-  const results = await Promise.all(debatePromises);
-  debateResults.push(...results);
-
-  const summary = summarizeDebate(debateResults);
+  // Create a summary of the debate
+  const summary = summarizeDebate(debateResults, allRisks, allOpportunities);
   
   return {
     task,
     debates: debateResults,
-    summary,
-    timestamp: new Date().toISOString(),
+    summary
   };
 }
 
-export function summarizeDebate(debateResults: ExecutiveDebateResponse[]): DebateSummary {
+/**
+ * Summarize the debate results
+ */
+export function summarizeDebate(
+  debateResults: DebateEntry[],
+  risks: string[] = [],
+  opportunities: string[] = []
+): DebateSummary {
   let forVotes = 0;
   let againstVotes = 0;
-  let neutralVotes = 0;
-  const allRisks: string[] = [];
-  const allOpportunities: string[] = [];
 
+  // Count votes
   debateResults.forEach((debate) => {
     if (debate.stance === "For") {
       forVotes += 1;
     } else if (debate.stance === "Against") {
       againstVotes += 1;
-    } else {
-      neutralVotes += 1;
-    }
-    
-    // Collect all risks and opportunities
-    if (debate.risks && Array.isArray(debate.risks)) {
-      allRisks.push(...debate.risks);
-    }
-    
-    if (debate.opportunities && Array.isArray(debate.opportunities)) {
-      allOpportunities.push(...debate.opportunities);
     }
   });
-
-  // Calculate confidence score (0-1)
-  const totalVotes = debateResults.length;
-  const confidenceScore = Math.max(forVotes, againstVotes) / totalVotes;
 
   // Determine majority
-  let majority: "For" | "Against" | "Tie";
+  let majority: 'For' | 'Against' | 'Tie' = 'Tie';
   if (forVotes > againstVotes) {
-    majority = "For";
+    majority = 'For';
   } else if (againstVotes > forVotes) {
-    majority = "Against";
-  } else {
-    majority = "Tie";
+    majority = 'Against';
   }
 
-  // Find top risks and opportunities using frequency count
-  const riskCounts = countFrequency(allRisks);
-  const opportunityCounts = countFrequency(allOpportunities);
-  
-  const topRisks = Object.entries(riskCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([risk]) => risk);
-    
-  const topOpportunities = Object.entries(opportunityCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([opportunity]) => opportunity);
+  // Calculate confidence score
+  const totalVotes = forVotes + againstVotes;
+  const confidenceScore = totalVotes > 0 
+    ? Math.max(forVotes, againstVotes) / totalVotes 
+    : 0.5;
+
+  // Get top risks and opportunities
+  const uniqueRisks = [...new Set(risks)];
+  const uniqueOpportunities = [...new Set(opportunities)];
 
   return {
-    totalExecutives: totalVotes,
+    totalExecutives: debateResults.length,
     forVotes,
     againstVotes,
-    neutralVotes,
     majority,
     confidenceScore,
-    topRisks,
-    topOpportunities
+    topRisks: uniqueRisks.slice(0, 3),
+    topOpportunities: uniqueOpportunities.slice(0, 3)
   };
-}
-
-// Helper function to count frequency of items
-function countFrequency(items: string[]): Record<string, number> {
-  const counts: Record<string, number> = {};
-  
-  items.forEach(item => {
-    // Normalize the string for better matching
-    const normalizedItem = item.toLowerCase().trim();
-    if (normalizedItem) {
-      counts[normalizedItem] = (counts[normalizedItem] || 0) + 1;
-    }
-  });
-  
-  return counts;
 }

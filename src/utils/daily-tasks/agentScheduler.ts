@@ -2,9 +2,11 @@
 /**
  * Scheduler for autonomous executive agents to run daily tasks
  */
-import { executiveProfiles, runExecutiveAgent } from '@/agents/executiveAgent';
+import { runExecutiveAgent } from '@/agents/executiveAgent';
+import { executiveProfiles } from '@/agents/agentProfiles';
 import { logger } from '@/utils/loggingService';
 import { supabase } from '@/integrations/supabase/client';
+import { ExecutiveAgentProfile } from '@/types/agents';
 
 /**
  * Daily tasks for executives to consider
@@ -49,8 +51,8 @@ export async function runDailyExecutiveTasks() {
       
       // Run the executive agent with the task
       const decision = await runExecutiveAgent(
-        executive,
         task,
+        executive,
         {
           saveToDatabase: true,
           includeRiskAssessment: true,
@@ -92,7 +94,7 @@ export async function runDailyExecutiveTasks() {
 /**
  * Select an appropriate task for the given executive
  */
-function selectTaskForExecutive(executive: typeof executiveProfiles[keyof typeof executiveProfiles]): string {
+function selectTaskForExecutive(executive: ExecutiveAgentProfile): string {
   // Simple randomized selection for now
   const index = Math.floor(Math.random() * dailyTasks.length);
   return dailyTasks[index];

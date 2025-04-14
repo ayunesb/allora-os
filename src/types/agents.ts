@@ -1,27 +1,28 @@
 
 /**
- * Types for the AI Executive Agents system
+ * Types for the AI executive agents system
  */
 
 export interface ExecutiveAgentProfile {
   name: string;
   role: string;
   expertise: string[];
-  personality?: string;
-  decisionStyle?: 'conservative' | 'balanced' | 'aggressive';
+  decisionStyle: string;
+  personality: string;
+  avatar?: string;
 }
 
 export interface ExecutiveDecision {
-  id?: string;
+  id: string;
   executiveName: string;
   executiveRole: string;
   task: string;
   options: string[];
   selectedOption: string;
   reasoning: string;
-  riskAssessment?: string;
+  riskAssessment: string;
   timestamp: string;
-  priority?: 'low' | 'medium' | 'high';
+  priority: string;
 }
 
 export interface AgentRunOptions {
@@ -30,5 +31,28 @@ export interface AgentRunOptions {
   priority?: 'low' | 'medium' | 'high';
   companyContext?: string;
   marketConditions?: string;
-  userId?: string; // Added to support personalized preferences
+  userId?: string;
+}
+
+export interface DebateSessionResult {
+  task: string;
+  debates: DebateEntry[];
+  summary: DebateSummary;
+}
+
+export interface DebateEntry {
+  executiveName: string;
+  role: string;
+  opinion: string;
+  stance: 'For' | 'Against' | 'Neutral';
+}
+
+export interface DebateSummary {
+  totalExecutives: number;
+  forVotes: number;
+  againstVotes: number;
+  majority: 'For' | 'Against' | 'Tie';
+  confidenceScore: number;
+  topRisks: string[];
+  topOpportunities: string[];
 }
