@@ -138,6 +138,14 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
               API Dashboard
             </Button>
             <Button 
+              onClick={() => navigate('/admin/api-config')}
+              variant="outline"
+              size="sm"
+              className="mr-2"
+            >
+              API Config
+            </Button>
+            <Button 
               onClick={runTest}
               disabled={isRunning}
               size="sm"
