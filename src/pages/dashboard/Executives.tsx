@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageTitle } from "@/components/ui/page-title";
-import { Trophy, Star, Gem } from "lucide-react";
+import { Trophy, Star, Gem, TrendingUp, BarChart } from "lucide-react";
+import { forecastExecutiveResources } from "@/agents/forecaster";
 
 interface Executive {
   id: string;
@@ -15,6 +16,7 @@ interface Executive {
   successful_actions: number;
   failed_actions: number;
   resource_points: number;
+  forecast?: number | null;
 }
 
 export default function ExecutivesDashboard() {
@@ -30,7 +32,24 @@ export default function ExecutivesDashboard() {
           .order("star_rating", { ascending: false });
 
         if (error) throw error;
-        setExecutives(data || []);
+        
+        // Generate forecasts for each executive's resource points
+        const executivesWithForecasts = await Promise.all(
+          (data || []).map(async (exec) => {
+            // For this demo we'll create synthetic historical data
+            // In a real app, you'd fetch this from executive_resource_history
+            const historicalPoints = [
+              exec.resource_points * 0.8,
+              exec.resource_points * 0.9,
+              exec.resource_points
+            ];
+            
+            const forecast = await forecastExecutiveResources(historicalPoints);
+            return { ...exec, forecast };
+          })
+        );
+        
+        setExecutives(executivesWithForecasts);
       } catch (error) {
         console.error("Failed to fetch executives:", error);
       } finally {
@@ -51,6 +70,15 @@ export default function ExecutivesDashboard() {
     ));
   };
 
+  const getForecastTrend = (current: number, forecast: number | null) => {
+    if (forecast === null) return null;
+    
+    const diff = forecast - current;
+    if (diff > 10) return { trend: "up", color: "text-green-500" };
+    if (diff < -10) return { trend: "down", color: "text-red-500" };
+    return { trend: "stable", color: "text-blue-400" };
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading executives...</div>;
   }
@@ -63,40 +91,55 @@ export default function ExecutivesDashboard() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {executives.map((exec) => (
-          <Card key={exec.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex justify-between items-center">
-                <span>{exec.name}</span>
-                <Badge variant="secondary">{exec.level}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center mb-2">
-                <Trophy className="h-5 w-5 mr-2 text-primary" />
-                <span>{exec.role}</span>
-              </div>
-              <div className="flex items-center mb-2">
-                {renderStars(exec.star_rating)}
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <span className="text-sm text-muted-foreground">Successful Actions</span>
-                  <p className="font-bold text-green-600">{exec.successful_actions}</p>
+        {executives.map((exec) => {
+          const forecastTrend = getForecastTrend(exec.resource_points, exec.forecast);
+          
+          return (
+            <Card key={exec.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex justify-between items-center">
+                  <span>{exec.name}</span>
+                  <Badge variant="secondary">{exec.level}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center mb-2">
+                  <Trophy className="h-5 w-5 mr-2 text-primary" />
+                  <span>{exec.role}</span>
                 </div>
-                <div>
-                  <span className="text-sm text-muted-foreground">Failed Actions</span>
-                  <p className="font-bold text-red-600">{exec.failed_actions}</p>
+                <div className="flex items-center mb-2">
+                  {renderStars(exec.star_rating)}
                 </div>
-              </div>
-              <div className="flex items-center mt-2">
-                <Gem className="h-5 w-5 mr-2 text-blue-500" />
-                <span className="text-sm text-muted-foreground">Resource Points</span>
-                <span className="ml-2 font-bold">{exec.resource_points}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Successful Actions</span>
+                    <p className="font-bold text-green-600">{exec.successful_actions}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Failed Actions</span>
+                    <p className="font-bold text-red-600">{exec.failed_actions}</p>
+                  </div>
+                </div>
+                <div className="flex items-center mt-2">
+                  <Gem className="h-5 w-5 mr-2 text-blue-500" />
+                  <span className="text-sm text-muted-foreground">Resource Points</span>
+                  <span className="ml-2 font-bold">{exec.resource_points}</span>
+                </div>
+                
+                {exec.forecast !== null && (
+                  <div className="flex items-center mt-2 bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                    <BarChart className="h-5 w-5 mr-2 text-purple-500" />
+                    <span className="text-sm text-muted-foreground">Forecast</span>
+                    <span className="ml-2 font-bold">{exec.forecast}</span>
+                    {forecastTrend && (
+                      <TrendingUp className={`h-4 w-4 ml-2 ${forecastTrend.color}`} />
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
     </div>
   );

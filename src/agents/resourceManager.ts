@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
 
@@ -35,6 +36,19 @@ export async function allocateResources(executiveName: string, outcome: string) 
     } else {
       logger.info(`${executiveName} now has ${points} Resource Points`);
     }
+    
+    // Track resource points history for forecasting
+    await supabase
+      .from("executive_resource_history")
+      .insert({
+        executive_id: data.id,
+        resource_points: points
+      })
+      .then(({ error }) => {
+        if (error) {
+          logger.error("Failed to track resource history", { executiveName, error });
+        }
+      });
   } catch (err) {
     logger.error("Error in allocateResources", { error: err });
   }
