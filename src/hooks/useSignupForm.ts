@@ -9,11 +9,19 @@ import { calculatePasswordStrength } from "@/components/auth/PasswordStrengthMet
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from '@/integrations/supabase/client';
 import { User } from "@supabase/supabase-js";
+import { sanitizeInput } from "@/utils/sanitizers";
+import { generateCsrfToken } from "@/utils/csrfProtection";
+import { logger } from "@/utils/loggingService";
 
 // Schema definition for signup form validation
 export const signupSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name cannot exceed 50 characters")
+    .transform(val => sanitizeInput(val)),
+  email: z.string()
+    .email("Please enter a valid email address")
+    .transform(val => sanitizeInput(val)),
   password: z.string()
     .min(8, "Password must be at least 8 characters")
     .refine(
@@ -37,8 +45,13 @@ export const signupSchema = z.object({
       "Password must meet strength requirements"
     ),
   confirmPassword: z.string(),
-  company: z.string().optional(),
-  industry: z.string().optional(),
+  company: z.string()
+    .optional()
+    .transform(val => val ? sanitizeInput(val) : val),
+  industry: z.string()
+    .optional()
+    .transform(val => val ? sanitizeInput(val) : val),
+  csrfToken: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -65,6 +78,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       confirmPassword: "",
       company: "",
       industry: "",
+      csrfToken: generateCsrfToken(),
     },
     mode: "onBlur", // Validate fields when they lose focus
   });
@@ -74,9 +88,19 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
     setFormError(null);
     
     try {
+      // Check for suspicious signup attempt patterns (e.g., many rapid signups)
+      const recentAttempt = sessionStorage.getItem('lastSignupAttempt');
+      const now = Date.now();
+      if (recentAttempt && now - parseInt(recentAttempt) < 2000) {
+        logger.warn("Rapid signup attempts detected", { email: data.email });
+        // Add a small delay to prevent brute force attempts
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      sessionStorage.setItem('lastSignupAttempt', now.toString());
+      
       // Store the email in sessionStorage for verification page access
       sessionStorage.setItem('signupEmail', data.email);
-      console.log("Starting signup process for:", data.email);
+      logger.info("Starting signup process for:", data.email);
       
       // Sign up the user with Supabase Auth
       const signUpResult = await signUp(data.email, data.password);
@@ -96,7 +120,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
 
       // Store user metadata for profile creation
       if (signUpResult.user) {
-        console.log("User created successfully:", signUpResult.user.id);
+        logger.info("User created successfully:", signUpResult.user.id);
         
         // Create sanitized data to avoid empty strings
         const userData = {
@@ -111,7 +135,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
         });
 
         if (updateError) {
-          console.error("Error updating user metadata:", updateError);
+          logger.error("Error updating user metadata:", updateError);
         }
 
         // Once the user is created, save company information to profiles table
@@ -130,6 +154,9 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
         
         toast.success("Account created successfully!");
         
+        // Regenerate CSRF token after signup
+        generateCsrfToken();
+        
         // Call onSubmitSuccess to trigger the parent component's success handler
         onSubmitSuccess(signUpResult.user);
         return;
@@ -137,7 +164,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       
       throw new Error("Failed to retrieve user information after signup.");
     } catch (error: any) {
-      console.error("Signup error:", error);
+      logger.error("Signup error:", error);
       setFormError(error.message || "Failed to create account");
       toast.error(error.message || "Failed to create account");
     } finally {

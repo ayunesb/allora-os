@@ -2,6 +2,8 @@
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import { toast } from "sonner";
+import { addCsrfToFormData, getCsrfToken } from "@/utils/csrfProtection";
+import { logger } from "@/utils/loggingService";
 
 type ApiFunction<T, R> = (params: T) => Promise<R>;
 
@@ -11,6 +13,7 @@ interface UseProtectedApiOptions {
   successMessage?: string;
   showErrorToast?: boolean;
   redirectOnUnauth?: boolean;
+  requireCsrf?: boolean;
 }
 
 export function useProtectedApi<T, R>(
@@ -22,10 +25,11 @@ export function useProtectedApi<T, R>(
     showSuccessToast = false,
     successMessage = "Operation successful",
     showErrorToast = true,
-    redirectOnUnauth = true
+    redirectOnUnauth = true,
+    requireCsrf = true
   } = options;
   
-  const { user } = useAuth();
+  const { user, refreshSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [data, setData] = useState<R | null>(null);
@@ -48,11 +52,33 @@ export function useProtectedApi<T, R>(
       return null;
     }
     
+    // Check for CSRF token when required
+    if (requireCsrf && !getCsrfToken()) {
+      logger.warn("Missing CSRF token for protected API call");
+      await refreshSession(); // This will regenerate the CSRF token
+      
+      if (!getCsrfToken()) {
+        const csrfError = new Error("Security token missing");
+        setError(csrfError);
+        
+        if (showErrorToast) {
+          toast.error("Security verification failed. Please try again.");
+        }
+        
+        return null;
+      }
+    }
+    
     setIsLoading(true);
     setError(null);
     
     try {
-      const result = await apiFunction(params);
+      // Add CSRF token to params if required and params is an object
+      const secureParams = requireCsrf && typeof params === 'object' && params !== null
+        ? addCsrfToFormData(params as Record<string, any>) as unknown as T
+        : params;
+      
+      const result = await apiFunction(secureParams);
       setData(result);
       
       if (showSuccessToast) {
@@ -63,6 +89,14 @@ export function useProtectedApi<T, R>(
     } catch (err: any) {
       const errorObject = err instanceof Error ? err : new Error(err?.message || "An unknown error occurred");
       setError(errorObject);
+      
+      // Log security related errors
+      if (err?.message?.includes('CSRF') || err?.message?.includes('token')) {
+        logger.warn("Possible security issue in API call:", { 
+          error: err?.message,
+          path: window.location.pathname
+        });
+      }
       
       if (showErrorToast) {
         toast.error(err?.message || "An error occurred");

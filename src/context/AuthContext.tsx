@@ -7,13 +7,16 @@ import {
   handleSignUp, 
   handleSignOut,
   sendPasswordResetEmail,
-  refreshSession as refreshSessionFunc
+  refreshSession as refreshSessionFunc,
+  verifyOtpCode,
+  updateUserPassword
 } from '@/services/authService';
 import { navigate } from '@/utils/navigation';
 import { supabase } from '@/integrations/supabase/client';
+import { AuthContextType } from '@/types/auth';
 
 // Create the context
-export const AuthContext = createContext<any>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 // Create a hook to use the auth context
 export const useAuth = () => {
@@ -45,6 +48,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setProfile,
     hasInitialized
   } = useAuthState();
+  
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   // Sign in function
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
@@ -81,6 +86,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const result = await handleSignOut();
     
     if (result.success) {
+      // Generate a new CSRF token after logout for security
+      await regenerateCsrfToken();
       return { success: true };
     } else {
       toast.error(result.error || 'Failed to sign out');
@@ -89,8 +96,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Password reset
-  const resetPassword = async (email: string) => {
+  const sendPasswordReset = async (email: string) => {
     return await sendPasswordResetEmail(email);
+  };
+
+  // Verify OTP token (for password reset)
+  const verifyOtp = async (email: string, token: string) => {
+    return await verifyOtpCode(email, token);
+  };
+
+  // Update password
+  const updatePassword = async (password: string) => {
+    return await updateUserPassword(password);
   };
 
   // Refresh user profile
@@ -105,13 +122,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Combined refresh function
   const refreshSession = async () => {
-    const result = await refreshSessionFunc();
-    if (result.session) {
-      await refreshAuthStateSession();
-      return true;
+    try {
+      const result = await refreshSessionFunc();
+      if (result.session) {
+        setIsSessionExpired(false);
+        await refreshAuthStateSession();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Session refresh failed:", error);
+      setIsSessionExpired(true);
+      return false;
     }
-    return false;
   };
+
+  // Generate a CSRF token
+  const regenerateCsrfToken = async () => {
+    try {
+      const token = Math.random().toString(36).substring(2, 15) + 
+                   Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('csrfToken', token);
+      return token;
+    } catch (error) {
+      console.error("Error generating CSRF token:", error);
+      return null;
+    }
+  };
+
+  // Check for session expiration
+  useEffect(() => {
+    const checkSessionValidity = async () => {
+      if (session) {
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = session.expires_at;
+        
+        // If session is expired or about to expire in 5 minutes
+        if (expiresAt && now > expiresAt - 300) {
+          const refreshed = await refreshSession();
+          if (!refreshed) {
+            setIsSessionExpired(true);
+          }
+        }
+      }
+    };
+    
+    checkSessionValidity();
+    
+    // Set up interval to check session validity
+    const interval = setInterval(checkSessionValidity, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [session]);
 
   // Check for new user signup and redirect to onboarding
   useEffect(() => {
@@ -123,26 +184,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       sessionStorage.removeItem('newUserSignup');
     }
   }, [user, isLoading]);
+  
+  // Initialize CSRF token on auth state change
+  useEffect(() => {
+    if (user && !sessionStorage.getItem('csrfToken')) {
+      regenerateCsrfToken();
+    }
+  }, [user]);
 
   // Create value object with userEmail to ensure it's always accessible
-  const value = {
+  const value: AuthContextType = {
     user,
     session,
     profile,
-    userEmail: user?.email, // Explicitly expose the email from the user object
+    userEmail: user?.email,
     isLoading,
     isProfileLoading,
     isEmailVerified,
     authError,
+    isSessionExpired,
     signIn,
     signUp,
     signOut,
-    resetPassword,
+    sendPasswordReset,
     refreshProfile,
     refreshSession,
     updateLastActivity,
     setProfile,
-    hasInitialized
+    hasInitialized,
+    verifyOtp,
+    updatePassword,
+    signInWithGoogle: async () => ({ success: false, error: "Not implemented" }),
+    signInWithGitHub: async () => ({ success: false, error: "Not implemented" })
   };
 
   return (
