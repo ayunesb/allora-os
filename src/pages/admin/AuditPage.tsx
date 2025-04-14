@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PreLaunchAudit } from '@/components/admin/audit/PreLaunchAudit';
+import PreLaunchAudit from '@/components/admin/audit/PreLaunchAudit';
 
 export default function AuditPage() {
   return (

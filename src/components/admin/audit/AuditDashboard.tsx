@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { PreLaunchAudit } from './PreLaunchAudit';
+import PreLaunchAudit from './PreLaunchAudit';
 
 export default function AuditDashboard() {
   return (
