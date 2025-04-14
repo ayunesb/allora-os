@@ -2,7 +2,8 @@
 /**
  * Test utility for the AI Executive Agent
  */
-import { runExecutiveAgent, executiveProfiles } from './executiveAgent';
+import { runExecutiveAgent } from './executiveAgent';
+import { executiveProfiles } from './agentProfiles';
 
 /**
  * Run a test of the executive agent system

@@ -2,36 +2,11 @@
 /**
  * AI Executive Agent that autonomously processes tasks and makes strategic decisions
  */
-import { supabase } from '@/integrations/supabase/client';
-import { ExecutiveAgentProfile, ExecutiveDecision, AgentRunOptions } from '@/types/agents';
 import { logger } from '@/utils/loggingService';
-
-// Define how the agent thinks about a task
-const executivePromptTemplate = `
-You are {executiveName}, a highly capable {role} at Allora AI.
-
-Your mission is to autonomously think through the following task:
-Task: {task}
-
-{companyContext}
-{marketConditions}
-
-First, break down the task into 3 strategic options.
-Second, select the best option based on risk and reward.
-Finally, output your decision clearly with a recommendation.
-
-Always act like a real executive thinking strategically with your expertise in {expertise}.
-Decision Style: {decisionStyle}
-{personality}
-
-Your response MUST follow this JSON format exactly:
-{
-  "options": ["option1", "option2", "option3"],
-  "selectedOption": "The option you selected",
-  "reasoning": "Why you selected this option",
-  "riskAssessment": "Assessment of risks associated with the selected option"
-}
-`;
+import { ExecutiveAgentProfile, ExecutiveDecision, AgentRunOptions } from '@/types/agents';
+import { executivePromptTemplate } from './promptTemplates';
+import { saveDecisionToDatabase, getExecutiveDecisions } from './decisionService';
+import { executiveProfiles } from './agentProfiles';
 
 /**
  * Runs the executive agent to process a task and return a decision
@@ -141,111 +116,5 @@ export async function runExecutiveAgent(
   }
 }
 
-/**
- * Saves an executive decision to the database
- */
-async function saveDecisionToDatabase(decision: ExecutiveDecision): Promise<string | null> {
-  try {
-    const { data, error } = await supabase
-      .from('executive_decisions')
-      .insert([
-        {
-          executive_name: decision.executiveName,
-          executive_role: decision.executiveRole,
-          task: decision.task,
-          options: decision.options,
-          selected_option: decision.selectedOption,
-          reasoning: decision.reasoning,
-          risk_assessment: decision.riskAssessment,
-          priority: decision.priority,
-          created_at: decision.timestamp
-        }
-      ])
-      .select();
-
-    if (error) {
-      throw error;
-    }
-
-    return data?.[0]?.id || null;
-  } catch (error) {
-    logger.error('Failed to save executive decision to database', error, {
-      executiveName: decision.executiveName,
-      task: decision.task
-    });
-    return null;
-  }
-}
-
-/**
- * Gets all executive decisions from the database
- */
-export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
-  try {
-    const { data, error } = await supabase
-      .from('executive_decisions')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    return (data || []).map(item => ({
-      id: item.id,
-      executiveName: item.executive_name,
-      executiveRole: item.executive_role,
-      task: item.task,
-      options: item.options,
-      selectedOption: item.selected_option,
-      reasoning: item.reasoning,
-      riskAssessment: item.risk_assessment,
-      timestamp: item.created_at,
-      priority: item.priority
-    }));
-  } catch (error) {
-    logger.error('Failed to get executive decisions from database', error);
-    return [];
-  }
-}
-
-/**
- * Predefined executive profiles for the platform
- */
-export const executiveProfiles: Record<string, ExecutiveAgentProfile> = {
-  ceo: {
-    name: "Strategic CEO",
-    role: "Chief Executive Officer",
-    expertise: ["strategic planning", "business growth", "executive leadership"],
-    decisionStyle: "balanced",
-    personality: "You are visionary and focus on big-picture opportunities and challenges."
-  },
-  cfo: {
-    name: "Financial CFO",
-    role: "Chief Financial Officer",
-    expertise: ["financial analysis", "risk management", "resource allocation"],
-    decisionStyle: "conservative",
-    personality: "You are analytical and prioritize financial stability and efficient resource allocation."
-  },
-  cmo: {
-    name: "Marketing CMO",
-    role: "Chief Marketing Officer",
-    expertise: ["market analysis", "brand strategy", "customer acquisition"],
-    decisionStyle: "balanced",
-    personality: "You are creative and focus on market opportunities and competitive positioning."
-  },
-  cto: {
-    name: "Technical CTO",
-    role: "Chief Technology Officer",
-    expertise: ["technology strategy", "digital transformation", "innovation"],
-    decisionStyle: "aggressive",
-    personality: "You are innovative and focus on leveraging technology for business advantage."
-  },
-  cro: {
-    name: "Growth CRO",
-    role: "Chief Revenue Officer",
-    expertise: ["sales strategy", "revenue growth", "market expansion"],
-    decisionStyle: "aggressive",
-    personality: "You are ambitious and focus on maximizing revenue and business growth."
-  }
-};
+// Re-export necessary items for backward compatibility
+export { executiveProfiles, getExecutiveDecisions };
