@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { Json } from '@/utils/profileHelpers';
 
 export type Profile = {
   id: string;
@@ -21,7 +22,7 @@ export type Profile = {
   location?: string;
   website?: string;
   bio?: string;
-  personal_api_keys?: Record<string, string> | string | null;
+  personal_api_keys?: Record<string, string> | string | null | Json;
   industry?: string;
   stripe_customer_id?: string;
   subscription_status?: string;

@@ -1,3 +1,4 @@
+
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
@@ -22,7 +23,7 @@ export type UserProfile = {
   location?: string;
   website?: string;
   bio?: string;
-  personal_api_keys?: Record<string, string> | string | null;
+  personal_api_keys?: Record<string, string> | string | null | Json;
   industry?: string;
   stripe_customer_id?: string;
   subscription_status?: string;

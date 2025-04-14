@@ -1,5 +1,4 @@
 
-
 import { User, Session } from '@supabase/supabase-js';
 import { UserProfile } from '@/utils/profileHelpers';
 

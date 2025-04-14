@@ -15,6 +15,8 @@ import { HelpModal } from "@/components/help/HelpModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { AuthProviderWrapper } from "@/components/auth/AuthProviderWrapper";
 
 // Lazy-loaded components
 const RootLayout = lazy(() => import("@/components/layouts/RootLayout"));
@@ -61,7 +63,9 @@ const NavigationLayout = () => {
 const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <AccessibilityProvider>
-      {children}
+      <AuthProviderWrapper>
+        {children}
+      </AuthProviderWrapper>
     </AccessibilityProvider>
   );
 };
