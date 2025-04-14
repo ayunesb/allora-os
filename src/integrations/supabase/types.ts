@@ -814,6 +814,36 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_messages: {
+        Row: {
+          created_at: string
+          from_executive: string
+          id: string
+          message_content: string
+          status: string
+          task_link: string | null
+          to_executive: string
+        }
+        Insert: {
+          created_at?: string
+          from_executive: string
+          id?: string
+          message_content: string
+          status?: string
+          task_link?: string | null
+          to_executive: string
+        }
+        Update: {
+          created_at?: string
+          from_executive?: string
+          id?: string
+          message_content?: string
+          status?: string
+          task_link?: string | null
+          to_executive?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campaign_id: string

@@ -34,3 +34,26 @@ Your response MUST follow this JSON format exactly:
   "riskAssessment": "Assessment of risks associated with the selected option"
 }
 `;
+
+/**
+ * Template for executive-to-executive message notifications
+ */
+export const messageNotificationTemplate = `
+You have received a message from {senderName}, {senderRole}:
+
+"{messageContent}"
+
+Please take this into consideration for your current task.
+`;
+
+/**
+ * Template for generating executive-to-executive messages
+ */
+export const generateMessageTemplate = `
+As {executiveName}, {role}, write a brief message to {recipientName}, {recipientRole}, about:
+
+{topic}
+
+The message should be professional, relevant to both executives' roles, and contain useful strategic insight.
+Keep it under 3 sentences and make it sound like an executive-to-executive communication.
+`;

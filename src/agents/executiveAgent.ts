@@ -9,6 +9,11 @@ import { saveDecisionToDatabase, getExecutiveDecisions } from './decisionService
 import { executiveProfiles } from './agentProfiles';
 import { getUserPreferences } from '@/utils/selfLearning/preferencesService';
 import { fetchRecentMemories, formatMemoriesForPrompt, saveDecisionToMemory } from '@/services/memoryService';
+import { 
+  fetchMessagesForExecutive, 
+  formatMessagesForPrompt, 
+  markMessagesAsRead 
+} from './meshNetwork';
 
 /**
  * Runs the executive agent to process a task and return a decision
@@ -52,8 +57,17 @@ export async function runExecutiveAgent(
       }
     }
     
+    // Check the executive's inbox for unread messages
+    const inboxMessages = await fetchMessagesForExecutive(executive.name);
+    logger.info(`Retrieved ${inboxMessages.length} unread messages for executive ${executive.name}`, {
+      component: 'executiveAgent'
+    });
+    
     // Format memories for the prompt
     const memoryText = formatMemoriesForPrompt(memories);
+    
+    // Format inbox messages for the prompt
+    const inboxText = formatMessagesForPrompt(inboxMessages);
     
     // Prepare the context variables for the prompt
     const companyContext = options.companyContext 
@@ -84,6 +98,14 @@ Recent Memory Log:
 ${memoryText}
 
 `;
+
+    // Add inbox context to the prompt
+    const inboxContext = inboxMessages.length > 0 ? `
+Executive Inbox (Unread Messages):
+${inboxText}
+
+Consider these messages from other executives before making your decision.
+` : '';
     
     // Format the prompt with the executive's details, task, and user preferences
     const prompt = executivePromptTemplate
@@ -96,7 +118,7 @@ ${memoryText}
       .replace('{companyContext}', companyContext)
       .replace('{marketConditions}', marketConditions)
       .replace('{userPreferences}', userPreferencesContext)
-      .replace('{memoryContext}', memoryContext);
+      .replace('{memoryContext}', memoryContext + inboxContext);
 
     // Call OpenAI Edge Function with the prompt
     const response = await fetch('/api/agents/executive-think', {
@@ -107,7 +129,9 @@ ${memoryText}
       body: JSON.stringify({
         prompt,
         executiveName: executive.name,
-        executiveRole: executive.role
+        executiveRole: executive.role,
+        memories: memories,
+        userPreferences
       }),
     });
 
@@ -185,6 +209,14 @@ ${memoryText}
         component: 'executiveAgent',
         executiveName: executive.name,
         userId: options.userId
+      });
+    }
+    
+    // Mark inbox messages as read after processing
+    if (inboxMessages.length > 0) {
+      await markMessagesAsRead(executive.name);
+      logger.info(`Marked ${inboxMessages.length} messages as read for ${executive.name}`, {
+        component: 'executiveAgent'
       });
     }
 
