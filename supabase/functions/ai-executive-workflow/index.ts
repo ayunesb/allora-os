@@ -1,346 +1,59 @@
 
+// deno-lint-ignore-file no-explicit-any
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.36.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Define AI executive personalities
-const aiExecutives = {
-  strategists: ["Elon Musk", "Warren Buffett", "Tim Cook", "Steve Jobs"],
-  marketers: ["Antonio Lucio", "Keith Weed"],
-  salesCoaches: ["Mike Weinberg", "Trish Bertuzzi", "Sheryl Sandberg"]
-};
-
-// Define risk level categories
-const riskLevels = ["Low Risk", "Medium Risk", "High Risk"];
-
-// Define campaign types
-const campaignTypes = ["Facebook", "Instagram", "LinkedIn", "TikTok", "Email", "SMS"];
-
-// Generate business strategies based on company profile
-async function generateStrategies(companyProfile: any) {
-  const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-  
-  if (!OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not configured');
-  }
-  
-  const strategyPrompt = `
-    Generate 15-20 fresh business strategies for the following company:
-    
-    Company Name: ${companyProfile.companyName || 'Unknown'}
-    Industry: ${companyProfile.industry || 'Unknown'}
-    Company Size: ${companyProfile.companySize || 'Unknown'}
-    Website: ${companyProfile.website || 'Unknown'}
-    Top 3 Goals: ${companyProfile.topGoals?.join(', ') || 'Growth, Efficiency, Innovation'}
-    Target Markets: ${companyProfile.targetMarkets?.join(', ') || 'Unknown'}
-    Risk Appetite: ${companyProfile.riskAppetite || 'Medium'}
-    Current Sales Channels: ${companyProfile.salesChannels?.join(', ') || 'Unknown'}
-    
-    Categorize each strategy as Low Risk, Medium Risk, or High Risk.
-    
-    For each strategy, provide:
-    1. Title
-    2. Executive Summary (2-3 sentences)
-    3. Expected Outcome
-    4. Which AI Executive proposed it (choose from: ${aiExecutives.strategists.join(', ')})
-    5. Why this strategy matters
-    
-    Format the response as JSON with the following structure:
-    {
-      "strategies": [
-        {
-          "title": "Strategy Title",
-          "summary": "Executive summary here",
-          "expectedOutcome": "Expected outcome here",
-          "proposedBy": "Executive Name",
-          "why": "Why this strategy matters",
-          "riskLevel": "Low Risk/Medium Risk/High Risk"
-        }
-      ]
-    }
-  `;
-  
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are an AI Executive Board consisting of legendary business figures. Generate business strategies in JSON format only.' },
-          { role: 'user', content: strategyPrompt }
-        ],
-        temperature: 0.7,
-      }),
-    });
-    
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(`OpenAI API error: ${data.error.message}`);
-    }
-    
-    // Parse the response to extract the JSON
-    const content = data.choices[0].message.content;
-    try {
-      // The response may have markdown formatting, so we need to extract just the JSON
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/({[\s\S]*})/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : content;
-      return JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error("Error parsing JSON from OpenAI response:", parseError);
-      // Fallback: return the raw content if parsing fails
-      return { strategies: [], rawResponse: content };
-    }
-  } catch (error) {
-    console.error("Error generating strategies:", error);
-    throw error;
-  }
+interface CompanyProfile {
+  companyName?: string;
+  industry?: string;
+  companySize?: string;
+  website?: string;
+  topGoals?: string[];
+  targetMarkets?: string[];
+  riskAppetite?: string;
+  salesChannels?: string[];
+  crmSystem?: string;
+  leadVolume?: string;
+  marketingChannels?: string[];
+  marketingBudget?: string;
+  aiVideoPreference?: string;
+  communicationMethods?: string[];
+  leadershipStyle?: string;
+  messagingTone?: string;
 }
 
-// Generate marketing campaigns based on company profile
-async function generateCampaigns(companyProfile: any) {
-  const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-  
-  if (!OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not configured');
-  }
-  
-  const campaignPrompt = `
-    Generate marketing campaign ideas for the following company:
-    
-    Company Name: ${companyProfile.companyName || 'Unknown'}
-    Industry: ${companyProfile.industry || 'Unknown'}
-    Target Markets: ${companyProfile.targetMarkets?.join(', ') || 'Unknown'}
-    Monthly Marketing Budget: ${companyProfile.marketingBudget || 'Unknown'}
-    Main Marketing Channels: ${companyProfile.marketingChannels?.join(', ') || 'Unknown'}
-    Tone of Messaging: ${companyProfile.messagingTone || 'Professional'}
-    
-    Create campaign ideas for: Facebook, Instagram, LinkedIn, TikTok, Email, and SMS.
-    
-    For each campaign, provide:
-    1. Objective
-    2. Target Audience
-    3. Short Script or Copy
-    4. Which AI Marketing Executive recommends it (choose from: ${aiExecutives.marketers.join(', ')})
-    
-    Format the response as JSON with the following structure:
-    {
-      "campaigns": [
-        {
-          "platform": "Platform Name",
-          "objective": "Campaign objective",
-          "targetAudience": "Target audience description",
-          "script": "Short script or copy",
-          "recommendedBy": "Executive Name"
-        }
-      ]
-    }
-  `;
-  
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are an AI Marketing Executive Board consisting of legendary marketing figures. Generate marketing campaigns in JSON format only.' },
-          { role: 'user', content: campaignPrompt }
-        ],
-        temperature: 0.7,
-      }),
-    });
-    
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(`OpenAI API error: ${data.error.message}`);
-    }
-    
-    // Parse the response to extract the JSON
-    const content = data.choices[0].message.content;
-    try {
-      // The response may have markdown formatting, so we need to extract just the JSON
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/({[\s\S]*})/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : content;
-      return JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error("Error parsing JSON from OpenAI response:", parseError);
-      // Fallback: return the raw content if parsing fails
-      return { campaigns: [], rawResponse: content };
-    }
-  } catch (error) {
-    console.error("Error generating campaigns:", error);
-    throw error;
-  }
+interface Strategy {
+  title: string;
+  summary: string;
+  expectedOutcome: string;
+  proposedBy: string;
+  why: string;
+  riskLevel: string;
 }
 
-// Generate communication scripts based on company profile
-async function generateScripts(companyProfile: any) {
-  const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-  
-  if (!OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not configured');
-  }
-  
-  const scriptPrompt = `
-    Generate communication scripts for the following company:
-    
-    Company Name: ${companyProfile.companyName || 'Unknown'}
-    Industry: ${companyProfile.industry || 'Unknown'}
-    Target Markets: ${companyProfile.targetMarkets?.join(', ') || 'Unknown'}
-    Communication Methods: ${companyProfile.communicationMethods?.join(', ') || 'Phone, Email, SMS'}
-    Tone of Messaging: ${companyProfile.messagingTone || 'Professional'}
-    
-    Create the following scripts:
-    1. Cold Call Script (B2B focus)
-    2. SMS Follow-up Template
-    3. Email Follow-up Template
-    
-    Attribute each script to one of these sales coaches: ${aiExecutives.salesCoaches.join(', ')}
-    
-    Format the response as JSON with the following structure:
-    {
-      "scripts": [
-        {
-          "type": "Cold Call/SMS/Email",
-          "script": "Full script content",
-          "attributedTo": "Sales Coach Name"
-        }
-      ]
-    }
-  `;
-  
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are an AI Sales Coaching Board consisting of legendary sales figures. Generate sales scripts in JSON format only.' },
-          { role: 'user', content: scriptPrompt }
-        ],
-        temperature: 0.7,
-      }),
-    });
-    
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(`OpenAI API error: ${data.error.message}`);
-    }
-    
-    // Parse the response to extract the JSON
-    const content = data.choices[0].message.content;
-    try {
-      // The response may have markdown formatting, so we need to extract just the JSON
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/({[\s\S]*})/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : content;
-      return JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error("Error parsing JSON from OpenAI response:", parseError);
-      // Fallback: return the raw content if parsing fails
-      return { scripts: [], rawResponse: content };
-    }
-  } catch (error) {
-    console.error("Error generating scripts:", error);
-    throw error;
-  }
+interface Campaign {
+  platform: string;
+  objective: string;
+  targetAudience: string;
+  script: string;
+  recommendedBy: string;
 }
 
-// Simulate an AI executive debate
-async function simulateExecutiveDebate(companyProfile: any, strategies: any[]) {
-  const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-  
-  if (!OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not configured');
-  }
-  
-  const debatePrompt = `
-    Simulate a real-time debate among the AI Executive Board on business strategies for the following company:
-    
-    Company Name: ${companyProfile.companyName || 'Unknown'}
-    Industry: ${companyProfile.industry || 'Unknown'}
-    Risk Appetite: ${companyProfile.riskAppetite || 'Medium'}
-    
-    The following executives are participating in the debate:
-    ${aiExecutives.strategists.join(', ')}
-    
-    They are debating these top strategies:
-    ${strategies.slice(0, 3).map(s => `- ${s.title} (proposed by ${s.proposedBy})`).join('\n')}
-    
-    Include in the debate simulation:
-    1. Initial proposals
-    2. Disagreements and counterpoints
-    3. Final consensus or decision summary
-    
-    Format the response as JSON with the following structure:
-    {
-      "debate": [
-        {
-          "executive": "Executive Name",
-          "statement": "What they said",
-          "position": "For/Against/Neutral"
-        }
-      ],
-      "summary": "Final decision summary"
-    }
-  `;
-  
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are simulating a debate among an AI Executive Board consisting of legendary business figures. Generate the debate in JSON format only.' },
-          { role: 'user', content: debatePrompt }
-        ],
-        temperature: 0.8,
-      }),
-    });
-    
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(`OpenAI API error: ${data.error.message}`);
-    }
-    
-    // Parse the response to extract the JSON
-    const content = data.choices[0].message.content;
-    try {
-      // The response may have markdown formatting, so we need to extract just the JSON
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/({[\s\S]*})/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : content;
-      return JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error("Error parsing JSON from OpenAI response:", parseError);
-      // Fallback: return the raw content if parsing fails
-      return { debate: [], summary: "", rawResponse: content };
-    }
-  } catch (error) {
-    console.error("Error simulating debate:", error);
-    throw error;
-  }
+interface Script {
+  type: string;
+  script: string;
+  attributedTo: string;
+}
+
+interface DebateStatement {
+  executive: string;
+  statement: string;
+  position: string;
 }
 
 // Main function to handle requests
@@ -351,71 +64,396 @@ serve(async (req) => {
   }
 
   try {
-    const { action, companyProfile } = await req.json();
-
-    if (!companyProfile) {
-      throw new Error('Company profile is required');
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get OpenAI API key
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not set');
     }
 
-    let responseData = {};
-
+    // Parse request body
+    const { action, companyProfile, strategies } = await req.json();
+    
+    // Choose action based on request
     switch (action) {
       case 'generate_strategies':
-        responseData = await generateStrategies(companyProfile);
-        break;
-        
+        return await generateStrategies(companyProfile, OPENAI_API_KEY);
       case 'generate_campaigns':
-        responseData = await generateCampaigns(companyProfile);
-        break;
-        
+        return await generateCampaigns(companyProfile, OPENAI_API_KEY);
       case 'generate_scripts':
-        responseData = await generateScripts(companyProfile);
-        break;
-        
+        return await generateScripts(companyProfile, OPENAI_API_KEY);
       case 'simulate_debate':
-        // For the debate, we need the top strategies
-        const strategies = await generateStrategies(companyProfile);
-        responseData = await simulateExecutiveDebate(companyProfile, strategies.strategies || []);
-        break;
-        
+        return await simulateDebate(companyProfile, strategies || [], OPENAI_API_KEY);
       case 'generate_all':
-        // Generate everything at once
-        const allStrategies = await generateStrategies(companyProfile);
-        const allCampaigns = await generateCampaigns(companyProfile);
-        const allScripts = await generateScripts(companyProfile);
-        const debate = await simulateExecutiveDebate(companyProfile, allStrategies.strategies || []);
-        
-        responseData = {
-          strategies: allStrategies.strategies || [],
-          campaigns: allCampaigns.campaigns || [],
-          scripts: allScripts.scripts || [],
-          debate: debate.debate || [],
-          debateSummary: debate.summary || ""
-        };
-        break;
-        
+        return await generateAllContent(companyProfile, OPENAI_API_KEY);
       case 'refresh_strategies':
-        // Generate 5 new strategies
-        const refreshPrompt = {
-          ...companyProfile,
-          refreshRequest: true,
-          numStrategies: 5
-        };
-        responseData = await generateStrategies(refreshPrompt);
-        break;
-        
+        return await refreshStrategies(companyProfile, OPENAI_API_KEY);
       default:
         throw new Error(`Unknown action: ${action}`);
     }
-
-    return new Response(JSON.stringify(responseData), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
-    console.error('Error in AI Executive Workflow function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Error in ai-executive-workflow function:', error);
+    
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+        success: false
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });
+
+// Generate business strategies based on company profile
+async function generateStrategies(companyProfile: CompanyProfile, apiKey: string): Promise<Response> {
+  // Create a prompt for generating strategies
+  const prompt = `
+    You are a team of executive-level business advisors tasked with generating strategic business recommendations.
+    
+    Company Details:
+    - Name: ${companyProfile.companyName || 'Unknown'}
+    - Industry: ${companyProfile.industry || 'Unknown'}
+    - Size: ${companyProfile.companySize || 'Unknown'}
+    - Target Markets: ${companyProfile.targetMarkets?.join(', ') || 'Unknown'}
+    - Risk Appetite: ${companyProfile.riskAppetite || 'medium'}
+    - Goals: ${companyProfile.topGoals?.join(', ') || 'Growth and profitability'}
+    
+    Based on this information, generate 3 strategic business recommendations.
+    For each strategy, provide:
+    1. A concise title
+    2. A summary of the strategy
+    3. The expected outcome
+    4. Which executive proposed it (CEO, CFO, CMO, COO, or CTO)
+    5. Why it matters to the company
+    6. A risk level assessment (Low Risk, Medium Risk, or High Risk)
+    
+    Format your response as a JSON array with the following structure:
+    [
+      {
+        "title": "Strategy Title",
+        "summary": "Strategy summary",
+        "expectedOutcome": "Expected outcome",
+        "proposedBy": "Executive title",
+        "why": "Why this strategy matters",
+        "riskLevel": "Risk level"
+      }
+    ]
+  `;
+  
+  // Call OpenAI API
+  const response = await callOpenAI(prompt, apiKey);
+  
+  try {
+    // Parse the strategies from the response
+    const strategies: Strategy[] = JSON.parse(response);
+    
+    return new Response(
+      JSON.stringify({ 
+        strategies,
+        success: true 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error parsing strategy response:', error);
+    throw new Error('Failed to parse strategy data from AI response');
+  }
+}
+
+// Generate marketing campaigns based on company profile
+async function generateCampaigns(companyProfile: CompanyProfile, apiKey: string): Promise<Response> {
+  // Create a prompt for generating campaigns
+  const prompt = `
+    You are a marketing expert team tasked with generating marketing campaign ideas.
+    
+    Company Details:
+    - Name: ${companyProfile.companyName || 'Unknown'}
+    - Industry: ${companyProfile.industry || 'Unknown'}
+    - Target Markets: ${companyProfile.targetMarkets?.join(', ') || 'Unknown'}
+    - Marketing Budget: ${companyProfile.marketingBudget || 'Unknown'}
+    
+    Based on this information, generate 3 marketing campaign ideas.
+    For each campaign, provide:
+    1. The marketing platform (Facebook, LinkedIn, Google, Email, etc.)
+    2. The campaign objective
+    3. The target audience
+    4. A sample script/copy for the campaign
+    5. Who recommended this campaign (CMO, Marketing Director, Social Media Expert)
+    
+    Format your response as a JSON array with the following structure:
+    [
+      {
+        "platform": "Platform name",
+        "objective": "Campaign objective",
+        "targetAudience": "Target audience description",
+        "script": "Sample script/copy",
+        "recommendedBy": "Executive/expert title"
+      }
+    ]
+  `;
+  
+  // Call OpenAI API
+  const response = await callOpenAI(prompt, apiKey);
+  
+  try {
+    // Parse the campaigns from the response
+    const campaigns: Campaign[] = JSON.parse(response);
+    
+    return new Response(
+      JSON.stringify({ 
+        campaigns,
+        success: true 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error parsing campaign response:', error);
+    throw new Error('Failed to parse campaign data from AI response');
+  }
+}
+
+// Generate communication scripts based on company profile
+async function generateScripts(companyProfile: CompanyProfile, apiKey: string): Promise<Response> {
+  // Create a prompt for generating scripts
+  const prompt = `
+    You are a communication expert team tasked with generating effective communication scripts.
+    
+    Company Details:
+    - Name: ${companyProfile.companyName || 'Unknown'}
+    - Industry: ${companyProfile.industry || 'Unknown'}
+    - Communication Methods: ${companyProfile.communicationMethods?.join(', ') || 'Email, Phone, Meeting'}
+    
+    Based on this information, generate 3 communication scripts for different scenarios.
+    For each script, provide:
+    1. The type of script (Sales call, Customer follow-up, Meeting agenda, etc.)
+    2. The actual script content
+    3. Who created this script (Sales Director, Customer Success Manager, Communication Expert)
+    
+    Format your response as a JSON array with the following structure:
+    [
+      {
+        "type": "Script type",
+        "script": "Actual script content",
+        "attributedTo": "Creator title"
+      }
+    ]
+  `;
+  
+  // Call OpenAI API
+  const response = await callOpenAI(prompt, apiKey);
+  
+  try {
+    // Parse the scripts from the response
+    const scripts: Script[] = JSON.parse(response);
+    
+    return new Response(
+      JSON.stringify({ 
+        scripts,
+        success: true 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error parsing script response:', error);
+    throw new Error('Failed to parse script data from AI response');
+  }
+}
+
+// Simulate a debate among executives based on company profile
+async function simulateDebate(companyProfile: CompanyProfile, strategies: Strategy[], apiKey: string): Promise<Response> {
+  // Create a prompt for generating an executive debate
+  const prompt = `
+    You are a virtual boardroom with different executives debating business strategies.
+    
+    Company Details:
+    - Name: ${companyProfile.companyName || 'Unknown'}
+    - Industry: ${companyProfile.industry || 'Unknown'}
+    - Risk Appetite: ${companyProfile.riskAppetite || 'medium'}
+    
+    ${strategies.length > 0 ? `
+    Strategies being discussed:
+    ${strategies.map((s, i) => `
+    Strategy ${i+1}: ${s.title}
+    Summary: ${s.summary}
+    Proposed by: ${s.proposedBy}
+    Risk level: ${s.riskLevel}
+    `).join('\n')}
+    ` : 'The executives are discussing general business strategies.'}
+    
+    Simulate a debate among the following executives:
+    - CEO (focused on overall vision and growth)
+    - CFO (focused on financial implications and ROI)
+    - CMO (focused on market positioning and customer acquisition)
+    - COO (focused on operational feasibility and implementation)
+    - CTO (focused on technological aspects and innovation)
+    
+    Each executive should make at least one statement, expressing their perspective.
+    Also provide a brief summary of the conclusion reached after the debate.
+    
+    Format your response as a JSON object with the following structure:
+    {
+      "debate": [
+        {
+          "executive": "Executive title",
+          "statement": "Statement made during the debate",
+          "position": "supportive/cautious/critical"
+        }
+      ],
+      "summary": "Brief summary of the conclusion"
+    }
+  `;
+  
+  // Call OpenAI API
+  const response = await callOpenAI(prompt, apiKey);
+  
+  try {
+    // Parse the debate from the response
+    const debateData = JSON.parse(response);
+    
+    return new Response(
+      JSON.stringify({ 
+        debate: debateData.debate,
+        summary: debateData.summary,
+        success: true 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error parsing debate response:', error);
+    throw new Error('Failed to parse debate data from AI response');
+  }
+}
+
+// Generate all content in one request
+async function generateAllContent(companyProfile: CompanyProfile, apiKey: string): Promise<Response> {
+  try {
+    // Create a prompt for generating all content
+    const prompt = `
+      You are an AI executive advisor team tasked with generating a comprehensive business plan.
+      
+      Company Details:
+      - Name: ${companyProfile.companyName || 'Unknown'}
+      - Industry: ${companyProfile.industry || 'Unknown'}
+      - Size: ${companyProfile.companySize || 'Unknown'}
+      - Target Markets: ${companyProfile.targetMarkets?.join(', ') || 'Unknown'}
+      - Risk Appetite: ${companyProfile.riskAppetite || 'medium'}
+      - Goals: ${companyProfile.topGoals?.join(', ') || 'Growth and profitability'}
+      - Marketing Budget: ${companyProfile.marketingBudget || 'Unknown'}
+      
+      Please generate the following content:
+      
+      1. THREE strategic business recommendations
+      2. THREE marketing campaign ideas
+      3. THREE communication scripts for different scenarios
+      4. A simulated debate among executives (CEO, CFO, CMO, COO, CTO) about these strategies
+      
+      Format your response as a JSON object with the following structure:
+      {
+        "strategies": [
+          {
+            "title": "Strategy Title",
+            "summary": "Strategy summary",
+            "expectedOutcome": "Expected outcome",
+            "proposedBy": "Executive title",
+            "why": "Why this strategy matters",
+            "riskLevel": "Risk level"
+          }
+        ],
+        "campaigns": [
+          {
+            "platform": "Platform name",
+            "objective": "Campaign objective",
+            "targetAudience": "Target audience description",
+            "script": "Sample script/copy",
+            "recommendedBy": "Executive/expert title"
+          }
+        ],
+        "scripts": [
+          {
+            "type": "Script type",
+            "script": "Actual script content",
+            "attributedTo": "Creator title"
+          }
+        ],
+        "debate": [
+          {
+            "executive": "Executive title",
+            "statement": "Statement made during the debate",
+            "position": "supportive/cautious/critical"
+          }
+        ],
+        "debateSummary": "Brief summary of the conclusion"
+      }
+    `;
+    
+    // Call OpenAI API
+    const response = await callOpenAI(prompt, apiKey);
+    
+    // Parse the content from the response
+    const content = JSON.parse(response);
+    
+    return new Response(
+      JSON.stringify({ 
+        ...content,
+        success: true 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error generating all content:', error);
+    throw error;
+  }
+}
+
+// Refresh strategies based on company profile
+async function refreshStrategies(companyProfile: CompanyProfile, apiKey: string): Promise<Response> {
+  // Use the existing function with a specific prompt
+  return await generateStrategies(companyProfile, apiKey);
+}
+
+// Helper function to call OpenAI API
+async function callOpenAI(prompt: string, apiKey: string): Promise<string> {
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an AI executive advisor that generates business strategies, marketing campaigns, and communication scripts.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (data.error) {
+      console.error('OpenAI API error:', data.error);
+      throw new Error(`OpenAI API error: ${data.error.message}`);
+    }
+    
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error('Error calling OpenAI:', error);
+    throw error;
+  }
+}

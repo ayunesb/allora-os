@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
@@ -12,7 +11,6 @@ import * as Steps from "@/components/onboarding/steps";
 import { useCompanyWebsite } from "@/hooks/useCompanyWebsite";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
-// Step descriptions for better context
 const stepDescriptions = {
   1: "Start with your company website",
   2: "Tell us about your company",
@@ -74,8 +72,8 @@ export default function Onboarding() {
     try {
       const success = await handleComplete();
       if (success) {
-        toast.success("Onboarding completed successfully! Redirecting to dashboard...");
-        navigate("/dashboard");
+        toast.success("Onboarding completed successfully! Redirecting to AI workflow setup...");
+        navigate("/dashboard/ai-workflow");
       }
     } catch (error) {
       toast.error("Failed to complete onboarding. Please try again.");
@@ -85,23 +83,19 @@ export default function Onboarding() {
 
   const handleCompanyDataFetched = (success: boolean) => {
     if (success && scrapedData) {
-      // Apply the scraped data to the onboarding state
       const updatedDetails = applyScrapedDataToCompanyDetails(
         companyDetails,
         setCompanyName,
         setIndustry
       );
       
-      // Update the company details with the scraped data
       updateCompanyDetails(updatedDetails);
       
-      // Show success message
       toast.success("Company data applied! Please review and make any necessary adjustments.");
     } else if (!success) {
       toast.error("We couldn't fetch data from your website. Please enter your information manually.");
     }
     
-    // Move to the next step regardless of success
     setStep(2);
   };
 
@@ -113,7 +107,6 @@ export default function Onboarding() {
     return <Steps.AuthIssue onSignOut={handleSignOut} onRefresh={handleRefresh} />;
   }
 
-  // Define total number of steps (now 11 with the website step)
   const totalSteps = 11;
 
   const getStepContent = () => {

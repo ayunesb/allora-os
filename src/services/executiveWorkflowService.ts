@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -215,14 +214,12 @@ export async function refreshStrategies(companyProfile: CompanyProfile): Promise
   }
 }
 
-// Save the generated strategies to the database
 export async function saveStrategies(strategies: Strategy[], companyId: string): Promise<void> {
   try {
-    // Insert each strategy into the strategies table
     const batch = strategies.map(strategy => ({
       title: strategy.title,
       description: `${strategy.summary}\n\nExpected Outcome: ${strategy.expectedOutcome}\n\nWhy it matters: ${strategy.why}\n\nProposed by: ${strategy.proposedBy}`,
-      risk_level: strategy.riskLevel.split(' ')[0].toLowerCase(), // Extract just "Low", "Medium", or "High"
+      risk_level: strategy.riskLevel.split(' ')[0].toLowerCase(),
       company_id: companyId
     }));
     
@@ -241,10 +238,8 @@ export async function saveStrategies(strategies: Strategy[], companyId: string):
   }
 }
 
-// Save the generated campaigns to the database (using a custom campaigns table)
 export async function saveCampaigns(campaigns: Campaign[], companyId: string): Promise<void> {
   try {
-    // Transform campaign data to match the database structure
     const batch = campaigns.map(campaign => ({
       name: `${campaign.platform} Campaign: ${campaign.objective}`,
       platform: campaign.platform.toLowerCase(),
@@ -274,10 +269,8 @@ export async function saveCampaigns(campaigns: Campaign[], companyId: string): P
   }
 }
 
-// Save the executive debate to the database
 export async function saveExecutiveDebate(debate: DebateStatement[], summary: string, companyId: string): Promise<void> {
   try {
-    // Get the unique executives involved in the debate
     const executives = [...new Set(debate.map(statement => statement.executive))];
     
     const { error } = await supabase
@@ -302,14 +295,137 @@ export async function saveExecutiveDebate(debate: DebateStatement[], summary: st
   }
 }
 
-// Set up a periodic refresh for strategies
+export async function saveGeneratedStrategiesToDB(strategies: Strategy[], companyId: string): Promise<boolean> {
+  try {
+    const strategiesData = strategies.map(strategy => ({
+      company_id: companyId,
+      title: strategy.title,
+      summary: strategy.summary,
+      expected_outcome: strategy.expectedOutcome,
+      risk_level: strategy.riskLevel.toLowerCase(),
+      executive_bot: strategy.proposedBy,
+      reasoning: strategy.why
+    }));
+    
+    const { error } = await supabase
+      .from('ai_strategies')
+      .insert(strategiesData);
+    
+    if (error) {
+      console.error("Error saving strategies to DB:", error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to save strategies to DB:", error);
+    return false;
+  }
+}
+
+export async function saveGeneratedCampaignsToDB(campaigns: Campaign[], companyId: string): Promise<boolean> {
+  try {
+    const campaignsData = campaigns.map(campaign => ({
+      company_id: companyId,
+      platform: campaign.platform,
+      objective: campaign.objective,
+      target_audience: campaign.targetAudience,
+      script: campaign.script,
+      executive_bot: campaign.recommendedBy
+    }));
+    
+    const { error } = await supabase
+      .from('ai_campaigns')
+      .insert(campaignsData);
+    
+    if (error) {
+      console.error("Error saving campaigns to DB:", error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to save campaigns to DB:", error);
+    return false;
+  }
+}
+
+export async function saveGeneratedScriptsToDB(scripts: Script[], companyId: string): Promise<boolean> {
+  try {
+    const scriptsData = scripts.map(script => ({
+      company_id: companyId,
+      script_type: script.type,
+      content: script.script,
+      executive_bot: script.attributedTo
+    }));
+    
+    const { error } = await supabase
+      .from('ai_communication_scripts')
+      .insert(scriptsData);
+    
+    if (error) {
+      console.error("Error saving scripts to DB:", error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to save scripts to DB:", error);
+    return false;
+  }
+}
+
+export async function saveExecutiveDebateToDB(debate: DebateStatement[], summary: string, companyId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('ai_executive_debates')
+      .insert({
+        company_id: companyId,
+        debate_content: debate,
+        summary: summary
+      });
+    
+    if (error) {
+      console.error("Error saving executive debate to DB:", error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to save executive debate to DB:", error);
+    return false;
+  }
+}
+
+export async function updateCompanyWorkflowStatus(companyId: string, workflowData: any): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('companies')
+      .update({
+        ai_workflow_generated: true,
+        ai_workflow_generated_at: new Date().toISOString(),
+        ai_workflow_data: workflowData
+      })
+      .eq('id', companyId);
+    
+    if (error) {
+      console.error("Error updating company workflow status:", error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to update company workflow status:", error);
+    return false;
+  }
+}
+
 export function setupStrategyRefresh(
   companyProfile: CompanyProfile, 
   companyId: string, 
   onRefresh: (strategies: Strategy[]) => void,
   intervalDays = 10
 ): () => void {
-  // Convert days to milliseconds
   const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
   
   const intervalId = setInterval(async () => {
@@ -317,16 +433,13 @@ export function setupStrategyRefresh(
     const newStrategies = await refreshStrategies(companyProfile);
     
     if (newStrategies.length > 0) {
-      // Save the new strategies
       await saveStrategies(newStrategies, companyId);
       
-      // Call the callback
       onRefresh(newStrategies);
       
       toast.success(`Auto-generated ${newStrategies.length} new strategies`);
     }
   }, intervalMs);
   
-  // Return a cleanup function
   return () => clearInterval(intervalId);
 }

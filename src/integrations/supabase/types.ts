@@ -112,6 +112,170 @@ export type Database = {
           },
         ]
       }
+      ai_campaigns: {
+        Row: {
+          company_id: string
+          created_at: string
+          executive_bot: string
+          id: string
+          objective: string
+          platform: string
+          script: string
+          target_audience: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          executive_bot: string
+          id?: string
+          objective: string
+          platform: string
+          script: string
+          target_audience: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          executive_bot?: string
+          id?: string
+          objective?: string
+          platform?: string
+          script?: string
+          target_audience?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_campaigns_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_communication_scripts: {
+        Row: {
+          company_id: string
+          content: string
+          created_at: string
+          executive_bot: string
+          id: string
+          script_type: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          content: string
+          created_at?: string
+          executive_bot: string
+          id?: string
+          script_type: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          created_at?: string
+          executive_bot?: string
+          id?: string
+          script_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_communication_scripts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_executive_debates: {
+        Row: {
+          company_id: string
+          created_at: string
+          debate_content: Json
+          id: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          debate_content?: Json
+          id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          debate_content?: Json
+          id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_executive_debates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_strategies: {
+        Row: {
+          company_id: string
+          created_at: string
+          executive_bot: string
+          expected_outcome: string | null
+          id: string
+          reasoning: string | null
+          risk_level: string
+          summary: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          executive_bot: string
+          expected_outcome?: string | null
+          id?: string
+          reasoning?: string | null
+          risk_level: string
+          summary: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          executive_bot?: string
+          expected_outcome?: string | null
+          id?: string
+          reasoning?: string | null
+          risk_level?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_strategies_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_interactions: {
         Row: {
           bot_name: string
@@ -324,6 +488,9 @@ export type Database = {
       }
       companies: {
         Row: {
+          ai_workflow_data: Json | null
+          ai_workflow_generated: boolean | null
+          ai_workflow_generated_at: string | null
           created_at: string
           details: Json | null
           id: string
@@ -331,6 +498,9 @@ export type Database = {
           name: string
         }
         Insert: {
+          ai_workflow_data?: Json | null
+          ai_workflow_generated?: boolean | null
+          ai_workflow_generated_at?: string | null
           created_at?: string
           details?: Json | null
           id?: string
@@ -338,6 +508,9 @@ export type Database = {
           name: string
         }
         Update: {
+          ai_workflow_data?: Json | null
+          ai_workflow_generated?: boolean | null
+          ai_workflow_generated_at?: string | null
           created_at?: string
           details?: Json | null
           id?: string
