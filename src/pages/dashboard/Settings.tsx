@@ -13,6 +13,7 @@ import NotificationsTab from "@/components/settings/NotificationsTab";
 import DevelopmentToolsTab from "@/components/settings/DevelopmentToolsTab";
 import MarketingPlatformIntegrations from "@/components/integrations/MarketingPlatformIntegrations";
 import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
+import ProfileDiagnostics from "@/components/settings/ProfileDiagnostics";
 
 export default function Settings() {
   const { user, profile } = useAuth();
@@ -24,6 +25,9 @@ export default function Settings() {
     <div className="container max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2">Settings</h1>
       <p className="text-muted-foreground mb-8">Manage your preferences and system settings</p>
+
+      {/* Add the diagnostic component at the top */}
+      <ProfileDiagnostics />
 
       <Tabs defaultValue="account">
         <TabsList className="mb-8">
