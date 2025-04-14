@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
 import { checkActionOutcome } from './kpiChecker';
@@ -69,6 +68,9 @@ async function executeAction(action: ExecutiveAction) {
     // Check action outcome and update memory
     const outcomeResult = await checkActionOutcome(action.id, action.task);
 
+    // Update executive performance
+    await updateExecutivePerformance(action.executive_name || 'System', outcomeResult.outcome);
+
     logger.info(`Task completed successfully: ${action.task}`);
   } catch (error) {
     logger.error(`Failed to execute task: ${action.task}`, { error });
@@ -109,3 +111,68 @@ export async function triggerAutoExecution(task: string, triggeredBy: string = '
   logger.info('Auto-execution triggered', { task });
   return data;
 }
+
+async function updateExecutivePerformance(executiveName: string, outcome: string) {
+  try {
+    const { data, error } = await supabase
+      .from('executives')
+      .select('*')
+      .eq('name', executiveName)
+      .single();
+
+    if (error || !data) {
+      logger.error('Executive not found:', error);
+      return;
+    }
+
+    let successfulActions = data.successful_actions || 0;
+    let failedActions = data.failed_actions || 0;
+
+    if (outcome === 'success') successfulActions += 1;
+    else if (outcome === 'failure') failedActions += 1;
+
+    const totalActions = successfulActions + failedActions;
+    const successRate = totalActions > 0 ? (successfulActions / totalActions) * 100 : 0;
+
+    // Calculate star rating
+    let starRating = 1;
+    if (successRate >= 90) starRating = 5;
+    else if (successRate >= 75) starRating = 4;
+    else if (successRate >= 60) starRating = 3;
+    else if (successRate >= 45) starRating = 2;
+    else starRating = 1;
+
+    // Check for promotion
+    let newLevel = data.level;
+    let promotions = data.promotions || 0;
+    if (starRating >= 5 && totalActions >= 20) {
+      if (data.level === 'Executive') {
+        newLevel = 'Senior Executive';
+        promotions += 1;
+      } else if (data.level === 'Senior Executive') {
+        newLevel = 'Vice President';
+        promotions += 1;
+      } else if (data.level === 'Vice President') {
+        newLevel = 'Chief Officer';
+        promotions += 1;
+      }
+    }
+
+    await supabase
+      .from('executives')
+      .update({
+        successful_actions: successfulActions,
+        failed_actions: failedActions,
+        star_rating: starRating,
+        level: newLevel,
+        promotions: promotions,
+      })
+      .eq('name', executiveName);
+
+    logger.info(`${executiveName} updated: ⭐ ${starRating} Stars, Level: ${newLevel}`);
+  } catch (error) {
+    logger.error('Error updating executive performance:', error);
+  }
+}
+
+export { executeAction, updateExecutivePerformance };

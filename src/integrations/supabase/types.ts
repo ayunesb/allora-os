@@ -913,6 +913,45 @@ export type Database = {
         }
         Relationships: []
       }
+      executives: {
+        Row: {
+          created_at: string
+          failed_actions: number
+          id: string
+          level: string
+          name: string
+          promotions: number
+          role: string
+          star_rating: number
+          successful_actions: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          failed_actions?: number
+          id?: string
+          level?: string
+          name: string
+          promotions?: number
+          role: string
+          star_rating?: number
+          successful_actions?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          failed_actions?: number
+          id?: string
+          level?: string
+          name?: string
+          promotions?: number
+          role?: string
+          star_rating?: number
+          successful_actions?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campaign_id: string
