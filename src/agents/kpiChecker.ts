@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
+import { generateSelfCoachingNote, saveCoachingNoteToMemory } from './selfCoach';
 
 export async function checkActionOutcome(actionId: string, task: string) {
   logger.info(`Checking outcome for task: ${task}`);
@@ -29,6 +30,33 @@ export async function checkActionOutcome(actionId: string, task: string) {
 
   // Update executive memory with outcome
   await updateExecutiveMemoryWithOutcome(task, outcome, notes);
+
+  // Get the executive info for the action
+  const { data: actionData } = await supabase
+    .from('executive_actions')
+    .select('executive_name, executive_role')
+    .eq('id', actionId)
+    .single();
+
+  const executiveName = actionData?.executive_name || 'System';
+  const executiveRole = actionData?.executive_role || 'Executive';
+
+  // Generate self-coaching note
+  const coachingNote = await generateSelfCoachingNote(
+    executiveName,
+    executiveRole,
+    task,
+    outcome,
+    notes
+  );
+
+  // Save coaching note to memory
+  await saveCoachingNoteToMemory(
+    await getCurrentUserId(),
+    executiveName,
+    task,
+    coachingNote
+  );
 
   logger.info('Outcome updated successfully', { outcome, notes });
   return { outcome, notes };

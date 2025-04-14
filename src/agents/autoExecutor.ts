@@ -9,6 +9,8 @@ export interface ExecutiveAction {
   status: 'pending' | 'in_progress' | 'completed' | 'failed';
   triggered_by: string;
   user_id?: string;
+  executive_name?: string;
+  executive_role?: string;
 }
 
 export async function runAutoExecutor() {
@@ -90,11 +92,13 @@ async function simulateActionExecution(task: string): Promise<string> {
 }
 
 // Exportable function for manual triggering if needed
-export async function triggerAutoExecution(task: string, triggeredBy: string = 'Manual') {
+export async function triggerAutoExecution(task: string, triggeredBy: string = 'Manual', executiveName?: string, executiveRole?: string) {
   const { data, error } = await supabase.from('executive_actions').insert([{
     task,
     status: 'pending',
-    triggered_by: triggeredBy
+    triggered_by: triggeredBy,
+    executive_name: executiveName,
+    executive_role: executiveRole
   }]);
 
   if (error) {

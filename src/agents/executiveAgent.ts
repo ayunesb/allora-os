@@ -40,6 +40,9 @@ export async function runExecutiveAgent(
     const inboxMessages = await fetchExecutiveInbox(profile.name);
     const memoryContext = formatInboxForPrompt(inboxMessages);
 
+    // Fetch coaching memories
+    const coachingMemories = await fetchCoachingMemories(profile.name);
+
     // Construct user preferences string
     const userPreferences = `User Risk Appetite: ${
       options.includeRiskAssessment ? "High" : "Low"
@@ -56,6 +59,7 @@ export async function runExecutiveAgent(
         personality: getPersonality(profile.personality),
         task: task,
         memoryContext: memoryContext,
+        coachingMemories: coachingMemories,
         userPreferences: userPreferences,
         companyContext: companyContext,
         marketConditions: marketConditions,
@@ -112,6 +116,37 @@ export async function runExecutiveAgent(
       timestamp: new Date().toISOString(),
       priority: "medium",
     };
+  }
+}
+
+/**
+ * Fetches coaching memories for an executive
+ */
+async function fetchCoachingMemories(executiveName: string): Promise<string> {
+  try {
+    const { data, error } = await supabase
+      .from("executive_memory")
+      .select("*")
+      .eq("executive_name", executiveName)
+      .ilike("task", "Self-Coaching on:%")
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    if (error) {
+      console.error("Failed to fetch coaching memories:", error);
+      return "No previous coaching memories available.";
+    }
+
+    if (!data || data.length === 0) {
+      return "No previous coaching notes.";
+    }
+
+    return data
+      .map((memory) => `Coaching Note on ${memory.task.replace('Self-Coaching on: ', '')}: ${memory.decision}`)
+      .join("\n\n");
+  } catch (error) {
+    console.error("Error fetching coaching memories:", error);
+    return "Error retrieving coaching memories.";
   }
 }
 
