@@ -6,9 +6,12 @@ import { CheckCircle2, XCircle, AlertCircle, Loader2, Settings } from 'lucide-re
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
 import { AuditComponentProps, AuditCheckItem } from './types';
+import { useNavigate } from 'react-router-dom';
 
 export function AuditIntegrations({ status, onStatusChange }: AuditComponentProps) {
   const [isRunning, setIsRunning] = useState(false);
+  const [manualComplete, setManualComplete] = useState(false);
+  const navigate = useNavigate();
   const [items, setItems] = useState<AuditCheckItem[]>([
     {
       id: 'int-1',
@@ -108,6 +111,15 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
     }
   };
 
+  const handleManualOverride = () => {
+    if (manualComplete) {
+      onStatusChange('passed');
+      toast.success('API Integrations marked as complete!');
+    } else {
+      onStatusChange('pending');
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -116,20 +128,30 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
             <Settings className="h-5 w-5 text-primary/80" />
             <CardTitle>Critical API Integrations Testing</CardTitle>
           </div>
-          <Button 
-            onClick={runTest}
-            disabled={isRunning}
-            size="sm"
-          >
-            {isRunning ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Testing...
-              </>
-            ) : (
-              'Run Tests'
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              onClick={() => navigate('/admin/api-integrations')}
+              variant="outline"
+              size="sm"
+              className="mr-2"
+            >
+              API Dashboard
+            </Button>
+            <Button 
+              onClick={runTest}
+              disabled={isRunning}
+              size="sm"
+            >
+              {isRunning ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Testing...
+                </>
+              ) : (
+                'Run Tests'
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -165,6 +187,25 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
               </div>
             </div>
           ))}
+
+          <div className="mt-6 pt-4 border-t">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="manual-override"
+                checked={manualComplete}
+                onCheckedChange={(checked) => {
+                  setManualComplete(!!checked);
+                  handleManualOverride();
+                }}
+              />
+              <label
+                htmlFor="manual-override"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                I've manually verified all API integrations are working correctly
+              </label>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

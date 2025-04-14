@@ -12,6 +12,10 @@ import WebhooksPage from "@/pages/admin/WebhooksPage";
 import LaunchPlan from "@/pages/admin/LaunchPlan";
 import ZapierReadiness from "@/pages/admin/ZapierReadiness";
 import PreLaunchAudit from "@/pages/admin/PreLaunchAudit";
+import ApiIntegrations from "@/pages/admin/ApiIntegrations";
+import ApiConfig from "@/pages/admin/ApiConfig";
+import ApiKeyManagement from "@/pages/admin/ApiKeyManagement";
+import CommunicationToolsPage from "@/pages/admin/CommunicationToolsPage";
 
 export const adminRoutes: RouteObject = {
   path: "admin",
@@ -31,16 +35,15 @@ export const adminRoutes: RouteObject = {
     },
     {
       path: "api-keys",
-      element: <APIKeys 
-        companyId="" 
-        initialApiKeys={{
-          stripe: "",
-          twilio_sid: "",
-          twilio_token: "",
-          heygen: "",
-        }} 
-        isLoading={false} 
-      />,
+      element: <ApiKeyManagement />,
+    },
+    {
+      path: "api-integrations",
+      element: <ApiIntegrations />,
+    },
+    {
+      path: "api-config", 
+      element: <ApiConfig />,
     },
     {
       path: "system",
@@ -54,6 +57,10 @@ export const adminRoutes: RouteObject = {
         onTestWebhook={() => {}}
         isTestLoading={false}
       />,
+    },
+    {
+      path: "communication-tools",
+      element: <CommunicationToolsPage />,
     },
     {
       path: "webhooks",
