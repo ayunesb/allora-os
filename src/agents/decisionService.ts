@@ -1,4 +1,8 @@
 
+import { supabase } from '@/integrations/supabase/client';
+import { ExecutiveDecision } from '@/types/agents';
+import { logger } from '@/utils/loggingService';
+
 export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
   try {
     const { data, error } = await supabase
