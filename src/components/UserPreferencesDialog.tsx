@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   Dialog, 
@@ -23,10 +24,11 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 interface UserPreferencesDialogProps {
-  triggerLabel?: string;
+  triggerLabel?: React.ReactNode;
+  triggerVariant?: string;
 }
 
-export default function UserPreferencesDialog({ triggerLabel }: UserPreferencesDialogProps) {
+export default function UserPreferencesDialog({ triggerLabel, triggerVariant }: UserPreferencesDialogProps) {
   const [open, setOpen] = useState(false);
   const { preferences, isLoading, savePreferences, updatePreference, resetPreferences } = useUserPreferences();
   const [isSaving, setIsSaving] = useState(false);
@@ -66,9 +68,13 @@ export default function UserPreferencesDialog({ triggerLabel }: UserPreferencesD
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.1 }}>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            {triggerLabel || "Preferences"}
+          <Button variant={triggerVariant as any || "outline"} className="flex items-center gap-2">
+            {triggerLabel || (
+              <>
+                <Settings className="h-4 w-4" />
+                Preferences
+              </>
+            )}
           </Button>
         </motion.div>
       </DialogTrigger>

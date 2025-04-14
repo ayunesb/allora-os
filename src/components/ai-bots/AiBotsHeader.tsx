@@ -103,7 +103,6 @@ export function AiBotsHeader({ isMobileView }: { isMobileView: boolean }) {
                 {isMobileView ? "AI Settings" : "AI Response Settings"}
               </div>
             } 
-            triggerVariant="premium"
           />
         </motion.div>
       </motion.div>

@@ -19,6 +19,7 @@ interface ScrollableTabsProps {
   onTabChange?: (value: string) => void;
   className?: string;
   variant?: "default" | "outline" | "futuristic";
+  fullWidth?: boolean;
 }
 
 const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
@@ -26,7 +27,8 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
   activeTab,
   onTabChange,
   className,
-  variant = "default"
+  variant = "default",
+  fullWidth = false
 }) => {
   const tabsRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -90,7 +92,7 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
   };
 
   return (
-    <div className="relative w-full group">
+    <div className={cn("relative w-full group", fullWidth && "max-w-full")}>
       {showLeftArrow && (
         <Button
           size="icon"
