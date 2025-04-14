@@ -1,8 +1,6 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
-import { Database } from '@/integrations/supabase/types';
 
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 

@@ -1,7 +1,6 @@
-
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { useAuthState } from '@/hooks/useAuthState';
+import { useAuthState, Profile } from '@/hooks/useAuthState';
 import { 
   handleSignIn, 
   handleSignUp, 
@@ -209,7 +208,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Update local profile
       if (profile) {
         // We need to ensure type compatibility here by using the type assertion
-        // and making sure we're not changing the structure that setProfile expects
         setProfile(prevProfile => ({
           ...prevProfile,
           ...data
