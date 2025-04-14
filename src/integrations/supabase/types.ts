@@ -742,6 +742,48 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_decisions: {
+        Row: {
+          created_at: string
+          executive_name: string
+          executive_role: string
+          id: string
+          options: string[]
+          priority: string | null
+          reasoning: string | null
+          risk_assessment: string | null
+          selected_option: string
+          task: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          executive_name: string
+          executive_role: string
+          id?: string
+          options?: string[]
+          priority?: string | null
+          reasoning?: string | null
+          risk_assessment?: string | null
+          selected_option: string
+          task: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          executive_name?: string
+          executive_role?: string
+          id?: string
+          options?: string[]
+          priority?: string | null
+          reasoning?: string | null
+          risk_assessment?: string | null
+          selected_option?: string
+          task?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campaign_id: string
