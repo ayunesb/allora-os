@@ -20,6 +20,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import CampaignDetail from "@/pages/dashboard/CampaignDetail";
 import CampaignCreate from "@/pages/dashboard/CampaignCreate";
 import BotDetail from "@/pages/dashboard/BotDetail";
+import Profile from "@/pages/dashboard/Profile";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -30,22 +31,16 @@ export const dashboardRoutes: RouteObject[] = [
         index: true,
         element: <Dashboard />,
       },
+      // Leads section - consolidated
       {
         path: "leads",
-        element: <Leads />,
-      },
-      {
-        path: "my-leads",
-        element: <Leads />,
-      },
-      {
-        path: "leads/new",
         element: <Leads />,
       },
       {
         path: "leads/:leadId",
         element: <Leads />,
       },
+      // Campaigns section - consolidated
       {
         path: "campaigns",
         element: <Campaigns />,
@@ -66,6 +61,7 @@ export const dashboardRoutes: RouteObject[] = [
         path: "analytics",
         element: <Analytics />,
       },
+      // Strategy section - consolidated to clear naming
       {
         path: "strategies",
         element: <AiBoardroom />,
@@ -106,33 +102,22 @@ export const dashboardRoutes: RouteObject[] = [
         path: "ai-settings",
         element: <AISettings />,
       },
-      {
-        path: "account",
-        element: <Settings />,
-      },
+      // Settings section - consolidated
       {
         path: "settings",
         element: <Settings />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
       },
       {
         path: "company-setup",
         element: <CompanySetup />,
       },
       {
-        path: "dashboard-settings",
-        element: <Settings />,
-      },
-      {
-        path: "onboarding",
-        element: <CompanySetup />,
-      },
-      {
         path: "billing",
         element: <Billing />,
-      },
-      {
-        path: "profile",
-        element: <Settings />,
       },
       {
         path: "*",

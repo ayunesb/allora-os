@@ -7,16 +7,11 @@ import {
   GitBranch, 
   Phone, 
   BarChart2, 
-  Calendar, 
   Bot, 
   Settings,
   MessageSquare,
-  ShoppingCart,
   Activity,
-  Bell,
-  Cpu,
-  X,
-  Zap
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -28,6 +23,11 @@ interface MobileNavDrawerProps {
 
 export function MobileNavDrawer({ open, onOpenChange, currentPath }: MobileNavDrawerProps) {
   const isActive = (path: string) => {
+    // Special case for strategies/strategy route
+    if (path === "/dashboard/strategies" && 
+        (currentPath === "/dashboard/strategies" || currentPath === "/dashboard/strategy")) {
+      return true;
+    }
     return currentPath === path || currentPath.startsWith(path + "/");
   };
 

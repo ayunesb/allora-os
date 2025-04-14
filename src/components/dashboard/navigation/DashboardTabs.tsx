@@ -8,15 +8,10 @@ import {
   GitBranch, 
   Phone, 
   BarChart2, 
-  Calendar, 
   Bot, 
   Settings,
   MessageSquare,
-  ShoppingCart,
-  Activity,
-  Bell,
-  Cpu,
-  Zap
+  Activity
 } from "lucide-react";
 
 const DashboardTabs = () => {

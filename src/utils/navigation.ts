@@ -20,3 +20,21 @@ export const navigate = (
     console.warn('Navigation function not registered yet.');
   }
 };
+
+// Route normalization function to handle common URL variants
+export const normalizeRoute = (route: string): string => {
+  // Convert routes to their canonical form
+  if (route.includes('/strategy') && !route.includes('/strategies')) {
+    return route.replace('/strategy', '/strategies');
+  }
+  
+  if (route.includes('/account') && route.includes('/dashboard')) {
+    return route.replace('/account', '/profile');
+  }
+  
+  if (route.includes('/my-leads')) {
+    return route.replace('/my-leads', '/dashboard/leads');
+  }
+  
+  return route;
+};

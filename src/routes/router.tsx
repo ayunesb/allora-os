@@ -53,6 +53,7 @@ export const router = createBrowserRouter([
             path: "/pricing",
             element: <Pricing />,
           },
+          // Common redirects for legacy/mistyped URLs
           {
             path: "/calendar",
             element: <Navigate to="/dashboard" replace />,
@@ -60,6 +61,18 @@ export const router = createBrowserRouter([
           {
             path: "/shop",
             element: <Navigate to="/dashboard" replace />,
+          },
+          {
+            path: "/dashboard/account",
+            element: <Navigate to="/dashboard/profile" replace />,
+          },
+          {
+            path: "/dashboard/dashboard-settings",
+            element: <Navigate to="/dashboard/settings" replace />,
+          },
+          {
+            path: "/my-leads",
+            element: <Navigate to="/dashboard/leads" replace />,
           },
           
           // Include all routes
