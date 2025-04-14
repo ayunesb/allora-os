@@ -1,28 +1,37 @@
 
-import React from 'react';
-import { RouterProvider } from 'react-router-dom';
-import { router } from './routes/router';
-import { GlobalErrorBoundary } from '@/components/errorHandling/GlobalErrorBoundary';
-import { logger } from '@/utils/loggingService';
-import { AccessibilityProvider } from '@/context/AccessibilityContext';
+import { Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
+import { Helmet, HelmetProvider } from "react-helmet-async";
+import { AuthProvider } from "@/context/AuthContext";
+import { publicRoutes } from "@/routes/public-routes";
+import { dashboardRoutes } from "@/routes/dashboard-routes";
+import { globalRoutes } from "@/routes/global-routes";
+import { supabase } from "@/integrations/supabase/client";
+import { AuthRedirectProvider } from "@/context/AuthRedirectContext";
+import { ExecutiveWorkflowProvider } from "@/context/ExecutiveWorkflowContext";
 
-// Handle errors gracefully
-const handleError = (error: Error) => {
-  logger.error('Caught React error in App component:', error);
-  console.error('React error caught in App.tsx:', error);
-};
-
-const App = () => {
+function App() {
   return (
-    <GlobalErrorBoundary 
-      onError={handleError}
-      fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}
-    >
-      <AccessibilityProvider>
-        <RouterProvider router={router} />
-      </AccessibilityProvider>
-    </GlobalErrorBoundary>
+    <HelmetProvider>
+      <Helmet>
+        <title>Allora AI - Business Acceleration Platform</title>
+        <meta name="description" content="AI-powered executive advisory platform designed to help businesses make strategic decisions and develop growth strategies" />
+      </Helmet>
+      
+      <AuthRedirectProvider>
+        <AuthProvider supabaseClient={supabase}>
+          <ExecutiveWorkflowProvider>
+            <Toaster richColors />
+            <Routes>
+              {publicRoutes}
+              {dashboardRoutes}
+              {globalRoutes}
+            </Routes>
+          </ExecutiveWorkflowProvider>
+        </AuthProvider>
+      </AuthRedirectProvider>
+    </HelmetProvider>
   );
-};
+}
 
 export default App;

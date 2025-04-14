@@ -21,6 +21,7 @@ import CampaignDetail from "@/pages/dashboard/CampaignDetail";
 import CampaignCreate from "@/pages/dashboard/CampaignCreate";
 import BotDetail from "@/pages/dashboard/BotDetail";
 import Profile from "@/pages/dashboard/Profile";
+import OnboardingWorkflow from "@/pages/dashboard/OnboardingWorkflow";
 import { Navigate } from "react-router-dom";
 
 export const dashboardRoutes: RouteObject[] = [
@@ -102,6 +103,11 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "ai-settings",
         element: <AISettings />,
+      },
+      // New AI Executive Workflow Onboarding
+      {
+        path: "ai-workflow",
+        element: <OnboardingWorkflow />,
       },
       // Settings section - consolidated
       {
