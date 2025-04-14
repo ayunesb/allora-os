@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { AuditLegal } from './AuditLegal';
 import { AuditFunctional } from './AuditFunctional';
@@ -13,6 +13,8 @@ import { AuditIntegrations } from './AuditIntegrations';
 import { AuditNavigation } from './AuditNavigation';
 import { validateLaunchReadiness } from '@/utils/launchValidator';
 import { CategoryStatus } from './types';
+import { AuditSummary } from './AuditSummary';
+import { AuditStatusList } from './AuditStatusList';
 
 export default function PreLaunchAudit() {
   const [legalStatus, setLegalStatus] = useState<CategoryStatus>('pending');
@@ -72,7 +74,6 @@ export default function PreLaunchAudit() {
       
       // Update individual statuses based on results
       // These will be simulated for now since we don't have the actual checks
-      // In a real implementation, you would map the results to each category
       
       setLegalStatus('passed');
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -113,16 +114,64 @@ export default function PreLaunchAudit() {
     }
   };
 
-  const getStatusIcon = (status: CategoryStatus, size: 'sm' | 'lg' = 'sm') => {
-    const className = size === 'lg' ? 'h-6 w-6' : 'h-4 w-4';
-    
-    switch (status) {
-      case 'passed': return <CheckCircle2 className={`${className} text-green-500`} />;
-      case 'failed': return <XCircle className={`${className} text-red-500`} />;
-      case 'in-progress': return <RefreshCw className={`${className} animate-spin text-blue-500`} />;
-      default: return <AlertCircle className={`${className} text-muted-foreground`} />;
+  const statusItems = [
+    {
+      id: 'legal',
+      label: 'Legal Compliance',
+      status: legalStatus,
+      passedMessage: 'All legal documents verified',
+      failedMessage: 'Legal issues detected',
+      pendingMessage: 'Pending'
+    },
+    {
+      id: 'functional',
+      label: 'Functional Testing',
+      status: functionalStatus,
+      passedMessage: 'All features working correctly',
+      failedMessage: 'Issues with functionality',
+      pendingMessage: 'Pending'
+    },
+    {
+      id: 'ai',
+      label: 'AI Bot Validation',
+      status: aiStatus,
+      passedMessage: 'AI prompts validated',
+      failedMessage: 'AI prompts need attention',
+      pendingMessage: 'Pending'
+    },
+    {
+      id: 'performance',
+      label: 'Performance',
+      status: performanceStatus,
+      passedMessage: 'Performance metrics acceptable',
+      failedMessage: 'Performance issues detected',
+      pendingMessage: 'Pending'
+    },
+    {
+      id: 'security',
+      label: 'Security & Database',
+      status: securityStatus,
+      passedMessage: 'Security measures verified',
+      failedMessage: 'Security issues found',
+      pendingMessage: 'Pending'
+    },
+    {
+      id: 'integrations',
+      label: 'API Integrations',
+      status: integrationsStatus,
+      passedMessage: 'All integrations working',
+      failedMessage: 'Integration issues detected',
+      pendingMessage: 'Pending'
+    },
+    {
+      id: 'navigation',
+      label: 'Navigation & URLs',
+      status: navigationStatus,
+      passedMessage: 'All routes accessible',
+      failedMessage: 'Navigation issues found',
+      pendingMessage: 'Pending'
     }
-  };
+  ];
 
   return (
     <div className="space-y-6">
@@ -146,116 +195,8 @@ export default function PreLaunchAudit() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card className="bg-muted/50">
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                <div className="text-4xl font-bold mb-2">{summary.total}</div>
-                <div className="text-sm text-muted-foreground">Total Checks</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-green-50 dark:bg-green-950/20">
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                <div className="text-4xl font-bold text-green-600 dark:text-green-500 mb-2">{summary.passed}</div>
-                <div className="text-sm text-green-600 dark:text-green-400">Passed</div>
-              </CardContent>
-            </Card>
-            <Card className={summary.failed > 0 ? "bg-red-50 dark:bg-red-950/20" : "bg-muted/50"}>
-              <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                <div className={`text-4xl font-bold mb-2 ${summary.failed > 0 ? "text-red-600 dark:text-red-500" : ""}`}>
-                  {summary.failed}
-                </div>
-                <div className={`text-sm ${summary.failed > 0 ? "text-red-600 dark:text-red-400" : "text-muted-foreground"}`}>
-                  Failed
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-2 mb-6">
-            <div className="flex justify-between items-center p-3 border rounded-md">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(legalStatus)}
-                <span className="font-medium">Legal Compliance</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {legalStatus === 'passed' ? 'All legal documents verified' : 
-                 legalStatus === 'failed' ? 'Legal issues detected' :
-                 legalStatus === 'in-progress' ? 'Checking...' : 'Pending'}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center p-3 border rounded-md">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(functionalStatus)}
-                <span className="font-medium">Functional Testing</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {functionalStatus === 'passed' ? 'All features working correctly' : 
-                 functionalStatus === 'failed' ? 'Issues with functionality' :
-                 functionalStatus === 'in-progress' ? 'Testing...' : 'Pending'}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center p-3 border rounded-md">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(aiStatus)}
-                <span className="font-medium">AI Bot Validation</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {aiStatus === 'passed' ? 'AI prompts validated' : 
-                 aiStatus === 'failed' ? 'AI prompts need attention' :
-                 aiStatus === 'in-progress' ? 'Validating...' : 'Pending'}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center p-3 border rounded-md">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(performanceStatus)}
-                <span className="font-medium">Performance</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {performanceStatus === 'passed' ? 'Performance metrics acceptable' : 
-                 performanceStatus === 'failed' ? 'Performance issues detected' :
-                 performanceStatus === 'in-progress' ? 'Analyzing...' : 'Pending'}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center p-3 border rounded-md">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(securityStatus)}
-                <span className="font-medium">Security & Database</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {securityStatus === 'passed' ? 'Security measures verified' : 
-                 securityStatus === 'failed' ? 'Security issues found' :
-                 securityStatus === 'in-progress' ? 'Checking...' : 'Pending'}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center p-3 border rounded-md">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(integrationsStatus)}
-                <span className="font-medium">API Integrations</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {integrationsStatus === 'passed' ? 'All integrations working' : 
-                 integrationsStatus === 'failed' ? 'Integration issues detected' :
-                 integrationsStatus === 'in-progress' ? 'Validating...' : 'Pending'}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center p-3 border rounded-md">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(navigationStatus)}
-                <span className="font-medium">Navigation & URLs</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {navigationStatus === 'passed' ? 'All routes accessible' : 
-                 navigationStatus === 'failed' ? 'Navigation issues found' :
-                 navigationStatus === 'in-progress' ? 'Testing...' : 'Pending'}
-              </div>
-            </div>
-          </div>
+          <AuditSummary summary={summary} />
+          <AuditStatusList items={statusItems} />
         </CardContent>
       </Card>
       

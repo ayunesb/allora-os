@@ -2,11 +2,16 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CheckCircle2 } from 'lucide-react';
 import { performanceMonitor } from '@/utils/performance/performanceMonitor';
-import { generateCustomizedStrategy } from '@/utils/strategy/strategyGenerator';
+import { RunAuditStatus } from '@/components/admin/audit/RunAuditStatus';
+import { 
+  checkLegalDocuments, 
+  checkPerformanceMetrics, 
+  checkImageOptimization, 
+  checkConsistentBranding, 
+  checkAIStrategyGeneration 
+} from '@/components/admin/audit/AuditChecks';
 
 export default function RunAudit() {
   const navigate = useNavigate();
@@ -26,111 +31,6 @@ export default function RunAudit() {
         });
         
         setProgress(10);
-        
-        // Check for legal documents
-        const checkLegalDocuments = () => {
-          // Array of legal routes to check
-          const legalRoutes = [
-            '/legal/terms-of-service',
-            '/legal/privacy-policy',
-            '/legal/cookies',
-            '/legal/messaging-consent',
-            '/legal/refund-policy',
-            '/legal/compliance'
-          ];
-          
-          // Check in routes configuration
-          const routes = document.querySelectorAll('a');
-          const foundRoutes = [];
-          
-          routes.forEach(route => {
-            const href = route.getAttribute('href');
-            if (href && legalRoutes.some(legalRoute => href.includes(legalRoute))) {
-              foundRoutes.push(href);
-            }
-          });
-          
-          // Return true if we found at least 4 of the 6 legal routes
-          return foundRoutes.length >= 4;
-        };
-        
-        // Check performance metrics
-        const checkPerformanceMetrics = () => {
-          if (!window.performance) return true;
-          
-          try {
-            // Check navigation timing if available
-            if (window.performance.timing) {
-              const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
-              return loadTime < 2000;
-            }
-            
-            // Alternative check using performance.now()
-            return window.performance.now() < 2000;
-          } catch (error) {
-            console.error('Error checking performance metrics:', error);
-            return true; // Pass by default on error
-          }
-        };
-        
-        // Check for image optimization
-        const checkImageOptimization = () => {
-          const images = document.querySelectorAll('img');
-          let optimizedCount = 0;
-          
-          images.forEach(img => {
-            if (img.getAttribute('loading') === 'lazy' || 
-                (img.getAttribute('width') && img.getAttribute('height')) ||
-                img.complete) {
-              optimizedCount++;
-            }
-          });
-          
-          return optimizedCount >= images.length * 0.7;
-        };
-        
-        // Check for consistent branding
-        const checkConsistentBranding = () => {
-          // Check for primary colors
-          const primaryElements = document.querySelectorAll('.text-primary, .bg-primary, [class*="border-primary"]');
-          
-          // Check for consistent typography
-          const fontElements = document.querySelectorAll('[class*="font-"]');
-          
-          // Check for logo presence
-          const logoElements = document.querySelectorAll('img[src*="logo"], [class*="logo"], [id*="logo"]');
-          
-          return primaryElements.length > 5 && fontElements.length > 10 && logoElements.length > 0;
-        };
-
-        // Check for AI Strategy Generation
-        const checkAIStrategyGeneration = () => {
-          try {
-            // Test if the strategy generator utility works
-            const strategy = generateCustomizedStrategy(
-              { level: 'Medium', score: 65, breakdown: {} },
-              'SaaS',
-              'Small',
-              'Growth'
-            );
-            
-            // If we get a valid strategy object with expected properties
-            return (
-              strategy && 
-              strategy.title && 
-              strategy.description && 
-              strategy.keyActions &&
-              strategy.keyActions.length > 0
-            );
-          } catch (error) {
-            console.error('Error testing AI Strategy Generation:', error);
-            return false;
-          }
-        };
-        
-        // Simulate audit process with progress updates
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setProgress(25);
         
         // Run legal documents check
         const legalDocsValid = checkLegalDocuments();
@@ -227,45 +127,11 @@ export default function RunAudit() {
           <CardTitle className="text-2xl">System Audit</CardTitle>
         </CardHeader>
         <CardContent className="text-center pt-6">
-          {isRunning ? (
-            <div className="space-y-4">
-              <div className="flex justify-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-medium">Running Full Audit</h3>
-                <p className="text-muted-foreground">
-                  Checking all systems and components...
-                </p>
-              </div>
-              <div className="w-full bg-secondary h-2 rounded-full mt-4">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300 ease-in-out"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
-              <p className="text-sm text-muted-foreground">{progress}% Complete</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {auditComplete ? (
-                <div className="flex justify-center">
-                  <CheckCircle2 className="h-12 w-12 text-green-500" />
-                </div>
-              ) : (
-                <div className="flex justify-center">
-                  <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                </div>
-              )}
-              <h3 className="text-lg font-medium">Audit Complete</h3>
-              <Button 
-                className="w-full" 
-                onClick={() => navigate('/admin/audit')}
-              >
-                View Detailed Results
-              </Button>
-            </div>
-          )}
+          <RunAuditStatus 
+            isRunning={isRunning} 
+            progress={progress} 
+            auditComplete={auditComplete} 
+          />
         </CardContent>
       </Card>
     </div>

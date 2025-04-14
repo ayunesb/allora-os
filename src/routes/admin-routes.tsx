@@ -2,6 +2,7 @@
 import { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 
+// Lazy load admin layout and all page components
 const AdminLayout = lazy(() => import("@/components/layouts/AdminLayout"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminEntities = lazy(() => import("@/pages/admin/AdminEntities"));
@@ -12,8 +13,11 @@ const AdminLaunchPrep = lazy(() => import("@/pages/admin/AdminLaunchPrep"));
 const AdminCampaigns = lazy(() => import("@/pages/admin/AdminCampaigns"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
-const AuditPage = lazy(() => import("@/pages/admin/PreLaunchAudit"));
+
+// Lazy load audit-related pages for better performance
+const AuditPage = lazy(() => import("@/pages/admin/AuditPage"));
 const RunAudit = lazy(() => import("@/pages/admin/RunAudit"));
+const TechnicalImprovementsPage = lazy(() => import("@/pages/admin/TechnicalImprovementsPage"));
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -63,6 +67,10 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "run-audit",
         element: <RunAudit />
+      },
+      {
+        path: "technical-improvements",
+        element: <TechnicalImprovementsPage />
       }
     ]
   }

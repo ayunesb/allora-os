@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
 import { AuditComponentProps, AuditCheckItem } from './types';
 import { Progress } from "@/components/ui/progress";
+import { AuditPerformanceGuidance } from './AuditPerformanceGuidance';
 
 export function AuditPerformance({ status, onStatusChange }: AuditComponentProps) {
   const [isRunning, setIsRunning] = useState(false);
@@ -191,82 +192,87 @@ export function AuditPerformance({ status, onStatusChange }: AuditComponentProps
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Gauge className="h-5 w-5 text-primary/80" />
-            <CardTitle>Performance Audit</CardTitle>
-          </div>
-          <Button 
-            onClick={runTest}
-            disabled={isRunning}
-            size="sm"
-          >
-            {isRunning ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Testing...
-              </>
-            ) : (
-              'Run Audit'
-            )}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {pageLoadTime !== null && (
-          <div className="mb-4 space-y-1.5">
-            <div className="flex justify-between items-center">
-              <div className="text-sm font-medium">Page Load Time</div>
-              <div className="text-sm font-medium">{pageLoadTime.toFixed(2)}s</div>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Gauge className="h-5 w-5 text-primary/80" />
+              <CardTitle>Performance Audit</CardTitle>
             </div>
-            <Progress 
-              value={Math.min(100, (2 - pageLoadTime) * 50)} 
-              className={pageLoadTime < 2 ? "bg-green-100" : "bg-red-100"}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <div>0s</div>
-              <div>Target: 2s</div>
-              <div>4s+</div>
-            </div>
+            <Button 
+              onClick={runTest}
+              disabled={isRunning}
+              size="sm"
+            >
+              {isRunning ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Testing...
+                </>
+              ) : (
+                'Run Audit'
+              )}
+            </Button>
           </div>
-        )}
+        </CardHeader>
+        <CardContent>
+          {pageLoadTime !== null && (
+            <div className="mb-4 space-y-1.5">
+              <div className="flex justify-between items-center">
+                <div className="text-sm font-medium">Page Load Time</div>
+                <div className="text-sm font-medium">{pageLoadTime.toFixed(2)}s</div>
+              </div>
+              <Progress 
+                value={Math.min(100, (2 - pageLoadTime) * 50)} 
+                className={pageLoadTime < 2 ? "bg-green-100" : "bg-red-100"}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <div>0s</div>
+                <div>Target: 2s</div>
+                <div>4s+</div>
+              </div>
+            </div>
+          )}
+        
+          <div className="space-y-4">
+            {items.map((item) => (
+              <div key={item.id} className="flex items-start space-x-2">
+                <div className="mt-0.5">
+                  {getStatusIcon(item.status)}
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm font-medium">{item.title}</div>
+                  <div className="text-xs text-muted-foreground">{item.description}</div>
+                </div>
+                <div className="ml-auto flex items-center">
+                  <Checkbox 
+                    id={item.id}
+                    checked={item.status === 'passed'}
+                    disabled={isRunning}
+                    onCheckedChange={(checked) => {
+                      setItems(prev => prev.map(i => 
+                        i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
+                      ));
+                      
+                      // Update overall status after manual change
+                      const allPassed = items.every(i => {
+                        if (i.id === item.id) return checked;
+                        return i.status === 'passed';
+                      });
+                      
+                      onStatusChange(allPassed ? 'passed' : 'failed');
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
       
-        <div className="space-y-4">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-start space-x-2">
-              <div className="mt-0.5">
-                {getStatusIcon(item.status)}
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium">{item.title}</div>
-                <div className="text-xs text-muted-foreground">{item.description}</div>
-              </div>
-              <div className="ml-auto flex items-center">
-                <Checkbox 
-                  id={item.id}
-                  checked={item.status === 'passed'}
-                  disabled={isRunning}
-                  onCheckedChange={(checked) => {
-                    setItems(prev => prev.map(i => 
-                      i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
-                    ));
-                    
-                    // Update overall status after manual change
-                    const allPassed = items.every(i => {
-                      if (i.id === item.id) return checked;
-                      return i.status === 'passed';
-                    });
-                    
-                    onStatusChange(allPassed ? 'passed' : 'failed');
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+      {/* Add the new performance guidance component */}
+      <AuditPerformanceGuidance pageLoadTime={pageLoadTime} />
+    </div>
   );
 }
