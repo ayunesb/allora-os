@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,8 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       if (result.success) {
         toast.success(`Successfully triggered "${event}" event`);
       } else {
-        toast.error(`Failed to trigger "${event}" event: ${result.message || result.error?.message || "Unknown error"}`);
+        const errorMessage = result.message || (result.error && result.error.message) || "Unknown error";
+        toast.error(`Failed to trigger "${event}" event: ${errorMessage}`);
       }
     } catch (error: any) {
       console.error(`Error triggering "${event}" event:`, error);
@@ -64,7 +64,8 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       if (result.success) {
         toast.success(`Successfully triggered "${eventType}" business event`);
       } else {
-        toast.error(`Failed to trigger "${eventType}" business event: ${result.message || "Unknown error"}`);
+        const errorMessage = result.message || "Unknown error";
+        toast.error(`Failed to trigger "${eventType}" business event: ${errorMessage}`);
       }
     } catch (error: any) {
       console.error(`Error triggering "${eventType}" business event:`, error);

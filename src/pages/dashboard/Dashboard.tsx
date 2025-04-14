@@ -52,7 +52,7 @@ export default function Dashboard() {
       toast.info("Processing approval...");
       // Use proper type safety when accessing recommendations
       if (aiRecommendations && aiRecommendations[index]) {
-        await handleApproveRecommendation(index);
+        await handleApproveRecommendation(index, "approval");
         toast.success("Recommendation approved successfully", {
           description: "The approved recommendation will be implemented shortly"
         });
@@ -71,6 +71,12 @@ export default function Dashboard() {
     return <DashboardLoadingState aria-label="Loading dashboard data" />;
   }
 
+  // Get the number of pending approvals, handling case where it's an array
+  const pendingApprovalsCount = 
+    typeof pendingApprovals === 'number' 
+      ? pendingApprovals 
+      : (Array.isArray(pendingApprovals) ? pendingApprovals.length : 0);
+
   return (
     <>
       <Toaster position="top-right" closeButton richColors />
@@ -80,7 +86,7 @@ export default function Dashboard() {
         role={screenReaderFriendly ? "main" : undefined}
         aria-label={screenReaderFriendly ? "Dashboard" : undefined}
       >
-        <DashboardHeader pendingApprovals={pendingApprovals ? pendingApprovals : 0} />
+        <DashboardHeader pendingApprovals={pendingApprovalsCount} />
         
         {/* Refresh button for manual data refresh */}
         <div className="flex justify-end">

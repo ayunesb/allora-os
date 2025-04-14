@@ -133,10 +133,25 @@ export default function Dashboard() {
     return <DashboardLoading />;
   }
 
+  // Get the number of pending approvals, handling case where it's an array
+  const pendingApprovalsCount = 
+    typeof pendingApprovals === 'number' 
+      ? pendingApprovals 
+      : (Array.isArray(pendingApprovals) ? pendingApprovals.length : 0);
+
+  // Create a wrapper function to adapt the handleApproveRecommendation to match expected signature
+  const handleApproval = (index: number) => {
+    // Extract the recommendation data from the array
+    const recommendation = aiRecommendations[index];
+    if (recommendation) {
+      handleApproveRecommendation(recommendation.id, recommendation.type);
+    }
+  };
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen space-y-8">
-        <DashboardHeader pendingApprovals={pendingApprovals} />
+        <DashboardHeader pendingApprovals={pendingApprovalsCount} />
         
         {/* Welcome Video - Component now handles its own visibility */}
         <ErrorBoundary>
@@ -162,7 +177,7 @@ export default function Dashboard() {
         <ErrorBoundary>
           <AiRecommendations 
             recommendations={aiRecommendations} 
-            onApprove={handleApproveRecommendation} 
+            onApprove={handleApproval} 
           />
         </ErrorBoundary>
         

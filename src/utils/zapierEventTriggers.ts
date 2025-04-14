@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import { triggerBusinessEvent } from '@/lib/zapier';
+import { triggerBusinessEvent, BusinessEventType, BusinessEventPayload } from '@/lib/zapier';
 
 /**
  * Trigger a Zapier workflow when a campaign is launched

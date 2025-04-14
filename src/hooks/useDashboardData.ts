@@ -85,7 +85,7 @@ export function useDashboardData() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, profile?.company_id, riskAppetite]);
+  }, [user, profile?.company_id, riskAppetite, calculateRiskScore]);
   
   // Generate AI recommendations if none exist
   const generateAIRecommendations = useCallback(async () => {
