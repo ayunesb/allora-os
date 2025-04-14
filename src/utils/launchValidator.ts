@@ -45,9 +45,9 @@ export async function validateLaunchReadiness(): Promise<LaunchValidationResults
       const { data } = await supabase.auth.getUser();
       if (data?.user) {
         await logAuditEvent({
-          user: data.user.id,
           action: 'SYSTEM_CHANGE',
           resource: 'security_settings',
+          userId: data.user.id,
           details: 'Launch validation completed successfully'
         });
       }

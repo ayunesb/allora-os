@@ -9,6 +9,7 @@ export interface AuditEventPayload {
   details?: any;
   ip?: string;
   status?: 'SUCCESS' | 'FAILURE' | 'PENDING';
+  severity?: 'low' | 'medium' | 'high';
 }
 
 /**
@@ -28,11 +29,100 @@ export async function logAuditEvent(payload: AuditEventPayload): Promise<void> {
       user_id: payload.userId || userId,
       details: payload.details,
       ip_address: payload.ip,
-      status: payload.status || 'SUCCESS'
+      status: payload.status || 'SUCCESS',
+      severity: payload.severity || 'medium'
     });
   } catch (error) {
     console.error('Error logging audit event:', error);
     // We don't throw here to prevent errors in the audit system from affecting application flow
+  }
+}
+
+/**
+ * Logs a security-related event
+ */
+export async function logSecurityEvent(payload: {
+  user: string;
+  action: 'SECURITY_EVENT';
+  resource: string;
+  details?: any;
+  severity?: 'low' | 'medium' | 'high';
+}): Promise<string> {
+  try {
+    const eventId = `sec-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+    
+    await logAuditEvent({
+      action: 'SECURITY_EVENT',
+      resource: payload.resource,
+      userId: typeof payload.user === 'string' ? payload.user : undefined,
+      details: {
+        ...payload.details,
+        eventId,
+        timestamp: new Date().toISOString()
+      },
+      severity: payload.severity || 'medium'
+    });
+    
+    // For high severity events, we might want to trigger additional actions
+    if (payload.severity === 'high') {
+      console.warn('HIGH SEVERITY SECURITY EVENT:', payload);
+      // In a real app, this might trigger an alert to admins or a security team
+    }
+    
+    return eventId;
+  } catch (error) {
+    console.error('Error logging security event:', error);
+    return `error-${Date.now()}`;
+  }
+}
+
+/**
+ * Logs system changes made by an admin
+ */
+export async function logSystemChange(
+  userId: string,
+  resource: string,
+  description: string,
+  details?: any
+): Promise<void> {
+  try {
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource,
+      userId,
+      details: {
+        description,
+        ...details,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error logging system change:', error);
+  }
+}
+
+/**
+ * Logs compliance-related changes
+ */
+export async function logComplianceChange(
+  userId: string,
+  description: string,
+  details?: any
+): Promise<void> {
+  try {
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource: 'compliance',
+      userId,
+      details: {
+        description,
+        ...details,
+        timestamp: new Date().toISOString()
+      },
+      severity: 'medium'
+    });
+  } catch (error) {
+    console.error('Error logging compliance change:', error);
   }
 }
 
