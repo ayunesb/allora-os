@@ -48,6 +48,24 @@ class Logger {
   }
 
   /**
+   * Start a timer to measure performance
+   * Returns a function that, when called, stops the timer and logs the result
+   */
+  time(label: string, context: LogContext = {}): () => void {
+    const startTime = performance.now();
+    
+    return () => {
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      this.info(`Timer [${label}] completed in ${duration.toFixed(2)}ms`, {
+        ...context,
+        duration,
+        timerLabel: label
+      });
+    };
+  }
+
+  /**
    * Internal logging method
    */
   private log(level: string, message: string, context: LogContext = {}) {

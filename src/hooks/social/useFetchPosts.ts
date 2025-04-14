@@ -35,11 +35,14 @@ export function useFetchPosts(filters: SocialMediaCalendarFilters) {
     
     try {
       logger.info('Fetching social media posts', { companyId, filters });
-      const startTime = logger.time('fetchSocialMediaPosts');
+      
+      // Create a timer to measure performance
+      const endTimer = logger.time('fetchSocialMediaPosts');
       
       const fetchedPosts = await fetchSocialMediaPosts(companyId, filters);
       
-      startTime(); // End timer
+      // End the timer
+      endTimer();
       setPosts(fetchedPosts);
       logger.info('Successfully fetched posts', { count: fetchedPosts.length });
     } catch (err: unknown) {

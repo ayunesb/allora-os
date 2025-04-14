@@ -9,7 +9,7 @@ import { MessageSquare, Brain, Sparkles, Target, BarChart3, Mail } from 'lucide-
 import { executiveProfiles } from '@/agents/executiveAgent';
 import { toast } from 'sonner';
 import { ExecutiveMemory } from '@/components/executives/ExecutiveMemory';
-import { ExecutiveMessages } from '@/components/executives/ExecutiveMessages';
+import ExecutiveMessages from '@/components/executives/ExecutiveMessages';
 import { sendExecutiveMessage } from '@/agents/meshNetwork';
 
 export default function ExecutiveProfile() {

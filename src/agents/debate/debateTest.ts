@@ -19,7 +19,9 @@ export async function testDebateSession() {
     console.log(`Total executives: ${result.summary.totalExecutives}`);
     console.log(`For votes: ${result.summary.forVotes}`);
     console.log(`Against votes: ${result.summary.againstVotes}`);
-    console.log(`Neutral votes: ${result.summary.neutralVotes}`);
+    // Calculate neutral votes instead of trying to access a non-existent property
+    const neutralVotes = result.summary.totalExecutives - (result.summary.forVotes + result.summary.againstVotes);
+    console.log(`Neutral votes: ${neutralVotes}`);
     console.log(`Majority: ${result.summary.majority}`);
     console.log(`Confidence Score: ${(result.summary.confidenceScore * 100).toFixed(1)}%`);
     
