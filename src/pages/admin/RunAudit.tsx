@@ -1,137 +1,136 @@
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { performanceMonitor } from '@/utils/performance/performanceMonitor';
-import { RunAuditStatus } from '@/components/admin/audit/RunAuditStatus';
-import { 
-  checkLegalDocuments, 
-  checkPerformanceMetrics, 
-  checkImageOptimization, 
-  checkConsistentBranding, 
-  checkAIStrategyGeneration 
-} from '@/components/admin/audit/AuditChecks';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { TypographyH1, TypographyP } from "@/components/ui/typography";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Play, AlertCircle } from "lucide-react";
 
 export default function RunAudit() {
-  const navigate = useNavigate();
-  const [isRunning, setIsRunning] = React.useState(true);
-  const [progress, setProgress] = React.useState(0);
-  const [auditComplete, setAuditComplete] = React.useState(false);
-
-  useEffect(() => {
-    // Start monitoring page load time
-    const loadMeasureId = performanceMonitor.startMeasure('audit-page-load');
-    
-    // This simulates running the audit automatically when the page loads
-    const runFullAudit = async () => {
-      try {
-        toast.info('Starting comprehensive system audit...', {
-          duration: 3000,
-        });
-        
-        setProgress(10);
-        
-        // Run legal documents check
-        const legalDocsValid = checkLegalDocuments();
-        if (!legalDocsValid) {
-          console.warn('Legal documents check failed: Not all required legal documents found');
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 700));
-        setProgress(40);
-        
-        // Run performance check
-        const performanceValid = checkPerformanceMetrics();
-        if (!performanceValid) {
-          console.warn('Performance check failed: Page load time exceeds 2 seconds');
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 700));
-        setProgress(55);
-        
-        // Run image optimization check
-        const imagesOptimized = checkImageOptimization();
-        if (!imagesOptimized) {
-          console.warn('Image optimization check failed: Not all images are optimized');
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 700));
-        setProgress(70);
-        
-        // Run branding check
-        const brandingConsistent = checkConsistentBranding();
-        if (!brandingConsistent) {
-          console.warn('Branding check failed: Inconsistent use of colors, fonts, or missing logo');
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setProgress(85);
-        
-        // Check for internal links
-        const internalLinks = document.querySelectorAll('a[href^="/"]').length > 5;
-        if (!internalLinks) {
-          console.warn('Internal links check failed: Not enough internal navigation links found');
-        }
-
-        // Check AI Strategy Generation
-        const aiStrategyValid = checkAIStrategyGeneration();
-        if (!aiStrategyValid) {
-          console.warn('AI Strategy Generation check failed: Strategy generator not working properly');
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 600));
-        setProgress(100);
-        
-        const allPassed = legalDocsValid && performanceValid && imagesOptimized && 
-                         brandingConsistent && internalLinks && aiStrategyValid;
-        
-        if (allPassed) {
-          toast.success('All audit checks passed successfully! 🎉', {
-            duration: 5000,
-          });
-        } else {
-          toast.success('Audit completed with some warnings. View detailed results.', {
-            duration: 5000,
-          });
-        }
-        
-        setAuditComplete(true);
-        
-        // Navigate to the audit results page after completion
-        setTimeout(() => {
-          navigate('/admin/audit');
-        }, 1500);
-      } catch (error) {
-        console.error('Audit error:', error);
-        toast.error('An error occurred during the audit. Please try again.');
-      } finally {
-        setIsRunning(false);
-        // End performance monitoring
-        performanceMonitor.endMeasure(loadMeasureId);
-      }
-    };
-
-    runFullAudit();
-    
-    // Cleanup
-    return () => {
-      performanceMonitor.mark('audit-page-unload');
-    };
-  }, [navigate]);
-
   return (
-    <div className="container py-8 max-w-md mx-auto">
-      <Card className="border-primary/20 shadow-lg">
-        <CardHeader className="pb-2 text-center">
-          <CardTitle className="text-2xl">System Audit</CardTitle>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <TypographyH1>Run System Audit</TypographyH1>
+      
+      <Card className="bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800/30">
+        <CardContent className="p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="font-medium text-yellow-800 dark:text-yellow-400">Important Note</p>
+            <TypographyP className="text-yellow-700 dark:text-yellow-300/80">
+              Running a full system audit may temporarily increase system load. It's recommended to run comprehensive audits during off-peak hours.
+            </TypographyP>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Audit Configuration</CardTitle>
+          <CardDescription>Select which components to include in the audit</CardDescription>
         </CardHeader>
-        <CardContent className="text-center pt-6">
-          <RunAuditStatus 
-            isRunning={isRunning} 
-            progress={progress} 
-            auditComplete={auditComplete} 
-          />
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="security" defaultChecked />
+              <label
+                htmlFor="security"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Security Audit
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox id="performance" defaultChecked />
+              <label
+                htmlFor="performance"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Performance Audit
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox id="compliance" defaultChecked />
+              <label
+                htmlFor="compliance"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Compliance Audit
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox id="database" />
+              <label
+                htmlFor="database"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Database Schema Audit
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox id="ai" />
+              <label
+                htmlFor="ai"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                AI Systems Audit
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox id="ux" />
+              <label
+                htmlFor="ux"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                User Experience Audit
+              </label>
+            </div>
+            
+            <div className="pt-4">
+              <Button className="w-full sm:w-auto">
+                <Play className="h-4 w-4 mr-2" />
+                Start Audit
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Audit History</CardTitle>
+          <CardDescription>Previously run audits</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="divide-y">
+            <div className="py-3 flex items-center justify-between">
+              <div>
+                <p className="font-medium">Full System Audit</p>
+                <p className="text-sm text-muted-foreground">April 12, 2025 at 14:23</p>
+              </div>
+              <Button variant="outline" size="sm">View Results</Button>
+            </div>
+            
+            <div className="py-3 flex items-center justify-between">
+              <div>
+                <p className="font-medium">Security Audit</p>
+                <p className="text-sm text-muted-foreground">April 5, 2025 at 09:15</p>
+              </div>
+              <Button variant="outline" size="sm">View Results</Button>
+            </div>
+            
+            <div className="py-3 flex items-center justify-between">
+              <div>
+                <p className="font-medium">Performance Audit</p>
+                <p className="text-sm text-muted-foreground">March 28, 2025 at 16:42</p>
+              </div>
+              <Button variant="outline" size="sm">View Results</Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

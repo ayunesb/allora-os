@@ -3,7 +3,7 @@ import { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 
 // Lazy load admin layout and all page components
-const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
+const AdminLayout = lazy(() => import("@/components/layouts/AdminLayout"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminEntities = lazy(() => import("@/pages/admin/AdminEntities"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));

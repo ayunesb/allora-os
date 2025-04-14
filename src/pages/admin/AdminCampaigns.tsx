@@ -1,108 +1,163 @@
 
-import React, { useState } from "react";
-import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CampaignHeader, CampaignTable, CreateCampaignDialog } from "@/components/admin/campaigns";
+import { TypographyH1 } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, BarChart3, ListFilter, Calendar } from "lucide-react";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import { ResponsiveTable } from "@/components/ui/responsive-table";
+import { Plus, Edit, Trash2, BarChart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+type Campaign = {
+  id: string;
+  name: string;
+  status: "active" | "draft" | "ended" | "scheduled";
+  startDate: string;
+  endDate: string;
+  budget: string;
+  platform: string;
+};
+
+const mockCampaigns: Campaign[] = [
+  { 
+    id: "1", 
+    name: "Q2 Product Launch", 
+    status: "active", 
+    startDate: "2025-04-01", 
+    endDate: "2025-06-30", 
+    budget: "$15,000", 
+    platform: "Multi-channel" 
+  },
+  { 
+    id: "2", 
+    name: "Summer Promotion", 
+    status: "draft", 
+    startDate: "2025-06-15", 
+    endDate: "2025-08-15", 
+    budget: "$8,500", 
+    platform: "Facebook, Instagram" 
+  },
+  { 
+    id: "3", 
+    name: "Black Friday Sale", 
+    status: "scheduled", 
+    startDate: "2025-11-20", 
+    endDate: "2025-11-30", 
+    budget: "$25,000", 
+    platform: "All platforms" 
+  },
+  { 
+    id: "4", 
+    name: "Spring Collection", 
+    status: "ended", 
+    startDate: "2025-03-01", 
+    endDate: "2025-03-31", 
+    budget: "$12,000", 
+    platform: "Meta Ads" 
+  },
+];
 
 export default function AdminCampaigns() {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("active");
-  const breakpoint = useBreakpoint();
-  const isMobile = ['xs', 'mobile'].includes(breakpoint);
+  const renderStatusBadge = (status: Campaign['status']) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30">{status}</Badge>;
+      case 'draft':
+        return <Badge variant="outline">{status}</Badge>;
+      case 'scheduled':
+        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30">{status}</Badge>;
+      case 'ended':
+        return <Badge variant="secondary">{status}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
 
-  // Mock data for campaigns
-  const activeCampaigns = [];
-  const scheduledCampaigns = [];
-  const completedCampaigns = [];
+  const columns = [
+    {
+      key: "name",
+      title: "Campaign Name",
+      render: (item: Campaign) => <span className="font-medium">{item.name}</span>,
+    },
+    {
+      key: "status",
+      title: "Status",
+      render: (item: Campaign) => renderStatusBadge(item.status),
+    },
+    {
+      key: "dateRange",
+      title: "Date Range",
+      hideOnMobile: true,
+      render: (item: Campaign) => <span>{item.startDate} to {item.endDate}</span>,
+    },
+    {
+      key: "budget",
+      title: "Budget",
+      hideOnMobile: true,
+      render: (item: Campaign) => <span>{item.budget}</span>,
+    },
+    {
+      key: "platform",
+      title: "Platform",
+      hideOnMobile: true,
+      render: (item: Campaign) => <span>{item.platform}</span>,
+    },
+  ];
+
+  const mobileColumns = [
+    {
+      key: "name",
+      title: "Campaign",
+      render: (item: Campaign) => <span className="font-medium">{item.name}</span>,
+    },
+    {
+      key: "status",
+      title: "Status",
+      render: (item: Campaign) => renderStatusBadge(item.status),
+    },
+    {
+      key: "budget",
+      title: "Budget",
+      render: (item: Campaign) => <span>{item.budget}</span>,
+    },
+  ];
+
+  const actions = (item: Campaign) => (
+    <div className="flex gap-2 justify-end">
+      <Button size="icon" variant="ghost">
+        <BarChart className="h-4 w-4" />
+      </Button>
+      <Button size="icon" variant="ghost">
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive">
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 
   return (
-    <PageErrorBoundary pageName="Campaign Management">
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        <CampaignHeader 
-          onCreateClick={() => setIsCreateDialogOpen(true)}
-        />
-
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList>
-              <TabsTrigger value="active" className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                Active
-              </TabsTrigger>
-              <TabsTrigger value="scheduled" className="flex items-center gap-1">
-                <ListFilter className="h-4 w-4" />
-                Scheduled
-              </TabsTrigger>
-              <TabsTrigger value="completed" className="flex items-center gap-1">
-                <BarChart3 className="h-4 w-4" />
-                Completed
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <Button
-            onClick={() => setIsCreateDialogOpen(true)}
-            className="w-full md:w-auto flex items-center gap-1"
-          >
-            <PlusCircle className="h-4 w-4" />
-            New Campaign
-          </Button>
-        </div>
-
-        <Card>
-          <CardHeader className={isMobile ? "px-3 py-4" : ""}>
-            <CardTitle className="text-xl font-semibold">
-              {activeTab === "active" && "Active Campaigns"}
-              {activeTab === "scheduled" && "Scheduled Campaigns"}
-              {activeTab === "completed" && "Completed Campaigns"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className={isMobile ? "px-3 pb-3" : ""}>
-            <TabsContent value="active" className="m-0 pt-2">
-              <CampaignTable 
-                campaigns={activeCampaigns}
-                isLoading={false}
-                error={null}
-              />
-            </TabsContent>
-            
-            <TabsContent value="scheduled" className="m-0 pt-2">
-              <CampaignTable 
-                campaigns={scheduledCampaigns}
-                isLoading={false}
-                error={null}
-              />
-            </TabsContent>
-            
-            <TabsContent value="completed" className="m-0 pt-2">
-              <CampaignTable 
-                campaigns={completedCampaigns}
-                isLoading={false}
-                error={null}
-              />
-            </TabsContent>
-          </CardContent>
-        </Card>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <TypographyH1>Campaign Management</TypographyH1>
+        <Button className="w-full sm:w-auto">
+          <Plus className="h-4 w-4 mr-2" />
+          New Campaign
+        </Button>
       </div>
-
-      <CreateCampaignDialog 
-        open={isCreateDialogOpen} 
-        onOpenChange={setIsCreateDialogOpen}
-        formData={{
-          name: '',
-          platform: '',
-          budget: 0,
-          company_id: ''
-        }}
-        onChange={() => {}}
-        onSubmit={() => {}}
-        companies={[]}
-        isSubmitting={false}
-      />
-    </PageErrorBoundary>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>All Campaigns</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveTable 
+            data={mockCampaigns}
+            columns={columns}
+            mobileColumns={mobileColumns}
+            actions={actions}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

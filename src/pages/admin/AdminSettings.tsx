@@ -1,59 +1,112 @@
 
-import React from "react";
-import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { TypographyH1 } from "@/components/ui/typography";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { Settings, Shield, Bell, Webhook } from "lucide-react";
-import WebhooksTab from "@/components/admin/WebhooksTab";
-import { SecurityTab } from "@/components/admin/security";
-import NotificationsTab from "@/components/admin/NotificationsTab";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export default function AdminSettings() {
-  const [activeTab, setActiveTab] = React.useState("webhooks");
-
   return (
-    <PageErrorBoundary pageName="Admin Settings">
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
-            Manage your application settings, webhooks, and integrations.
-          </p>
-        </div>
-
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab} 
-          className="space-y-4"
-        >
-          <TabsList className="grid grid-cols-3 w-full max-w-md">
-            <TabsTrigger value="webhooks" className="flex items-center gap-2">
-              <Webhook className="h-4 w-4" />
-              <span className="hidden sm:inline">Webhooks</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Security</span>
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              <span className="hidden sm:inline">Notifications</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="webhooks" className="space-y-4">
-            <WebhooksTab />
-          </TabsContent>
-          
-          <TabsContent value="security" className="space-y-4">
-            <SecurityTab />
-          </TabsContent>
-          
-          <TabsContent value="notifications" className="space-y-4">
-            <NotificationsTab />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </PageErrorBoundary>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <TypographyH1>Admin Settings</TypographyH1>
+      
+      <Tabs defaultValue="general" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-3 mb-4">
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="general">
+          <Card>
+            <CardHeader>
+              <CardTitle>General Settings</CardTitle>
+              <CardDescription>
+                Manage general platform settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="platform-name">Platform Name</Label>
+                <Input id="platform-name" defaultValue="Allora AI" />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="contact-email">Support Email</Label>
+                <Input id="contact-email" type="email" defaultValue="support@example.com" />
+              </div>
+              
+              <div className="flex items-center justify-between space-x-2">
+                <Label htmlFor="maintenance-mode">Maintenance Mode</Label>
+                <Switch id="maintenance-mode" />
+              </div>
+              
+              <Button className="mt-2">Save Changes</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="security">
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Settings</CardTitle>
+              <CardDescription>
+                Configure security options for the platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between space-x-2">
+                <Label htmlFor="enforce-2fa">Enforce 2FA for Admins</Label>
+                <Switch id="enforce-2fa" defaultChecked />
+              </div>
+              
+              <div className="flex items-center justify-between space-x-2">
+                <Label htmlFor="activity-logging">Advanced Activity Logging</Label>
+                <Switch id="activity-logging" defaultChecked />
+              </div>
+              
+              <div className="flex items-center justify-between space-x-2">
+                <Label htmlFor="ip-restriction">IP Restriction</Label>
+                <Switch id="ip-restriction" />
+              </div>
+              
+              <Button className="mt-2">Save Security Settings</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="advanced">
+          <Card>
+            <CardHeader>
+              <CardTitle>Advanced Settings</CardTitle>
+              <CardDescription>
+                Advanced configuration options
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="api-rate-limit">API Rate Limit (requests/min)</Label>
+                <Input id="api-rate-limit" type="number" defaultValue="60" />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
+                <Input id="session-timeout" type="number" defaultValue="30" />
+              </div>
+              
+              <div className="flex items-center justify-between space-x-2">
+                <Label htmlFor="debug-mode">Debug Mode</Label>
+                <Switch id="debug-mode" />
+              </div>
+              
+              <Button className="mt-2">Save Advanced Settings</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
