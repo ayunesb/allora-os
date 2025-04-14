@@ -27,6 +27,7 @@ import ExecutiveAgents from "@/pages/dashboard/ExecutiveAgents";
 import ExecutiveDecisions from "@/pages/dashboard/ExecutiveDecisions";
 import ExecutiveProfile from "@/pages/dashboard/executives/[name]";
 import RiskHeatmap from "@/pages/dashboard/RiskHeatmap";
+import ExecutiveLeaderboard from "@/pages/dashboard/ExecutiveLeaderboard";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -106,6 +107,11 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "risk-heatmap",
         element: <RiskHeatmap />,
+      },
+      // New Executive Leaderboard route
+      {
+        path: "leaderboard",
+        element: <ExecutiveLeaderboard />,
       },
       {
         path: "ai-bots",
