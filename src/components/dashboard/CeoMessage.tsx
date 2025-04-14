@@ -26,22 +26,22 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
           title: "Conservative Strategy Overview",
           message: `We've developed a conservative approach for ${companyName} focusing on stable, sustainable growth in ${industry}. Our analysis shows potential for measured expansion while minimizing exposure to market volatility.`,
           icon: <TrendingDown className="h-5 w-5 text-blue-500" />,
-          cardClass: "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+          cardClass: "border-blue-200 bg-blue-50 dark:bg-blue-950/20"
         };
       case 'high':
         return {
           title: "Aggressive Growth Strategy",
           message: `Our analysis indicates several high-potential opportunities for ${companyName} in ${industry}. While these approaches carry higher risk, they also offer significantly greater returns and market disruption potential.`,
-          icon: <TrendingUp className="h-5 w-5 text-blue-500" />,
-          cardClass: "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+          icon: <TrendingUp className="h-5 w-5 text-red-500" />,
+          cardClass: "border-red-200 bg-red-50 dark:bg-red-950/20"
         };
       case 'medium':
       default:
         return {
           title: "Balanced Strategy Overview",
           message: `We've analyzed ${companyName}'s position in ${industry} and developed a balanced approach combining stable growth with strategic opportunities. This provides a mix of reliable returns and potential for breakthrough results.`,
-          icon: <Lightbulb className="h-5 w-5 text-blue-500" />,
-          cardClass: "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+          icon: <Lightbulb className="h-5 w-5 text-amber-500" />,
+          cardClass: "border-amber-200 bg-amber-50 dark:bg-amber-950/20"
         };
     }
   };
