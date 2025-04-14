@@ -1,10 +1,18 @@
-
-import React, { useState, useEffect, useTransition } from "react";
+import React, { useState, useEffect, useTransition, Suspense } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useLocation, useNavigate } from "react-router-dom";
+import { 
+  Lightbulb, 
+  Brain, 
+  MessageSquare, 
+  Users, 
+  Settings, 
+  Zap 
+} from 'lucide-react';
+
 import { AiBotsHeader } from "./AiBotsHeader";
 import { AiBotsTabsList } from "./AiBotsTabsList";
 import { BotsTabContent } from "./tabContents/BotsTabContent";
@@ -16,6 +24,15 @@ import ExecutiveRoster from "@/components/ExecutiveRoster";
 import ConsultationHistory from "@/components/ConsultationHistory";
 import { executiveBots } from "@/backend/executiveBots";
 import { formatRoleTitle, getBotExpertise, getBotOutputLocation } from "@/utils/consultation";
+
+const TabLoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-[50vh] animate-pulse">
+    <div className="text-center space-y-4">
+      <Zap className="mx-auto h-12 w-12 text-primary/50" />
+      <p className="text-muted-foreground">Loading AI capabilities...</p>
+    </div>
+  </div>
+);
 
 export const AiBotsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("boardroom");
@@ -29,7 +46,6 @@ export const AiBotsPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if there's a hash in the URL that should trigger a tab change
     startTransition(() => {
       if (location.hash === '#debate') {
         setActiveTab('debate');
@@ -37,7 +53,6 @@ export const AiBotsPage: React.FC = () => {
     });
   }, [location.hash]);
 
-  // Handle tab changes and update URL
   const handleTabChange = (value: string) => {
     startTransition(() => {
       setActiveTab(value);
@@ -49,7 +64,6 @@ export const AiBotsPage: React.FC = () => {
     });
   };
 
-  // Generate the full list of executive bots with all their metadata
   const allBots = Object.entries(executiveBots).flatMap(([role, names]) => 
     names.map(name => ({
       name,
@@ -62,21 +76,29 @@ export const AiBotsPage: React.FC = () => {
   );
 
   if (isPending) {
-    return <div className="flex items-center justify-center p-8">
-      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-    </div>;
+    return <TabLoadingFallback />;
   }
 
   return (
     <div className="w-full space-y-8 max-w-full overflow-hidden">
       <AiBotsHeader isMobileView={isMobileView} />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-full">
-        <AiBotsTabsList isMobileView={isMobileView} activeTab={activeTab} onTabChange={handleTabChange} />
+      <Tabs 
+        value={activeTab} 
+        onValueChange={handleTabChange} 
+        className="w-full max-w-full"
+      >
+        <AiBotsTabsList 
+          isMobileView={isMobileView} 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange} 
+        />
 
         <TabsContent value="boardroom" className="mt-6 w-full max-w-full">
           <ErrorBoundary>
-            <AIExecutiveBoardroom companyId={companyId} />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <AIExecutiveBoardroom companyId={companyId} />
+            </Suspense>
           </ErrorBoundary>
         </TabsContent>
 
