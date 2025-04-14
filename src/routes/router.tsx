@@ -11,17 +11,17 @@ import { globalRoutes } from "./global-routes";
 import { NavigationManager } from "@/components/NavigationManager";
 import { NavigationTracker } from "@/components/NavigationTracker";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import RootLayout from "@/components/layouts/RootLayout";
-import NotFound from "@/pages/NotFound";
-import Index from "@/pages/Index";
-import Home from "@/pages/Home";
-import Pricing from "@/pages/Pricing";
-import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
-import Compliance from "@/pages/Compliance";
 
-// Lazy-load the compliance routes wrapper component
+// Lazy-loaded components
+const RootLayout = lazy(() => import("@/components/layouts/RootLayout"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const Index = lazy(() => import("@/pages/Index"));
+const Home = lazy(() => import("@/pages/Home"));
+const Pricing = lazy(() => import("@/pages/Pricing"));
+const SystemDiagnostics = lazy(() => import("@/pages/SystemDiagnostics"));
+const Compliance = lazy(() => import("@/pages/Compliance"));
 const ComplianceRoutesWrapper = lazy(() => import('./ComplianceRoutesWrapper'));
 
 // Loading fallback component
@@ -32,6 +32,13 @@ const LoadingFallback = () => (
       <p className="text-muted-foreground">Loading...</p>
     </div>
   </div>
+);
+
+// Common suspense wrapper
+const withSuspense = (Component: React.ComponentType<any>) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Component />
+  </Suspense>
 );
 
 const NavigationLayout = () => {
@@ -57,28 +64,28 @@ const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
 
 // Create dynamic routes with lazy loading
 const createLazyRoutes = () => {
-  // Public routes (not lazy-loaded)
+  // Public routes
   const publicRoutes: RouteObject[] = [
     {
       path: "/",
-      element: <Index />,
+      element: withSuspense(Index),
     },
     {
       path: "/home",
-      element: <Home />,
+      element: withSuspense(Home),
     },
     {
       path: "/diagnostics",
-      element: <SystemDiagnostics />,
+      element: withSuspense(SystemDiagnostics),
     },
     {
       path: "/pricing",
-      element: <Pricing />,
+      element: withSuspense(Pricing),
     },
     // Root compliance page that handles setup and redirects to the compliance dashboard
     {
       path: "/compliance",
-      element: <Compliance />,
+      element: withSuspense(Compliance),
     },
     // Common redirects for legacy/mistyped URLs
     {
@@ -115,11 +122,7 @@ const createLazyRoutes = () => {
     // Add the compliance routes wrapper
     {
       path: "compliance/*",
-      element: (
-        <Suspense fallback={<LoadingFallback />}>
-          <ComplianceRoutesWrapper />
-        </Suspense>
-      )
+      element: withSuspense(() => <ComplianceRoutesWrapper />)
     }
   ];
 
@@ -131,10 +134,12 @@ export const router = createBrowserRouter([
   {
     element: (
       <AccessibleLayout>
-        <RootLayout />
+        <Suspense fallback={<LoadingFallback />}>
+          <RootLayout />
+        </Suspense>
       </AccessibleLayout>
     ),
-    errorElement: <NotFound />,
+    errorElement: withSuspense(NotFound),
     children: [
       {
         element: <NavigationLayout />,

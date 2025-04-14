@@ -72,7 +72,7 @@ export const globalRoutes: RouteObject[] = [
   // Compliance section redirects
   {
     path: "/compliance-center",
-    element: <Navigate to="/compliance" replace />,
+    element: <Navigate to="/compliance/overview" replace />,
   },
   {
     path: "/audit-logs",

@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ComplianceProvider } from "@/context/ComplianceContext";
+import { logger } from "@/utils/loggingService";
 
 // Lazy load all compliance pages
 const ComplianceOverview = lazy(() => import("@/pages/compliance/Index"));
@@ -21,18 +22,24 @@ const ComplianceLoadingSpinner = () => (
 );
 
 // Wrap all compliance routes with the ComplianceProvider
-const ComplianceWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ComplianceProvider>
-    <Suspense fallback={<ComplianceLoadingSpinner />}>
-      <ComplianceLayout>
-        {children}
-      </ComplianceLayout>
-    </Suspense>
-  </ComplianceProvider>
-);
+const ComplianceWrapper = ({ children }: { children: React.ReactNode }) => {
+  logger.info('Rendering ComplianceWrapper');
+  
+  return (
+    <ComplianceProvider>
+      <Suspense fallback={<ComplianceLoadingSpinner />}>
+        <ComplianceLayout>
+          {children}
+        </ComplianceLayout>
+      </Suspense>
+    </ComplianceProvider>
+  );
+};
 
 // This component serves as a wrapper for all compliance routes
 const ComplianceRoutesWrapper = () => {
+  logger.info('Rendering ComplianceRoutesWrapper');
+  
   return (
     <Routes>
       <Route 

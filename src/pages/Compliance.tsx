@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useCompliance } from '@/context/ComplianceContext';
 
@@ -10,6 +10,7 @@ import { useCompliance } from '@/context/ComplianceContext';
  */
 export default function Compliance() {
   const { pendingUpdates, scheduleComplianceCheck } = useCompliance();
+  const location = useLocation();
   
   useEffect(() => {
     // Schedule regular compliance check every 5 days
@@ -29,6 +30,15 @@ export default function Compliance() {
     }
   }, [pendingUpdates, scheduleComplianceCheck]);
 
-  // Redirect to the compliance overview page
-  return <Navigate to="/compliance/overview" replace />;
+  // Check if we're already on a compliance sub-path to prevent redirect loops
+  const isAlreadyOnCompliancePath = location.pathname.startsWith('/compliance/');
+  
+  // Only redirect if we're not already on a compliance sub-path
+  if (!isAlreadyOnCompliancePath) {
+    return <Navigate to="/compliance/overview" replace />;
+  }
+  
+  // If already on a compliance path, render nothing (this component should never
+  // actually render anything as it's just a redirector)
+  return null;
 }
