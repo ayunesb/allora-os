@@ -1,3 +1,4 @@
+
 import { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 import Index from "@/pages/Index";

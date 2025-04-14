@@ -1,73 +1,152 @@
+
 /**
- * Centralized Error Types
- * Provides consistent error types across the application
+ * Standardized error types for application-wide use
  */
 
-// Application error type
 export enum ErrorType {
-  // API related errors
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  API_ERROR = 'API_ERROR',
   AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
   AUTHORIZATION_ERROR = 'AUTHORIZATION_ERROR',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
+  NETWORK_ERROR = 'NETWORK_ERROR',
   TIMEOUT_ERROR = 'TIMEOUT_ERROR',
-  
-  // Data related errors
-  DATA_NOT_FOUND = 'DATA_NOT_FOUND',
-  DATA_INVALID = 'DATA_INVALID',
-  DATA_STALE = 'DATA_STALE',
-  
-  // UI related errors
-  UI_ERROR = 'UI_ERROR',
-  RENDERING_ERROR = 'RENDERING_ERROR',
-  
-  // Other errors
+  SERVER_ERROR = 'SERVER_ERROR',
+  BUSINESS_LOGIC_ERROR = 'BUSINESS_LOGIC_ERROR',
+  NOT_FOUND_ERROR = 'NOT_FOUND_ERROR',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
-  INITIALIZATION_ERROR = 'INITIALIZATION_ERROR'
+  API_ERROR = 'API_ERROR',
+  DATABASE_ERROR = 'DATABASE_ERROR',
+  RATE_LIMIT_ERROR = 'RATE_LIMIT_ERROR',
+  INTEGRATION_ERROR = 'INTEGRATION_ERROR'
 }
 
-// Structured application error
 export interface AppError {
   type: ErrorType;
   message: string;
   code?: string | number;
+  timestamp: number;
   originalError?: unknown;
   context?: Record<string, unknown>;
-  timestamp: number;
-  isCritical: boolean;
+  isCritical?: boolean;
 }
 
-// Error with HTTP status
-export interface HttpError extends AppError {
-  status: number;
-  url?: string;
-  method?: string;
-}
-
-// Error with field validation details
-export interface ValidationError extends AppError {
-  fieldErrors?: Record<string, string[]>;
-}
-
-// Factory function to create application errors
-export function createAppError(
-  type: ErrorType,
-  message: string,
-  options?: {
-    code?: string | number;
-    originalError?: unknown;
-    context?: Record<string, unknown>;
-    isCritical?: boolean;
-  }
-): AppError {
+// Error factory functions for consistent error creation
+export function createAuthenticationError(message: string, context?: Record<string, unknown>): AppError {
   return {
-    type,
+    type: ErrorType.AUTHENTICATION_ERROR,
     message,
-    code: options?.code,
-    originalError: options?.originalError,
-    context: options?.context,
     timestamp: Date.now(),
-    isCritical: options?.isCritical ?? false
+    context,
+    isCritical: true
+  };
+}
+
+export function createAuthorizationError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.AUTHORIZATION_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: true
+  };
+}
+
+export function createValidationError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.VALIDATION_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: false
+  };
+}
+
+export function createNetworkError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.NETWORK_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: true
+  };
+}
+
+export function createTimeoutError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.TIMEOUT_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: false
+  };
+}
+
+export function createServerError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.SERVER_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: true
+  };
+}
+
+export function createNotFoundError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.NOT_FOUND_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: false
+  };
+}
+
+export function createApiError(message: string, code?: string | number, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.API_ERROR,
+    message,
+    code,
+    timestamp: Date.now(),
+    context,
+    isCritical: false
+  };
+}
+
+export function createDatabaseError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.DATABASE_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: true
+  };
+}
+
+export function createRateLimitError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.RATE_LIMIT_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: false
+  };
+}
+
+export function createIntegrationError(message: string, context?: Record<string, unknown>): AppError {
+  return {
+    type: ErrorType.INTEGRATION_ERROR,
+    message,
+    timestamp: Date.now(),
+    context,
+    isCritical: true
+  };
+}
+
+export function createUnknownError(message: string, error?: unknown): AppError {
+  return {
+    type: ErrorType.UNKNOWN_ERROR,
+    message,
+    timestamp: Date.now(),
+    originalError: error,
+    isCritical: true
   };
 }

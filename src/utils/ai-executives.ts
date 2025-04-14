@@ -15,7 +15,7 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
   const defaultAvatar1 = '/lovable-uploads/012d3495-8ef4-4f5e-b9b4-cbb461c250d0.png';
   const defaultAvatar2 = '/lovable-uploads/fa68c49e-02d3-4f17-b128-a5b8f6f1665b.png';
   
-  // Default executives for all risk appetites
+  // Add CRO to base executives for all risk appetites
   const baseExecutives = [
     {
       id: 'exec-1',
@@ -32,6 +32,14 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
       title: 'CFO Advisor',
       specialty: 'Financial Analysis, Investment Strategy, Risk Management',
       avatar: defaultAvatar2
+    },
+    {
+      id: 'exec-cro',
+      name: 'RiskMind AI',
+      role: 'cro',
+      title: 'Chief Risk Officer',
+      specialty: 'Risk Appetite Analysis, Antifragility Strategies, Crisis Detection',
+      avatar: defaultAvatar1
     }
   ];
 
@@ -124,4 +132,90 @@ export function getExecutiveSuggestions(riskAppetite: 'low' | 'medium' | 'high')
     default:
       return baseExecutives;
   }
+}
+
+// Add risk analysis types for the CRO executive
+export interface RiskAssessment {
+  score: number;
+  level: 'low' | 'medium' | 'high' | 'critical';
+  insights: string[];
+  recommendations: string[];
+}
+
+export interface RiskCategory {
+  name: string;
+  description: string;
+  score: number;
+}
+
+export interface RiskScenario {
+  name: string;
+  probability: number;
+  impact: number;
+  description: string;
+  mitigationSteps: string[];
+}
+
+// CRO risk modeling functions
+export function generateRiskAssessment(
+  businessData: Record<string, any>,
+  riskAppetite: 'low' | 'medium' | 'high'
+): RiskAssessment {
+  // This would normally use complex risk models, but for demo we'll use a simplified approach
+  const baseScore = riskAppetite === 'low' ? 30 : riskAppetite === 'medium' ? 50 : 75;
+  
+  return {
+    score: baseScore,
+    level: baseScore < 40 ? 'low' : baseScore < 70 ? 'medium' : baseScore < 90 ? 'high' : 'critical',
+    insights: [
+      'Current market volatility suggests increased caution with new investments',
+      'Regulatory changes may impact core business operations in Q3',
+      'Competitor landscape shows signs of consolidation'
+    ],
+    recommendations: [
+      'Implement quarterly stress testing for all major initiatives',
+      'Develop contingency plans for supply chain disruptions',
+      'Consider hedging strategies for currency exposure',
+      'Build additional cash reserves to improve resilience'
+    ]
+  };
+}
+
+export function generateRiskScenarios(industry: string): RiskScenario[] {
+  // Simplified demo implementation
+  return [
+    {
+      name: 'Market Downturn',
+      probability: 0.3,
+      impact: 0.7,
+      description: 'Significant market contraction affecting revenue for 2-3 quarters',
+      mitigationSteps: [
+        'Diversify revenue streams',
+        'Prepare cost-cutting measures that can be quickly implemented',
+        'Identify opportunities that emerge during downturns'
+      ]
+    },
+    {
+      name: 'Regulatory Changes',
+      probability: 0.6,
+      impact: 0.5,
+      description: 'New compliance requirements increasing operational costs',
+      mitigationSteps: [
+        'Maintain proactive regulatory monitoring',
+        'Build relationships with regulatory bodies',
+        'Implement flexible compliance frameworks'
+      ]
+    },
+    {
+      name: 'Technological Disruption',
+      probability: 0.4,
+      impact: 0.8,
+      description: 'Emerging technologies making current products/services obsolete',
+      mitigationSteps: [
+        'Invest in R&D for emerging technologies',
+        'Develop acquisition strategy for innovative startups',
+        'Create internal disruption team to challenge status quo'
+      ]
+    }
+  ];
 }

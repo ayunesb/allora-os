@@ -50,7 +50,7 @@ export function SessionRefreshBanner() {
   if (!isVisible) return null;
 
   return (
-    <Alert variant="warning" className="mb-4 animate-fadeIn">
+    <Alert variant="destructive" className="mb-4 animate-fadeIn">
       <AlertTitle className="flex items-center gap-2">
         <RefreshCw className="h-4 w-4" /> Connection Issue Detected
       </AlertTitle>
