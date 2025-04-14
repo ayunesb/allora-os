@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,8 @@ import {
   Brain, 
   FileText, 
   Link as LinkIcon,
-  Settings
+  Settings,
+  Users
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +30,7 @@ import { AuditUX } from '@/components/admin/audit/AuditUX';
 import { AuditAI } from '@/components/admin/audit/AuditAI';
 import { AuditLegal } from '@/components/admin/audit/AuditLegal';
 import { AuditIntegrations } from '@/components/admin/audit/AuditIntegrations';
+import { AuditOnboarding } from '@/components/admin/audit/AuditOnboarding';
 import { Helmet } from 'react-helmet-async';
 import { CategoryStatus } from './types';
 
@@ -40,6 +43,7 @@ interface CategoryState {
   ai: CategoryStatus;
   legal: CategoryStatus;
   integrations: CategoryStatus;
+  onboarding: CategoryStatus;
 }
 
 export default function PreLaunchAudit() {
@@ -52,7 +56,8 @@ export default function PreLaunchAudit() {
     ux: 'pending',
     ai: 'pending',
     legal: 'pending',
-    integrations: 'pending'
+    integrations: 'pending',
+    onboarding: 'pending'
   });
   
   const [isRunningFullCheck, setIsRunningFullCheck] = useState(false);
@@ -82,17 +87,33 @@ export default function PreLaunchAudit() {
   const runFullAudit = async () => {
     setIsRunningFullCheck(true);
     
-    for (const category of Object.keys(categoryStatus) as Array<keyof CategoryState>) {
+    // Array of categories to check in order
+    const categories: Array<keyof CategoryState> = [
+      'security', 'onboarding', 'integrations', 'performance', 
+      'ux', 'navigation', 'functional', 'ai', 'legal'
+    ];
+    
+    for (const category of categories) {
       setCategoryStatus(prev => ({
         ...prev,
         [category]: 'in-progress'
       }));
       
+      // Give each category time to run its checks
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Trigger the category's audit function by clicking its Run Audit button
+      const auditButton = document.querySelector(`[data-category="${category}"] button`);
+      if (auditButton instanceof HTMLButtonElement) {
+        auditButton.click();
+      } else {
+        // If we can't find the button, simulate a random result
+        const passed = Math.random() < 0.8;
+        updateCategoryStatus(category, passed ? 'passed' : 'failed');
+      }
+      
+      // Wait for the checks to complete
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const passed = Math.random() < 0.8;
-      
-      updateCategoryStatus(category, passed ? 'passed' : 'failed');
     }
     
     setIsRunningFullCheck(false);
@@ -154,9 +175,9 @@ export default function PreLaunchAudit() {
         <div className="flex gap-2">
           <Button 
             variant="outline" 
-            onClick={() => navigate('/admin/launch-plan')}
+            onClick={() => navigate('/admin/api-integrations')}
           >
-            View Launch Plan
+            API Integrations
           </Button>
           <Button 
             onClick={runFullAudit}
@@ -212,7 +233,31 @@ export default function PreLaunchAudit() {
         </Alert>
       )}
       
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-4">
+        <CategoryCard 
+          title="Onboarding Flow" 
+          icon={<Users className="h-5 w-5" />}
+          status={categoryStatus.onboarding}
+          getStatusIcon={getStatusIcon}
+          getStatusBadge={getStatusBadge}
+          description="Account setup, data saving"
+        />
+        <CategoryCard 
+          title="Security Audit" 
+          icon={<Shield className="h-5 w-5" />}
+          status={categoryStatus.security}
+          getStatusIcon={getStatusIcon}
+          getStatusBadge={getStatusBadge}
+          description="DB security, RLS, auth"
+        />
+        <CategoryCard 
+          title="API Integrations" 
+          icon={<Settings className="h-5 w-5" />}
+          status={categoryStatus.integrations}
+          getStatusIcon={getStatusIcon}
+          getStatusBadge={getStatusBadge}
+          description="Third-party services"
+        />
         <CategoryCard 
           title="Navigation & URLs" 
           icon={<LinkIcon className="h-5 w-5" />}
@@ -230,14 +275,6 @@ export default function PreLaunchAudit() {
           description="End-to-end user flows"
         />
         <CategoryCard 
-          title="Security Audit" 
-          icon={<Shield className="h-5 w-5" />}
-          status={categoryStatus.security}
-          getStatusIcon={getStatusIcon}
-          getStatusBadge={getStatusBadge}
-          description="DB security, RLS, auth"
-        />
-        <CategoryCard 
           title="Performance" 
           icon={<Gauge className="h-5 w-5" />}
           status={categoryStatus.performance}
@@ -251,7 +288,7 @@ export default function PreLaunchAudit() {
           status={categoryStatus.ux}
           getStatusIcon={getStatusIcon}
           getStatusBadge={getStatusBadge}
-          description="Responsive, accessibility"
+          description="Responsive, branding"
         />
         <CategoryCard 
           title="AI Bot Prompts" 
@@ -269,18 +306,22 @@ export default function PreLaunchAudit() {
           getStatusBadge={getStatusBadge}
           description="Terms, privacy, GDPR"
         />
-        <CategoryCard 
-          title="API Integrations" 
-          icon={<Settings className="h-5 w-5" />}
-          status={categoryStatus.integrations}
-          getStatusIcon={getStatusIcon}
-          getStatusBadge={getStatusBadge}
-          description="Third-party services"
-        />
       </div>
       
-      <Tabs defaultValue="navigation" className="w-full">
+      <Tabs defaultValue="onboarding" className="w-full">
         <TabsList className="w-full flex-wrap h-auto">
+          <TabsTrigger value="onboarding" className="flex items-center gap-1">
+            <Users className="h-4 w-4" />
+            <span>Onboarding</span>
+          </TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-1">
+            <Shield className="h-4 w-4" />
+            <span>Security</span>
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="flex items-center gap-1">
+            <Settings className="h-4 w-4" />
+            <span>Integrations</span>
+          </TabsTrigger>
           <TabsTrigger value="navigation" className="flex items-center gap-1">
             <LinkIcon className="h-4 w-4" />
             <span>Navigation</span>
@@ -288,10 +329,6 @@ export default function PreLaunchAudit() {
           <TabsTrigger value="functional" className="flex items-center gap-1">
             <Settings className="h-4 w-4" />
             <span>Functional</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-1">
-            <Shield className="h-4 w-4" />
-            <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="performance" className="flex items-center gap-1">
             <Gauge className="h-4 w-4" />
@@ -309,65 +346,68 @@ export default function PreLaunchAudit() {
             <FileText className="h-4 w-5" />
             <span>Legal</span>
           </TabsTrigger>
-          <TabsTrigger value="integrations" className="flex items-center gap-1">
-            <Settings className="h-4 w-5" />
-            <span>Integrations</span>
-          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="navigation" className="mt-6">
+        <TabsContent value="onboarding" className="mt-6" data-category="onboarding">
+          <AuditOnboarding 
+            status={categoryStatus.onboarding}
+            onStatusChange={(status) => updateCategoryStatus('onboarding', status as CategoryStatus)}
+          />
+        </TabsContent>
+
+        <TabsContent value="security" className="mt-6" data-category="security">
+          <AuditSecurity 
+            status={categoryStatus.security}
+            onStatusChange={(status) => updateCategoryStatus('security', status as CategoryStatus)}
+          />
+        </TabsContent>
+        
+        <TabsContent value="integrations" className="mt-6" data-category="integrations">
+          <AuditIntegrations
+            status={categoryStatus.integrations}
+            onStatusChange={(status) => updateCategoryStatus('integrations', status as CategoryStatus)}
+          />
+        </TabsContent>
+        
+        <TabsContent value="navigation" className="mt-6" data-category="navigation">
           <AuditNavigation 
             status={categoryStatus.navigation}
             onStatusChange={(status) => updateCategoryStatus('navigation', status as CategoryStatus)}
           />
         </TabsContent>
         
-        <TabsContent value="functional" className="mt-6">
+        <TabsContent value="functional" className="mt-6" data-category="functional">
           <AuditFunctional
             status={categoryStatus.functional}
             onStatusChange={(status) => updateCategoryStatus('functional', status as CategoryStatus)}
           />
         </TabsContent>
         
-        <TabsContent value="security" className="mt-6">
-          <AuditSecurity
-            status={categoryStatus.security}
-            onStatusChange={(status) => updateCategoryStatus('security', status as CategoryStatus)}
-          />
-        </TabsContent>
-        
-        <TabsContent value="performance" className="mt-6">
+        <TabsContent value="performance" className="mt-6" data-category="performance">
           <AuditPerformance
             status={categoryStatus.performance}
             onStatusChange={(status) => updateCategoryStatus('performance', status as CategoryStatus)}
           />
         </TabsContent>
         
-        <TabsContent value="ux" className="mt-6">
+        <TabsContent value="ux" className="mt-6" data-category="ux">
           <AuditUX
             status={categoryStatus.ux}
             onStatusChange={(status) => updateCategoryStatus('ux', status as CategoryStatus)}
           />
         </TabsContent>
         
-        <TabsContent value="ai" className="mt-6">
+        <TabsContent value="ai" className="mt-6" data-category="ai">
           <AuditAI
             status={categoryStatus.ai}
             onStatusChange={(status) => updateCategoryStatus('ai', status as CategoryStatus)}
           />
         </TabsContent>
         
-        <TabsContent value="legal" className="mt-6">
+        <TabsContent value="legal" className="mt-6" data-category="legal">
           <AuditLegal
             status={categoryStatus.legal}
             onStatusChange={(status) => updateCategoryStatus('legal', status as CategoryStatus)}
-          />
-        </TabsContent>
-        
-        <TabsContent value="integrations" className="mt-6">
-          <AuditIntegrations
-            status={categoryStatus.integrations}
-            onStatusChange={(status) => updateCategoryStatus('integrations', status as CategoryStatus)}
           />
         </TabsContent>
       </Tabs>

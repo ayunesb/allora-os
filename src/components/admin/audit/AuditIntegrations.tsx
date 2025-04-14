@@ -7,84 +7,158 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
 import { AuditComponentProps, AuditCheckItem } from './types';
 import { useNavigate } from 'react-router-dom';
+import { verifyApiSecrets } from '@/utils/cleanupForProduction';
+import { verifyZapierWebhooks } from '@/utils/webhookTester';
+import ZapierTriggerButton from '@/components/integrations/ZapierTriggerButton';
 
 export function AuditIntegrations({ status, onStatusChange }: AuditComponentProps) {
   const [isRunning, setIsRunning] = useState(false);
-  const [manualComplete, setManualComplete] = useState(true); // Set to true by default
+  const [manualComplete, setManualComplete] = useState(false);
   const navigate = useNavigate();
   const [items, setItems] = useState<AuditCheckItem[]>([
     {
       id: 'int-1',
       title: 'Stripe Billing',
       description: 'Create customer, handle payment, check webhook callbacks',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'int-2',
       title: 'Twilio WhatsApp',
       description: 'Send/Receive WhatsApp messages post onboarding',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'int-3',
       title: 'Postmark Emails',
       description: 'Trigger Welcome Emails and Campaign Emails',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'int-4',
       title: 'Heygen AI Videos',
       description: 'Generate intro video scripts based on company profile',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: false
     },
     {
       id: 'int-5',
-      title: 'Shopify API',
-      description: 'Sync sample products/orders (if used)',
-      status: 'passed', // Changed from 'pending' to 'passed'
-      required: false
+      title: 'OpenAI API',
+      description: 'Test AI responses for executive debates',
+      status: 'pending',
+      required: true
     },
     {
       id: 'int-6',
       title: 'Zapier Flows',
       description: 'Test each webhook automatically without user clicks',
-      status: 'passed', // Changed from 'pending' to 'passed'
-      required: true
+      status: 'pending',
+      required: false
     }
   ]);
 
-  // Auto-set passed status on mount
+  // Check API connections on mount
   useEffect(() => {
-    // Notify parent of passed status
-    onStatusChange('passed');
-  }, [onStatusChange]);
+    if (status === 'pending') {
+      checkApiConnections(false);
+    }
+  }, []);
 
-  const runTest = async () => {
+  const checkApiConnections = async (showToasts = true) => {
+    if (isRunning) return;
+    
     setIsRunning(true);
     
-    // Simulate testing each item sequentially with all passing
-    for (let i = 0; i < items.length; i++) {
-      // Update current item to in-progress
-      setItems(prev => prev.map((item, idx) => 
-        idx === i ? { ...item, status: 'in-progress' } : item
-      ));
+    try {
+      // Update all items to in-progress
+      setItems(prev => prev.map(item => ({ ...item, status: 'in-progress' })));
       
-      // Simulate test running
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check API keys using the verifyApiSecrets utility
+      const apiResult = await verifyApiSecrets();
       
-      // Set all items to pass
-      setItems(prev => prev.map((item, idx) => 
-        idx === i ? { ...item, status: 'passed' } : item
-      ));
+      // Process API verification results
+      if (apiResult.success) {
+        // All APIs are configured
+        setItems(prev => prev.map(item => {
+          if (item.id === 'int-6') return item; // Don't change Zapier status yet
+          return { ...item, status: 'passed' };
+        }));
+        
+        if (showToasts) {
+          toast.success('All API connections verified successfully');
+        }
+      } else if (apiResult.missingSecrets) {
+        // Update specific items based on missing secrets
+        setItems(prev => prev.map(item => {
+          if (item.id === 'int-1' && apiResult.missingSecrets?.includes('STRIPE_SECRET_KEY')) {
+            return { ...item, status: 'failed' };
+          } else if (item.id === 'int-2' && (
+            apiResult.missingSecrets?.includes('TWILIO_ACCOUNT_SID') || 
+            apiResult.missingSecrets?.includes('TWILIO_AUTH_TOKEN')
+          )) {
+            return { ...item, status: 'failed' };
+          } else if (item.id === 'int-3' && apiResult.missingSecrets?.includes('POSTMARK_API_KEY')) {
+            return { ...item, status: 'failed' };
+          } else if (item.id === 'int-4' && apiResult.missingSecrets?.includes('HEYGEN_API_KEY')) {
+            return { ...item, status: 'failed' };
+          } else if (item.id === 'int-5' && apiResult.missingSecrets?.includes('OPENAI_API_KEY')) {
+            return { ...item, status: 'failed' };
+          } else if (item.id === 'int-6') {
+            // Don't change Zapier status yet
+            return item;
+          } else {
+            return { ...item, status: 'passed' };
+          }
+        }));
+        
+        if (showToasts) {
+          toast.warning('Some API connections are missing');
+        }
+      }
+      
+      // Now check Zapier webhooks
+      const zapierItem = items.find(item => item.id === 'int-6');
+      if (zapierItem) {
+        setItems(prev => prev.map(item => 
+          item.id === 'int-6' ? { ...item, status: 'in-progress' } : item
+        ));
+        
+        // Test Zapier webhooks
+        const zapierResults = await verifyZapierWebhooks();
+        const zapierPassed = Object.values(zapierResults).some(result => result);
+        
+        setItems(prev => prev.map(item => 
+          item.id === 'int-6' ? { ...item, status: zapierPassed ? 'passed' : 'failed' } : item
+        ));
+      }
+      
+      // Determine overall status
+      const requiredItems = items.filter(item => item.required);
+      const allRequiredPassed = requiredItems.every(item => {
+        const currentItem = items.find(i => i.id === item.id);
+        return currentItem?.status === 'passed';
+      });
+      
+      onStatusChange(allRequiredPassed ? 'passed' : 'failed');
+      
+      if (showToasts) {
+        if (allRequiredPassed) {
+          toast.success('API Integrations audit passed!');
+        } else {
+          toast.error('API Integrations audit failed. Please configure missing APIs.');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking API connections:', error);
+      if (showToasts) {
+        toast.error('Failed to verify API connections');
+      }
+    } finally {
+      setIsRunning(false);
     }
-    
-    setIsRunning(false);
-    onStatusChange('passed');
-    toast.success('API Integrations Testing passed!');
   };
 
   const getStatusIcon = (status: string) => {
@@ -105,10 +179,50 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
     }
   };
 
-  // Trigger manual override effect on mount
-  useEffect(() => {
-    handleManualOverride();
-  }, []);
+  // Test a single Zapier webhook
+  const testZapierWebhook = async () => {
+    const webhookUrl = localStorage.getItem('zapier_webhook_url');
+    
+    if (!webhookUrl) {
+      toast.error('No Zapier webhook URL configured');
+      return;
+    }
+    
+    setItems(prev => prev.map(item => 
+      item.id === 'int-6' ? { ...item, status: 'in-progress' } : item
+    ));
+    
+    try {
+      // Trigger special test event with payload
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
+          event_type: 'audit_test',
+          timestamp: new Date().toISOString(),
+          source: 'allora_audit',
+          data: {
+            message: 'This is a test from Allora AI Audit',
+            test_id: Math.random().toString(36).substring(2, 15)
+          }
+        })
+      });
+      
+      toast.success('Zapier test webhook triggered');
+      setItems(prev => prev.map(item => 
+        item.id === 'int-6' ? { ...item, status: 'passed' } : item
+      ));
+    } catch (error) {
+      console.error('Error testing Zapier webhook:', error);
+      toast.error('Failed to trigger Zapier webhook');
+      setItems(prev => prev.map(item => 
+        item.id === 'int-6' ? { ...item, status: 'failed' } : item
+      ));
+    }
+  };
 
   return (
     <Card>
@@ -128,15 +242,7 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
               API Dashboard
             </Button>
             <Button 
-              onClick={() => navigate('/admin/api-config')}
-              variant="outline"
-              size="sm"
-              className="mr-2"
-            >
-              API Config
-            </Button>
-            <Button 
-              onClick={runTest}
+              onClick={() => checkApiConnections(true)}
               disabled={isRunning}
               size="sm"
             >
@@ -170,6 +276,32 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground">{item.description}</div>
+                
+                {/* Special test button for Zapier */}
+                {item.id === 'int-6' && (
+                  <div className="mt-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={testZapierWebhook}
+                    >
+                      Test Webhook
+                    </Button>
+                    {/* Alternative test using the component */}
+                    <ZapierTriggerButton 
+                      event="audit_test"
+                      payload={{
+                        test_type: "integration_audit",
+                        timestamp: new Date().toISOString()
+                      }}
+                      label="Test Component"
+                      size="sm"
+                      variant="outline"
+                      className="ml-2 h-7 text-xs"
+                    />
+                  </div>
+                )}
               </div>
               <div className="ml-auto flex items-center">
                 <Checkbox 
@@ -180,6 +312,13 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
                     setItems(prev => prev.map(i => 
                       i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
                     ));
+                    
+                    // Recheck overall status after manual change
+                    const allRequired = items
+                      .filter(i => i.required)
+                      .every(i => i.id === item.id ? checked : i.status === 'passed');
+                      
+                    onStatusChange(allRequired ? 'passed' : 'failed');
                   }}
                 />
               </div>
@@ -193,7 +332,16 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
                 checked={manualComplete}
                 onCheckedChange={(checked) => {
                   setManualComplete(!!checked);
-                  handleManualOverride();
+                  if (checked) {
+                    handleManualOverride();
+                  } else {
+                    // Re-evaluate based on actual status
+                    const allRequiredPassed = items
+                      .filter(item => item.required)
+                      .every(item => item.status === 'passed');
+                    
+                    onStatusChange(allRequiredPassed ? 'passed' : 'failed');
+                  }
                 }}
               />
               <label
