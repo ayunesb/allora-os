@@ -1,12 +1,12 @@
 
 import { RouteObject } from "react-router-dom";
-import AdminLayout from "@/layouts/AdminLayout";
-import Dashboard from "@/pages/admin/Dashboard";
+import AdminLayout from "@/components/AdminLayout"; // Updated path
+import Dashboard from "@/pages/admin/AdminDashboard"; // Updated import
 import UserManagement from "@/pages/admin/UserManagement";
 import CompanySettings from "@/pages/admin/CompanySettings";
-import APIKeys from "@/pages/admin/APIKeys";
-import SystemSettings from "@/pages/admin/SystemSettings";
-import IntegrationsPage from "@/pages/admin/IntegrationsPage";
+import APIKeys from "@/components/admin/APIKeysTab"; // Updated path
+import SystemSettings from "@/components/admin/settings/SecurityTab"; // Updated path
+import IntegrationsPage from "@/components/admin/webhooks/ZapierWebhookSection"; // Updated path
 import WebhookManagement from "@/pages/admin/WebhookManagement";
 import WebhooksPage from "@/pages/admin/WebhooksPage";
 import LaunchPlan from "@/pages/admin/LaunchPlan";

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -20,7 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useBreakpoint } from '@/hooks/use-mobile';
-import AdminNav from '@/components/admin/AdminNav';
+import { AdminNav } from '@/components/admin/AdminNav';
 
 export interface AdminLayoutProps {
   children?: React.ReactNode;
@@ -34,7 +33,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const isMobileView = ['xs', 'mobile'].includes(breakpoint);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Parse the current active tab from the URL
   const getActiveTab = () => {
     if (currentPath.includes('/platform-stability')) return 'platform-stability';
     if (currentPath.includes('/user-onboarding')) return 'user-onboarding';
@@ -47,9 +45,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [activeTab, setActiveTab] = useState(getActiveTab());
   
   useEffect(() => {
-    // Update active tab when route changes
     setActiveTab(getActiveTab());
-    // Close mobile menu when route changes
     setMobileMenuOpen(false);
   }, [location]);
   
@@ -77,7 +73,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: <Rocket size={isMobileView ? 16 : 18} />, label: "Launch Prep", href: "/admin/launch-prep" },
   ];
 
-  // Helper function to check if route is active
   const isRouteActive = (href) => {
     if (href === '/admin' && currentPath === '/admin') {
       return true;
@@ -85,7 +80,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return href !== '/admin' && currentPath.startsWith(href);
   };
 
-  // Mobile menu toggle
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -93,7 +87,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   if (isMobileView) {
     return (
       <div className="min-h-screen bg-[#0F1729]">
-        {/* Mobile Navbar */}
         <div className="fixed top-0 left-0 right-0 z-50 bg-[#0F1729] border-b border-white/10 shadow-sm">
           <div className="flex items-center justify-between p-3">
             <Button 
@@ -105,16 +98,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
             <span className="font-medium text-sm text-white">Admin Control Panel</span>
-            <div className="w-8"></div> {/* Empty div for alignment */}
+            <div className="w-8"></div>
           </div>
         </div>
         
-        {/* Mobile menu overlay */}
         {mobileMenuOpen && (
           <div className="fixed inset-0 bg-black/50 z-40" onClick={toggleMobileMenu} />
         )}
         
-        {/* Mobile sidebar */}
         <div 
           className={`fixed top-14 left-0 bottom-0 z-50 w-64 bg-[#0F1729] border-r border-white/10 transform transition-transform duration-200 ease-in-out overflow-y-auto ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
@@ -125,9 +116,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </div>
         
-        {/* Page content */}
         <div className="pt-14 pb-4 px-3 max-w-full overflow-x-hidden">
-          {/* Add tab navigation for specific admin pages */}
           {(currentPath.includes('/platform-stability') || 
             currentPath.includes('/user-onboarding') || 
             currentPath.includes('/ai-bot-logic') || 
@@ -159,7 +148,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-[#0F1729] flex">
-      {/* Desktop sidebar */}
       <div className="hidden md:flex flex-col fixed top-0 left-0 bottom-0 w-[260px] bg-[#0F1729] border-r border-white/10 z-30">
         <div className="p-6">
           <h1 className="font-bold text-2xl text-white">Admin Control Panel</h1>
@@ -170,9 +158,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </div>
       
-      {/* Main content */}
       <div className="flex-1 md:ml-[260px]">
-        {/* Add tab navigation for specific admin pages */}
         {(currentPath.includes('/platform-stability') || 
           currentPath.includes('/user-onboarding') || 
           currentPath.includes('/ai-bot-logic') || 

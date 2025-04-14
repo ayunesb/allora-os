@@ -1,6 +1,5 @@
-
 import { createBrowserRouter, Outlet, Navigate } from "react-router-dom";
-import { adminRoutes } from "./admin-routes";
+import { adminRoutes } from "./adminRoutes";
 import { complianceRoutes } from "./compliance-routes";
 import { publicRoutes } from "./public-routes";
 import { authRoutes } from "./auth-routes";
@@ -18,7 +17,6 @@ import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
 
-// Create a navigation layout that includes NavigationManager
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
   
@@ -32,7 +30,6 @@ const NavigationLayout = () => {
   );
 };
 
-// Export the router to use in main.tsx or App.tsx
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -66,8 +63,7 @@ export const router = createBrowserRouter([
             element: <Navigate to="/dashboard" replace />,
           },
           
-          // Properly spreading all route arrays
-          ...adminRoutes,
+          adminRoutes,
           ...complianceRoutes,
           ...publicRoutes,
           ...authRoutes,
@@ -76,7 +72,6 @@ export const router = createBrowserRouter([
           ...marketingRoutes,
           ...devRoutes,
           
-          // 404 catch-all route
           {
             path: "*",
             element: <Page404 />,
