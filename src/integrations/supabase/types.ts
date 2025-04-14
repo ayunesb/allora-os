@@ -748,6 +748,8 @@ export type Database = {
           created_at: string
           error: string | null
           id: string
+          outcome: string | null
+          performance_notes: string | null
           result: string | null
           status: string
           task: string
@@ -758,6 +760,8 @@ export type Database = {
           created_at?: string
           error?: string | null
           id?: string
+          outcome?: string | null
+          performance_notes?: string | null
           result?: string | null
           status?: string
           task: string
@@ -768,6 +772,8 @@ export type Database = {
           created_at?: string
           error?: string | null
           id?: string
+          outcome?: string | null
+          performance_notes?: string | null
           result?: string | null
           status?: string
           task?: string

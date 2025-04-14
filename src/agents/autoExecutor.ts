@@ -1,12 +1,14 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
+import { checkActionOutcome } from './kpiChecker';
 
 export interface ExecutiveAction {
   id: string;
   task: string;
   status: 'pending' | 'in_progress' | 'completed' | 'failed';
   triggered_by: string;
+  user_id?: string;
 }
 
 export async function runAutoExecutor() {
@@ -61,6 +63,9 @@ async function executeAction(action: ExecutiveAction) {
         completed_at: new Date().toISOString()
       })
       .eq('id', action.id);
+
+    // Check action outcome and update memory
+    const outcomeResult = await checkActionOutcome(action.id, action.task);
 
     logger.info(`Task completed successfully: ${action.task}`);
   } catch (error) {
