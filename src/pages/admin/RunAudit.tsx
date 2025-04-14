@@ -22,8 +22,44 @@ export default function RunAudit() {
           duration: 3000,
         });
         
+        // Check for legal documents
+        const checkLegalDocuments = () => {
+          // Array of legal routes to check
+          const legalRoutes = [
+            '/legal/terms-of-service',
+            '/legal/privacy-policy',
+            '/legal/cookies',
+            '/legal/messaging-consent',
+            '/legal/refund-policy',
+            '/legal/compliance'
+          ];
+          
+          // Check in routes configuration
+          const routes = document.querySelectorAll('a');
+          const foundRoutes = [];
+          
+          routes.forEach(route => {
+            const href = route.getAttribute('href');
+            if (href && legalRoutes.some(legalRoute => href.includes(legalRoute))) {
+              foundRoutes.push(href);
+            }
+          });
+          
+          // Return true if we found at least 4 of the 6 legal routes
+          return foundRoutes.length >= 4;
+        };
+        
         // Simulate audit process
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Run legal documents check
+        const legalDocsValid = checkLegalDocuments();
+        if (!legalDocsValid) {
+          console.warn('Legal documents check failed: Not all required legal documents found');
+        }
+        
+        // Continue audit process
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         toast.success('Audit completed successfully. View detailed results.', {
           duration: 5000,
@@ -32,7 +68,7 @@ export default function RunAudit() {
         // Navigate to the audit results page after completion
         setTimeout(() => {
           navigate('/admin/audit');
-        }, 1500); // Reduced from 2000ms to 1500ms for faster response
+        }, 1500);
       } catch (error) {
         console.error('Audit error:', error);
         toast.error('An error occurred during the audit. Please try again.');
