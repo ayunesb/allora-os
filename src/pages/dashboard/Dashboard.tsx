@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, RefreshCw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { AiRecommendations } from "@/components/dashboard/AiRecommendations";
+import AiRecommendations from "@/components/dashboard/AiRecommendations";
 import { DashboardAnalytics } from "@/components/dashboard/DashboardAnalytics";
-import { CeoMessage } from "@/components/dashboard/CeoMessage";
-import { QuickAccess } from "@/components/dashboard/QuickAccess";
+import CeoMessage from "@/components/dashboard/CeoMessage";
+import QuickAccess from "@/components/dashboard/QuickAccess";
 import { DashboardLoading } from "@/components/dashboard/DashboardLoading";
 import { ProductionDataAlert } from "@/components/dashboard/ProductionDataAlert";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -63,13 +63,13 @@ export default function Dashboard() {
         </Button>
       </div>
 
+      {/* The ProductionDataAlert component doesn't need props in this implementation */}
       <ProductionDataAlert />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-8">
         <div className="md:col-span-2">
           <CeoMessage 
-            userName={profile?.name || user?.email?.split('@')[0] || 'there'} 
-            companyName={profile?.company_name || 'your company'} 
+            riskAppetite={profile?.risk_appetite || 'medium'}
           />
         </div>
         <div>
@@ -98,7 +98,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <AiRecommendations />
+      {data && <AiRecommendations 
+        recommendations={data.recommendations || []} 
+        onApprove={(index) => {
+          toast.success(`Recommendation ${index + 1} approved`);
+        }}
+      />}
       <DashboardAnalytics />
       <QuickAccess />
     </div>

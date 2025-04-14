@@ -10,6 +10,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { toast } from "sonner";
 
 interface Recommendation {
+  id?: string;
   title: string;
   description: string;
   type: string;
