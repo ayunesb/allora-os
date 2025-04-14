@@ -9,7 +9,8 @@ import {
   Workflow, 
   Webhook,
   Rocket,
-  Zap
+  Zap,
+  CheckSquare
 } from "lucide-react";
 
 const navItems = [
@@ -47,6 +48,11 @@ const navItems = [
     title: "Webhooks",
     href: "/admin/webhooks",
     icon: <Webhook className="h-5 w-5" />,
+  },
+  {
+    title: "Pre-Launch Audit",
+    href: "/admin/pre-launch-audit",
+    icon: <CheckSquare className="h-5 w-5" />,
   },
   {
     title: "Launch Plan",

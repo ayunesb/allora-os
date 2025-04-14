@@ -11,6 +11,7 @@ import WebhookManagement from "@/pages/admin/WebhookManagement";
 import WebhooksPage from "@/pages/admin/WebhooksPage";
 import LaunchPlan from "@/pages/admin/LaunchPlan";
 import ZapierReadiness from "@/pages/admin/ZapierReadiness";
+import PreLaunchAudit from "@/pages/admin/PreLaunchAudit";
 
 export const adminRoutes: RouteObject = {
   path: "admin",
@@ -69,6 +70,10 @@ export const adminRoutes: RouteObject = {
     {
       path: "zapier-readiness",
       element: <ZapierReadiness />,
+    },
+    {
+      path: "pre-launch-audit",
+      element: <PreLaunchAudit />,
     }
   ],
 };
