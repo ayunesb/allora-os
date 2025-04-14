@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { CircleCheck, CircleAlert, AlertOctagon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HealthCheckResult, ServiceHealth, checkSystemHealth, monitoring } from "@/utils/monitoring";
+import { HealthCheckResult, checkSystemHealth } from "@/utils/monitoring"; // Ensure this utility exists
 import { Separator } from "@/components/ui/separator";
+import { toast } from 'sonner';
 
 export function SystemHealthCheck() {
   const [healthCheck, setHealthCheck] = useState<HealthCheckResult | null>(null);
@@ -13,18 +14,8 @@ export function SystemHealthCheck() {
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
   useEffect(() => {
-    // Run a health check when the component mounts
+    // Run initial health check when component mounts
     runHealthCheck();
-
-    // Subscribe to health check updates
-    const unsubscribe = monitoring.addHealthCheckListener((health) => {
-      setHealthCheck(health);
-      setLastChecked(new Date());
-    });
-
-    return () => {
-      unsubscribe();
-    };
   }, []);
 
   const runHealthCheck = async () => {
@@ -33,8 +24,18 @@ export function SystemHealthCheck() {
       const result = await checkSystemHealth();
       setHealthCheck(result);
       setLastChecked(new Date());
+      
+      // Provide toast notification based on system status
+      if (result.status === 'unhealthy') {
+        toast.error('System health issues detected. Please review.');
+      } else if (result.status === 'degraded') {
+        toast.warning('Some system services are experiencing issues.');
+      } else {
+        toast.success('System is up to date and running smoothly.');
+      }
     } catch (error) {
       console.error("Health check failed:", error);
+      toast.error('Failed to perform system health check.');
     } finally {
       setLoading(false);
     }
@@ -48,8 +49,6 @@ export function SystemHealthCheck() {
         return <CircleAlert className="h-5 w-5 text-amber-500" />;
       case 'unhealthy':
         return <AlertOctagon className="h-5 w-5 text-destructive" />;
-      default:
-        return null;
     }
   };
 
@@ -61,101 +60,70 @@ export function SystemHealthCheck() {
         return <Badge className="bg-amber-500">Degraded</Badge>;
       case 'unhealthy':
         return <Badge variant="destructive">Unhealthy</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
-  const formatResponseTime = (timeMs?: number) => {
-    if (timeMs === undefined) return '—';
-    return `${timeMs.toFixed(0)}ms`;
-  };
+  if (!healthCheck) {
+    return (
+      <Card>
+        <CardContent className="flex justify-center items-center py-12">
+          <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>System Health</CardTitle>
+          <CardTitle>System Status</CardTitle>
           <Button 
             variant="outline" 
             size="sm"
             onClick={runHealthCheck}
             disabled={loading}
           >
-            {loading ? "Checking..." : "Run Health Check"}
+            {loading ? "Checking..." : "Refresh Status"}
           </Button>
         </div>
         <CardDescription>
-          Monitor platform health and service status
+          Real-time monitoring of system services and overall health
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {healthCheck ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(healthCheck.status)}
-                <span className="font-medium">Overall Status:</span>
-                {getStatusBadge(healthCheck.status)}
-              </div>
-              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>
-                  Last checked: {lastChecked ? new Date(lastChecked).toLocaleTimeString() : 'Never'}
-                </span>
-              </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {getStatusIcon(healthCheck.status)}
+              <span className="font-medium">Overall Status:</span>
+              {getStatusBadge(healthCheck.status)}
             </div>
+            <div className="text-sm text-muted-foreground flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span>
+                Last checked: {lastChecked ? lastChecked.toLocaleTimeString() : 'Never'}
+              </span>
+            </div>
+          </div>
 
-            <Separator />
+          <Separator />
 
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm">Services</h4>
-              <div className="grid gap-2">
-                {Object.entries(healthCheck.services).map(([serviceName, serviceHealth]) => (
-                  <div key={serviceName} className="flex items-center justify-between py-1">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(serviceHealth.status)}
-                      <span className="capitalize">{serviceName}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-muted-foreground">
-                        {formatResponseTime(serviceHealth.responseTime)}
-                      </span>
-                      {getStatusBadge(serviceHealth.status)}
-                    </div>
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm">Service Status</h4>
+            <div className="grid gap-2">
+              {Object.entries(healthCheck.services).map(([serviceName, serviceHealth]) => (
+                <div key={serviceName} className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(serviceHealth.status)}
+                    <span className="capitalize">{serviceName}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-muted rounded-md p-3 text-xs space-y-2">
-              <div className="flex justify-between">
-                <span>Environment:</span>
-                <span className="font-medium">{healthCheck.environment}</span>
-              </div>
-              {healthCheck.version && (
-                <div className="flex justify-between">
-                  <span>Version:</span>
-                  <span className="font-medium">{healthCheck.version}</span>
+                  {getStatusBadge(serviceHealth.status)}
                 </div>
-              )}
-              {healthCheck.uptime && (
-                <div className="flex justify-between">
-                  <span>Uptime:</span>
-                  <span className="font-medium">{Math.floor(healthCheck.uptime / 1000)} seconds</span>
-                </div>
-              )}
+              ))}
             </div>
           </div>
-        ) : (
-          <div className="py-8 text-center text-muted-foreground">
-            {loading ? (
-              <p>Checking system health...</p>
-            ) : (
-              <p>No health check data available. Click "Run Health Check" to begin monitoring.</p>
-            )}
-          </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
