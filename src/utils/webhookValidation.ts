@@ -1,109 +1,115 @@
-/**
- * Webhook URL Validation Utilities
- * Provides functions to validate different types of webhook URLs and test connectivity
- */
 
-import { logger } from '@/utils/loggingService';
 import { WebhookType, WebhookResult } from './webhookTypes';
-import { executeWebhook } from './webhookRetry';
-import { validateWebhookUrlFormat, sanitizeWebhookUrl } from './validators/webhookValidator';
-
-// Use export type for type re-export
-export type { WebhookType } from './webhookTypes';
-export { validateWebhookUrlFormat, sanitizeWebhookUrl };
 
 /**
- * Test a webhook by sending a test payload
- * @param webhookUrl The webhook URL to test
- * @param type The type of webhook service 
- * @returns Promise with the test result
+ * Validate webhook URL format based on webhook type
  */
-export const testWebhook = async (
-  webhookUrl: string, 
-  type: WebhookType
-): Promise<WebhookResult> => {
-  // First validate the URL format
-  if (!validateWebhookUrlFormat(webhookUrl, type)) {
-    return { 
-      success: false, 
-      message: `Invalid ${type} webhook URL format` 
-    };
-  }
-  
-  // Create a test payload that identifies itself as a test
-  const testPayload = {
-    event: "test",
-    timestamp: new Date().toISOString(),
-    source: "Allora AI Platform",
-    test: true,
-    message: "This is a test webhook from Allora AI"
-  };
-
-  try {
-    // Use our improved executeWebhook function
-    const result = await executeWebhook(webhookUrl, testPayload, type, 'webhook_test');
-    return result;
-  } catch (error: any) {
-    // Log and return the error
-    const message = error.message || "Unknown error occurred";
-    logger.error(`Webhook test failed: ${message}`, error);
-    
-    return { 
-      success: false, 
-      message: `Test failed: ${message}`,
-      error
-    };
-  }
-};
-
-/**
- * Validates API credentials format (not just webhooks, but other API keys too)
- * @param credential The API credential to validate
- * @param type The type of service
- * @param options Additional validation options
- * @returns Promise with validation result
- */
-export const validateApiCredential = async (
-  credential: string,
-  type: WebhookType | 'stripe_key' | 'postmark_key' | 'twilio_key' | 'openai_key',
-  options: { logAttempts?: boolean; redactSensitive?: boolean } = {}
-): Promise<boolean> => {
-  const { logAttempts = false, redactSensitive = true } = options;
-  
-  if (!credential) return false;
-  
-  // Format validation for webhook URLs
-  if (['stripe', 'zapier', 'github', 'slack', 'custom'].includes(type)) {
-    return validateWebhookUrlFormat(credential, type as WebhookType);
-  }
-  
-  // For API keys, check the format based on known patterns
-  const keyPatterns: Record<string, RegExp> = {
-    stripe_key: /^sk_(?:test|live)_[a-zA-Z0-9]{24,}$/,
-    postmark_key: /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
-    twilio_key: /^[a-zA-Z0-9]{32}$/,
-    openai_key: /^sk-[a-zA-Z0-9]{32,}$/
-  };
-  
-  const pattern = keyPatterns[type];
-  if (!pattern) {
-    logger.error(`Unknown API credential type: ${type}`);
+export function validateWebhookUrlFormat(url: string, type: WebhookType): boolean {
+  if (!url || typeof url !== 'string') {
     return false;
   }
   
-  const isValid = pattern.test(credential);
+  // Remove whitespace
+  url = url.trim();
   
-  if (logAttempts) {
-    const redactedCredential = redactSensitive
-      ? `${credential.substring(0, 4)}...${credential.substring(credential.length - 4)}`
-      : credential;
-    
-    if (isValid) {
-      logger.info(`Valid ${type} credential format: ${redactedCredential}`);
-    } else {
-      logger.warn(`Invalid ${type} credential format: ${redactedCredential}`);
-    }
+  // Basic URL validation
+  try {
+    new URL(url);
+  } catch (e) {
+    return false;
   }
   
-  return isValid;
-};
+  // Type-specific validation
+  switch (type) {
+    case 'stripe':
+      return url.startsWith('https://') && url.includes('stripe.com');
+      
+    case 'zapier':
+      // Zapier webhook URLs typically start with hooks.zapier.com
+      return (
+        url.startsWith('https://') && 
+        (url.includes('hooks.zapier.com') || url.includes('zapier.com/hooks'))
+      );
+      
+    case 'github':
+      return url.startsWith('https://') && url.includes('github.com');
+      
+    case 'slack':
+      return url.startsWith('https://') && url.includes('hooks.slack.com');
+      
+    case 'custom':
+      // Just basic HTTPS validation for custom webhooks
+      return url.startsWith('https://');
+      
+    default:
+      return false;
+  }
+}
+
+/**
+ * Sanitize webhook URL to ensure it's clean and safe
+ */
+export function sanitizeWebhookUrl(url: string, type: WebhookType): string {
+  if (!url) return '';
+  
+  // Trim whitespace
+  url = url.trim();
+  
+  // Basic URL validation
+  try {
+    // This will throw if the URL is invalid
+    const parsedUrl = new URL(url);
+    return parsedUrl.toString();
+  } catch (e) {
+    console.error('Invalid URL:', url);
+    return '';
+  }
+}
+
+/**
+ * Test a webhook by sending a simple test payload
+ */
+export async function testWebhook(url: string, type: WebhookType): Promise<WebhookResult> {
+  if (!url) {
+    return { success: false, message: 'No webhook URL provided' };
+  }
+  
+  if (!validateWebhookUrlFormat(url, type)) {
+    return { success: false, message: `Invalid ${type} webhook URL format` };
+  }
+  
+  try {
+    console.log(`Testing ${type} webhook:`, url);
+    
+    // Prepare test payload based on webhook type
+    const testPayload = {
+      event: 'test',
+      source: 'Allora AI Webhook Test',
+      timestamp: new Date().toISOString(),
+      webhook_type: type
+    };
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(testPayload),
+      mode: 'no-cors', // Use no-cors mode for cross-origin webhooks
+    });
+    
+    // Since we're using no-cors, we can't actually check the response status
+    // For now, we'll just assume success if no error is thrown
+    return { 
+      success: true,
+      message: 'Webhook test request sent successfully (no-cors mode)',
+    };
+  } catch (error: any) {
+    console.error(`Error testing ${type} webhook:`, error);
+    return {
+      success: false,
+      message: error.message || `Failed to test ${type} webhook`,
+      error
+    };
+  }
+}

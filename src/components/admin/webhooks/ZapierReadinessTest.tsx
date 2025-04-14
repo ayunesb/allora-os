@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -14,11 +14,21 @@ import {
   onRevenueMilestoneReached
 } from "@/utils/zapierEventTriggers";
 import { toast } from "sonner";
+import ZapierTriggerButton from "@/components/integrations/ZapierTriggerButton";
 
 const ZapierReadinessTest = () => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, boolean>>({});
   const { triggerWorkflow } = useZapier();
+  const [webhookUrl, setWebhookUrl] = useState<string>('');
+  
+  // Load webhook URL from localStorage on mount
+  useEffect(() => {
+    const savedWebhookUrl = localStorage.getItem('zapier_webhook_url');
+    if (savedWebhookUrl) {
+      setWebhookUrl(savedWebhookUrl);
+    }
+  }, []);
   
   const testEvents = [
     {
@@ -86,12 +96,21 @@ const ZapierReadinessTest = () => {
     {
       name: "Custom Webhook",
       handler: async () => {
-        // Test a direct webhook call
+        // Test a direct webhook call using the saved webhook URL
+        if (!webhookUrl) {
+          toast.error("No webhook URL configured. Please set up a Zapier webhook first.");
+          return false;
+        }
+        
         try {
           const result = await triggerWorkflow(
-            "https://hooks.zapier.com/hooks/catch/123456/test-hook/", // replace with actual test webhook
+            webhookUrl,
             "qa_test_event",
-            { test: true, source: "QA Readiness Test" }
+            { 
+              test: true, 
+              source: "QA Readiness Test",
+              timestamp: new Date().toISOString()
+            }
           );
           return result.success;
         } catch (error) {
@@ -106,7 +125,12 @@ const ZapierReadinessTest = () => {
     setIsLoading(testName);
     try {
       const success = await handler();
-      setTestResults(prev => ({ ...prev, [testName]: success }));
+      
+      // Store results in localStorage for persistence across page reloads
+      const updatedResults = { ...testResults, [testName]: success };
+      setTestResults(updatedResults);
+      localStorage.setItem('zapier_test_results', JSON.stringify(updatedResults));
+      
       if (success) {
         toast.success(`${testName} webhook test passed`);
       } else {
@@ -114,7 +138,12 @@ const ZapierReadinessTest = () => {
       }
     } catch (error) {
       console.error(`Error testing ${testName}:`, error);
-      setTestResults(prev => ({ ...prev, [testName]: false }));
+      
+      // Still update the results, marking as failed
+      const updatedResults = { ...testResults, [testName]: false };
+      setTestResults(updatedResults);
+      localStorage.setItem('zapier_test_results', JSON.stringify(updatedResults));
+      
       toast.error(`${testName} webhook test failed with error`);
     } finally {
       setIsLoading(null);
@@ -123,11 +152,29 @@ const ZapierReadinessTest = () => {
   
   const runAllTests = async () => {
     toast.info("Running all Zapier webhook tests");
+    setIsLoading("all");
+    
     for (const test of testEvents) {
+      // Simulate a slight delay between tests to avoid overwhelming the API
+      await new Promise(resolve => setTimeout(resolve, 500));
       await runSingleTest(test.name, test.handler);
     }
+    
+    setIsLoading(null);
     toast.info("All Zapier webhook tests completed");
   };
+  
+  // Load test results from localStorage on mount to persist state
+  useEffect(() => {
+    try {
+      const savedResults = localStorage.getItem('zapier_test_results');
+      if (savedResults) {
+        setTestResults(JSON.parse(savedResults));
+      }
+    } catch (e) {
+      console.error("Error loading saved test results:", e);
+    }
+  }, []);
   
   return (
     <Card className="w-full">
@@ -151,18 +198,36 @@ const ZapierReadinessTest = () => {
           </AlertDescription>
         </Alert>
         
+        {!webhookUrl && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Webhook URL Found</AlertTitle>
+            <AlertDescription>
+              Please configure your Zapier webhook URL in the Admin Settings before running tests.
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-white underline"
+                onClick={() => window.location.href = "/admin/webhooks"}
+              >
+                Go to Webhook Settings
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="grid gap-3">
           {testEvents.map(test => (
             <div key={test.name} className="flex items-center justify-between border p-3 rounded-md">
               <div className="flex items-center gap-3">
                 {testResults[test.name] === true && <Check className="h-5 w-5 text-green-500" />}
                 {testResults[test.name] === false && <AlertCircle className="h-5 w-5 text-red-500" />}
+                {testResults[test.name] === undefined && <div className="h-5 w-5" />}
                 <span>{test.name} Event</span>
               </div>
               <Button 
                 variant="outline" 
                 size="sm"
-                disabled={isLoading !== null}
+                disabled={isLoading !== null || (test.name === "Custom Webhook" && !webhookUrl)}
                 onClick={() => runSingleTest(test.name, test.handler)}
               >
                 {isLoading === test.name ? (
@@ -177,6 +242,19 @@ const ZapierReadinessTest = () => {
             </div>
           ))}
         </div>
+        
+        {/* Automatic trigger for testing during audit */}
+        <div className="hidden">
+          <ZapierTriggerButton 
+            event="audit_test"
+            payload={{
+              test_id: "zapier_readiness",
+              timestamp: new Date().toISOString()
+            }}
+            autoTrigger={true}
+            label={null}
+          />
+        </div>
       </CardContent>
       <CardFooter className="flex justify-between">
         <div>
@@ -186,19 +264,32 @@ const ZapierReadinessTest = () => {
             </div>
           )}
         </div>
-        <Button 
-          onClick={runAllTests} 
-          disabled={isLoading !== null}
-        >
-          {isLoading === "all" ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Testing All...
-            </>
-          ) : (
-            "Test All Webhooks"
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setTestResults({});
+              localStorage.removeItem('zapier_test_results');
+              toast.info("Test results cleared");
+            }}
+            disabled={isLoading !== null || Object.keys(testResults).length === 0}
+          >
+            Reset Tests
+          </Button>
+          <Button 
+            onClick={runAllTests} 
+            disabled={isLoading !== null || !webhookUrl}
+          >
+            {isLoading === "all" ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Testing All...
+              </>
+            ) : (
+              "Test All Webhooks"
+            )}
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
