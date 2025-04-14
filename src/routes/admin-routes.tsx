@@ -9,6 +9,8 @@ import AdminOnly from "@/components/AdminOnly";
 import AdminLayout from "@/components/AdminLayout";
 import AdminIndex from "@/pages/admin/Index";
 import DevHelperRedirect from "@/pages/admin/DevHelperRedirect";
+import SystemHealth from "@/pages/admin/SystemHealth";
+import TechnicalImprovementsPage from "@/pages/admin/TechnicalImprovementsPage";
 
 export const adminRoutes: RouteObject[] = [
   // Main admin layout with children routes
@@ -43,6 +45,14 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "dev-helper",
         element: <DevHelperRedirect />,
+      },
+      {
+        path: "technical-improvements",
+        element: <TechnicalImprovementsPage />,
+      },
+      {
+        path: "system-health",
+        element: <SystemHealth />,
       },
       {
         path: "users",

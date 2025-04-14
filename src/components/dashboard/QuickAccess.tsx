@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, MessageSquare, PieChart, Phone, ShoppingCart, User, Users, BarChart, Shield, GitBranch, Bot, Zap } from 'lucide-react';
+import { MessageSquare, PieChart, Phone, ShoppingCart, User, Users, GitBranch, Bot } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -33,27 +33,7 @@ export default function QuickAccess() {
       description: "Access AI executive team",
       icon: <Bot className="h-8 w-8 text-purple-500" />,
       link: "/dashboard/ai-bots"
-    },
-    {
-      title: "Technical",
-      description: "Performance improvements",
-      icon: <Zap className="h-8 w-8 text-amber-500" />,
-      link: "/dashboard/technical-improvements"
-    },
-    ...(isAdmin ? [{
-      title: "System Health",
-      description: "Monitor system performance",
-      icon: <Activity className="h-8 w-8 text-blue-500" />,
-      link: "/admin/system-health",
-      color: "bg-blue-50"
-    }] : []),
-    ...(isAdmin ? [{
-      title: "Security",
-      description: "Manage security settings",
-      icon: <Shield className="h-8 w-8 text-purple-500" />,
-      link: "/admin/security",
-      color: "bg-purple-50"
-    }] : [])
+    }
   ];
 
   return (
