@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
@@ -25,6 +24,7 @@ import OnboardingWorkflow from "@/pages/dashboard/OnboardingWorkflow";
 import { Navigate } from "react-router-dom";
 import ExecutiveAgents from "@/pages/dashboard/ExecutiveAgents";
 import ExecutiveDecisions from "@/pages/dashboard/ExecutiveDecisions";
+import ExecutiveProfile from "@/pages/dashboard/executives/[name]";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -137,6 +137,10 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "billing",
         element: <Billing />,
+      },
+      {
+        path: "executives/:name",
+        element: <ExecutiveProfile />,
       },
       {
         path: "*",

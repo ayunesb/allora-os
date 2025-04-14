@@ -11,6 +11,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface DecisionTableProps {
   decisions: ExecutiveDecision[];
@@ -76,7 +77,14 @@ export function DecisionTable({ decisions, loading, error }: DecisionTableProps)
           {decisions.map((decision) => (
             <TableRow key={decision.id}>
               <TableCell className="font-medium">
-                <div>{decision.executiveName}</div>
+                <div>
+                  <Link 
+                    to={`/dashboard/executives/${encodeURIComponent(decision.executiveName)}`} 
+                    className="hover:underline hover:text-primary"
+                  >
+                    {decision.executiveName}
+                  </Link>
+                </div>
                 <div className="text-xs text-muted-foreground">{decision.executiveRole}</div>
               </TableCell>
               <TableCell>{decision.task}</TableCell>
