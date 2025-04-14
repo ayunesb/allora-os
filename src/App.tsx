@@ -16,8 +16,8 @@ import { useEffect } from "react";
 import { initializeAutoExecutorCron } from '@/utils/executorCron';
 import CookieConsent from "@/components/CookieConsent";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
-import AccessibilityAnnouncer from "@/components/accessibility/AccessibilityAnnouncer";
 import SkipToContent from "@/components/accessibility/SkipToContent";
+// AccessibilityAnnouncer will be included via RootLayout
 
 // Set up error logging
 setupErrorLogging();
@@ -91,7 +91,7 @@ function App() {
                   <Toaster richColors />
                   <GlobalErrorModal />
                   <CookieConsent />
-                  <AccessibilityAnnouncer />
+                  {/* AccessibilityAnnouncer is now only rendered in RootLayout where Router context is available */}
                 </div>
               </LanguageProvider>
             </ExecutiveWorkflowProvider>
