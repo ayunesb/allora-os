@@ -37,6 +37,28 @@ export interface PerformanceMetric {
   timestamp: Date;
 }
 
+// Gauge Metrics
+export interface GaugeMetric {
+  name: string;
+  value: number;
+  min: number;
+  max: number;
+  thresholds?: {
+    warning: number;
+    critical: number;
+  };
+  unit: string;
+  timestamp: Date;
+}
+
+// Timing Metrics
+export interface TimingMetric {
+  name: string;
+  duration: number;
+  category: string;
+  timestamp: Date;
+}
+
 type AlertListener = (alerts: Alert[]) => void;
 
 class MonitoringSystem {
@@ -44,6 +66,8 @@ class MonitoringSystem {
   private listeners: AlertListener[] = [];
   private performanceMetrics: PerformanceMetric[] = [];
   private timers: Record<string, number> = {};
+  private gaugeMetrics: GaugeMetric[] = [];
+  private timingMetrics: TimingMetric[] = [];
 
   constructor() {
     // Initialize with some system alerts if needed
@@ -179,6 +203,88 @@ class MonitoringSystem {
         { metric }
       );
     }
+  }
+
+  // New method for gauge metrics
+  public setGauge(
+    name: string, 
+    value: number, 
+    min: number = 0, 
+    max: number = 100, 
+    unit: string = '%',
+    thresholds?: { warning: number; critical: number }
+  ): void {
+    const metric: GaugeMetric = {
+      name,
+      value,
+      min,
+      max,
+      unit,
+      thresholds,
+      timestamp: new Date()
+    };
+    
+    // Update existing gauge or add new one
+    const existingIndex = this.gaugeMetrics.findIndex(g => g.name === name);
+    if (existingIndex >= 0) {
+      this.gaugeMetrics[existingIndex] = metric;
+    } else {
+      this.gaugeMetrics.push(metric);
+    }
+    
+    // Check thresholds and trigger alerts if necessary
+    if (thresholds) {
+      if (value >= thresholds.critical) {
+        this.triggerAlert(
+          `Critical ${name}`,
+          `${name} is at ${value}${unit}, which exceeds critical threshold of ${thresholds.critical}${unit}`,
+          'critical',
+          { metric }
+        );
+      } else if (value >= thresholds.warning) {
+        this.triggerAlert(
+          `Warning ${name}`,
+          `${name} is at ${value}${unit}, which exceeds warning threshold of ${thresholds.warning}${unit}`,
+          'warning',
+          { metric }
+        );
+      }
+    }
+  }
+
+  // Get all gauge metrics
+  public getGaugeMetrics(): GaugeMetric[] {
+    return [...this.gaugeMetrics];
+  }
+
+  // New method for timing metrics
+  public recordTiming(name: string, duration: number, category: string = 'general'): void {
+    const metric: TimingMetric = {
+      name,
+      duration,
+      category,
+      timestamp: new Date()
+    };
+    
+    this.timingMetrics.push(metric);
+    
+    // Alert on slow operations
+    if (duration > 3000) {
+      this.triggerAlert(
+        'Slow Operation',
+        `${name} took ${duration}ms to complete`,
+        'warning',
+        { metric }
+      );
+    }
+  }
+
+  // Get timing metrics
+  public getTimingMetrics(category?: string): TimingMetric[] {
+    if (category) {
+      return [...this.timingMetrics].filter(m => m.category === category);
+    }
+    return [...this.timingMetrics];
   }
 
   public getPerformanceMetrics(limit: number = 100): PerformanceMetric[] {

@@ -1,191 +1,138 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ShieldAlert, Bell, CheckCircle2 } from 'lucide-react';
+import { AlertList } from './AlertList';
+import { CollapsedAlertButton } from './CollapsedAlertButton';
 import { Alert, monitoring, AlertSeverity } from '@/utils/monitoring';
-import { Info, AlertTriangle, AlertCircle, BellRing, X, RefreshCw } from 'lucide-react';
 
 interface AlertsPanelProps {
   maxAlerts?: number;
-  severity?: AlertSeverity | 'all';
-  showControls?: boolean; // Added the missing property
+  defaultExpanded?: boolean;
+  showOnlyUnacknowledged?: boolean;
+  severityFilter?: AlertSeverity;
 }
 
-export default function AlertsPanel({ maxAlerts = 5, severity = 'all', showControls = true }: AlertsPanelProps) {
+const AlertsPanel: React.FC<AlertsPanelProps> = ({
+  maxAlerts = 5,
+  defaultExpanded = true,
+  showOnlyUnacknowledged = false,
+  severityFilter
+}) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    const loadAlerts = () => {
-      setIsLoading(true);
-      
-      let alertsList: Alert[];
-      if (severity === 'all') {
-        alertsList = monitoring.getRecentAlerts(maxAlerts);
-      } else {
-        alertsList = monitoring.getAlerts(severity as AlertSeverity).slice(0, maxAlerts);
-      }
-      
-      setAlerts(alertsList);
-      setIsLoading(false);
-    };
-    
-    loadAlerts();
-    
+    // Initial load of alerts
+    const alertsToShow = monitoring.getAlerts(severityFilter);
+    setAlerts(showOnlyUnacknowledged ? alertsToShow.filter(a => !a.acknowledged) : alertsToShow);
+
     // Subscribe to alert updates
-    const unsubscribe = monitoring.addListener((updatedAlerts) => {
-      if (severity === 'all') {
-        setAlerts(updatedAlerts.slice(0, maxAlerts));
-      } else {
-        setAlerts(
-          updatedAlerts
-            .filter(alert => alert.severity === severity)
-            .slice(0, maxAlerts)
-        );
-      }
+    const unsubscribe = monitoring.addListener(newAlerts => {
+      const filteredAlerts = severityFilter ? 
+        newAlerts.filter(a => a.severity === severityFilter) : 
+        newAlerts;
+        
+      setAlerts(showOnlyUnacknowledged ? 
+        filteredAlerts.filter(a => !a.acknowledged) : 
+        filteredAlerts
+      );
     });
-    
-    return () => {
-      unsubscribe();
-    };
-  }, [maxAlerts, severity]);
 
-  const getSeverityIcon = (alertSeverity: AlertSeverity) => {
-    switch (alertSeverity) {
-      case 'info':
-        return <Info className="h-5 w-5 text-blue-500" />;
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
-      case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
-      case 'critical':
-        return <AlertCircle className="h-5 w-5 text-red-700" />;
-      default:
-        return <Info className="h-5 w-5 text-blue-500" />;
-    }
+    return unsubscribe;
+  }, [severityFilter, showOnlyUnacknowledged]);
+
+  const handleAcknowledge = (alertId: string) => {
+    monitoring.acknowledgeAlert(alertId);
   };
 
-  const getSeverityClass = (alertSeverity: AlertSeverity) => {
-    switch (alertSeverity) {
-      case 'info':
-        return 'bg-blue-50 border-blue-200';
-      case 'warning':
-        return 'bg-amber-50 border-amber-200';
-      case 'error':
-        return 'bg-red-50 border-red-200';
-      case 'critical':
-        return 'bg-red-100 border-red-300';
-      default:
-        return 'bg-blue-50 border-blue-200';
-    }
+  const clearAllAlerts = () => {
+    monitoring.clearAlerts();
   };
 
-  const handleDismiss = (alertId: string) => {
-    monitoring.dismissAlert(alertId);
-  };
-
-  const refreshAlerts = () => {
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      let alertsList: Alert[];
-      if (severity === 'all') {
-        alertsList = monitoring.getRecentAlerts(maxAlerts);
-      } else {
-        alertsList = monitoring.getAlerts(severity as AlertSeverity).slice(0, maxAlerts);
-      }
-      
-      setAlerts(alertsList);
-      setIsLoading(false);
-    }, 500);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-40">
-        <RefreshCw className="h-6 w-6 text-muted-foreground animate-spin" />
-      </div>
-    );
-  }
+  const displayedAlerts = showAll ? alerts : alerts.slice(0, maxAlerts);
 
   if (alerts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-40 text-center">
-        <BellRing className="h-10 w-10 text-muted-foreground opacity-20 mb-3" />
-        <p className="text-muted-foreground">No alerts to display</p>
-        {showControls && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="mt-3"
-            onClick={refreshAlerts}
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-        )}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Bell className="mr-2 h-5 w-5 text-primary" />
+            System Alerts
+          </CardTitle>
+          <CardDescription>Real-time system notifications and alerts</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+          <CheckCircle2 className="h-12 w-12 mb-4 text-green-500" />
+          <p className="mb-2">No alerts at this time</p>
+          <p className="text-sm">The system is running smoothly</p>
+        </CardContent>
+      </Card>
     );
   }
 
+  if (!expanded) {
+    return <CollapsedAlertButton alerts={alerts} onClick={() => setExpanded(true)} />;
+  }
+
   return (
-    <div className="space-y-3">
-      {showControls && (
-        <div className="flex justify-end">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={refreshAlerts}
-            className="gap-1"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            Refresh
-          </Button>
-        </div>
-      )}
-      
-      <ScrollArea className="h-[320px]">
-        <div className="space-y-2">
-          {alerts.map((alert) => (
-            <Card 
-              key={alert.id} 
-              className={`border overflow-hidden ${getSeverityClass(alert.severity)}`}
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center">
+            <ShieldAlert className="mr-2 h-5 w-5 text-primary" />
+            System Alerts
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={clearAllAlerts}
             >
-              <div className={`h-1 w-full ${
-                alert.severity === 'info' ? 'bg-blue-500' : 
-                alert.severity === 'warning' ? 'bg-amber-500' : 
-                alert.severity === 'error' ? 'bg-red-500' : 
-                'bg-red-700'
-              }`} />
-              <CardContent className="p-3 pt-3">
-                <div className="flex justify-between items-start">
-                  <div className="flex gap-2">
-                    <div className="flex-shrink-0 mt-0.5">
-                      {getSeverityIcon(alert.severity)}
-                    </div>
-                    <div>
-                      <div className="font-medium">{alert.title}</div>
-                      <div className="text-sm text-muted-foreground">{alert.message}</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {alert.timestamp.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-6 w-6"
-                    onClick={() => handleDismiss(alert.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              Clear All
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setExpanded(false)}
+            >
+              Minimize
+            </Button>
+          </div>
         </div>
-      </ScrollArea>
-    </div>
+        <CardDescription>
+          {alerts.length} active alert{alerts.length !== 1 ? 's' : ''}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <AlertList alerts={displayedAlerts} onAcknowledge={handleAcknowledge} />
+        
+        {alerts.length > maxAlerts && !showAll && (
+          <div className="mt-4 text-center">
+            <Button 
+              variant="link" 
+              onClick={() => setShowAll(true)}
+            >
+              Show {alerts.length - maxAlerts} more alerts
+            </Button>
+          </div>
+        )}
+        
+        {showAll && alerts.length > maxAlerts && (
+          <div className="mt-4 text-center">
+            <Button 
+              variant="link" 
+              onClick={() => setShowAll(false)}
+            >
+              Show fewer alerts
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default AlertsPanel;

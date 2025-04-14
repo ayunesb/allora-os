@@ -1,323 +1,281 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Gauge, Cpu, Database, Activity, BarChart3 } from 'lucide-react';
-import { monitoring, startApiTimer } from '@/utils/monitoring';
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertBadge } from "./AlertBadge";
+import { monitoring, GaugeMetric, TimingMetric } from '@/utils/monitoring';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar
+} from 'recharts';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Clock, Activity, Server, Database } from "lucide-react";
 
-interface PerformanceMetric {
-  name: string;
-  value: number;
-  timestamp: Date;
+interface PerformanceMetricsProps {
+  isLoading?: boolean;
 }
 
-interface MetricHistory {
-  [key: string]: PerformanceMetric[];
-}
-
-export default function PerformanceMetrics() {
-  const [activeTab, setActiveTab] = useState('overview');
+const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ isLoading = false }) => {
   const [cpuUsage, setCpuUsage] = useState(0);
   const [memoryUsage, setMemoryUsage] = useState(0);
-  const [apiLatency, setApiLatency] = useState(0);
-  const [databaseQueryTime, setDatabaseQueryTime] = useState(0);
-  const [metricHistory, setMetricHistory] = useState<MetricHistory>({
-    cpu: [],
-    memory: [],
-    api: [],
-    database: []
-  });
+  const [apiResponseTime, setApiResponseTime] = useState(0);
+  const [selectedTab, setSelectedTab] = useState("gauges");
+  const [timingData, setTimingData] = useState<TimingMetric[]>([]);
   
-  // Simulate gathering performance metrics
+  // Simulate metrics for demo purposes
   useEffect(() => {
-    // Function to get random variations in metrics
-    const getVariation = (base: number, variance: number) => {
-      return Math.max(0, Math.min(100, base + (Math.random() * variance * 2 - variance)));
-    };
-    
-    // Simulate CPU usage metric
-    const cpuTimer = setInterval(() => {
-      const newCpuUsage = getVariation(cpuUsage || 30, 5);
-      setCpuUsage(newCpuUsage);
+    const interval = setInterval(() => {
+      // Update CPU usage (40-80%)
+      const newCpu = 40 + Math.random() * 40;
+      setCpuUsage(newCpu);
+      monitoring.setGauge('CPU Usage', newCpu, 0, 100, '%', {
+        warning: 70,
+        critical: 90
+      });
       
-      monitoring.setGauge('system.cpu', newCpuUsage);
+      // Update memory usage (30-70%)
+      const newMemory = 30 + Math.random() * 40;
+      setMemoryUsage(newMemory);
+      monitoring.setGauge('Memory Usage', newMemory, 0, 100, '%', {
+        warning: 80,
+        critical: 95
+      });
       
-      setMetricHistory(prev => ({
-        ...prev,
-        cpu: [
-          ...prev.cpu,
-          { name: 'CPU', value: newCpuUsage, timestamp: new Date() }
-        ].slice(-20)
-      }));
-    }, 3000);
-    
-    // Simulate memory usage metric
-    const memoryTimer = setInterval(() => {
-      const newMemoryUsage = getVariation(memoryUsage || 45, 3);
-      setMemoryUsage(newMemoryUsage);
+      // Update API response time (50-500ms)
+      const newApiTime = 50 + Math.random() * 450;
+      setApiResponseTime(newApiTime);
+      monitoring.setGauge('API Response Time', newApiTime, 0, 1000, 'ms', {
+        warning: 300,
+        critical: 800
+      });
       
-      monitoring.setGauge('system.memory', newMemoryUsage);
+      // Simulate page load timing
+      monitoring.recordTiming('Page Load', 800 + Math.random() * 1200, 'frontend');
       
-      setMetricHistory(prev => ({
-        ...prev,
-        memory: [
-          ...prev.memory,
-          { name: 'Memory', value: newMemoryUsage, timestamp: new Date() }
-        ].slice(-20)
-      }));
+      // Update timing data
+      setTimingData(monitoring.getTimingMetrics());
+      
     }, 5000);
     
-    // Simulate API latency metrics
-    const apiTimer = setInterval(() => {
-      const endpoints = ['getStrategies', 'getCampaigns', 'getUserProfile', 'getLeads'];
-      const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
-      
-      const timer = startApiTimer(endpoint);
-      
-      // Simulate API call time (between 100ms and 300ms)
-      setTimeout(() => {
-        const duration = timer();
-        setApiLatency(duration);
-        
-        setMetricHistory(prev => ({
-          ...prev,
-          api: [
-            ...prev.api,
-            { name: endpoint, value: duration, timestamp: new Date() }
-          ].slice(-20)
-        }));
-      }, 100 + Math.random() * 200);
-    }, 4000);
+    // Initial run
+    monitoring.startApiTimer('initial-load');
     
-    // Simulate database query time
-    const dbTimer = setInterval(() => {
-      const tables = ['strategies', 'campaigns', 'leads', 'profiles'];
-      const table = tables[Math.floor(Math.random() * tables.length)];
-      
-      // Simulate DB query time (between 50ms and 150ms)
-      const queryTime = 50 + Math.random() * 100;
-      setDatabaseQueryTime(queryTime);
-      
-      monitoring.recordTiming(`db.query.${table}`, queryTime, { table });
-      
-      setMetricHistory(prev => ({
-        ...prev,
-        database: [
-          ...prev.database,
-          { name: table, value: queryTime, timestamp: new Date() }
-        ].slice(-20)
-      }));
-    }, 6000);
+    // Generate some initial data
+    monitoring.setGauge('CPU Usage', 45, 0, 100, '%');
+    monitoring.setGauge('Memory Usage', 32, 0, 100, '%');
+    monitoring.setGauge('API Response Time', 120, 0, 1000, 'ms');
     
-    // Clean up intervals
-    return () => {
-      clearInterval(cpuTimer);
-      clearInterval(memoryTimer);
-      clearInterval(apiTimer);
-      clearInterval(dbTimer);
-    };
-  }, [cpuUsage, memoryUsage]);
+    monitoring.recordTiming('API Initialization', 345, 'backend');
+    monitoring.recordTiming('Database Connection', 112, 'backend');
+    monitoring.recordTiming('Auth Check', 89, 'backend');
+    
+    setTimeout(() => {
+      monitoring.endApiTimer('initial-load');
+    }, 500);
 
-  // Format time for chart display
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  };
+    return () => clearInterval(interval);
+  }, []);
   
-  // Prepare chart data
-  const getChartData = (metrics: PerformanceMetric[]) => {
-    return metrics.map(metric => ({
-      name: formatTime(metric.timestamp),
-      value: metric.value
-    }));
+  // Format timing data for charts
+  const formattedTimingData = timingData.map(metric => ({
+    name: metric.name,
+    duration: metric.duration,
+    category: metric.category
+  })).slice(0, 10);
+  
+  // Sample performance data for chart
+  const performanceData = [
+    { date: '10:00', cpu: 42, memory: 38, apiTime: 120 },
+    { date: '10:05', cpu: 45, memory: 40, apiTime: 135 },
+    { date: '10:10', cpu: 48, memory: 45, apiTime: 128 },
+    { date: '10:15', cpu: 52, memory: 48, apiTime: 142 },
+    { date: '10:20', cpu: 58, memory: 52, apiTime: 150 },
+    { date: '10:25', cpu: 62, memory: 55, apiTime: 165 },
+    { date: '10:30', cpu: 68, memory: 58, apiTime: 180 },
+    { date: '10:35', cpu: 72, memory: 62, apiTime: 210 },
+    { date: '10:40', cpu: 70, memory: 65, apiTime: 190 },
+    { date: '10:45', cpu: 65, memory: 60, apiTime: 175 },
+  ];
+
+  const getStatusColor = (value: number, warningThreshold: number, criticalThreshold: number) => {
+    if (value >= criticalThreshold) return "bg-red-500";
+    if (value >= warningThreshold) return "bg-amber-500";
+    return "bg-green-500";
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-[250px]" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Performance Metrics</CardTitle>
+        <CardTitle>System Performance</CardTitle>
         <CardDescription>
-          Real-time system performance monitoring
+          Real-time metrics and performance data
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" className="flex items-center justify-center">
-              <Activity className="h-4 w-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="system" className="flex items-center justify-center">
-              <Cpu className="h-4 w-4 mr-2" />
-              System
-            </TabsTrigger>
-            <TabsTrigger value="api" className="flex items-center justify-center">
-              <Gauge className="h-4 w-4 mr-2" />
-              API
-            </TabsTrigger>
-            <TabsTrigger value="database" className="flex items-center justify-center">
-              <Database className="h-4 w-4 mr-2" />
-              Database
-            </TabsTrigger>
+        <Tabs defaultValue="gauges" value={selectedTab} onValueChange={setSelectedTab}>
+          <TabsList className="w-full mb-4">
+            <TabsTrigger value="gauges">Resource Usage</TabsTrigger>
+            <TabsTrigger value="timings">Response Times</TabsTrigger>
+            <TabsTrigger value="history">Historical Data</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="overview">
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <Card>
-                <CardHeader className="py-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <Cpu className="h-4 w-4 mr-2" />
+          <TabsContent value="gauges" className="space-y-4">
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center">
+                    <Server className="h-4 w-4 mr-2" />
                     CPU Usage
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="py-2">
-                  <div className="space-y-2">
-                    <Progress value={cpuUsage} className="h-2" />
-                    <p className="text-xs text-right text-muted-foreground">
-                      {cpuUsage.toFixed(1)}%
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                  </span>
+                  <Badge 
+                    className={getStatusColor(cpuUsage, 70, 90)}
+                  >
+                    {cpuUsage.toFixed(1)}%
+                  </Badge>
+                </div>
+                <Progress value={cpuUsage} className="h-2" />
+              </div>
               
-              <Card>
-                <CardHeader className="py-2">
-                  <CardTitle className="text-sm flex items-center">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center">
                     <Database className="h-4 w-4 mr-2" />
                     Memory Usage
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="py-2">
-                  <div className="space-y-2">
-                    <Progress value={memoryUsage} className="h-2" />
-                    <p className="text-xs text-right text-muted-foreground">
-                      {memoryUsage.toFixed(1)}%
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                  </span>
+                  <Badge 
+                    className={getStatusColor(memoryUsage, 80, 95)}
+                  >
+                    {memoryUsage.toFixed(1)}%
+                  </Badge>
+                </div>
+                <Progress value={memoryUsage} className="h-2" />
+              </div>
               
-              <Card>
-                <CardHeader className="py-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <Gauge className="h-4 w-4 mr-2" />
-                    API Latency
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="py-2">
-                  <div className="space-y-2">
-                    <Progress 
-                      value={Math.min(100, (apiLatency / 500) * 100)} 
-                      className="h-2" 
-                    />
-                    <p className="text-xs text-right text-muted-foreground">
-                      {apiLatency.toFixed(2)} ms
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="py-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    DB Query Time
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="py-2">
-                  <div className="space-y-2">
-                    <Progress 
-                      value={Math.min(100, (databaseQueryTime / 200) * 100)} 
-                      className="h-2" 
-                    />
-                    <p className="text-xs text-right text-muted-foreground">
-                      {databaseQueryTime.toFixed(2)} ms
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center">
+                    <Activity className="h-4 w-4 mr-2" />
+                    API Response Time
+                  </span>
+                  <Badge 
+                    className={getStatusColor(apiResponseTime, 300, 800)}
+                  >
+                    {apiResponseTime.toFixed(0)}ms
+                  </Badge>
+                </div>
+                <Progress value={(apiResponseTime / 1000) * 100} className="h-2" />
+              </div>
             </div>
           </TabsContent>
           
-          <TabsContent value="system">
-            <div className="h-[300px] mt-4">
+          <TabsContent value="timings">
+            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={getChartData(metricHistory.cpu)}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                <BarChart
+                  data={formattedTimingData}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 70,
+                  }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis 
-                    domain={[0, 100]} 
-                    label={{ value: '%', angle: -90, position: 'insideLeft' }} 
+                  <XAxis 
+                    dataKey="name" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={70}
                   />
+                  <YAxis label={{ value: 'Duration (ms)', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Area type="monotone" dataKey="value" stroke="#8884d8" fill="#8884d8" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="h-[300px] mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={getChartData(metricHistory.memory)}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis 
-                    domain={[0, 100]} 
-                    label={{ value: '%', angle: -90, position: 'insideLeft' }} 
+                  <Bar 
+                    dataKey="duration" 
+                    fill="#8884d8" 
+                    name="Duration (ms)"
+                    isAnimationActive={false}
                   />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="value" stroke="#82ca9d" fill="#82ca9d" />
-                </AreaChart>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </TabsContent>
           
-          <TabsContent value="api">
-            <div className="h-[300px] mt-4">
+          <TabsContent value="history">
+            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={getChartData(metricHistory.api)}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                <LineChart
+                  data={performanceData}
+                  margin={{
+                    top: 20,
+                    right: 20,
+                    left: 20,
+                    bottom: 20,
+                  }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis 
-                    domain={[0, 'dataMax + 50']} 
-                    label={{ value: 'ms', angle: -90, position: 'insideLeft' }} 
-                  />
+                  <XAxis dataKey="date" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
                   <Tooltip />
-                  <Area type="monotone" dataKey="value" stroke="#ff7300" fill="#ffa500" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="database">
-            <div className="h-[300px] mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={getChartData(metricHistory.database)}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis 
-                    domain={[0, 'dataMax + 20']} 
-                    label={{ value: 'ms', angle: -90, position: 'insideLeft' }} 
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="cpu"
+                    name="CPU Usage (%)"
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
                   />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="value" stroke="#0088FE" fill="#0088FE" />
-                </AreaChart>
+                  <Line 
+                    yAxisId="left" 
+                    type="monotone" 
+                    dataKey="memory" 
+                    name="Memory (%)"
+                    stroke="#82ca9d" 
+                  />
+                  <Line 
+                    yAxisId="right" 
+                    type="monotone" 
+                    dataKey="apiTime" 
+                    name="API Time (ms)"
+                    stroke="#ffc658" 
+                  />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           </TabsContent>
         </Tabs>
+        
+        <div className="mt-4 text-xs text-muted-foreground flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          <span>
+            Last updated: {new Date().toLocaleTimeString()}
+          </span>
+        </div>
       </CardContent>
     </Card>
   );
-}
+};
+
+export default PerformanceMetrics;
