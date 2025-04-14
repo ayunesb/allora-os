@@ -46,6 +46,9 @@ export function RunAuditStatus({ isRunning, progress, auditComplete }: RunAuditS
             </div>
           )}
           <h3 className="text-lg font-medium">Audit Complete</h3>
+          <p className="text-muted-foreground mb-4">
+            All systems have been checked and results are ready to view.
+          </p>
           <Button 
             className="w-full" 
             onClick={() => navigate('/admin/audit')}

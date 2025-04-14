@@ -1,17 +1,61 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TypographyH1 } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle2, XCircle, AlertTriangle, Clock, PlayCircle } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Clock, PlayCircle, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function AuditPage() {
   const navigate = useNavigate();
+  const [lastAuditDate, setLastAuditDate] = useState<string>("April 12, 2025 at 14:23");
+  const [auditStats, setAuditStats] = useState({
+    passed: 24,
+    warnings: 8,
+    failed: 3,
+    duration: "2:18"
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Load last audit results from localStorage
+  useEffect(() => {
+    const lastAudit = localStorage.getItem('lastAuditResults');
+    if (lastAudit) {
+      try {
+        const auditData = JSON.parse(lastAudit);
+        
+        // Update the last audit date
+        if (auditData.timestamp) {
+          const date = new Date(auditData.timestamp);
+          setLastAuditDate(date.toLocaleDateString('en-US', {
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }));
+        }
+        
+        // Update audit stats if results are available
+        if (auditData.results) {
+          const results = auditData.results;
+          setAuditStats({
+            passed: results.passedChecks?.length || 0,
+            warnings: results.issues?.filter(i => i.severity === 'warning').length || 0,
+            failed: results.issues?.filter(i => i.severity === 'critical').length || 0,
+            duration: "2:18" // This would be dynamic in a real implementation
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing last audit data:', error);
+      }
+    }
+  }, []);
   
   const handleRunNewAudit = () => {
+    setIsLoading(true);
     toast.info("Starting new system audit...");
     navigate("/admin/run-audit");
   };
@@ -23,16 +67,26 @@ export default function AuditPage() {
         <Button 
           className="w-full sm:w-auto"
           onClick={handleRunNewAudit}
+          disabled={isLoading}
         >
-          <PlayCircle className="mr-2 h-4 w-4" />
-          Run New Audit
+          {isLoading ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Running Audit...
+            </>
+          ) : (
+            <>
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Run New Audit
+            </>
+          )}
         </Button>
       </div>
       
       <Card>
         <CardHeader>
           <CardTitle>Audit Overview</CardTitle>
-          <CardDescription>Last audit run: April 12, 2025 at 14:23</CardDescription>
+          <CardDescription>Last audit run: {lastAuditDate}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -43,7 +97,7 @@ export default function AuditPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">Passed</p>
-                  <p className="text-2xl font-bold">24</p>
+                  <p className="text-2xl font-bold">{auditStats.passed}</p>
                 </div>
               </CardContent>
             </Card>
@@ -55,7 +109,7 @@ export default function AuditPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">Warnings</p>
-                  <p className="text-2xl font-bold">8</p>
+                  <p className="text-2xl font-bold">{auditStats.warnings}</p>
                 </div>
               </CardContent>
             </Card>
@@ -67,7 +121,7 @@ export default function AuditPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">Failed</p>
-                  <p className="text-2xl font-bold">3</p>
+                  <p className="text-2xl font-bold">{auditStats.failed}</p>
                 </div>
               </CardContent>
             </Card>
@@ -79,7 +133,7 @@ export default function AuditPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">Duration</p>
-                  <p className="text-2xl font-bold">2:18</p>
+                  <p className="text-2xl font-bold">{auditStats.duration}</p>
                 </div>
               </CardContent>
             </Card>
