@@ -13,18 +13,22 @@ export interface TabItem {
   icon?: LucideIcon;
 }
 
-interface ScrollableTabsProps {
+export interface ScrollableTabsProps {
   tabs: TabItem[];
   activeTab: string;
   onTabChange?: (value: string) => void;
-  variant?: 'default' | 'outline';
+  variant?: 'default' | 'outline' | 'futuristic';
+  className?: string;
+  fullWidth?: boolean;
 }
 
 const ScrollableTabs: React.FC<ScrollableTabsProps> = ({ 
   tabs, 
   activeTab, 
   onTabChange,
-  variant = 'default'
+  variant = 'default',
+  className,
+  fullWidth = false,
 }) => {
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
@@ -71,7 +75,7 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
   };
   
   return (
-    <div className="relative">
+    <div className={cn("relative", className)}>
       {showLeftScroll && (
         <Button 
           variant="ghost" 
@@ -91,7 +95,9 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
         <TabsList 
           className={cn(
             "w-max min-w-full", 
-            variant === 'outline' && "bg-transparent border-b rounded-none p-0"
+            variant === 'outline' && "bg-transparent border-b rounded-none p-0",
+            variant === 'futuristic' && "bg-transparent border border-primary/20 rounded-lg p-1",
+            fullWidth && "w-full"
           )}
         >
           {tabs.map((tab) => (
@@ -101,6 +107,7 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
               onClick={() => onTabChange?.(tab.id)}
               className={cn(
                 variant === 'outline' && "border-b-2 border-b-transparent data-[state=active]:border-b-primary data-[state=active]:bg-transparent rounded-none px-4 pb-3",
+                variant === 'futuristic' && "data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-md",
                 "min-w-[100px]"
               )}
             >

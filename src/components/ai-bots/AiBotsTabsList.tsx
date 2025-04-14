@@ -1,6 +1,16 @@
 
 import React from "react";
-import { Brain, MessageSquare, Bot, Lightbulb, History, BrainCircuit, GanttChart, Users } from "lucide-react";
+import { 
+  Brain, 
+  MessageSquare, 
+  Bot, 
+  Lightbulb, 
+  History, 
+  BrainCircuit, 
+  GanttChart, 
+  Users,
+  LucideIcon
+} from "lucide-react";
 import ScrollableTabs, { TabItem } from "@/components/ui/scrollable-tabs";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
@@ -9,7 +19,7 @@ interface AiBotsTabsListProps {
   isMobileView?: boolean;
   activeTab?: string;
   onTabChange?: (value: string) => void;
-  tabIcons?: Record<string, React.ComponentType<any>>;
+  tabIcons?: Record<string, LucideIcon>;
 }
 
 export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({ 
@@ -101,10 +111,10 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({
     <div className="w-full max-w-full overflow-hidden">
       <ScrollableTabs 
         tabs={tabs} 
-        activeTab={activeTab}
+        activeTab={activeTab || tabs[0].id}
         onTabChange={onTabChange}
         className="mb-6 py-2 bg-black/30 border border-white/10 backdrop-blur-md rounded-lg"
-        variant="futuristic"
+        variant="default"
       />
     </div>
   );

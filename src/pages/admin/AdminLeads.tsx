@@ -139,6 +139,13 @@ export default function AdminLeads() {
     );
   };
 
+  const scoreHeaderRender = () => (
+    <div className="flex items-center cursor-pointer" onClick={() => handleSort('score')}>
+      Score
+      <ArrowUpDown className="ml-1 h-4 w-4" />
+    </div>
+  );
+
   const columns = [
     {
       key: "name",
@@ -169,12 +176,8 @@ export default function AdminLeads() {
     },
     {
       key: "score",
-      title: (
-        <div className="flex items-center cursor-pointer" onClick={() => handleSort('score')}>
-          Score
-          <ArrowUpDown className="ml-1 h-4 w-4" />
-        </div>
-      ),
+      title: "Score",
+      titleRender: scoreHeaderRender,
       sortable: true,
       render: (item: Lead) => renderLeadScore(item),
     },

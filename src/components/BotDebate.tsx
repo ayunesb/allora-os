@@ -49,7 +49,9 @@ export default function BotDebate() {
       <CardContent className="pt-6">
         <Tabs defaultValue="debate" className="space-y-6">
           <ScrollableTabs 
-            tabs={tabs} 
+            tabs={tabs}
+            activeTab="debate"
+            onTabChange={() => {}}
             className="safari-fix"
             variant="default"
           />

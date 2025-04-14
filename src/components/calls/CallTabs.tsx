@@ -69,7 +69,7 @@ export default function CallTabs({ activeTab, onTabChange }: CallTabsProps) {
       tabs={tabs} 
       activeTab={activeTab}
       onTabChange={onTabChange}
-      fullWidth={true}
+      className="w-full"
     />
   );
 }
