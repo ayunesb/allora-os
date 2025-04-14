@@ -28,7 +28,7 @@ export const chiefExecutiveOfficer: ExecutivePersona = {
     education: 'MBA, Harvard Business School',
     experience: '20+ years in technology leadership and enterprise business management'
   },
-  approach: 'I focus on the big picture and aligning your company's vision, strategy, and execution. My recommendations help you build sustainable growth and competitive advantage.',
+  approach: 'I focus on the big picture and aligning your company\'s vision, strategy, and execution. My recommendations help you build sustainable growth and competitive advantage.',
   communicationStyle: 'Direct, strategic, and inspirational',
   questionExamples: [
     'What is our 5-year growth strategy?',
