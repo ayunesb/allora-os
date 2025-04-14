@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Github, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Github, AlertCircle, CheckCircle2, Loader2, Link2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,16 @@ const GitHubWebhookConfigSection = ({ onConfigureWebhook }: GitHubWebhookConfigS
   const [githubWebhook, setGithubWebhook] = useState<string>(localStorage.getItem('github_webhook_url') || '');
   const [isTestLoading, setIsTestLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(!!localStorage.getItem('github_webhook_url'));
+  const [isConnecting, setIsConnecting] = useState(false);
   
   const { isValid, validationMessage, validateUrl } = useWebhookValidation('github');
+
+  useEffect(() => {
+    // Validate the URL when component mounts
+    if (githubWebhook) {
+      validateUrl(githubWebhook);
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -46,6 +54,24 @@ const GitHubWebhookConfigSection = ({ onConfigureWebhook }: GitHubWebhookConfigS
       setIsTestLoading(false);
       toast.success('GitHub webhook connection successful!');
     }, 1500);
+  };
+
+  const handleDirectGitHubConnect = () => {
+    setIsConnecting(true);
+    
+    // Simulate GitHub OAuth flow and webhook setup
+    toast.success("GitHub connection initiated");
+    
+    // Simulate the OAuth process with a timeout
+    setTimeout(() => {
+      const mockGitHubWebhookUrl = "https://api.github.com/repos/allora-ai/platform/hooks/12345678";
+      setGithubWebhook(mockGitHubWebhookUrl);
+      validateUrl(mockGitHubWebhookUrl);
+      localStorage.setItem('github_webhook_url', mockGitHubWebhookUrl);
+      setIsConnected(true);
+      setIsConnecting(false);
+      toast.success("GitHub repository connected successfully!");
+    }, 2000);
   };
 
   return (
@@ -106,7 +132,7 @@ const GitHubWebhookConfigSection = ({ onConfigureWebhook }: GitHubWebhookConfigS
         </Alert>
       )}
       
-      <div className="flex justify-between items-center pt-2">
+      <div className="flex flex-col sm:flex-row gap-2 justify-between items-center pt-2">
         <Button 
           variant="ghost" 
           size="sm"
@@ -114,13 +140,36 @@ const GitHubWebhookConfigSection = ({ onConfigureWebhook }: GitHubWebhookConfigS
         >
           GitHub Docs
         </Button>
-        <Button 
-          variant="default" 
-          size="sm"
-          onClick={() => onConfigureWebhook('github')}
-        >
-          Advanced Configuration
-        </Button>
+        
+        <div className="flex gap-2">
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={handleDirectGitHubConnect}
+            disabled={isConnecting}
+            className="gap-2"
+          >
+            {isConnecting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                <Link2 className="h-4 w-4" />
+                Connect GitHub
+              </>
+            )}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => onConfigureWebhook('github')}
+          >
+            Advanced Config
+          </Button>
+        </div>
       </div>
     </div>
   );
