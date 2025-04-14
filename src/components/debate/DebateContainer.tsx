@@ -85,6 +85,16 @@ const DebateContainer: React.FC = () => {
     handleTabChange('summary');
   };
 
+  // Create a wrapper function to adapt to the expected parameter type
+  const handleNewMessageChangeWrapper = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleNewMessageChange(e);
+  };
+
+  // Create a wrapper function to adapt the vote parameter
+  const handleVoteMessageWrapper = (messageId: string, vote: 1 | -1) => {
+    voteMessage(messageId, vote);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -219,8 +229,8 @@ const DebateContainer: React.FC = () => {
                 onExportDebate={() => exportDebate(messages, debateTitle)}
                 onGenerateSummary={handleGenerateSummary}
                 newMessage={newMessage}
-                onNewMessageChange={handleNewMessageChange}
-                onVoteMessage={voteMessage}
+                onNewMessageChange={handleNewMessageChangeWrapper}
+                onVoteMessage={handleVoteMessageWrapper}
                 onToggleFavorite={toggleFavorite}
               />
             </TabsContent>
