@@ -13,8 +13,18 @@ export function useProductionData() {
   const [isValidating, setIsValidating] = useState(false);
   const [validationResults, setValidationResults] = useState<ValidationResults | null>(null);
   const [isProductionReady, setIsProductionReady] = useState(false);
+  const [isProductionMode, setIsProductionMode] = useState(false);
   const { user, profile } = useAuth();
   const companyId = useCompanyId();
+  
+  // Check if in production mode based on URL or environment
+  useEffect(() => {
+    const productionMode = 
+      window.location.hostname === 'all-or-a.online' || 
+      process.env.NODE_ENV === 'production';
+    
+    setIsProductionMode(productionMode);
+  }, []);
   
   // Run validation on initial load
   useEffect(() => {
@@ -35,7 +45,20 @@ export function useProductionData() {
       
       // Provide feedback based on validation results
       if (results.success) {
-        if (results.warnings.length > 0) {
+        // In production mode, notify if cleanup was performed
+        if (isProductionMode && results.cleanupPerformed) {
+          const totalRemoved = 
+            results.validationDetails.companies.cleaned + 
+            results.validationDetails.leads.cleaned + 
+            results.validationDetails.strategies.cleaned +
+            results.validationDetails.campaigns.cleaned;
+            
+          if (totalRemoved > 0) {
+            toast.info(`Production data cleansed: ${totalRemoved} test items removed`, {
+              description: "Check the validation report for details"
+            });
+          }
+        } else if (results.warnings.length > 0) {
           toast.info(`Validation completed with ${results.warnings.length} warnings`, {
             description: "Check the validation report for details"
           });
@@ -54,20 +77,21 @@ export function useProductionData() {
           console.error("Validation errors:", results.errors.slice(0, 3));
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error validating production data:", error);
       toast.error("Error validating production data");
       setIsProductionReady(false);
     } finally {
       setIsValidating(false);
     }
-  }, []);
+  }, [isProductionMode]);
   
   // Return the hook API
   return {
     isValidating,
     validationResults,
     isProductionReady,
+    isProductionMode,
     validateProductionData
   };
 }

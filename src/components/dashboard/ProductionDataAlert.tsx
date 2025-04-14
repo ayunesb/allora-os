@@ -55,6 +55,14 @@ export function ProductionDataAlert({
         <AlertTitle>Production Ready</AlertTitle>
         <AlertDescription>
           All data validation checks passed successfully. Found {validationResults.validRecords} valid records.
+          {validationResults.cleanupPerformed && (
+            <p className="text-sm mt-1">
+              {validationResults.validationDetails.companies.cleaned + 
+               validationResults.validationDetails.leads.cleaned + 
+               validationResults.validationDetails.strategies.cleaned +
+               validationResults.validationDetails.campaigns.cleaned} test/demo items were automatically removed.
+            </p>
+          )}
           {validationResults.warnings.length > 0 && (
             <div className="mt-2">
               <Accordion type="single" collapsible className="w-full">
@@ -99,6 +107,14 @@ export function ProductionDataAlert({
             </li>
           ))}
         </ul>
+        {validationResults.cleanupPerformed && (
+          <p className="text-sm mt-1">
+            Note: {validationResults.validationDetails.companies.cleaned + 
+             validationResults.validationDetails.leads.cleaned + 
+             validationResults.validationDetails.strategies.cleaned +
+             validationResults.validationDetails.campaigns.cleaned} test/demo items were automatically removed, but issues remain.
+          </p>
+        )}
         {validationResults.warnings.length > 0 && (
           <Accordion type="single" collapsible className="w-full mt-2">
             <AccordionItem value="warnings">
@@ -123,6 +139,9 @@ export function ProductionDataAlert({
           </Button>
           <Button size="sm" variant="destructive" onClick={() => navigate("/onboarding")}>
             Fix Company Data
+          </Button>
+          <Button size="sm" variant="outline" className="ml-auto" onClick={() => navigate("/admin/system#production")}>
+            View Details
           </Button>
         </div>
       </AlertDescription>
