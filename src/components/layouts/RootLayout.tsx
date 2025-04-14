@@ -6,6 +6,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { setupAccessibleErrorHandling } from "@/utils/api/errorHandling";
 import { logger } from "@/utils/loggingService";
 import { AccessibilityButton } from "@/components/accessibility/AccessibilityPanel";
+import { HelpProvider } from "@/context/HelpContext";
+import { HelpModal } from "@/components/help/HelpModal";
 
 export default function RootLayout() {
   // Apply any global effects or settings when the root layout mounts
@@ -26,11 +28,14 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-background font-sans antialiased">
-        <Outlet />
-        <Toaster />
-        <AccessibilityButton />
-      </div>
+      <HelpProvider>
+        <div className="min-h-screen bg-background font-sans antialiased">
+          <Outlet />
+          <Toaster />
+          <AccessibilityButton />
+          <HelpModal />
+        </div>
+      </HelpProvider>
     </ErrorBoundary>
   );
 }

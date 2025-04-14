@@ -1,137 +1,99 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { LucideIcon } from 'lucide-react';
-import { Loading } from '@/components/ui/loading';
+import React, { useRef, useState, useEffect } from "react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { HelpTooltip } from "@/components/help/HelpTooltip";
 
 export interface TabItem {
   id: string;
   label: string;
   shortLabel?: string;
   icon?: LucideIcon;
-  count?: number;
+  disabled?: boolean;
+  tooltip?: string;
 }
 
-export interface ScrollableTabsProps {
+interface ScrollableTabsProps {
   tabs: TabItem[];
   activeTab: string;
   onTabChange: (value: string) => void;
-  variant?: 'default' | 'outline';
   isLoading?: boolean;
   className?: string;
+  variant?: "default" | "outline" | "pills";
 }
 
-const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
+export default function ScrollableTabs({
   tabs,
   activeTab,
   onTabChange,
-  variant = 'default',
   isLoading = false,
   className,
-}) => {
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(false);
-  const tabsContainerRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  variant = "default",
+}: ScrollableTabsProps) {
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isNarrow, setIsNarrow] = useState(false);
 
-  // Check if scroll arrows should be shown
-  const checkScrollArrows = () => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setShowLeftArrow(scrollLeft > 0);
-      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5); // 5px tolerance
-    }
-  };
-
-  // Initialize on mount and when tabs change
+  // Check if we need to show scroll buttons
   useEffect(() => {
-    checkScrollArrows();
-    // Add resize observer to handle window resizing
-    const resizeObserver = new ResizeObserver(() => {
-      checkScrollArrows();
-    });
-    
-    if (tabsContainerRef.current) {
-      resizeObserver.observe(tabsContainerRef.current);
+    const checkScroll = () => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        setShowLeftScroll(scrollLeft > 0);
+        setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 5);
+      }
+    };
+
+    // Check if viewport is narrow
+    const checkWidth = () => {
+      setIsNarrow(window.innerWidth < 640);
+    };
+
+    checkScroll();
+    checkWidth();
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", checkScroll);
     }
-    
+
+    window.addEventListener("resize", () => {
+      checkScroll();
+      checkWidth();
+    });
+
     return () => {
-      resizeObserver.disconnect();
+      if (scrollElement) {
+        scrollElement.removeEventListener("scroll", checkScroll);
+      }
+      window.removeEventListener("resize", checkScroll);
+      window.removeEventListener("resize", checkWidth);
     };
   }, [tabs]);
 
-  // Scroll to the active tab on mount and when activeTab changes
-  useEffect(() => {
-    if (scrollContainerRef.current && tabsContainerRef.current) {
-      const activeTabElement = tabsContainerRef.current.querySelector(`[data-value="${activeTab}"]`) as HTMLElement;
-      
-      if (activeTabElement) {
-        const containerRect = scrollContainerRef.current.getBoundingClientRect();
-        const activeTabRect = activeTabElement.getBoundingClientRect();
-        
-        const isInView = 
-          activeTabRect.left >= containerRect.left &&
-          activeTabRect.right <= containerRect.right;
-          
-        if (!isInView) {
-          const scrollLeft = 
-            activeTabRect.left - 
-            containerRect.left + 
-            scrollContainerRef.current.scrollLeft - 
-            16; // Add some padding
-            
-          scrollContainerRef.current.scrollTo({
-            left: scrollLeft,
-            behavior: 'smooth'
-          });
-        }
-      }
-    }
-  }, [activeTab]);
-
-  // Handle scroll events
-  const handleScroll = () => {
-    checkScrollArrows();
-  };
-
-  // Scroll left/right functions
+  // Scroll handlers
   const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      const newScrollLeft = scrollContainerRef.current.scrollLeft - 200;
-      scrollContainerRef.current.scrollTo({
-        left: newScrollLeft,
-        behavior: 'smooth'
-      });
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -200, behavior: "smooth" });
     }
   };
 
   const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      const newScrollLeft = scrollContainerRef.current.scrollLeft + 200;
-      scrollContainerRef.current.scrollTo({
-        left: newScrollLeft,
-        behavior: 'smooth'
-      });
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 200, behavior: "smooth" });
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className={cn("w-full py-4", className)}>
-        <Loading center text="Loading tabs..." />
-      </div>
-    );
-  }
-
   return (
-    <div className={cn("relative", className)} ref={tabsContainerRef}>
-      {showLeftArrow && (
+    <div className={cn("relative", className)}>
+      {showLeftScroll && (
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background shadow-md"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={scrollLeft}
           aria-label="Scroll left"
         >
@@ -139,60 +101,70 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
         </Button>
       )}
       
-      <div
-        ref={scrollContainerRef}
-        className="overflow-x-auto scrollbar-none"
-        onScroll={handleScroll}
-      >
-        <div className={cn(
-          "inline-flex min-w-full p-1 gap-1",
-          variant === 'outline' ? "border rounded-lg" : "bg-muted rounded-lg"
-        )}>
+      <ScrollArea className="w-full" scrollHideDelay={100}>
+        <div
+          ref={scrollRef}
+          className={cn(
+            "flex w-full overflow-x-auto scrollbar-none space-x-1 pb-1",
+            variant === "pills" && "p-1 bg-muted/50 rounded-lg"
+          )}
+        >
           {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
+            const TabIcon = tab.icon;
+            const labelToShow = isNarrow && tab.shortLabel ? tab.shortLabel : tab.label;
             
-            return (
+            const tabButton = (
               <button
                 key={tab.id}
-                className={cn(
-                  "inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-md",
-                  "min-w-[5rem]",
-                  isActive
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/40",
-                  variant === 'outline' && !isActive && "hover:bg-background"
-                )}
                 onClick={() => onTabChange(tab.id)}
-                data-value={tab.id}
-                role="tab"
-                aria-selected={isActive}
-                aria-controls={`${tab.id}-tab`}
-                tabIndex={isActive ? 0 : -1}
-              >
-                {tab.icon && <tab.icon className="mr-2 h-4 w-4" />}
-                <span className="hidden sm:inline">{tab.label}</span>
-                <span className="inline sm:hidden">{tab.shortLabel || tab.label}</span>
-                {tab.count !== undefined && (
-                  <span className={cn(
-                    "ml-2 rounded-full px-1.5 py-0.5 text-xs",
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted-foreground/10 text-muted-foreground"
-                  )}>
-                    {tab.count}
-                  </span>
+                disabled={tab.disabled || isLoading}
+                className={cn(
+                  "flex items-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all",
+                  variant === "default" && [
+                    "border-b-2",
+                    activeTab === tab.id
+                      ? "border-primary text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  ],
+                  variant === "outline" && [
+                    "rounded-md border",
+                    activeTab === tab.id
+                      ? "border-primary/50 bg-primary/5 text-foreground"
+                      : "border-transparent hover:border-border hover:bg-muted/50"
+                  ],
+                  variant === "pills" && [
+                    "rounded-md",
+                    activeTab === tab.id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ],
+                  tab.disabled && "opacity-50 cursor-not-allowed"
                 )}
+              >
+                {TabIcon && (
+                  <TabIcon className="mr-2 h-4 w-4" />
+                )}
+                {labelToShow}
               </button>
+            );
+            
+            return tab.tooltip ? (
+              <HelpTooltip key={tab.id} content={tab.tooltip} icon={false}>
+                {tabButton}
+              </HelpTooltip>
+            ) : (
+              tabButton
             );
           })}
         </div>
-      </div>
+        <ScrollBar orientation="horizontal" className="h-2" />
+      </ScrollArea>
       
-      {showRightArrow && (
+      {showRightScroll && (
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background shadow-md"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={scrollRight}
           aria-label="Scroll right"
         >
@@ -201,6 +173,4 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
       )}
     </div>
   );
-};
-
-export default ScrollableTabs;
+}

@@ -1,13 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-
-type HelpContent = {
-  title: string;
-  description: string;
-  steps?: { title: string; description: string }[];
-  links?: { title: string; url: string }[];
-  video?: string;
-};
+import { HelpContent } from "@/types/help";
 
 type HelpContextType = {
   isHelpOpen: boolean;
