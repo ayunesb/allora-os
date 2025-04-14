@@ -24,6 +24,11 @@ const DashboardTabs = () => {
   const currentPath = location.pathname;
 
   const isActive = (path: string) => {
+    // Special case for strategies/strategy route
+    if (path === "/dashboard/strategies" && 
+        (currentPath === "/dashboard/strategies" || currentPath === "/dashboard/strategy")) {
+      return true;
+    }
     return currentPath === path || currentPath.startsWith(path + "/");
   };
 

@@ -71,6 +71,10 @@ export const dashboardRoutes: RouteObject[] = [
         element: <AiBoardroom />,
       },
       {
+        path: "strategy",
+        element: <AiBoardroom />,
+      },
+      {
         path: "strategies/new",
         element: <AiBoardroom />,
       },
@@ -125,6 +129,10 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "billing",
         element: <Billing />,
+      },
+      {
+        path: "profile",
+        element: <Settings />,
       },
       {
         path: "*",

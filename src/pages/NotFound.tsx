@@ -2,20 +2,30 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertTriangle, Home, ArrowRight } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Home, ArrowRight, RefreshCw } from "lucide-react";
 
 export default function NotFound() {
   const location = useLocation();
   const navigate = useNavigate();
   const [suggestedPath, setSuggestedPath] = useState<string | null>(null);
+  const [alternativeRoutes, setAlternativeRoutes] = useState<string[]>([]);
   
   useEffect(() => {
     const currentPath = location.pathname;
+    console.log("404 Page: Current path is", currentPath);
     
+    // Add basic suggestion based on path prefix
     if (currentPath.includes('/admin')) {
       setSuggestedPath('/admin');
     } else if (currentPath.includes('/dashboard')) {
       setSuggestedPath('/dashboard');
+      
+      // Specific dashboard route suggestions
+      if (currentPath.includes('/strategy')) {
+        setAlternativeRoutes(['/dashboard/strategies']);
+      } else if (currentPath.includes('/settings') || currentPath.includes('/account')) {
+        setAlternativeRoutes(['/dashboard/profile', '/dashboard/settings']);
+      }
     } else if (currentPath.includes('/onboarding')) {
       setSuggestedPath('/onboarding');
     } else if (currentPath.includes('/compliance')) {
@@ -45,6 +55,27 @@ export default function NotFound() {
           had its name changed, or is temporarily unavailable.
         </p>
         
+        {alternativeRoutes.length > 0 && (
+          <div className="mb-6 bg-white/5 p-4 rounded-lg">
+            <h3 className="text-sm font-medium text-white mb-2">Did you mean to visit:</h3>
+            <div className="flex flex-col space-y-2">
+              {alternativeRoutes.map(route => (
+                <Button 
+                  key={route}
+                  variant="outline" 
+                  asChild
+                  className="w-full justify-between border-white/10 hover:bg-white/10"
+                >
+                  <Link to={route}>
+                    {route}
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+        
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           <Button 
             variant="outline" 
@@ -64,6 +95,15 @@ export default function NotFound() {
               <Home className="mr-2 h-5 w-5" />
               Return to Home
             </Link>
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto text-white border-white/20 hover:bg-white/10"
+            onClick={() => window.location.reload()}
+          >
+            <RefreshCw className="mr-2 h-5 w-5" />
+            Refresh
           </Button>
           
           {suggestedPath && suggestedPath !== '/' && (
