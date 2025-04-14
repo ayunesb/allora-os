@@ -26,14 +26,18 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
           title: "Conservative Strategy Overview",
           message: `We've developed a conservative approach for ${companyName} focusing on stable, sustainable growth in ${industry}. Our analysis shows potential for measured expansion while minimizing exposure to market volatility.`,
           icon: <TrendingDown className="h-5 w-5 text-blue-500" />,
-          cardClass: "border-blue-200 bg-blue-50 dark:bg-blue-950/20"
+          cardClass: "border-blue-200 bg-blue-50 dark:bg-blue-950/20",
+          titleClass: "text-blue-900 dark:text-blue-100",
+          textClass: "text-blue-800 dark:text-blue-200"
         };
       case 'high':
         return {
           title: "Aggressive Growth Strategy",
           message: `Our analysis indicates several high-potential opportunities for ${companyName} in ${industry}. While these approaches carry higher risk, they also offer significantly greater returns and market disruption potential.`,
           icon: <TrendingUp className="h-5 w-5 text-red-500" />,
-          cardClass: "border-red-200 bg-red-50 dark:bg-red-950/20"
+          cardClass: "border-red-200 bg-red-50 dark:bg-red-950/20",
+          titleClass: "text-red-900 dark:text-red-100",
+          textClass: "text-red-800 dark:text-red-200"
         };
       case 'medium':
       default:
@@ -41,7 +45,9 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
           title: "Balanced Strategy Overview",
           message: `We've analyzed ${companyName}'s position in ${industry} and developed a balanced approach combining stable growth with strategic opportunities. This provides a mix of reliable returns and potential for breakthrough results.`,
           icon: <Lightbulb className="h-5 w-5 text-amber-500" />,
-          cardClass: "border-amber-200 bg-amber-50 dark:bg-amber-950/20"
+          cardClass: "border-amber-200 bg-amber-50 dark:bg-amber-950/20",
+          titleClass: "text-amber-900 dark:text-amber-100",
+          textClass: "text-amber-800 dark:text-amber-200"
         };
     }
   };
@@ -52,8 +58,8 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
     <Card className={content.cardClass}>
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <div className="space-y-1">
-          <CardTitle className="text-lg">{content.title}</CardTitle>
-          <CardDescription>
+          <CardTitle className={`text-lg ${content.titleClass}`}>{content.title}</CardTitle>
+          <CardDescription className={content.textClass}>
             AI-generated strategy based on your business profile
           </CardDescription>
         </div>
@@ -62,7 +68,7 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-sm">{content.message}</p>
+        <p className={`text-sm ${content.textClass}`}>{content.message}</p>
       </CardContent>
       <CardFooter>
         <Button 
