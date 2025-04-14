@@ -9,6 +9,7 @@ import { marketingRoutes } from "./marketing-routes";
 import { devRoutes } from "./dev-routes";
 import { globalRoutes } from "./global-routes";
 import { NavigationManager } from "@/components/NavigationManager";
+import { NavigationTracker } from "@/components/NavigationTracker";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import RootLayout from "@/components/layouts/RootLayout";
 import NotFound from "@/pages/NotFound";
@@ -17,11 +18,11 @@ import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
-import { NavigationTracker } from "@/components/NavigationTracker";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 // Lazy-load compliance routes
-const LazyComplianceRoutes = lazy(() => import('./compliance-routes').then(module => ({ default: module.complianceRoutes })));
+// Fix: Import the default export from compliance-routes which is the array
+const LazyComplianceRoutes = lazy(() => import('./compliance-routes'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -66,7 +67,7 @@ const createLazyRoutes = () => {
     ...globalRoutes,
   ];
 
-  // Add compliance routes with Suspense
+  // Add compliance routes with Suspense - using the default export directly
   return [
     ...routes,
     {

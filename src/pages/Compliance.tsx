@@ -27,12 +27,9 @@ export default function Compliance() {
           }
         });
       }
-      
-      // Redirect to the compliance page
-      return navigate('/legal/compliance');
     }
   }, [navigate, pendingUpdates, scheduleComplianceCheck]);
 
-  // Redirect to the compliance page
-  return <Navigate to="/legal/compliance" replace />;
+  // Redirect to the compliance overview page if we're on the direct /compliance route
+  return <Navigate to="/compliance" replace />;
 }

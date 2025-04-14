@@ -30,6 +30,7 @@ const ComplianceWrapper = ({ children }: { children: React.ReactNode }) => (
   </ComplianceProvider>
 );
 
+// Define the compliance routes
 const complianceRoutes: RouteObject[] = [
   {
     path: "",
@@ -81,5 +82,5 @@ const complianceRoutes: RouteObject[] = [
   },
 ];
 
-// Export is changed from variable to function to support dynamic imports
+// Fix: Export the routes as the default export
 export default complianceRoutes;
