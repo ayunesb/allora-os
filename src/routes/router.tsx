@@ -31,6 +31,8 @@ const NavigationLayout = () => {
   );
 };
 
+// Comment out the router definition as we're now using BrowserRouter in App.tsx
+/*
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -107,3 +109,7 @@ export const router = createBrowserRouter([
     ]
   }
 ]);
+*/
+
+// Export an empty object to avoid import errors
+export const router = {};

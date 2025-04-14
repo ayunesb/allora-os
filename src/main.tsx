@@ -38,11 +38,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}
     >
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <HelmetProvider>
-            <App />
-          </HelmetProvider>
-        </AuthProvider>
+        <App />
       </QueryClientProvider>
     </GlobalErrorBoundary>
   </React.StrictMode>
