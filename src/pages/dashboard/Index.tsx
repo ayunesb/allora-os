@@ -34,8 +34,8 @@ export default function Dashboard() {
     }
   }, [data]);
   
-  const handleApproveRecommendation = (id, type) => {
-    toast.success(`Approved recommendation: ${id}`);
+  const handleApproveRecommendation = (index: number) => {
+    toast.success(`Approved recommendation: ${index + 1}`);
     // Implementation for approving recommendations would go here
   };
 

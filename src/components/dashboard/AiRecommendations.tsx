@@ -9,8 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { toast } from "sonner";
 
-interface Recommendation {
-  id?: string;
+export interface Recommendation {
+  id: string | number;  // Allow both string and number types
   title: string;
   description: string;
   type: string;

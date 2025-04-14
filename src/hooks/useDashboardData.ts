@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export interface DashboardRecommendation {
-  id: number;
+  id: string | number; // Changed from number to string | number
   title: string; 
   description: string;
   type: string;
@@ -46,7 +46,7 @@ const fetchDashboardData = async (userId: string | undefined): Promise<Dashboard
       resolve({
         recommendations: [
           { 
-            id: 1, 
+            id: "rec-1", // Changed from numeric to string ID
             title: 'Optimize your lead scoring model', 
             description: 'Fine-tune your lead scoring model based on recent conversion patterns',
             type: 'strategy',
@@ -58,7 +58,7 @@ const fetchDashboardData = async (userId: string | undefined): Promise<Dashboard
             timeframe: '2-4 weeks'
           },
           { 
-            id: 2, 
+            id: "rec-2", // Changed from numeric to string ID
             title: 'Schedule executive debate', 
             description: 'Schedule a debate between AI executives about your latest strategy',
             type: 'strategy',
@@ -70,7 +70,7 @@ const fetchDashboardData = async (userId: string | undefined): Promise<Dashboard
             timeframe: 'Immediate'
           },
           { 
-            id: 3, 
+            id: "rec-3", // Changed from numeric to string ID
             title: 'Review campaign performance', 
             description: 'Your recent campaigns show promising results with room for optimization',
             type: 'campaign',

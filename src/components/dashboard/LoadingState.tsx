@@ -19,3 +19,5 @@ export function DashboardLoadingState() {
     </div>
   );
 }
+
+export default DashboardLoadingState;

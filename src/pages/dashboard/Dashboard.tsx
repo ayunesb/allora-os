@@ -10,7 +10,7 @@ import { DashboardAnalytics } from "@/components/dashboard/DashboardAnalytics";
 import CeoMessage from "@/components/dashboard/CeoMessage";
 import QuickAccess from "@/components/dashboard/QuickAccess";
 import { DashboardLoading } from "@/components/dashboard/DashboardLoading";
-import { ProductionDataAlert } from "@/components/dashboard/ProductionDataAlert";
+import ProductionDataAlert from "@/components/dashboard/ProductionDataAlert";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
 export default function Dashboard() {
@@ -63,7 +63,7 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* The ProductionDataAlert component doesn't need props in this implementation */}
+      {/* The ProductionDataAlert component doesn't need props anymore */}
       <ProductionDataAlert />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-8">

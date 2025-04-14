@@ -4,12 +4,12 @@ export { default as AiRecommendations } from "./AiRecommendations";
 export { default as CeoMessage } from "./CeoMessage";
 export { DashboardHeader } from "./DashboardHeader";
 export { DashboardLoading } from "./DashboardLoading";
-export { default as LoadingState } from "./LoadingState";
-export { default as LearningInsights } from "./LearningInsights";
+export { DashboardLoadingState } from "./LoadingState";
+export { LearningInsights } from "./LearningInsights"; 
 export { default as QuickAccess } from "./QuickAccess";
 export { SessionRefreshBar } from "./SessionRefreshBar";
 export { default as ProductionDataAlert } from "./ProductionDataAlert";
-export { default as StrategyDisplay } from "./StrategyDisplay";
+export { StrategyDisplay } from "./StrategyDisplay";
 export { WelcomeVideo } from "./WelcomeVideo";
 export { UpcomingZoomMeeting } from "./UpcomingZoomMeeting";
 
