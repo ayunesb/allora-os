@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
@@ -112,6 +111,11 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "leaderboard",
         element: <ExecutiveLeaderboard />,
+      },
+      // Executive preferences/settings route
+      {
+        path: "executive-preferences",
+        element: <AISettings />,
       },
       {
         path: "ai-bots",

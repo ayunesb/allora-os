@@ -7,6 +7,7 @@ import { ExecutiveAgentProfile, ExecutiveDecision, AgentRunOptions } from '@/typ
 import { executivePromptTemplate } from './promptTemplates';
 import { saveDecisionToDatabase, getExecutiveDecisions } from './decisionService';
 import { executiveProfiles } from './agentProfiles';
+import { getUserPreferences } from '@/utils/selfLearning/preferencesService';
 
 /**
  * Runs the executive agent to process a task and return a decision
@@ -23,6 +24,24 @@ export async function runExecutiveAgent(
   });
   
   try {
+    // Get user preferences if userId is provided
+    let userPreferences = null;
+    if (options.userId) {
+      try {
+        userPreferences = await getUserPreferences(options.userId);
+        logger.info('Using personalized user preferences for executive agent', {
+          component: 'executiveAgent',
+          userId: options.userId,
+          preferences: userPreferences
+        });
+      } catch (error) {
+        logger.warn('Failed to get user preferences, using defaults', {
+          component: 'executiveAgent',
+          error
+        });
+      }
+    }
+    
     // Prepare the context variables for the prompt
     const companyContext = options.companyContext 
       ? `Company Context: ${options.companyContext}\n` 
@@ -32,7 +51,21 @@ export async function runExecutiveAgent(
       ? `Market Conditions: ${options.marketConditions}\n` 
       : '';
     
-    // Format the prompt with the executive's details and task
+    // Add user preferences to prompt if available
+    let userPreferencesContext = '';
+    if (userPreferences) {
+      userPreferencesContext = `
+User Preferences:
+- Communication Style: ${userPreferences.responseStyle || 'balanced'}
+- Technical Level: ${userPreferences.technicalLevel || 'intermediate'}
+- Risk Appetite: ${userPreferences.riskAppetite || 'medium'}
+- Focus Area: ${userPreferences.focusArea || 'general'}
+
+Adapt your decision making and communication style to match these preferences.
+`;
+    }
+    
+    // Format the prompt with the executive's details, task, and user preferences
     const prompt = executivePromptTemplate
       .replace('{executiveName}', executive.name)
       .replace('{role}', executive.role)
@@ -41,7 +74,8 @@ export async function runExecutiveAgent(
       .replace('{decisionStyle}', executive.decisionStyle || 'balanced')
       .replace('{personality}', executive.personality || '')
       .replace('{companyContext}', companyContext)
-      .replace('{marketConditions}', marketConditions);
+      .replace('{marketConditions}', marketConditions)
+      .replace('{userPreferences}', userPreferencesContext);
 
     // Call OpenAI Edge Function with the prompt
     const response = await fetch('/api/agents/executive-think', {
@@ -80,6 +114,24 @@ export async function runExecutiveAgent(
         reasoning: "The AI response could not be properly parsed.",
         riskAssessment: "Unable to assess risks due to processing error."
       };
+    }
+
+    // Apply user risk appetite to calculated risk assessment if needed
+    if (userPreferences && userPreferences.riskAppetite && parsedResult.riskAssessment) {
+      // Adjust risk assessment based on user preferences
+      if (userPreferences.riskAppetite === 'high') {
+        // For high risk appetite users, decrease perceived risk
+        parsedResult.riskAssessment = parsedResult.riskAssessment.replace(
+          /high risk/gi, 
+          "acceptable risk"
+        );
+      } else if (userPreferences.riskAppetite === 'low') {
+        // For low risk appetite users, increase perceived risk
+        parsedResult.riskAssessment = parsedResult.riskAssessment.replace(
+          /medium risk/gi, 
+          "significant risk"
+        );
+      }
     }
 
     // Create the decision object

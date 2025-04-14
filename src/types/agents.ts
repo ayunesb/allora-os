@@ -1,3 +1,4 @@
+
 /**
  * Types for the AI Executive Agents system
  */
@@ -29,4 +30,5 @@ export interface AgentRunOptions {
   priority?: 'low' | 'medium' | 'high';
   companyContext?: string;
   marketConditions?: string;
+  userId?: string; // Added to support personalized preferences
 }

@@ -19,7 +19,20 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured in Supabase secrets');
     }
 
-    const { prompt, executiveName, executiveRole } = await req.json();
+    const { prompt, executiveName, executiveRole, userPreferences } = await req.json();
+
+    // Prepare system message with user preferences
+    let systemContent = 'You are an AI executive agent that thinks through business problems and provides structured decision recommendations. Answer in JSON format following the specified schema.';
+    
+    if (userPreferences) {
+      systemContent += `\n\nUser has these preferences:
+- Communication Style: ${userPreferences.responseStyle || 'balanced'}
+- Technical Level: ${userPreferences.technicalLevel || 'intermediate'} 
+- Risk Appetite: ${userPreferences.riskAppetite || 'medium'}
+- Focus Area: ${userPreferences.focusArea || 'general'}
+
+Adapt your decision making and communication style to match these preferences.`;
+    }
 
     // Call OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -33,7 +46,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an AI executive agent that thinks through business problems and provides structured decision recommendations. Answer in JSON format following the specified schema.'
+            content: systemContent
           },
           {
             role: 'user',
