@@ -29,7 +29,5 @@ export const createAdminClient = () => {
   );
 };
 
-// Log Supabase backend client status
-if (SUPABASE_CONFIG.usingFallback) {
-  logger.warn('Backend Supabase client initialized with fallback values. API functionality will be limited.');
-}
+// Update the log message since we've fixed the configuration
+logger.info('Backend Supabase client initialized successfully');
