@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Loader2, Link as LinkIcon } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
 import { AuditComponentProps, AuditCheckItem } from './types';
@@ -47,6 +47,49 @@ export function AuditNavigation({ status, onStatusChange }: AuditComponentProps)
     }
   ]);
 
+  // Check for internal links on mount
+  useEffect(() => {
+    const checkInternalLinks = () => {
+      try {
+        // Get all links on the page
+        const links = document.querySelectorAll('a');
+        
+        // Check if we have links to key sections
+        const requiredPaths = [
+          '/dashboard',
+          '/admin',
+          '/strategies',
+          '/campaigns',
+          '/leads',
+          '/calls'
+        ];
+        
+        let foundPaths = [];
+        
+        links.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && requiredPaths.some(path => href.includes(path))) {
+            foundPaths.push(href);
+          }
+        });
+        
+        // Check if at least 4 of the required paths are found (don't be too strict)
+        const hasEnoughPaths = foundPaths.length >= 4;
+        
+        if (hasEnoughPaths) {
+          setItems(prev => prev.map(item => 
+            item.id === 'nav-2' ? { ...item, status: 'passed' } : item
+          ));
+        }
+      } catch (error) {
+        console.error('Error checking internal links:', error);
+      }
+    };
+    
+    // Run check after a short delay to ensure page is loaded
+    setTimeout(checkInternalLinks, 1000);
+  }, []);
+
   const runTest = async () => {
     setIsRunning(true);
     
@@ -61,9 +104,46 @@ export function AuditNavigation({ status, onStatusChange }: AuditComponentProps)
       ));
       
       // Simulate test running
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800)); // Reduced from 1000ms
       
-      // Set random result (90% pass rate for demo)
+      // Real check for internal links
+      if (items[i].id === 'nav-2') {
+        try {
+          // Get all links on the page
+          const links = document.querySelectorAll('a');
+          
+          // Check if we have links to key sections
+          const requiredPaths = [
+            '/dashboard',
+            '/admin',
+            '/strategies',
+            '/campaigns',
+            '/leads',
+            '/calls'
+          ];
+          
+          let foundPaths = [];
+          
+          links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && requiredPaths.some(path => href.includes(path))) {
+              foundPaths.push(href);
+            }
+          });
+          
+          // Check if at least 4 of the required paths are found
+          const hasEnoughPaths = foundPaths.length >= 4;
+          
+          setItems(prev => prev.map((item, idx) => 
+            idx === i ? { ...item, status: hasEnoughPaths ? 'passed' : 'failed' } : item
+          ));
+          continue;
+        } catch (error) {
+          console.error('Error checking internal links:', error);
+        }
+      }
+      
+      // Set random result for other items (90% pass rate for demo)
       const passed = Math.random() < 0.9;
       
       setItems(prev => prev.map((item, idx) => 
@@ -99,7 +179,10 @@ export function AuditNavigation({ status, onStatusChange }: AuditComponentProps)
     <Card>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle>Navigation & URL Integrity Audit</CardTitle>
+          <div className="flex items-center gap-2">
+            <LinkIcon className="h-5 w-5 text-primary/80" />
+            <CardTitle>Navigation & URL Integrity Audit</CardTitle>
+          </div>
           <Button 
             onClick={runTest}
             disabled={isRunning}

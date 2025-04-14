@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, AlertCircle, Loader2, Gauge } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
 import { AuditComponentProps, AuditCheckItem } from './types';
+import { performanceMonitor } from '@/utils/performance/performanceMonitor';
 
 export function AuditPerformance({ status, onStatusChange }: AuditComponentProps) {
   const [isRunning, setIsRunning] = useState(false);
@@ -54,8 +55,52 @@ export function AuditPerformance({ status, onStatusChange }: AuditComponentProps
     }
   ]);
 
+  // Check initial page load time on component mount
+  useEffect(() => {
+    const checkPageLoadTime = () => {
+      if (window.performance) {
+        const pageLoadTime = window.performance.timing.domContentLoadedEventEnd - 
+                            window.performance.timing.navigationStart;
+        
+        // If page load is under 2 seconds, mark it as passed automatically
+        if (pageLoadTime < 2000) {
+          setItems(prev => prev.map(item => 
+            item.id === 'perf-1' ? { ...item, status: 'passed' } : item
+          ));
+        }
+      }
+    };
+    
+    // Check if images are optimized
+    const checkImageOptimization = () => {
+      const images = document.querySelectorAll('img');
+      let allOptimized = true;
+      
+      images.forEach(img => {
+        // Consider an image optimized if it has loading="lazy" or width/height attributes
+        if (!img.getAttribute('loading') || 
+            (!img.getAttribute('width') && !img.getAttribute('height'))) {
+          allOptimized = false;
+        }
+      });
+      
+      if (allOptimized && images.length > 0) {
+        setItems(prev => prev.map(item => 
+          item.id === 'perf-3' ? { ...item, status: 'passed' } : item
+        ));
+      }
+    };
+    
+    // Run checks after a short delay to ensure page is fully loaded
+    setTimeout(() => {
+      checkPageLoadTime();
+      checkImageOptimization();
+    }, 1000);
+  }, []);
+
   const runTest = async () => {
     setIsRunning(true);
+    performanceMonitor.mark('performance-audit-start');
     
     // Reset all items to pending
     setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
@@ -68,9 +113,44 @@ export function AuditPerformance({ status, onStatusChange }: AuditComponentProps
       ));
       
       // Simulate test running
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      await new Promise(resolve => setTimeout(resolve, 800)); // Reduced from 1200ms
       
-      // Set random result (85% pass rate for demo)
+      // Real tests for specific items
+      if (items[i].id === 'perf-1') {
+        // Check actual page load time
+        if (window.performance) {
+          const pageLoadTime = window.performance.timing.domContentLoadedEventEnd - 
+                              window.performance.timing.navigationStart;
+          const passed = pageLoadTime < 2000;
+          
+          setItems(prev => prev.map((item, idx) => 
+            idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+          ));
+          continue;
+        }
+      }
+      
+      if (items[i].id === 'perf-3') {
+        // Check if images have optimization attributes
+        const images = document.querySelectorAll('img');
+        let allOptimized = true;
+        
+        images.forEach(img => {
+          if (!img.getAttribute('loading') || 
+              (!img.getAttribute('width') && !img.getAttribute('height'))) {
+            allOptimized = false;
+          }
+        });
+        
+        const passed = allOptimized && images.length > 0;
+        
+        setItems(prev => prev.map((item, idx) => 
+          idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+        ));
+        continue;
+      }
+      
+      // For other items, simulate with high pass rate
       const passed = Math.random() < 0.85;
       
       setItems(prev => prev.map((item, idx) => 
@@ -78,6 +158,7 @@ export function AuditPerformance({ status, onStatusChange }: AuditComponentProps
       ));
     }
     
+    performanceMonitor.mark('performance-audit-end');
     setIsRunning(false);
     
     // Check results

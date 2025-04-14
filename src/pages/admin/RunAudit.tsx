@@ -5,12 +5,16 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { performanceMonitor } from '@/utils/performance/performanceMonitor';
 
 export default function RunAudit() {
   const navigate = useNavigate();
   const [isRunning, setIsRunning] = React.useState(true);
 
   useEffect(() => {
+    // Start monitoring page load time
+    const loadMeasureId = performanceMonitor.startMeasure('audit-page-load');
+    
     // This simulates running the audit automatically when the page loads
     const runFullAudit = async () => {
       try {
@@ -19,7 +23,7 @@ export default function RunAudit() {
         });
         
         // Simulate audit process
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 2500));
         
         toast.success('Audit completed successfully. View detailed results.', {
           duration: 5000,
@@ -28,20 +32,27 @@ export default function RunAudit() {
         // Navigate to the audit results page after completion
         setTimeout(() => {
           navigate('/admin/audit');
-        }, 2000);
+        }, 1500); // Reduced from 2000ms to 1500ms for faster response
       } catch (error) {
         console.error('Audit error:', error);
         toast.error('An error occurred during the audit. Please try again.');
       } finally {
         setIsRunning(false);
+        // End performance monitoring
+        performanceMonitor.endMeasure(loadMeasureId);
       }
     };
 
     runFullAudit();
+    
+    // Cleanup
+    return () => {
+      performanceMonitor.mark('audit-page-unload');
+    };
   }, [navigate]);
 
   return (
-    <div className="container py-12 max-w-md mx-auto">
+    <div className="container py-8 max-w-md mx-auto">
       <Card className="border-primary/20 shadow-lg">
         <CardHeader className="pb-2 text-center">
           <CardTitle className="text-2xl">System Audit</CardTitle>

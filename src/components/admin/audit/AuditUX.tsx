@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, AlertCircle, Loader2, Palette } from 'lucide-react';
@@ -61,6 +61,39 @@ export function AuditUX({ status, onStatusChange }: AuditComponentProps) {
     }
   ]);
 
+  // Check for consistent branding on mount
+  useEffect(() => {
+    const checkBranding = () => {
+      try {
+        // Check for consistent primary color usage
+        const primaryElements = document.querySelectorAll('.text-primary, .bg-primary, [class*="border-primary"]');
+        
+        // Check for consistent typography
+        const fontElements = document.querySelectorAll('[class*="font-"]');
+        
+        // Check for logo presence
+        const logoElements = document.querySelectorAll('img[src*="logo"]');
+        
+        // Pass the test if we have elements with primary branding colors
+        // AND consistent font usage AND at least one logo
+        const hasBranding = primaryElements.length > 5 && 
+                            fontElements.length > 10 &&
+                            logoElements.length > 0;
+        
+        if (hasBranding) {
+          setItems(prev => prev.map(item => 
+            item.id === 'ux-6' ? { ...item, status: 'passed' } : item
+          ));
+        }
+      } catch (error) {
+        console.error('Error checking branding:', error);
+      }
+    };
+    
+    // Run check after a short delay
+    setTimeout(checkBranding, 1000);
+  }, []);
+
   const runTest = async () => {
     setIsRunning(true);
     
@@ -75,9 +108,36 @@ export function AuditUX({ status, onStatusChange }: AuditComponentProps) {
       ));
       
       // Simulate test running
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800)); // Reduced from 1000ms
       
-      // Set random result (90% pass rate for demo)
+      // Real check for consistent branding
+      if (items[i].id === 'ux-6') {
+        try {
+          // Check for consistent primary color usage
+          const primaryElements = document.querySelectorAll('.text-primary, .bg-primary, [class*="border-primary"]');
+          
+          // Check for consistent typography
+          const fontElements = document.querySelectorAll('[class*="font-"]');
+          
+          // Check for logo presence
+          const logoElements = document.querySelectorAll('img[src*="logo"]');
+          
+          // Pass the test if we have elements with primary branding colors
+          // AND consistent font usage AND at least one logo
+          const hasBranding = primaryElements.length > 5 && 
+                              fontElements.length > 10 &&
+                              logoElements.length > 0;
+          
+          setItems(prev => prev.map((item, idx) => 
+            idx === i ? { ...item, status: hasBranding ? 'passed' : 'failed' } : item
+          ));
+          continue;
+        } catch (error) {
+          console.error('Error checking branding:', error);
+        }
+      }
+      
+      // Set random result for other items (90% pass rate for demo)
       const passed = Math.random() < 0.9;
       
       setItems(prev => prev.map((item, idx) => 
