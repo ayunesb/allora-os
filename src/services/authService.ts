@@ -3,6 +3,7 @@ import { User } from '@supabase/supabase-js';
 
 export async function handleSignIn(email: string, password: string, rememberMe = false) {
   try {
+    console.log("Signing in with email:", email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -13,8 +14,11 @@ export async function handleSignIn(email: string, password: string, rememberMe =
     });
 
     if (error) {
+      console.error("Sign in error:", error);
       throw error;
     }
+
+    console.log("Sign in successful, user:", data.user?.email);
 
     // Store user preference for "remember me" in local storage
     if (rememberMe) {

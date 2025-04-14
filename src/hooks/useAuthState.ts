@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -49,6 +48,8 @@ export function useAuthState() {
       
       setSession(data.session);
       setUser(data.session?.user ?? null);
+      
+      console.log("Session refreshed, user:", data.session?.user);
       return true;
     } catch (error) {
       console.error('Error refreshing session:', error);
@@ -77,7 +78,15 @@ export function useAuthState() {
       
       if (data) {
         console.log("Profile loaded successfully:", data);
-        setProfile(data as Profile);
+        
+        // Make sure to keep the user's email accessible throughout the app
+        const enhancedProfile = {
+          ...data,
+          // Add email from auth user if not present in the profile
+          email: data.email || user?.email || null
+        } as Profile;
+        
+        setProfile(enhancedProfile);
       } else {
         console.log("No profile data found");
         setProfile(null);
@@ -117,6 +126,7 @@ export function useAuthState() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         // Handle auth state changes
+        console.log("Auth state changed:", event, "User:", session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -133,6 +143,7 @@ export function useAuthState() {
 
     // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       

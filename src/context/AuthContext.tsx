@@ -123,11 +123,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user, isLoading]);
 
-  // Create value object
+  // Create value object with userEmail to ensure it's always accessible
   const value = {
     user,
     session,
     profile,
+    userEmail: user?.email, // Explicitly expose the email from the user object
     isLoading,
     isProfileLoading,
     isEmailVerified,

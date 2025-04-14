@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function ProfileDiagnostics() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, userEmail, session } = useAuth();
   const [sessionInfo, setSessionInfo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,6 +26,7 @@ export default function ProfileDiagnostics() {
       
       console.log("Current session data:", data.session);
       console.log("Current user from session:", data.session?.user);
+      console.log("User email from session:", data.session?.user?.email);
     } catch (error) {
       console.error("Error fetching session:", error);
       toast.error("Error fetching session");
@@ -38,6 +39,8 @@ export default function ProfileDiagnostics() {
     console.log("User Authentication Diagnostics:");
     console.log("1. User object from Auth Context:", user);
     console.log("2. Profile object from Auth Context:", profile);
+    console.log("3. User email from Auth Context:", userEmail);
+    console.log("4. Session object from Auth Context:", session);
 
     // Check if email is present in user object
     if (user?.email) {
@@ -52,7 +55,7 @@ export default function ProfileDiagnostics() {
     } else {
       console.warn("Email NOT found in profile object");
     }
-  }, [user, profile]);
+  }, [user, profile, userEmail, session]);
 
   return (
     <Card className="mb-6">
@@ -69,7 +72,7 @@ export default function ProfileDiagnostics() {
           <div className="grid gap-2">
             <div className="font-semibold">User Email</div>
             <div className="bg-muted p-2 rounded text-sm">
-              {user?.email || "Not found in user object"}
+              {userEmail || user?.email || "Not found in user object"}
             </div>
           </div>
           
@@ -91,6 +94,13 @@ export default function ProfileDiagnostics() {
             <div className="font-semibold">Profile Name</div>
             <div className="bg-muted p-2 rounded text-sm">
               {profile?.name || "Not found in profile"}
+            </div>
+          </div>
+          
+          <div className="grid gap-2">
+            <div className="font-semibold">Auth Status</div>
+            <div className="bg-muted p-2 rounded text-sm">
+              {session ? "Authenticated" : "Not authenticated"}
             </div>
           </div>
           
