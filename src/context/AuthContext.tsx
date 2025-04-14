@@ -14,6 +14,7 @@ import {
 import { navigate } from '@/utils/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthContextType } from '@/types/auth';
+import { UserProfile } from '@/utils/profileHelpers';
 
 // Create the context
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -193,11 +194,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user]);
 
+  // Function to convert Profile to UserProfile
+  const updateUserProfile = async (data: Partial<Omit<UserProfile, 'id' | 'created_at'>>): Promise<boolean> => {
+    if (!user?.id) return false;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(data)
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      // Update local profile
+      if (profile) {
+        const updatedProfile: UserProfile = {
+          ...profile as unknown as UserProfile,
+          ...data
+        };
+        setProfile(updatedProfile);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      return false;
+    }
+  };
+
   // Create value object with userEmail to ensure it's always accessible
   const value: AuthContextType = {
     user,
     session,
-    profile,
+    profile: profile as UserProfile | null,
     userEmail: user?.email,
     isLoading,
     isProfileLoading,
@@ -212,8 +241,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     sendPasswordReset,
     refreshProfile,
     refreshSession,
-    updateLastActivity,
-    setProfile,
+    updateUserProfile,
     verifyOtp,
     updatePassword,
     signInWithGoogle: async () => ({ success: false, error: "Not implemented" }),

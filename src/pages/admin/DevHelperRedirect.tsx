@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CircleCheck, CircleAlert, AlertOctagon, Shield } from 'lucide-react';
+import { Shield, CircleCheck, CircleAlert, AlertOctagon, Check, Loader } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { AdminCheckHandler } from '@/components/auth/AdminCheckHandler';
 
@@ -20,7 +20,7 @@ const DevHelperRedirect = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" />
+              <Shield className="h-5 w-5 text-primary" />
               Admin Verification
             </CardTitle>
             <CardDescription>
@@ -39,7 +39,7 @@ const DevHelperRedirect = () => {
                 <div className="space-y-4">
                   {!adminCheckDone ? (
                     <div className="flex items-center justify-center py-6">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <Loader className="h-8 w-8 animate-spin text-primary" />
                       <span className="ml-2 text-muted-foreground">Verifying admin access...</span>
                     </div>
                   ) : isUserAdmin ? (
