@@ -38,7 +38,9 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
     <div className={cn("relative", fullWidth && "w-full", className)}>
       <div className="overflow-x-auto pb-1 hide-scrollbar">
         <TabsList className={cn(
-          "w-max min-w-full flex",
+          "w-max min-w-full flex flex-wrap", // Added flex-wrap to allow multiple rows
+          "min-h-[60px]", // Increased minimum height
+          "py-2", // Added vertical padding
           variant === "outline" && "bg-transparent p-0 border-b border-border"
         )}>
           {tabs.map((tab) => (
@@ -47,8 +49,10 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
               value={tab.id}
               onClick={() => handleChange(tab.id)}
               className={cn(
-                "flex-shrink-0",
-                variant === "outline" && "rounded-none border-b-2 border-transparent px-4 pb-2 pt-1 data-[state=active]:border-primary data-[state=active]:bg-transparent",
+                "flex-shrink-0 flex items-center", // Ensured vertical alignment
+                "px-4 py-2 m-1", // Added margin for better spacing
+                "min-h-[40px]", // Minimum height for each tab
+                variant === "outline" && "rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent",
                 activeTab === tab.id ? "data-[state=active]:bg-primary/10" : ""
               )}
             >
