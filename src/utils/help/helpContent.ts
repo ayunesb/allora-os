@@ -4,8 +4,10 @@
  */
 
 export type HelpContent = {
+  id: string;
   title: string;
   description: string;
+  content?: string;
   steps?: { title: string; description: string }[];
   links?: { title: string; url: string }[];
   video?: string;
@@ -15,6 +17,7 @@ export type HelpContent = {
 const helpContentMap: Record<string, HelpContent> = {
   // Dashboard help
   "dashboard.overview": {
+    id: "dashboard.overview",
     title: "Dashboard Overview",
     description: "Your dashboard provides a comprehensive view of your business strategy and performance metrics.",
     steps: [
@@ -39,6 +42,7 @@ const helpContentMap: Record<string, HelpContent> = {
   
   // Strategy board help
   "strategy.board": {
+    id: "strategy.board",
     title: "Strategy Board Guide",
     description: "The Strategy Board helps you manage and visualize your business strategies based on risk levels.",
     steps: [
@@ -60,6 +64,7 @@ const helpContentMap: Record<string, HelpContent> = {
   
   // Webhook setup help
   "admin.webhooks": {
+    id: "admin.webhooks",
     title: "Setting Up Webhooks",
     description: "Webhooks allow external services to receive real-time updates from the Allora AI platform.",
     steps: [
@@ -88,6 +93,7 @@ const helpContentMap: Record<string, HelpContent> = {
   
   // Lead management help
   "admin.leads": {
+    id: "admin.leads",
     title: "Managing Leads",
     description: "Track and organize your sales leads through the Lead Management system.",
     steps: [
@@ -108,6 +114,7 @@ const helpContentMap: Record<string, HelpContent> = {
   
   // Help for AI executive debates
   "ai.debate": {
+    id: "ai.debate",
     title: "AI Executive Debates",
     description: "AI Executive Debates simulate discussions between AI executives with different perspectives on your business strategies.",
     steps: [
@@ -129,6 +136,7 @@ const helpContentMap: Record<string, HelpContent> = {
   
   // Campaign management help
   "admin.campaigns": {
+    id: "admin.campaigns",
     title: "Campaign Management",
     description: "Create and manage marketing campaigns to promote your business and track their performance.",
     steps: [
@@ -144,6 +152,35 @@ const helpContentMap: Record<string, HelpContent> = {
         title: "Monitor Performance", 
         description: "Track key metrics like engagement, conversion, and ROI for each campaign." 
       }
+    ]
+  },
+  
+  // Add help for calls
+  "admin.calls": {
+    id: "admin.calls",
+    title: "Call Management",
+    description: "Make and manage calls to your leads and track communication history.",
+    steps: [
+      {
+        title: "View Timeline",
+        description: "See all communications in chronological order on the Timeline tab."
+      },
+      {
+        title: "Schedule Calls",
+        description: "Set up and manage upcoming calls with leads through the Upcoming tab."
+      },
+      {
+        title: "Use AI Scripts",
+        description: "Access AI-generated call scripts to guide your conversations with leads."
+      },
+      {
+        title: "Track Analytics",
+        description: "Monitor call performance and outcomes through the Analytics tab."
+      }
+    ],
+    links: [
+      { title: "Call Script Guide", url: "/help/call-scripts" },
+      { title: "Communication Best Practices", url: "/help/communication-tips" }
     ]
   }
 };
