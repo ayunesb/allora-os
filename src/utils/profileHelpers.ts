@@ -1,8 +1,10 @@
+
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { Database } from '@/integrations/supabase/types';
-import { Json } from '@/integrations/supabase/types';
+
+export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
 export type UserProfile = {
   id: string;
@@ -22,15 +24,15 @@ export type UserProfile = {
   location?: string;
   website?: string;
   bio?: string;
-  personal_api_keys?: Record<string, string> | string | Json | null;
+  personal_api_keys?: Record<string, string> | string | null;
   industry?: string;
   stripe_customer_id?: string;
   subscription_status?: string;
   subscription_plan_id?: string;
   subscription_expires_at?: string;
-  company_size?: string; // Added missing property
-  risk_appetite?: string; // Added missing property
-  goals?: string[]; // Added missing property
+  company_size?: string; 
+  risk_appetite?: string; 
+  goals?: string[]; 
 };
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {

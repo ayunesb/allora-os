@@ -208,11 +208,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Update local profile
       if (profile) {
-        const updatedProfile: UserProfile = {
-          ...profile as unknown as UserProfile,
+        // We need to ensure type compatibility here by using the type assertion
+        // and making sure we're not changing the structure that setProfile expects
+        setProfile(prevProfile => ({
+          ...prevProfile,
           ...data
-        };
-        setProfile(updatedProfile);
+        }));
       }
       
       return true;

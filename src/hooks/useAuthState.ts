@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -26,6 +27,9 @@ export type Profile = {
   subscription_status?: string;
   subscription_plan_id?: string;
   subscription_expires_at?: string;
+  company_size?: string;
+  risk_appetite?: string;
+  goals?: string[];
 };
 
 export function useAuthState() {

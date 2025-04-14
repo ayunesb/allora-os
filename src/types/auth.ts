@@ -1,4 +1,5 @@
 
+
 import { User, Session } from '@supabase/supabase-js';
 import { UserProfile } from '@/utils/profileHelpers';
 
@@ -11,9 +12,9 @@ export interface AuthContextType {
   isEmailVerified: boolean;
   authError: string | null;
   isSessionExpired: boolean;
-  isAuthenticated?: boolean; // Added missing property
-  hasInitialized?: boolean; // Added missing property
-  userEmail?: string; // Added missing property
+  isAuthenticated?: boolean; 
+  hasInitialized?: boolean; 
+  userEmail?: string; 
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string; user?: User }>;
   signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   signOut: () => Promise<{ success: boolean; error?: string }>;
