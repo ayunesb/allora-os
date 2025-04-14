@@ -17,11 +17,18 @@ import { ExecutiveInteraction } from "@/components/dashboard/ExecutiveInteractio
 import { DashboardAnalytics } from "@/components/dashboard/DashboardAnalytics";
 import { useProductionData } from "@/hooks/useProductionData";
 import { ProductionDataAlert } from "@/components/dashboard/ProductionDataAlert";
+import { useAuth } from "@/context/AuthContext";
+import { useCompanyId } from "@/hooks/useCompanyId";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export default function Dashboard() {
   const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
   const { screenReaderFriendly } = useAccessibility();
   const [showProductionAlert, setShowProductionAlert] = useState(true);
+  const navigate = useNavigate();
+  const { user, profile, isLoading: authLoading } = useAuth();
+  const companyId = useCompanyId();
   
   // Use the custom hook for dashboard data with improved error handling
   const { 
@@ -41,6 +48,17 @@ export default function Dashboard() {
     validateProductionData
   } = useProductionData();
 
+  // Check if we have a valid company ID
+  useEffect(() => {
+    if (!authLoading && user && !companyId) {
+      toast.error("Your company information appears to be incomplete", {
+        description: "Please complete onboarding to access the dashboard",
+        duration: 5000,
+      });
+      navigate("/onboarding");
+    }
+  }, [authLoading, user, companyId, navigate]);
+
   // Refresh production validation when dashboard data is refreshed
   useEffect(() => {
     // Check if we're in production mode based on URL or environment
@@ -50,7 +68,12 @@ export default function Dashboard() {
     
     // Only show the production alert in production mode
     setShowProductionAlert(isProduction);
-  }, []);
+    
+    // Validate data on initial load
+    if (companyId && !isValidating && !validationResults) {
+      validateProductionData();
+    }
+  }, [validateProductionData, isValidating, validationResults, companyId]);
 
   // Handle manual refresh with feedback
   const handleManualRefresh = useCallback(async () => {
@@ -81,7 +104,7 @@ export default function Dashboard() {
       toast.info("Processing approval...");
       // Use proper type safety when accessing recommendations
       if (aiRecommendations && aiRecommendations[index]) {
-        await handleApproveRecommendation(aiRecommendations[index].id, "approval");
+        await handleApproveRecommendation(aiRecommendations[index].id, aiRecommendations[index].type);
         toast.success("Recommendation approved successfully", {
           description: "The approved recommendation will be implemented shortly"
         });
@@ -95,6 +118,49 @@ export default function Dashboard() {
       });
     }
   };
+
+  // Show complete loading state when auth is still loading
+  if (authLoading || (user && !companyId)) {
+    return <DashboardLoadingState aria-label="Loading dashboard data" />;
+  }
+
+  // Handle case where user is not authenticated or doesn't have a company
+  if (!user) {
+    return (
+      <Card className="mx-auto max-w-md mt-12">
+        <CardHeader>
+          <CardTitle>Authentication Required</CardTitle>
+          <CardDescription>
+            Please log in to access your dashboard.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={() => navigate("/login")} className="w-full">
+            Log In
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Handle the case where the user needs to complete onboarding
+  if (!companyId) {
+    return (
+      <Card className="mx-auto max-w-md mt-12">
+        <CardHeader>
+          <CardTitle>Complete Onboarding</CardTitle>
+          <CardDescription>
+            Please set up your company to access the dashboard.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={() => navigate("/onboarding")} className="w-full">
+            Complete Onboarding
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return <DashboardLoadingState aria-label="Loading dashboard data" />;
