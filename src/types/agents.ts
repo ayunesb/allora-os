@@ -1,4 +1,3 @@
-
 /**
  * Types for the AI Executive Agents system
  */
