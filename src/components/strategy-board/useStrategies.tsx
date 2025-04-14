@@ -100,8 +100,10 @@ export function useStrategies() {
           }
           
           // Store just the bot name as a string for executiveBot
-          // instead of the entire object with name, role, and avatar
-          const executiveBotName = insight.primaryBot || "AI Executive";
+          // Extract just the name if primaryBot is an object, or use the string directly
+          const executiveBotName = typeof insight.primaryBot === 'object' 
+            ? (insight.primaryBot?.name || "AI Executive") 
+            : (insight.primaryBot || "AI Executive");
           
           return {
             id: `ai-${insight.id}`,
