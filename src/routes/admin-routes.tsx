@@ -12,6 +12,12 @@ import AdminIndex from "@/pages/admin/Index";
 import DevHelperRedirect from "@/pages/admin/DevHelperRedirect";
 import SystemHealth from "@/pages/admin/SystemHealth";
 import TechnicalImprovementsPage from "@/pages/admin/TechnicalImprovementsPage";
+import WebhookManagement from "@/pages/admin/WebhookManagement";
+import LaunchPrep from "@/pages/admin/LaunchPrep";
+import AiBotLogic from "@/pages/admin/AiBotLogic";
+import Analytics from "@/pages/admin/Analytics";
+import Campaigns from "@/pages/admin/Campaigns";
+import SystemPage from "@/pages/admin/system";
 
 export const adminRoutes: RouteObject[] = [
   // Main admin layout with children routes
@@ -60,6 +66,14 @@ export const adminRoutes: RouteObject[] = [
         element: <SystemHealth />,
       },
       {
+        path: "system/*",
+        element: <SystemPage />,
+      },
+      {
+        path: "webhooks",
+        element: <WebhookManagement />,
+      },
+      {
         path: "users",
         element: <Navigate to="/admin/entities?tab=users" replace />,
       },
@@ -69,7 +83,7 @@ export const adminRoutes: RouteObject[] = [
       },
       {
         path: "campaigns",
-        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+        element: <Campaigns />,
       },
       {
         path: "leads",
@@ -77,7 +91,7 @@ export const adminRoutes: RouteObject[] = [
       },
       {
         path: "analytics",
-        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+        element: <Analytics />,
       },
       {
         path: "settings",
@@ -85,6 +99,26 @@ export const adminRoutes: RouteObject[] = [
       },
       {
         path: "launch-prep",
+        element: <LaunchPrep />,
+      },
+      {
+        path: "ai-bot-logic",
+        element: <AiBotLogic />,
+      },
+      {
+        path: "platform-stability",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "user-onboarding",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "dashboard-modules",
+        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+      },
+      {
+        path: "communication-tools",
         element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
       },
     ],

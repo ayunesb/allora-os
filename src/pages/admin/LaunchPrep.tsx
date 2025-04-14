@@ -1,155 +1,120 @@
 
 import React from 'react';
-import PreLaunchChecklist from '@/components/admin/PreLaunchChecklist';
-import LaunchVerification from '@/components/admin/LaunchVerification';
-import { LaunchButton } from '@/components/admin/launch-verification/LaunchButton';
-import { removeTestData, verifyApiSecrets } from '@/utils/cleanupForProduction';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { EnhancedVerificationChecklist } from '@/components/admin/launch-verification/EnhancedVerificationChecklist';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RunAuditButton } from "@/components/admin/RunAuditButton";
+import { usePreLaunchValidation } from "@/hooks/usePreLaunchValidation";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, CheckCircle, Rocket } from "lucide-react";
 
 export default function LaunchPrep() {
-  const handleCleanupTestData = async () => {
-    try {
-      const result = await removeTestData();
-      if (result.success) {
-        toast.success('Test data removed successfully');
-      } else {
-        toast.error(`Failed to remove test data: ${result.error || 'Unknown error'}`);
-      }
-    } catch (error: any) {
-      toast.error(`Error cleaning up test data: ${error.message}`);
-    }
-  };
-
-  const handleVerifySecrets = async () => {
-    try {
-      const result = await verifyApiSecrets();
-      if (result.success) {
-        toast.success('API secrets verification complete');
-      } else {
-        toast.error(`API secrets verification failed: ${result.error || 'Missing API secrets'}`);
-      }
-    } catch (error: any) {
-      toast.error(`Error verifying API secrets: ${error.message}`);
-    }
-  };
-
-  // Hide any lovable badges on this page
-  React.useEffect(() => {
-    localStorage.setItem('lovable-badge-hidden', 'true');
-    
-    const removeBadge = () => {
-      const badges = document.querySelectorAll('[class*="lovable-badge"], [id*="lovable-badge"], [data-lovable]');
-      badges.forEach(badge => {
-        if (badge instanceof HTMLElement) {
-          badge.style.display = 'none';
-        }
-      });
-    };
-    
-    removeBadge();
-    const interval = setInterval(removeBadge, 1000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
+  const { isValidating, validationResult, error, runValidation } = usePreLaunchValidation();
+  
   return (
-    <div className="animate-fadeIn space-y-4 sm:space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">Launch Preparation</h1>
-        <p className="text-muted-foreground mt-1">
-          Final checks before launching Allora AI to production
-        </p>
-      </div>
-      
-      <div className="flex flex-col sm:flex-row gap-3 mb-2">
-        <Button 
-          onClick={handleCleanupTestData}
-          variant="outline"
-          className="gap-2"
-        >
-          <AlertCircle className="h-4 w-4" />
-          Remove Test Data
-        </Button>
-        
-        <Button 
-          onClick={handleVerifySecrets}
-          variant="outline"
-          className="gap-2"
-        >
-          <CheckCircle2 className="h-4 w-4" />
-          Verify API Secrets
-        </Button>
-      </div>
-
-      <div className="bg-primary-foreground border border-border/80 rounded-xl p-6">
-        <h2 className="text-xl font-semibold mb-4">Launch Allora AI</h2>
-        <p className="text-muted-foreground mb-6">
-          Ready to go live? With one click, initiate Allora AI by creating a self-demo experience 
-          with sample data to showcase the platform's capabilities.
-        </p>
-        
-        <LaunchButton />
-      </div>
-
-      <EnhancedVerificationChecklist />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LaunchVerification />
-        <PreLaunchChecklist />
-      </div>
-      
-      <div className="space-y-4 mt-8">
-        <h2 className="text-xl font-semibold">API Connections Status</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-secondary/40 border border-border/50 rounded-lg p-4">
-            <h3 className="font-medium">Supabase</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              ✅ Connected to production database<br/>
-              ✅ All required tables created<br/>
-              ✅ Row-level security policies in place
-            </p>
-          </div>
-          
-          <div className="bg-secondary/40 border border-border/50 rounded-lg p-4">
-            <h3 className="font-medium">Stripe</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              ✅ Connected to Stripe Test Mode<br/>
-              ✅ Payment processing working<br/>
-              ✅ Subscription management set up
-            </p>
-          </div>
-          
-          <div className="bg-secondary/40 border border-border/50 rounded-lg p-4">
-            <h3 className="font-medium">Postmark</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              ✅ Email sending working<br/>
-              ✅ Authentication emails configured<br/>
-              ✅ Marketing email templates ready
-            </p>
-          </div>
-          
-          <div className="bg-secondary/40 border border-border/50 rounded-lg p-4">
-            <h3 className="font-medium">Twilio</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              ✅ SMS sending working<br/>
-              ✅ Phone number configured<br/>
-              ✅ Message templates created
-            </p>
-          </div>
-          
-          <div className="bg-secondary/40 border border-border/50 rounded-lg p-4">
-            <h3 className="font-medium">Heygen</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              ✅ Video generation configured<br/>
-              ✅ API integration working<br/>
-              ✅ Test videos successfully created
-            </p>
-          </div>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Launch Preparation</h1>
+          <p className="text-muted-foreground mt-2">
+            Ensure your system is ready for production deployment
+          </p>
         </div>
+        <RunAuditButton />
       </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Rocket className="h-5 w-5 text-primary" />
+            Pre-Launch Validation
+          </CardTitle>
+          <CardDescription>
+            Run automated checks to validate production readiness
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Button 
+              onClick={runValidation} 
+              disabled={isValidating}
+              className="w-full sm:w-auto"
+            >
+              {isValidating ? "Running Validation..." : "Run Production Readiness Check"}
+            </Button>
+            
+            {error && (
+              <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-md text-destructive">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-5 w-5 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Validation Error</p>
+                    <p className="text-sm mt-1">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {validationResult && (
+              <div className="mt-4 border rounded-md divide-y">
+                <div className="p-4 bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium">
+                      System Readiness: {validationResult.ready ? "Ready" : "Not Ready"}
+                    </h3>
+                    {validationResult.ready ? (
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3" /> Ready
+                      </span>
+                    ) : (
+                      <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" /> Issues Found
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Issues section */}
+                {validationResult.issues.length > 0 && (
+                  <div className="p-4">
+                    <h4 className="font-medium mb-2 text-destructive flex items-center gap-1">
+                      <AlertTriangle className="h-4 w-4" /> Issues to Resolve
+                    </h4>
+                    <ul className="space-y-2">
+                      {validationResult.issues.map((issue, index) => (
+                        <li key={index} className="bg-destructive/10 border border-destructive/20 p-3 rounded-md text-sm">
+                          <p className="font-medium">{issue.message}</p>
+                          {issue.details && (
+                            <div className="mt-1 text-muted-foreground">
+                              <pre className="text-xs overflow-auto p-2 bg-background mt-1 rounded border">
+                                {JSON.stringify(issue.details, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Passed checks section */}
+                {validationResult.passedChecks.length > 0 && (
+                  <div className="p-4">
+                    <h4 className="font-medium mb-2 text-green-600 flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4" /> Passed Checks
+                    </h4>
+                    <ul className="space-y-2">
+                      {validationResult.passedChecks.map((check, index) => (
+                        <li key={index} className="bg-green-50 border border-green-200 p-3 rounded-md text-sm text-green-800">
+                          {check.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -114,6 +114,7 @@ const createLazyRoutes = () => {
   const routes: RouteObject[] = [
     ...publicRoutes,
     ...authRoutes,
+    ...adminRoutes,
     ...dashboardRoutes,
     ...onboardingRoutes,
     ...marketingRoutes, 

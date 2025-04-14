@@ -69,6 +69,31 @@ export const globalRoutes: RouteObject[] = [
     path: "/customers",
     element: <Navigate to="/dashboard/leads" replace />,
   },
+  // Admin route redirects
+  {
+    path: "/admin/dashboard",
+    element: <Navigate to="/admin" replace />,
+  },
+  {
+    path: "/admin/platform-stability",
+    element: <Navigate to="/admin/platform-stability" replace />,
+  },
+  {
+    path: "/admin/user-onboarding",
+    element: <Navigate to="/admin/user-onboarding" replace />,
+  },
+  {
+    path: "/admin/ai-bot-logic",
+    element: <Navigate to="/admin/ai-bot-logic" replace />,
+  },
+  {
+    path: "/admin/dashboard-modules",
+    element: <Navigate to="/admin/dashboard-modules" replace />,
+  },
+  {
+    path: "/admin/communication-tools",
+    element: <Navigate to="/admin/communication-tools" replace />,
+  },
   // Compliance section redirects
   {
     path: "/compliance-center",

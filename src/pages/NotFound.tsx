@@ -42,12 +42,27 @@ export default function NotFound() {
           setAlternativeRoutes(['/admin/settings']);
         } else if (currentPath.includes('/launch')) {
           setAlternativeRoutes(['/admin/launch-prep']);
+        } else if (currentPath.includes('/ai-bot')) {
+          setAlternativeRoutes(['/admin/ai-bot-logic']);
+        } else if (currentPath.includes('/platform')) {
+          setAlternativeRoutes(['/admin/platform-stability']);
+        } else if (currentPath.includes('/onboard')) {
+          setAlternativeRoutes(['/admin/user-onboarding']);
+        } else if (currentPath.includes('/dashboard-mod')) {
+          setAlternativeRoutes(['/admin/dashboard-modules']);
+        } else if (currentPath.includes('/communication')) {
+          setAlternativeRoutes(['/admin/communication-tools']);
+        } else if (currentPath.includes('/system')) {
+          setAlternativeRoutes(['/admin/system-health']);
+        } else if (currentPath.includes('/webhook')) {
+          setAlternativeRoutes(['/admin/webhooks']);
         } else {
           setAlternativeRoutes([
             '/admin',
             '/admin/entities',
             '/admin/campaigns',
-            '/admin/leads'
+            '/admin/system-health',
+            '/admin/webhooks'
           ]);
         }
       } else if (currentPath.includes('/dashboard')) {
