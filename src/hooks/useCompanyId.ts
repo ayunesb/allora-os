@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 /**
  * A hook to reliably access the current user's company ID
@@ -14,6 +15,7 @@ export function useCompanyId(): string | undefined {
   const [validatedCompanyId, setValidatedCompanyId] = useState<string | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
   const [isProductionMode, setIsProductionMode] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if we're in production mode based on URL or environment
@@ -72,6 +74,14 @@ export function useCompanyId(): string | undefined {
             console.log("Using company ID from profile:", profile.company_id);
             setIsValidating(false);
             return;
+          } else if (isProductionMode) {
+            // If we're in production mode and the company ID is invalid, 
+            // redirect to onboarding
+            console.error("Invalid company ID in user profile:", profile.company_id);
+            toast.error("Your company information appears to be incomplete. Please complete onboarding.");
+            navigate("/onboarding");
+            setIsValidating(false);
+            return;
           }
         }
         
@@ -99,10 +109,23 @@ export function useCompanyId(): string | undefined {
             
             setIsValidating(false);
             return;
+          } else if (isProductionMode) {
+            // If the stored ID is invalid and we're in production, clear it
+            console.error("Invalid company ID in localStorage:", storedCompanyId);
+            localStorage.removeItem('allora_company_id');
           }
         }
         
         // If we get here, we couldn't find a valid company ID
+        // In production mode, this is a problem - redirect to onboarding
+        if (isProductionMode && user) {
+          console.error("No valid company ID found for user");
+          toast.error("Your company information appears to be incomplete. Please complete onboarding.");
+          navigate("/onboarding");
+          setIsValidating(false);
+          return;
+        }
+        
         // Try to find any company associated with this user
         if (user) {
           // In production mode, search for real companies only
@@ -139,19 +162,28 @@ export function useCompanyId(): string | undefined {
                 console.error("Error updating profile with found company ID:", updateError);
               }
             }
+          } else if (isProductionMode) {
+            // In production mode with no companies, redirect to onboarding
+            console.error("No companies found for this user in production mode");
+            toast.error("Please complete company onboarding to access the dashboard");
+            navigate("/onboarding");
           } else {
             console.log("No companies found for this user:", error);
           }
         }
       } catch (err) {
         console.error("Error in company ID validation:", err);
+        if (isProductionMode) {
+          toast.error("Error validating company information");
+          navigate("/onboarding");
+        }
       } finally {
         setIsValidating(false);
       }
     };
     
     getAndValidateCompanyId();
-  }, [isProfileLoading, profile, user, isValidating, validatedCompanyId, isProductionMode]);
+  }, [isProfileLoading, profile, user, isValidating, validatedCompanyId, isProductionMode, navigate]);
   
   // Return priority: validated ID > profile ID > localStorage ID
   if (validatedCompanyId) {

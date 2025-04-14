@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, FileWarning } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ValidationResults } from '@/utils/productionDataValidator';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useNavigate } from "react-router-dom";
 
 interface ProductionDataAlertProps {
   isValidating: boolean;
@@ -24,6 +25,8 @@ export function ProductionDataAlert({
   onRevalidate,
   isVisible
 }: ProductionDataAlertProps) {
+  const navigate = useNavigate();
+  
   if (!isVisible) return null;
   
   // Show loading state while validating
@@ -51,7 +54,7 @@ export function ProductionDataAlert({
         <CheckCircle2 className="h-4 w-4 text-green-500" />
         <AlertTitle>Production Ready</AlertTitle>
         <AlertDescription>
-          All data validation checks passed successfully.
+          All data validation checks passed successfully. Found {validationResults.validRecords} valid records.
           {validationResults.warnings.length > 0 && (
             <div className="mt-2">
               <Accordion type="single" collapsible className="w-full">
@@ -63,7 +66,7 @@ export function ProductionDataAlert({
                     <ul className="text-xs space-y-1 mt-2 max-h-40 overflow-y-auto">
                       {validationResults.warnings.map((warning, index) => (
                         <li key={index} className="text-amber-600">
-                          {warning.message}
+                          {warning.table}: {warning.message}
                         </li>
                       ))}
                     </ul>
@@ -72,7 +75,7 @@ export function ProductionDataAlert({
               </Accordion>
             </div>
           )}
-          <div className="mt-2">
+          <div className="mt-2 flex gap-2">
             <Button size="sm" variant="outline" onClick={onRevalidate}>
               Run Validation Again
             </Button>
@@ -85,14 +88,14 @@ export function ProductionDataAlert({
   // Show error state if validation failed
   return (
     <Alert className="mb-6 border-red-500 bg-red-50 dark:bg-red-950">
-      <AlertCircle className="h-4 w-4 text-red-500" />
+      <FileWarning className="h-4 w-4 text-red-500" />
       <AlertTitle>Production Validation Failed</AlertTitle>
       <AlertDescription>
-        Critical errors found that need to be addressed:
+        <p className="font-medium">Critical errors found that need to be addressed:</p>
         <ul className="text-xs space-y-1 mt-2 max-h-40 overflow-y-auto">
           {validationResults.errors.map((error, index) => (
             <li key={index} className="text-red-600">
-              {error.message}
+              <span className="font-semibold">{error.table}</span>: {error.message}
             </li>
           ))}
         </ul>
@@ -106,7 +109,7 @@ export function ProductionDataAlert({
                 <ul className="text-xs space-y-1 mt-2 max-h-40 overflow-y-auto">
                   {validationResults.warnings.map((warning, index) => (
                     <li key={index} className="text-amber-600">
-                      {warning.message}
+                      <span className="font-semibold">{warning.table}</span>: {warning.message}
                     </li>
                   ))}
                 </ul>
@@ -114,9 +117,12 @@ export function ProductionDataAlert({
             </AccordionItem>
           </Accordion>
         )}
-        <div className="mt-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           <Button size="sm" variant="outline" onClick={onRevalidate} className="mr-2">
             Run Validation Again
+          </Button>
+          <Button size="sm" variant="destructive" onClick={() => navigate("/onboarding")}>
+            Fix Company Data
           </Button>
         </div>
       </AlertDescription>

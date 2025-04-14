@@ -1,318 +1,423 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+/**
+ * Validates and cleans production data to ensure only real company information is used
+ */
 
-// Regex patterns to identify potential test/demo data
-const TEST_PATTERNS = [
-  /test/i,
-  /demo/i,
-  /example/i,
-  /sample/i,
-  /lorem ipsum/i,
-  /placeholder/i,
-  /dummy/i
-];
-
-// Data structure for validation results
-export interface ValidationResults {
-  success: boolean;
-  validRecords: number;
-  warnings: {
-    type: string;
-    message: string;
-    id?: string;
-    table?: string;
-  }[];
-  errors: {
-    type: string;
-    message: string;
-    id?: string;
-    table?: string;
-  }[];
+export interface ValidationIssue {
+  table: string;
+  record_id?: string;
+  field?: string;
+  message: string;
+  severity: 'error' | 'warning';
 }
 
+export interface ValidationResults {
+  success: boolean;
+  errors: ValidationIssue[];
+  warnings: ValidationIssue[];
+  validRecords: number;
+  timestamp: string;
+}
+
+import { supabase } from '@/integrations/supabase/client';
+
 /**
- * Utility to clean up test/demo data and verify production readiness
+ * Validates all production data to ensure it meets quality standards
+ * and doesn't contain any demo/test data
  */
 export async function validateAndCleanProductionData(): Promise<ValidationResults> {
-  console.log("Starting production data validation and cleanup...");
-  
   const results: ValidationResults = {
-    success: false,
-    validRecords: 0,
+    success: true,
+    errors: [],
     warnings: [],
-    errors: []
+    validRecords: 0,
+    timestamp: new Date().toISOString()
   };
-  
-  try {
-    // 1. Connect and validate company data
-    const { data: companies, error: companiesError } = await supabase
-      .from('companies')
-      .select('*');
-      
-    if (companiesError) {
-      results.errors.push({
-        type: 'database',
-        message: `Failed to fetch companies: ${companiesError.message}`
-      });
-      return results;
-    }
-    
-    // Check if we have any valid companies
-    const validCompanies = companies.filter(company => {
-      // Check for test/demo patterns in company name
-      const isTestName = TEST_PATTERNS.some(pattern => 
-        pattern.test(company.name)
-      );
-      
-      if (isTestName) {
-        results.warnings.push({
-          type: 'company',
-          message: `Found potential test company: ${company.name}`,
-          id: company.id,
-          table: 'companies'
-        });
-        return false;
-      }
-      
-      return true;
-    });
-    
-    if (validCompanies.length === 0) {
-      // No valid companies found, this is critical
-      results.errors.push({
-        type: 'company',
-        message: 'No valid production companies found. Cannot proceed with validation.'
-      });
-      return results;
-    }
-    
-    // Store valid company IDs for use in other queries
-    const validCompanyIds = validCompanies.map(c => c.id);
-    console.log(`Found ${validCompanyIds.length} valid companies`);
-    results.validRecords += validCompanyIds.length;
-    
-    // 2. Validate strategies
-    const { data: strategies, error: strategiesError } = await supabase
-      .from('strategies')
-      .select('*')
-      .in('company_id', validCompanyIds);
-      
-    if (strategiesError) {
-      results.errors.push({
-        type: 'database',
-        message: `Failed to fetch strategies: ${strategiesError.message}`
-      });
-    } else {
-      const validStrategies = strategies.filter(strategy => {
-        // Check for test/demo content
-        const isTestContent = TEST_PATTERNS.some(pattern => 
-          pattern.test(strategy.title) || (strategy.description && pattern.test(strategy.description))
-        );
-        
-        if (isTestContent) {
-          results.warnings.push({
-            type: 'strategy',
-            message: `Found potential test strategy: ${strategy.title}`,
-            id: strategy.id,
-            table: 'strategies'
-          });
-          return false;
-        }
-        
-        // Check for missing required fields
-        if (!strategy.title || !strategy.description) {
-          results.warnings.push({
-            type: 'strategy',
-            message: `Strategy missing required fields: ${strategy.id}`,
-            id: strategy.id,
-            table: 'strategies'
-          });
-        }
-        
-        return true;
-      });
-      
-      console.log(`Found ${validStrategies.length} valid strategies`);
-      results.validRecords += validStrategies.length;
-    }
-    
-    // 3. Validate campaigns
-    const { data: campaigns, error: campaignsError } = await supabase
-      .from('campaigns')
-      .select('*')
-      .in('company_id', validCompanyIds);
-      
-    if (campaignsError) {
-      results.errors.push({
-        type: 'database',
-        message: `Failed to fetch campaigns: ${campaignsError.message}`
-      });
-    } else {
-      const validCampaigns = campaigns.filter(campaign => {
-        // Check for test/demo content
-        const isTestContent = TEST_PATTERNS.some(pattern => 
-          pattern.test(campaign.name)
-        );
-        
-        if (isTestContent) {
-          results.warnings.push({
-            type: 'campaign',
-            message: `Found potential test campaign: ${campaign.name}`,
-            id: campaign.id,
-            table: 'campaigns'
-          });
-          return false;
-        }
-        
-        // Check for missing required fields
-        if (!campaign.name || !campaign.platform) {
-          results.warnings.push({
-            type: 'campaign',
-            message: `Campaign missing required fields: ${campaign.id}`,
-            id: campaign.id,
-            table: 'campaigns'
-          });
-        }
-        
-        return true;
-      });
-      
-      console.log(`Found ${validCampaigns.length} valid campaigns`);
-      results.validRecords += validCampaigns.length;
-    }
-    
-    // 4. Validate leads
-    const { data: leads, error: leadsError } = await supabase
-      .from('leads')
-      .select('*');
-      
-    if (leadsError) {
-      results.errors.push({
-        type: 'database',
-        message: `Failed to fetch leads: ${leadsError.message}`
-      });
-    } else {
-      const validLeads = leads.filter(lead => {
-        // Check for test/demo content
-        const isTestContent = TEST_PATTERNS.some(pattern => 
-          pattern.test(lead.name) || 
-          (lead.email && pattern.test(lead.email)) || 
-          (lead.company && pattern.test(lead.company))
-        );
-        
-        if (isTestContent) {
-          results.warnings.push({
-            type: 'lead',
-            message: `Found potential test lead: ${lead.name}`,
-            id: lead.id,
-            table: 'leads'
-          });
-          return false;
-        }
-        
-        // Check if lead is associated with valid campaign/company
-        const hasValidAssociation = validCompanyIds.includes(lead.company_id);
-        
-        if (!hasValidAssociation) {
-          results.warnings.push({
-            type: 'lead',
-            message: `Lead not associated with valid company: ${lead.id}`,
-            id: lead.id,
-            table: 'leads'
-          });
-        }
-        
-        return hasValidAssociation;
-      });
-      
-      console.log(`Found ${validLeads.length} valid leads`);
-      results.validRecords += validLeads.length;
-    }
 
-    // Check for critical errors that would prevent system from working properly
-    if (results.errors.length === 0 && results.validRecords > 0) {
-      results.success = true;
-    }
+  try {
+    // Step 1: Validate companies
+    await validateCompanies(results);
+    
+    // Step 2: Validate strategies
+    await validateStrategies(results);
+    
+    // Step 3: Validate leads
+    await validateLeads(results);
+    
+    // Step 4: Validate campaigns
+    await validateCampaigns(results);
+    
+    // Step 5: Validate communications
+    await validateCommunications(results);
+    
+    // If we have any errors, the validation fails
+    results.success = results.errors.length === 0;
     
     return results;
-  } catch (error: any) {
-    console.error("Error validating production data:", error);
+  } catch (error) {
+    console.error("Error during data validation:", error);
+    results.success = false;
     results.errors.push({
-      type: 'system',
-      message: `Validation failed: ${error.message}`
+      table: 'general',
+      message: `Validation process failed: ${error.message || 'Unknown error'}`,
+      severity: 'error'
     });
     return results;
   }
 }
 
 /**
- * Attempts to clean up test/demo data from the database
- * Only run this in production environment after confirming with admin
+ * Validates company records
  */
-export async function cleanupTestData(): Promise<boolean> {
-  try {
-    // Get valid companies first to ensure we don't delete real data
-    const { data: validCompanies } = await supabase
-      .from('companies')
-      .select('id, name')
-      .not('name', 'ilike', '%test%')
-      .not('name', 'ilike', '%demo%')
-      .not('name', 'ilike', '%example%')
-      .not('name', 'ilike', '%sample%');
-      
-    if (!validCompanies || validCompanies.length === 0) {
-      console.error("No valid companies found, aborting cleanup to prevent data loss");
-      toast.error("Could not identify valid companies, cleanup aborted");
-      return false;
+async function validateCompanies(results: ValidationResults): Promise<void> {
+  const { data: companies, error } = await supabase
+    .from('companies')
+    .select('id, name, industry, details, created_at');
+    
+  if (error) {
+    results.errors.push({
+      table: 'companies',
+      message: `Failed to fetch companies: ${error.message}`,
+      severity: 'error'
+    });
+    return;
+  }
+  
+  if (!companies || companies.length === 0) {
+    results.errors.push({
+      table: 'companies',
+      message: 'No company records found. Please complete onboarding.',
+      severity: 'error'
+    });
+    return;
+  }
+  
+  // Validate each company
+  for (const company of companies) {
+    // Check for test/demo company names
+    const nameLower = company.name?.toLowerCase() || '';
+    if (
+      nameLower.includes('test') || 
+      nameLower.includes('demo') || 
+      nameLower.includes('example') ||
+      nameLower.length < 2
+    ) {
+      results.errors.push({
+        table: 'companies',
+        record_id: company.id,
+        field: 'name',
+        message: `Company name "${company.name}" appears to be a test/demo record`,
+        severity: 'error'
+      });
+      continue;
     }
     
-    const validCompanyIds = validCompanies.map(c => c.id);
-    
-    // Delete test strategies
-    const { error: strategiesError } = await supabase
-      .from('strategies')
-      .delete()
-      .or(
-        `title.ilike.%test%, title.ilike.%demo%, title.ilike.%example%, title.ilike.%sample%`
-      )
-      .not('company_id', 'in', `(${validCompanyIds.join(',')})`);
-      
-    if (strategiesError) {
-      console.error("Error deleting test strategies:", strategiesError);
+    // Check for missing industry
+    if (!company.industry) {
+      results.warnings.push({
+        table: 'companies',
+        record_id: company.id,
+        field: 'industry',
+        message: `Company "${company.name}" is missing an industry`,
+        severity: 'warning'
+      });
     }
     
-    // Delete test campaigns
-    const { error: campaignsError } = await supabase
-      .from('campaigns')
-      .delete()
-      .or(
-        `name.ilike.%test%, name.ilike.%demo%, name.ilike.%example%, name.ilike.%sample%`
-      )
-      .not('company_id', 'in', `(${validCompanyIds.join(',')})`);
-      
-    if (campaignsError) {
-      console.error("Error deleting test campaigns:", campaignsError);
+    // Check for missing details
+    if (!company.details) {
+      results.warnings.push({
+        table: 'companies',
+        record_id: company.id,
+        field: 'details',
+        message: `Company "${company.name}" has no details`,
+        severity: 'warning'
+      });
+    } else {
+      // Check if company details have goals
+      if (!company.details.goals || company.details.goals.length === 0) {
+        results.warnings.push({
+          table: 'companies',
+          record_id: company.id,
+          field: 'details.goals',
+          message: `Company "${company.name}" has no business goals defined`,
+          severity: 'warning'
+        });
+      }
     }
     
-    // Delete test leads
-    const { error: leadsError } = await supabase
-      .from('leads')
-      .delete()
-      .or(
-        `name.ilike.%test%, name.ilike.%demo%, name.ilike.%example%, name.ilike.%sample%`
-      )
-      .not('company_id', 'in', `(${validCompanyIds.join(',')})`);
-      
-    if (leadsError) {
-      console.error("Error deleting test leads:", leadsError);
+    // Valid company found
+    results.validRecords++;
+  }
+}
+
+/**
+ * Validates strategy records
+ */
+async function validateStrategies(results: ValidationResults): Promise<void> {
+  const { data: strategies, error } = await supabase
+    .from('strategies')
+    .select('id, title, description, company_id, risk_level');
+    
+  if (error) {
+    results.warnings.push({
+      table: 'strategies',
+      message: `Failed to fetch strategies: ${error.message}`,
+      severity: 'warning'
+    });
+    return;
+  }
+  
+  if (!strategies || strategies.length === 0) {
+    results.warnings.push({
+      table: 'strategies',
+      message: 'No strategies found. AI will generate strategies based on company profile.',
+      severity: 'warning'
+    });
+    return;
+  }
+  
+  // Validate each strategy
+  for (const strategy of strategies) {
+    // Check for test/demo strategy titles
+    const titleLower = strategy.title?.toLowerCase() || '';
+    if (
+      titleLower.includes('test') || 
+      titleLower.includes('demo') || 
+      titleLower.includes('lorem ipsum') || 
+      titleLower.includes('example')
+    ) {
+      results.errors.push({
+        table: 'strategies',
+        record_id: strategy.id,
+        field: 'title',
+        message: `Strategy "${strategy.title}" appears to be a test/demo record`,
+        severity: 'error'
+      });
+      continue;
     }
     
-    toast.success("Test data cleanup completed");
-    return true;
-  } catch (error) {
-    console.error("Error during test data cleanup:", error);
-    toast.error("Error cleaning up test data");
-    return false;
+    // Check for missing company_id
+    if (!strategy.company_id) {
+      results.errors.push({
+        table: 'strategies',
+        record_id: strategy.id,
+        field: 'company_id',
+        message: `Strategy "${strategy.title}" is not linked to a company`,
+        severity: 'error'
+      });
+    }
+    
+    // Check for missing description
+    if (!strategy.description) {
+      results.warnings.push({
+        table: 'strategies',
+        record_id: strategy.id,
+        field: 'description',
+        message: `Strategy "${strategy.title}" is missing a description`,
+        severity: 'warning'
+      });
+    }
+    
+    // Valid strategy found
+    results.validRecords++;
+  }
+}
+
+/**
+ * Validates lead records
+ */
+async function validateLeads(results: ValidationResults): Promise<void> {
+  const { data: leads, error } = await supabase
+    .from('leads')
+    .select('id, name, email, phone, status, campaign_id');
+    
+  if (error) {
+    results.warnings.push({
+      table: 'leads',
+      message: `Failed to fetch leads: ${error.message}`,
+      severity: 'warning'
+    });
+    return;
+  }
+  
+  if (!leads || leads.length === 0) {
+    // This is just a warning, not having leads isn't critical
+    results.warnings.push({
+      table: 'leads',
+      message: 'No leads found in the system',
+      severity: 'warning'
+    });
+    return;
+  }
+  
+  // Validate each lead
+  for (const lead of leads) {
+    // Check for test/demo lead names
+    const nameLower = lead.name?.toLowerCase() || '';
+    if (
+      nameLower.includes('test') || 
+      nameLower.includes('demo') || 
+      nameLower.includes('example') ||
+      nameLower === 'john doe' ||
+      nameLower === 'jane doe'
+    ) {
+      results.errors.push({
+        table: 'leads',
+        record_id: lead.id,
+        field: 'name',
+        message: `Lead "${lead.name}" appears to be a test/demo record`,
+        severity: 'error'
+      });
+      continue;
+    }
+    
+    // Check for missing email and phone (both should be present for a quality lead)
+    if (!lead.email && !lead.phone) {
+      results.warnings.push({
+        table: 'leads',
+        record_id: lead.id,
+        field: 'contact',
+        message: `Lead "${lead.name}" has no email or phone number`,
+        severity: 'warning'
+      });
+    }
+    
+    // Check for missing campaign association
+    if (!lead.campaign_id) {
+      results.warnings.push({
+        table: 'leads',
+        record_id: lead.id,
+        field: 'campaign_id',
+        message: `Lead "${lead.name}" is not associated with a campaign`,
+        severity: 'warning'
+      });
+    }
+    
+    // Valid lead found
+    results.validRecords++;
+  }
+}
+
+/**
+ * Validates campaign records
+ */
+async function validateCampaigns(results: ValidationResults): Promise<void> {
+  const { data: campaigns, error } = await supabase
+    .from('campaigns')
+    .select('id, name, platform, budget, company_id');
+    
+  if (error) {
+    results.warnings.push({
+      table: 'campaigns',
+      message: `Failed to fetch campaigns: ${error.message}`,
+      severity: 'warning'
+    });
+    return;
+  }
+  
+  if (!campaigns || campaigns.length === 0) {
+    // This is just a warning, not having campaigns isn't critical
+    results.warnings.push({
+      table: 'campaigns',
+      message: 'No marketing campaigns found in the system',
+      severity: 'warning'
+    });
+    return;
+  }
+  
+  // Validate each campaign
+  for (const campaign of campaigns) {
+    // Check for test/demo campaign names
+    const nameLower = campaign.name?.toLowerCase() || '';
+    if (
+      nameLower.includes('test') || 
+      nameLower.includes('demo') || 
+      nameLower.includes('example')
+    ) {
+      results.errors.push({
+        table: 'campaigns',
+        record_id: campaign.id,
+        field: 'name',
+        message: `Campaign "${campaign.name}" appears to be a test/demo record`,
+        severity: 'error'
+      });
+      continue;
+    }
+    
+    // Check for missing company_id
+    if (!campaign.company_id) {
+      results.errors.push({
+        table: 'campaigns',
+        record_id: campaign.id,
+        field: 'company_id',
+        message: `Campaign "${campaign.name}" is not linked to a company`,
+        severity: 'error'
+      });
+    }
+    
+    // Check for missing platform
+    if (!campaign.platform) {
+      results.warnings.push({
+        table: 'campaigns',
+        record_id: campaign.id,
+        field: 'platform',
+        message: `Campaign "${campaign.name}" has no platform specified`,
+        severity: 'warning'
+      });
+    }
+    
+    // Check for budget
+    if (!campaign.budget) {
+      results.warnings.push({
+        table: 'campaigns',
+        record_id: campaign.id,
+        field: 'budget',
+        message: `Campaign "${campaign.name}" has no budget specified`,
+        severity: 'warning'
+      });
+    }
+    
+    // Valid campaign found
+    results.validRecords++;
+  }
+}
+
+/**
+ * Validates communication records
+ */
+async function validateCommunications(results: ValidationResults): Promise<void> {
+  const { data: communications, error } = await supabase
+    .from('communications')
+    .select('id, type, lead_id, status');
+    
+  if (error) {
+    results.warnings.push({
+      table: 'communications',
+      message: `Failed to fetch communications: ${error.message}`,
+      severity: 'warning'
+    });
+    return;
+  }
+  
+  if (!communications || communications.length === 0) {
+    // Not having communications isn't critical
+    return;
+  }
+  
+  // Validate each communication
+  for (const comm of communications) {
+    // Check for missing lead association
+    if (!comm.lead_id) {
+      results.warnings.push({
+        table: 'communications',
+        record_id: comm.id,
+        field: 'lead_id',
+        message: `Communication (ID: ${comm.id}) is not linked to a lead`,
+        severity: 'warning'
+      });
+    }
+    
+    // Valid communication found
+    results.validRecords++;
   }
 }

@@ -48,10 +48,16 @@ export function useProductionData() {
         toast.error("Validation failed", {
           description: `Found ${results.errors.length} critical errors`
         });
+        
+        // Log the first few errors for debugging
+        if (results.errors.length > 0) {
+          console.error("Validation errors:", results.errors.slice(0, 3));
+        }
       }
     } catch (error) {
       console.error("Error validating production data:", error);
       toast.error("Error validating production data");
+      setIsProductionReady(false);
     } finally {
       setIsValidating(false);
     }
