@@ -4,14 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { TypographyH1 } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle2, XCircle, AlertTriangle, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Clock, PlayCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function AuditPage() {
+  const navigate = useNavigate();
+  
+  const handleRunNewAudit = () => {
+    toast.info("Starting new system audit...");
+    navigate("/admin/run-audit");
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <TypographyH1>System Audit</TypographyH1>
-        <Button className="w-full sm:w-auto">
+        <Button 
+          className="w-full sm:w-auto"
+          onClick={handleRunNewAudit}
+        >
+          <PlayCircle className="mr-2 h-4 w-4" />
           Run New Audit
         </Button>
       </div>
