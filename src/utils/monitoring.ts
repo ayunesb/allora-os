@@ -16,10 +16,29 @@ export interface Alert {
   acknowledged?: boolean; // Added acknowledged property
 }
 
+export interface HealthCheckResult {
+  status: 'healthy' | 'unhealthy' | 'degraded';
+  timestamp: string;
+  services: Record<string, ServiceHealth>;
+  environment: string;
+  version?: string;
+  uptime?: number;
+}
+
+export interface ServiceHealth {
+  status: 'healthy' | 'unhealthy' | 'degraded';
+  responseTime?: number;
+  message?: string;
+  lastChecked: string;
+}
+
 class MonitoringService {
   private alerts: Alert[] = [];
   private listeners: ((alerts: Alert[]) => void)[] = [];
   private metrics: Record<string, number> = {}; // Store for gauge metrics
+  private healthCheckInterval: number | null = null;
+  private healthCheckListeners: ((health: HealthCheckResult) => void)[] = [];
+  private lastHealthCheck: HealthCheckResult | null = null;
 
   constructor() {
     // Initialize with some sample alerts
@@ -150,11 +169,196 @@ class MonitoringService {
   }
 
   /**
+   * Start automatic health checks at the specified interval (in ms)
+   */
+  startHealthChecks(intervalMs: number = 60000): void {
+    if (this.healthCheckInterval) {
+      this.stopHealthChecks();
+    }
+
+    this.healthCheckInterval = window.setInterval(async () => {
+      const health = await this.performHealthCheck();
+      
+      // Notify health check listeners
+      this.healthCheckListeners.forEach(listener => listener(health));
+      
+      // Trigger alerts for unhealthy services
+      if (health.status !== 'healthy') {
+        this.triggerAlert(
+          'System Health Degraded',
+          `System health check detected issues with ${Object.entries(health.services)
+            .filter(([, service]) => service.status !== 'healthy')
+            .map(([name]) => name)
+            .join(', ')}`,
+          health.status === 'degraded' ? 'warning' : 'error',
+          { healthCheck: health }
+        );
+      }
+    }, intervalMs);
+  }
+
+  /**
+   * Stop automatic health checks
+   */
+  stopHealthChecks(): void {
+    if (this.healthCheckInterval) {
+      window.clearInterval(this.healthCheckInterval);
+      this.healthCheckInterval = null;
+    }
+  }
+
+  /**
+   * Add a listener for health check results
+   */
+  addHealthCheckListener(callback: (health: HealthCheckResult) => void): () => void {
+    this.healthCheckListeners.push(callback);
+    
+    // If we have a recent health check result, call the listener immediately
+    if (this.lastHealthCheck) {
+      callback(this.lastHealthCheck);
+    }
+    
+    // Return remove function
+    return () => {
+      this.healthCheckListeners = this.healthCheckListeners.filter(l => l !== callback);
+    };
+  }
+
+  /**
+   * Perform a health check of the system
+   */
+  async performHealthCheck(): Promise<HealthCheckResult> {
+    const startTime = performance.now();
+    
+    try {
+      // Check various services
+      const servicesHealth: Record<string, ServiceHealth> = {
+        api: await this.checkApiHealth(),
+        database: await this.checkDatabaseHealth(),
+        auth: await this.checkAuthHealth(),
+        storage: await this.checkStorageHealth()
+      };
+      
+      // Determine overall system health
+      const unhealthyServices = Object.values(servicesHealth).filter(s => s.status === 'unhealthy');
+      const degradedServices = Object.values(servicesHealth).filter(s => s.status === 'degraded');
+      
+      let overallStatus: 'healthy' | 'unhealthy' | 'degraded' = 'healthy';
+      if (unhealthyServices.length > 0) {
+        overallStatus = 'unhealthy';
+      } else if (degradedServices.length > 0) {
+        overallStatus = 'degraded';
+      }
+      
+      const result: HealthCheckResult = {
+        status: overallStatus,
+        timestamp: new Date().toISOString(),
+        services: servicesHealth,
+        environment: process.env.NODE_ENV || 'development',
+        version: '2.4.0', // This should be dynamically populated in a real app
+        uptime: performance.now() // Milliseconds since page load as a proxy for uptime
+      };
+      
+      this.lastHealthCheck = result;
+      return result;
+    } catch (error) {
+      console.error('Error performing health check:', error);
+      
+      const errorResult: HealthCheckResult = {
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        services: {
+          system: {
+            status: 'unhealthy',
+            message: error instanceof Error ? error.message : 'Unknown error during health check',
+            lastChecked: new Date().toISOString()
+          }
+        },
+        environment: process.env.NODE_ENV || 'development'
+      };
+      
+      this.lastHealthCheck = errorResult;
+      return errorResult;
+    } finally {
+      const duration = performance.now() - startTime;
+      this.recordTiming('health_check', duration);
+    }
+  }
+
+  /**
    * Notify all listeners of updates
    */
   private notifyListeners(): void {
     const activeAlerts = this.alerts.filter(a => !a.dismissed);
     this.listeners.forEach(listener => listener(activeAlerts));
+  }
+
+  /**
+   * Check API health
+   */
+  private async checkApiHealth(): Promise<ServiceHealth> {
+    const startTime = performance.now();
+    try {
+      // This is a simplified check - in a real app, you'd check actual API endpoints
+      // or use a dedicated health check endpoint
+      const isOnline = navigator.onLine;
+      const status = isOnline ? 'healthy' : 'unhealthy';
+      
+      return {
+        status,
+        responseTime: performance.now() - startTime,
+        message: isOnline ? 'API is accessible' : 'Network connection unavailable',
+        lastChecked: new Date().toISOString()
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        message: error instanceof Error ? error.message : 'Unknown error checking API health',
+        lastChecked: new Date().toISOString()
+      };
+    }
+  }
+
+  /**
+   * Check database health
+   */
+  private async checkDatabaseHealth(): Promise<ServiceHealth> {
+    // In a real app, this would make a request to check database connectivity
+    // For this demo, we're simulating a successful response
+    return {
+      status: 'healthy',
+      responseTime: 45,
+      message: 'Database connection established',
+      lastChecked: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Check authentication service health
+   */
+  private async checkAuthHealth(): Promise<ServiceHealth> {
+    // In a real app, this would check the auth service
+    // For this demo, we're simulating a successful response
+    return {
+      status: 'healthy',
+      responseTime: 32,
+      message: 'Authentication service responding normally',
+      lastChecked: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Check storage service health
+   */
+  private async checkStorageHealth(): Promise<ServiceHealth> {
+    // In a real app, this would check storage service connectivity
+    // For this demo, we're simulating a successful response
+    return {
+      status: 'healthy',
+      responseTime: 120,
+      message: 'Storage service operating normally',
+      lastChecked: new Date().toISOString()
+    };
   }
 }
 
@@ -189,25 +393,12 @@ export const reportCritical = (title: string, message: string, metadata?: Record
   return monitoring.triggerAlert(title, message, 'critical', metadata);
 };
 
-// Export a method to check system health
+// Export system health check function
 export const checkSystemHealth = async () => {
-  try {
-    // This would normally involve checking various services
-    // For demo purposes, we're just returning a mock result
-    return {
-      healthy: true,
-      services: {
-        database: { status: 'healthy', responseTime: 45 },
-        api: { status: 'healthy', responseTime: 78 },
-        storage: { status: 'healthy', responseTime: 120 },
-        authentication: { status: 'healthy', responseTime: 32 }
-      }
-    };
-  } catch (error) {
-    console.error('Error checking system health:', error);
-    return {
-      healthy: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
+  return monitoring.performHealthCheck();
 };
+
+// Start health checks immediately (once per minute)
+if (typeof window !== 'undefined') {
+  monitoring.startHealthChecks(60000); // 60000ms = 1 minute
+}
