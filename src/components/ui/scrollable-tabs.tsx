@@ -40,7 +40,7 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
         <TabsList className={cn(
           "w-full flex flex-wrap justify-start items-center", // Ensure full width and wrapping
           "min-h-[80px]", // Increased height to accommodate two rows
-          "py-2 gap-2", // Add vertical padding and gap between items
+          "py-2", // Removed gap-2
           variant === "outline" && "bg-transparent p-0 border-b border-border"
         )}>
           {tabs.map((tab) => (
@@ -72,4 +72,3 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
 };
 
 export default ScrollableTabs;
-
