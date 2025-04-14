@@ -1,141 +1,183 @@
 
-import { useState, useEffect, useCallback } from "react";
-import { toast } from "sonner";
-
-// Updated AiRecommendation type to include all properties required by Recommendation
-export interface AiRecommendation {
-  id: string;
-  title: string;
-  description: string;
-  impact: "high" | "medium" | "low";
-  effort: "high" | "medium" | "low";
-  approved: boolean;
-  pending: boolean;
-  // Additional properties to make it compatible with Recommendation type
-  type: string;
-  executiveBot: {
-    name: string;
-    role: string;
-  };
-  expectedImpact: number;
-  timeframe: string;
-}
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useRiskAnalysis } from './useRiskAnalysis';
 
 export function useDashboardData() {
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [pendingApprovals, setPendingApprovals] = useState<number>(0);
-  const [aiRecommendations, setAiRecommendations] = useState<AiRecommendation[]>([]);
-  const [riskAppetite, setRiskAppetite] = useState<"high" | "medium" | "low">("medium");
+  const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
+  const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
+  const [riskAppetite, setRiskAppetite] = useState<'low' | 'medium' | 'high'>('medium');
+  const { user, profile } = useAuth();
+  const { calculateRiskScore } = useRiskAnalysis();
 
-  // Simulate data fetching
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Mock data with additional properties to match Recommendation type
-        setAiRecommendations([
-          {
-            id: "rec-1",
-            title: "Expand digital marketing channels",
-            description: "Increase investment in social media marketing to capture younger demographics",
-            impact: "high",
-            effort: "medium",
-            approved: false,
-            pending: true,
-            // Added properties
-            type: "strategy",
-            executiveBot: {
-              name: "Antonio Lucio",
-              role: "cmo"
-            },
-            expectedImpact: 78,
-            timeframe: "3-6 months"
-          },
-          {
-            id: "rec-2",
-            title: "Implement AI-driven customer support",
-            description: "Deploy chatbots for first-line customer support to improve response time",
-            impact: "medium",
-            effort: "high",
-            approved: false,
-            pending: true,
-            // Added properties
-            type: "strategy",
-            executiveBot: {
-              name: "Satya Nadella",
-              role: "ceo"
-            },
-            expectedImpact: 65,
-            timeframe: "6-12 months"
-          },
-          {
-            id: "rec-3",
-            title: "Optimize pricing strategy",
-            description: "Adjust pricing tiers based on competitive analysis and customer feedback",
-            impact: "high",
-            effort: "low",
-            approved: false,
-            pending: true,
-            // Added properties
-            type: "strategy",
-            executiveBot: {
-              name: "Warren Buffett",
-              role: "cfo"
-            },
-            expectedImpact: 82,
-            timeframe: "1-3 months"
-          }
-        ]);
-        
-        setPendingApprovals(3);
-        setRiskAppetite("medium");
-      } catch (err) {
-        console.error("Error fetching dashboard data:", err);
-        setError(err instanceof Error ? err : new Error("Failed to fetch dashboard data"));
-        toast.error("Failed to load dashboard data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Fetch dashboard data
+  const fetchDashboardData = useCallback(async () => {
+    if (!user || !profile?.company_id) return;
     
-    fetchDashboardData();
-  }, []);
-
-  // Handle recommendation approval
-  const handleApproveRecommendation = useCallback(async (index: number) => {
+    setIsLoading(true);
+    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Get user's risk appetite from profile
+      if (profile.risk_appetite) {
+        setRiskAppetite(profile.risk_appetite as 'low' | 'medium' | 'high');
+      }
       
-      setAiRecommendations(prev => {
-        const updated = [...prev];
-        if (updated[index]) {
-          updated[index] = {
-            ...updated[index],
-            approved: true,
-            pending: false
-          };
+      // Fetch pending strategy approvals
+      const { data: strategies, error: strategiesError } = await supabase
+        .from('strategies')
+        .select('*')
+        .eq('company_id', profile.company_id)
+        .is('approved_at', null)
+        .is('rejected_at', null)
+        .order('created_at', { ascending: false })
+        .limit(5);
+        
+      if (strategiesError) throw strategiesError;
+      
+      // Format strategies for display
+      const formattedStrategies = strategies.map(strategy => ({
+        id: strategy.id,
+        title: strategy.title,
+        description: strategy.description,
+        type: 'strategy',
+        risk_level: strategy.risk_level || riskAppetite,
+        created_at: strategy.created_at,
+        executive_bot: strategy.executive_bot || 'AI Executive Team',
+        status: strategy.status || 'pending'
+      }));
+      
+      setPendingApprovals(formattedStrategies);
+      
+      // Check if we need to generate AI recommendations
+      if (formattedStrategies.length === 0) {
+        await generateAIRecommendations();
+      }
+      
+      // Fetch AI recommendations (campaigns, etc.)
+      const { data: campaigns, error: campaignsError } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('company_id', profile.company_id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+        
+      if (campaignsError) throw campaignsError;
+      
+      // Format campaigns for display
+      const formattedCampaigns = campaigns.map(campaign => ({
+        id: campaign.id,
+        title: campaign.name,
+        description: campaign.description || 'AI-generated marketing campaign',
+        type: 'campaign',
+        platform: campaign.platform,
+        created_at: campaign.created_at,
+        executive_bot: campaign.executive_bot || 'Marketing AI',
+        status: campaign.status || 'draft'
+      }));
+      
+      setAiRecommendations(formattedCampaigns);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Error loading dashboard data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, profile?.company_id, riskAppetite]);
+  
+  // Generate AI recommendations if none exist
+  const generateAIRecommendations = useCallback(async () => {
+    if (!user?.id || !profile?.company_id) return;
+    
+    try {
+      // Call our new edge function to generate AI content
+      const { data, error } = await supabase.functions.invoke('generate-ai-content', {
+        body: {
+          userId: user.id,
+          companyId: profile.company_id,
+          industry: profile.industry || 'Technology',
+          riskAppetite: profile.risk_appetite || 'medium',
+          companyName: profile.company || 'Your Company',
+          companyDetails: {
+            goals: profile.goals || ['Growth', 'Efficiency'],
+            size: profile.company_size || 'Small',
+            marketingBudget: profile.marketing_budget || '$1k-$5k',
+            targetMarkets: profile.target_markets || ['North America']
+          }
         }
-        return updated;
       });
       
-      setPendingApprovals(prev => Math.max(0, prev - 1));
-      return true;
-    } catch (err) {
-      console.error("Error approving recommendation:", err);
-      throw err;
+      if (error) {
+        console.error('Error generating AI recommendations:', error);
+      } else {
+        console.log('AI content generated:', data);
+        toast.success('AI recommendations generated');
+      }
+    } catch (error) {
+      console.error('Error generating AI recommendations:', error);
     }
-  }, []);
+  }, [user?.id, profile]);
+
+  // Handle approving a recommendation
+  const handleApproveRecommendation = useCallback(async (id: string, type: string) => {
+    if (!user) {
+      toast.error('You must be logged in to approve recommendations');
+      return;
+    }
+    
+    try {
+      if (type === 'strategy') {
+        const { error } = await supabase
+          .from('strategies')
+          .update({ 
+            status: 'approved',
+            approved_by: user.id,
+            approved_at: new Date().toISOString()
+          })
+          .eq('id', id);
+          
+        if (error) throw error;
+        
+        toast.success('Strategy approved');
+      } else if (type === 'campaign') {
+        const { error } = await supabase
+          .from('campaigns')
+          .update({ 
+            status: 'approved',
+            approved_by: user.id,
+            approved_at: new Date().toISOString()
+          })
+          .eq('id', id);
+          
+        if (error) throw error;
+        
+        toast.success('Campaign approved');
+      }
+      
+      // Refresh dashboard data
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error approving recommendation:', error);
+      toast.error('Failed to approve recommendation');
+    }
+  }, [user, fetchDashboardData]);
+
+  // Load dashboard data on component mount
+  useEffect(() => {
+    if (user && profile?.company_id) {
+      fetchDashboardData();
+    }
+  }, [user, profile?.company_id, fetchDashboardData]);
 
   return {
     isLoading,
-    error,
     pendingApprovals,
     aiRecommendations,
     riskAppetite,
-    handleApproveRecommendation
+    handleApproveRecommendation,
+    refreshData: fetchDashboardData,
+    generateAIRecommendations
   };
 }
