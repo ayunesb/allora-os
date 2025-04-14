@@ -8,11 +8,11 @@ export function getAppUrl() {
 }
 
 export function getSupabaseUrl() {
-  return "https://ofwxyctfzskeeniaaazw.supabase.co";
+  return import.meta.env.VITE_SUPABASE_URL || "";
 }
 
 export function getSupabaseAnonKey() {
-  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo";
+  return import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 }
 
 /**

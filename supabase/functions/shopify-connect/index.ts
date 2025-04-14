@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { getSecret } from "../_shared/secretManager.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,7 +15,7 @@ serve(async (req) => {
   }
 
   const SUPABASE_URL = "https://ofwxyctfzskeeniaaazw.supabase.co";
-  const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  const SUPABASE_ANON_KEY = getSecret("SUPABASE_ANON_KEY", true);
 
   try {
     // Parse request body

@@ -1,11 +1,11 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { getSecret, validateRequiredSecrets } from "../_shared/secretManager.ts";
 
 const SUPABASE_URL = "https://ofwxyctfzskeeniaaazw.supabase.co";
-const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
-const POSTMARK_API_TOKEN = Deno.env.get("POSTMARK_API_TOKEN") || "";
-const POSTMARK_FROM_EMAIL = Deno.env.get("POSTMARK_FROM_EMAIL") || "no-reply@alloraai.com";
+const SUPABASE_ANON_KEY = getSecret("SUPABASE_ANON_KEY", true);
+const POSTMARK_API_TOKEN = getSecret("POSTMARK_API_TOKEN", true);
+const POSTMARK_FROM_EMAIL = getSecret("POSTMARK_FROM_EMAIL", true) || "no-reply@alloraai.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +14,24 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Validate required secrets first
+  const { valid, missingKeys } = validateRequiredSecrets([
+    "SUPABASE_ANON_KEY",
+    "POSTMARK_API_TOKEN"
+  ]);
+  
+  if (!valid) {
+    console.error("Missing required secrets:", missingKeys);
+    return new Response(JSON.stringify({ 
+      error: "Configuration error", 
+      message: "Missing required secrets. Please contact the administrator.",
+      dev_info: missingKeys // Only include in development
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
+
   // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -320,7 +338,10 @@ serve(async (req) => {
     }
   } catch (err) {
     console.error(`Postmark API error: ${err.message}`);
-    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
+    return new Response(JSON.stringify({ 
+      error: err.message, 
+      stack: isDevelopment ? err.stack : undefined 
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
