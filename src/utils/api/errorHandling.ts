@@ -18,10 +18,19 @@ export interface ApiErrorDetails {
   code: ApiErrorCode;
   message: string;
   statusCode?: number;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   a11yContext?: string; // Additional context for screen readers
   timestamp?: number;
   path?: string;
+}
+
+export interface ApiErrorOptions {
+  showToast?: boolean;
+  customMessage?: string;
+  logError?: boolean;
+  rethrow?: boolean;
+  toastDuration?: number;
+  a11yContext?: string;
 }
 
 /**
@@ -65,14 +74,7 @@ export function generateUserFriendlyMessage(error: ApiErrorDetails): string {
 /**
  * Handle API errors with consistent logging and user feedback
  */
-export function handleApiError(error: any, options: {
-  showToast?: boolean;
-  customMessage?: string;
-  logError?: boolean;
-  rethrow?: boolean;
-  toastDuration?: number;
-  a11yContext?: string;
-} = {}): ApiErrorDetails {
+export function handleApiError(error: unknown, options: ApiErrorOptions = {}): ApiErrorDetails {
   const { 
     showToast = true, 
     customMessage,
@@ -90,37 +92,59 @@ export function handleApiError(error: any, options: {
     path: window.location.pathname
   };
   
-  if (error.name === 'AbortError') {
+  // Type narrowing to determine the error structure
+  if (error instanceof Error) {
+    // Standard JavaScript Error
+    const { name, message, stack } = error;
+    
+    if (name === 'AbortError') {
+      errorDetails = {
+        ...errorDetails,
+        code: 'TIMEOUT',
+        message: 'Request timed out',
+        a11yContext
+      };
+    } else if (message === 'Network Error' || !navigator.onLine) {
+      errorDetails = {
+        ...errorDetails,
+        code: 'NETWORK_ERROR',
+        message: 'Network connection error',
+        a11yContext
+      };
+    } else {
+      errorDetails = {
+        ...errorDetails,
+        message,
+        context: { stack }
+      };
+    }
+  } else if (typeof error === 'object' && error !== null) {
+    // Try to extract useful information from error object
+    const errorObj = error as Record<string, unknown>;
+    
+    if ('status' in errorObj || 'statusCode' in errorObj) {
+      const status = (errorObj.status || errorObj.statusCode) as number;
+      
+      errorDetails = {
+        ...errorDetails,
+        code: mapHttpStatusToErrorCode(status),
+        message: typeof errorObj.message === 'string' ? errorObj.message : 
+                 typeof errorObj.error === 'string' ? errorObj.error : 'An error occurred',
+        statusCode: status,
+        context: (errorObj.details || errorObj.context) as Record<string, unknown>,
+        a11yContext
+      };
+    } else if ('message' in errorObj && typeof errorObj.message === 'string') {
+      errorDetails = {
+        ...errorDetails,
+        message: errorObj.message,
+        context: errorObj
+      };
+    }
+  } else if (typeof error === 'string') {
     errorDetails = {
       ...errorDetails,
-      code: 'TIMEOUT',
-      message: 'Request timed out',
-      a11yContext
-    };
-  } else if (error.message === 'Network Error' || !navigator.onLine) {
-    errorDetails = {
-      ...errorDetails,
-      code: 'NETWORK_ERROR',
-      message: 'Network connection error',
-      a11yContext
-    };
-  } else if (error.status || error.statusCode) {
-    const status = error.status || error.statusCode;
-    errorDetails = {
-      ...errorDetails,
-      code: mapHttpStatusToErrorCode(status),
-      message: error.message || error.error || 'An error occurred',
-      statusCode: status,
-      context: error.details || error.context || {},
-      a11yContext
-    };
-  } else {
-    errorDetails = {
-      ...errorDetails,
-      code: 'UNKNOWN_ERROR',
-      message: error.message || 'Unknown error occurred',
-      context: error,
-      a11yContext
+      message: error
     };
   }
   
@@ -176,7 +200,7 @@ export function handleApiError(error: any, options: {
 /**
  * Create an accessible ARIA live region in the document if it doesn't exist
  */
-export function setupAccessibleErrorHandling() {
+export function setupAccessibleErrorHandling(): void {
   if (!document.getElementById('aria-live-polite')) {
     const ariaLivePolite = document.createElement('div');
     ariaLivePolite.id = 'aria-live-polite';

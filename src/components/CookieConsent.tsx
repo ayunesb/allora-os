@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { X, Cookie, Info, Shield, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 interface CookieSettings {
   necessary: boolean;
@@ -43,10 +44,8 @@ const CookieConsent: React.FC = () => {
         const euUser = Math.random() > 0.5; // Simulate 50% chance of EU user
         setIsEU(euUser);
         
-        // Only show the banner if we're in EU or if we don't know
-        if (euUser) {
-          setTimeout(() => setOpen(true), 1000);
-        }
+        // Show the banner for all users until they make a choice, for compliance reasons
+        setTimeout(() => setOpen(true), 1000);
       } catch (error) {
         console.error('Error detecting location:', error);
         // If we can't detect, assume EU to be safe
@@ -124,21 +123,10 @@ const CookieConsent: React.FC = () => {
               <Cookie className="h-5 w-5 text-primary" />
               <CardTitle>Cookie Settings</CardTitle>
             </div>
-            
-            {/* Only show close button for non-EU users */}
-            {!isEU && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setOpen(false)}
-                className="h-8 w-8"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
           </div>
           <CardDescription>
             This website uses cookies to enhance your browsing experience, analyze site usage, and assist in our marketing efforts.
+            See our <Link to="/cookie-policy" className="underline">Cookie Policy</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link> for details.
           </CardDescription>
         </CardHeader>
         

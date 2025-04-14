@@ -1,105 +1,54 @@
 
-import { RouterProvider } from "react-router-dom";
-import { Toaster } from "sonner";
-import { Helmet, HelmetProvider } from "react-helmet-async";
-import { AuthProvider } from "@/context/AuthContext";
-import { AuthRedirectProvider } from "@/context/AuthRedirectContext";
-import { ExecutiveWorkflowProvider } from "@/context/ExecutiveWorkflowContext";
-import { LanguageProvider } from "@/context/LanguageContext";
-import { lazyLoad } from "@/utils/performance/lazyLoad";
-import { router } from "@/routes/router";
-import { GlobalErrorModal } from "@/components/errorHandling/GlobalErrorModal";
-import { setupErrorLogging } from "@/utils/errorHandling/errorLogging";
-import { Suspense, useRef } from "react";
-import { BackendConnectionAlert } from "@/components/dashboard/BackendConnectionAlert";
-import { useEffect } from "react";
-import { initializeAutoExecutorCron } from '@/utils/executorCron';
-import CookieConsent from "@/components/CookieConsent";
-import { AccessibilityProvider } from "@/context/AccessibilityContext";
-import SkipToContent from "@/components/accessibility/SkipToContent";
-// AccessibilityAnnouncer will be included via RootLayout
+import React, { useEffect } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { AppRoutes } from './routes';
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import { GlobalErrorBoundary } from './components/errorHandling/GlobalErrorBoundary';
+import { setupErrorLogging } from './utils/errorHandling/errorLogging';
+import { GlobalErrorModal } from './components/errorHandling/GlobalErrorModal';
+import NavigationFixer from './components/navigation/NavigationFixer';
+import { CompanyAPIProvider } from './context/CompanyAPIContext';
+import { initializeAnalytics } from './utils/analytics';
+import CookieConsent from './components/CookieConsent';
 
-// Set up error logging
-setupErrorLogging();
-
-// Loading fallback for Suspense
-const AppLoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-  </div>
-);
-
-// Initialize performance monitoring
-const initializePerformanceMonitoring = () => {
-  // Record initial load time
-  if (typeof window !== 'undefined') {
-    const loadTime = window.performance.timing.domContentLoadedEventEnd - 
-                    window.performance.timing.navigationStart;
-    console.log(`App loaded in ${loadTime}ms`);
-    
-    // Monitor long tasks
-    const observer = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        if (entry.duration > 50) { // Tasks longer than 50ms
-          console.warn('Long task detected:', entry);
-        }
-      }
-    });
-    
-    observer.observe({ entryTypes: ['longtask'] });
-    return observer; // Return the observer instance for cleanup
-  }
-  return null;
-};
-
-function App() {
-  const performanceObserverRef = useRef<PerformanceObserver | null>(null);
-  
+const App = () => {
   useEffect(() => {
-    // Initialize auto-executor cron when app loads
-    initializeAutoExecutorCron();
+    // Initialize error logging
+    setupErrorLogging();
     
-    // Initialize performance monitoring and store observer reference
-    performanceObserverRef.current = initializePerformanceMonitoring();
-    
-    // Clean up performance observers when component unmounts
-    return () => {
-      if (performanceObserverRef.current) {
-        performanceObserverRef.current.disconnect();
+    // Initialize analytics (only if consent is given)
+    const cookieConsent = localStorage.getItem('cookie-consent');
+    if (cookieConsent) {
+      const settings = JSON.parse(cookieConsent);
+      if (settings.analytics) {
+        initializeAnalytics();
       }
-    };
+    }
   }, []);
 
   return (
-    <HelmetProvider>
-      <Helmet>
-        <title>Allora AI - Business Acceleration Platform</title>
-        <meta name="description" content="AI-powered executive advisory platform designed to help businesses make strategic decisions and develop growth strategies" />
-      </Helmet>
-      
-      <AccessibilityProvider>
-        <AuthRedirectProvider>
+    <GlobalErrorBoundary>
+      <ThemeProvider>
+        <BrowserRouter>
           <AuthProvider>
-            <ExecutiveWorkflowProvider>
-              <LanguageProvider>
-                <div className="flex flex-col min-h-screen">
-                  <SkipToContent />
-                  <BackendConnectionAlert />
-                  <Suspense fallback={<AppLoadingFallback />}>
-                    <RouterProvider router={router} />
-                  </Suspense>
-                  <Toaster richColors />
-                  <GlobalErrorModal />
-                  <CookieConsent />
-                  {/* AccessibilityAnnouncer is now only rendered in RootLayout where Router context is available */}
-                </div>
-              </LanguageProvider>
-            </ExecutiveWorkflowProvider>
+            <CompanyAPIProvider>
+              <NavigationFixer />
+              <AppRoutes />
+              <Toaster position="top-right" />
+              <GlobalErrorModal />
+              <CookieConsent />
+              
+              {/* Accessibility helpers */}
+              <div id="aria-live-polite" className="sr-only" aria-live="polite"></div>
+              <div id="aria-live-assertive" className="sr-only" aria-live="assertive"></div>
+            </CompanyAPIProvider>
           </AuthProvider>
-        </AuthRedirectProvider>
-      </AccessibilityProvider>
-    </HelmetProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </GlobalErrorBoundary>
   );
-}
+};
 
 export default App;
