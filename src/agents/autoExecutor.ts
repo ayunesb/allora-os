@@ -3,7 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
 import { checkActionOutcome } from './kpiChecker';
 import { allocateResources } from './resourceManager';
-import { updateExecutivePerformance } from './performanceTracker'; // Assuming this exists from previous implementation
+import { updateExecutivePerformance } from './performanceTracker';
+
+// Define the missing ExecutiveAction interface
+interface ExecutiveAction {
+  id: string;
+  task: string;
+  status: 'pending' | 'completed' | 'failed';
+  executive_name?: string;
+  executive_role?: string;
+  result?: string;
+  outcome?: string;
+  error?: string;
+  completed_at?: string;
+  performance_notes?: string;
+}
 
 export async function runAutoExecutor() {
   logger.info('Starting Auto Executor');
