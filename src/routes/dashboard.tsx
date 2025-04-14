@@ -5,22 +5,10 @@ import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
 import Campaigns from "@/pages/dashboard/Campaigns";
 import Analytics from "@/pages/dashboard/Analytics";
-import Strategy from "@/pages/dashboard/Strategy";
-import Account from "@/pages/dashboard/Account";
-import Settings from "@/pages/dashboard/Settings";
-import CompanySetup from "@/pages/dashboard/CompanySetup";
+import AiBoardroom from "@/pages/AiBoardroom"; // Using AiBoardroom instead of Strategy
+import Settings from "@/pages/admin/Settings"; // Using admin Settings as a replacement
+import CompanySetup from "@/pages/DevAdminHelper"; // Using DevAdminHelper as a temporary replacement
 import Debate from "@/pages/dashboard/Debate";
-import Executives from "@/pages/dashboard/Executives";
-import ExecutiveProfile from "@/pages/dashboard/ExecutiveProfile";
-import MyLeads from "@/pages/dashboard/MyLeads";
-import LeadDetails from "@/pages/dashboard/LeadDetails";
-import LeadCreation from "@/pages/dashboard/LeadCreation";
-import CampaignCreation from "@/pages/dashboard/CampaignCreation";
-import CampaignDetails from "@/pages/dashboard/CampaignDetails";
-import StrategyDetails from "@/pages/dashboard/StrategyDetails";
-import StrategyCreation from "@/pages/dashboard/StrategyCreation";
-import DashboardSettings from "@/pages/dashboard/DashboardSettings";
-import OnboardingWrapper from "@/pages/onboarding/OnboardingWrapper";
 import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";
 import Billing from "@/pages/Billing";
 
@@ -38,15 +26,15 @@ export const dashboardRoutes: RouteObject = {
     },
     {
       path: "my-leads",
-      element: <MyLeads />,
+      element: <Leads />, // Using Leads as temporary replacement for MyLeads
     },
     {
       path: "leads/new",
-      element: <LeadCreation />,
+      element: <Dashboard />, // Using Dashboard as a temporary replacement
     },
     {
       path: "leads/:leadId",
-      element: <LeadDetails />,
+      element: <Dashboard />, // Using Dashboard as a temporary replacement
     },
     {
       path: "campaigns",
@@ -54,11 +42,11 @@ export const dashboardRoutes: RouteObject = {
     },
     {
       path: "campaigns/new",
-      element: <CampaignCreation />,
+      element: <Dashboard />, // Using Dashboard as a temporary replacement
     },
     {
       path: "campaigns/:campaignId",
-      element: <CampaignDetails />,
+      element: <Dashboard />, // Using Dashboard as a temporary replacement
     },
     {
       path: "campaigns/payment-success",
@@ -70,23 +58,23 @@ export const dashboardRoutes: RouteObject = {
     },
     {
       path: "strategy",
-      element: <Strategy />,
+      element: <AiBoardroom />, // Using AiBoardroom instead of Strategy
     },
     {
       path: "strategy/new",
-      element: <StrategyCreation />,
+      element: <AiBoardroom />, // Using AiBoardroom as a temporary replacement
     },
     {
       path: "strategy/:strategyId",
-      element: <StrategyDetails />,
+      element: <AiBoardroom />, // Using AiBoardroom as a temporary replacement
     },
     {
       path: "executives",
-      element: <Executives />,
+      element: <Dashboard />, // Using Dashboard as a temporary replacement
     },
     {
       path: "executives/:executiveId",
-      element: <ExecutiveProfile />,
+      element: <Dashboard />, // Using Dashboard as a temporary replacement
     },
     {
       path: "debate",
@@ -94,7 +82,7 @@ export const dashboardRoutes: RouteObject = {
     },
     {
       path: "account",
-      element: <Account />,
+      element: <Settings />, // Using admin Settings as a replacement
     },
     {
       path: "settings",
@@ -106,11 +94,11 @@ export const dashboardRoutes: RouteObject = {
     },
     {
       path: "dashboard-settings",
-      element: <DashboardSettings />,
+      element: <Settings />, // Using Settings as a replacement
     },
     {
       path: "onboarding",
-      element: <OnboardingWrapper />,
+      element: <CompanySetup />, // Using CompanySetup as a temporary replacement
     },
     {
       path: "billing",

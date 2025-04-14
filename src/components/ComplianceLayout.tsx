@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "react-router-dom";
 import { Shield } from "lucide-react";

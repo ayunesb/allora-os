@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Laptop, LogOut, Settings, User, CreditCard } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
+import ThemeToggle from "@/components/navigation/ThemeToggle";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
 import {
@@ -20,7 +19,17 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useUser } from "@/hooks/useUser";
+
+const useUser = () => {
+  const { user } = useAuth();
+  return {
+    userDetails: user ? {
+      name: user.user_metadata?.name || null,
+      avatar_url: user.user_metadata?.avatar_url || null,
+      is_admin: user.app_metadata?.is_admin || false
+    } : null
+  };
+};
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
@@ -71,8 +80,7 @@ export default function Navbar() {
     }
     return user.email ? user.email[0].toUpperCase() : "U";
   };
-  
-  // Mobile navigation links
+
   const renderMobileNav = () => {
     return (
       <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
@@ -231,7 +239,6 @@ export default function Navbar() {
     );
   };
   
-  // Desktop navigation links
   const renderDesktopNav = () => {
     if (isLandingPage) {
       return (
@@ -279,10 +286,8 @@ export default function Navbar() {
     return null;
   };
   
-  // Don't show navbar on auth pages
   if (isAuthPage) return null;
   
-  // Don't show normal navbar on admin pages
   if (isAdminPage) return null;
   
   return (

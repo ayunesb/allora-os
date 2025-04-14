@@ -1,6 +1,6 @@
 
 import React, { useEffect } from "react";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/home/Hero";
 import Features from "@/components/home/Features";
@@ -22,8 +22,7 @@ export default function Index() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-background flex flex-col">
-        {/* Explicitly set isLoggedIn to false in public pages */}
-        <Navbar isLoggedIn={false} />
+        <Navbar />
         
         <main className="flex flex-col items-center flex-grow">
           {/* Hero Section */}

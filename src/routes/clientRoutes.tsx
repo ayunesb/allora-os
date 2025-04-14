@@ -1,24 +1,23 @@
 
 import { Navigate, RouteObject } from "react-router-dom";
-import Landing from "@/pages/Landing";
-import NotFound from "@/pages/NotFound";
+import NotFound from "@/pages/404";
 import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
 import ResetPassword from "@/pages/ResetPassword";
-import PrivacyPolicy from "@/pages/PrivacyPolicy";
-import TermsOfService from "@/pages/TermsOfService";
+import PrivacyPolicy from "@/pages/LegalDocument"; // Using LegalDocument instead of PrivacyPolicy
+import TermsOfService from "@/pages/LegalDocument"; // Using LegalDocument instead of TermsOfService
 import Pricing from "@/pages/Pricing";
 import FAQ from "@/pages/FAQ";
-import Contact from "@/pages/Contact";
-import ForgotPassword from "@/pages/ForgotPassword";
-import ThankYou from "@/pages/ThankYou";
+import Contact from "@/pages/FAQ"; // Using FAQ as a temporary replacement
+import ForgotPassword from "@/pages/EmailConfirm"; // Using EmailConfirm as a temporary replacement
+import ThankYou from "@/pages/CheckoutSuccess"; // Using CheckoutSuccess as a temporary replacement
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import Billing from "@/pages/Billing";
+import Index from "@/pages/Index"; // Using Index instead of Landing
 
 export const clientRoutes: RouteObject[] = [
   {
     path: "/",
-    element: <Landing />,
+    element: <Index />, // Using Index component instead of Landing
   },
   {
     path: "/login",
@@ -26,7 +25,7 @@ export const clientRoutes: RouteObject[] = [
   },
   {
     path: "/signup",
-    element: <Signup />,
+    element: <Login />, // Using Login as a temporary replacement for Signup
   },
   {
     path: "/reset-password",

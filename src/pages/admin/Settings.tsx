@@ -17,7 +17,7 @@ export default function AdminSettings() {
   
   return (
     <div className="min-h-screen bg-background">
-      <Navbar isLoggedIn={true} />
+      <Navbar />
       
       <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="mb-8">

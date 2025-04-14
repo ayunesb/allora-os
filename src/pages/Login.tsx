@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -71,12 +71,9 @@ export default function Login() {
     );
   }
 
-  console.log("Rendering Login page with Navbar isLoggedIn=false");
-
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Explicitly set isLoggedIn to false */}
-      <Navbar isLoggedIn={false} />
+      <Navbar />
       
       <div className="flex-1 flex items-center justify-center px-4 py-24">
         <Card className="w-full max-w-md bg-secondary/40 rounded-lg border border-border/50 shadow-lg">
