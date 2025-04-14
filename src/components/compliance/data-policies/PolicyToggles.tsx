@@ -71,7 +71,7 @@ export default function PolicyToggles({
   };
   
   // Use either the prop policies or local state
-  const currentPolicies = onPolicyToggle === () => {} ? localPolicies : policies;
+  const currentPolicies = onPolicyToggle === (() => {}) ? localPolicies : policies;
   
   return (
     <div className="space-y-6">
