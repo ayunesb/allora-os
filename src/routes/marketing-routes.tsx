@@ -7,6 +7,7 @@ import CookiePolicy from "@/pages/CookiePolicy";
 import RefundPolicy from "@/pages/RefundPolicy";
 import Compliance from "@/pages/Compliance";
 import FAQ from "@/pages/FAQ";
+import Contact from "@/pages/Contact";
 
 export const marketingRoutes: RouteObject[] = [
   {
@@ -36,6 +37,10 @@ export const marketingRoutes: RouteObject[] = [
   {
     path: "/faq",
     element: <FAQ />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
   },
 ];
 

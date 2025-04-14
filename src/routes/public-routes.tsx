@@ -1,3 +1,4 @@
+
 import { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 import Index from "@/pages/Index";
@@ -70,7 +71,7 @@ export const publicRoutes: RouteObject[] = [
     element: <CheckoutSuccess />,
   },
   {
-    path: "contact",
+    path: "/contact",
     element: <Contact />
   },
 ];

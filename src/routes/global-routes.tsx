@@ -1,4 +1,3 @@
-
 import { RouteObject, Navigate } from "react-router-dom";
 import NotFound from "@/pages/NotFound";
 
@@ -110,6 +109,19 @@ export const globalRoutes: RouteObject[] = [
   {
     path: "/compliance-reports",
     element: <Navigate to="/compliance/reports" replace />,
+  },
+  // Contact route redirects
+  {
+    path: "/contactus",
+    element: <Navigate to="/contact" replace />,
+  },
+  {
+    path: "/get-in-touch",
+    element: <Navigate to="/contact" replace />,
+  },
+  {
+    path: "/reach-out",
+    element: <Navigate to="/contact" replace />,
   },
   // The 404 catch-all route - must be last
   {
