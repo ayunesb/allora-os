@@ -1,13 +1,13 @@
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
 export default function RunAudit() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [isRunning, setIsRunning] = React.useState(true);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function RunAudit() {
         
         // Navigate to the audit results page after completion
         setTimeout(() => {
-          router.push('/admin/audit');
+          navigate('/admin/audit');
         }, 2000);
       } catch (error) {
         console.error('Audit error:', error);
@@ -38,7 +38,7 @@ export default function RunAudit() {
     };
 
     runFullAudit();
-  }, [router]);
+  }, [navigate]);
 
   return (
     <div className="container py-12 max-w-md mx-auto">
@@ -64,7 +64,7 @@ export default function RunAudit() {
               <h3 className="text-lg font-medium">Audit Complete</h3>
               <Button 
                 className="w-full" 
-                onClick={() => router.push('/admin/audit')}
+                onClick={() => navigate('/admin/audit')}
               >
                 View Detailed Results
               </Button>

@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { PlayIcon } from 'lucide-react';
 
 export function RunAuditButton() {
-  const router = useRouter();
+  const navigate = useNavigate();
   
   const handleRunAudit = () => {
-    router.push('/admin/run-audit');
+    navigate('/admin/run-audit');
   };
   
   return (
