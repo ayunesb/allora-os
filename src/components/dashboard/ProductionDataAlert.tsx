@@ -1,50 +1,78 @@
 
-import React, { useState } from 'react';
-import { AlertCircle, X } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useProductionData } from "@/hooks/useProductionData";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
-export function ProductionDataAlert() {
-  const [dismissed, setDismissed] = useState(false);
+export default function ProductionDataAlert() {
+  const [showAlert, setShowAlert] = useState(true);
+  const { isProductionReady, isProductionMode, validateProductionData } = useProductionData();
   const navigate = useNavigate();
   
-  // Hide alert if user dismissed it
-  if (dismissed) {
+  // Check if the alert has been dismissed before
+  useEffect(() => {
+    const isDismissed = localStorage.getItem('production-alert-dismissed');
+    if (isDismissed === 'true') {
+      setShowAlert(false);
+    }
+  }, []);
+  
+  const handleDismiss = () => {
+    localStorage.setItem('production-alert-dismissed', 'true');
+    setShowAlert(false);
+  };
+  
+  const handleSetupProduction = () => {
+    navigate('/admin/launch-verification');
+  };
+  
+  if (!showAlert || isProductionMode) {
     return null;
   }
-
+  
   return (
-    <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
-      <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
-      <div className="flex-1">
-        <AlertTitle className="text-amber-800 dark:text-amber-400">
-          Development Environment
-        </AlertTitle>
-        <AlertDescription className="text-amber-700 dark:text-amber-500 text-sm">
-          This is a development environment with sample data. Do not use for production purposes.
-        </AlertDescription>
-      </div>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-amber-500/30 hover:border-amber-500/70 text-amber-700"
-          onClick={() => navigate('/admin')}
-        >
-          Production Setup
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-amber-700 hover:text-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/30"
-          onClick={() => setDismissed(true)}
-        >
-          <X className="h-4 w-4" />
-        </Button>
+    <Alert variant={isProductionReady ? "default" : "destructive"} className="border-amber-300 bg-amber-50 text-amber-900">
+      <div className="flex justify-between items-center">
+        <div className="flex items-start gap-3">
+          {isProductionReady ? (
+            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+          ) : (
+            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+          )}
+          <div>
+            <AlertTitle className="text-amber-800">
+              {isProductionReady ? "Ready for Production" : "Development Environment"}
+            </AlertTitle>
+            <AlertDescription className="text-amber-700 mt-1">
+              {isProductionReady 
+                ? "Your data is validated and ready for production use." 
+                : "You're viewing demo data. Set up production data before going live."}
+            </AlertDescription>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {!isProductionReady && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSetupProduction}
+              className="border-amber-400 bg-amber-100 hover:bg-amber-200 text-amber-900"
+            >
+              Setup Production
+            </Button>
+          )}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleDismiss}
+            className="text-amber-900 hover:bg-amber-100"
+          >
+            Dismiss
+          </Button>
+        </div>
       </div>
     </Alert>
   );
 }
-
-export default ProductionDataAlert;

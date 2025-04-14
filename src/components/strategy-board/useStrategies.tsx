@@ -4,65 +4,12 @@ import { useCompanyInsights } from "@/hooks/useCompanyInsights";
 import { InsightType } from "@/components/bot-insights/BotInsightCard";
 import { useAuth } from "@/context/AuthContext";
 import { Strategy } from "@/models/strategy";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export function useStrategies() {
   const [isPending, startTransition] = useTransition();
-  const [strategies, setStrategies] = useState<Strategy[]>([
-    { 
-      id: '1',
-      title: "Expand to New Markets", 
-      description: "Analyze emerging markets and expand operations to increase geographical footprint and customer base.",
-      risk: "Medium",
-      risk_level: "Medium",
-      company_id: "demo-company-id",
-      created_at: new Date().toISOString()
-    },
-    { 
-      id: '2',
-      title: "AI Automation", 
-      description: "Implement AI-driven automation in workflows to increase efficiency and reduce operational costs.",
-      risk: "Low",
-      risk_level: "Low",
-      company_id: "demo-company-id",
-      created_at: new Date().toISOString()
-    },
-    { 
-      id: '3',
-      title: "Disruptive Product Launch", 
-      description: "Develop revolutionary product to disrupt industry standards and gain competitive advantage.",
-      risk: "High",
-      risk_level: "High",
-      company_id: "demo-company-id",
-      created_at: new Date().toISOString()
-    },
-    { 
-      id: '4',
-      title: "Digital Transformation", 
-      description: "Overhaul legacy systems and processes with digital technologies to improve customer experience.",
-      risk: "Medium",
-      risk_level: "Medium",
-      company_id: "demo-company-id",
-      created_at: new Date().toISOString()
-    },
-    { 
-      id: '5',
-      title: "Strategic Partnerships", 
-      description: "Form alliances with complementary businesses to expand offerings and reach new customer segments.",
-      risk: "Low",
-      risk_level: "Low",
-      company_id: "demo-company-id",
-      created_at: new Date().toISOString()
-    },
-    { 
-      id: '6',
-      title: "Venture Capital Funding", 
-      description: "Secure Series B funding to accelerate growth initiatives and expand team capacity.",
-      risk: "High",
-      risk_level: "High",
-      company_id: "demo-company-id",
-      created_at: new Date().toISOString()
-    }
-  ]);
+  const [strategies, setStrategies] = useState<Strategy[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -81,8 +28,50 @@ export function useStrategies() {
       setError(null);
       
       try {
-        // In a real implementation, you would fetch from Supabase here
-        // For now we'll use demo data and AI-generated strategies
+        // Fetch real strategies from Supabase
+        let { data: realStrategies, error: fetchError } = await supabase
+          .from('strategies')
+          .select('*')
+          .eq('company_id', profile.company_id);
+        
+        if (fetchError) throw fetchError;
+        
+        // If no real strategies exist, use demo data as fallback
+        const demoStrategies: Strategy[] = [
+          { 
+            id: '1',
+            title: "Expand to New Markets", 
+            description: "Analyze emerging markets and expand operations to increase geographical footprint and customer base.",
+            risk: "Medium",
+            risk_level: "Medium",
+            company_id: profile.company_id,
+            created_at: new Date().toISOString(),
+            executiveBot: "Market Growth Expert"
+          },
+          { 
+            id: '2',
+            title: "AI Automation", 
+            description: "Implement AI-driven automation in workflows to increase efficiency and reduce operational costs.",
+            risk: "Low",
+            risk_level: "Low",
+            company_id: profile.company_id,
+            created_at: new Date().toISOString(),
+            executiveBot: "Technology Strategist"
+          },
+          { 
+            id: '3',
+            title: "Disruptive Product Launch", 
+            description: "Develop revolutionary product to disrupt industry standards and gain competitive advantage.",
+            risk: "High",
+            risk_level: "High",
+            company_id: profile.company_id,
+            created_at: new Date().toISOString(),
+            executiveBot: "Innovation Director"
+          }
+        ];
+        
+        // Use real strategies if they exist, otherwise use demo data
+        const strategies = (realStrategies && realStrategies.length > 0) ? realStrategies : demoStrategies;
         
         // Get strategy insights from AI
         const strategyInsights = insights.filter(insight => insight.type === "strategy" as InsightType);
@@ -119,22 +108,58 @@ export function useStrategies() {
         
         // Combine AI strategies with existing ones
         startTransition(() => {
-          setStrategies(prev => {
-            const existingIds = new Set(prev.map(s => s.id));
-            const newAiStrategies = aiGeneratedStrategies.filter(s => !existingIds.has(s.id));
-            
-            // Set company_id for all strategies
-            const updatedPrevStrategies = prev.map(s => ({
-              ...s,
-              company_id: s.company_id || profile.company_id || "demo-company-id"
-            }));
-            
-            return [...newAiStrategies, ...updatedPrevStrategies];
-          });
+          // Make sure there are no duplicates
+          const existingIds = new Set(strategies.map(s => s.id));
+          const newAiStrategies = aiGeneratedStrategies.filter(s => !existingIds.has(s.id));
+          
+          setStrategies([...strategies, ...newAiStrategies]);
         });
+
+        // Save strategies to Supabase if they don't exist already
+        if (realStrategies.length === 0 && profile.company_id) {
+          try {
+            const { error: insertError } = await supabase
+              .from('strategies')
+              .insert(demoStrategies.map(s => ({
+                title: s.title,
+                description: s.description,
+                risk_level: s.risk_level,
+                company_id: profile.company_id,
+                executiveBot: s.executiveBot
+              })));
+            
+            if (insertError) console.error("Error inserting demo strategies:", insertError);
+          } catch (err) {
+            console.error("Failed to save demo strategies:", err);
+          }
+        }
       } catch (err: any) {
         console.error("Error fetching strategies:", err);
         setError(new Error(err.message || "Failed to load strategies"));
+        
+        // Use demo data as fallback on error
+        setStrategies([
+          { 
+            id: '1',
+            title: "Expand to New Markets", 
+            description: "Analyze emerging markets and expand operations to increase geographical footprint and customer base.",
+            risk: "Medium",
+            risk_level: "Medium",
+            company_id: "demo-company-id",
+            created_at: new Date().toISOString(),
+            executiveBot: "Market Growth Expert"
+          },
+          { 
+            id: '2',
+            title: "AI Automation", 
+            description: "Implement AI-driven automation in workflows to increase efficiency and reduce operational costs.",
+            risk: "Low",
+            risk_level: "Low",
+            company_id: "demo-company-id",
+            created_at: new Date().toISOString(),
+            executiveBot: "Technology Strategist"
+          }
+        ]);
       } finally {
         setIsLoading(false);
       }
@@ -145,16 +170,33 @@ export function useStrategies() {
     }
   }, [insights, insightsLoading, profile?.company_id, startTransition]);
   
-  const refetch = () => {
-    // This would normally fetch data from the API
+  const refetch = async () => {
     setIsLoading(true);
-    // Simulate API call with timeout
-    setTimeout(() => {
+    
+    try {
+      if (!profile?.company_id) {
+        throw new Error("No company ID available");
+      }
+      
+      const { data, error: fetchError } = await supabase
+        .from('strategies')
+        .select('*')
+        .eq('company_id', profile.company_id);
+      
+      if (fetchError) throw fetchError;
+      
       startTransition(() => {
-        setIsLoading(false);
-        setError(null); // Clear any previous errors
+        setStrategies(data || []);
+        setError(null);
       });
-    }, 800);
+      
+      toast.success("Strategy data refreshed");
+    } catch (err: any) {
+      console.error("Error refetching strategies:", err);
+      toast.error("Failed to refresh strategies");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return { 

@@ -12,6 +12,8 @@ import QuickAccess from "@/components/dashboard/QuickAccess";
 import { DashboardLoading } from "@/components/dashboard/DashboardLoading";
 import ProductionDataAlert from "@/components/dashboard/ProductionDataAlert";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { supabase } from "@/integrations/supabase/client";
+import { useStrategies } from "@/hooks/useStrategies";
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
@@ -22,6 +24,33 @@ export default function Dashboard() {
     error, 
     refetch 
   } = useDashboardData(user?.id);
+  
+  const [showAlert, setShowAlert] = useState(true);
+  const [companyName, setCompanyName] = useState<string>("your company");
+  const { strategies } = useStrategies();
+
+  // Fetch real company name
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      if (profile?.company_id) {
+        try {
+          const { data, error } = await supabase
+            .from('companies')
+            .select('name')
+            .eq('id', profile.company_id)
+            .single();
+            
+          if (!error && data) {
+            setCompanyName(data.name);
+          }
+        } catch (err) {
+          console.error("Error fetching company data:", err);
+        }
+      }
+    };
+    
+    fetchCompanyData();
+  }, [profile?.company_id]);
 
   useEffect(() => {
     if (error) {
@@ -41,6 +70,11 @@ export default function Dashboard() {
     } finally {
       setIsRefreshing(false);
     }
+  };
+  
+  const handleSetupProduction = () => {
+    // Redirect to the admin launch page
+    window.location.href = "/admin/launch-verification";
   };
 
   if (isLoading && !data) {
@@ -63,8 +97,26 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {/* The ProductionDataAlert component doesn't need props anymore */}
-      <ProductionDataAlert />
+      {showAlert && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex justify-between items-center">
+            <div className="flex-1">
+              <h3 className="font-medium text-amber-800">Development Environment</h3>
+              <p className="text-amber-700 text-sm mt-1">
+                This is a development environment with sample data. Do not use for production purposes.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleSetupProduction}>
+                Production Setup
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setShowAlert(false)}>
+                Dismiss
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-8">
         <div className="md:col-span-2">
@@ -87,10 +139,10 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                I've been reviewing allora ai's position and have some balanced strategies that could help optimize your results.
+                I've been reviewing {companyName}'s position and have some balanced strategies that could help optimize your results.
               </p>
-              <Button className="mt-4 w-full" variant="outline">
-                <span>Start Strategy Session</span>
+              <Button className="mt-4 w-full" variant="outline" onClick={() => window.location.href = "/dashboard/strategies"}>
+                <span>View Strategies</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>

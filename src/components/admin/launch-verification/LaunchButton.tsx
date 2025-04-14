@@ -1,39 +1,43 @@
 
-import React from 'react';
-import { Rocket } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { LaunchButtonProps } from './types';
-import { useLaunchProcess } from './useLaunchProcess';
-import { LaunchProgress } from './LaunchProgress';
-import { LaunchInfoBox } from './LaunchInfoBox';
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Loader2, Rocket } from "lucide-react";
+import { useLaunchProcess } from '@/components/admin/launch-verification/useLaunchProcess';
 
-export function LaunchButton({ className }: LaunchButtonProps) {
-  const { 
-    isLaunching, 
-    launchStep, 
-    isComplete, 
-    launchFirstCustomerFlow 
-  } = useLaunchProcess();
-
+export function LaunchButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { isLaunching, launchStep, isComplete, launchFirstCustomerFlow } = useLaunchProcess();
+  
+  const handleLaunch = async () => {
+    if (isLaunching) return;
+    
+    // Show confirmation dialog
+    if (confirm("This will initialize real company data and create core business entities for your platform. Continue?")) {
+      setIsOpen(true);
+      await launchFirstCustomerFlow();
+    }
+  };
+  
   return (
-    <div className={`space-y-3 ${className}`}>
-      {!isLaunching ? (
-        <Button 
-          onClick={launchFirstCustomerFlow} 
-          size="lg"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white py-6 px-8 text-lg font-medium rounded-xl w-full sm:w-auto transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-        >
-          <Rocket className="h-5 w-5" />
-          Launch Allora AI
-        </Button>
-      ) : (
-        <LaunchProgress 
-          isComplete={isComplete} 
-          launchStep={launchStep} 
-        />
-      )}
-
-      <LaunchInfoBox />
-    </div>
+    <>
+      <Button 
+        onClick={handleLaunch} 
+        size="lg" 
+        className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-medium px-6"
+        disabled={isLaunching}
+      >
+        {isLaunching ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Launching...
+          </>
+        ) : (
+          <>
+            <Rocket className="mr-2 h-4 w-4" />
+            Initialize Real Data
+          </>
+        )}
+      </Button>
+    </>
   );
 }
