@@ -10,12 +10,13 @@ import {
   Brain, 
   MessageSquare, 
   Users, 
-  Settings, 
   Zap,
   Bot,
   Sparkles,
   Loader2,
-  Wand2
+  BrainCircuit,
+  Target,
+  GanttChart
 } from 'lucide-react';
 
 import { AiBotsHeader } from "./AiBotsHeader";
@@ -34,24 +35,45 @@ import { motion, AnimatePresence } from "framer-motion";
 const TabLoadingFallback = () => (
   <div className="flex flex-col items-center justify-center min-h-[50vh]">
     <div className="relative w-24 h-24 mb-6">
+      <motion.div 
+        className="absolute inset-0 rounded-full bg-primary/10" 
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [0.5, 0.8, 0.5] 
+        }}
+        transition={{ 
+          duration: 2, 
+          repeat: Infinity,
+          ease: "easeInOut" 
+        }}
+      />
       <div className="absolute inset-0 flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-primary/50 animate-spin" />
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
       </div>
       <div className="absolute inset-0 flex items-center justify-center">
-        <Bot className="w-8 h-8 text-primary/70" />
+        <BrainCircuit className="w-8 h-8 text-primary" />
       </div>
     </div>
     <div className="space-y-2 text-center">
-      <p className="text-lg font-medium text-primary/80">Initializing AI capabilities</p>
+      <p className="text-lg font-medium text-gradient-blue-green bg-clip-text text-transparent">Initializing Executive Intelligence</p>
       <p className="text-sm text-muted-foreground">
-        Connecting to advanced executive intelligence...
+        Connecting to advanced cognitive frameworks...
       </p>
       <div className="flex items-center justify-center space-x-1 pt-2">
         {[0, 1, 2].map((i) => (
-          <div 
+          <motion.div 
             key={i} 
-            className="w-2 h-2 rounded-full bg-primary/30 animate-pulse"
-            style={{ animationDelay: `${i * 0.15}s` }}
+            className="w-2 h-2 rounded-full bg-primary/50"
+            animate={{ 
+              opacity: [0.3, 1, 0.3],
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ 
+              duration: 1.5, 
+              repeat: Infinity,
+              delay: i * 0.25,
+              ease: "easeInOut" 
+            }}
           />
         ))}
       </div>
@@ -75,7 +97,7 @@ export const AiBotsPage: React.FC = () => {
     // Initial load animation
     const timer = setTimeout(() => {
       setIsInitialLoad(false);
-    }, 800);
+    }, 1200);
     
     return () => clearTimeout(timer);
   }, []);
@@ -119,29 +141,79 @@ export const AiBotsPage: React.FC = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="relative w-32 h-32 mb-8"
         >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-full h-full rounded-full bg-primary/5 animate-ping" style={{ animationDuration: "3s" }} />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Wand2 className="w-16 h-16 text-primary/70" />
+          <motion.div 
+            className="absolute inset-0 rounded-full bg-primary/10" 
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.2, 0.4, 0.2] 
+            }}
+            transition={{ 
+              duration: 3, 
+              repeat: Infinity,
+              ease: "easeInOut" 
+            }}
+          />
+          <motion.div 
+            className="absolute inset-0 rounded-full bg-primary/20" 
+            animate={{ 
+              scale: [1.1, 1.3, 1.1],
+              opacity: [0.3, 0.5, 0.3] 
+            }}
+            transition={{ 
+              duration: 2.5, 
+              repeat: Infinity,
+              ease: "easeInOut" 
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <motion.div
+              animate={{ 
+                rotateY: [0, 360],
+              }}
+              transition={{ 
+                duration: 6, 
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            >
+              <BrainCircuit className="w-16 h-16 text-primary" />
+            </motion.div>
           </div>
         </motion.div>
         <motion.p 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-xl font-semibold text-primary"
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
         >
-          Activating Executive AI
+          Activating Executive Intelligence
         </motion.p>
         <motion.p 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
           className="text-muted-foreground text-center max-w-md mt-2"
         >
-          Connecting to your AI executive team for strategy insights and debate
+          Initializing cognitive frameworks and strategic models
         </motion.p>
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+          className="mt-6 flex gap-2"
+        >
+          {["Strategic", "Operational", "Analytical", "Innovative"].map((capability, index) => (
+            <motion.div
+              key={capability}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.9 + (index * 0.1) }}
+              className="text-xs px-2 py-1 rounded-full border border-white/10 bg-white/5"
+            >
+              {capability}
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     );
   }
@@ -149,6 +221,17 @@ export const AiBotsPage: React.FC = () => {
   if (isPending) {
     return <TabLoadingFallback />;
   }
+
+  // Create tab icons map for consistent usage
+  const tabIcons = {
+    boardroom: BrainCircuit,
+    debate: MessageSquare,
+    bots: Bot,
+    insights: Lightbulb,
+    chat: MessageSquare,
+    roster: Users,
+    history: GanttChart
+  };
 
   return (
     <motion.div 
@@ -166,7 +249,8 @@ export const AiBotsPage: React.FC = () => {
         <AiBotsTabsList 
           isMobileView={isMobileView} 
           activeTab={activeTab} 
-          onTabChange={handleTabChange} 
+          onTabChange={handleTabChange}
+          tabIcons={tabIcons}
         />
 
         <AnimatePresence mode="wait">
@@ -178,11 +262,14 @@ export const AiBotsPage: React.FC = () => {
             transition={{ duration: 0.3 }}
           >
             <TabsContent value="boardroom" className="mt-6 w-full max-w-full">
-              <ErrorBoundary>
-                <Suspense fallback={<TabLoadingFallback />}>
-                  <AIExecutiveBoardroom companyId={companyId} />
-                </Suspense>
-              </ErrorBoundary>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-dots [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] pointer-events-none opacity-30" />
+                <ErrorBoundary>
+                  <Suspense fallback={<TabLoadingFallback />}>
+                    <AIExecutiveBoardroom companyId={companyId} />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
             </TabsContent>
 
             <TabsContent value="debate" className="mt-6 w-full max-w-full">

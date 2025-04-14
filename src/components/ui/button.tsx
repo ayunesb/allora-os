@@ -10,22 +10,23 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-primary to-primary/90 text-white hover:from-primary/95 hover:to-primary/85 hover:shadow-primary/20 hover:scale-[1.02] after:absolute after:inset-0 after:opacity-0 after:transition-opacity after:duration-300 after:bg-gradient-to-r after:from-blue-400/20 after:to-purple-500/20 hover:after:opacity-100",
+        default: "bg-gradient-to-r from-primary to-primary/90 text-white hover:from-primary hover:to-primary-dark hover:shadow-primary/20 hover:scale-[1.02] after:absolute after:inset-0 after:opacity-0 after:transition-opacity after:duration-300 after:bg-gradient-to-r after:from-blue-400/20 after:to-purple-500/20 hover:after:opacity-100",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 hover:shadow-destructive/20 hover:scale-[1.02]",
         outline:
-          "border border-input bg-background/10 backdrop-blur-sm text-white hover:bg-accent/20 hover:border-white/30 hover:text-white hover:scale-[1.02]",
+          "border border-white/20 bg-black/30 backdrop-blur-sm text-white hover:bg-white/5 hover:border-white/30 hover:text-white hover:scale-[1.02]",
         secondary:
-          "bg-gradient-to-r from-secondary to-secondary/90 text-white hover:from-secondary/95 hover:to-secondary/85 hover:shadow-secondary/20 hover:scale-[1.02]",
-        ghost: "hover:bg-accent/20 hover:text-white text-gray-200 hover:scale-[1.02]",
+          "bg-gradient-to-r from-secondary to-secondary/90 text-white hover:from-secondary hover:to-secondary-dark hover:shadow-secondary/20 hover:scale-[1.02]",
+        ghost: "hover:bg-white/5 hover:text-white text-gray-300 hover:scale-[1.02]",
         link: "text-primary underline-offset-4 hover:underline",
-        gradient: "bg-gradient-to-r from-primary to-secondary text-white hover:shadow-[0_0_15px_rgba(90,103,216,0.4)] hover:scale-[1.02]",
-        success: "bg-success text-white hover:bg-success/90 hover:shadow-success/20 hover:scale-[1.02]"
+        gradient: "bg-gradient-to-r from-primary to-secondary text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:scale-[1.02]",
+        success: "bg-success text-white hover:bg-success/90 hover:shadow-success/20 hover:scale-[1.02]",
+        premium: "bg-black/40 backdrop-blur-md border border-white/10 text-white hover:border-primary/30 hover:shadow-primary/10 hover:scale-[1.02] after:absolute after:inset-0 after:opacity-0 after:transition-opacity after:duration-300 after:bg-gradient-to-r after:from-primary/10 after:to-secondary/10 hover:after:opacity-100"
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-lg px-3",
-        lg: "h-11 rounded-xl px-8",
+        sm: "h-9 rounded-lg px-3 text-xs",
+        lg: "h-11 rounded-xl px-8 text-base",
         icon: "h-10 w-10",
       },
     },

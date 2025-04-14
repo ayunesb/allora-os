@@ -39,32 +39,32 @@ export default {
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: {
-					DEFAULT: '#0A0A23',
-					secondary: '#1A1A40'
+					DEFAULT: '#050A18',
+					secondary: '#0C1428'
 				},
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#5A67D8',
-					light: '#7986E7',
-					dark: '#4A57C8',
+					DEFAULT: '#3B82F6',
+					light: '#60A5FA',
+					dark: '#2563EB',
 					foreground: '#FFFFFF'
 				},
 				secondary: {
-					DEFAULT: '#63B3ED',
-					light: '#83C3FD',
-					dark: '#43A3DD',
+					DEFAULT: '#10B981',
+					light: '#34D399',
+					dark: '#059669',
 					foreground: '#FFFFFF'
 				},
 				destructive: {
-					DEFAULT: '#F56565',
+					DEFAULT: '#EF4444',
 					foreground: '#FFFFFF'
 				},
 				success: {
-					DEFAULT: '#48BB78',
+					DEFAULT: '#10B981',
 					foreground: '#FFFFFF'
 				},
 				warning: {
-					DEFAULT: '#ECC94B',
+					DEFAULT: '#F59E0B',
 					foreground: '#1A1A2E'
 				},
 				muted: {
@@ -72,43 +72,43 @@ export default {
 					foreground: '#A0AEC0'
 				},
 				accent: {
-					DEFAULT: '#1A1A40',
+					DEFAULT: '#111827',
 					foreground: '#FFFFFF'
 				},
 				popover: {
-					DEFAULT: 'rgba(15, 15, 35, 0.9)',
+					DEFAULT: 'rgba(8, 14, 30, 0.95)',
 					foreground: '#FFFFFF'
 				},
 				card: {
-					DEFAULT: 'rgba(15, 15, 35, 0.7)',
+					DEFAULT: 'rgba(8, 14, 30, 0.8)',
 					foreground: '#FFFFFF'
 				},
 				sidebar: {
-					DEFAULT: '#0A0A23',
+					DEFAULT: '#050A18',
 					foreground: '#FFFFFF',
-					primary: '#5A67D8',
+					primary: '#3B82F6',
 					'primary-foreground': '#FFFFFF',
 					accent: 'rgba(255, 255, 255, 0.05)',
 					'accent-foreground': '#FFFFFF',
 					border: 'rgba(255, 255, 255, 0.1)',
-					ring: '#5A67D8'
+					ring: '#3B82F6'
 				},
 				'risk-low': {
-					DEFAULT: '#0EA5E9',
-					light: '#D3E4FD',
-					dark: '#33C3F0',
+					DEFAULT: '#3B82F6',
+					light: '#BFDBFE',
+					dark: '#2563EB',
 					foreground: '#FFFFFF'
 				},
 				'risk-medium': {
-					DEFAULT: '#F97316',
-					light: '#FEC6A1',
-					dark: '#FDBA74',
+					DEFAULT: '#F59E0B',
+					light: '#FEF3C7',
+					dark: '#D97706',
 					foreground: '#FFFFFF'
 				},
 				'risk-high': {
-					DEFAULT: '#EA384C',
+					DEFAULT: '#EF4444',
 					light: '#FEE2E2',
-					dark: '#FCA5A5',
+					dark: '#DC2626',
 					foreground: '#FFFFFF'
 				}
 			},
@@ -122,7 +122,8 @@ export default {
 			},
 			fontFamily: {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
-				heading: ['Poppins', 'system-ui', 'sans-serif'],
+				heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+				mono: ['JetBrains Mono', 'monospace'],
 			},
 			keyframes: {
 				'accordion-down': {
@@ -211,7 +212,11 @@ export default {
 				'slide-in-down': 'slide-in-down 0.4s ease-out',
 				'glow-pulse': 'glow-pulse 2s infinite',
 				'float': 'float 3s ease-in-out infinite',
-				'glow': 'glow 2s infinite'
+				'float-slow': 'float 6s ease-in-out infinite',
+				'pulse-subtle': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'gradient-x': 'gradient-x 15s ease infinite',
+				'gradient-y': 'gradient-y 15s ease infinite',
+				'gradient-xy': 'gradient-xy 15s ease infinite',
 			},
 			spacing: {
 				'safe-top': 'env(safe-area-inset-top)',
@@ -222,9 +227,17 @@ export default {
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-				'gradient-premium': 'linear-gradient(135deg, #5A67D8, #63B3ED)',
-				'gradient-sidebar': 'linear-gradient(180deg, #0A0A23, #000000)',
-				'gradient-background': 'linear-gradient(135deg, #0A0A23, #1A1A40)',
+				'gradient-premium': 'linear-gradient(135deg, #3B82F6, #10B981)',
+				'gradient-sidebar': 'linear-gradient(180deg, #050A18, #030712)',
+				'gradient-background': 'linear-gradient(135deg, #050A18, #0C1428)',
+				'gradient-dots': 'radial-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px)',
+				'gradient-mesh': 'linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px), linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px)',
+			},
+			boxShadow: {
+				'glow-sm': '0 0 10px rgba(59, 130, 246, 0.3)',
+				'glow-md': '0 0 20px rgba(59, 130, 246, 0.4)',
+				'glow-lg': '0 0 30px rgba(59, 130, 246, 0.5)',
+				'inner-glow': 'inset 0 0 20px rgba(59, 130, 246, 0.3)',
 			},
 		}
 	},

@@ -60,9 +60,11 @@ serve(async (req) => {
     let cognitiveLayersPrompt = "";
     if (cognitiveLayers) {
       cognitiveLayersPrompt = `\n\nCOGNITIVE LAYERS:
-      1. Operational Thinking: ${cognitiveLayers.operational?.description || "Complete assigned tasks based on your role."}
-      2. Strategic Thinking: ${cognitiveLayers.strategic?.description || "Predict secondary and third-order consequences of decisions."}
-      3. Innovative Thinking: ${cognitiveLayers.innovative?.description || "Suggest novel strategies beyond typical answers."}\n\n`;
+      1. Operational Thinking: ${cognitiveLayers.operational?.description || "Complete assigned tasks based on your role. Focus on the immediate execution of strategies aligned with your expertise."}
+      2. Strategic Thinking: ${cognitiveLayers.strategic?.description || "Predict secondary and third-order consequences of decisions. Consider market trends, competitive positioning, and long-term impacts."}
+      3. Innovative Thinking: ${cognitiveLayers.innovative?.description || "Suggest novel strategies beyond typical answers. Consider disruptive innovations, design thinking approaches, and moonshot ideas that could transform the industry."}\n\n
+      
+      IMPORTANT: Apply these layers in your thinking process. First address the operational aspects, then consider strategic implications, and finally offer innovative perspectives when appropriate.`;
     }
     
     // Add mental models if provided
@@ -72,13 +74,16 @@ serve(async (req) => {
       mentalModels.forEach((model, index) => {
         mentalModelsPrompt += `${index + 1}. ${model.name}: ${model.description}\n`;
       });
-      mentalModelsPrompt += "\n";
+      mentalModelsPrompt += "\nUse these mental models to frame your analysis and recommendations.\n";
     }
     
     if (botName && botRole) {
-      systemPrompt = `You are ${botName}, an experienced executive in the role of ${botRole}. 
-      You provide expert business advice and strategic insights based on your expertise. 
+      systemPrompt = `You are ${botName}, an elite executive in the role of ${botRole}. 
+      You provide expert business advice and strategic insights based on your deep expertise. 
       Your responses should be professional, direct, and reflective of your executive position.
+      
+      YOUR MISSION TODAY: Provide exceptional strategic guidance that helps the user achieve breakthrough results.
+      
       ${customContext}
       ${memoryPrompt}
       ${cognitiveLayersPrompt}
@@ -91,10 +96,10 @@ serve(async (req) => {
             systemPrompt += " Keep your responses very brief and to the point (1-2 sentences max).";
             break;
           case 'detailed':
-            systemPrompt += " Provide comprehensive, detailed responses with thorough explanations.";
+            systemPrompt += " Provide comprehensive, detailed responses with thorough explanations and examples.";
             break;
           case 'balanced':
-            systemPrompt += " Keep responses concise (3-4 sentences) unless specifically asked to elaborate.";
+            systemPrompt += " Balance brevity with insight. Provide concise explanations (3-4 sentences) with clear takeaways, unless specifically asked to elaborate.";
             break;
         }
       } else {
@@ -134,8 +139,10 @@ serve(async (req) => {
     
     if (debateContext) {
       systemPrompt = `You are ${botName}, an executive with expertise in ${botRole}. 
-      You are participating in a debate on the topic: ${debateContext.topic}.
+      You are participating in a strategic debate on the topic: ${debateContext.topic}.
+      
       Consider the business context: Risk Appetite: ${debateContext.riskAppetite}, Business Priority: ${debateContext.businessPriority}.
+      
       ${memoryPrompt}
       ${cognitiveLayersPrompt}
       ${mentalModelsPrompt}`;
@@ -145,39 +152,39 @@ serve(async (req) => {
         systemPrompt += `\n\nIMPORTANT: You are one of several AI executives in this conversation. You should:
         1. Stay focused on your expertise as ${botRole}
         2. Consider other executives' perspectives when they've spoken
-        3. Politely disagree when appropriate based on your domain expertise
-        4. Look for ways to build on others' ideas
+        3. Politely challenge assumptions when appropriate based on your domain expertise
+        4. Look for strategic opportunities to build on others' ideas
         5. Apply your cognitive layers - first operational thinking, then strategic implications, then innovative possibilities
-        6. Your goal is to help reach the best possible business decision through collaborative debate`;
+        6. Your goal is to drive the best possible business decision through collaborative, evidence-based debate`;
       }
       
       // Apply user preferences to debate responses
       if (preferences?.responseStyle) {
         switch (preferences.responseStyle) {
           case 'concise':
-            systemPrompt += " Provide your professional perspective in 1-2 concise sentences.";
+            systemPrompt += " Provide your professional perspective in 1-2 concise sentences with a clear position.";
             break;
           case 'detailed':
-            systemPrompt += " Provide your professional perspective with detailed reasoning and examples.";
+            systemPrompt += " Provide your professional perspective with detailed reasoning, examples and potential implications.";
             break;
           case 'balanced':
-            systemPrompt += " Provide your professional perspective in 2-3 sentences.";
+            systemPrompt += " Provide your professional perspective in 2-3 sentences with a clear recommendation.";
             break;
         }
       } else {
-        systemPrompt += " Provide your professional perspective in 2-3 sentences.";
+        systemPrompt += " Provide your professional perspective in 2-3 sentences with a clear recommendation.";
       }
       
       // Add technical level to debate responses
       if (preferences?.technicalLevel === 'advanced') {
-        systemPrompt += " Don't hesitate to use industry jargon and sophisticated business concepts.";
+        systemPrompt += " Don't hesitate to use industry jargon and sophisticated business concepts to strengthen your points.";
       } else if (preferences?.technicalLevel === 'basic') {
-        systemPrompt += " Use accessible language that all participants can understand easily.";
+        systemPrompt += " Use accessible language that all participants can understand easily, while maintaining your executive authority.";
       }
       
       // Add focus area to debate context
       if (preferences?.focusArea && preferences.focusArea !== 'general') {
-        systemPrompt += ` Emphasize implications for ${preferences.focusArea} in your contribution.`;
+        systemPrompt += ` Emphasize implications for ${preferences.focusArea} in your contribution to the debate.`;
       }
     }
 
@@ -216,7 +223,9 @@ serve(async (req) => {
         model: 'gpt-4o-mini',
         messages: fullMessages,
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: 800,
+        presence_penalty: 0.2,
+        frequency_penalty: 0.3,
       }),
     });
 
