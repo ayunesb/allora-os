@@ -84,6 +84,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  const renderContent = () => {
+    if (children) {
+      return children;
+    }
+    return <Outlet />;
+  };
+
   if (isMobileView) {
     return (
       <div className="min-h-screen bg-[#0F1729]">
@@ -139,8 +146,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
           )}
-          <Outlet />
-          {children}
+          {renderContent()}
         </div>
       </div>
     );
@@ -182,8 +188,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         )}
         <div className="p-6 max-w-full">
-          <Outlet />
-          {children}
+          {renderContent()}
         </div>
       </div>
     </div>

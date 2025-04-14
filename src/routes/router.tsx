@@ -17,6 +17,8 @@ import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
+import AdminLayout from "@/components/AdminLayout";
+import AdminIndex from "@/pages/admin/Index";
 
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
@@ -52,6 +54,15 @@ export const router = createBrowserRouter([
           {
             path: "/pricing",
             element: <Pricing />,
+          },
+          // Admin specific redirect
+          {
+            path: "/admin",
+            element: <AdminLayout><AdminIndex /></AdminLayout>,
+          },
+          {
+            path: "/admin/dashboard",
+            element: <Navigate to="/admin" replace />,
           },
           // Common redirects for legacy/mistyped URLs
           {

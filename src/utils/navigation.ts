@@ -35,6 +35,15 @@ export const normalizeRoute = (route: string): string => {
   if (route.includes('/my-leads')) {
     return route.replace('/my-leads', '/dashboard/leads');
   }
+
+  // Handle admin routes
+  if (route.includes('/admin/dashboard')) {
+    return route.replace('/admin/dashboard', '/admin');
+  }
+
+  if (route === '/auth/login') {
+    return '/login';
+  }
   
   return route;
 };

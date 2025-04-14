@@ -60,99 +60,58 @@ export default function ProtectedRoute({
     }
   }, [user, profile, roleRequired, adminOnly, isLoading, hasInitialized, isEmailVerified]);
 
-  return (
-    <SessionRefreshHandler user={user} refreshSession={refreshSession}>
-      {(isRefreshing, handleSessionRefresh) => (
-        <AuthStateHandler 
-          isLoading={isLoading} 
-          authError={authError} 
-          onRetry={handleSessionRefresh} 
-          isRetrying={isRefreshing}
-        >
-          <VerificationHandler user={user}>
-            {(isResending, handleResendVerificationEmail) => {
-              // Handle expired session
-              if (isSessionExpired) {
-                return <Navigate to="/login" state={{ from: location, expired: true }} replace />;
-              }
+  // Handle loading state
+  if (isLoading) {
+    return <AuthLoadingState />;
+  }
 
-              // Handle unauthenticated users
-              if (!user && hasInitialized) {
-                toast.error("Please log in to access this page", {
-                  description: "This page requires authentication."
-                });
-                return <Navigate to="/login" state={{ from: location }} replace />;
-              }
+  // Handle expired session
+  if (isSessionExpired) {
+    return <Navigate to="/login" state={{ from: location, expired: true }} replace />;
+  }
 
-              // Handle verification requirement
-              if (requireVerified && !isEmailVerified && hasInitialized) {
-                return <VerificationRequiredState 
-                  onRefresh={async (): Promise<void> => {
-                    await refreshSession();
-                  }}
-                  onResendVerification={handleResendVerificationEmail}
-                  isResending={isResending}
-                />;
-              }
+  // Handle unauthenticated users
+  if (!user && hasInitialized) {
+    toast.error("Please log in to access this page", {
+      description: "This page requires authentication."
+    });
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-              // Handle role and admin checks
-              return (
-                <AdminCheckHandler 
-                  user={user}
-                  roleRequired={roleRequired}
-                  adminOnly={adminOnly}
-                  hasInitialized={hasInitialized}
-                >
-                  {(isUserAdmin, adminCheckDone) => {
-                    // Check admin access
-                    if ((adminOnly || roleRequired === 'admin') && hasInitialized) {
-                      // Priority 1: Check direct database admin status
-                      if (isUserAdmin) {
-                        console.log('Admin access granted via direct database check');
-                        return <>{children}</>;
-                      }
-                      
-                      // Priority 2: Check profile.role (as fallback)
-                      const isAdminByProfile = profile?.role === 'admin';
-                      
-                      if (isAdminByProfile) {
-                        console.log('Admin access granted via profile role');
-                        return <>{children}</>;
-                      }
-                      
-                      // Only redirect if both checks have completed
-                      if (adminCheckDone && !isUserAdmin && !isAdminByProfile) {
-                        console.log('Access denied: User does not have admin role', profile);
-                        
-                        // Less intrusive notification that doesn't kick you out if you're already on an admin page
-                        if (!location.pathname.startsWith('/admin')) {
-                          toast.error("You don't have permission to access this page", {
-                            description: "This area requires administrator privileges."
-                          });
-                          return <Navigate to="/dashboard" replace />;
-                        }
-                      }
-                    }
-                    else if (roleRequired && profile && hasInitialized) {
-                      const hasRequiredRole = profile.role === roleRequired || 
-                                            (roleRequired === 'user' && profile.role === 'admin');
-                      
-                      if (!hasRequiredRole) {
-                        toast.error("You don't have permission to access this page", {
-                          description: `You need ${roleRequired} privileges to access this area.`
-                        });
-                        return <Navigate to="/dashboard" replace />;
-                      }
-                    }
+  // Handle auth errors
+  if (authError) {
+    return <AuthErrorState error={authError} onRetry={refreshSession} />;
+  }
 
-                    return <>{children}</>;
-                  }}
-                </AdminCheckHandler>
-              );
-            }}
-          </VerificationHandler>
-        </AuthStateHandler>
-      )}
-    </SessionRefreshHandler>
-  );
+  // Handle verification requirement
+  if (requireVerified && !isEmailVerified && hasInitialized) {
+    return <VerificationRequiredState 
+      onRefresh={refreshSession}
+      onResendVerification={() => {}}
+      isResending={false}
+    />;
+  }
+
+  // Handle admin access check
+  if ((adminOnly || roleRequired === 'admin') && hasInitialized) {
+    if (profile?.role !== 'admin') {
+      toast.error("You don't have permission to access this page", {
+        description: "This area requires administrator privileges."
+      });
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+  else if (roleRequired && profile && hasInitialized) {
+    const hasRequiredRole = profile.role === roleRequired || 
+                          (roleRequired === 'user' && profile.role === 'admin');
+    
+    if (!hasRequiredRole) {
+      toast.error("You don't have permission to access this page", {
+        description: `You need ${roleRequired} privileges to access this area.`
+      });
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
+  return <>{children}</>;
 }

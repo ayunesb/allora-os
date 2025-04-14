@@ -10,31 +10,35 @@ import UpdatePassword from "@/pages/UpdatePassword";
 
 export const authRoutes: RouteObject[] = [
   {
-    path: "/login",
+    path: "login",
     element: <Login />,
   },
   {
-    path: "/signup",
+    path: "auth/login",
+    element: <Login />,
+  },
+  {
+    path: "signup",
     element: <SignUpNew />,
   },
   {
-    path: "/reset-password",
+    path: "reset-password",
     element: <ResetPassword />,
   },
   {
-    path: "/email-confirm",
+    path: "email-confirm",
     element: <EmailConfirm />,
   },
   {
-    path: "/verify-otp",
+    path: "verify-otp",
     element: <VerifyOtp />,
   },
   {
-    path: "/update-password",
+    path: "update-password",
     element: <UpdatePassword />,
   },
   {
-    path: "/auth/tiktok/callback",
+    path: "auth/tiktok/callback",
     element: <TiktokCallback />,
   },
 ];
