@@ -17,17 +17,14 @@ import Home from "@/pages/Home";
 import Pricing from "@/pages/Pricing";
 import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
-import DashboardLayout from "@/components/DashboardLayout";
 
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
   
   return (
     <ErrorBoundary>
-      <>
-        <NavigationManager />
-        <Outlet />
-      </>
+      <NavigationManager />
+      <Outlet />
     </ErrorBoundary>
   );
 };
@@ -66,15 +63,16 @@ export const router = createBrowserRouter([
           },
           
           // Include all routes
+          ...publicRoutes,
+          ...authRoutes,
           ...adminRoutes,
           ...dashboardRoutes,
           ...complianceRoutes,
-          ...publicRoutes,
-          ...authRoutes,
           ...onboardingRoutes,
-          ...marketingRoutes,
+          ...marketingRoutes, 
           ...devRoutes,
           
+          // Wildcard route - must be at the very end
           {
             path: "*",
             element: <NotFound />,

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain } from "lucide-react";
 
-export function LearningInsights() {
+export default function LearningInsights() {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -35,3 +35,6 @@ export function LearningInsights() {
     </Card>
   );
 }
+
+// Export the component as a named export as well for backward compatibility
+export { LearningInsights };

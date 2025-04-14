@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 import Index from "@/pages/Index";
@@ -14,6 +13,7 @@ import Compliance from "@/pages/Compliance";
 import LegalDocument from "@/pages/LegalDocument";
 import DevAdminHelper from "@/pages/DevAdminHelper";
 import FAQ from "@/pages/FAQ";
+import Contact from "@/pages/Contact";
 
 // Define routes properly as an array
 export const publicRoutes: RouteObject[] = [
@@ -68,6 +68,10 @@ export const publicRoutes: RouteObject[] = [
   {
     path: "/checkout-success",
     element: <CheckoutSuccess />,
+  },
+  {
+    path: "contact",
+    element: <Contact />
   },
 ];
 

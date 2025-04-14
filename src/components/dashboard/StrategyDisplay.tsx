@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GitBranch } from "lucide-react";
 
-export function StrategyDisplay() {
+export default function StrategyDisplay() {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -35,3 +35,6 @@ export function StrategyDisplay() {
     </Card>
   );
 }
+
+// Export the component as a named export as well for backward compatibility
+export { StrategyDisplay };

@@ -18,6 +18,7 @@ import UserOnboarding from "@/pages/admin/UserOnboarding";
 import DashboardModules from "@/pages/admin/DashboardModules";
 import CommunicationTools from "@/pages/admin/CommunicationTools";
 import NotFound from "@/pages/NotFound";
+import SystemPage from "@/pages/admin/system";
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -37,7 +38,23 @@ export const adminRoutes: RouteObject[] = [
         element: <UserManagement />,
       },
       {
+        path: "users/:userId",
+        element: <UserManagement />,
+      },
+      {
+        path: "users/new",
+        element: <UserManagement />,
+      },
+      {
         path: "companies",
+        element: <Companies />,
+      },
+      {
+        path: "companies/:companyId",
+        element: <Companies />,
+      },
+      {
+        path: "companies/new",
         element: <Companies />,
       },
       {
@@ -45,7 +62,15 @@ export const adminRoutes: RouteObject[] = [
         element: <Campaigns />,
       },
       {
+        path: "campaigns/:campaignId",
+        element: <Campaigns />,
+      },
+      {
         path: "leads",
+        element: <Leads />,
+      },
+      {
+        path: "leads/:leadId",
         element: <Leads />,
       },
       {
@@ -87,6 +112,10 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "launch-check",
         element: <LaunchCheck />,
+      },
+      {
+        path: "system",
+        element: <SystemPage />,
       },
       {
         path: "*",

@@ -17,6 +17,9 @@ import Calls from "@/pages/dashboard/Calls";
 import NotFound from "@/pages/NotFound";
 import Executives from "@/pages/dashboard/Executives";
 import DashboardLayout from "@/components/DashboardLayout";
+import CampaignDetail from "@/pages/dashboard/CampaignDetail";
+import CampaignCreate from "@/pages/dashboard/CampaignCreate";
+import BotDetail from "@/pages/dashboard/BotDetail";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -37,11 +40,11 @@ export const dashboardRoutes: RouteObject[] = [
       },
       {
         path: "leads/new",
-        element: <Dashboard />,
+        element: <Leads />,
       },
       {
         path: "leads/:leadId",
-        element: <Dashboard />,
+        element: <Leads />,
       },
       {
         path: "campaigns",
@@ -49,11 +52,11 @@ export const dashboardRoutes: RouteObject[] = [
       },
       {
         path: "campaigns/new",
-        element: <Dashboard />,
+        element: <CampaignCreate />,
       },
       {
         path: "campaigns/:campaignId",
-        element: <Dashboard />,
+        element: <CampaignDetail />,
       },
       {
         path: "campaigns/payment-success",
@@ -89,7 +92,7 @@ export const dashboardRoutes: RouteObject[] = [
       },
       {
         path: "ai-bots/:botId",
-        element: <AiBots />,
+        element: <BotDetail />,
       },
       {
         path: "debate",
