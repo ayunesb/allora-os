@@ -1,5 +1,5 @@
 
-import React, { Suspense, useCallback, useState } from "react";
+import React, { Suspense, useCallback, useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import QuickAccess from "@/components/dashboard/QuickAccess";
@@ -15,10 +15,13 @@ import { useAccessibility } from "@/context/AccessibilityContext";
 import { Toaster } from "sonner";
 import { ExecutiveInteraction } from "@/components/dashboard/ExecutiveInteraction";
 import { DashboardAnalytics } from "@/components/dashboard/DashboardAnalytics";
+import { useProductionData } from "@/hooks/useProductionData";
+import { ProductionDataAlert } from "@/components/dashboard/ProductionDataAlert";
 
 export default function Dashboard() {
   const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
   const { screenReaderFriendly } = useAccessibility();
+  const [showProductionAlert, setShowProductionAlert] = useState(true);
   
   // Use the custom hook for dashboard data with improved error handling
   const { 
@@ -26,15 +29,41 @@ export default function Dashboard() {
     pendingApprovals, 
     aiRecommendations, 
     riskAppetite,
-    handleApproveRecommendation
+    handleApproveRecommendation,
+    refreshData
   } = useDashboardData();
+
+  // Use the production data validation hook
+  const {
+    isValidating,
+    validationResults,
+    isProductionReady,
+    validateProductionData
+  } = useProductionData();
+
+  // Refresh production validation when dashboard data is refreshed
+  useEffect(() => {
+    // Check if we're in production mode based on URL or environment
+    const isProduction = 
+      window.location.hostname === 'all-or-a.online' || 
+      process.env.NODE_ENV === 'production';
+    
+    // Only show the production alert in production mode
+    setShowProductionAlert(isProduction);
+  }, []);
 
   // Handle manual refresh with feedback
   const handleManualRefresh = useCallback(async () => {
     setIsManuallyRefreshing(true);
     try {
-      // Simulate refresh delay - in a real app, this would actually refetch data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Refresh dashboard data
+      await refreshData();
+      
+      // Run production data validation again
+      if (showProductionAlert) {
+        await validateProductionData();
+      }
+      
       toast.success("Dashboard refreshed successfully");
     } catch (error) {
       console.error("Error refreshing dashboard:", error);
@@ -44,7 +73,7 @@ export default function Dashboard() {
     } finally {
       setIsManuallyRefreshing(false);
     }
-  }, []);
+  }, [refreshData, validateProductionData, showProductionAlert]);
   
   // Handle recommendation approval with enhanced feedback
   const handleRecommendationApproval = async (index: number) => {
@@ -86,6 +115,14 @@ export default function Dashboard() {
         role={screenReaderFriendly ? "main" : undefined}
         aria-label={screenReaderFriendly ? "Dashboard" : undefined}
       >
+        {/* Production Data Validation Alert */}
+        <ProductionDataAlert 
+          isValidating={isValidating}
+          validationResults={validationResults}
+          onRevalidate={validateProductionData}
+          isVisible={showProductionAlert}
+        />
+        
         <DashboardHeader pendingApprovals={pendingApprovalsCount} />
         
         {/* Refresh button for manual data refresh */}

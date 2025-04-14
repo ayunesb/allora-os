@@ -7,11 +7,22 @@ import { toast } from "sonner";
 /**
  * A hook to reliably access the current user's company ID
  * Prioritizes profile data but falls back to localStorage and attempts to validate
+ * In production mode, ensures only real company data is used
  */
 export function useCompanyId(): string | undefined {
   const { profile, isProfileLoading, user } = useAuth();
   const [validatedCompanyId, setValidatedCompanyId] = useState<string | undefined>(undefined);
   const [isValidating, setIsValidating] = useState(false);
+  const [isProductionMode, setIsProductionMode] = useState(false);
+
+  useEffect(() => {
+    // Check if we're in production mode based on URL or environment
+    const productionMode = 
+      window.location.hostname === 'all-or-a.online' || 
+      process.env.NODE_ENV === 'production';
+    
+    setIsProductionMode(productionMode);
+  }, []);
 
   useEffect(() => {
     // Function to validate if a company ID exists in the database
@@ -19,13 +30,27 @@ export function useCompanyId(): string | undefined {
       if (!companyId) return false;
       
       try {
-        const { data, error } = await supabase
-          .from('companies')
-          .select('id')
-          .eq('id', companyId)
-          .single();
-        
-        return !error && data;
+        // Enhanced validation for production mode
+        if (isProductionMode) {
+          const { data, error } = await supabase
+            .from('companies')
+            .select('id, name')
+            .eq('id', companyId)
+            .not('name', 'ilike', '%test%')
+            .not('name', 'ilike', '%demo%')
+            .not('name', 'ilike', '%example%')
+            .single();
+          
+          return !error && data;
+        } else {
+          const { data, error } = await supabase
+            .from('companies')
+            .select('id')
+            .eq('id', companyId)
+            .single();
+          
+          return !error && data;
+        }
       } catch (err) {
         console.error("Error validating company ID:", err);
         return false;
@@ -80,11 +105,22 @@ export function useCompanyId(): string | undefined {
         // If we get here, we couldn't find a valid company ID
         // Try to find any company associated with this user
         if (user) {
-          const { data, error } = await supabase
+          // In production mode, search for real companies only
+          let query = supabase
             .from('companies')
             .select('id')
             .order('created_at', { ascending: false })
             .limit(1);
+          
+          // Add additional filters for production mode
+          if (isProductionMode) {
+            query = query
+              .not('name', 'ilike', '%test%')
+              .not('name', 'ilike', '%demo%')
+              .not('name', 'ilike', '%example%');
+          }
+          
+          const { data, error } = await query;
             
           if (!error && data && data.length > 0) {
             const companyId = data[0].id;
@@ -115,7 +151,7 @@ export function useCompanyId(): string | undefined {
     };
     
     getAndValidateCompanyId();
-  }, [isProfileLoading, profile, user, isValidating, validatedCompanyId]);
+  }, [isProfileLoading, profile, user, isValidating, validatedCompanyId, isProductionMode]);
   
   // Return priority: validated ID > profile ID > localStorage ID
   if (validatedCompanyId) {
