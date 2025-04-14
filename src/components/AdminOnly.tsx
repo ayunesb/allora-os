@@ -9,7 +9,10 @@ type AdminOnlyProps = {
 };
 
 export default function AdminOnly({ children }: AdminOnlyProps) {
-  const { profile, isAuthenticated } = useAuth();
+  const { user, profile } = useAuth();
+  
+  // Calculate isAuthenticated based on user presence
+  const isAuthenticated = !!user;
   
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" replace />;

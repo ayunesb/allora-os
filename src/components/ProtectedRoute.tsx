@@ -40,7 +40,7 @@ export default function ProtectedRoute({
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       logger.debug('Protected Route Auth State:', { 
-        user, 
+        user: user?.id, // Use user id instead of the whole user object
         profile, 
         roleRequired, 
         adminOnly,
@@ -111,7 +111,9 @@ export default function ProtectedRoute({
   if (authError) {
     return <AuthErrorState 
       error={authError} 
-      onRetry={async () => refreshSession()} 
+      onRetry={async () => {
+        await refreshSession();
+      }} 
       isRetrying={false} 
     />;
   }
@@ -120,7 +122,9 @@ export default function ProtectedRoute({
   if (requireVerified && !isEmailVerified && hasInitialized) {
     logger.warn("Unverified user attempted to access restricted content", { path: location.pathname });
     return <VerificationRequiredState 
-      onRefresh={async () => refreshSession()}
+      onRefresh={async () => {
+        await refreshSession();
+      }}
       onResendVerification={async () => {}}
       isResending={false}
     />;

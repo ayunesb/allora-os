@@ -51,13 +51,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
   const [isSessionExpired, setIsSessionExpired] = useState(false);
 
+  // Calculate isAuthenticated based on user presence
+  const isAuthenticated = !!user;
+
   // Sign in function
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     const result = await handleSignIn(email, password, rememberMe);
     
     if (result.success) {
       // Let the auth state listener handle the redirect
-      return { success: true };
+      return { success: true, user: result.user };
     } else {
       return { success: false, error: result.error };
     }
@@ -110,14 +113,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return await updateUserPassword(password);
   };
 
-  // Refresh user profile
-  const refreshProfile = async () => {
+  // Refresh user profile - change return type to void
+  const refreshProfile = async (): Promise<void> => {
     if (user) {
       console.log("Refreshing profile for user:", user.id);
       await loadUserProfile(user.id);
-      return true;
     }
-    return false;
   };
 
   // Combined refresh function
@@ -203,6 +204,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isEmailVerified,
     authError,
     isSessionExpired,
+    isAuthenticated,
+    hasInitialized,
     signIn,
     signUp,
     signOut,
@@ -211,7 +214,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshSession,
     updateLastActivity,
     setProfile,
-    hasInitialized,
     verifyOtp,
     updatePassword,
     signInWithGoogle: async () => ({ success: false, error: "Not implemented" }),

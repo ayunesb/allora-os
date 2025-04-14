@@ -100,7 +100,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       
       // Store the email in sessionStorage for verification page access
       sessionStorage.setItem('signupEmail', data.email);
-      logger.info("Starting signup process for:", data.email);
+      logger.info("Starting signup process for: " + data.email);
       
       // Sign up the user with Supabase Auth
       const signUpResult = await signUp(data.email, data.password);
@@ -120,7 +120,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
 
       // Store user metadata for profile creation
       if (signUpResult.user) {
-        logger.info("User created successfully:", signUpResult.user.id);
+        logger.info("User created successfully: " + signUpResult.user.id);
         
         // Create sanitized data to avoid empty strings
         const userData = {
@@ -135,7 +135,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
         });
 
         if (updateError) {
-          logger.error("Error updating user metadata:", updateError);
+          logger.error("Error updating user metadata: " + updateError);
         }
 
         // Once the user is created, save company information to profiles table
@@ -164,7 +164,7 @@ export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
       
       throw new Error("Failed to retrieve user information after signup.");
     } catch (error: any) {
-      logger.error("Signup error:", error);
+      logger.error("Signup error: " + error);
       setFormError(error.message || "Failed to create account");
       toast.error(error.message || "Failed to create account");
     } finally {

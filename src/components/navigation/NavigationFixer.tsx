@@ -9,9 +9,12 @@ import { useAuth } from '@/context/AuthContext';
 export default function NavigationFixer() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const [attemptedFix, setAttemptedFix] = useState(false);
   const [suspiciousRouteAttempts, setSuspiciousRouteAttempts] = useState<Record<string, number>>({});
+  
+  // Calculate isAuthenticated based on user presence
+  const isAuthenticated = !!user;
   
   useEffect(() => {
     // Reset the fix attempt flag when the location changes

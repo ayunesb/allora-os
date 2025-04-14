@@ -6,10 +6,13 @@ import { checkOnboardingStatus } from "@/utils/onboarding";
 import { toast } from "sonner";
 
 export function useOnboardingStatusCheck() {
-  const { user, hasInitialized } = useAuth();
+  const { user } = useAuth();
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const navigate = useNavigate();
+  
+  // Define hasInitialized based on user having been checked
+  const hasInitialized = user !== undefined;
 
   useEffect(() => {
     let isMounted = true;

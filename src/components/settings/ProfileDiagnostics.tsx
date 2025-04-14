@@ -8,9 +8,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function ProfileDiagnostics() {
-  const { user, profile, refreshProfile, userEmail, session } = useAuth();
+  const { user, profile, refreshProfile, session } = useAuth();
   const [sessionInfo, setSessionInfo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Extract userEmail directly from user object
+  const userEmail = user?.email;
 
   // Fetch the current session directly from Supabase
   const checkSession = async () => {
@@ -72,7 +75,7 @@ export default function ProfileDiagnostics() {
           <div className="grid gap-2">
             <div className="font-semibold">User Email</div>
             <div className="bg-muted p-2 rounded text-sm">
-              {userEmail || user?.email || "Not found in user object"}
+              {userEmail || "Not found in user object"}
             </div>
           </div>
           

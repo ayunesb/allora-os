@@ -3,13 +3,16 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, ShieldCheck, Shield } from 'lucide-react';
+import { CircleCheck, CircleAlert, AlertOctagon, Shield } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { AdminCheckHandler } from '@/components/auth/AdminCheckHandler';
 
 const DevHelperRedirect = () => {
   const navigate = useNavigate();
-  const { user, isInitialized } = useAuth();
+  const { user } = useAuth();
+  
+  // Define hasInitialized based on user presence
+  const hasInitialized = user !== undefined;
 
   return (
     <div className="container mx-auto py-10">
@@ -30,7 +33,7 @@ const DevHelperRedirect = () => {
               user={user} 
               roleRequired="admin"
               adminOnly={true}
-              hasInitialized={isInitialized}
+              hasInitialized={hasInitialized}
             >
               {(isUserAdmin, adminCheckDone) => (
                 <div className="space-y-4">

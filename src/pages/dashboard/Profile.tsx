@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import ProfileDiagnostics from "@/components/settings/ProfileDiagnostics";
 
 export default function Profile() {
-  const { user, profile, isProfileLoading, refreshProfile, userEmail } = useAuth();
+  const { user, profile, isProfileLoading, refreshProfile } = useAuth();
+  const userEmail = user?.email; // Extract email directly from user object
   
   useEffect(() => {
     // Call refreshProfile to make sure we have the latest data
@@ -21,7 +22,7 @@ export default function Profile() {
   useEffect(() => {
     // Detailed logging for verification
     console.log("Current User Details:", {
-      email: userEmail || user?.email,
+      email: userEmail,
       userId: user?.id,
       profileName: profile?.name,
       profileCompany: profile?.company,
@@ -31,7 +32,7 @@ export default function Profile() {
     // Toast notification to make verification clear to the user
     if (user) {
       toast.info("User Account Verification", {
-        description: `Logged in as: ${userEmail || user.email || 'Email not available'}`,
+        description: `Logged in as: ${userEmail || 'Email not available'}`,
         duration: 5000
       });
     }

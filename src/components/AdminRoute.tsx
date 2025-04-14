@@ -11,10 +11,27 @@ export interface AdminRouteProps {
 }
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { profile, isLoading, refreshSession } = useAuth();
+  const { profile, isLoading, user } = useAuth();
   const location = useLocation();
   const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Define refreshSession function locally if not available from useAuth
+  const refreshSession = async () => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        logger.error("Error refreshing session:", error);
+        return false;
+      }
+      
+      return !!data.session;
+    } catch (error) {
+      logger.error("Session refresh error:", error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const verifyAdminStatus = async () => {
@@ -53,7 +70,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     };
 
     verifyAdminStatus();
-  }, [profile?.role, refreshSession]);
+  }, [profile?.role]);
 
   if (isLoading || isVerifyingAdmin) {
     return <div className="flex justify-center items-center min-h-screen">

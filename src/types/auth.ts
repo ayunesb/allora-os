@@ -11,8 +11,11 @@ export interface AuthContextType {
   isEmailVerified: boolean;
   authError: string | null;
   isSessionExpired: boolean;
-  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  isAuthenticated?: boolean; // Added missing property
+  hasInitialized?: boolean; // Added missing property
+  userEmail?: string; // Added missing property
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string; user?: User }>;
+  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   signOut: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
   refreshSession: () => Promise<boolean>;

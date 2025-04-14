@@ -29,6 +29,9 @@ export type UserProfile = {
   subscription_status?: string;
   subscription_plan_id?: string;
   subscription_expires_at?: string;
+  company_size?: string; // Added missing property
+  risk_appetite?: string; // Added missing property
+  goals?: string[]; // Added missing property
 };
 
 export async function fetchUserProfile(userId: string): Promise<UserProfile | null> {

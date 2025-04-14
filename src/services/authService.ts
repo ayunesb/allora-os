@@ -27,7 +27,10 @@ export async function handleSignIn(email: string, password: string, rememberMe =
       localStorage.removeItem('rememberMe');
     }
 
-    return { success: true };
+    return { 
+      success: true,
+      user: data.user 
+    };
   } catch (error: any) {
     return { 
       success: false, 
