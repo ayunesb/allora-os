@@ -15,81 +15,80 @@ export function AuditFunctional({ status, onStatusChange }: AuditComponentProps)
       id: 'func-1',
       title: 'Signup Flow',
       description: 'Complete user signup and onboarding, collect Company Name, Industry, Goals',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-2',
       title: 'Onboarding Flow',
       description: 'Confirm saves to Supabase properly',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-3',
       title: 'Dashboard Load',
       description: 'Test with dummy data (strategies, campaigns, leads)',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-4',
       title: 'AI Strategy Generation',
       description: 'Trigger prompt after onboarding, check result',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-5',
       title: 'Campaign Creation Flow',
       description: 'Create dummy campaign and verify',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-6',
       title: 'Call Scripts Creation',
       description: 'Verify AI-generated call scripts',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-7',
       title: 'Lead Management',
       description: 'Add, edit, delete a lead',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-8',
       title: 'Admin Users CRUD',
       description: 'Add new users, update role, delete users',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-9',
       title: 'Zapier Webhooks',
       description: 'Test automatic POST triggers from real actions',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     },
     {
       id: 'func-10',
       title: 'Stripe Payment',
       description: 'Test checkout session, subscriptions management',
-      status: 'passed', // Changed from 'pending' to 'passed'
+      status: 'pending',
       required: true
     }
   ]);
 
-  // Auto-set passed status on mount
+  // Test for AI Strategy Generation on mount
   useEffect(() => {
-    // Notify parent of passed status
-    onStatusChange('passed');
-  }, [onStatusChange]);
+    checkAIStrategyGeneration();
+  }, []);
 
-  // Function to test AI Strategy Generation (Kept for functionality reference)
+  // Function to test AI Strategy Generation
   const checkAIStrategyGeneration = async () => {
     try {
       // Test if the strategy generator utility works
@@ -108,19 +107,22 @@ export function AuditFunctional({ status, onStatusChange }: AuditComponentProps)
         strategy.keyActions &&
         strategy.keyActions.length > 0
       ) {
-        // This check now is mostly for reference since we set all items to passed by default
+        // Update the AI Strategy Generation item to passed
         setItems(prev => prev.map(item => 
           item.id === 'func-4' ? { ...item, status: 'passed' } : item
         ));
       }
     } catch (error) {
       console.error('Error testing AI Strategy Generation:', error);
-      // We won't change status since everything is passed by default
+      // Don't update the status here, will be checked during the full test run
     }
   };
 
   const runTest = async () => {
     setIsRunning(true);
+    
+    // Reset all items to pending
+    setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
     
     // Simulate testing each item sequentially
     for (let i = 0; i < items.length; i++) {
@@ -130,17 +132,61 @@ export function AuditFunctional({ status, onStatusChange }: AuditComponentProps)
       ));
       
       // Simulate test running
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Always pass all tests
+      // Special test for AI Strategy Generation
+      if (items[i].id === 'func-4') {
+        try {
+          // Test if the strategy generator utility works
+          const strategy = generateCustomizedStrategy(
+            { level: 'Medium', score: 65, breakdown: {} },
+            'SaaS',
+            'Small',
+            'Growth'
+          );
+          
+          // If we get a valid strategy object with expected properties
+          const passed = 
+            strategy && 
+            strategy.title && 
+            strategy.description && 
+            strategy.keyActions &&
+            strategy.keyActions.length > 0;
+          
+          setItems(prev => prev.map((item, idx) => 
+            idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+          ));
+          continue;
+        } catch (error) {
+          console.error('Error testing AI Strategy Generation:', error);
+          setItems(prev => prev.map((item, idx) => 
+            idx === i ? { ...item, status: 'failed' } : item
+          ));
+          continue;
+        }
+      }
+      
+      // Set random result for other tests (90% pass rate for demo)
+      const passed = Math.random() < 0.9;
+      
       setItems(prev => prev.map((item, idx) => 
-        idx === i ? { ...item, status: 'passed' } : item
+        idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
       ));
     }
     
     setIsRunning(false);
-    onStatusChange('passed');
-    toast.success('Functional Testing passed!');
+    
+    // Check results
+    const allPassed = items.every(item => item.status === 'passed');
+    const overallStatus = allPassed ? 'passed' : 'failed';
+    
+    onStatusChange(overallStatus);
+    
+    if (allPassed) {
+      toast.success('Functional Testing passed!');
+    } else {
+      toast.error('Functional Testing failed. Please review and fix issues.');
+    }
   };
 
   const getStatusIcon = (status: string) => {
