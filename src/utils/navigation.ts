@@ -1,3 +1,4 @@
+
 // A utility for navigation that doesn't depend on the useNavigate hook directly
 // This will be used in contexts or services that need to navigate but can't access useNavigate
 
@@ -48,6 +49,14 @@ const COMMON_ROUTE_CORRECTIONS: Record<string, string> = {
   '/leads': '/dashboard/leads',
   '/contacts': '/dashboard/leads',
   '/customers': '/dashboard/leads',
+  '/system': '/admin/system-health',
+  '/system-diagnostics': '/admin/diagnostics',
+  '/diagnostics': '/admin/diagnostics',
+  '/system-health': '/admin/system-health',
+  '/admin-diagnostics': '/admin/diagnostics',
+  '/admin/system': '/admin/system-health',
+  '/admin/diag': '/admin/diagnostics',
+  '/admin/diagnostic': '/admin/diagnostics',
 };
 
 // Route normalization function to handle common URL variants
@@ -84,6 +93,15 @@ export const normalizeRoute = (route: string): string => {
     return route.replace('/admin/dashboard', '/admin');
   }
   
+  // Fix any diagnostic/health confusion
+  if (route.includes('/admin/diagnostic') && !route.includes('/admin/diagnostics')) {
+    return route.replace('/admin/diagnostic', '/admin/diagnostics');
+  }
+  
+  if (route.includes('/diagnostic') && !route.includes('/admin')) {
+    return '/admin/diagnostics';
+  }
+  
   // Fix any boardroom/strategy confusion
   if (route.includes('/boardroom')) {
     return route.replace('/boardroom', '/strategies');
@@ -91,6 +109,11 @@ export const normalizeRoute = (route: string): string => {
   
   if (route === '/auth/login') {
     return '/login';
+  }
+  
+  // Fix any compliance paths
+  if (route.includes('/complian') && !route.includes('/compliance')) {
+    return route.replace(/\/complian[^\/]*/, '/compliance');
   }
   
   return route;

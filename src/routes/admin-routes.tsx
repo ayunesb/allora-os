@@ -13,6 +13,7 @@ const AdminLaunchPrep = lazy(() => import("@/pages/admin/AdminLaunchPrep"));
 const AdminCampaigns = lazy(() => import("@/pages/admin/AdminCampaigns"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
+const SystemPage = lazy(() => import("@/pages/admin/system"));
 
 // Lazy load audit-related pages for better performance
 const AuditPage = lazy(() => import("@/pages/admin/AuditPage"));
@@ -44,6 +45,10 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "system-health",
         element: <AdminSystemHealth />
+      },
+      {
+        path: "diagnostics",
+        element: <SystemPage />
       },
       {
         path: "launch-prep",

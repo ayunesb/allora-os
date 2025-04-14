@@ -38,7 +38,15 @@ export default function NavigationFixer() {
       '/reset-password',
       '/email-confirm',
       '/verify-otp',
-      '/update-password'
+      '/update-password',
+      '/diagnostics',
+      '/not-found',
+      '/contact',
+      '/about',
+      '/faq',
+      '/legal',
+      '/privacy',
+      '/terms'
     ];
     
     const isKnownValid = knownValidPaths.some(path => 
@@ -76,7 +84,7 @@ export default function NavigationFixer() {
       // Redirect to login
       logger.info(`Unauthorized access attempt to restricted area: ${currentPath}`);
       toast.error("You need to be logged in to access this area");
-      navigate('/login', { replace: true });
+      navigate('/login', { replace: true, state: { from: currentPath } });
       setAttemptedFix(true);
       return;
     }
@@ -95,9 +103,25 @@ export default function NavigationFixer() {
       navigate(normalizedPath, { replace: true });
       setAttemptedFix(true);
     } else if (!currentPath.match(/^\/(api|assets|images|css|js|fonts|favicon)/)) {
-      // If path doesn't match known patterns and couldn't be normalized, it's likely a 404
-      logger.info(`Navigation to unknown path: ${currentPath}`);
-      navigate('/not-found', { replace: true, state: { attemptedPath: currentPath } });
+      // Check if this is an admin or dashboard path that might be misspelled
+      const isLikelyAdminPath = /^\/adm(in)?.*/.test(currentPath);
+      const isLikelyDashboardPath = /^\/dash(board)?.*/.test(currentPath);
+      const isLikelyCompliancePath = /^\/comp(liance)?.*/.test(currentPath);
+      
+      if (isLikelyAdminPath) {
+        navigate('/admin', { replace: true, state: { attemptedPath: currentPath } });
+        toast.info("Redirecting to the admin dashboard");
+      } else if (isLikelyDashboardPath) {
+        navigate('/dashboard', { replace: true, state: { attemptedPath: currentPath } });
+        toast.info("Redirecting to the dashboard");
+      } else if (isLikelyCompliancePath) {
+        navigate('/compliance', { replace: true, state: { attemptedPath: currentPath } });
+        toast.info("Redirecting to the compliance area");
+      } else {
+        // If path doesn't match known patterns and couldn't be normalized, it's likely a 404
+        logger.info(`Navigation to unknown path: ${currentPath}`);
+        navigate('/not-found', { replace: true, state: { attemptedPath: currentPath } });
+      }
       setAttemptedFix(true);
     }
   }, [location.pathname, navigate, attemptedFix, isAuthenticated]);
