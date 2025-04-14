@@ -1,564 +1,409 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { corsHeaders } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") || "";
+
+// Helper logging function 
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[GENERATE-AI-CONTENT] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS preflight request
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
-
-  const SUPABASE_URL = "https://ofwxyctfzskeeniaaazw.supabase.co";
-  const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
-  const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") || "";
-
-  if (!OPENAI_API_KEY) {
-    return new Response(
-      JSON.stringify({ error: "OpenAI API key is not configured" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
-  }
-
+  
   try {
-    // Parse request body
+    logStep("Function started");
+    
+    // Get request body
     const { userId, companyId, industry, riskAppetite, companyName, companyDetails } = await req.json();
-
-    if (!userId || !companyId || !industry) {
-      return new Response(
-        JSON.stringify({ error: "Missing required parameters" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // Initialize Supabase client
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // Get risk level to select appropriate executives
-    const riskLevel = riskAppetite || 'medium';
     
-    // Get executive team based on risk appetite
-    const executives = getExecutiveTeam(riskLevel);
-    
-    // Generate strategies first
-    console.log("Generating strategies for", companyName, "in", industry);
-    const strategies = await generateStrategies(
-      OPENAI_API_KEY,
-      companyName,
-      industry,
-      riskLevel,
-      executives,
-      companyDetails
-    );
-    
-    // Store strategies in the database
-    if (strategies && strategies.length > 0) {
-      for (const strategy of strategies) {
-        const { error: strategyError } = await supabase
-          .from("strategies")
-          .insert({
-            company_id: companyId,
-            title: strategy.title,
-            description: strategy.description,
-            risk_level: strategy.riskLevel,
-            executive_bot: strategy.proposedBy,
-            focus_areas: strategy.focusAreas,
-            key_actions: strategy.keyActions,
-            estimated_roi: strategy.estimatedROI,
-            implementation_timeline: strategy.implementationTimeline
-          });
-          
-        if (strategyError) {
-          console.error("Error storing strategy:", strategyError);
-        }
-      }
+    if (!userId || !companyId) {
+      throw new Error("User ID and Company ID are required");
     }
     
-    // Generate campaigns
-    console.log("Generating campaigns for", companyName);
-    const campaigns = await generateCampaigns(
-      OPENAI_API_KEY,
-      companyName,
-      industry,
-      riskLevel,
-      executives,
-      companyDetails
-    );
+    logStep("Request parameters", { userId, companyId, industry, riskAppetite });
     
-    // Store campaigns in the database
-    if (campaigns && campaigns.length > 0) {
-      for (const campaign of campaigns) {
-        const { error: campaignError } = await supabase
-          .from("campaigns")
-          .insert({
-            company_id: companyId,
-            name: campaign.name,
-            description: campaign.description,
-            type: campaign.type,
-            target_audience: campaign.targetAudience,
-            channel: campaign.channel,
-            status: 'draft',
-            executive_bot: campaign.proposedBy,
-            messages: campaign.messages
-          });
-          
-        if (campaignError) {
-          console.error("Error storing campaign:", campaignError);
-        }
-      }
-    }
+    // Create a Supabase client with the service role key
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false }
+    });
     
-    // Generate AI boardroom debate
-    console.log("Generating boardroom debate for", companyName);
-    const debate = await generateBoardroomDebate(
-      OPENAI_API_KEY,
-      companyName,
-      industry,
-      strategies,
-      executives,
-      companyDetails
-    );
+    // Initialize client with the user's JWT to respect RLS policies
+    const authHeader = req.headers.get('Authorization');
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: authHeader || "" } }
+    });
     
-    // Store debate in the database
-    if (debate) {
-      const { error: debateError } = await supabase
-        .from("ai_boardroom_debates")
+    // 1. Generate strategy recommendations
+    const strategies = await generateStrategies(industry, riskAppetite, companyName, companyDetails);
+    logStep("Strategies generated", { count: strategies.length });
+    
+    // Save strategies to database
+    for (const strategy of strategies) {
+      const { error: strategyError } = await supabaseAdmin
+        .from('strategies')
         .insert({
+          title: strategy.title,
+          description: strategy.description,
           company_id: companyId,
-          topic: debate.topic,
-          summary: debate.summary,
-          executives: debate.executives,
-          discussion: debate.discussion,
-          conclusion: debate.conclusion,
-          created_at: new Date().toISOString()
+          created_by: userId,
+          executive_bot: strategy.executive,
+          risk_level: strategy.riskLevel,
+          implementation_steps: strategy.implementationSteps,
+          estimated_cost: strategy.estimatedCost,
+          estimated_time: strategy.estimatedTime,
+          required_resources: strategy.requiredResources,
+          expected_outcome: strategy.expectedOutcome,
+          potential_risks: strategy.potentialRisks,
+          status: 'pending'
         });
         
-      if (debateError) {
-        console.error("Error storing boardroom debate:", debateError);
+      if (strategyError) {
+        logStep("Error inserting strategy", strategyError);
       }
     }
     
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        strategies: strategies.length,
-        campaigns: campaigns.length,
-        debate: debate ? true : false 
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // 2. Generate campaign proposals
+    const campaigns = await generateCampaigns(industry, companyName, companyDetails);
+    logStep("Campaigns generated", { count: campaigns.length });
+    
+    // Save campaigns to database
+    for (const campaign of campaigns) {
+      const { error: campaignError } = await supabaseAdmin
+        .from('campaigns')
+        .insert({
+          name: campaign.name,
+          description: campaign.description,
+          company_id: companyId,
+          created_by: userId,
+          executive_bot: campaign.executive,
+          platform: campaign.platform,
+          target_audience: campaign.targetAudience,
+          budget: campaign.budget,
+          duration: campaign.duration,
+          expected_outcome: campaign.expectedOutcome,
+          status: 'pending'
+        });
+        
+      if (campaignError) {
+        logStep("Error inserting campaign", campaignError);
       }
+    }
+    
+    // 3. Generate AI debate
+    const debate = await generateAIDebate(industry, riskAppetite, companyName, companyDetails);
+    logStep("AI debate generated");
+    
+    // Save AI debate to database
+    const { error: debateError } = await supabaseAdmin
+      .from('ai_debates')
+      .insert({
+        title: debate.title,
+        context: debate.context,
+        company_id: companyId,
+        created_by: userId,
+        participants: debate.participants,
+        transcript: debate.transcript,
+        conclusion: debate.conclusion,
+        recommendation: debate.recommendation
+      });
+      
+    if (debateError) {
+      logStep("Error inserting AI debate", debateError);
+    }
+    
+    // 4. Generate sample call scripts
+    const scripts = await generateCallScripts(industry, companyName, companyDetails);
+    logStep("Call scripts generated", { count: scripts.length });
+    
+    // Save call scripts to database
+    for (const script of scripts) {
+      const { error: scriptError } = await supabaseAdmin
+        .from('call_scripts')
+        .insert({
+          title: script.title,
+          script_text: script.scriptText,
+          company_id: companyId,
+          created_by: userId,
+          executive_bot: script.executive,
+          target_audience: script.targetAudience,
+          purpose: script.purpose,
+          estimated_duration: script.estimatedDuration,
+          key_points: script.keyPoints,
+          objection_handling: script.objectionHandling
+        });
+        
+      if (scriptError) {
+        logStep("Error inserting call script", scriptError);
+      }
+    }
+    
+    // Update user profile to indicate onboarding is complete
+    await supabaseAdmin
+      .from('profiles')
+      .update({ onboarding_completed: true, onboarded_at: new Date().toISOString() })
+      .eq('id', userId);
+    
+    // Record API usage
+    await recordApiUsage(supabaseAdmin, companyId, {
+      strategyGenerations: strategies.length,
+      campaignGenerations: campaigns.length,
+      scriptGenerations: scripts.length,
+      aiDebateRuns: 1,
+      openAiTokensUsed: 2000 // Estimated token usage
+    });
+    
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          strategies: strategies.length,
+          campaigns: campaigns.length,
+          scripts: scripts.length,
+          debate: debate.title
+        }
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error in generate-ai-content function:", error);
+    logStep("Error in function", error);
+    
     return new Response(
-      JSON.stringify({ error: error.message || "Unknown error" }),
-      {
+      JSON.stringify({ success: false, error: error.message }),
+      { 
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
   }
 });
 
-// Helper function to get executive team based on risk appetite
-function getExecutiveTeam(riskLevel: string): Array<{ name: string; role: string; }> {
-  const executives = {
-    low: [
-      { name: "Warren Buffett", role: "Chief Investment Advisor" },
-      { name: "Satya Nadella", role: "Technology Strategy" },
-      { name: "Mary Barra", role: "Operations Executive" },
-      { name: "Tim Cook", role: "Supply Chain & Execution" }
+// Record API usage
+async function recordApiUsage(supabase: any, companyId: string, usage: any) {
+  try {
+    // Get current API usage
+    const { data: usageData, error: fetchError } = await supabase
+      .from('api_usage')
+      .select('*')
+      .eq('company_id', companyId)
+      .single();
+    
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      logStep("Error fetching API usage", fetchError);
+      return;
+    }
+    
+    const newUsage = usageData || {
+      company_id: companyId,
+      total_api_calls: 0,
+      openai_tokens_used: 0,
+      strategy_generations: 0,
+      campaign_generations: 0,
+      script_generations: 0,
+      ai_debate_runs: 0
+    };
+    
+    // Update usage
+    newUsage.total_api_calls = (newUsage.total_api_calls || 0) + 1;
+    newUsage.openai_tokens_used = (newUsage.openai_tokens_used || 0) + (usage.openAiTokensUsed || 0);
+    newUsage.strategy_generations = (newUsage.strategy_generations || 0) + (usage.strategyGenerations || 0);
+    newUsage.campaign_generations = (newUsage.campaign_generations || 0) + (usage.campaignGenerations || 0);
+    newUsage.script_generations = (newUsage.script_generations || 0) + (usage.scriptGenerations || 0);
+    newUsage.ai_debate_runs = (newUsage.ai_debate_runs || 0) + (usage.aiDebateRuns || 0);
+    
+    // Upsert the usage record
+    const { error: upsertError } = await supabase
+      .from('api_usage')
+      .upsert(newUsage);
+    
+    if (upsertError) {
+      logStep("Error updating API usage", upsertError);
+    }
+  } catch (error) {
+    logStep("Error recording API usage", error);
+  }
+}
+
+// AI content generation functions
+async function generateStrategies(industry: string, riskAppetite: string, companyName: string, companyDetails: any) {
+  // In a production environment, this would use an actual OpenAI API call
+  // This is a mock implementation for demonstration
+  const strategies = [
+    {
+      title: `${industry} Growth Strategy: Market Expansion`,
+      description: `A comprehensive strategy to expand ${companyName}'s market share in the ${industry} sector, focusing on geographic expansion and customer acquisition.`,
+      executive: "Elon Musk",
+      riskLevel: riskAppetite === "high" ? "high" : "medium",
+      implementationSteps: ["Market research", "Identify target regions", "Develop expansion plan", "Execute marketing campaign", "Measure results"],
+      estimatedCost: "$5,000 - $15,000",
+      estimatedTime: "3-6 months",
+      requiredResources: ["Marketing team", "Market research tools", "Budget for campaign", "Sales representatives"],
+      expectedOutcome: "20-30% increase in customer base within target regions",
+      potentialRisks: ["Market saturation", "Competitive response", "Higher than expected costs"]
+    },
+    {
+      title: `Operational Efficiency Improvement for ${companyName}`,
+      description: `A strategy to optimize internal processes and reduce operational costs while maintaining or improving service quality.`,
+      executive: "Warren Buffett",
+      riskLevel: "low",
+      implementationSteps: ["Process audit", "Identify inefficiencies", "Develop improvement plan", "Implement changes", "Measure results"],
+      estimatedCost: "$2,000 - $5,000",
+      estimatedTime: "2-4 months",
+      requiredResources: ["Operations team", "Process documentation", "Potential software tools", "Training resources"],
+      expectedOutcome: "15-25% reduction in operational costs",
+      potentialRisks: ["Employee resistance", "Initial productivity dip", "Process disruption"]
+    },
+    {
+      title: riskAppetite === "high" ? "Disruptive Innovation Initiative" : "Incremental Product Improvement",
+      description: riskAppetite === "high" 
+        ? `A bold strategy to create disruptive innovation in the ${industry} sector, positioning ${companyName} as a thought leader.`
+        : `A measured approach to improving existing products/services based on customer feedback and market trends.`,
+      executive: riskAppetite === "high" ? "Elon Musk" : "Warren Buffett",
+      riskLevel: riskAppetite,
+      implementationSteps: riskAppetite === "high" 
+        ? ["Innovation workshop", "Identify disruption opportunities", "Prototype development", "Market testing", "Full launch"]
+        : ["Customer feedback analysis", "Identify improvement areas", "Develop enhancements", "Test improvements", "Roll out changes"],
+      estimatedCost: riskAppetite === "high" ? "$15,000 - $50,000" : "$5,000 - $10,000",
+      estimatedTime: riskAppetite === "high" ? "6-12 months" : "2-4 months",
+      requiredResources: ["R&D team", "Development resources", "Market testing group", "Marketing materials"],
+      expectedOutcome: riskAppetite === "high" 
+        ? "Potential for 50-100% growth in new market segments"
+        : "10-20% improvement in customer satisfaction and retention",
+      potentialRisks: riskAppetite === "high" 
+        ? ["High failure rate", "Significant investment risk", "Market rejection"]
+        : ["Limited impact", "Competitor matching", "Implementation challenges"]
+    }
+  ];
+  
+  return strategies;
+}
+
+async function generateCampaigns(industry: string, companyName: string, companyDetails: any) {
+  // Mock implementation
+  const campaigns = [
+    {
+      name: `${industry} Awareness Campaign`,
+      description: `A targeted social media campaign to increase brand awareness for ${companyName} in the ${industry} sector.`,
+      executive: "Antonio Lucio",
+      platform: "Social Media",
+      targetAudience: "Industry professionals and decision-makers",
+      budget: 2500,
+      duration: "30 days",
+      expectedOutcome: "25-30% increase in brand recognition, 15% increase in website traffic"
+    },
+    {
+      name: "Lead Generation Webinar Series",
+      description: `A series of educational webinars positioning ${companyName} as an authority in ${industry} while generating qualified leads.`,
+      executive: "Antonio Lucio",
+      platform: "Webinar",
+      targetAudience: "Potential customers and industry stakeholders",
+      budget: 1500,
+      duration: "3 months (one webinar per month)",
+      expectedOutcome: "100-150 new leads, 10-15 direct sales opportunities"
+    },
+    {
+      name: "Customer Success Story Campaign",
+      description: `Highlighting real success stories from ${companyName}'s customers to build credibility and showcase results.`,
+      executive: "Antonio Lucio",
+      platform: "Multi-channel",
+      targetAudience: "Prospective customers similar to featured case studies",
+      budget: 2000,
+      duration: "45 days",
+      expectedOutcome: "20% increase in conversion rate for similar prospects"
+    }
+  ];
+  
+  return campaigns;
+}
+
+async function generateCallScripts(industry: string, companyName: string, companyDetails: any) {
+  // Mock implementation
+  const scripts = [
+    {
+      title: "Initial Prospect Outreach Script",
+      scriptText: `Hello [Prospect Name], this is [Your Name] from ${companyName}. We help companies in the ${industry} sector [brief value proposition]. Many of our clients have been facing challenges with [common industry pain point]. Is that something your team has experienced as well?\n\n[Wait for response]\n\nI'd love to share how we've helped similar organizations overcome these challenges. Would you be open to a brief 15-minute call next week to discuss how we might be able to help?\n\n[Schedule call or handle objection]`,
+      executive: "Mike Weinberg",
+      targetAudience: "Cold prospects in target market",
+      purpose: "Initial outreach to schedule discovery call",
+      estimatedDuration: "2-3 minutes",
+      keyPoints: ["Establish connection to industry", "Reference common pain point", "Request brief follow-up call", "Be respectful of time"],
+      objectionHandling: {
+        "No time": "I completely understand. When would be a better time for us to connect? I promise to be brief and focused on value.",
+        "Not interested": "I appreciate your candor. May I ask what solutions you're currently using for [pain point]?",
+        "Already have a solution": "That's great to hear. Many of our current clients came to us when looking to optimize their existing solution. What aspects of your current setup work well for you?"
+      }
+    },
+    {
+      title: "Follow-up Call After Website Visit",
+      scriptText: `Hello [Prospect Name], this is [Your Name] from ${companyName}. I noticed you recently visited our website and checked out our [specific solution] page. I thought I'd reach out to see if you had any questions I could answer about how we help companies in the ${industry} space.\n\n[Wait for response]\n\nCould you share a bit about what challenges you're looking to solve? This would help me understand if and how we might be able to assist.\n\n[Based on response, share relevant case study or specific benefits]`,
+      executive: "Trish Bertuzzi",
+      targetAudience: "Warm leads who visited website",
+      purpose: "Convert website visitor to sales conversation",
+      estimatedDuration: "5-7 minutes",
+      keyPoints: ["Reference website visit", "Ask open-ended questions", "Listen more than talk", "Provide relevant proof points"],
+      objectionHandling: {
+        "Just researching": "Research is an important step. Which specific aspects of [solution] are you most interested in learning about?",
+        "Too expensive": "I understand budget is a consideration. Many of our clients found that while the initial investment seemed significant, the ROI was achieved within [timeframe]. Would it be valuable to walk through a typical ROI calculation for a company like yours?"
+      }
+    }
+  ];
+  
+  return scripts;
+}
+
+async function generateAIDebate(industry: string, riskAppetite: string, companyName: string, companyDetails: any) {
+  // Mock implementation
+  const debate = {
+    title: `Strategic Direction Debate: Growth Strategies for ${companyName}`,
+    context: `This debate explores the best strategic approaches for ${companyName}, a ${companyDetails.size} company in the ${industry} industry with a ${riskAppetite} risk appetite.`,
+    participants: [
+      { name: "Elon Musk", role: "Innovation Advocate", perspective: "Disruptive innovation and bold moves" },
+      { name: "Warren Buffett", role: "Financial Strategist", perspective: "Sustainable growth and capital preservation" },
+      { name: "Antonio Lucio", role: "Marketing Expert", perspective: "Brand-building and market perception" }
     ],
-    medium: [
-      { name: "Sheryl Sandberg", role: "COO & Growth Strategy" },
-      { name: "Jeff Bezos", role: "Business Expansion" },
-      { name: "Trish Bertuzzi", role: "Sales Innovation" },
-      { name: "Brian Chesky", role: "Customer Experience" }
+    transcript: [
+      {
+        speaker: "Elon Musk",
+        text: `${companyName} has an opportunity to disrupt the ${industry} market completely. I recommend investing heavily in cutting-edge technology and taking bold risks to establish a dominant position. The companies that make big bets will own the future.`
+      },
+      {
+        speaker: "Warren Buffett",
+        text: `I disagree with that approach. ${companyName} should focus on sustainable growth through capital efficiency and excellent execution. Build a moat around your core business first. Risk management is essential, especially considering the company's current size and resources.`
+      },
+      {
+        speaker: "Antonio Lucio",
+        text: `Both perspectives have merit, but we also need to consider brand positioning. ${companyName} should identify where it can authentically stand out in the ${industry} and build a compelling brand narrative around that. Marketing isn't just promotion; it's about finding the unique value proposition.`
+      },
+      {
+        speaker: "Warren Buffett",
+        text: `I agree that differentiation is important, but it should be built on a foundation of financial discipline. Too many companies chase growth at the expense of profitability and end up in trouble. ${companyName} should invest in opportunities with clear return metrics.`
+      },
+      {
+        speaker: "Elon Musk",
+        text: `The problem with overly cautious approaches is that they leave you vulnerable to disruption. In today's ${industry} landscape, if you're not moving forward aggressively, you're moving backward. ${companyName} needs to be willing to cannibalize its own business before someone else does.`
+      },
+      {
+        speaker: "Antonio Lucio",
+        text: `What if we strike a balance? ${companyName} could allocate 70% of resources to strengthening and growing the core business with Warren's disciplined approach, 20% to adjacent opportunities with moderate risk, and 10% to the truly disruptive "moonshots" that Elon advocates.`
+      }
     ],
-    high: [
-      { name: "Elon Musk", role: "Chief Innovation Officer" },
-      { name: "Steve Jobs", role: "Product Visionary" },
-      { name: "Mike Weinberg", role: "Sales Strategy" },
-      { name: "Gary Vaynerchuk", role: "Marketing Disruption" }
-    ]
+    conclusion: `After a spirited debate, the executives agreed that ${companyName} should adopt a portfolio approach to growth strategies, with the specific allocation of resources dependent on the company's risk appetite. For a company with ${riskAppetite} risk appetite, the recommendation leans toward ${riskAppetite === 'high' ? 'more aggressive innovation and market disruption' : riskAppetite === 'medium' ? 'a balanced approach with calculated risks' : 'a more conservative strategy with emphasis on sustainable growth'}.`,
+    recommendation: riskAppetite === 'high' 
+      ? `Invest heavily in innovation and market disruption while maintaining financial discipline; pursue opportunities to redefine the ${industry} space.` 
+      : riskAppetite === 'medium' 
+        ? `Balance growth initiatives with risk management; allocate resources across a portfolio of opportunities with varying risk-reward profiles.` 
+        : `Focus on optimizing core operations and making incremental improvements; prioritize capital efficiency and sustainable growth over rapid expansion.`
   };
-
-  // Default to medium if risk appetite is not recognized
-  return executives[riskLevel as keyof typeof executives] || executives.medium;
-}
-
-// Generate business strategies using OpenAI
-async function generateStrategies(
-  apiKey: string,
-  companyName: string,
-  industry: string,
-  riskLevel: string,
-  executives: Array<{ name: string; role: string; }>,
-  companyDetails: any
-): Promise<any[]> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a strategic business AI advisor. Create 3-5 business growth strategies for ${companyName}, a company in the ${industry} industry with a ${riskLevel} risk appetite. Each strategy should:
-            1. Have a unique name and description
-            2. Be attributed to a specific executive from this team: ${JSON.stringify(executives)}
-            3. Include focus areas, key actions, estimated ROI, and implementation timeline
-            4. Match the executive's personality and expertise
-            
-            Strategies should be practical, actionable, and tailored to the company and industry.`
-        },
-        {
-          role: "user",
-          content: `Generate 3-5 business growth strategies for ${companyName} in the ${industry} industry. Company details: ${JSON.stringify(companyDetails)}`
-        }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7
-    })
-  });
-
-  const data = await response.json();
   
-  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-    console.error("Unexpected response from OpenAI API:", data);
-    return [];
-  }
-  
-  try {
-    // Extract strategies from the response
-    const content = data.choices[0].message.content;
-    
-    // Try to parse JSON directly if the response is already JSON-formatted
-    if (content.trim().startsWith('[') && content.trim().endsWith(']')) {
-      try {
-        return JSON.parse(content);
-      } catch (e) {
-        console.log("Failed to parse direct JSON, trying to extract JSON from text");
-      }
-    }
-    
-    // Otherwise, try to extract the JSON from the text
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (jsonMatch && jsonMatch[0]) {
-      try {
-        return JSON.parse(jsonMatch[0]);
-      } catch (e) {
-        console.error("Failed to parse extracted JSON:", e);
-      }
-    }
-    
-    // If we couldn't parse JSON, create a structured response manually
-    // This is a fallback method that parses text-based strategies
-    const strategies = [];
-    const strategyBlocks = content.split(/Strategy \d+:/);
-    
-    for (let i = 1; i < strategyBlocks.length; i++) {
-      const block = strategyBlocks[i].trim();
-      
-      // Extract title
-      const titleMatch = block.match(/^([^\n]+)/);
-      const title = titleMatch ? titleMatch[1].trim() : `Strategy ${i}`;
-      
-      // Extract executive
-      const executiveMatch = block.match(/proposed by ([^:\.]+)/i) || 
-                            block.match(/([A-Za-z]+ [A-Za-z]+)'s strategy/i) ||
-                            block.match(/([A-Za-z]+ [A-Za-z]+) recommends/i);
-      const proposedBy = executiveMatch ? executiveMatch[1].trim() : executives[i % executives.length].name;
-      
-      // Extract description
-      const descMatch = block.match(/description:([^\n]+)/i) || 
-                        block.match(/^(?!.*proposed by)([^\n]+)/i);
-      const description = descMatch ? descMatch[1].trim() : block.split('\n')[1];
-      
-      // Extract focus areas
-      const focusMatch = block.match(/focus areas?:([^\n]+)/i);
-      const focusAreas = focusMatch ? 
-        focusMatch[1].split(',').map((area: string) => area.trim()) : 
-        ["Growth", "Efficiency"];
-      
-      // Extract key actions
-      const actionsMatch = block.match(/key actions?:([^]*?)(?:estimated roi|implementation timeline|$)/i);
-      const keyActions = actionsMatch ? 
-        actionsMatch[1].split(/\n\s*\-/).filter(Boolean).map((action: string) => action.trim()) : 
-        ["Action 1", "Action 2"];
-      
-      // Extract ROI
-      const roiMatch = block.match(/estimated roi:([^\n]+)/i);
-      const estimatedROI = roiMatch ? roiMatch[1].trim() : "20-30% within 12 months";
-      
-      // Extract timeline
-      const timelineMatch = block.match(/implementation timeline:([^\n]+)/i);
-      const implementationTimeline = timelineMatch ? timelineMatch[1].trim() : "3-6 months";
-      
-      strategies.push({
-        title,
-        description,
-        riskLevel: riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1),
-        proposedBy,
-        focusAreas,
-        keyActions,
-        estimatedROI,
-        implementationTimeline
-      });
-    }
-    
-    return strategies.length > 0 ? strategies : [];
-  } catch (error) {
-    console.error("Error parsing strategies from OpenAI response:", error);
-    return [];
-  }
-}
-
-// Generate marketing campaigns using OpenAI
-async function generateCampaigns(
-  apiKey: string,
-  companyName: string,
-  industry: string,
-  riskLevel: string,
-  executives: Array<{ name: string; role: string; }>,
-  companyDetails: any
-): Promise<any[]> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a marketing campaign AI advisor. Create 3-5 WhatsApp marketing campaigns for ${companyName}, a company in the ${industry} industry. Each campaign should:
-            1. Have a unique name and description
-            2. Be attributed to a specific executive from this team: ${JSON.stringify(executives)}
-            3. Include campaign type, target audience, and communication channel
-            4. Include 3-5 sample WhatsApp messages for the campaign
-            
-            Campaigns should be practical, comply with WhatsApp Business guidelines, and tailored to the company and industry.`
-        },
-        {
-          role: "user",
-          content: `Generate 3-5 WhatsApp marketing campaigns for ${companyName} in the ${industry} industry. Company details: ${JSON.stringify(companyDetails)}`
-        }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7
-    })
-  });
-
-  const data = await response.json();
-  
-  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-    console.error("Unexpected response from OpenAI API:", data);
-    return [];
-  }
-  
-  try {
-    // Extract campaigns from the response
-    const content = data.choices[0].message.content;
-    
-    // Try to parse JSON directly if the response is already JSON-formatted
-    if (content.trim().startsWith('[') && content.trim().endsWith(']')) {
-      try {
-        return JSON.parse(content);
-      } catch (e) {
-        console.log("Failed to parse direct JSON, trying to extract JSON from text");
-      }
-    }
-    
-    // Otherwise, try to extract the JSON from the text
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (jsonMatch && jsonMatch[0]) {
-      try {
-        return JSON.parse(jsonMatch[0]);
-      } catch (e) {
-        console.error("Failed to parse extracted JSON:", e);
-      }
-    }
-    
-    // If we couldn't parse JSON, create a structured response manually
-    // This is a fallback method that parses text-based campaigns
-    const campaigns = [];
-    const campaignBlocks = content.split(/Campaign \d+:|WhatsApp Campaign \d+:/);
-    
-    for (let i = 1; i < campaignBlocks.length; i++) {
-      const block = campaignBlocks[i].trim();
-      
-      // Extract name
-      const nameMatch = block.match(/name:([^\n]+)/i) || block.match(/^([^\n]+)/);
-      const name = nameMatch ? nameMatch[1].trim() : `Campaign ${i}`;
-      
-      // Extract executive
-      const executiveMatch = block.match(/proposed by ([^:\.]+)/i) || 
-                            block.match(/([A-Za-z]+ [A-Za-z]+)'s campaign/i) ||
-                            block.match(/([A-Za-z]+ [A-Za-z]+) recommends/i);
-      const proposedBy = executiveMatch ? executiveMatch[1].trim() : executives[i % executives.length].name;
-      
-      // Extract description
-      const descMatch = block.match(/description:([^\n]+)/i);
-      const description = descMatch ? descMatch[1].trim() : "";
-      
-      // Extract type
-      const typeMatch = block.match(/type:([^\n]+)/i) || 
-                        block.match(/campaign type:([^\n]+)/i);
-      const type = typeMatch ? typeMatch[1].trim() : "Promotional";
-      
-      // Extract target audience
-      const audienceMatch = block.match(/target audience:([^\n]+)/i);
-      const targetAudience = audienceMatch ? audienceMatch[1].trim() : "All customers";
-      
-      // Extract channel
-      const channel = "WhatsApp";
-      
-      // Extract messages
-      const messagesMatch = block.match(/sample messages?:([^]*?)(?:campaign \d+:|$)/i) ||
-                           block.match(/messages?:([^]*?)(?:campaign \d+:|$)/i);
-      let messages = [];
-      
-      if (messagesMatch) {
-        messages = messagesMatch[1]
-          .split(/\n\s*\d+\.\s|\n\s*\-\s/)
-          .filter(Boolean)
-          .map((msg: string) => msg.trim())
-          .filter((msg: string) => msg.length > 10);
-      } else {
-        // Try to extract numbered messages
-        const msgRegex = /\d+\.\s+"([^"]+)"/g;
-        let match;
-        while ((match = msgRegex.exec(block)) !== null) {
-          messages.push(match[1].trim());
-        }
-      }
-      
-      // If we still don't have messages, try to extract anything that looks like a message
-      if (messages.length === 0) {
-        const msgQuotes = block.match(/"([^"]+)"/g);
-        if (msgQuotes) {
-          messages = msgQuotes.map((quote: string) => quote.replace(/"/g, '').trim());
-        }
-      }
-      
-      // Ensure we have at least one message
-      if (messages.length === 0) {
-        messages = [`Hello from ${companyName}! We have exciting news to share.`];
-      }
-      
-      campaigns.push({
-        name,
-        description,
-        type,
-        targetAudience,
-        channel,
-        proposedBy,
-        messages
-      });
-    }
-    
-    return campaigns.length > 0 ? campaigns : [];
-  } catch (error) {
-    console.error("Error parsing campaigns from OpenAI response:", error);
-    return [];
-  }
-}
-
-// Generate AI boardroom debate using OpenAI
-async function generateBoardroomDebate(
-  apiKey: string,
-  companyName: string,
-  industry: string,
-  strategies: any[],
-  executives: Array<{ name: string; role: string; }>,
-  companyDetails: any
-): Promise<any> {
-  // Prepare strategy titles for the prompt
-  const strategyTitles = strategies.map(s => s.title).join(", ");
-  
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a business debate simulator. Create a realistic boardroom debate between these executives: ${JSON.stringify(executives)} discussing growth strategies for ${companyName}, a company in the ${industry} industry. 
-          
-          The debate should:
-          1. Focus on the strategies: ${strategyTitles}
-          2. Show each executive's perspective based on their real-world expertise and personality
-          3. Include points of agreement, disagreement, and final consensus
-          4. Be structured as a JSON object with: topic, summary, executives array, discussion array (with speaker and message), and conclusion
-          
-          Make it realistic, insightful, and reflect how these executives would actually debate in real life.`
-        },
-        {
-          role: "user",
-          content: `Generate a boardroom debate between the executives about growth strategies for ${companyName}. Company details: ${JSON.stringify(companyDetails)}`
-        }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7
-    })
-  });
-
-  const data = await response.json();
-  
-  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-    console.error("Unexpected response from OpenAI API:", data);
-    return null;
-  }
-  
-  try {
-    // Extract debate from the response
-    const content = data.choices[0].message.content;
-    
-    // Try to parse JSON directly if the response is already JSON-formatted
-    if (content.trim().startsWith('{') && content.trim().endsWith('}')) {
-      try {
-        return JSON.parse(content);
-      } catch (e) {
-        console.log("Failed to parse direct JSON, trying to extract JSON from text");
-      }
-    }
-    
-    // Otherwise, try to extract the JSON from the text
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (jsonMatch && jsonMatch[0]) {
-      try {
-        return JSON.parse(jsonMatch[0]);
-      } catch (e) {
-        console.error("Failed to parse extracted JSON:", e);
-      }
-    }
-    
-    // If we couldn't parse JSON, create a structured response manually
-    console.error("Could not parse debate as JSON, returning null");
-    return null;
-  } catch (error) {
-    console.error("Error parsing debate from OpenAI response:", error);
-    return null;
-  }
+  return debate;
 }

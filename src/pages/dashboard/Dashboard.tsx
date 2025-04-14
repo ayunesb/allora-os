@@ -52,7 +52,7 @@ export default function Dashboard() {
       toast.info("Processing approval...");
       // Use proper type safety when accessing recommendations
       if (aiRecommendations && aiRecommendations[index]) {
-        await handleApproveRecommendation(index, "approval");
+        await handleApproveRecommendation(aiRecommendations[index].id, "approval");
         toast.success("Recommendation approved successfully", {
           description: "The approved recommendation will be implemented shortly"
         });
