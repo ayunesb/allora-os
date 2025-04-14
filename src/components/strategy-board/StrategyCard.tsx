@@ -15,7 +15,7 @@ interface StrategyCardProps {
 
 export default function StrategyCard({ strategy, onDebate, onExport, onClick }: StrategyCardProps) {
   // Determine the risk level from any of the possible properties
-  const riskLevel = strategy.risk || strategy.riskLevel || strategy.risk_level || "Medium";
+  const riskLevel = strategy.risk || strategy.risk_level || "Medium";
   
   // Create a mapping of risk levels to badge variants
   const riskBadgeVariant = {

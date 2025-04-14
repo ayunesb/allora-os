@@ -1,9 +1,8 @@
 
-import { useState } from "react";
-import StrategyBoard from "@/components/strategy-board/StrategyBoard";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
 import { HelpButton } from "@/components/help/HelpButton";
+import StrategyBoard from "@/components/strategy-board/StrategyBoard";
 
 export default function Strategies() {
   const breakpoint = useBreakpoint();

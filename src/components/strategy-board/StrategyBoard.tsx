@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useStrategies } from "./useStrategies";
+import { useStrategies } from "@/hooks/useStrategies";
 import { Strategy } from "@/models/strategy";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter, Search, RefreshCw, ArrowDownWideNarrow } from "lucide-react";
@@ -44,10 +44,11 @@ export default function StrategyBoard() {
     // Apply risk filter
     if (riskFilter !== "all") {
       filtered = filtered.filter(
-        (strategy) => 
-          (strategy.risk?.toLowerCase() === riskFilter.toLowerCase()) ||
-          (strategy.riskLevel?.toLowerCase() === riskFilter.toLowerCase()) ||
-          (strategy.risk_level?.toLowerCase() === riskFilter.toLowerCase())
+        (strategy) => {
+          // Get risk level from any of the available properties
+          const riskValue = strategy.risk || strategy.risk_level || "Medium";
+          return riskValue.toLowerCase() === riskFilter.toLowerCase();
+        }
       );
     }
     
@@ -58,13 +59,13 @@ export default function StrategyBoard() {
       } else if (sortOrder === "oldest") {
         return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       } else if (sortOrder === "riskHigh") {
-        const riskA = a.risk || a.riskLevel || a.risk_level || "Medium";
-        const riskB = b.risk || b.riskLevel || b.risk_level || "Medium";
+        const riskA = a.risk || a.risk_level || "Medium";
+        const riskB = b.risk || b.risk_level || "Medium";
         const riskOrder = { High: 3, Medium: 2, Low: 1 };
         return riskOrder[riskB as keyof typeof riskOrder] - riskOrder[riskA as keyof typeof riskOrder];
       } else if (sortOrder === "riskLow") {
-        const riskA = a.risk || a.riskLevel || a.risk_level || "Medium";
-        const riskB = b.risk || b.riskLevel || b.risk_level || "Medium";
+        const riskA = a.risk || a.risk_level || "Medium";
+        const riskB = b.risk || b.risk_level || "Medium";
         const riskOrder = { High: 3, Medium: 2, Low: 1 };
         return riskOrder[riskA as keyof typeof riskOrder] - riskOrder[riskB as keyof typeof riskOrder];
       }
@@ -188,7 +189,7 @@ export default function StrategyBoard() {
         </div>
       ) : (
         <StrategyGrid 
-          strategies={filteredAndSortedStrategies} 
+          strategies={filteredAndSortedStrategies as Strategy[]} 
           onDebate={handleDebate}
           onExport={handleExport}
           onViewStrategy={handleViewStrategy}
@@ -210,7 +211,7 @@ export default function StrategyBoard() {
                 <div>
                   <h4 className="font-medium text-sm">Risk Level</h4>
                   <p className="text-muted-foreground mt-1">
-                    {selectedStrategy.risk || selectedStrategy.riskLevel || selectedStrategy.risk_level || "Medium"}
+                    {selectedStrategy.risk || selectedStrategy.risk_level || "Medium"}
                   </p>
                 </div>
                 {selectedStrategy.timeframe && (

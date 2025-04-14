@@ -3,18 +3,7 @@ import { useState, useEffect, useTransition } from "react";
 import { useCompanyInsights } from "@/hooks/useCompanyInsights";
 import { InsightType } from "@/components/bot-insights/BotInsightCard";
 import { useAuth } from "@/context/AuthContext";
-
-export interface Strategy {
-  id: string;
-  title: string;
-  description: string;
-  risk: string;
-  risk_level?: string;
-  created_at: string;
-  aiGenerated?: boolean;
-  primaryBot?: any;
-  collaborators?: any[];
-}
+import { Strategy } from "@/models/strategy";
 
 export function useStrategies() {
   const [isPending, startTransition] = useTransition();
@@ -25,6 +14,7 @@ export function useStrategies() {
       description: "Analyze emerging markets and expand operations to increase geographical footprint and customer base.",
       risk: "Medium",
       risk_level: "Medium",
+      company_id: "demo-company-id",
       created_at: new Date().toISOString()
     },
     { 
@@ -33,6 +23,7 @@ export function useStrategies() {
       description: "Implement AI-driven automation in workflows to increase efficiency and reduce operational costs.",
       risk: "Low",
       risk_level: "Low",
+      company_id: "demo-company-id",
       created_at: new Date().toISOString()
     },
     { 
@@ -41,6 +32,7 @@ export function useStrategies() {
       description: "Develop revolutionary product to disrupt industry standards and gain competitive advantage.",
       risk: "High",
       risk_level: "High",
+      company_id: "demo-company-id",
       created_at: new Date().toISOString()
     },
     { 
@@ -49,6 +41,7 @@ export function useStrategies() {
       description: "Overhaul legacy systems and processes with digital technologies to improve customer experience.",
       risk: "Medium",
       risk_level: "Medium",
+      company_id: "demo-company-id",
       created_at: new Date().toISOString()
     },
     { 
@@ -57,6 +50,7 @@ export function useStrategies() {
       description: "Form alliances with complementary businesses to expand offerings and reach new customer segments.",
       risk: "Low",
       risk_level: "Low",
+      company_id: "demo-company-id",
       created_at: new Date().toISOString()
     },
     { 
@@ -65,6 +59,7 @@ export function useStrategies() {
       description: "Secure Series B funding to accelerate growth initiatives and expand team capacity.",
       risk: "High",
       risk_level: "High",
+      company_id: "demo-company-id",
       created_at: new Date().toISOString()
     }
   ]);
@@ -93,7 +88,7 @@ export function useStrategies() {
         const strategyInsights = insights.filter(insight => insight.type === "strategy" as InsightType);
         
         // Convert insights to strategy format
-        const aiGeneratedStrategies = strategyInsights.map(insight => {
+        const aiGeneratedStrategies: Strategy[] = strategyInsights.map(insight => {
           let riskLevel = "Medium";
           
           // Extract risk level from description if possible
@@ -109,10 +104,9 @@ export function useStrategies() {
             description: insight.description,
             risk: riskLevel,
             risk_level: riskLevel,
+            company_id: profile.company_id || "demo-company-id",
             created_at: insight.createdAt.toISOString(),
-            aiGenerated: true,
-            primaryBot: insight.primaryBot,
-            collaborators: insight.collaborators
+            executiveBot: insight.primaryBot,
           };
         });
         
@@ -121,7 +115,14 @@ export function useStrategies() {
           setStrategies(prev => {
             const existingIds = new Set(prev.map(s => s.id));
             const newAiStrategies = aiGeneratedStrategies.filter(s => !existingIds.has(s.id));
-            return [...newAiStrategies, ...prev];
+            
+            // Set company_id for all strategies
+            const updatedPrevStrategies = prev.map(s => ({
+              ...s,
+              company_id: s.company_id || profile.company_id || "demo-company-id"
+            }));
+            
+            return [...newAiStrategies, ...updatedPrevStrategies];
           });
         });
       } catch (err: any) {
