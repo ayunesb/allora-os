@@ -1,15 +1,13 @@
 
-export type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
-
 export interface AuditComponentProps {
-  status: CategoryStatus;
-  onStatusChange: (status: CategoryStatus) => void;
+  status: string;
+  onStatusChange: (status: string) => void;
 }
 
 export interface AuditCheckItem {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'passed' | 'failed' | 'in-progress';
+  status: 'pending' | 'in-progress' | 'passed' | 'failed';
   required: boolean;
 }
