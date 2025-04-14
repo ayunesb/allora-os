@@ -28,7 +28,8 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
           icon: <TrendingDown className="h-5 w-5 text-blue-500" />,
           cardClass: "border-blue-200 bg-blue-50 dark:bg-blue-950/20",
           titleClass: "text-blue-900 dark:text-blue-100",
-          textClass: "text-blue-800 dark:text-blue-200"
+          textClass: "text-blue-800 dark:text-blue-200",
+          buttonClass: "text-white bg-blue-600 hover:bg-blue-700"
         };
       case 'high':
         return {
@@ -37,7 +38,8 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
           icon: <TrendingUp className="h-5 w-5 text-red-500" />,
           cardClass: "border-red-200 bg-red-50 dark:bg-red-950/20",
           titleClass: "text-red-900 dark:text-red-100",
-          textClass: "text-red-800 dark:text-red-200"
+          textClass: "text-red-800 dark:text-red-200",
+          buttonClass: "text-white bg-red-600 hover:bg-red-700"
         };
       case 'medium':
       default:
@@ -47,7 +49,8 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
           icon: <Lightbulb className="h-5 w-5 text-amber-500" />,
           cardClass: "border-amber-200 bg-amber-50 dark:bg-amber-950/20",
           titleClass: "text-amber-900 dark:text-amber-100",
-          textClass: "text-amber-800 dark:text-amber-200"
+          textClass: "text-amber-800 dark:text-amber-200",
+          buttonClass: "text-white bg-amber-600 hover:bg-amber-700"
         };
     }
   };
@@ -74,7 +77,7 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
         <Button 
           variant="ghost" 
           size="sm" 
-          className="ml-auto flex items-center gap-1"
+          className={`ml-auto flex items-center gap-1 ${content.buttonClass}`}
           onClick={() => navigate("/dashboard/strategy")}
         >
           View Full Strategy
