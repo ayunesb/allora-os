@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from '@/context/AuthContext';
-import { fetchRecentMemories, ExecutiveMemory } from '@/services/memoryService';
+import { type ExecutiveMemory, fetchRecentMemories } from '@/services/memoryService';
 import { formatDistanceToNow } from 'date-fns';
 import { Scroll, Brain } from 'lucide-react';
 
@@ -99,3 +99,5 @@ export function ExecutiveMemory({ executiveName }: { executiveName?: string }) {
     </Card>
   );
 }
+
+export default ExecutiveMemory;
