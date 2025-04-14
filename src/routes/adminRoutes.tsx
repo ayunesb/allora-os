@@ -1,12 +1,12 @@
 
 import { RouteObject } from "react-router-dom";
-import AdminLayout from "@/components/AdminLayout"; // Updated path
-import Dashboard from "@/pages/admin/AdminDashboard"; // Updated import
+import AdminLayout from "@/components/AdminLayout";
+import Dashboard from "@/pages/admin/AdminDashboard";
 import UserManagement from "@/pages/admin/UserManagement";
 import CompanySettings from "@/pages/admin/CompanySettings";
-import APIKeys from "@/components/admin/APIKeysTab"; // Updated path
-import SystemSettings from "@/components/admin/settings/SecurityTab"; // Updated path
-import IntegrationsPage from "@/components/admin/webhooks/ZapierWebhookSection"; // Updated path
+import APIKeys from "@/components/admin/APIKeysTab";
+import { SecurityTab } from "@/components/admin/security";
+import { ZapierWebhookSection } from "@/components/admin/webhooks/ZapierWebhookSection";
 import WebhookManagement from "@/pages/admin/WebhookManagement";
 import WebhooksPage from "@/pages/admin/WebhooksPage";
 import LaunchPlan from "@/pages/admin/LaunchPlan";
@@ -30,15 +30,29 @@ export const adminRoutes: RouteObject = {
     },
     {
       path: "api-keys",
-      element: <APIKeys />,
+      element: <APIKeys 
+        companyId="" 
+        initialApiKeys={{
+          stripe: "",
+          twilio_sid: "",
+          twilio_token: "",
+          heygen: "",
+        }} 
+        isLoading={false} 
+      />,
     },
     {
       path: "system",
-      element: <SystemSettings />,
+      element: <SecurityTab />,
     },
     {
       path: "integrations",
-      element: <IntegrationsPage />,
+      element: <ZapierWebhookSection 
+        zapierWebhook=""
+        onZapierWebhookChange={() => {}}
+        onTestWebhook={() => {}}
+        isTestLoading={false}
+      />,
     },
     {
       path: "webhooks",
