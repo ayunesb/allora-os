@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, Outlet, Navigate, RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { adminRoutes } from "./admin-routes";
@@ -20,9 +19,8 @@ import SystemDiagnostics from "@/pages/SystemDiagnostics";
 import { logger } from "@/utils/loggingService";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
-// Lazy-load compliance routes
-// Fix: Import the default export from compliance-routes which is the array
-const LazyComplianceRoutes = lazy(() => import('./compliance-routes'));
+// Lazy-load the compliance routes wrapper component
+const ComplianceRoutesWrapper = lazy(() => import('./ComplianceRoutesWrapper'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -65,21 +63,18 @@ const createLazyRoutes = () => {
     ...marketingRoutes, 
     ...devRoutes,
     ...globalRoutes,
-  ];
-
-  // Add compliance routes with Suspense - using the default export directly
-  return [
-    ...routes,
+    // Add the compliance routes wrapper
     {
       path: "compliance/*",
       element: (
         <Suspense fallback={<LoadingFallback />}>
-          <LazyComplianceRoutes />
+          <ComplianceRoutesWrapper />
         </Suspense>
       )
-    },
-    // Admin routes can be lazy-loaded here as well if needed
+    }
   ];
+
+  return routes;
 };
 
 // Public static routes

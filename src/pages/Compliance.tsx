@@ -30,6 +30,6 @@ export default function Compliance() {
     }
   }, [navigate, pendingUpdates, scheduleComplianceCheck]);
 
-  // Redirect to the compliance overview page if we're on the direct /compliance route
+  // Redirect to the compliance overview page
   return <Navigate to="/compliance" replace />;
 }
