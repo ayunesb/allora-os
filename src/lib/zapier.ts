@@ -79,3 +79,81 @@ function getWebhookUrlForEvent(eventType: BusinessEventType): string | null {
   
   return WEBHOOK_URLS[eventType] || null;
 }
+
+// Interfaces for the webhook trigger functionality
+export interface WorkflowTriggerResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+}
+
+/**
+ * Hook for Zapier integrations
+ * Provides methods for triggering Zapier webhooks and business events
+ */
+export function useZapier() {
+  /**
+   * Trigger a Zapier workflow by sending a POST request to a webhook URL
+   */
+  const triggerWorkflow = async (
+    webhookUrl: string,
+    eventName: string,
+    payload: Record<string, any> = {},
+    entityId?: string,
+    entityType?: string
+  ): Promise<WorkflowTriggerResult> => {
+    if (!webhookUrl) {
+      return { success: false, message: 'No webhook URL provided' };
+    }
+    
+    try {
+      console.log(`Triggering Zapier webhook for "${eventName}" event:`, payload);
+      
+      // Add metadata to the payload
+      const enhancedPayload = {
+        event_name: eventName,
+        timestamp: new Date().toISOString(),
+        ...payload,
+      };
+      
+      // Add entity information if provided
+      if (entityId) enhancedPayload.entity_id = entityId;
+      if (entityType) enhancedPayload.entity_type = entityType;
+      
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(enhancedPayload),
+        mode: 'no-cors', // Required for cross-origin webhook calls
+      });
+      
+      // Since we're using no-cors, we won't get the status code
+      // We just assume it worked unless there's an exception
+      return { success: true };
+    } catch (error) {
+      console.error(`Error triggering Zapier webhook for "${eventName}":`, error);
+      return { 
+        success: false, 
+        error,
+        message: error.message || 'Failed to trigger webhook'
+      };
+    }
+  };
+  
+  /**
+   * Wrapper for the triggerBusinessEvent function to use within components
+   */
+  const triggerBusinessEventWithHook = async (
+    eventType: BusinessEventType,
+    payload: BusinessEventPayload
+  ): Promise<TriggerEventResult> => {
+    return triggerBusinessEvent(eventType, payload);
+  };
+  
+  return {
+    triggerWorkflow,
+    triggerBusinessEvent: triggerBusinessEventWithHook
+  };
+}
