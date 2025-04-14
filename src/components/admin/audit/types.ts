@@ -1,7 +1,9 @@
 
+export type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
+
 export interface AuditComponentProps {
-  status: string;
-  onStatusChange: (status: string) => void;
+  status: CategoryStatus;
+  onStatusChange: (status: CategoryStatus) => void;
 }
 
 export interface AuditCheckItem {

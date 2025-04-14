@@ -29,6 +29,7 @@ import { AuditAI } from '@/components/admin/audit/AuditAI';
 import { AuditLegal } from '@/components/admin/audit/AuditLegal';
 import { AuditIntegrations } from '@/components/admin/audit/AuditIntegrations';
 import { Helmet } from 'react-helmet-async';
+import { CategoryStatus } from './types';
 
 type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
 
@@ -65,7 +66,6 @@ export default function PreLaunchAudit() {
       [category]: status
     }));
     
-    // Check if all categories have passed
     const updatedStatuses = {
       ...categoryStatus,
       [category]: status
@@ -74,7 +74,6 @@ export default function PreLaunchAudit() {
     const allPassed = Object.values(updatedStatuses).every(status => status === 'passed');
     setIsLaunchReady(allPassed);
     
-    // Show toast notification
     if (status === 'passed') {
       toast.success(`${category.charAt(0).toUpperCase() + category.slice(1)} checks passed!`);
     } else if (status === 'failed') {
@@ -85,13 +84,10 @@ export default function PreLaunchAudit() {
   const runFullAudit = async () => {
     setIsRunningFullCheck(true);
     
-    // Immediately mark legal and integrations as passed for the fix
     updateCategoryStatus('legal', 'passed');
     updateCategoryStatus('integrations', 'passed');
     
-    // Simulate running other checks with delays to make it look realistic
     for (const category of Object.keys(categoryStatus) as Array<keyof CategoryState>) {
-      // Skip legal and integrations as we already updated them
       if (category === 'legal' || category === 'integrations') continue;
       
       setCategoryStatus(prev => ({
@@ -99,10 +95,8 @@ export default function PreLaunchAudit() {
         [category]: 'in-progress'
       }));
       
-      // Simulate an audit check taking time
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Random success/failure for demo purposes (90% success chance)
       const passed = Math.random() < 0.9;
       
       updateCategoryStatus(category, passed ? 'passed' : 'failed');
@@ -110,7 +104,6 @@ export default function PreLaunchAudit() {
     
     setIsRunningFullCheck(false);
     
-    // Check if all passed
     const allPassed = Object.values(categoryStatus).every(status => status === 'passed');
     setIsLaunchReady(allPassed);
     
@@ -188,7 +181,6 @@ export default function PreLaunchAudit() {
         </div>
       </div>
       
-      {/* Launch Ready Alert */}
       {isLaunchReady && (
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -227,7 +219,6 @@ export default function PreLaunchAudit() {
         </Alert>
       )}
       
-      {/* Categories Overview */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         <CategoryCard 
           title="Navigation & URLs" 
@@ -295,7 +286,6 @@ export default function PreLaunchAudit() {
         />
       </div>
       
-      {/* Detailed Checklist Tabs */}
       <Tabs defaultValue="navigation" className="w-full">
         <TabsList className="w-full flex-wrap h-auto">
           <TabsTrigger value="navigation" className="flex items-center gap-1">
@@ -315,19 +305,19 @@ export default function PreLaunchAudit() {
             <span>Performance</span>
           </TabsTrigger>
           <TabsTrigger value="ux" className="flex items-center gap-1">
-            <Palette className="h-4 w-4" />
+            <Palette className="h-4 w-5" />
             <span>UI/UX</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="flex items-center gap-1">
-            <Brain className="h-4 w-4" />
+            <Brain className="h-4 w-5" />
             <span>AI Bots</span>
           </TabsTrigger>
           <TabsTrigger value="legal" className="flex items-center gap-1">
-            <FileText className="h-4 w-4" />
+            <FileText className="h-4 w-5" />
             <span>Legal</span>
           </TabsTrigger>
           <TabsTrigger value="integrations" className="flex items-center gap-1">
-            <Settings className="h-4 w-4" />
+            <Settings className="h-4 w-5" />
             <span>Integrations</span>
           </TabsTrigger>
         </TabsList>
@@ -335,56 +325,56 @@ export default function PreLaunchAudit() {
         <TabsContent value="navigation" className="mt-6">
           <AuditNavigation 
             status={categoryStatus.navigation}
-            onStatusChange={(status) => updateCategoryStatus('navigation', status)}
+            onStatusChange={(status) => updateCategoryStatus('navigation', status as CategoryStatus)}
           />
         </TabsContent>
         
         <TabsContent value="functional" className="mt-6">
           <AuditFunctional
             status={categoryStatus.functional}
-            onStatusChange={(status) => updateCategoryStatus('functional', status)}
+            onStatusChange={(status) => updateCategoryStatus('functional', status as CategoryStatus)}
           />
         </TabsContent>
         
         <TabsContent value="security" className="mt-6">
           <AuditSecurity
             status={categoryStatus.security}
-            onStatusChange={(status) => updateCategoryStatus('security', status)}
+            onStatusChange={(status) => updateCategoryStatus('security', status as CategoryStatus)}
           />
         </TabsContent>
         
         <TabsContent value="performance" className="mt-6">
           <AuditPerformance
             status={categoryStatus.performance}
-            onStatusChange={(status) => updateCategoryStatus('performance', status)}
+            onStatusChange={(status) => updateCategoryStatus('performance', status as CategoryStatus)}
           />
         </TabsContent>
         
         <TabsContent value="ux" className="mt-6">
           <AuditUX
             status={categoryStatus.ux}
-            onStatusChange={(status) => updateCategoryStatus('ux', status)}
+            onStatusChange={(status) => updateCategoryStatus('ux', status as CategoryStatus)}
           />
         </TabsContent>
         
         <TabsContent value="ai" className="mt-6">
           <AuditAI
             status={categoryStatus.ai}
-            onStatusChange={(status) => updateCategoryStatus('ai', status)}
+            onStatusChange={(status) => updateCategoryStatus('ai', status as CategoryStatus)}
           />
         </TabsContent>
         
         <TabsContent value="legal" className="mt-6">
           <AuditLegal
             status={categoryStatus.legal}
-            onStatusChange={(status) => updateCategoryStatus('legal', status)}
+            onStatusChange={(status) => updateCategoryStatus('legal', status as CategoryStatus)}
           />
         </TabsContent>
         
         <TabsContent value="integrations" className="mt-6">
           <AuditIntegrations
             status={categoryStatus.integrations}
-            onStatusChange={(status) => updateCategoryStatus('integrations', status)}
+            onStatusChange={(status) => updateCategoryStatus('integrations', status as CategoryStatus)}
           />
         </TabsContent>
       </Tabs>

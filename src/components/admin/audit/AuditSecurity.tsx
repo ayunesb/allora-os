@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, AlertCircle, Loader2, Shield } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
-import { AuditComponentProps, AuditCheckItem } from './types';
+import { AuditComponentProps, AuditCheckItem, CategoryStatus } from './types';
 
 export function AuditSecurity({ status, onStatusChange }: AuditComponentProps) {
   const [isRunning, setIsRunning] = useState(false);
@@ -54,7 +55,7 @@ export function AuditSecurity({ status, onStatusChange }: AuditComponentProps) {
   ]);
 
   useEffect(() => {
-    onStatusChange('passed');
+    onStatusChange('passed' as CategoryStatus);
   }, [onStatusChange]);
 
   const runTest = async () => {
@@ -73,7 +74,7 @@ export function AuditSecurity({ status, onStatusChange }: AuditComponentProps) {
     }
     
     setIsRunning(false);
-    onStatusChange('passed');
+    onStatusChange('passed' as CategoryStatus);
     toast.success('Security Audit passed!');
   };
 
