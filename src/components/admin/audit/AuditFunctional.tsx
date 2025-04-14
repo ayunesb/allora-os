@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Loader2, Brain } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from 'sonner';
 import { AuditComponentProps, AuditCheckItem } from './types';
+import { generateCustomizedStrategy } from '@/utils/strategy/strategyGenerator';
 
 export function AuditFunctional({ status, onStatusChange }: AuditComponentProps) {
   const [isRunning, setIsRunning] = useState(false);
@@ -82,6 +83,41 @@ export function AuditFunctional({ status, onStatusChange }: AuditComponentProps)
     }
   ]);
 
+  // Test for AI Strategy Generation on mount
+  useEffect(() => {
+    checkAIStrategyGeneration();
+  }, []);
+
+  // Function to test AI Strategy Generation
+  const checkAIStrategyGeneration = async () => {
+    try {
+      // Test if the strategy generator utility works
+      const strategy = generateCustomizedStrategy(
+        { level: 'Medium', score: 65, breakdown: {} },
+        'SaaS',
+        'Small',
+        'Growth'
+      );
+
+      // If we get a valid strategy object with expected properties
+      if (
+        strategy && 
+        strategy.title && 
+        strategy.description && 
+        strategy.keyActions &&
+        strategy.keyActions.length > 0
+      ) {
+        // Update the AI Strategy Generation item to passed
+        setItems(prev => prev.map(item => 
+          item.id === 'func-4' ? { ...item, status: 'passed' } : item
+        ));
+      }
+    } catch (error) {
+      console.error('Error testing AI Strategy Generation:', error);
+      // Don't update the status here, will be checked during the full test run
+    }
+  };
+
   const runTest = async () => {
     setIsRunning(true);
     
@@ -98,7 +134,39 @@ export function AuditFunctional({ status, onStatusChange }: AuditComponentProps)
       // Simulate test running
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Set random result (90% pass rate for demo)
+      // Special test for AI Strategy Generation
+      if (items[i].id === 'func-4') {
+        try {
+          // Test if the strategy generator utility works
+          const strategy = generateCustomizedStrategy(
+            { level: 'Medium', score: 65, breakdown: {} },
+            'SaaS',
+            'Small',
+            'Growth'
+          );
+          
+          // If we get a valid strategy object with expected properties
+          const passed = 
+            strategy && 
+            strategy.title && 
+            strategy.description && 
+            strategy.keyActions &&
+            strategy.keyActions.length > 0;
+          
+          setItems(prev => prev.map((item, idx) => 
+            idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+          ));
+          continue;
+        } catch (error) {
+          console.error('Error testing AI Strategy Generation:', error);
+          setItems(prev => prev.map((item, idx) => 
+            idx === i ? { ...item, status: 'failed' } : item
+          ));
+          continue;
+        }
+      }
+      
+      // Set random result for other tests (90% pass rate for demo)
       const passed = Math.random() < 0.9;
       
       setItems(prev => prev.map((item, idx) => 
@@ -134,7 +202,10 @@ export function AuditFunctional({ status, onStatusChange }: AuditComponentProps)
     <Card>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle>Functional Testing: End-to-End</CardTitle>
+          <div className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary/80" />
+            <CardTitle>Functional Testing: End-to-End</CardTitle>
+          </div>
           <Button 
             onClick={runTest}
             disabled={isRunning}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import { performanceMonitor } from '@/utils/performance/performanceMonitor';
+import { generateCustomizedStrategy } from '@/utils/strategy/strategyGenerator';
 
 export default function RunAudit() {
   const navigate = useNavigate();
@@ -101,6 +102,31 @@ export default function RunAudit() {
           
           return primaryElements.length > 5 && fontElements.length > 10 && logoElements.length > 0;
         };
+
+        // Check for AI Strategy Generation
+        const checkAIStrategyGeneration = () => {
+          try {
+            // Test if the strategy generator utility works
+            const strategy = generateCustomizedStrategy(
+              { level: 'Medium', score: 65, breakdown: {} },
+              'SaaS',
+              'Small',
+              'Growth'
+            );
+            
+            // If we get a valid strategy object with expected properties
+            return (
+              strategy && 
+              strategy.title && 
+              strategy.description && 
+              strategy.keyActions &&
+              strategy.keyActions.length > 0
+            );
+          } catch (error) {
+            console.error('Error testing AI Strategy Generation:', error);
+            return false;
+          }
+        };
         
         // Simulate audit process with progress updates
         await new Promise(resolve => setTimeout(resolve, 800));
@@ -147,11 +173,18 @@ export default function RunAudit() {
         if (!internalLinks) {
           console.warn('Internal links check failed: Not enough internal navigation links found');
         }
+
+        // Check AI Strategy Generation
+        const aiStrategyValid = checkAIStrategyGeneration();
+        if (!aiStrategyValid) {
+          console.warn('AI Strategy Generation check failed: Strategy generator not working properly');
+        }
         
         await new Promise(resolve => setTimeout(resolve, 600));
         setProgress(100);
         
-        const allPassed = legalDocsValid && performanceValid && imagesOptimized && brandingConsistent && internalLinks;
+        const allPassed = legalDocsValid && performanceValid && imagesOptimized && 
+                         brandingConsistent && internalLinks && aiStrategyValid;
         
         if (allPassed) {
           toast.success('All audit checks passed successfully! 🎉', {
