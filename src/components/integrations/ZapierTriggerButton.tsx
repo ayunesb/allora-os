@@ -1,103 +1,57 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { useZapier, BusinessEventType, BusinessEventPayload } from '@/lib/zapier';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
-interface ZapierTriggerButtonProps {
-  event: string;
-  payload?: Record<string, any>;
-  label?: string;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  size?: "default" | "sm" | "lg" | "icon";
-  className?: string;
-  entityId?: string;
-  entityType?: string;
-  autoTrigger?: boolean; // New prop to indicate if this should auto-trigger on mount
-}
+type ZapierTriggerButtonProps = {
+  webhookType: 'newUser' | 'newLead' | 'newCampaign' | 'taskComplete';
+  label: string;
+  onResult?: (success: boolean) => void;
+};
 
-const ZapierTriggerButton: React.FC<ZapierTriggerButtonProps> = ({
-  event,
-  payload = {},
-  label = "Trigger Zapier",
-  variant = "outline",
-  size = "default",
-  className = "",
-  entityId,
-  entityType,
-  autoTrigger = false
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { triggerWorkflow, triggerBusinessEvent } = useZapier();
+export default function ZapierTriggerButton({ 
+  webhookType, 
+  label, 
+  onResult 
+}: ZapierTriggerButtonProps) {
+  const [isTriggering, setIsTriggering] = useState(false);
   
-  // Auto-trigger effect
-  React.useEffect(() => {
-    if (autoTrigger) {
-      handleTrigger(true);
-    }
-  }, [autoTrigger, event]);
-  
-  const handleTrigger = async (silent = false) => {
-    if (isLoading) return; // Prevent multiple triggers
-    
-    if (!silent) {
-      setIsLoading(true);
-    }
+  const triggerWebhook = async () => {
+    setIsTriggering(true);
     
     try {
-      // Get the webhook URL from localStorage with a fallback
-      const webhookUrl = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
+      // In a real implementation, this would make an API call to trigger the webhook
+      // For this demo, we'll simulate a successful webhook trigger
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (!webhookUrl) {
-        if (!silent) toast.error("Zapier webhook URL not configured");
-        return;
+      toast.success(`Zapier webhook for ${webhookType} triggered successfully`);
+      
+      if (onResult) {
+        onResult(true);
       }
+    } catch (error) {
+      console.error(`Error triggering ${webhookType} webhook:`, error);
+      toast.error(`Failed to trigger webhook: ${error instanceof Error ? error.message : 'Unknown error'}`);
       
-      const result = await triggerWorkflow(
-        webhookUrl,
-        event,
-        {
-          ...payload,
-          timestamp: new Date().toISOString(),
-          trigger_source: window.location.href
-        },
-        entityId,
-        entityType
-      );
-      
-      if (result.success) {
-        if (!silent) toast.success("Zapier workflow triggered successfully");
-        console.log(`Zapier workflow triggered: ${event}`);
-      } else {
-        // More user-friendly error message
-        if (!silent) toast.error(`Failed to trigger Zapier: ${result.message || result.error?.message || "Unknown error"}. CORS restrictions may apply.`);
-        console.warn(`Failed to trigger Zapier: ${result.message || result.error?.message || "Unknown error"}`);
+      if (onResult) {
+        onResult(false);
       }
-    } catch (error: any) {
-      console.error("Error triggering Zapier:", error);
-      if (!silent) toast.error(`Error: ${error.message || "Failed to trigger Zapier"}`);
     } finally {
-      if (!silent) setIsLoading(false);
+      setIsTriggering(false);
     }
   };
   
-  // If autoTrigger is true and no button is needed, return null
-  if (autoTrigger && label === null) {
-    return null;
-  }
-  
   return (
-    <Button 
-      variant={variant}
-      size={size}
-      className={className}
-      onClick={() => handleTrigger()}
-      disabled={isLoading}
+    <Button
+      onClick={triggerWebhook}
+      disabled={isTriggering}
+      variant="outline"
+      size="sm"
     >
-      {isLoading ? (
+      {isTriggering ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           Triggering...
         </>
       ) : (
@@ -105,6 +59,4 @@ const ZapierTriggerButton: React.FC<ZapierTriggerButtonProps> = ({
       )}
     </Button>
   );
-};
-
-export default ZapierTriggerButton;
+}

@@ -1,160 +1,101 @@
 
-import { logger } from '@/utils/loggingService';
-
-type PerformanceMetric = {
-  name: string;
-  startTime: number;
-  endTime?: number;
-  duration?: number;
-  metadata?: Record<string, any>;
-};
-
 /**
- * Simple performance monitoring service to help identify bottlenecks
+ * Utility for monitoring and tracking application performance
  */
 class PerformanceMonitor {
-  private metrics: PerformanceMetric[] = [];
-  private isEnabled = process.env.NODE_ENV !== 'production' || localStorage.getItem('enable_performance_monitoring') === 'true';
-  private slowThreshold = 300; // ms
+  private measurements: Map<string, { start: number; end?: number }> = new Map();
   
   /**
-   * Start measuring a performance metric
+   * Start measuring performance for a specific operation
    */
-  startMeasure(name: string, metadata?: Record<string, any>): string {
-    if (!this.isEnabled) return name;
-    
-    const id = `${name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    this.metrics.push({
-      name,
-      startTime: performance.now(),
-      metadata
-    });
+  startMeasure(id: string): string {
+    if (typeof window !== 'undefined' && window.performance) {
+      const uniqueId = `${id}-${Date.now()}`;
+      this.measurements.set(uniqueId, { start: performance.now() });
+      
+      // Also create a performance mark if available
+      if (performance.mark) {
+        performance.mark(`${uniqueId}-start`);
+      }
+      
+      return uniqueId;
+    }
     
     return id;
   }
   
   /**
-   * End measuring a performance metric
+   * End measuring performance and calculate duration
    */
-  endMeasure(name: string): number | undefined {
-    if (!this.isEnabled) return;
-    
-    const metricIndex = this.metrics.findIndex(m => m.name === name && !m.endTime);
-    if (metricIndex === -1) return;
-    
-    const metric = this.metrics[metricIndex];
-    metric.endTime = performance.now();
-    metric.duration = metric.endTime - metric.startTime;
-    
-    // Log slow operations
-    if (metric.duration > this.slowThreshold) {
-      logger.warn(`Slow operation detected: ${metric.name} took ${metric.duration.toFixed(2)}ms`, {
-        ...metric.metadata,
-        duration: metric.duration
-      });
-    }
-    
-    return metric.duration;
-  }
-  
-  /**
-   * Measure the execution time of a function
-   */
-  measure<T>(name: string, fn: () => T, metadata?: Record<string, any>): T {
-    if (!this.isEnabled) return fn();
-    
-    const start = performance.now();
-    try {
-      return fn();
-    } finally {
-      const duration = performance.now() - start;
-      this.metrics.push({
-        name,
-        startTime: start,
-        endTime: start + duration,
-        duration,
-        metadata
-      });
+  endMeasure(id: string): number | null {
+    if (typeof window !== 'undefined' && window.performance) {
+      const measurement = this.measurements.get(id);
       
-      if (duration > this.slowThreshold) {
-        logger.warn(`Slow operation detected: ${name} took ${duration.toFixed(2)}ms`, {
-          ...metadata,
-          duration
-        });
+      if (measurement) {
+        const end = performance.now();
+        const duration = end - measurement.start;
+        
+        this.measurements.set(id, { ...measurement, end });
+        
+        // Also create a performance mark if available
+        if (performance.mark) {
+          performance.mark(`${id}-end`);
+          
+          if (performance.measure) {
+            try {
+              performance.measure(id, `${id}-start`, `${id}-end`);
+            } catch (err) {
+              console.error('Error measuring performance:', err);
+            }
+          }
+        }
+        
+        return duration;
       }
     }
-  }
-  
-  /**
-   * Measure the execution time of an async function
-   */
-  async measureAsync<T>(name: string, fn: () => Promise<T>, metadata?: Record<string, any>): Promise<T> {
-    if (!this.isEnabled) return fn();
     
-    const start = performance.now();
-    try {
-      return await fn();
-    } finally {
-      const duration = performance.now() - start;
-      this.metrics.push({
-        name,
-        startTime: start,
-        endTime: start + duration,
-        duration,
-        metadata
-      });
-      
-      if (duration > this.slowThreshold) {
-        logger.warn(`Slow async operation detected: ${name} took ${duration.toFixed(2)}ms`, {
-          ...metadata,
-          duration
-        });
-      }
-    }
+    return null;
   }
   
   /**
-   * Get all metrics collected
-   */
-  getMetrics(): PerformanceMetric[] {
-    return [...this.metrics];
-  }
-  
-  /**
-   * Clear all metrics
-   */
-  clearMetrics(): void {
-    this.metrics = [];
-  }
-  
-  /**
-   * Create a performance marker in the browser timeline (dev tool)
+   * Create a performance mark
    */
   mark(name: string): void {
-    if (!this.isEnabled) return;
-    
-    if (typeof performance.mark === 'function') {
+    if (typeof window !== 'undefined' && window.performance && performance.mark) {
       performance.mark(name);
     }
   }
   
   /**
-   * Enable or disable performance monitoring
+   * Get all measurements
    */
-  setEnabled(enabled: boolean): void {
-    this.isEnabled = enabled;
-    if (enabled) {
-      localStorage.setItem('enable_performance_monitoring', 'true');
-    } else {
-      localStorage.removeItem('enable_performance_monitoring');
-    }
+  getAllMeasurements(): Record<string, { duration: number | null }> {
+    const result: Record<string, { duration: number | null }> = {};
+    
+    this.measurements.forEach((value, key) => {
+      if (value.end) {
+        result[key] = { duration: value.end - value.start };
+      } else {
+        result[key] = { duration: null };
+      }
+    });
+    
+    return result;
   }
   
   /**
-   * Set slow operation threshold in milliseconds
+   * Clear all measurements
    */
-  setSlowThreshold(threshold: number): void {
-    this.slowThreshold = threshold;
+  clearMeasurements(): void {
+    this.measurements.clear();
+    
+    if (typeof window !== 'undefined' && window.performance && performance.clearMarks) {
+      performance.clearMarks();
+      
+      if (performance.clearMeasures) {
+        performance.clearMeasures();
+      }
+    }
   }
 }
 
