@@ -67,6 +67,7 @@ export default function KpiAxes() {
         color={axisColor}
         fontSize={0.5}
         anchorX="center"
+        anchorY="middle" // Changed from "center" to "middle" which is a valid value
       >
         Z
       </Text>
@@ -116,7 +117,7 @@ export default function KpiAxes() {
             color={axisColor}
             fontSize={0.3}
             anchorX="right"
-            anchorY="center"
+            anchorY="middle" // Changed from "center" to "middle" which is a valid value
           >
             {pos}
           </Text>

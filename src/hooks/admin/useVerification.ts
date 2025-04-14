@@ -56,13 +56,13 @@ export function useVerification(profileCompanyId?: string) {
         overallStatus: 'ready'
       };
       
-      // Add validation results
-      if (validation.results.legalAcceptance) {
+      // Add validation results - check if results include extended properties
+      if (validation.results && 'legalAcceptance' in validation.results) {
         transformedResults.legalAcceptance = validation.results.legalAcceptance;
       }
       
       // Convert rlsPolicies from ValidationResult to required array format if it exists
-      if (validation.results.rlsPolicies) {
+      if (validation.results && 'rlsPolicies' in validation.results) {
         transformedResults.rlsPolicies = [{
           table: 'All tables',
           status: validation.results.rlsPolicies.valid ? 'verified' : 'issues',
@@ -71,7 +71,7 @@ export function useVerification(profileCompanyId?: string) {
       }
       
       // Similarly transform databaseFunctions
-      if (validation.results.databaseFunctions) {
+      if (validation.results && 'databaseFunctions' in validation.results) {
         transformedResults.databaseFunctions = [{
           name: 'Database Functions',
           status: validation.results.databaseFunctions.valid ? 'verified' : 'issues',

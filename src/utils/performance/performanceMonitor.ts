@@ -125,6 +125,14 @@ class PerformanceMonitor {
   }
 
   /**
+   * Get all performance measurements
+   * This is an alias for getMeasures() to fix the current error
+   */
+  public getAllMeasurements(): PerformanceMeasure[] {
+    return this.getMeasures();
+  }
+
+  /**
    * Get average duration for a specific measurement type
    */
   public getAverageDuration(type: PerformanceMeasure['type']): number | undefined {

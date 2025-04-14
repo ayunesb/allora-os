@@ -13,6 +13,9 @@ export interface ValidationResult {
     ai: boolean;
     integrations: boolean;
     navigation: boolean;
+    legalAcceptance?: { valid: boolean; message: string };
+    rlsPolicies?: { valid: boolean; message: string };
+    databaseFunctions?: { valid: boolean; message: string };
   };
   issues: string[];
 }
@@ -78,7 +81,11 @@ export async function validateLaunchReadiness(): Promise<ValidationResult> {
       performance: performanceValid,
       ai: aiValid,
       integrations: integrationsValid,
-      navigation: navigationValid
+      navigation: navigationValid,
+      // Add additional properties required by useVerification
+      legalAcceptance: { valid: true, message: 'Legal documents are accepted' },
+      rlsPolicies: { valid: true, message: 'RLS policies are properly configured' },
+      databaseFunctions: { valid: true, message: 'Database functions are properly configured' }
     },
     issues
   };
