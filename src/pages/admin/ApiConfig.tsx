@@ -19,8 +19,11 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function ApiConfig() {
+  const navigate = useNavigate();
   const [activeApiKeys, setActiveApiKeys] = React.useState({
     stripe: true,
     openai: true,
@@ -47,6 +50,8 @@ export default function ApiConfig() {
       ...prev,
       [key]: !prev[key as keyof typeof prev]
     }));
+    
+    toast.success(`${key.charAt(0).toUpperCase() + key.slice(1)} API ${!activeApiKeys[key as keyof typeof activeApiKeys] ? 'enabled' : 'disabled'}`);
   };
 
   const testApiConnection = () => {
@@ -54,7 +59,12 @@ export default function ApiConfig() {
     // Simulate API test
     setTimeout(() => {
       setIsLoading(false);
+      toast.success("API connections tested successfully");
     }, 2000);
+  };
+
+  const handleConfigureWebhook = (webhookType: string) => {
+    navigate('/admin/webhooks', { state: { activeTab: 'config', selectedWebhook: webhookType } });
   };
 
   return (
@@ -106,10 +116,19 @@ export default function ApiConfig() {
                           <Badge variant="outline" className="bg-gray-50 text-gray-500">Inactive</Badge>
                         )}
                       </div>
-                      <Switch 
-                        checked={isActive}
-                        onCheckedChange={() => toggleApiKey(key)}
-                      />
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/admin/api-integrations?service=${key}`)}
+                        >
+                          Configure
+                        </Button>
+                        <Switch 
+                          checked={isActive}
+                          onCheckedChange={() => toggleApiKey(key)}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -230,21 +249,39 @@ export default function ApiConfig() {
                             <CheckCircle2 className="h-4 w-4 text-green-500" />
                             <span>Stripe Webhooks</span>
                           </div>
-                          <Button variant="outline" size="sm">Configure</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleConfigureWebhook('stripe')}
+                          >
+                            Configure
+                          </Button>
                         </div>
                         <div className="flex justify-between items-center p-2 border rounded-md">
                           <div className="flex items-center gap-2">
                             <CheckCircle2 className="h-4 w-4 text-green-500" />
                             <span>Zapier Integration</span>
                           </div>
-                          <Button variant="outline" size="sm">Configure</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleConfigureWebhook('zapier')}
+                          >
+                            Configure
+                          </Button>
                         </div>
                         <div className="flex justify-between items-center p-2 border rounded-md">
                           <div className="flex items-center gap-2">
                             <AlertCircle className="h-4 w-4 text-red-500" />
                             <span>GitHub Webhooks</span>
                           </div>
-                          <Button variant="outline" size="sm">Configure</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleConfigureWebhook('github')}
+                          >
+                            Configure
+                          </Button>
                         </div>
                       </div>
                     </div>
