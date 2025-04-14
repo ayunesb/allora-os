@@ -28,7 +28,9 @@ serve(async (req) => {
       preferences,
       memoryContext,
       learningFeedback,
-      systemContext
+      systemContext,
+      cognitiveLayers,
+      mentalModels
     } = await req.json();
 
     // Construct the system prompt based on bot info, user preferences and memory
@@ -54,12 +56,33 @@ serve(async (req) => {
       customContext = `\n\nAPPLICATION CONTEXT:\n${systemContext}\n\n`;
     }
     
+    // Add cognitive layers if provided
+    let cognitiveLayersPrompt = "";
+    if (cognitiveLayers) {
+      cognitiveLayersPrompt = `\n\nCOGNITIVE LAYERS:
+      1. Operational Thinking: ${cognitiveLayers.operational?.description || "Complete assigned tasks based on your role."}
+      2. Strategic Thinking: ${cognitiveLayers.strategic?.description || "Predict secondary and third-order consequences of decisions."}
+      3. Innovative Thinking: ${cognitiveLayers.innovative?.description || "Suggest novel strategies beyond typical answers."}\n\n`;
+    }
+    
+    // Add mental models if provided
+    let mentalModelsPrompt = "";
+    if (mentalModels && mentalModels.length > 0) {
+      mentalModelsPrompt = "\n\nMENTAL MODELS TO APPLY IN YOUR THINKING:\n";
+      mentalModels.forEach((model, index) => {
+        mentalModelsPrompt += `${index + 1}. ${model.name}: ${model.description}\n`;
+      });
+      mentalModelsPrompt += "\n";
+    }
+    
     if (botName && botRole) {
       systemPrompt = `You are ${botName}, an experienced executive in the role of ${botRole}. 
       You provide expert business advice and strategic insights based on your expertise. 
       Your responses should be professional, direct, and reflective of your executive position.
       ${customContext}
-      ${memoryPrompt}`;
+      ${memoryPrompt}
+      ${cognitiveLayersPrompt}
+      ${mentalModelsPrompt}`;
       
       // Add response style preferences
       if (preferences?.responseStyle) {
@@ -113,7 +136,9 @@ serve(async (req) => {
       systemPrompt = `You are ${botName}, an executive with expertise in ${botRole}. 
       You are participating in a debate on the topic: ${debateContext.topic}.
       Consider the business context: Risk Appetite: ${debateContext.riskAppetite}, Business Priority: ${debateContext.businessPriority}.
-      ${memoryPrompt}`;
+      ${memoryPrompt}
+      ${cognitiveLayersPrompt}
+      ${mentalModelsPrompt}`;
       
       // If this is a multi-agent debate, specify the role and expectations
       if (debateContext.isMultiAgentDebate) {
@@ -122,7 +147,8 @@ serve(async (req) => {
         2. Consider other executives' perspectives when they've spoken
         3. Politely disagree when appropriate based on your domain expertise
         4. Look for ways to build on others' ideas
-        5. Your goal is to help reach the best possible business decision through collaborative debate`;
+        5. Apply your cognitive layers - first operational thinking, then strategic implications, then innovative possibilities
+        6. Your goal is to help reach the best possible business decision through collaborative debate`;
       }
       
       // Apply user preferences to debate responses

@@ -2,6 +2,7 @@
 import { DebateParticipant } from '@/utils/consultation/types';
 import { supabase } from '../supabase';
 import { toast } from 'sonner';
+import { determineCognitiveLayers, determineMentalModels } from '@/utils/executive-os/executiveBoostService';
 
 // Generate a debate response for a specific bot based on topic
 export const generateBotResponse = async (
@@ -11,6 +12,10 @@ export const generateBotResponse = async (
   businessPriority: string = 'growth'
 ): Promise<string> => {
   try {
+    // Get cognitive layers and mental models for this bot
+    const cognitiveLayers = determineCognitiveLayers(bot.role);
+    const mentalModels = determineMentalModels(bot.role);
+    
     // Create a more detailed and persona-specific prompt
     const systemPrompt = `You are ${bot.name}, a ${bot.title} with expertise in ${bot.specialty || bot.role}. 
     You have a distinct communication style and perspective based on your background.
@@ -41,7 +46,9 @@ export const generateBotResponse = async (
           topic,
           riskAppetite,
           businessPriority
-        }
+        },
+        cognitiveLayers,
+        mentalModels
       }
     });
 

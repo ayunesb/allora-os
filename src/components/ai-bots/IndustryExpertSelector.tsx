@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Check, Search } from 'lucide-react';
+import { Check, Search, Brain, Sparkles, Lightbulb } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
+import { determineMentalModels, determineCognitiveLayers } from '@/utils/executive-os/executiveBoostService';
 
 // List of industries
 const industries = [
@@ -56,6 +58,7 @@ export const IndustryExpertSelector: React.FC<IndustryExpertSelectorProps> = ({ 
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [selectedExpert, setSelectedExpert] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDetails, setShowDetails] = useState<'models' | 'cognitive' | null>(null);
   
   // Filter industry experts based on selected industry
   const filteredExperts = industryExperts.filter(expert => 
@@ -65,6 +68,16 @@ export const IndustryExpertSelector: React.FC<IndustryExpertSelectorProps> = ({ 
      expert.industry.toLowerCase().includes(searchQuery.toLowerCase()) ||
      expert.role.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+  
+  // Get mental models for the selected expert
+  const mentalModels = selectedExpert 
+    ? determineMentalModels(selectedExpert.role)
+    : [];
+    
+  // Get cognitive layers for the selected expert
+  const cognitiveLayers = selectedExpert 
+    ? determineCognitiveLayers(selectedExpert.role)
+    : null;
   
   // Handle selecting expert
   const handleSelectExpert = () => {
@@ -138,7 +151,10 @@ export const IndustryExpertSelector: React.FC<IndustryExpertSelectorProps> = ({ 
             {filteredExperts.length > 0 ? (
               <RadioGroup 
                 value={selectedExpert ? JSON.stringify(selectedExpert) : ''} 
-                onValueChange={(value) => setSelectedExpert(value ? JSON.parse(value) : null)}
+                onValueChange={(value) => {
+                  setSelectedExpert(value ? JSON.parse(value) : null);
+                  setShowDetails(null);
+                }}
                 className="space-y-1.5"
               >
                 {filteredExperts.map((expert) => (
@@ -167,6 +183,117 @@ export const IndustryExpertSelector: React.FC<IndustryExpertSelectorProps> = ({ 
           </CardContent>
         </Card>
       </div>
+      
+      {selectedExpert && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="border rounded-lg p-4"
+        >
+          <div className="mb-3 flex justify-between items-center">
+            <h3 className="text-lg font-medium">Executive Capabilities</h3>
+            <div className="flex space-x-2">
+              <Button 
+                size="sm" 
+                variant={showDetails === 'models' ? "default" : "outline"} 
+                onClick={() => setShowDetails(showDetails === 'models' ? null : 'models')}
+              >
+                <Brain className="h-4 w-4 mr-2" />
+                Mental Models
+              </Button>
+              <Button 
+                size="sm" 
+                variant={showDetails === 'cognitive' ? "default" : "outline"} 
+                onClick={() => setShowDetails(showDetails === 'cognitive' ? null : 'cognitive')}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Cognitive Layers
+              </Button>
+            </div>
+          </div>
+
+          {showDetails === 'models' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-4 space-y-3"
+            >
+              <p className="text-sm text-muted-foreground mb-2">
+                These mental models inform {selectedExpert.name}'s approach to problem-solving:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {mentalModels.map((model, index) => (
+                  <div key={index} className="border rounded-md p-3 bg-muted/30">
+                    <div className="font-medium text-sm mb-1 flex items-center">
+                      <Brain className="h-3 w-3 mr-1 text-primary" />
+                      {model.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {model.description}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {showDetails === 'cognitive' && cognitiveLayers && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-4 space-y-4"
+            >
+              <div>
+                <h4 className="text-sm font-medium mb-2 flex items-center">
+                  <Badge variant="outline" className="mr-2 bg-blue-50">Level 1</Badge>
+                  Operational Thinking
+                </h4>
+                <p className="text-xs text-muted-foreground mb-2">{cognitiveLayers.operational.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {cognitiveLayers.operational.capabilities.map((capability, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {capability}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium mb-2 flex items-center">
+                  <Badge variant="outline" className="mr-2 bg-purple-50">Level 2</Badge>
+                  Strategic Thinking
+                </h4>
+                <p className="text-xs text-muted-foreground mb-2">{cognitiveLayers.strategic.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {cognitiveLayers.strategic.capabilities.map((capability, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {capability}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium mb-2 flex items-center">
+                  <Badge variant="outline" className="mr-2 bg-amber-50">Level 3</Badge>
+                  Innovative Thinking
+                </h4>
+                <p className="text-xs text-muted-foreground mb-2">{cognitiveLayers.innovative.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {cognitiveLayers.innovative.capabilities.map((capability, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {capability}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
       
       <div className="flex justify-end">
         <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
