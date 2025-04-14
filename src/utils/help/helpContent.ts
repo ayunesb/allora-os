@@ -1,4 +1,3 @@
-
 /**
  * Help content utility for displaying context-sensitive help throughout the application
  */
@@ -182,6 +181,66 @@ const helpContentMap: Record<string, HelpContent> = {
       { title: "Call Script Guide", url: "/help/call-scripts" },
       { title: "Communication Best Practices", url: "/help/communication-tips" }
     ]
+  },
+  
+  // Add help for entities management
+  "admin.entities": {
+    id: "admin.entities",
+    title: "Entities Management",
+    description: "Manage users and companies in your Allora AI platform.",
+    steps: [
+      {
+        title: "Navigate Between Tabs",
+        description: "Use the tabs to switch between Users and Companies views."
+      },
+      {
+        title: "Deep Link Access",
+        description: "Use URL parameters for direct access: /admin/entities?tab=users or /admin/entities?tab=companies"
+      },
+      {
+        title: "User Management",
+        description: "Add, view, and manage user accounts from the Users tab."
+      },
+      {
+        title: "Company Management",
+        description: "Add, view, and manage company profiles from the Companies tab."
+      }
+    ],
+    links: [
+      { title: "User Permissions Guide", url: "/help/user-permissions" },
+      { title: "Company Configuration", url: "/help/company-setup" }
+    ]
+  },
+  
+  // Add help for navigation
+  "navigation.paths": {
+    id: "navigation.paths",
+    title: "Navigation & URL Guide",
+    description: "Understanding the application's URL structure and navigation paths.",
+    content: `
+      <h3>Common URL Paths</h3>
+      <ul>
+        <li><strong>/dashboard</strong> - Main dashboard</li>
+        <li><strong>/dashboard/strategies</strong> - Strategy board</li>
+        <li><strong>/dashboard/leads</strong> - Leads management</li>
+        <li><strong>/dashboard/campaigns</strong> - Campaign management</li>
+        <li><strong>/dashboard/ai-bots</strong> - AI Executive Board</li>
+        <li><strong>/admin</strong> - Admin dashboard</li>
+        <li><strong>/admin/entities</strong> - User and company management</li>
+        <li><strong>/admin/webhooks</strong> - Webhook configuration</li>
+      </ul>
+
+      <h3>Deep Linking</h3>
+      <p>You can use URL parameters to navigate directly to specific views:</p>
+      <ul>
+        <li><strong>/admin/entities?tab=users</strong> - Go directly to users tab</li>
+        <li><strong>/admin/entities?tab=companies</strong> - Go directly to companies tab</li>
+        <li><strong>/dashboard/ai-bots#debate</strong> - Go directly to the debate section</li>
+      </ul>
+
+      <h3>Shareable Links</h3>
+      <p>You can share links to specific views with others by copying the URL from your browser's address bar.</p>
+    `
   }
 };
 

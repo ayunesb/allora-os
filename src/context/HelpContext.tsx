@@ -1,45 +1,32 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { HelpContent } from "@/types/help";
 
-type HelpContextType = {
+interface HelpContextProps {
   isHelpOpen: boolean;
+  currentHelp: HelpContent | null;
   openHelp: () => void;
   closeHelp: () => void;
-  toggleHelp: () => void;
-  currentHelp: HelpContent | null;
-  setCurrentHelp: (content: HelpContent | null) => void;
-};
+  setCurrentHelp: (content: HelpContent) => void;
+}
 
-const HelpContext = createContext<HelpContextType | undefined>(undefined);
+const HelpContext = createContext<HelpContextProps | undefined>(undefined);
 
 export function HelpProvider({ children }: { children: React.ReactNode }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [currentHelp, setCurrentHelp] = useState<HelpContent | null>(null);
-  
-  // Remove dependency on useLocation here
-  useEffect(() => {
-    // Close help when component unmounts
-    return () => {
-      if (isHelpOpen) {
-        setIsHelpOpen(false);
-      }
-    };
-  }, []);
 
   const openHelp = () => setIsHelpOpen(true);
   const closeHelp = () => setIsHelpOpen(false);
-  const toggleHelp = () => setIsHelpOpen(prev => !prev);
 
   return (
     <HelpContext.Provider
       value={{
         isHelpOpen,
+        currentHelp,
         openHelp,
         closeHelp,
-        toggleHelp,
-        currentHelp,
-        setCurrentHelp
+        setCurrentHelp,
       }}
     >
       {children}
@@ -47,7 +34,7 @@ export function HelpProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useHelp() {
+export function useHelp(): HelpContextProps {
   const context = useContext(HelpContext);
   if (context === undefined) {
     throw new Error("useHelp must be used within a HelpProvider");

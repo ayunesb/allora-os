@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "react-router-dom";
 import { Shield, AlertCircle } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 
 interface ComplianceLayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,12 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
             </Link>
           </div>
         }>
+          <DashboardBreadcrumb 
+            rootPath="/compliance" 
+            rootLabel="Compliance"
+            rootIcon={<Shield className="h-3.5 w-3.5" />} 
+          />
+          
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-2">
               <Shield className="h-6 w-6 text-primary" />

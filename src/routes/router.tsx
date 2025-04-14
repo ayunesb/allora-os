@@ -10,6 +10,8 @@ import { devRoutes } from "./dev-routes";
 import { globalRoutes } from "./global-routes";
 import { NavigationManager } from "@/components/NavigationManager";
 import { NavigationTracker } from "@/components/NavigationTracker";
+import NavigationFixer from "@/components/navigation/NavigationFixer";
+import { HelpModal } from "@/components/help/HelpModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
@@ -48,6 +50,8 @@ const NavigationLayout = () => {
     <ErrorBoundary>
       <NavigationManager />
       <NavigationTracker />
+      <NavigationFixer />
+      <HelpModal />
       <Outlet />
     </ErrorBoundary>
   );
