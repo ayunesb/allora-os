@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { 
   verifyDatabaseTables, 
@@ -88,8 +87,8 @@ describe('Database Verification Utils', () => {
 
       const result = await verifyDatabaseTables();
       
-      // Should have error message in results
-      expect(result.some(t => t.message.includes('Error'))).toBe(true);
+      // Should have error in results - fixed to use message property
+      expect(result.some(t => t.message && t.message.includes('Error'))).toBe(true);
     });
   });
 

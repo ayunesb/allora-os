@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface RlsVerificationResult {
   table: string;
   exists: boolean;
+  message?: string;
   error?: string;
 }
 
@@ -35,18 +36,22 @@ export async function verifyRlsPolicies(): Promise<RlsVerificationResult[]> {
           results.push({
             table,
             exists: false,
+            message: `RLS check failed for '${table}'`,
             error: error.message
           });
         } else {
+          const rlsEnabled = data && data[0]?.rls_enabled === true;
           results.push({
             table,
-            exists: data && data[0]?.rls_enabled === true
+            exists: rlsEnabled,
+            message: rlsEnabled ? `RLS enabled for '${table}'` : `RLS not enabled for '${table}'`
           });
         }
       } catch (err) {
         results.push({
           table,
           exists: false,
+          message: `Error checking RLS for '${table}'`,
           error: err instanceof Error ? err.message : 'Unknown error'
         });
       }
@@ -58,6 +63,7 @@ export async function verifyRlsPolicies(): Promise<RlsVerificationResult[]> {
     return criticalTables.map(table => ({
       table,
       exists: false,
+      message: 'Failed to verify RLS policies',
       error: 'Failed to verify RLS policies'
     }));
   }

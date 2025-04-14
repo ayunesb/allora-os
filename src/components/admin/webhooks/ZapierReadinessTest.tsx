@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +21,6 @@ const ZapierReadinessTest = () => {
   const { triggerWorkflow } = useZapier();
   const [webhookUrl, setWebhookUrl] = useState<string>('');
   
-  // Load webhook URL from localStorage on mount
   useEffect(() => {
     const savedWebhookUrl = localStorage.getItem('zapier_webhook_url');
     if (savedWebhookUrl) {
@@ -96,7 +94,6 @@ const ZapierReadinessTest = () => {
     {
       name: "Custom Webhook",
       handler: async () => {
-        // Test a direct webhook call using the saved webhook URL
         if (!webhookUrl) {
           toast.error("No webhook URL configured. Please set up a Zapier webhook first.");
           return false;
@@ -126,7 +123,6 @@ const ZapierReadinessTest = () => {
     try {
       const success = await handler();
       
-      // Store results in localStorage for persistence across page reloads
       const updatedResults = { ...testResults, [testName]: success };
       setTestResults(updatedResults);
       localStorage.setItem('zapier_test_results', JSON.stringify(updatedResults));
@@ -139,7 +135,6 @@ const ZapierReadinessTest = () => {
     } catch (error) {
       console.error(`Error testing ${testName}:`, error);
       
-      // Still update the results, marking as failed
       const updatedResults = { ...testResults, [testName]: false };
       setTestResults(updatedResults);
       localStorage.setItem('zapier_test_results', JSON.stringify(updatedResults));
@@ -155,7 +150,6 @@ const ZapierReadinessTest = () => {
     setIsLoading("all");
     
     for (const test of testEvents) {
-      // Simulate a slight delay between tests to avoid overwhelming the API
       await new Promise(resolve => setTimeout(resolve, 500));
       await runSingleTest(test.name, test.handler);
     }
@@ -164,7 +158,6 @@ const ZapierReadinessTest = () => {
     toast.info("All Zapier webhook tests completed");
   };
   
-  // Load test results from localStorage on mount to persist state
   useEffect(() => {
     try {
       const savedResults = localStorage.getItem('zapier_test_results');
@@ -243,10 +236,9 @@ const ZapierReadinessTest = () => {
           ))}
         </div>
         
-        {/* Automatic trigger for testing during audit */}
         <div className="hidden">
           <ZapierTriggerButton 
-            event="audit_test"
+            webhookType="newLead"
             payload={{
               test_id: "zapier_readiness",
               timestamp: new Date().toISOString()

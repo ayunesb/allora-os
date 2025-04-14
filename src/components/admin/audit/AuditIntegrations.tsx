@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,7 +59,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
     }
   ]);
 
-  // Check API connections on mount
   useEffect(() => {
     if (status === 'pending') {
       checkApiConnections(false);
@@ -73,17 +71,13 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
     setIsRunning(true);
     
     try {
-      // Update all items to in-progress
       setItems(prev => prev.map(item => ({ ...item, status: 'in-progress' })));
       
-      // Check API keys using the verifyApiSecrets utility
       const apiResult = await verifyApiSecrets();
       
-      // Process API verification results
       if (apiResult.success) {
-        // All APIs are configured
         setItems(prev => prev.map(item => {
-          if (item.id === 'int-6') return item; // Don't change Zapier status yet
+          if (item.id === 'int-6') return item;
           return { ...item, status: 'passed' };
         }));
         
@@ -91,7 +85,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
           toast.success('All API connections verified successfully');
         }
       } else if (apiResult.missingSecrets) {
-        // Update specific items based on missing secrets
         setItems(prev => prev.map(item => {
           if (item.id === 'int-1' && apiResult.missingSecrets?.includes('STRIPE_SECRET_KEY')) {
             return { ...item, status: 'failed' };
@@ -107,7 +100,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
           } else if (item.id === 'int-5' && apiResult.missingSecrets?.includes('OPENAI_API_KEY')) {
             return { ...item, status: 'failed' };
           } else if (item.id === 'int-6') {
-            // Don't change Zapier status yet
             return item;
           } else {
             return { ...item, status: 'passed' };
@@ -119,14 +111,12 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
         }
       }
       
-      // Now check Zapier webhooks
       const zapierItem = items.find(item => item.id === 'int-6');
       if (zapierItem) {
         setItems(prev => prev.map(item => 
           item.id === 'int-6' ? { ...item, status: 'in-progress' } : item
         ));
         
-        // Test Zapier webhooks
         const zapierResults = await verifyZapierWebhooks();
         const zapierPassed = Object.values(zapierResults).some(result => result);
         
@@ -135,7 +125,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
         ));
       }
       
-      // Determine overall status
       const requiredItems = items.filter(item => item.required);
       const allRequiredPassed = requiredItems.every(item => {
         const currentItem = items.find(i => i.id === item.id);
@@ -179,7 +168,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
     }
   };
 
-  // Test a single Zapier webhook
   const testZapierWebhook = async () => {
     const webhookUrl = localStorage.getItem('zapier_webhook_url');
     
@@ -193,7 +181,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
     ));
     
     try {
-      // Trigger special test event with payload
       await fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -277,7 +264,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
                 </div>
                 <div className="text-xs text-muted-foreground">{item.description}</div>
                 
-                {/* Special test button for Zapier */}
                 {item.id === 'int-6' && (
                   <div className="mt-1">
                     <Button 
@@ -288,9 +274,8 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
                     >
                       Test Webhook
                     </Button>
-                    {/* Alternative test using the component */}
                     <ZapierTriggerButton 
-                      event="audit_test"
+                      webhookType="newLead"
                       payload={{
                         test_type: "integration_audit",
                         timestamp: new Date().toISOString()
@@ -313,7 +298,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
                       i.id === item.id ? { ...i, status: checked ? 'passed' : 'failed' } : i
                     ));
                     
-                    // Recheck overall status after manual change
                     const allRequired = items
                       .filter(i => i.required)
                       .every(i => i.id === item.id ? checked : i.status === 'passed');
@@ -335,7 +319,6 @@ export function AuditIntegrations({ status, onStatusChange }: AuditComponentProp
                   if (checked) {
                     handleManualOverride();
                   } else {
-                    // Re-evaluate based on actual status
                     const allRequiredPassed = items
                       .filter(item => item.required)
                       .every(item => item.status === 'passed');

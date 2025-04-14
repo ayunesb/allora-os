@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { DatabaseVerificationResult } from '@/types/databaseVerification';
+import { DatabaseVerificationResult, DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/types/databaseVerification';
 import { 
   verifyDatabaseTables, 
   verifyRlsPolicies, 
@@ -158,11 +158,26 @@ export function useDatabaseVerification() {
       await createFunctionCheckerRPC();
       
       // Run all verification checks in parallel for better performance
-      const [tables, policies, functions] = await Promise.all([
+      const [tablesResults, policiesResults, functionsResults] = await Promise.all([
         verifyDatabaseTables(),
         verifyRlsPolicies(),
         verifyDatabaseFunctions()
       ]);
+      
+      // Convert to the correct types required by DatabaseVerificationResult
+      const tables: DatabaseTableStatus[] = tablesResults.map(item => ({
+        name: item.name,
+        exists: item.exists,
+        message: item.message || (item.exists ? `Table '${item.name}' exists` : `Table '${item.name}' missing`)
+      }));
+      
+      const policies: PolicyStatus[] = policiesResults.map(item => ({
+        table: item.table,
+        exists: item.exists,
+        message: item.message || (item.exists ? `RLS enabled for '${item.table}'` : `RLS not enabled for '${item.table}'`)
+      }));
+      
+      const functions: FunctionStatus[] = functionsResults || [];
       
       console.log('Verification results:', { 
         tables, 

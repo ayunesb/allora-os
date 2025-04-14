@@ -3,7 +3,8 @@ import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { Strategy } from '@/models/strategy';
 import { assessRiskLevel, RiskAssessmentInput } from '@/utils/riskEngine';
-import { generateStrategy } from '@/utils/strategy';
+// Fixed import since generateStrategy doesn't exist
+import { customizeTitle, customizeDescription } from '@/utils/strategy';
 
 export async function fetchCompanyStrategies(companyId: string): Promise<Strategy[]> {
   try {
@@ -93,13 +94,17 @@ export async function generateStrategyFromAnswers(
   answers: RiskAssessmentInput
 ): Promise<Strategy | null> {
   const riskLevel = assessRiskLevel(answers);
-  const strategyTemplate = generateStrategy(riskLevel);
   
+  // Create a basic strategy template instead of using generateStrategy
+  const strategyTitle = `${riskLevel} Risk Growth Strategy`;
+  const strategyDescription = `This is a ${riskLevel.toLowerCase()} risk strategy generated based on your business profile and risk assessment.`;
+  
+  // Now create the strategy with the basic template
   return await createStrategy(
     companyId,
-    strategyTemplate.title,
-    strategyTemplate.description,
-    strategyTemplate.riskLevel as 'Low' | 'Medium' | 'High'
+    strategyTitle,
+    strategyDescription,
+    riskLevel as 'Low' | 'Medium' | 'High'
   );
 }
 

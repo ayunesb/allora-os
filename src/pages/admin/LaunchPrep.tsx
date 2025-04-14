@@ -16,7 +16,7 @@ export default function LaunchPrep() {
       if (result.success) {
         toast.success('Test data removed successfully');
       } else {
-        toast.error(`Failed to remove test data: ${result.error}`);
+        toast.error(`Failed to remove test data: ${result.error || 'Unknown error'}`);
       }
     } catch (error: any) {
       toast.error(`Error cleaning up test data: ${error.message}`);
@@ -29,7 +29,7 @@ export default function LaunchPrep() {
       if (result.success) {
         toast.success('API secrets verification complete');
       } else {
-        toast.error(`API secrets verification failed: ${result.error}`);
+        toast.error(`API secrets verification failed: ${result.error || 'Missing API secrets'}`);
       }
     } catch (error: any) {
       toast.error(`Error verifying API secrets: ${error.message}`);

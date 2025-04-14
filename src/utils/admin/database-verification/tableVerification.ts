@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface TableVerificationResult {
   name: string;
   exists: boolean;
+  message?: string;
   error?: string;
 }
 
@@ -36,6 +37,7 @@ export async function verifyDatabaseTables(): Promise<TableVerificationResult[]>
       return requiredTables.map(table => ({
         name: table,
         exists: false,
+        message: 'Failed to fetch tables from database',
         error: 'Failed to fetch tables from database'
       }));
     }
@@ -46,7 +48,8 @@ export async function verifyDatabaseTables(): Promise<TableVerificationResult[]>
     for (const table of requiredTables) {
       results.push({
         name: table,
-        exists: tableNames.includes(table)
+        exists: tableNames.includes(table),
+        message: tableNames.includes(table) ? `Table '${table}' exists` : `Table '${table}' missing`
       });
     }
     
@@ -56,6 +59,7 @@ export async function verifyDatabaseTables(): Promise<TableVerificationResult[]>
     return requiredTables.map(table => ({
       name: table,
       exists: false,
+      message: 'Failed to verify database tables',
       error: 'Failed to verify database tables'
     }));
   }

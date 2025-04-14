@@ -11,8 +11,9 @@ export { lowRiskStrategies, mediumRiskStrategies, highRiskStrategies };
 
 // Re-export from strategy module excluding functions we want to rename
 export {
-  generateCustomizedStrategy,
-  generateStrategy,
+  // Fix: Import the correct functions or create them if they don't exist
+  // generateCustomizedStrategy,
+  // generateStrategy, - removing this since it doesn't exist
   customizeTitle,
   customizeDescription,
   customizeROI,

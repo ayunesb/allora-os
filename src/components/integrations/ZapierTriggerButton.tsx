@@ -5,15 +5,27 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 type ZapierTriggerButtonProps = {
-  webhookType: 'newUser' | 'newLead' | 'newCampaign' | 'taskComplete';
-  label: string;
+  webhookType?: 'newUser' | 'newLead' | 'newCampaign' | 'taskComplete'; // Original prop
+  event?: string; // Added for compatibility with audit code
+  payload?: Record<string, any>; // Added for compatibility with audit code
+  label: string | null;
   onResult?: (success: boolean) => void;
+  autoTrigger?: boolean;
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  className?: string;
 };
 
 export default function ZapierTriggerButton({ 
   webhookType, 
+  event,
+  payload,
   label, 
-  onResult 
+  onResult,
+  autoTrigger = false,
+  size = 'default',
+  variant = 'outline',
+  className = '',
 }: ZapierTriggerButtonProps) {
   const [isTriggering, setIsTriggering] = useState(false);
   
@@ -25,13 +37,16 @@ export default function ZapierTriggerButton({
       // For this demo, we'll simulate a successful webhook trigger
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      toast.success(`Zapier webhook for ${webhookType} triggered successfully`);
+      const eventType = event || webhookType || 'generic';
+      const eventPayload = payload || {};
+      
+      toast.success(`Zapier webhook for ${eventType} triggered successfully`);
       
       if (onResult) {
         onResult(true);
       }
-    } catch (error) {
-      console.error(`Error triggering ${webhookType} webhook:`, error);
+    } catch (error: any) {
+      console.error(`Error triggering webhook:`, error);
       toast.error(`Failed to trigger webhook: ${error instanceof Error ? error.message : 'Unknown error'}`);
       
       if (onResult) {
@@ -42,12 +57,24 @@ export default function ZapierTriggerButton({
     }
   };
   
+  // Auto-trigger the webhook if the autoTrigger prop is true
+  React.useEffect(() => {
+    if (autoTrigger) {
+      triggerWebhook();
+    }
+  }, []);
+  
+  if (autoTrigger && label === null) {
+    return null; // Don't render anything for auto-trigger with no label
+  }
+  
   return (
     <Button
       onClick={triggerWebhook}
       disabled={isTriggering}
-      variant="outline"
-      size="sm"
+      variant={variant}
+      size={size}
+      className={className}
     >
       {isTriggering ? (
         <>
