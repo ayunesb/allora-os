@@ -1,3 +1,4 @@
+
 import { RouteObject } from "react-router-dom";
 import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
@@ -28,6 +29,7 @@ import ExecutiveProfile from "@/pages/dashboard/executives/[name]";
 import RiskHeatmap from "@/pages/dashboard/RiskHeatmap";
 import ExecutiveLeaderboard from "@/pages/dashboard/ExecutiveLeaderboard";
 import AIChat from "@/pages/dashboard/AIChat";
+import Forecast from "@/pages/dashboard/Forecast";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -112,6 +114,11 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "leaderboard",
         element: <ExecutiveLeaderboard />,
+      },
+      // New Forecast Dashboard route
+      {
+        path: "forecast",
+        element: <Forecast />,
       },
       // Executive preferences/settings route
       {

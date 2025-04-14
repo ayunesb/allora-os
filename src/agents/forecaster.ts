@@ -77,3 +77,55 @@ export async function forecastExecutiveResources(pastResourcePoints: number[]): 
     return null;
   }
 }
+
+/**
+ * Trains multiple forecast models for different KPI types
+ * 
+ * @param kpiData Record of KPI types to their historical data
+ * @returns Record of KPI types to their trained models
+ */
+export async function trainMultiForecastModels(kpiData: Record<string, number[]>): Promise<Record<string, tf.Sequential>> {
+  try {
+    const models: Record<string, tf.Sequential> = {};
+
+    for (const kpiType in kpiData) {
+      const data = kpiData[kpiType];
+      if (data.length < 3) {
+        logger.warn(`Not enough data points for KPI type ${kpiType}. Skipping model training.`);
+        continue;
+      }
+      
+      models[kpiType] = await trainForecastModel(data);
+      logger.info(`Trained forecast model for KPI type: ${kpiType}`);
+    }
+
+    return models;
+  } catch (error) {
+    logger.error('Error training multiple forecast models:', error);
+    throw error;
+  }
+}
+
+/**
+ * Forecasts future values for multiple KPI types
+ * 
+ * @param models Record of KPI types to their trained models
+ * @param nextX The time index to predict
+ * @returns Record of KPI types to their predicted values
+ */
+export async function forecastMultipleFuture(models: Record<string, tf.Sequential>, nextX: number): Promise<Record<string, number>> {
+  try {
+    const forecasts: Record<string, number> = {};
+
+    for (const kpiType in models) {
+      const model = models[kpiType];
+      forecasts[kpiType] = await forecastFuture(model, nextX);
+      logger.info(`Forecasted future value for KPI type ${kpiType}: ${forecasts[kpiType]}`);
+    }
+
+    return forecasts;
+  } catch (error) {
+    logger.error('Error forecasting multiple future values:', error);
+    throw error;
+  }
+}

@@ -1,62 +1,93 @@
 
-import React from 'react';
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, PieChart, Phone, ShoppingCart, User, Users, GitBranch, Bot } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { Link } from 'react-router-dom';
+import { BarChart3, Users, LineChart, Briefcase, Phone, BarChart, PieChart, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function QuickAccess() {
-  const { profile } = useAuth();
-  const isAdmin = profile?.role === 'admin';
+const QuickAccess = () => {
+  const navigate = useNavigate();
 
   const links = [
     {
-      title: "Manage Leads",
+      title: "Executives",
+      description: "Manage your AI executive team",
+      icon: <Users className="h-5 w-5" />,
+      path: "/dashboard/executives",
+    },
+    {
+      title: "Leads",
       description: "View and manage your leads",
-      icon: <Users className="h-8 w-8 text-blue-500" />,
-      link: "/dashboard/leads"
+      icon: <Users className="h-5 w-5" />,
+      path: "/dashboard/leads",
+    },
+    {
+      title: "Campaigns",
+      description: "Create and manage campaigns",
+      icon: <Briefcase className="h-5 w-5" />,
+      path: "/dashboard/campaigns",
+    },
+    {
+      title: "Analytics",
+      description: "View analytics and insights",
+      icon: <BarChart3 className="h-5 w-5" />,
+      path: "/dashboard/analytics",
     },
     {
       title: "Strategies",
-      description: "Browse business strategies",
-      icon: <GitBranch className="h-8 w-8 text-green-500" />,
-      link: "/dashboard/strategies"
+      description: "Browse and implement strategies",
+      icon: <LineChart className="h-5 w-5" />,
+      path: "/dashboard/strategies",
     },
     {
-      title: "Communications",
-      description: "Manage calls and messages",
-      icon: <Phone className="h-8 w-8 text-orange-500" />,
-      link: "/dashboard/calls"
+      title: "Calls",
+      description: "Schedule and manage calls",
+      icon: <Phone className="h-5 w-5" />,
+      path: "/dashboard/calls",
     },
     {
-      title: "AI Bots",
-      description: "Access AI executive team",
-      icon: <Bot className="h-8 w-8 text-purple-500" />,
-      link: "/dashboard/ai-bots"
-    }
+      title: "Risk Analysis",
+      description: "Risk assessment heatmap",
+      icon: <PieChart className="h-5 w-5" />,
+      path: "/dashboard/risk-heatmap",
+    },
+    {
+      title: "Forecasting",
+      description: "KPI predictions & anomaly detection",
+      icon: <TrendingUp className="h-5 w-5" />,
+      path: "/dashboard/forecast",
+    },
   ];
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Quick Access</CardTitle>
         <CardDescription>
-          Shortcuts to frequently used features
+          Access key features and tools
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          {links.map((link, index) => (
-            <Link to={link.link} key={index}>
-              <div className="flex flex-col items-center justify-center p-4 rounded-lg border hover:bg-accent/50 transition-colors h-full">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {links.map((link) => (
+            <div
+              key={link.title}
+              className="p-4 flex flex-col items-center justify-center rounded-lg border bg-card text-card-foreground shadow hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+              onClick={() => handleNavigate(link.path)}
+            >
+              <div className="mb-2 rounded-full p-2 bg-primary/10">
                 {link.icon}
-                <h3 className="mt-3 font-medium text-sm">{link.title}</h3>
-                <p className="text-xs text-muted-foreground text-center mt-1">{link.description}</p>
               </div>
-            </Link>
+              <div className="text-sm font-medium text-center">{link.title}</div>
+            </div>
           ))}
         </div>
       </CardContent>
     </Card>
   );
-}
+};
+
+export default QuickAccess;
