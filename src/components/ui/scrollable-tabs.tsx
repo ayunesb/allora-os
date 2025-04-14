@@ -35,12 +35,12 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
   };
 
   return (
-    <div className={cn("relative", fullWidth && "w-full", className)}>
+    <div className={cn("relative w-full", className)}>
       <div className="overflow-x-auto pb-1 hide-scrollbar">
         <TabsList className={cn(
-          "w-max min-w-full flex flex-wrap", // Added flex-wrap to allow multiple rows
-          "min-h-[60px]", // Increased minimum height
-          "py-2", // Added vertical padding
+          "w-full flex flex-wrap justify-start items-center", // Ensure full width and wrapping
+          "min-h-[80px]", // Increased height to accommodate two rows
+          "py-2 gap-2", // Add vertical padding and gap between items
           variant === "outline" && "bg-transparent p-0 border-b border-border"
         )}>
           {tabs.map((tab) => (
@@ -49,10 +49,13 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
               value={tab.id}
               onClick={() => handleChange(tab.id)}
               className={cn(
-                "flex-shrink-0 flex items-center", // Ensured vertical alignment
-                "px-4 py-2 m-1", // Added margin for better spacing
-                "min-h-[40px]", // Minimum height for each tab
-                variant === "outline" && "rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent",
+                "flex items-center justify-center", // Center content
+                "px-4 py-2 m-1", // Consistent padding and margin
+                "min-h-[40px] min-w-[120px]", // Minimum height and width
+                "flex-grow-0 flex-shrink-0", // Prevent excessive stretching
+                variant === "outline" 
+                  ? "rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent" 
+                  : "",
                 activeTab === tab.id ? "data-[state=active]:bg-primary/10" : ""
               )}
             >
@@ -69,3 +72,4 @@ const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
 };
 
 export default ScrollableTabs;
+
