@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,33 +7,29 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { Shield, Database, User } from "lucide-react";
+import { useProductionData } from "@/hooks/useProductionData";
 
 export default function DevAdminHelper() {
-  const [email, setEmail] = useState("ayunesb@icloud.com");
   const [loading, setLoading] = useState(false);
-  const [currentRole, setCurrentRole] = useState<string | null>(null);
+  const [updatingRole, setUpdatingRole] = useState(false);
   const navigate = useNavigate();
   
   // Safely access auth context
   const auth = useAuth();
   const user = auth?.user;
   const profile = auth?.profile;
+  const { validateProductionData, isValidating } = useProductionData();
   
-  useEffect(() => {
-    if (profile) {
-      setCurrentRole(profile.role);
-    }
-  }, [profile]);
-
+  // Handle making the user an admin
   const makeUserAdmin = async () => {
     if (!user) {
       toast.error("User not authenticated");
       return;
     }
     
-    setLoading(true);
+    setUpdatingRole(true);
     try {
       const { error } = await supabase
         .from("profiles")
@@ -41,7 +38,6 @@ export default function DevAdminHelper() {
 
       if (error) throw error;
       toast.success("User role updated to admin");
-      setCurrentRole("admin");
       
       // Navigate to admin page after a short delay
       setTimeout(() => {
@@ -51,12 +47,23 @@ export default function DevAdminHelper() {
       console.error("Error updating user role:", error);
       toast.error(`Failed to update role: ${error.message}`);
     } finally {
-      setLoading(false);
+      setUpdatingRole(false);
     }
   };
 
   const runDatabaseChecks = () => {
-    navigate("/admin/database-verification");
+    setLoading(true);
+    validateProductionData()
+      .then(() => {
+        navigate("/admin/database-verification");
+      })
+      .catch((error) => {
+        console.error("Error running database checks:", error);
+        toast.error("Failed to verify database");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -82,8 +89,8 @@ export default function DevAdminHelper() {
                     <span className="font-medium">{user.email}</span>
                   </div>
                   <div className="text-sm mt-2">
-                    Role: <span className="font-semibold">{currentRole || "loading..."}</span>
-                    {currentRole === "admin" && (
+                    Role: <span className="font-semibold">{profile?.role || "user"}</span>
+                    {profile?.role === "admin" && (
                       <span className="ml-2 text-green-500 text-xs">(Admin access granted)</span>
                     )}
                   </div>
@@ -93,9 +100,9 @@ export default function DevAdminHelper() {
                   <Button 
                     onClick={makeUserAdmin} 
                     className="w-full"
-                    disabled={loading || currentRole === "admin"}
+                    disabled={updatingRole || profile?.role === "admin"}
                   >
-                    {loading ? "Updating..." : currentRole === "admin" ? "Already Admin" : "Make Me Admin"}
+                    {updatingRole ? "Updating..." : profile?.role === "admin" ? "Already Admin" : "Make Me Admin"}
                   </Button>
                 </div>
               </>
@@ -110,17 +117,17 @@ export default function DevAdminHelper() {
               variant="outline"
               onClick={runDatabaseChecks}
               className="w-full"
-              disabled={!user}
+              disabled={!user || loading || isValidating}
             >
               <Database className="h-4 w-4 mr-2" />
-              Run Database Verification
+              {loading || isValidating ? "Verifying..." : "Run Database Verification"}
             </Button>
             
             <Button 
               variant="outline" 
               onClick={() => navigate("/admin")} 
               className="w-full"
-              disabled={!user || currentRole !== "admin"}
+              disabled={!user || profile?.role !== "admin"}
             >
               Go to Admin Dashboard
             </Button>
