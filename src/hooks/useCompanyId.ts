@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/context/AuthContext";
 
 /**
@@ -8,9 +7,17 @@ import { useAuth } from "@/context/AuthContext";
 export function useCompanyId(): string | undefined {
   const { profile, isProfileLoading } = useAuth();
   
-  if (isProfileLoading || !profile) {
-    return undefined;
+  // If user has a company_id in profile, use that
+  if (!isProfileLoading && profile?.company_id) {
+    return profile.company_id;
   }
   
-  return profile.company_id || undefined;
+  // Otherwise, check if we have stored a company ID from the launch process
+  const storedCompanyId = localStorage.getItem('allora_company_id');
+  if (storedCompanyId) {
+    return storedCompanyId;
+  }
+  
+  // No company ID available
+  return undefined;
 }

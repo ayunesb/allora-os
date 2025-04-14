@@ -57,18 +57,19 @@ export function useLaunchProcess() {
           .select('id')
           .single();
   
-        if (companyError) throw companyError;
-        
-        companyId = companyData?.id;
-        
-        if (!companyId) {
-          console.warn('No company ID returned, using a placeholder');
+        if (companyError) {
+          console.error('Error creating company:', companyError);
+          toast.error('Could not create company profile. Using demo data instead.');
           companyId = 'mock-company-id-' + Date.now();
+        } else {
+          companyId = companyData?.id || 'mock-company-id-' + Date.now();
+          toast.success('Company profile created successfully!');
         }
       } catch (err) {
         console.error('Error creating company:', err);
         // For demo purposes, create a mock company ID to continue the flow
         companyId = 'mock-company-id-' + Date.now();
+        toast.info('Using demo company data');
       }
       
       console.log('Created company with ID:', companyId);
@@ -100,27 +101,29 @@ export function useLaunchProcess() {
           .select()
           .single();
         
-        if (strategyError) throw strategyError;
-        
-        if (strategyData && strategyData.id) {
-          strategyId = strategyData.id;
-        } else {
-          console.warn('No strategy ID returned, using a placeholder');
+        if (strategyError) {
+          console.error('Error creating strategy:', strategyError);
+          toast.error('Could not create strategy. Using demo data instead.');
           strategyId = 'mock-strategy-id-' + Date.now();
+        } else {
+          strategyId = strategyData?.id || 'mock-strategy-id-' + Date.now();
+          toast.success('Launch strategy created successfully!');
         }
       } catch (err) {
         console.error('Error creating strategy:', err);
         // For demo purposes, use a mock ID to continue the flow
         strategyId = 'mock-strategy-id-' + Date.now();
+        toast.info('Using demo strategy data');
       }
       
       // 3. Create First Campaigns - Using try-catch to continue even if DB operations fail
       setLaunchStep('Creating initial marketing campaigns...');
       const campaignPlatforms = ['LinkedIn', 'Google', 'Facebook'];
+      let campaignsCreated = 0;
       
       for (const platform of campaignPlatforms) {
         try {
-          const { error: campaignError } = await supabase
+          const { data, error: campaignError } = await supabase
             .from('campaigns')
             .insert([{
               company_id: companyId,
@@ -132,15 +135,24 @@ export function useLaunchProcess() {
                 location: 'United States',
                 interests: ['Artificial Intelligence', 'SaaS', 'Business Growth']
               }
-            }]);
+            }])
+            .select();
             
           if (campaignError) {
             console.error(`Error creating ${platform} campaign:`, campaignError);
+          } else {
+            campaignsCreated++;
           }
         } catch (err) {
           console.warn(`Error creating ${platform} campaign:`, err);
           // Continue with next platform
         }
+      }
+      
+      if (campaignsCreated > 0) {
+        toast.success(`Created ${campaignsCreated} marketing campaigns`);
+      } else {
+        toast.info('Using demo campaign data');
       }
       
       // 4. Create Lead Samples - Using try-catch to continue even if DB operations fail
@@ -151,19 +163,29 @@ export function useLaunchProcess() {
         { name: 'Michael CEO', email: 'michael@startup.io', phone: '+1122334455', status: 'new', campaign_id: strategyId }
       ];
       
+      let leadsCreated = 0;
       for (const lead of sampleLeads) {
         try {
-          const { error: leadError } = await supabase
+          const { data, error: leadError } = await supabase
             .from('leads')
-            .insert([lead]);
+            .insert([lead])
+            .select();
             
           if (leadError) {
             console.error('Error creating lead:', leadError);
+          } else {
+            leadsCreated++;
           }
         } catch (err) {
           console.warn('Error creating lead:', err);
           // Continue with next lead
         }
+      }
+      
+      if (leadsCreated > 0) {
+        toast.success(`Added ${leadsCreated} sample leads`);
+      } else {
+        toast.info('Using demo lead data');
       }
       
       // 5. Trigger Zapier notifications (if Zapier is configured) - using try-catch to continue even if notifications fail
@@ -182,8 +204,11 @@ export function useLaunchProcess() {
           leadName: 'Initial Demo Leads',
           source: 'Launch Process',
         });
+        
+        toast.success('Launch notifications sent successfully');
       } catch (notificationError) {
         console.warn('Launch notifications could not be sent:', notificationError);
+        toast.error('Launch notifications could not be sent');
         // Don't throw error here - this shouldn't block the launch
       }
       
@@ -192,6 +217,9 @@ export function useLaunchProcess() {
       setIsComplete(true);
       
       toast.success('🚀 Launch sequence initiated! Allora AI is now its own first customer.');
+      
+      // Store the company ID in localStorage so other components can access it
+      localStorage.setItem('allora_company_id', companyId);
       
       // Wait a moment before redirecting
       setTimeout(() => {
