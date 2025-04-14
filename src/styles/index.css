@@ -1,9 +1,59 @@
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Base styles */
+@import './base.css';
 
-/* Add any global styles here */
+/* UI components and utilities */
+@import './components.css';
+@import './utilities.css';
+
+/* Premium theme */
+@import './theme.css';
+
+/* Responsive styles */
+@import './responsive.css';
+
+/* Global styles */
+@import './globals.css';
+
+/* For admin-specific styles */
+@import './responsive/admin-styles.css';
+
+/* Dark mode is part of our default premium style */
+html {
+  color-scheme: dark;
+}
+
+/* Apply premium font globally */
 body {
-  @apply bg-background text-foreground;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Premium UI globals */
+.premium-gradient {
+  @apply bg-gradient-to-r from-primary to-secondary;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent;
+}
+
+.premium-card {
+  @apply rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md shadow-lg hover:shadow-primary/10 transition-all duration-300;
+}
+
+.premium-input {
+  @apply bg-input border border-border/30 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all;
+}
+
+.premium-heading {
+  @apply font-heading font-bold tracking-tight;
+}
+
+/* Premium animations */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s infinite;
 }

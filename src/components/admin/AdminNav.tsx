@@ -10,14 +10,15 @@ import {
   Webhook,
   Rocket,
   Zap,
-  CheckSquare
+  CheckSquare,
+  LayoutDashboard
 } from "lucide-react";
 
 const navItems = [
   {
     title: "Dashboard",
     href: "/admin",
-    icon: <Settings className="h-5 w-5" />,
+    icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
     title: "User Management",
@@ -70,18 +71,36 @@ export function AdminNav() {
   const { pathname } = useLocation();
 
   return (
-    <nav className="grid items-start gap-2">
+    <nav className="grid items-start gap-2 p-4 bg-sidebar-accent/5 rounded-xl backdrop-blur-sm">
+      <div className="mb-4 text-xs font-medium uppercase tracking-wider text-muted-foreground/50 px-2">
+        Admin Functions
+      </div>
+      
       {navItems.map((item) => (
         <Link
           key={item.href}
           to={item.href}
           className={cn(
-            "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-            pathname === item.href ? "bg-accent" : "transparent"
+            "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
+            "hover:bg-primary/10 hover:text-primary",
+            pathname === item.href 
+              ? "bg-primary/15 text-primary relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary/50 after:rounded-full" 
+              : "text-gray-300"
           )}
         >
-          {item.icon}
-          <span className="ml-3">{item.title}</span>
+          <span className={cn(
+            "mr-3 transition-all duration-200 text-muted-foreground",
+            pathname === item.href && "text-primary"
+          )}>
+            {item.icon}
+          </span>
+          <span>{item.title}</span>
+          
+          {pathname === item.href && (
+            <span className="ml-auto bg-primary/20 px-1.5 py-0.5 rounded-md text-xs font-semibold text-primary">
+              Active
+            </span>
+          )}
         </Link>
       ))}
     </nav>
