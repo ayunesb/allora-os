@@ -10,7 +10,7 @@ import { lazyLoad } from "@/utils/performance/lazyLoad";
 import { router } from "@/routes/router";
 import { GlobalErrorModal } from "@/components/errorHandling/GlobalErrorModal";
 import { setupErrorLogging } from "@/utils/errorHandling/errorLogging";
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { BackendConnectionAlert } from "@/components/dashboard/BackendConnectionAlert";
 import { useEffect } from "react";
 import { initializeAutoExecutorCron } from '@/utils/executorCron';
@@ -43,21 +43,25 @@ const initializePerformanceMonitoring = () => {
     });
     
     observer.observe({ entryTypes: ['longtask'] });
+    return observer; // Return the observer instance for cleanup
   }
+  return null;
 };
 
 function App() {
+  const performanceObserverRef = useRef<PerformanceObserver | null>(null);
+  
   useEffect(() => {
     // Initialize auto-executor cron when app loads
     initializeAutoExecutorCron();
     
-    // Initialize performance monitoring
-    initializePerformanceMonitoring();
+    // Initialize performance monitoring and store observer reference
+    performanceObserverRef.current = initializePerformanceMonitoring();
     
     // Clean up performance observers when component unmounts
     return () => {
-      if (typeof window !== 'undefined') {
-        PerformanceObserver.disconnect();
+      if (performanceObserverRef.current) {
+        performanceObserverRef.current.disconnect();
       }
     };
   }, []);
