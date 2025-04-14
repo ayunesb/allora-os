@@ -2,10 +2,15 @@
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/loggingService";
 
+type ValidationCheckResult = boolean | {
+  valid: boolean;
+  details?: any;
+};
+
 type ValidationCheck = {
   name: string;
   description: string;
-  check: () => Promise<boolean>;
+  check: () => Promise<ValidationCheckResult>;
   severity: 'critical' | 'warning' | 'info';
   details?: any;
 };
@@ -249,7 +254,7 @@ export async function validateProductionReadiness() {
     issues,
     passedChecks,
     allChecks: results,
-    checks: checkResults,  // Add categorized check results
+    checks: checkResults ? checkResults : {},  // Fix null check
   };
 }
 
