@@ -1,52 +1,150 @@
 
 import React from "react";
 import { Text, Line } from "@react-three/drei";
+import * as THREE from "three";
 
 export default function KpiAxes() {
+  // Set up axes dimensions
+  const axisLength = 6;
+  const axisColor = "white";
+  const axisWidth = 1;
+  
+  // Define grid properties
+  const gridSize = 10;
+  const gridDivisions = 10;
+  const gridColor = "#1a1a2a";
+  
   return (
-    <group>
-      {/* X Axis */}
+    <>
+      {/* X-Axis */}
       <Line
-        points={[[-10, 0, 0], [10, 0, 0]]}
-        color="white"
-        lineWidth={1}
-        dashed={true}
-        opacity={0.3}
+        points={[
+          [-axisLength, 0, 0],
+          [axisLength, 0, 0]
+        ]}
+        color={axisColor}
+        lineWidth={axisWidth}
       />
       <Text
-        position={[11, 0, 0]}
+        position={[axisLength + 0.5, 0, 0]}
+        color={axisColor}
         fontSize={0.5}
-        color="white"
         anchorX="left"
       >
-        KPIs
+        X
       </Text>
       
-      {/* Y Axis */}
+      {/* Y-Axis */}
       <Line
-        points={[[0, -5, 0], [0, 5, 0]]}
-        color="white"
-        lineWidth={1}
-        dashed={true}
-        opacity={0.3}
+        points={[
+          [0, -axisLength, 0],
+          [0, axisLength, 0]
+        ]}
+        color={axisColor}
+        lineWidth={axisWidth}
       />
       <Text
-        position={[0, 5.5, 0]}
+        position={[0, axisLength + 0.5, 0]}
+        color={axisColor}
         fontSize={0.5}
-        color="white"
         anchorX="center"
+        anchorY="bottom"
       >
-        Value
+        Y
       </Text>
       
-      {/* Z Axis (not as prominent) */}
+      {/* Z-Axis */}
       <Line
-        points={[[0, 0, -5], [0, 0, 5]]}
-        color="white"
-        lineWidth={1}
-        dashed={true}
-        opacity={0.1}
+        points={[
+          [0, 0, -axisLength],
+          [0, 0, axisLength]
+        ]}
+        color={axisColor}
+        lineWidth={axisWidth}
       />
-    </group>
+      <Text
+        position={[0, 0, axisLength + 0.5]}
+        color={axisColor}
+        fontSize={0.5}
+        anchorX="center"
+      >
+        Z
+      </Text>
+      
+      {/* Bottom Grid */}
+      <gridHelper 
+        args={[gridSize, gridDivisions, gridColor, gridColor]} 
+        position={[0, -0.01, 0]}
+        rotation={[0, 0, 0]}
+      />
+      
+      {/* Add some tick marks with labels */}
+      {[-4, -2, 2, 4].map((pos) => (
+        <React.Fragment key={`x-tick-${pos}`}>
+          <Line
+            points={[
+              [pos, -0.1, 0],
+              [pos, 0.1, 0]
+            ]}
+            color={axisColor}
+            lineWidth={axisWidth}
+          />
+          <Text
+            position={[pos, -0.3, 0]}
+            color={axisColor}
+            fontSize={0.3}
+            anchorX="center"
+            anchorY="top"
+          >
+            {pos}
+          </Text>
+        </React.Fragment>
+      ))}
+      
+      {[-4, -2, 2, 4].map((pos) => (
+        <React.Fragment key={`y-tick-${pos}`}>
+          <Line
+            points={[
+              [-0.1, pos, 0],
+              [0.1, pos, 0]
+            ]}
+            color={axisColor}
+            lineWidth={axisWidth}
+          />
+          <Text
+            position={[-0.3, pos, 0]}
+            color={axisColor}
+            fontSize={0.3}
+            anchorX="right"
+            anchorY="center"
+          >
+            {pos}
+          </Text>
+        </React.Fragment>
+      ))}
+      
+      {[-4, -2, 2, 4].map((pos) => (
+        <React.Fragment key={`z-tick-${pos}`}>
+          <Line
+            points={[
+              [0, -0.1, pos],
+              [0, 0.1, pos]
+            ]}
+            color={axisColor}
+            lineWidth={axisWidth}
+          />
+          <Text
+            position={[0, -0.3, pos]}
+            color={axisColor}
+            fontSize={0.3}
+            anchorX="center"
+            anchorY="top"
+            rotation={[0, Math.PI / 2, 0]}
+          >
+            {pos}
+          </Text>
+        </React.Fragment>
+      ))}
+    </>
   );
 }

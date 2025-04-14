@@ -1,102 +1,156 @@
 
 /**
- * Utility for monitoring and tracking application performance
+ * Performance monitoring utility for tracking page load times and user interactions
  */
+
+interface PerformanceMeasure {
+  id: string;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  type: 'page-load' | 'api-call' | 'render' | 'interaction' | 'custom';
+  metadata?: Record<string, any>;
+}
+
 class PerformanceMonitor {
-  private measurements: Map<string, { start: number; end?: number }> = new Map();
-  
-  /**
-   * Start measuring performance for a specific operation
-   */
-  startMeasure(id: string): string {
+  private measures: PerformanceMeasure[] = [];
+  private marks: Record<string, number> = {};
+  private enabled: boolean = true;
+
+  constructor() {
+    // Initialize performance monitoring
     if (typeof window !== 'undefined' && window.performance) {
-      const uniqueId = `${id}-${Date.now()}`;
-      this.measurements.set(uniqueId, { start: performance.now() });
-      
-      // Also create a performance mark if available
-      if (performance.mark) {
-        performance.mark(`${uniqueId}-start`);
-      }
-      
-      return uniqueId;
+      this.capturePageLoadMetrics();
     }
+  }
+
+  /**
+   * Capture initial page load metrics
+   */
+  private capturePageLoadMetrics() {
+    window.addEventListener('load', () => {
+      if (!this.enabled || !window.performance) return;
+      
+      // Get navigation timing metrics if available
+      if (window.performance.timing) {
+        const timing = window.performance.timing;
+        
+        const pageLoadTime = timing.loadEventEnd - timing.navigationStart;
+        const domContentLoaded = timing.domContentLoadedEventEnd - timing.navigationStart;
+        const firstPaint = timing.responseEnd - timing.navigationStart;
+        
+        this.measures.push({
+          id: 'initial-page-load',
+          startTime: timing.navigationStart,
+          endTime: timing.loadEventEnd,
+          duration: pageLoadTime,
+          type: 'page-load',
+          metadata: {
+            domContentLoaded,
+            firstPaint,
+            totalResources: window.performance.getEntriesByType('resource').length
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Start a performance measurement
+   */
+  public startMeasure(id: string, type: 'page-load' | 'api-call' | 'render' | 'interaction' | 'custom' = 'custom', metadata?: Record<string, any>): string {
+    if (!this.enabled) return id;
+    
+    const startTime = performance.now();
+    this.measures.push({
+      id,
+      startTime,
+      type,
+      metadata
+    });
     
     return id;
   }
-  
+
   /**
-   * End measuring performance and calculate duration
+   * End a performance measurement
    */
-  endMeasure(id: string): number | null {
-    if (typeof window !== 'undefined' && window.performance) {
-      const measurement = this.measurements.get(id);
-      
-      if (measurement) {
-        const end = performance.now();
-        const duration = end - measurement.start;
-        
-        this.measurements.set(id, { ...measurement, end });
-        
-        // Also create a performance mark if available
-        if (performance.mark) {
-          performance.mark(`${id}-end`);
-          
-          if (performance.measure) {
-            try {
-              performance.measure(id, `${id}-start`, `${id}-end`);
-            } catch (err) {
-              console.error('Error measuring performance:', err);
-            }
-          }
-        }
-        
-        return duration;
-      }
-    }
+  public endMeasure(id: string): PerformanceMeasure | undefined {
+    if (!this.enabled) return undefined;
     
-    return null;
+    const endTime = performance.now();
+    const measureIndex = this.measures.findIndex(m => m.id === id && !m.endTime);
+    
+    if (measureIndex === -1) return undefined;
+    
+    this.measures[measureIndex].endTime = endTime;
+    this.measures[measureIndex].duration = endTime - this.measures[measureIndex].startTime;
+    
+    return this.measures[measureIndex];
   }
-  
+
   /**
    * Create a performance mark
    */
-  mark(name: string): void {
-    if (typeof window !== 'undefined' && window.performance && performance.mark) {
-      performance.mark(name);
-    }
-  }
-  
-  /**
-   * Get all measurements
-   */
-  getAllMeasurements(): Record<string, { duration: number | null }> {
-    const result: Record<string, { duration: number | null }> = {};
+  public mark(name: string): void {
+    if (!this.enabled) return;
     
-    this.measurements.forEach((value, key) => {
-      if (value.end) {
-        result[key] = { duration: value.end - value.start };
-      } else {
-        result[key] = { duration: null };
-      }
+    this.marks[name] = performance.now();
+  }
+
+  /**
+   * Measure time between marks
+   */
+  public measureBetweenMarks(measureName: string, startMark: string, endMark: string): number | undefined {
+    if (!this.enabled || !this.marks[startMark] || !this.marks[endMark]) return undefined;
+    
+    const duration = this.marks[endMark] - this.marks[startMark];
+    
+    this.measures.push({
+      id: measureName,
+      startTime: this.marks[startMark],
+      endTime: this.marks[endMark],
+      duration,
+      type: 'custom'
     });
     
-    return result;
+    return duration;
   }
-  
+
+  /**
+   * Get all performance measurements
+   */
+  public getMeasures(): PerformanceMeasure[] {
+    return [...this.measures];
+  }
+
+  /**
+   * Get average duration for a specific measurement type
+   */
+  public getAverageDuration(type: PerformanceMeasure['type']): number | undefined {
+    const measures = this.measures.filter(m => m.type === type && m.duration !== undefined);
+    
+    if (measures.length === 0) return undefined;
+    
+    const totalDuration = measures.reduce((sum, measure) => sum + (measure.duration || 0), 0);
+    return totalDuration / measures.length;
+  }
+
+  /**
+   * Enable or disable performance monitoring
+   */
+  public setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+  }
+
   /**
    * Clear all measurements
    */
-  clearMeasurements(): void {
-    this.measurements.clear();
-    
-    if (typeof window !== 'undefined' && window.performance && performance.clearMarks) {
-      performance.clearMarks();
-      
-      if (performance.clearMeasures) {
-        performance.clearMeasures();
-      }
-    }
+  public clear(): void {
+    this.measures = [];
+    this.marks = {};
   }
 }
 
+// Export a singleton instance
 export const performanceMonitor = new PerformanceMonitor();

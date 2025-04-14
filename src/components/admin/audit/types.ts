@@ -10,19 +10,6 @@ export interface AuditCheckItem {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in-progress' | 'passed' | 'failed';
+  status: CategoryStatus;
   required: boolean;
-}
-
-// Database verification types
-export interface DatabaseField {
-  name: string;
-  type: string;
-  isVerified: boolean;
-}
-
-export interface DatabaseTable {
-  name: string;
-  fields: DatabaseField[];
-  isVerified: boolean;
 }

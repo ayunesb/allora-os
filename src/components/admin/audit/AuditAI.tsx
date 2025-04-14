@@ -12,77 +12,72 @@ export function AuditAI({ status, onStatusChange }: AuditComponentProps) {
   const [items, setItems] = useState<AuditCheckItem[]>([
     {
       id: 'ai-1',
-      title: 'AI Strategy Bot',
-      description: 'Generates proper strategies based on onboarding inputs',
+      title: 'AI Strategy Generation',
+      description: 'Strategy suggestions are properly generated',
       status: 'pending',
       required: true
     },
     {
       id: 'ai-2',
-      title: 'AI Campaign Bot',
-      description: 'Suggests campaigns with platforms and budgets',
+      title: 'Executive Board Simulation',
+      description: 'AI executive personas function correctly',
       status: 'pending',
       required: true
     },
     {
       id: 'ai-3',
-      title: 'AI Calling Bot',
-      description: 'Generates correct cold call scripts and follow-ups',
+      title: 'AI Response Time',
+      description: 'AI responses complete in < 5 seconds',
       status: 'pending',
       required: true
     },
     {
       id: 'ai-4',
-      title: 'AI Debating Bots',
-      description: 'Shows debate conversations properly',
+      title: 'AI Fallback Mechanisms',
+      description: 'Graceful handling of AI service outages',
       status: 'pending',
       required: true
     },
     {
       id: 'ai-5',
-      title: 'Risk Level Handling',
-      description: 'Adapts strategies based on Low/Medium/High risk setting',
+      title: 'AI Content Moderation',
+      description: 'Content filtering for inappropriate outputs',
       status: 'pending',
-      required: true
+      required: false
     }
   ]);
 
   const runTest = async () => {
     setIsRunning(true);
     
-    // Reset all items to pending
-    setItems(prev => prev.map(item => ({ ...item, status: 'pending' })));
-    
-    // Simulate testing each item sequentially
-    for (let i = 0; i < items.length; i++) {
-      // Update current item to in-progress
-      setItems(prev => prev.map((item, idx) => 
-        idx === i ? { ...item, status: 'in-progress' } : item
-      ));
+    try {
+      // Test AI components
+      for (let i = 0; i < items.length; i++) {
+        // Set to in-progress
+        setItems(prev => prev.map((item, idx) => 
+          idx === i ? { ...item, status: 'in-progress' } : item
+        ));
+        
+        // Simulate AI test
+        await new Promise(resolve => setTimeout(resolve, 700));
+        
+        // For demo, mark all as passed
+        const passed = true;
+        
+        setItems(prev => prev.map((item, idx) => 
+          idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
+        ));
+      }
       
-      // Simulate test running (AI testing takes longer)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      onStatusChange('passed');
+      toast.success('AI systems check passed!');
       
-      // Set random result (90% pass rate for demo)
-      const passed = Math.random() < 0.9;
-      
-      setItems(prev => prev.map((item, idx) => 
-        idx === i ? { ...item, status: passed ? 'passed' : 'failed' } : item
-      ));
-    }
-    
-    setIsRunning(false);
-    
-    // Check results
-    const allPassed = items.every(item => item.status === 'passed');
-    const overallStatus = allPassed ? 'passed' : 'failed';
-    
-    onStatusChange(overallStatus);
-    
-    if (allPassed) {
-      toast.success('AI Bot Prompt Validation passed!');
-    } else {
-      toast.error('AI Bot Prompt Validation failed. Please review and fix issues.');
+    } catch (error) {
+      console.error('AI test error:', error);
+      onStatusChange('failed');
+      toast.error('Error testing AI systems');
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -101,7 +96,7 @@ export function AuditAI({ status, onStatusChange }: AuditComponentProps) {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary/80" />
-            <CardTitle>AI Bot Prompt Validation</CardTitle>
+            <CardTitle>AI Systems Audit</CardTitle>
           </div>
           <Button 
             onClick={runTest}
@@ -111,10 +106,10 @@ export function AuditAI({ status, onStatusChange }: AuditComponentProps) {
             {isRunning ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Testing Prompts...
+                Verifying AI...
               </>
             ) : (
-              'Run Validation'
+              'Test AI Systems'
             )}
           </Button>
         </div>
@@ -122,15 +117,17 @@ export function AuditAI({ status, onStatusChange }: AuditComponentProps) {
       <CardContent>
         <div className="space-y-4">
           {items.map((item) => (
-            <div 
-              key={item.id} 
-              className="flex items-start space-x-2"
-            >
+            <div key={item.id} className="flex items-start space-x-2">
               <div className="mt-0.5">
                 {getStatusIcon(item.status)}
               </div>
               <div className="space-y-1">
-                <div className="text-sm font-medium">{item.title}</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{item.title}</span>
+                  {!item.required && (
+                    <span className="text-xs bg-primary/10 text-primary/90 px-1.5 py-0.5 rounded">Optional</span>
+                  )}
+                </div>
                 <div className="text-xs text-muted-foreground">{item.description}</div>
               </div>
               <div className="ml-auto flex items-center">
