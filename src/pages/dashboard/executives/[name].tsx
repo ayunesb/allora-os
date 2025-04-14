@@ -229,7 +229,12 @@ export default function ExecutiveProfile() {
         </TabsContent>
         
         <TabsContent value="messages" className="space-y-4">
-          <ExecutiveMessages executiveName={executive.name} />
+          {/* Here's the fix - passing the whole executive object instead of just the name */}
+          <ExecutiveMessages executive={{
+            name: executive.name,
+            role: executive.role,
+            avatarUrl: executive.avatar
+          }} />
         </TabsContent>
         
         <TabsContent value="performance" className="space-y-4">
