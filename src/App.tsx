@@ -19,7 +19,7 @@ function App() {
       </Helmet>
       
       <AuthRedirectProvider>
-        <AuthProvider supabaseClient={supabase}>
+        <AuthProvider>
           <ExecutiveWorkflowProvider>
             <Toaster richColors />
             <Routes>

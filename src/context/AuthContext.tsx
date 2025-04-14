@@ -10,6 +10,7 @@ import {
   refreshSession as refreshSessionFunc
 } from '@/services/authService';
 import { navigate } from '@/utils/navigation';
+import { supabase } from '@/integrations/supabase/client';
 
 // Create the context
 export const AuthContext = createContext<any>(null);
