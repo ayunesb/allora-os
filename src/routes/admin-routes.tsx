@@ -18,6 +18,7 @@ const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
 const AuditPage = lazy(() => import("@/pages/admin/AuditPage"));
 const RunAudit = lazy(() => import("@/pages/admin/RunAudit"));
 const TechnicalImprovementsPage = lazy(() => import("@/pages/admin/TechnicalImprovementsPage"));
+const StrategyImplementationPage = lazy(() => import("@/pages/admin/StrategyImplementationPage"));
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -71,6 +72,10 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "technical-improvements",
         element: <TechnicalImprovementsPage />
+      },
+      {
+        path: "strategy-implementation/:id",
+        element: <StrategyImplementationPage />
       }
     ]
   }

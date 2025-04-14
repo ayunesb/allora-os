@@ -1,173 +1,124 @@
 
-import React, { useState, useRef, useEffect } from "react";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useState, useRef, useEffect } from 'react';
+import { TabsList, TabsTrigger } from "./tabs";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { Button } from "./button";
 
 export interface TabItem {
   id: string;
   label: string;
   shortLabel?: string;
-  icon?: React.ComponentType<any>;
+  icon?: LucideIcon;
 }
 
 interface ScrollableTabsProps {
   tabs: TabItem[];
-  activeTab?: string;
+  activeTab: string;
   onTabChange?: (value: string) => void;
-  className?: string;
-  variant?: "default" | "outline" | "futuristic";
-  fullWidth?: boolean;
+  variant?: 'default' | 'outline';
 }
 
-const ScrollableTabs: React.FC<ScrollableTabsProps> = ({
-  tabs,
-  activeTab,
+const ScrollableTabs: React.FC<ScrollableTabsProps> = ({ 
+  tabs, 
+  activeTab, 
   onTabChange,
-  className,
-  variant = "default",
-  fullWidth = false
+  variant = 'default'
 }) => {
-  const tabsRef = useRef<HTMLDivElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(false);
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-
-  const checkForArrows = () => {
-    if (!tabsRef.current) return;
-    
-    const { scrollLeft, scrollWidth, clientWidth } = tabsRef.current;
-    setShowLeftArrow(scrollLeft > 0);
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10); // 10px buffer
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [useShortLabels, setUseShortLabels] = useState(false);
+  
+  // Check if scrolling is needed
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setShowLeftScroll(scrollLeft > 0);
+      setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 10);
+    }
   };
 
+  // Check viewport width to determine if short labels should be used
   useEffect(() => {
-    checkForArrows();
-    window.addEventListener("resize", checkForArrows);
-    
-    return () => {
-      window.removeEventListener("resize", checkForArrows);
+    const checkViewportWidth = () => {
+      setUseShortLabels(window.innerWidth < 640);
     };
-  }, [tabs]);
 
-  const scroll = (direction: "left" | "right") => {
-    if (!tabsRef.current) return;
-    
-    const { clientWidth } = tabsRef.current;
-    const scrollAmount = direction === "left" ? -clientWidth / 2 : clientWidth / 2;
-    
-    tabsRef.current.scrollBy({
-      left: scrollAmount,
-      behavior: "smooth",
-    });
-    
-    // Check arrows after scroll animation completes
-    setTimeout(checkForArrows, 300);
-  };
-
-  const getVariantStyles = (variant: string) => {
-    switch (variant) {
-      case "outline":
-        return "border border-border rounded-lg p-1";
-      case "futuristic":
-        return "bg-black/30 border border-white/10 backdrop-blur-md rounded-lg p-1";
-      default:
-        return "bg-muted rounded-lg p-1";
+    checkViewportWidth();
+    window.addEventListener('resize', checkViewportWidth);
+    return () => window.removeEventListener('resize', checkViewportWidth);
+  }, []);
+  
+  // Initialize scroll check
+  useEffect(() => {
+    checkScrollButtons();
+    window.addEventListener('resize', checkScrollButtons);
+    return () => window.removeEventListener('resize', checkScrollButtons);
+  }, [tabs, useShortLabels]);
+  
+  // Handle scrolling
+  const scrollTabs = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const { clientWidth } = scrollContainerRef.current;
+      const scrollAmount = direction === 'left' ? -clientWidth / 2 : clientWidth / 2;
+      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      
+      // Check buttons after scrolling
+      setTimeout(checkScrollButtons, 300);
     }
   };
-
-  const getActiveItemStyles = (variant: string, isActive: boolean) => {
-    if (!isActive) return "";
-    
-    switch (variant) {
-      case "outline":
-        return "bg-muted";
-      case "futuristic":
-        return "bg-primary/20 text-white data-[state=active]:text-white";
-      default:
-        return "bg-background";
-    }
-  };
-
+  
   return (
-    <div className={cn("relative w-full group", fullWidth && "max-w-full")}>
-      {showLeftArrow && (
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 h-8 w-8 bg-background/80 backdrop-blur-sm border border-border/50 opacity-80 hover:opacity-100"
-          onClick={() => scroll("left")}
-          aria-label="Scroll tabs left"
+    <div className="relative">
+      {showLeftScroll && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background shadow-md"
+          onClick={() => scrollTabs('left')}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
       )}
       
-      <TabsList
-        ref={tabsRef}
-        className={cn(
-          "flex overflow-x-auto scrollbar-thin w-full justify-start",
-          getVariantStyles(variant),
-          className
-        )}
-        onScroll={checkForArrows}
+      <div
+        className="overflow-x-auto scrollbar-hide"
+        ref={scrollContainerRef}
+        onScroll={checkScrollButtons}
       >
-        {tabs.map((tab, index) => (
-          <TabsTrigger
-            key={tab.id}
-            value={tab.id}
-            onClick={() => onTabChange && onTabChange(tab.id)}
-            onMouseEnter={() => setHoverIndex(index)}
-            onMouseLeave={() => setHoverIndex(null)}
-            className={cn(
-              "relative flex-shrink-0 transition-all font-medium",
-              getActiveItemStyles(variant, activeTab === tab.id),
-              variant === "futuristic" && "py-1.5"
-            )}
-          >
-            {variant === "futuristic" && activeTab === tab.id && (
-              <motion.div
-                layoutId="active-tab-background"
-                className="absolute inset-0 bg-primary/20 rounded-md -z-10"
-                initial={false}
-                transition={{ type: "spring", duration: 0.5 }}
-              />
-            )}
-            
-            {variant === "futuristic" && hoverIndex === index && activeTab !== tab.id && (
-              <motion.div
-                className="absolute inset-0 bg-white/5 rounded-md -z-10"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              />
-            )}
-            
-            <div className="flex items-center gap-2">
-              {tab.icon && React.createElement(tab.icon, { 
-                className: cn(
-                  "h-4 w-4", 
-                  variant === "futuristic" && activeTab === tab.id 
-                    ? "text-primary" 
-                    : "text-muted-foreground group-hover:text-primary/80"
-                )
-              })}
-              <span>{tab.shortLabel || tab.label}</span>
-            </div>
-          </TabsTrigger>
-        ))}
-      </TabsList>
+        <TabsList 
+          className={cn(
+            "w-max min-w-full", 
+            variant === 'outline' && "bg-transparent border-b rounded-none p-0"
+          )}
+        >
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              onClick={() => onTabChange?.(tab.id)}
+              className={cn(
+                variant === 'outline' && "border-b-2 border-b-transparent data-[state=active]:border-b-primary data-[state=active]:bg-transparent rounded-none px-4 pb-3",
+                "min-w-[100px]"
+              )}
+            >
+              <div className="flex items-center">
+                {tab.icon && <tab.icon className="h-4 w-4 mr-2" />}
+                <span>{useShortLabels && tab.shortLabel ? tab.shortLabel : tab.label}</span>
+              </div>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
       
-      {showRightArrow && (
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 h-8 w-8 bg-background/80 backdrop-blur-sm border border-border/50 opacity-80 hover:opacity-100"
-          onClick={() => scroll("right")}
-          aria-label="Scroll tabs right"
+      {showRightScroll && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 bg-background shadow-md"
+          onClick={() => scrollTabs('right')}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>

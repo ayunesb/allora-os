@@ -1,63 +1,103 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TypographyH1 } from "@/components/ui/typography";
+import { TypographyH1, TypographyP } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Edit, Trash2, Phone, Mail } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Phone, Mail, ArrowUpDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-type Lead = {
-  id: string;
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  status: "new" | "contacted" | "qualified" | "proposal" | "closed";
-  score: number;
-};
-
-const mockLeads: Lead[] = [
-  { 
-    id: "1", 
-    name: "Alex Johnson", 
-    company: "TechCorp Inc.", 
-    email: "alex@techcorp.com", 
-    phone: "(555) 123-4567", 
-    status: "new", 
-    score: 85 
-  },
-  { 
-    id: "2", 
-    name: "Sarah Williams", 
-    company: "Global Solutions", 
-    email: "sarah@globalsolutions.com", 
-    phone: "(555) 234-5678", 
-    status: "contacted", 
-    score: 72 
-  },
-  { 
-    id: "3", 
-    name: "David Miller", 
-    company: "Innovative Systems", 
-    email: "david@innovative.com", 
-    phone: "(555) 345-6789", 
-    status: "qualified", 
-    score: 91 
-  },
-  { 
-    id: "4", 
-    name: "Jessica Brown", 
-    company: "Future Enterprises", 
-    email: "jessica@future.com", 
-    phone: "(555) 456-7890", 
-    status: "proposal", 
-    score: 68 
-  },
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLeadOperations } from '@/hooks/admin/useLeadOperations';
+import { Lead } from '@/models/lead';
+import { useAdvancedLeadScoring } from '@/hooks/useAdvancedLeadScoring';
 
 export default function AdminLeads() {
+  const { fetchLeads, updateLeadStatus, deleteLead, isLoading } = useLeadOperations();
+  const { getLeadScoreCategory, getNextBestAction } = useAdvancedLeadScoring();
+  
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'name' | 'score' | 'created_at'>('score');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  useEffect(() => {
+    const loadLeads = async () => {
+      const fetchedLeads = await fetchLeads();
+      setLeads(fetchedLeads);
+      setFilteredLeads(fetchedLeads);
+    };
+    
+    loadLeads();
+  }, [fetchLeads]);
+  
+  useEffect(() => {
+    let result = [...leads];
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(lead => 
+        lead.name.toLowerCase().includes(query) || 
+        lead.email?.toLowerCase().includes(query) ||
+        lead.company?.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply status filter
+    if (activeFilter !== 'all') {
+      result = result.filter(lead => lead.status === activeFilter);
+    }
+    
+    // Apply sorting
+    result.sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortBy === 'name') {
+        comparison = a.name.localeCompare(b.name);
+      } else if (sortBy === 'score') {
+        const scoreA = a.score || 0;
+        const scoreB = b.score || 0;
+        comparison = scoreA - scoreB;
+      } else if (sortBy === 'created_at') {
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    setFilteredLeads(result);
+  }, [leads, searchQuery, activeFilter, sortBy, sortOrder]);
+
+  const handleSort = (column: 'name' | 'score' | 'created_at') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('desc');
+    }
+  };
+  
+  const handleStatusUpdate = async (leadId: string, status: Lead['status']) => {
+    const success = await updateLeadStatus(leadId, status);
+    if (success) {
+      setLeads(prev => prev.map(lead => 
+        lead.id === leadId ? { ...lead, status } : lead
+      ));
+    }
+    return success;
+  };
+  
+  const handleDelete = async (leadId: string) => {
+    const success = await deleteLead(leadId);
+    if (success) {
+      setLeads(prev => prev.filter(lead => lead.id !== leadId));
+    }
+    return success;
+  };
+
   const renderStatusBadge = (status: Lead['status']) => {
     switch (status) {
       case 'new':
@@ -68,43 +108,59 @@ export default function AdminLeads() {
         return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30">{status}</Badge>;
       case 'proposal':
         return <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30">{status}</Badge>;
+      case 'negotiation':
+        return <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30">{status}</Badge>;
       case 'closed':
         return <Badge variant="secondary">{status}</Badge>;
+      case 'lost':
+        return <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30">{status}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  const renderLeadScore = (score: number) => {
+  const renderLeadScore = (lead: Lead) => {
+    const scoreCategory = getLeadScoreCategory(lead);
     let colorClass = "";
     
-    if (score >= 80) {
-      colorClass = "text-green-600 dark:text-green-400";
-    } else if (score >= 60) {
+    if (scoreCategory === 'hot') {
+      colorClass = "text-red-600 dark:text-red-400";
+    } else if (scoreCategory === 'warm') {
       colorClass = "text-yellow-600 dark:text-yellow-400";
     } else {
-      colorClass = "text-red-600 dark:text-red-400";
+      colorClass = "text-blue-600 dark:text-blue-400";
     }
     
-    return <span className={`font-medium ${colorClass}`}>{score}</span>;
+    return (
+      <div className="flex flex-col">
+        <span className={`font-medium ${colorClass}`}>{scoreCategory.toUpperCase()}</span>
+        <span className="text-xs text-muted-foreground">{lead.score || 0} pts</span>
+      </div>
+    );
   };
 
   const columns = [
     {
       key: "name",
       title: "Name",
-      render: (item: Lead) => <span className="font-medium">{item.name}</span>,
-    },
-    {
-      key: "company",
-      title: "Company",
-      render: (item: Lead) => <span>{item.company}</span>,
+      sortable: true,
+      render: (item: Lead) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{item.name}</span>
+          {item.company && <span className="text-xs text-muted-foreground">{item.company}</span>}
+        </div>
+      ),
     },
     {
       key: "email",
-      title: "Email",
+      title: "Contact",
       hideOnMobile: true,
-      render: (item: Lead) => <span className="text-sm">{item.email}</span>,
+      render: (item: Lead) => (
+        <div className="flex flex-col">
+          {item.email && <span className="text-sm">{item.email}</span>}
+          {item.phone && <span className="text-xs text-muted-foreground">{item.phone}</span>}
+        </div>
+      ),
     },
     {
       key: "status",
@@ -113,8 +169,24 @@ export default function AdminLeads() {
     },
     {
       key: "score",
-      title: "Score",
-      render: (item: Lead) => renderLeadScore(item.score),
+      title: (
+        <div className="flex items-center cursor-pointer" onClick={() => handleSort('score')}>
+          Score
+          <ArrowUpDown className="ml-1 h-4 w-4" />
+        </div>
+      ),
+      sortable: true,
+      render: (item: Lead) => renderLeadScore(item),
+    },
+    {
+      key: "action",
+      title: "Next Action",
+      hideOnMobile: true,
+      render: (item: Lead) => (
+        <div className="max-w-[200px] truncate text-sm">
+          {getNextBestAction(item)}
+        </div>
+      ),
     },
   ];
 
@@ -137,7 +209,7 @@ export default function AdminLeads() {
     {
       key: "score",
       title: "Score",
-      render: (item: Lead) => renderLeadScore(item.score),
+      render: (item: Lead) => renderLeadScore(item),
     },
   ];
 
@@ -152,7 +224,12 @@ export default function AdminLeads() {
       <Button size="icon" variant="ghost">
         <Edit className="h-4 w-4" />
       </Button>
-      <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive">
+      <Button 
+        size="icon" 
+        variant="ghost" 
+        className="text-destructive hover:text-destructive"
+        onClick={() => handleDelete(item.id)}
+      >
         <Trash2 className="h-4 w-4" />
       </Button>
     </div>
@@ -168,37 +245,51 @@ export default function AdminLeads() {
         </Button>
       </div>
       
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search leads..." 
-            className="pl-8" 
-          />
+      <Tabs defaultValue="all" value={activeFilter} onValueChange={setActiveFilter}>
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search leads..." 
+              className="pl-8" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="new">New</TabsTrigger>
+            <TabsTrigger value="contacted">Contacted</TabsTrigger>
+            <TabsTrigger value="qualified">Qualified</TabsTrigger>
+            <TabsTrigger value="proposal">Proposal</TabsTrigger>
+          </TabsList>
         </div>
         
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm">All Leads</Button>
-          <Button variant="outline" size="sm">New</Button>
-          <Button variant="outline" size="sm">Contacted</Button>
-          <Button variant="outline" size="sm">Qualified</Button>
-          <Button variant="outline" size="sm">Proposal</Button>
-        </div>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>All Leads</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveTable 
-            data={mockLeads}
-            columns={columns}
-            mobileColumns={mobileColumns}
-            actions={actions}
-          />
-        </CardContent>
-      </Card>
+        <TabsContent value={activeFilter} className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>{activeFilter === 'all' ? 'All Leads' : `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)} Leads`}</span>
+                {isLoading && <span className="text-sm text-muted-foreground">Loading...</span>}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveTable 
+                data={filteredLeads}
+                columns={columns}
+                mobileColumns={mobileColumns}
+                actions={actions}
+                emptyState={
+                  <div className="py-8 text-center">
+                    <TypographyP>No leads found matching your criteria.</TypographyP>
+                  </div>
+                }
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
