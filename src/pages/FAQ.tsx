@@ -55,12 +55,33 @@ export default function FAQ() {
     setAiAnswer(null);
     
     try {
+      // Application-specific context for the AI
+      const appContext = `
+        About Allora AI:
+        - Allora AI is an executive advisory platform powered by artificial intelligence
+        - Main features include: AI Executive Team, Dashboard & Analytics, Strategy Management, 
+          Lead Management, Communication Tools, Campaign Management, User Management & Settings
+        - The AI Executive Team includes virtual executive personas that provide specialized advice on business strategies
+        - The platform offers risk-based strategies tailored to different risk appetites (low, medium, high)
+        - Users can track business metrics, manage leads, and create marketing campaigns
+        - Communication tools include phone calling, Zoom integration, WhatsApp messaging, and AI script generation
+        - The platform is designed to be user-friendly with a responsive interface for all devices
+        
+        Core User Benefits:
+        - Make data-driven strategic decisions with AI assistance
+        - Get personalized business insights based on company size, industry, and risk preferences
+        - Connect with potential customers more effectively through integrated communication tools
+        - Track performance metrics and ROI for business initiatives
+        - Save time with AI-generated recommendations and content
+      `;
+      
       const { data, error } = await supabase.functions.invoke('openai', {
         body: {
           prompt: question,
           botName: "FAQ Assistant",
           botRole: "customer support specialist",
-          messages: []
+          messages: [],
+          systemContext: appContext
         }
       });
       
@@ -127,14 +148,14 @@ export default function FAQ() {
                   Ask Our AI Assistant
                 </CardTitle>
                 <CardDescription>
-                  Don't see your question? Ask our AI assistant for help
+                  Don't see your question? Ask our AI assistant for help with Allora AI
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col space-y-4">
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Type your question here..."
+                      placeholder="Ask about Allora AI features, pricing, or how to use it..."
                       value={question}
                       onChange={(e) => setQuestion(e.target.value)}
                       onKeyDown={handleKeyPress}
@@ -169,7 +190,7 @@ export default function FAQ() {
                 </div>
               </CardContent>
               <CardFooter className="text-xs text-muted-foreground">
-                Our AI assistant provides general information and may not cover all specific cases.
+                This AI assistant provides information specific to Allora AI and its features.
               </CardFooter>
             </Card>
           </div>

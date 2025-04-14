@@ -27,7 +27,8 @@ serve(async (req) => {
       debateContext,
       preferences,
       memoryContext,
-      learningFeedback
+      learningFeedback,
+      systemContext
     } = await req.json();
 
     // Construct the system prompt based on bot info, user preferences and memory
@@ -47,10 +48,17 @@ serve(async (req) => {
       }
     }
     
+    // Add custom system context if provided
+    let customContext = "";
+    if (systemContext) {
+      customContext = `\n\nAPPLICATION CONTEXT:\n${systemContext}\n\n`;
+    }
+    
     if (botName && botRole) {
       systemPrompt = `You are ${botName}, an experienced executive in the role of ${botRole}. 
       You provide expert business advice and strategic insights based on your expertise. 
       Your responses should be professional, direct, and reflective of your executive position.
+      ${customContext}
       ${memoryPrompt}`;
       
       // Add response style preferences
