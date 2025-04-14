@@ -1,4 +1,3 @@
-
 // A utility for navigation that doesn't depend on the useNavigate hook directly
 // This will be used in contexts or services that need to navigate but can't access useNavigate
 
@@ -65,6 +64,40 @@ const COMMON_ROUTE_CORRECTIONS: Record<string, string> = {
   '/cookie': '/cookie-policy',
   '/refund': '/refund-policy',
   '/messaging': '/messaging-consent',
+  '/gdpr-compliance': '/gdpr',
+  '/gdpr-policy': '/gdpr',
+  '/eu-privacy': '/gdpr',
+  '/eu-data-rights': '/gdpr',
+  '/data-privacy': '/privacy',
+  '/cookie-preferences': '/cookie-settings',
+  '/cookie-manager': '/cookie-settings',
+};
+
+// Legal routes map for more accurate corrections
+const LEGAL_ROUTE_PATTERNS: Record<string, string> = {
+  'term': '/legal/terms-of-service',
+  'tos': '/legal/terms-of-service',
+  'terms-service': '/legal/terms-of-service',
+  'privacy': '/legal/privacy-policy',
+  'privacy-policy': '/legal/privacy-policy',
+  'private': '/legal/privacy-policy',
+  'cookie': '/legal/cookies',
+  'cookie-policy': '/legal/cookies',
+  'cookies': '/legal/cookies',
+  'refund': '/legal/refund-policy',
+  'refunds': '/legal/refund-policy',
+  'returns': '/legal/refund-policy',
+  'return-policy': '/legal/refund-policy',
+  'message': '/legal/messaging-consent',
+  'messaging': '/legal/messaging-consent',
+  'consent': '/legal/messaging-consent',
+  'text-consent': '/legal/messaging-consent',
+  'sms-consent': '/legal/messaging-consent',
+  'gdpr': '/legal/gdpr',
+  'data-protection': '/legal/gdpr',
+  'eu-privacy': '/legal/gdpr',
+  'cookie-settings': '/legal/cookie-settings',
+  'cookie-preferences': '/legal/cookie-settings',
 };
 
 // Route normalization function to handle common URL variants
@@ -72,6 +105,26 @@ export const normalizeRoute = (route: string): string => {
   // First check direct matches in our correction map
   if (COMMON_ROUTE_CORRECTIONS[route]) {
     return COMMON_ROUTE_CORRECTIONS[route];
+  }
+  
+  // Check if this is a legal-related route
+  if (route.includes('/legal/') || 
+      route.startsWith('/term') || 
+      route.startsWith('/priv') || 
+      route.startsWith('/cookie') || 
+      route.startsWith('/refund') || 
+      route.startsWith('/message') || 
+      route.startsWith('/gdpr') || 
+      route.startsWith('/consent')) {
+    
+    // Try to match against known legal route patterns
+    const routeLower = route.toLowerCase();
+    
+    for (const [pattern, correction] of Object.entries(LEGAL_ROUTE_PATTERNS)) {
+      if (routeLower.includes(pattern)) {
+        return correction;
+      }
+    }
   }
   
   // Handle entities route with tab parameter
@@ -155,42 +208,33 @@ export const normalizeRoute = (route: string): string => {
     return '/cookie-policy';
   }
   
-  if (route.includes('/refund') && route !== '/refund-policy') {
-    return '/refund-policy';
-  }
-  
-  if (route.includes('/message') && !route.includes('/messaging-consent')) {
-    return '/messaging-consent';
-  }
-  
-  // Handle root path
-  if (route === '') {
-    return '/';
-  }
-  
   return route;
 };
 
-// Track visited routes for smarter suggestions
+// Track route visits for analytics and suggestions
 let recentRoutes: string[] = [];
-const MAX_RECENT_ROUTES = 10;
 
 export const trackRouteVisit = (route: string) => {
-  // Only track main sections, not deeply nested routes
-  const simplifiedRoute = route.split('/').slice(0, 3).join('/');
+  if (!route) return;
   
-  // Remove if already exists
-  recentRoutes = recentRoutes.filter(r => r !== simplifiedRoute);
+  // Add to recent routes, keeping only the last 10
+  recentRoutes.unshift(route);
+  if (recentRoutes.length > 10) {
+    recentRoutes = recentRoutes.slice(0, 10);
+  }
   
-  // Add to front
-  recentRoutes.unshift(simplifiedRoute);
-  
-  // Keep only the last MAX_RECENT_ROUTES
-  if (recentRoutes.length > MAX_RECENT_ROUTES) {
-    recentRoutes = recentRoutes.slice(0, MAX_RECENT_ROUTES);
+  // Could send to analytics here
+  if (typeof window !== 'undefined') {
+    try {
+      window.dispatchEvent(new CustomEvent('route-visit', { 
+        detail: { route, timestamp: new Date().toISOString() } 
+      }));
+    } catch (e) {
+      // Silent catch - non-critical
+    }
   }
 };
 
-export const getRecentRoutes = (): string[] => {
+export const getRecentRoutes = () => {
   return [...recentRoutes];
 };

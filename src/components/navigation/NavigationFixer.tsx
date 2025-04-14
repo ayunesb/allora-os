@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { normalizeRoute, trackRouteVisit } from '@/utils/navigation';
-import { trackRouteAccess, isValidLegalRoute, getSuggestedLegalRoutes } from '@/utils/routeTracker';
+import { trackRouteAccess, isValidLegalRoute, getSuggestedLegalRoutes, validLegalRoutes } from '@/utils/routeTracker';
 import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
 import { useAuth } from '@/context/AuthContext';
@@ -56,23 +56,11 @@ export default function NavigationFixer() {
     ];
     
     // Add all legal routes to known valid paths
-    const allValidLegalRoutes = [
-      '/privacy',
-      '/terms',
-      '/cookie-policy',
-      '/refund-policy',
-      '/messaging-consent',
-      '/legal/terms-of-service',
-      '/legal/privacy-policy',
-      '/legal/cookies',
-      '/legal/compliance',
-      '/legal/refund-policy',
-      '/legal/messaging-consent',
-    ];
+    const allValidPaths = [...knownValidPaths, ...validLegalRoutes];
     
-    const isKnownValid = knownValidPaths.some(path => 
+    const isKnownValid = allValidPaths.some(path => 
       currentPath === path || currentPath.startsWith(`${path}/`)
-    ) || allValidLegalRoutes.includes(currentPath);
+    );
     
     if (isKnownValid || attemptedFix) {
       return;
@@ -130,7 +118,7 @@ export default function NavigationFixer() {
       const isLikelyCompliancePath = /^\/comp(liance)?.*/.test(currentPath);
       const isLikelySystemPath = /^\/sys(tem)?.*/.test(currentPath);
       const isLikelyDiagnosticsPath = /^\/diag(nostics)?.*/.test(currentPath);
-      const isLikelyLegalPath = /^\/(legal|terms|priv|cookie|refund|message|consent).*/.test(currentPath);
+      const isLikelyLegalPath = /^\/(legal|terms|priv|cookie|refund|message|consent|gdpr).*/.test(currentPath);
       
       if (isLikelyAdminPath) {
         navigate('/admin', { replace: true, state: { attemptedPath: currentPath } });
@@ -171,25 +159,30 @@ export default function NavigationFixer() {
       setAttemptedFix(true);
     }
 
-    // Enhanced legal route checking
-    if (currentPath.includes('/legal') && !isValidLegalRoute(currentPath)) {
+    // Enhanced legal route checking - specifically for /legal/something routes
+    if (currentPath.includes('/legal/') && !isValidLegalRoute(currentPath)) {
       logger.warn(`Potential 404 for legal route: ${currentPath}`);
-      toast.error('Invalid legal document route');
       
       // Get suggested legal routes
-      const suggestedRoutes = getSuggestedLegalRoutes('/legal');
+      const suggestedRoutes = getSuggestedLegalRoutes(currentPath);
       
       if (suggestedRoutes.length > 0) {
+        toast.info(`Redirecting to ${suggestedRoutes[0].name}`);
         logger.info(`Suggested legal routes: ${JSON.stringify(suggestedRoutes)}`);
+        navigate(suggestedRoutes[0].path, { 
+          replace: true, 
+          state: { 
+            attemptedPath: currentPath,
+            suggestedRoutes
+          } 
+        });
+      } else {
+        toast.error('Invalid legal document route');
+        navigate('/legal', { 
+          replace: true, 
+          state: { attemptedPath: currentPath }
+        });
       }
-      
-      navigate('/legal', { 
-        replace: true, 
-        state: { 
-          attemptedPath: currentPath,
-          suggestedRoutes
-        } 
-      });
       setAttemptedFix(true);
     }
   }, [location.pathname, navigate, attemptedFix, isAuthenticated]);

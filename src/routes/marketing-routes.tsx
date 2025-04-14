@@ -10,6 +10,8 @@ import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
 import TermsOfService from "@/pages/TermsOfService";
 import MessagingConsent from "@/pages/MessagingConsent";
+import GDPRCompliance from "@/pages/GDPRCompliance";
+import CookieSettings from "@/pages/CookieSettings";
 
 export const marketingRoutes: RouteObject[] = [
   {
@@ -75,6 +77,28 @@ export const marketingRoutes: RouteObject[] = [
   {
     path: "/legal/messaging-consent",
     element: <MessagingConsent />,
+  },
+  // New GDPR compliance routes
+  {
+    path: "/gdpr",
+    element: <GDPRCompliance />,
+  },
+  {
+    path: "/legal/gdpr",
+    element: <GDPRCompliance />,
+  },
+  {
+    path: "/compliance/gdpr",
+    element: <GDPRCompliance />,
+  },
+  // New Cookie Settings routes
+  {
+    path: "/cookie-settings",
+    element: <CookieSettings />,
+  },
+  {
+    path: "/legal/cookie-settings",
+    element: <CookieSettings />,
   },
 ];
 

@@ -13,7 +13,12 @@ export const validLegalRoutes = [
   '/terms',
   '/cookie-policy',
   '/refund-policy',
-  '/messaging-consent'
+  '/messaging-consent',
+  '/compliance/gdpr',  // Adding GDPR compliance route
+  '/legal/gdpr',       // Adding alternate GDPR route
+  '/gdpr',             // Adding direct GDPR route
+  '/legal/cookie-settings', // Adding cookie settings route
+  '/cookie-settings'    // Adding direct cookie settings route
 ];
 
 // Map of shortened route names to their full paths for better error messages
@@ -28,7 +33,12 @@ export const legalRouteDisplayNames: Record<string, string> = {
   '/terms': 'Terms of Service',
   '/cookie-policy': 'Cookies Policy',
   '/refund-policy': 'Refund Policy',
-  '/messaging-consent': 'Messaging Consent'
+  '/messaging-consent': 'Messaging Consent',
+  '/compliance/gdpr': 'GDPR Compliance',
+  '/legal/gdpr': 'GDPR Compliance',
+  '/gdpr': 'GDPR Compliance',
+  '/legal/cookie-settings': 'Cookie Settings',
+  '/cookie-settings': 'Cookie Settings'
 };
 
 /**
@@ -54,13 +64,22 @@ export const trackRouteAccess = (path: string) => {
     } catch (error) {
       // Silent catch - analytics is non-critical
     }
-  } else if (path.includes('/legal')) {
+  } else if (path.includes('/legal') || path.includes('/privacy') || 
+             path.includes('/terms') || path.includes('/cookie') || 
+             path.includes('/gdpr') || path.includes('/refund') || 
+             path.includes('/messaging-consent')) {
     logger.warn(`Potentially Invalid Legal Route: ${path}`);
     console.warn(`❌ Potentially Invalid Legal Route: ${path}`);
     
     // Suggest similar valid routes for better user experience
     const similarRoutes = validLegalRoutes
-      .filter(route => route.includes('/legal'))
+      .filter(route => route.includes('/legal') || 
+                      (path.includes('/privacy') && route.includes('/privacy')) ||
+                      (path.includes('/terms') && route.includes('/terms')) ||
+                      (path.includes('/cookie') && route.includes('/cookie')) ||
+                      (path.includes('/gdpr') && route.includes('/gdpr')) ||
+                      (path.includes('/refund') && route.includes('/refund')) ||
+                      (path.includes('/messaging') && route.includes('/messaging')))
       .map(route => ({ route, name: legalRouteDisplayNames[route] }));
     
     if (similarRoutes.length > 0) {
@@ -84,10 +103,43 @@ export const isValidLegalRoute = (path: string): boolean => {
  * @returns Array of matching route objects with path and display name
  */
 export const getSuggestedLegalRoutes = (partialPath: string): Array<{path: string, name: string}> => {
-  return validLegalRoutes
-    .filter(route => route.includes(partialPath))
-    .map(route => ({
-      path: route,
-      name: legalRouteDisplayNames[route] || route
-    }));
+  // Handle special cases for common typos or user errors
+  const searchPath = partialPath.toLowerCase();
+  
+  // Define patterns to match against for better suggestions
+  const patterns: Record<string, string[]> = {
+    privacy: ['/privacy', '/legal/privacy-policy'],
+    terms: ['/terms', '/legal/terms-of-service', '/tos'],
+    cookie: ['/cookie-policy', '/legal/cookies', '/cookie-settings'],
+    refund: ['/refund-policy', '/legal/refund-policy'],
+    message: ['/messaging-consent', '/legal/messaging-consent'],
+    gdpr: ['/gdpr', '/legal/gdpr', '/compliance/gdpr'],
+    legal: validLegalRoutes
+  };
+  
+  // Find which pattern matches best
+  let bestMatches: string[] = [];
+  
+  for (const [key, routes] of Object.entries(patterns)) {
+    if (searchPath.includes(key)) {
+      bestMatches = [...bestMatches, ...routes];
+    }
+  }
+  
+  // If no patterns matched, do a general filter
+  if (bestMatches.length === 0) {
+    return validLegalRoutes
+      .filter(route => route.toLowerCase().includes(searchPath))
+      .map(route => ({
+        path: route,
+        name: legalRouteDisplayNames[route] || route
+      }));
+  }
+  
+  // Return unique matches based on patterns
+  const uniqueMatches = [...new Set(bestMatches)];
+  return uniqueMatches.map(route => ({
+    path: route,
+    name: legalRouteDisplayNames[route] || route
+  }));
 };
