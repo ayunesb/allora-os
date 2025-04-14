@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -21,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useBreakpoint } from '@/hooks/use-mobile';
 import { AdminNav } from '@/components/admin/AdminNav';
+import { AdminBreadcrumb } from '@/components/admin/AdminBreadcrumb';
 
 export interface AdminLayoutProps {
   children?: React.ReactNode;
@@ -63,24 +63,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { id: 'communication-tools', label: 'Communication Tools', icon: <MessagesSquare className="h-4 w-4" /> }
   ];
   
-  const adminMenuItems = [
-    { icon: <LayoutDashboard size={isMobileView ? 16 : 18} />, label: "Dashboard", href: "/admin" },
-    { icon: <Users size={isMobileView ? 16 : 18} />, label: "Users", href: "/admin/users" },
-    { icon: <Building2 size={isMobileView ? 16 : 18} />, label: "Companies", href: "/admin/companies" },
-    { icon: <BarChart3 size={isMobileView ? 16 : 18} />, label: "Campaigns", href: "/admin/campaigns" },
-    { icon: <UserPlus size={isMobileView ? 16 : 18} />, label: "Leads", href: "/admin/leads" },
-    { icon: <LineChart size={isMobileView ? 16 : 18} />, label: "Analytics", href: "/admin/analytics" },
-    { icon: <Settings size={isMobileView ? 16 : 18} />, label: "Settings", href: "/admin/settings" },
-    { icon: <Rocket size={isMobileView ? 16 : 18} />, label: "Launch Prep", href: "/admin/launch-prep" },
-  ];
-
-  const isRouteActive = (href: string) => {
-    if (href === '/admin' && currentPath === '/admin') {
-      return true;
-    }
-    return href !== '/admin' && currentPath.startsWith(href);
-  };
-
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -89,7 +71,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (children) {
       return children;
     }
-    return <Outlet />;
+    return (
+      <>
+        <AdminBreadcrumb />
+        <Outlet />
+      </>
+    );
   };
 
   if (isMobileView) {

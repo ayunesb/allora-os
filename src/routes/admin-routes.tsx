@@ -1,7 +1,7 @@
-
 import { RouteObject } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import EntitiesPage from "@/pages/admin/EntitiesPage";
 import AuditPage from "@/pages/admin/AuditPage";
 import RunAudit from "@/pages/admin/RunAudit";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -35,6 +35,10 @@ export const adminRoutes: RouteObject[] = [
         element: <AdminDashboard />,
       },
       {
+        path: "entities",
+        element: <EntitiesPage />,
+      },
+      {
         path: "audit",
         element: <AuditPage />,
       },
@@ -56,11 +60,11 @@ export const adminRoutes: RouteObject[] = [
       },
       {
         path: "users",
-        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+        element: <EntitiesPage />,  // Redirect to entities page with users tab active
       },
       {
         path: "companies",
-        element: <AdminDashboard />,  // Temporarily using AdminDashboard as placeholder
+        element: <EntitiesPage />,  // Redirect to entities page with companies tab active
       },
       {
         path: "campaigns",

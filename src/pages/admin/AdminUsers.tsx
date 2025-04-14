@@ -2,48 +2,69 @@
 import React, { useState, useEffect } from "react";
 import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
 import { UserManagementHeader, UserTable } from "@/components/admin/users";
+import { EntityListSkeleton } from "@/components/admin/EntityListSkeleton";
 import { User } from "@/models/user";
 import { toast } from "sonner";
+import { useUserManagement } from "@/hooks/admin/useUserManagement";
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { users, isLoading, loadUsers, updateUser, deleteUser } = useUserManagement();
   const [companies, setCompanies] = useState<Array<{ id: string; name: string }>>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
 
   useEffect(() => {
-    // Mock loading users
-    const timer = setTimeout(() => {
-      setUsers([]);
-      setIsLoading(false);
-      setCompanies([{ id: '1', name: 'Default Company' }]);
+    // Load users when component mounts
+    loadUsers();
+    fetchCompanies();
+  }, [loadUsers]);
+
+  const fetchCompanies = async () => {
+    setLoadingCompanies(true);
+    try {
+      // For this implementation, we'll use a simple mock data
+      // In a real implementation, this would fetch from the database
+      setTimeout(() => {
+        setCompanies([
+          { id: 'company-1', name: 'Acme Inc.' },
+          { id: 'company-2', name: 'Global Tech' },
+          { id: 'company-3', name: 'Future Solutions' }
+        ]);
+        setLoadingCompanies(false);
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      toast.error('Failed to load companies');
       setLoadingCompanies(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  };
 
   const handleUserAdded = () => {
     toast.success("User added successfully");
-    // Would normally refetch users here
+    loadUsers();
   };
 
   const handleUpdateUser = (userId: string, updates: Partial<User>) => {
-    console.log("Update user:", userId, updates);
+    updateUser(userId, updates);
     toast.success("User updated");
   };
 
   const handleDeleteUser = (userId: string, userName: string) => {
-    console.log("Delete user:", userId, userName);
-    toast.success("User deleted");
+    if (window.confirm(`Are you sure you want to delete user ${userName}?`)) {
+      deleteUser(userId);
+      toast.success("User deleted");
+    }
   };
+
+  if (isLoading || loadingCompanies) {
+    return <EntityListSkeleton />;
+  }
 
   return (
     <PageErrorBoundary pageName="User Management">
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="space-y-6">
         <UserManagementHeader 
-          companies={companies}
-          loadingCompanies={loadingCompanies}
+          companies={companies} 
+          loadingCompanies={loadingCompanies} 
           onUserAdded={handleUserAdded}
         />
         
