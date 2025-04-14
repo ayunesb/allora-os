@@ -1,153 +1,184 @@
 
-import React, { useState } from "react";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { 
-  industrySpecificExecutives,
-  executiveIndustryExpertise 
-} from "@/backend/executiveBots";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Check, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
+
+// List of industries
+const industries = [
+  "Technology",
+  "Healthcare",
+  "Finance",
+  "Manufacturing",
+  "Retail",
+  "Energy",
+  "Education",
+  "Transportation",
+  "Real Estate",
+  "Media",
+  "Food & Beverage",
+  "Hospitality",
+  "Agriculture",
+  "Telecommunications",
+  "Construction"
+];
+
+// Sample industry experts
+const industryExperts = [
+  { name: "Elon Musk", role: "strategy", industry: "Technology" },
+  { name: "Mark Zuckerberg", role: "technology", industry: "Technology" },
+  { name: "Tim Cook", role: "operations", industry: "Technology" },
+  { name: "Warren Buffett", role: "finance", industry: "Finance" },
+  { name: "Jamie Dimon", role: "strategy", industry: "Finance" },
+  { name: "Jane Fraser", role: "finance", industry: "Finance" },
+  { name: "Mary Barra", role: "operations", industry: "Manufacturing" },
+  { name: "Doug McMillon", role: "operations", industry: "Retail" },
+  { name: "Albert Bourla", role: "strategy", industry: "Healthcare" },
+  { name: "Emma Walmsley", role: "strategy", industry: "Healthcare" },
+  { name: "Darren Woods", role: "operations", industry: "Energy" },
+  { name: "Sundar Pichai", role: "technology", industry: "Technology" },
+  { name: "Brian Chesky", role: "strategy", industry: "Hospitality" },
+  { name: "Javier Rodriguez", role: "operations", industry: "Healthcare" },
+  { name: "Bernard Arnault", role: "strategy", industry: "Retail" },
+  { name: "Leena Nair", role: "hr", industry: "Retail" },
+  { name: "Aliko Dangote", role: "finance", industry: "Manufacturing" }
+];
 
 interface IndustryExpertSelectorProps {
-  onSelectExpert: (expert: { name: string; role: string; industry: string }) => void;
+  onSelectExpert: (expert: { name: string, role: string, industry: string }) => void;
 }
 
 export const IndustryExpertSelector: React.FC<IndustryExpertSelectorProps> = ({ onSelectExpert }) => {
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("");
-  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+  const [selectedExpert, setSelectedExpert] = useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
-  const handleIndustryChange = (industry: string) => {
-    setSelectedIndustry(industry);
-    setSelectedRole("");
-  };
+  // Filter industry experts based on selected industry
+  const filteredExperts = industryExperts.filter(expert => 
+    (!selectedIndustry || expert.industry === selectedIndustry) &&
+    (searchQuery === '' || 
+     expert.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     expert.industry.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     expert.role.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
   
-  const handleRoleChange = (role: string) => {
-    setSelectedRole(role);
-  };
-  
-  const handleExpertSelect = (name: string) => {
-    if (selectedIndustry && selectedRole) {
-      onSelectExpert({
-        name,
-        role: selectedRole,
-        industry: selectedIndustry
-      });
+  // Handle selecting expert
+  const handleSelectExpert = () => {
+    if (selectedExpert) {
+      onSelectExpert(selectedExpert);
     }
-  };
-
-  // Get available roles for selected industry
-  const getAvailableRoles = () => {
-    if (!selectedIndustry) return [];
-    return Object.keys(industrySpecificExecutives[selectedIndustry as keyof typeof industrySpecificExecutives] || {});
-  };
-  
-  // Get available executives for selected industry and role
-  const getAvailableExperts = () => {
-    if (!selectedIndustry || !selectedRole) return [];
-    const industry = industrySpecificExecutives[selectedIndustry as keyof typeof industrySpecificExecutives];
-    if (!industry) return [];
-    return industry[selectedRole as keyof typeof industry] || [];
-  };
-  
-  // Get expertise areas for selected industry
-  const getExpertiseAreas = () => {
-    if (!selectedIndustry) return [];
-    return executiveIndustryExpertise[selectedIndustry as keyof typeof executiveIndustryExpertise] || [];
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium">Industry-Specific Executive Experts</h3>
+      <div className="mb-4">
+        <div className="mb-2 flex justify-between items-center">
+          <h3 className="text-lg font-medium">Industry Experts</h3>
+          <div className="relative w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search experts..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
         <p className="text-sm text-muted-foreground">
-          Select an executive with specialized knowledge in your industry
+          Select an industry-specific AI executive to get specialized advice
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="industry">Select Industry</Label>
-            <Select 
-              value={selectedIndustry} 
-              onValueChange={handleIndustryChange}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="border">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Select Industry</CardTitle>
+            <CardDescription>
+              Choose an industry for specialized expertise
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="max-h-[300px] overflow-y-auto">
+            <RadioGroup 
+              value={selectedIndustry || ''} 
+              onValueChange={setSelectedIndustry}
+              className="space-y-1.5"
             >
-              <SelectTrigger id="industry">
-                <SelectValue placeholder="Choose an industry" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.keys(industrySpecificExecutives).map(industry => (
-                  <SelectItem key={industry} value={industry}>
-                    {industry.charAt(0).toUpperCase() + industry.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {selectedIndustry && (
-            <div className="space-y-2">
-              <Label htmlFor="role">Select Role</Label>
-              <Select 
-                value={selectedRole} 
-                onValueChange={handleRoleChange}
-              >
-                <SelectTrigger id="role">
-                  <SelectValue placeholder="Choose a role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getAvailableRoles().map(role => (
-                    <SelectItem key={role} value={role}>
-                      {role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          
-          {selectedIndustry && (
-            <div className="pt-2">
-              <Label className="text-sm mb-2 block">Industry Expertise</Label>
-              <div className="flex flex-wrap gap-2">
-                {getExpertiseAreas().map(expertise => (
-                  <Badge key={expertise} variant="outline" className="bg-primary/10">
-                    {expertise}
-                  </Badge>
-                ))}
+              <div className="flex items-center space-x-2 mb-2">
+                <RadioGroupItem value="" id="all-industries" />
+                <Label htmlFor="all-industries" className="flex-1 cursor-pointer">
+                  All Industries
+                </Label>
               </div>
-            </div>
-          )}
-        </div>
+              
+              {industries.map((industry) => (
+                <div key={industry} className="flex items-center space-x-2">
+                  <RadioGroupItem value={industry} id={industry} />
+                  <Label htmlFor={industry} className="flex-1 cursor-pointer">
+                    {industry}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </CardContent>
+        </Card>
         
-        {selectedRole && selectedIndustry && (
-          <Card className="border border-muted">
-            <CardContent className="pt-6">
-              <h4 className="font-medium mb-2">Available Experts</h4>
-              <Separator className="my-2" />
-              <ul className="space-y-2 mt-4">
-                {getAvailableExperts().map(expert => (
-                  <li key={expert}>
-                    <button
-                      onClick={() => handleExpertSelect(expert)}
-                      className="w-full text-left px-3 py-2 rounded-md hover:bg-primary/10 transition-colors"
+        <Card className="border">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Industry Experts</CardTitle>
+            <CardDescription>
+              Select an executive specialized in {selectedIndustry || 'your industry'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="max-h-[300px] overflow-y-auto">
+            {filteredExperts.length > 0 ? (
+              <RadioGroup 
+                value={selectedExpert ? JSON.stringify(selectedExpert) : ''} 
+                onValueChange={(value) => setSelectedExpert(value ? JSON.parse(value) : null)}
+                className="space-y-1.5"
+              >
+                {filteredExperts.map((expert) => (
+                  <div key={`${expert.name}-${expert.industry}`} className="flex items-center space-x-2">
+                    <RadioGroupItem 
+                      value={JSON.stringify(expert)} 
+                      id={`${expert.name}-${expert.industry}`} 
+                    />
+                    <Label 
+                      htmlFor={`${expert.name}-${expert.industry}`} 
+                      className="flex flex-1 justify-between cursor-pointer"
                     >
-                      {expert}
-                    </button>
-                  </li>
+                      <span>{expert.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {expert.industry} • {expert.role.charAt(0).toUpperCase() + expert.role.slice(1)}
+                      </span>
+                    </Label>
+                  </div>
                 ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
+              </RadioGroup>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No experts found with the current filters</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="flex justify-end">
+        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <Button 
+            onClick={handleSelectExpert} 
+            disabled={!selectedExpert}
+            className="flex items-center gap-2"
+          >
+            <Check className="h-4 w-4" />
+            Consult Selected Expert
+          </Button>
+        </motion.div>
       </div>
     </div>
   );

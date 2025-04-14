@@ -87,12 +87,15 @@ const DebateContainer: React.FC = () => {
 
   // Create a wrapper function to adapt to the expected parameter type
   const handleNewMessageChangeWrapper = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleNewMessageChange(e);
+    // Extract the value from the event and pass it to the original handler
+    handleNewMessageChange(e.target.value);
   };
 
   // Create a wrapper function to adapt the vote parameter
   const handleVoteMessageWrapper = (messageId: string, vote: 1 | -1) => {
-    voteMessage(messageId, vote);
+    // Convert numeric vote to boolean (1 = true, -1 = false)
+    const increment = vote === 1;
+    voteMessage(messageId, increment);
   };
 
   return (

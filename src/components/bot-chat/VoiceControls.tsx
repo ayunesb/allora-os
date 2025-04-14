@@ -1,8 +1,9 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface VoiceControlsProps {
   isVoiceEnabled: boolean;
@@ -18,41 +19,72 @@ export const VoiceControls: React.FC<VoiceControlsProps> = ({
   startVoiceRecognition
 }) => {
   return (
-    <TooltipProvider>
-      <div className="flex items-center space-x-2">
+    <div className="flex items-center gap-2">
+      <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
+              className="h-8 w-8 rounded-full"
               onClick={toggleVoiceInterface}
-              className={isVoiceEnabled ? "text-primary" : "text-muted-foreground"}
             >
-              {isVoiceEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+              {isVoiceEnabled ? (
+                <Volume2 className="h-4 w-4 text-primary" />
+              ) : (
+                <VolumeX className="h-4 w-4 text-muted-foreground" />
+              )}
+              <span className="sr-only">
+                {isVoiceEnabled ? "Disable voice" : "Enable voice"}
+              </span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="top">
-            {isVoiceEnabled ? "Disable voice responses" : "Enable voice responses"}
+          <TooltipContent side="bottom">
+            <p>{isVoiceEnabled ? "Disable voice interface" : "Enable voice interface"}</p>
           </TooltipContent>
         </Tooltip>
-        
+      </TooltipProvider>
+
+      <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
+              variant={isListening ? "default" : "outline"}
               size="icon"
+              className={`h-8 w-8 rounded-full relative ${isListening ? "bg-red-500 hover:bg-red-600" : ""}`}
               onClick={startVoiceRecognition}
-              disabled={isListening}
-              className={isListening ? "text-primary animate-pulse" : "text-muted-foreground"}
+              disabled={!isVoiceEnabled}
             >
-              {isListening ? <Mic size={20} /> : <MicOff size={20} />}
+              {isListening ? (
+                <MicOff className="h-4 w-4 text-white" />
+              ) : (
+                <Mic className={`h-4 w-4 ${isVoiceEnabled ? "text-primary" : "text-muted-foreground"}`} />
+              )}
+              
+              <AnimatePresence>
+                {isListening && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    className="absolute inset-0 rounded-full bg-red-500/20"
+                    style={{ 
+                      animation: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+              
+              <span className="sr-only">
+                {isListening ? "Stop listening" : "Start voice input"}
+              </span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="top">
-            {isListening ? "Listening..." : "Start voice input"}
+          <TooltipContent side="bottom">
+            <p>{isListening ? "Stop listening" : "Start voice input"}</p>
           </TooltipContent>
         </Tooltip>
-      </div>
-    </TooltipProvider>
+      </TooltipProvider>
+    </div>
   );
 };

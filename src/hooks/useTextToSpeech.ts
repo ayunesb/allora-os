@@ -1,110 +1,109 @@
 
-import { useState, useCallback } from "react";
-import { supabase } from "@/backend/supabase";
-import { toast } from "sonner";
+import { useState, useCallback } from 'react';
 
-interface TextToSpeechOptions {
-  voice?: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+interface SpeechOptions {
+  voice?: string;
+  pitch?: number;
+  rate?: number;
+  volume?: number;
 }
 
 export function useTextToSpeech() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-
-  const generateSpeech = useCallback(async (
-    text: string, 
-    options: TextToSpeechOptions = {}
-  ) => {
-    if (!text.trim()) return null;
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  
+  // Initialize speech synthesis
+  const synth = window.speechSynthesis;
+  
+  // Generate and play speech
+  const generateAndPlay = useCallback((text: string, options: SpeechOptions = {}) => {
+    if (!synth) {
+      console.error("Speech synthesis not supported in this browser");
+      return;
+    }
     
-    setIsLoading(true);
+    // Stop any current speech
+    stop();
     
-    try {
-      const { data, error } = await supabase.functions.invoke("text-to-speech", {
-        body: {
-          text: text,
-          voice: options.voice || "nova",
-        },
-      });
+    // Create a new utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Set voice if specified
+    if (options.voice) {
+      const voices = synth.getVoices();
+      const selectedVoice = voices.find(v => 
+        v.name.toLowerCase().includes(options.voice!.toLowerCase())
+      );
       
-      if (error) throw error;
-      
-      const { audio } = data;
-      if (!audio) throw new Error("No audio data received");
-      
-      // Convert base64 to blob
-      const byteCharacters = atob(audio);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "audio/mp3" });
-      
-      // Create URL from blob
-      const audioUrl = URL.createObjectURL(blob);
-      
-      // Create audio element
-      const audio$ = new Audio(audioUrl);
-      audio$.onended = () => setIsPlaying(false);
-      audio$.onerror = (e) => {
-        console.error("Audio playback error:", e);
-        setIsPlaying(false);
-        toast.error("Failed to play speech");
-      };
-      
-      setAudioElement(audio$);
-      return audio$;
-    } catch (err) {
-      console.error("Error generating speech:", err);
-      toast.error("Failed to generate speech");
-      return null;
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
+    
+    // Set other options
+    if (options.pitch !== undefined) utterance.pitch = options.pitch;
+    if (options.rate !== undefined) utterance.rate = options.rate;
+    if (options.volume !== undefined) utterance.volume = options.volume;
+    
+    // Set event handlers
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setCurrentUtterance(null);
+    };
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event);
+      setIsPlaying(false);
+      setCurrentUtterance(null);
+    };
+    
+    // Store the utterance
+    setCurrentUtterance(utterance);
+    
+    // Start speaking
+    synth.speak(utterance);
+    setIsPlaying(true);
+    
+    return utterance;
+  }, [synth]);
   
-  const play = useCallback(() => {
-    if (audioElement) {
-      audioElement.play()
-        .then(() => setIsPlaying(true))
-        .catch(err => {
-          console.error("Error playing audio:", err);
-          toast.error("Failed to play speech");
-        });
-    }
-  }, [audioElement]);
-  
-  const stop = useCallback(() => {
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
+  // Pause the current speech
+  const pause = useCallback(() => {
+    if (synth && isPlaying) {
+      synth.pause();
       setIsPlaying(false);
     }
-  }, [audioElement]);
+  }, [synth, isPlaying]);
   
-  const generateAndPlay = useCallback(async (
-    text: string, 
-    options: TextToSpeechOptions = {}
-  ) => {
-    const audio = await generateSpeech(text, options);
-    if (audio) {
-      audio.play()
-        .then(() => setIsPlaying(true))
-        .catch(err => {
-          console.error("Error playing audio:", err);
-          toast.error("Failed to play speech");
-        });
+  // Resume the current speech
+  const resume = useCallback(() => {
+    if (synth && !isPlaying && currentUtterance) {
+      synth.resume();
+      setIsPlaying(true);
     }
-  }, [generateSpeech]);
-
+  }, [synth, isPlaying, currentUtterance]);
+  
+  // Stop the current speech
+  const stop = useCallback(() => {
+    if (synth) {
+      synth.cancel();
+      setIsPlaying(false);
+      setCurrentUtterance(null);
+    }
+  }, [synth]);
+  
+  // Get available voices
+  const getVoices = useCallback(() => {
+    if (!synth) return [];
+    return synth.getVoices();
+  }, [synth]);
+  
   return {
-    generateSpeech,
-    play,
-    stop,
     generateAndPlay,
-    isLoading,
+    pause,
+    resume,
+    stop,
+    getVoices,
     isPlaying
   };
 }
