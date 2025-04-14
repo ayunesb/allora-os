@@ -14,6 +14,7 @@ import DevelopmentToolsTab from "@/components/settings/DevelopmentToolsTab";
 import MarketingPlatformIntegrations from "@/components/integrations/MarketingPlatformIntegrations";
 import { LinkedInIntegration } from "@/components/linkedin/LinkedInIntegration";
 import ProfileDiagnostics from "@/components/settings/ProfileDiagnostics";
+import { PersonalizationPreferencesForm } from "@/components/user-preferences/PersonalizationPreferencesForm";
 
 export default function Settings() {
   const { user, profile } = useAuth();
@@ -34,6 +35,7 @@ export default function Settings() {
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="personalization">AI Personalization</TabsTrigger>
           {isAdmin && (
             <TabsTrigger value="development" className="flex items-center gap-2">
               Development
@@ -57,6 +59,10 @@ export default function Settings() {
             <MarketingPlatformIntegrations />
             <LinkedInIntegration />
           </div>
+        </TabsContent>
+
+        <TabsContent value="personalization">
+          <PersonalizationPreferencesForm />
         </TabsContent>
         
         {isAdmin && (

@@ -1237,7 +1237,9 @@ export type Database = {
           last_updated: string | null
           preferred_executives: Json | null
           risk_appetite: string | null
+          tone: string | null
           user_id: string
+          writing_style: string | null
         }
         Insert: {
           activity_peak_times?: Json | null
@@ -1248,7 +1250,9 @@ export type Database = {
           last_updated?: string | null
           preferred_executives?: Json | null
           risk_appetite?: string | null
+          tone?: string | null
           user_id: string
+          writing_style?: string | null
         }
         Update: {
           activity_peak_times?: Json | null
@@ -1259,7 +1263,9 @@ export type Database = {
           last_updated?: string | null
           preferred_executives?: Json | null
           risk_appetite?: string | null
+          tone?: string | null
           user_id?: string
+          writing_style?: string | null
         }
         Relationships: []
       }
@@ -1344,7 +1350,9 @@ export type Database = {
           last_updated: string | null
           preferred_executives: Json | null
           risk_appetite: string | null
+          tone: string | null
           user_id: string
+          writing_style: string | null
         }
       }
       halfvec_avg: {

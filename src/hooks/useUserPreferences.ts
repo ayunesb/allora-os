@@ -18,6 +18,9 @@ export type UserPreferences = {
   maxDebateParticipants?: number;
   enableVectorSearch?: boolean;
   enableLearning?: boolean;
+  // New fields
+  writingStyle?: 'Casual' | 'Formal' | 'Visionary' | 'Strategic' | 'Aggressive';
+  tone?: 'Friendly' | 'Confident' | 'Direct' | 'Inspiring';
 };
 
 const defaultPreferences: UserPreferences = {
@@ -32,7 +35,10 @@ const defaultPreferences: UserPreferences = {
   enableDebate: false,
   maxDebateParticipants: 3,
   enableVectorSearch: false,
-  enableLearning: false
+  enableLearning: false,
+  // Add default values for new fields
+  writingStyle: 'Formal',
+  tone: 'Confident'
 };
 
 export function useUserPreferences() {
@@ -114,7 +120,6 @@ export function useUserPreferences() {
       localStorage.setItem('userPreferences', JSON.stringify(newPreferences));
       
       if (user?.id) {
-        // Only save the fields that are actually in the database schema
         const { error } = await supabase
           .from('user_preferences')
           .upsert({
@@ -129,6 +134,9 @@ export function useUserPreferences() {
               maxDebateParticipants: newPreferences.maxDebateParticipants,
               enableVectorSearch: newPreferences.enableVectorSearch,
               enableLearning: newPreferences.enableLearning,
+              // Add new fields to dashboard preferences
+              writingStyle: newPreferences.writingStyle,
+              tone: newPreferences.tone
             },
             last_updated: new Date().toISOString()
           }, {
