@@ -1,235 +1,251 @@
+import { v4 as uuidv4 } from 'uuid';
+import { supabase } from "@/integrations/supabase/client";
+import {
+  ExecutiveAgentProfile,
+  ExecutiveDecision,
+  AgentRunOptions,
+} from "@/types/agents";
+import {
+  executivePromptTemplate,
+  messageNotificationTemplate,
+  generateMessageTemplate,
+} from "@/agents/promptTemplates";
+import { generateStrategy } from "@/backend/strategy";
+import { getDecisionStyle, getPersonality } from "@/utils/agentUtils";
+import { sendExecutiveMessage } from "@/agents/meshNetwork";
+import { formatInboxForPrompt } from "./meshNetwork";
 
 /**
- * AI Executive Agent that autonomously processes tasks and makes strategic decisions
- */
-import { logger } from '@/utils/loggingService';
-import { ExecutiveAgentProfile, ExecutiveDecision, AgentRunOptions } from '@/types/agents';
-import { executivePromptTemplate } from './promptTemplates';
-import { saveDecisionToDatabase, getExecutiveDecisions } from './decisionService';
-import { executiveProfiles } from './agentProfiles';
-import { getUserPreferences } from '@/utils/selfLearning/preferencesService';
-import { fetchRecentMemories, formatMemoriesForPrompt, saveDecisionToMemory } from '@/services/memoryService';
-import { 
-  fetchMessagesForExecutive, 
-  formatMessagesForPrompt, 
-  markMessagesAsRead 
-} from './meshNetwork';
-
-/**
- * Runs the executive agent to process a task and return a decision
+ * Runs an executive agent to make a strategic decision
  */
 export async function runExecutiveAgent(
-  executive: ExecutiveAgentProfile,
   task: string,
+  profile: ExecutiveAgentProfile,
   options: AgentRunOptions = {}
 ): Promise<ExecutiveDecision> {
-  logger.info(`Running executive agent for ${executive.name}`, { 
-    component: 'executiveAgent',
-    executiveRole: executive.role,
-    task
-  });
-  
+  const {
+    saveToDatabase = true,
+    includeRiskAssessment = true,
+    priority = "medium",
+    companyContext = "",
+    marketConditions = "",
+    userId = "user-unknown",
+  } = options;
+
   try {
-    // Get user preferences if userId is provided
-    let userPreferences = null;
-    let memories = [];
-    
-    if (options.userId) {
-      try {
-        userPreferences = await getUserPreferences(options.userId);
-        logger.info('Using personalized user preferences for executive agent', {
-          component: 'executiveAgent',
-          userId: options.userId,
-          preferences: userPreferences
-        });
-        
-        // Fetch recent memories for this executive
-        memories = await fetchRecentMemories(options.userId, executive.name, 5);
-        logger.info(`Retrieved ${memories.length} memories for executive ${executive.name}`, {
-          component: 'executiveAgent',
-          userId: options.userId
-        });
-      } catch (error) {
-        logger.warn('Failed to get user preferences or memories, using defaults', {
-          component: 'executiveAgent',
-          error
-        });
-      }
-    }
-    
-    // Check the executive's inbox for unread messages
-    const inboxMessages = await fetchMessagesForExecutive(executive.name);
-    logger.info(`Retrieved ${inboxMessages.length} unread messages for executive ${executive.name}`, {
-      component: 'executiveAgent'
-    });
-    
-    // Format memories for the prompt
-    const memoryText = formatMemoriesForPrompt(memories);
-    
-    // Format inbox messages for the prompt
-    const inboxText = formatMessagesForPrompt(inboxMessages);
-    
-    // Prepare the context variables for the prompt
-    const companyContext = options.companyContext 
-      ? `Company Context: ${options.companyContext}\n` 
-      : '';
-    
-    const marketConditions = options.marketConditions 
-      ? `Market Conditions: ${options.marketConditions}\n` 
-      : '';
-    
-    // Add user preferences to prompt if available
-    let userPreferencesContext = '';
-    if (userPreferences) {
-      userPreferencesContext = `
-User Preferences:
-- Communication Style: ${userPreferences.responseStyle || 'balanced'}
-- Technical Level: ${userPreferences.technicalLevel || 'intermediate'}
-- Risk Appetite: ${userPreferences.riskAppetite || 'medium'}
-- Focus Area: ${userPreferences.focusArea || 'general'}
+    // Fetch unread messages for the executive
+    const inboxMessages = await fetchExecutiveInbox(profile.name);
+    const memoryContext = formatInboxForPrompt(inboxMessages);
 
-Adapt your decision making and communication style to match these preferences.
-`;
-    }
-    
-    // Add memory context to the prompt
-    const memoryContext = `
-Recent Memory Log:
-${memoryText}
+    // Construct user preferences string
+    const userPreferences = `User Risk Appetite: ${
+      options.includeRiskAssessment ? "High" : "Low"
+    }\nPriority: ${priority}`;
 
-`;
-
-    // Add inbox context to the prompt
-    const inboxContext = inboxMessages.length > 0 ? `
-Executive Inbox (Unread Messages):
-${inboxText}
-
-Consider these messages from other executives before making your decision.
-` : '';
-    
-    // Format the prompt with the executive's details, task, and user preferences
-    const prompt = executivePromptTemplate
-      .replace('{executiveName}', executive.name)
-      .replace('{role}', executive.role)
-      .replace('{task}', task)
-      .replace('{expertise}', executive.expertise.join(', '))
-      .replace('{decisionStyle}', executive.decisionStyle || 'balanced')
-      .replace('{personality}', executive.personality || '')
-      .replace('{companyContext}', companyContext)
-      .replace('{marketConditions}', marketConditions)
-      .replace('{userPreferences}', userPreferencesContext)
-      .replace('{memoryContext}', memoryContext + inboxContext);
-
-    // Call OpenAI Edge Function with the prompt
-    const response = await fetch('/api/agents/executive-think', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    // Call our Supabase edge function to process the prompt
+    const { data, error } = await supabase.functions.invoke("executive-think", {
+      body: {
+        prompt: executivePromptTemplate,
+        executiveName: profile.name,
+        executiveRole: profile.role,
+        expertise: profile.expertise.join(", "),
+        decisionStyle: getDecisionStyle(profile.decisionStyle),
+        personality: getPersonality(profile.personality),
+        task: task,
+        memoryContext: memoryContext,
+        userPreferences: userPreferences,
+        companyContext: companyContext,
+        marketConditions: marketConditions,
       },
-      body: JSON.stringify({
-        prompt,
-        executiveName: executive.name,
-        executiveRole: executive.role,
-        memories: memories,
-        userPreferences
-      }),
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to get response from AI: ${response.statusText}`);
+    if (error) {
+      console.error("Error in edge function:", error);
+      throw new Error(`AI Execution error: ${error.message}`);
     }
 
-    const result = await response.json();
-    
-    // Parse the AI response
-    let parsedResult;
-    try {
-      // The response might already be a parsed object, or it might be a string we need to parse
-      parsedResult = typeof result.content === 'string' ? JSON.parse(result.content) : result.content;
-    } catch (error) {
-      logger.error('Failed to parse AI response', error, { 
-        response: result.content,
-        executiveName: executive.name
-      });
-      
-      // Fallback to a simple object if parsing fails
-      parsedResult = {
-        options: ["Error parsing options"],
-        selectedOption: "Error processing task",
-        reasoning: "The AI response could not be properly parsed.",
-        riskAssessment: "Unable to assess risks due to processing error."
-      };
-    }
+    // Parse the JSON content
+    const content = data.content;
+    const parsed = JSON.parse(content);
 
-    // Apply user risk appetite to calculated risk assessment if needed
-    if (userPreferences && userPreferences.riskAppetite && parsedResult.riskAssessment) {
-      // Adjust risk assessment based on user preferences
-      if (userPreferences.riskAppetite === 'high') {
-        // For high risk appetite users, decrease perceived risk
-        parsedResult.riskAssessment = parsedResult.riskAssessment.replace(
-          /high risk/gi, 
-          "acceptable risk"
-        );
-      } else if (userPreferences.riskAppetite === 'low') {
-        // For low risk appetite users, increase perceived risk
-        parsedResult.riskAssessment = parsedResult.riskAssessment.replace(
-          /medium risk/gi, 
-          "significant risk"
-        );
-      }
-    }
-
-    // Create the decision object
+    // Create a new executive decision object
     const decision: ExecutiveDecision = {
-      executiveName: executive.name,
-      executiveRole: executive.role,
-      task,
-      options: parsedResult.options || [],
-      selectedOption: parsedResult.selectedOption || "No option selected",
-      reasoning: parsedResult.reasoning || "No reasoning provided",
-      riskAssessment: parsedResult.riskAssessment || undefined,
+      id: uuidv4(),
+      executiveName: profile.name,
+      executiveRole: profile.role,
+      task: task,
+      options: parsed.options,
+      selectedOption: parsed.selectedOption,
+      reasoning: parsed.reasoning,
+      riskAssessment: includeRiskAssessment ? parsed.riskAssessment : "N/A",
       timestamp: new Date().toISOString(),
-      priority: options.priority || 'medium'
+      priority: priority,
     };
 
-    logger.info(`Executive decision made by ${executive.name}`, { 
-      component: 'executiveAgent',
-      decision: decision.selectedOption
-    });
+    // Save the decision to the database
+    if (saveToDatabase) {
+      await saveExecutiveDecision(decision, userId);
+    }
 
-    // Save to database if requested
-    if (options.saveToDatabase) {
-      await saveDecisionToDatabase(decision);
-    }
-    
-    // Save to memory if userId is provided
-    if (options.userId) {
-      await saveDecisionToMemory(options.userId, decision);
-      logger.info('Saved decision to memory', {
-        component: 'executiveAgent',
-        executiveName: executive.name,
-        userId: options.userId
-      });
-    }
-    
-    // Mark inbox messages as read after processing
+    // Send message notifications to other executives
     if (inboxMessages.length > 0) {
-      await markMessagesAsRead(executive.name);
-      logger.info(`Marked ${inboxMessages.length} messages as read for ${executive.name}`, {
-        component: 'executiveAgent'
-      });
+      await notifyOtherExecutives(profile.name, profile.role, inboxMessages);
     }
 
     return decision;
-  } catch (error) {
-    logger.error(`Error in executive agent for ${executive.name}`, error, {
-      task,
-      executiveRole: executive.role
-    });
-    
-    throw error;
+  } catch (error: any) {
+    console.error("Error during AI execution:", error);
+
+    // Return a fallback decision on error
+    return {
+      id: uuidv4(),
+      executiveName: profile.name,
+      executiveRole: profile.role,
+      task: task,
+      options: ["Unable to generate options due to technical issues."],
+      selectedOption: "N/A",
+      reasoning: `I apologize, but I was unable to properly analyze this task due to technical issues. Please try again later. Error details: ${error.message}`,
+      riskAssessment: "Unable to assess risks due to technical error",
+      timestamp: new Date().toISOString(),
+      priority: "medium",
+    };
   }
 }
 
-// Re-export necessary items for backward compatibility
-export { executiveProfiles, getExecutiveDecisions };
+/**
+ * Saves an executive decision to the database
+ */
+export async function saveExecutiveDecision(
+  decision: ExecutiveDecision,
+  userId: string
+) {
+  const { data, error } = await supabase
+    .from("executive_decisions")
+    .insert([
+      {
+        ...decision,
+        user_id: userId,
+      },
+    ]);
+
+  if (error) {
+    console.error("Failed to save executive decision:", error);
+    throw new Error(`Failed to save executive decision: ${error.message}`);
+  }
+
+  return data;
+}
+
+/**
+ * Fetches unread messages for a specific executive
+ */
+export async function fetchExecutiveInbox(executiveName: string) {
+  const { data, error } = await supabase
+    .from("executive_messages")
+    .select("*")
+    .eq("to_executive", executiveName)
+    .eq("status", "unread")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Failed to fetch messages:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Sends a message to other executives notifying them of recent messages
+ */
+async function notifyOtherExecutives(
+  executiveName: string,
+  executiveRole: string,
+  messages: any[]
+) {
+  for (const msg of messages) {
+    const notification = messageNotificationTemplate
+      .replace("{senderName}", executiveName)
+      .replace("{senderRole}", executiveRole)
+      .replace("{messageContent}", msg.message_content);
+
+    // Send the notification to the executive who sent the message
+    await sendExecutiveMessage(
+      executiveName,
+      msg.from_executive,
+      notification
+    );
+  }
+
+  // Mark messages as read
+  await markMessagesAsRead(executiveName);
+}
+
+/**
+ * Marks messages as read for a specific executive
+ */
+async function markMessagesAsRead(executiveName: string) {
+  const { error } = await supabase
+    .from("executive_messages")
+    .update({ status: "read" })
+    .eq("to_executive", executiveName)
+    .eq("status", "unread");
+
+  if (error) {
+    console.error("Failed to mark messages as read:", error);
+  }
+}
+
+/**
+ * Generates a message from one executive to another
+ */
+export async function generateExecutiveMessage(
+  executiveName: string,
+  role: string,
+  recipientName: string,
+  recipientRole: string,
+  topic: string
+) {
+  const prompt = generateMessageTemplate
+    .replace("{executiveName}", executiveName)
+    .replace("{role}", role)
+    .replace("{recipientName}", recipientName)
+    .replace("{recipientRole}", recipientRole)
+    .replace("{topic}", topic);
+
+  // Call our Supabase edge function to process the prompt
+  const { data, error } = await supabase.functions.invoke("generate-text", {
+    body: {
+      prompt: prompt,
+    },
+  });
+
+  if (error) {
+    console.error("Failed to generate executive message:", error);
+    throw new Error(`Failed to generate executive message: ${error.message}`);
+  }
+
+  return data.content;
+}
+
+/**
+ * Runs an executive agent to generate a business strategy
+ */
+export async function runExecutiveStrategy(
+  task: string,
+  profile: ExecutiveAgentProfile,
+  options: AgentRunOptions = {}
+) {
+  try {
+    // Run the executive agent to get a decision
+    const decision = await runExecutiveAgent(task, profile, options);
+
+    // Generate a strategy from the decision
+    const strategy = await generateStrategy(decision);
+
+    return strategy;
+  } catch (error) {
+    console.error("Error during AI strategy execution:", error);
+    throw error;
+  }
+}

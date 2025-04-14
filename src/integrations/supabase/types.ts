@@ -742,6 +742,36 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_debates: {
+        Row: {
+          created_at: string
+          executive_name: string
+          id: string
+          opinion: string
+          role: string
+          task: string
+          vote: string
+        }
+        Insert: {
+          created_at?: string
+          executive_name: string
+          id?: string
+          opinion: string
+          role: string
+          task: string
+          vote: string
+        }
+        Update: {
+          created_at?: string
+          executive_name?: string
+          id?: string
+          opinion?: string
+          role?: string
+          task?: string
+          vote?: string
+        }
+        Relationships: []
+      }
       executive_decisions: {
         Row: {
           created_at: string

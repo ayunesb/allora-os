@@ -57,3 +57,10 @@ As {executiveName}, {role}, write a brief message to {recipientName}, {recipient
 The message should be professional, relevant to both executives' roles, and contain useful strategic insight.
 Keep it under 3 sentences and make it sound like an executive-to-executive communication.
 `;
+
+// Export all prompt templates
+export const promptTemplates = {
+  executivePromptTemplate,
+  messageNotificationTemplate,
+  generateMessageTemplate
+};
