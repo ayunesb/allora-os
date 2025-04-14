@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { normalizeRoute } from '@/utils/navigation';
+import { normalizeRoute, trackRouteVisit } from '@/utils/navigation';
 import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
 import { useAuth } from '@/context/AuthContext';
@@ -19,6 +19,9 @@ export default function NavigationFixer() {
   useEffect(() => {
     // Reset the fix attempt flag when the location changes
     setAttemptedFix(false);
+    
+    // Track visited route for analytics and smart suggestions
+    trackRouteVisit(location.pathname);
   }, [location.pathname]);
   
   useEffect(() => {
@@ -107,6 +110,8 @@ export default function NavigationFixer() {
       const isLikelyAdminPath = /^\/adm(in)?.*/.test(currentPath);
       const isLikelyDashboardPath = /^\/dash(board)?.*/.test(currentPath);
       const isLikelyCompliancePath = /^\/comp(liance)?.*/.test(currentPath);
+      const isLikelySystemPath = /^\/sys(tem)?.*/.test(currentPath);
+      const isLikelyDiagnosticsPath = /^\/diag(nostics)?.*/.test(currentPath);
       
       if (isLikelyAdminPath) {
         navigate('/admin', { replace: true, state: { attemptedPath: currentPath } });
@@ -117,6 +122,12 @@ export default function NavigationFixer() {
       } else if (isLikelyCompliancePath) {
         navigate('/compliance', { replace: true, state: { attemptedPath: currentPath } });
         toast.info("Redirecting to the compliance area");
+      } else if (isLikelySystemPath) {
+        navigate('/admin/system-health', { replace: true, state: { attemptedPath: currentPath } });
+        toast.info("Redirecting to system health");
+      } else if (isLikelyDiagnosticsPath) {
+        navigate('/admin/diagnostics', { replace: true, state: { attemptedPath: currentPath } });
+        toast.info("Redirecting to diagnostics");
       } else {
         // If path doesn't match known patterns and couldn't be normalized, it's likely a 404
         logger.info(`Navigation to unknown path: ${currentPath}`);

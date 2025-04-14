@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Lead } from '@/models/lead';
+import { toast } from 'sonner';
 
 type LeadActionsProps = {
   leadId: string;
@@ -21,6 +22,28 @@ export const LeadActions: React.FC<LeadActionsProps> = ({
   onStatusUpdate, 
   onDelete 
 }) => {
+  const handleStatusUpdate = async (status: Lead['status']) => {
+    try {
+      await onStatusUpdate(leadId, status);
+      toast.success(`Lead status updated to ${status}`);
+    } catch (error) {
+      console.error('Failed to update lead status:', error);
+      toast.error('Failed to update lead status');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this lead?')) {
+      try {
+        await onDelete(leadId);
+        toast.success('Lead deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete lead:', error);
+        toast.error('Failed to delete lead');
+      }
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,22 +52,22 @@ export const LeadActions: React.FC<LeadActionsProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'new')}>
+        <DropdownMenuItem onClick={() => handleStatusUpdate('new')}>
           Mark as New
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'contacted')}>
+        <DropdownMenuItem onClick={() => handleStatusUpdate('contacted')}>
           Mark as Contacted
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'qualified')}>
+        <DropdownMenuItem onClick={() => handleStatusUpdate('qualified')}>
           Mark as Qualified
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'client')}>
+        <DropdownMenuItem onClick={() => handleStatusUpdate('client')}>
           Mark as Client
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onStatusUpdate(leadId, 'closed')}>
+        <DropdownMenuItem onClick={() => handleStatusUpdate('closed')}>
           Mark as Closed
         </DropdownMenuItem>
-        <DropdownMenuItem className="text-destructive" onClick={() => onDelete(leadId)}>
+        <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>

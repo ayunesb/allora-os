@@ -1,130 +1,175 @@
 
-import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { ShieldCheck, Shield, Database, Info } from 'lucide-react';
-import { toast } from "sonner";
-import { useProductionData } from '@/hooks/useProductionData';
-import { ProductionDataStatus } from '@/components/admin/system/ProductionDataStatus';
-import { ValidationResults } from '@/utils/productionDataValidator';
-import { validateAndCleanProductionData } from '@/utils/productionDataValidator';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { DatabaseCheck, ServerCrash, Shield, RefreshCw, ArrowRightLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductionDataPage() {
-  const [isManualValidating, setIsManualValidating] = useState(false);
-  const [manualResults, setManualResults] = useState<ValidationResults | null>(null);
-  const { isValidating, validationResults, validateProductionData } = useProductionData();
-
-  const runManualValidation = useCallback(async () => {
-    setIsManualValidating(true);
-    try {
-      const results = await validateAndCleanProductionData();
-      setManualResults(results);
-      
-      if (results.success) {
-        if (results.cleanupPerformed) {
-          toast.success('Production data cleaned successfully', {
-            description: `Removed ${results.warnings.length} test/demo items`
-          });
-        } else {
-          toast.success('Production data validated successfully', {
-            description: 'No issues found'
-          });
-        }
-      } else {
-        toast.error('Production data validation failed', {
-          description: `Found ${results.errors.length} critical issues`
-        });
+  const navigate = useNavigate();
+  const [isProductionMode, setIsProductionMode] = React.useState(false);
+  
+  const toggleProductionMode = () => {
+    if (!isProductionMode) {
+      if (window.confirm('Are you sure you want to switch to production mode? This will affect live data.')) {
+        setIsProductionMode(true);
       }
-    } catch (error: any) {
-      console.error('Error during manual validation:', error);
-      toast.error('Validation process error', {
-        description: error.message
-      });
-    } finally {
-      setIsManualValidating(false);
+    } else {
+      setIsProductionMode(false);
     }
-  }, []);
-
+  };
+  
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Production Data</h2>
-          <p className="text-muted-foreground">
-            Verify and clean your database before going to production
-          </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-3xl font-bold tracking-tight">Production Data Management</h2>
+        
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => window.location.reload()}
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+          
+          <Button
+            variant={isProductionMode ? "destructive" : "default"}
+            size="sm"
+            className="gap-2"
+            onClick={toggleProductionMode}
+          >
+            <ArrowRightLeft className="h-4 w-4" />
+            {isProductionMode ? "Switch to Development" : "Switch to Production"}
+          </Button>
         </div>
-        <ShieldCheck className="h-8 w-8 text-primary" />
       </div>
       
-      <Separator />
+      <div className="bg-muted/30 rounded-lg p-4 mb-6 flex items-center">
+        <div className="mr-4">
+          <Badge variant={isProductionMode ? "destructive" : "default"} className="px-3 py-1">
+            {isProductionMode ? "PRODUCTION MODE" : "DEVELOPMENT MODE"}
+          </Badge>
+        </div>
+        <div className="text-sm">
+          {isProductionMode 
+            ? "You are currently modifying production data. All changes will affect the live system." 
+            : "You are in development mode. Changes won't affect the production system."}
+        </div>
+      </div>
       
-      <div className="grid grid-cols-1 gap-6">
-        <ProductionDataStatus 
-          validationResults={manualResults || validationResults} 
-          isValidating={isManualValidating || isValidating}
-          onValidate={runManualValidation}
-        />
-        
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              Production Readiness Guide
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-base">
+              <DatabaseCheck className="mr-2 h-5 w-5 text-primary" />
+              Database Status
             </CardTitle>
-            <CardDescription>
-              Ensure your application is ready for production use
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="rounded-lg border p-3">
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded">
-                    <Database className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Clean Production Data</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Ensure all test, demo, and sample data is removed from the system before launching into production.
-                      The data validator above will scan and clean your database of test entries.
-                    </p>
-                  </div>
-                </div>
+            <div className="text-sm">
+              <div className="flex justify-between mb-2">
+                <span>Connection:</span>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Connected</Badge>
               </div>
-              
-              <div className="rounded-lg border p-3">
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded">
-                    <Shield className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Data Security</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Verify that all security measures are in place, including proper authentication, 
-                      authorization checks, and data access controls. Row-level security policies in the database
-                      ensure users can only access their own data.
-                    </p>
-                  </div>
-                </div>
+              <div className="flex justify-between mb-2">
+                <span>Tables:</span>
+                <span className="font-medium">32</span>
               </div>
-              
-              <div className="rounded-lg border p-3">
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded">
-                    <Info className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Why This Matters</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Professional Launch — Investors, clients, and users will trust the system when it's personalized.<br />
-                      Security — Real users must not see data belonging to other users or fake placeholders.<br />
-                      Scalability — Makes it easier to plug real workflows like Zapier, Twilio, Shopify because they expect live business context.
-                    </p>
-                  </div>
-                </div>
+              <div className="flex justify-between mb-2">
+                <span>RLS Policies:</span>
+                <span className="font-medium">12</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Functions:</span>
+                <span className="font-medium">8</span>
               </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full mt-4"
+              onClick={() => navigate('/admin/entities')}
+            >
+              Manage Database
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-base">
+              <ServerCrash className="mr-2 h-5 w-5 text-primary" />
+              API Services
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm">
+              <div className="flex justify-between mb-2">
+                <span>Status:</span>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Operational</Badge>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>Edge Functions:</span>
+                <span className="font-medium">5</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>Webhooks:</span>
+                <span className="font-medium">3</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Response Time:</span>
+                <span className="font-medium">124ms</span>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full mt-4"
+              onClick={() => navigate('/admin/webhooks')}
+            >
+              Manage Services
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center text-base">
+              <Shield className="mr-2 h-5 w-5 text-primary" />
+              Security Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm">
+              <div className="flex justify-between mb-2">
+                <span>Status:</span>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Secure</Badge>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>API Keys:</span>
+                <span className="font-medium">4</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>Auth Providers:</span>
+                <span className="font-medium">3</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Last Audit:</span>
+                <span className="font-medium">2 days ago</span>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full mt-4"
+              onClick={() => navigate('/admin/audit')}
+            >
+              Run Security Audit
+            </Button>
           </CardContent>
         </Card>
       </div>

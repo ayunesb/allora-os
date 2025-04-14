@@ -1,4 +1,3 @@
-
 // A utility for navigation that doesn't depend on the useNavigate hook directly
 // This will be used in contexts or services that need to navigate but can't access useNavigate
 
@@ -114,6 +113,24 @@ export const normalizeRoute = (route: string): string => {
   // Fix any compliance paths
   if (route.includes('/complian') && !route.includes('/compliance')) {
     return route.replace(/\/complian[^\/]*/, '/compliance');
+  }
+
+  // Fix admin system-health and admin diagnostics routes
+  if (route.includes('/admin/system') && !route.includes('/admin/system-health')) {
+    return '/admin/system-health';
+  }
+  
+  if (route.includes('/admin/diagnostic') && !route.includes('/admin/diagnostics')) {
+    return '/admin/diagnostics';
+  }
+  
+  // Make sure system-health and diagnostics routes are properly handled
+  if (route === '/system-health') {
+    return '/admin/system-health';
+  }
+  
+  if (route === '/diagnostics' || route === '/system/diagnostics') {
+    return '/admin/diagnostics';
   }
   
   return route;
