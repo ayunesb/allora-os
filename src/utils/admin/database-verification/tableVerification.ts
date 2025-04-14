@@ -1,17 +1,11 @@
 
 import { supabase } from '@/integrations/supabase/client';
-
-interface TableVerificationResult {
-  name: string;
-  exists: boolean;
-  message?: string;
-  error?: string;
-}
+import { DatabaseTableStatus } from '@/types/databaseVerification';
 
 /**
  * Verifies if required tables exist in the database
  */
-export async function verifyDatabaseTables(): Promise<TableVerificationResult[]> {
+export async function verifyDatabaseTables(): Promise<DatabaseTableStatus[]> {
   const requiredTables = [
     'profiles',
     'companies',
@@ -23,7 +17,7 @@ export async function verifyDatabaseTables(): Promise<TableVerificationResult[]>
     'audit_logs'
   ];
   
-  const results: TableVerificationResult[] = [];
+  const results: DatabaseTableStatus[] = [];
   
   try {
     // Get the list of tables from the database
@@ -37,8 +31,9 @@ export async function verifyDatabaseTables(): Promise<TableVerificationResult[]>
       return requiredTables.map(table => ({
         name: table,
         exists: false,
-        message: 'Failed to fetch tables from database',
-        error: 'Failed to fetch tables from database'
+        hasRLS: false,
+        status: 'error' as const,
+        message: 'Failed to fetch tables from database'
       }));
     }
     
@@ -46,10 +41,13 @@ export async function verifyDatabaseTables(): Promise<TableVerificationResult[]>
     
     // Check each required table
     for (const table of requiredTables) {
+      const exists = tableNames.includes(table);
       results.push({
         name: table,
-        exists: tableNames.includes(table),
-        message: tableNames.includes(table) ? `Table '${table}' exists` : `Table '${table}' missing`
+        exists: exists,
+        hasRLS: false, // We'll set this properly when we check RLS
+        status: exists ? 'success' as const : 'error' as const,
+        message: exists ? `Table '${table}' exists` : `Table '${table}' missing`
       });
     }
     
@@ -59,8 +57,9 @@ export async function verifyDatabaseTables(): Promise<TableVerificationResult[]>
     return requiredTables.map(table => ({
       name: table,
       exists: false,
-      message: 'Failed to verify database tables',
-      error: 'Failed to verify database tables'
+      hasRLS: false,
+      status: 'error' as const,
+      message: 'Failed to verify database tables'
     }));
   }
 }

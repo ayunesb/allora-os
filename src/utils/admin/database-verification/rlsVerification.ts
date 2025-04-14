@@ -1,18 +1,12 @@
 
 import { supabase } from '@/integrations/supabase/client';
-
-interface RlsVerificationResult {
-  table: string;
-  exists: boolean;
-  message?: string;
-  error?: string;
-}
+import { PolicyStatus } from '@/types/databaseVerification';
 
 /**
  * Verifies if RLS (Row Level Security) policies are enabled
  * for critical tables in the database
  */
-export async function verifyRlsPolicies(): Promise<RlsVerificationResult[]> {
+export async function verifyRlsPolicies(): Promise<PolicyStatus[]> {
   const criticalTables = [
     'profiles',
     'companies',
@@ -22,7 +16,7 @@ export async function verifyRlsPolicies(): Promise<RlsVerificationResult[]> {
     'communications'
   ];
   
-  const results: RlsVerificationResult[] = [];
+  const results: PolicyStatus[] = [];
   
   try {
     for (const table of criticalTables) {
@@ -35,24 +29,31 @@ export async function verifyRlsPolicies(): Promise<RlsVerificationResult[]> {
         if (error) {
           results.push({
             table,
+            name: `${table}_rls_policy`,
             exists: false,
-            message: `RLS check failed for '${table}'`,
-            error: error.message
+            isSecure: false,
+            status: 'error' as const,
+            message: `RLS check failed for '${table}': ${error.message}`
           });
         } else {
           const rlsEnabled = data && data[0]?.rls_enabled === true;
           results.push({
             table,
+            name: `${table}_rls_policy`,
             exists: rlsEnabled,
+            isSecure: rlsEnabled,
+            status: rlsEnabled ? 'success' as const : 'warning' as const,
             message: rlsEnabled ? `RLS enabled for '${table}'` : `RLS not enabled for '${table}'`
           });
         }
       } catch (err) {
         results.push({
           table,
+          name: `${table}_rls_policy`,
           exists: false,
-          message: `Error checking RLS for '${table}'`,
-          error: err instanceof Error ? err.message : 'Unknown error'
+          isSecure: false,
+          status: 'error' as const,
+          message: `Error checking RLS for '${table}': ${err instanceof Error ? err.message : 'Unknown error'}`
         });
       }
     }
@@ -62,9 +63,11 @@ export async function verifyRlsPolicies(): Promise<RlsVerificationResult[]> {
     console.error('Error verifying RLS policies:', error);
     return criticalTables.map(table => ({
       table,
+      name: `${table}_rls_policy`,
       exists: false,
-      message: 'Failed to verify RLS policies',
-      error: 'Failed to verify RLS policies'
+      isSecure: false,
+      status: 'error' as const,
+      message: 'Failed to verify RLS policies'
     }));
   }
 }
