@@ -1,4 +1,5 @@
 import { RouteObject } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
 import Campaigns from "@/pages/dashboard/Campaigns";
@@ -21,7 +22,6 @@ import CampaignCreate from "@/pages/dashboard/CampaignCreate";
 import BotDetail from "@/pages/dashboard/BotDetail";
 import Profile from "@/pages/dashboard/Profile";
 import OnboardingWorkflow from "@/pages/dashboard/OnboardingWorkflow";
-import { Navigate } from "react-router-dom";
 import ExecutiveAgents from "@/pages/dashboard/ExecutiveAgents";
 import ExecutiveDecisions from "@/pages/dashboard/ExecutiveDecisions";
 import ExecutiveProfile from "@/pages/dashboard/executives/[name]";
