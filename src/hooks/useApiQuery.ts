@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { enhancedFetch, EnhancedRequestConfig, clearApiCache } from '@/utils/api/enhancedApiClient';
-import { StandardResponse } from '@/utils/api/standardResponse';
+import { StandardResponse } from '@/utils/api/enhancedApiClient';
 
 interface UseApiQueryOptions<T> extends EnhancedRequestConfig {
   initialData?: T;

@@ -81,12 +81,12 @@ const BotChatPanel: React.FC<BotChatPanelProps> = ({
             <TabsTrigger value="experts">Industry Experts</TabsTrigger>
           </TabsList>
           
-          {activeTab === "chat" && (
+          {activeTab === "chat" && isVoiceEnabled !== undefined && (
             <VoiceControls
               isVoiceEnabled={isVoiceEnabled}
-              isListening={isListening}
-              toggleVoiceInterface={toggleVoiceInterface}
-              startVoiceRecognition={startVoiceRecognition}
+              isListening={isListening || false}
+              toggleVoiceInterface={toggleVoiceInterface || (() => {})}
+              startVoiceRecognition={startVoiceRecognition || (() => {})}
             />
           )}
         </div>

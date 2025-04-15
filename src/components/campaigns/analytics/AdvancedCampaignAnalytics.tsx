@@ -1,310 +1,258 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DateRange } from 'react-day-picker';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { BarChart, LineChart } from '@/components/charts';
-import { Download, Filter, RefreshCw, ChevronDown } from 'lucide-react';
-import { fetchCampaignAnalytics } from '@/services/analyticsService';
-import { format } from '@/utils/exportUtils';
-import { formatCurrency, formatNumber, calculatePercentChange } from '@/utils/formatters';
-import { Campaign } from '@/types/campaigns';
-import { AnalyticsData, MetricComparison, PlatformMetrics, ChannelPerformance } from '@/types/analytics';
-import { MetricCard } from './MetricCard';
-import { PerformanceTable } from './PerformanceTable';
-import { ConversionFunnel } from './ConversionFunnel';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
+  LineChart, Line, ResponsiveContainer, PieChart, Pie, Cell
+} from 'recharts';
 
-interface AnalyticsTab {
-  label: string;
-  value: string;
+interface CampaignMetrics {
+  id: string;
+  name: string;
+  metrics: {
+    impressions?: number;
+    clicks?: number;
+    conversions?: number;
+    cost?: number;
+    ctr?: number;
+    cpc?: number;
+    conversionRate?: number;
+    roi?: number;
+  };
+  dayMetrics?: Array<{
+    day: string;
+    impressions?: number;
+    clicks?: number;
+    conversions?: number;
+    cost?: number;
+  }>;
+  channelBreakdown?: Array<{
+    channel: string;
+    value: number;
+  }>;
+  deviceBreakdown?: Array<{
+    device: string;
+    value: number;
+  }>;
 }
 
-const analyticsTabs: AnalyticsTab[] = [
-  { label: 'Overview', value: 'overview' },
-  { label: 'Performance', value: 'performance' },
-  { label: 'Conversions', value: 'conversions' },
-  { label: 'Platforms', value: 'platforms' },
-];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-export default function AdvancedCampaignAnalytics({ campaign }: { campaign: Campaign }) {
+const safeNumber = (value: number | undefined): number => {
+  return typeof value === 'number' ? value : 0;
+};
+
+const formatAsPercent = (value: number): string => {
+  return `${(value * 100).toFixed(2)}%`;
+};
+
+const formatAsCurrency = (value: number): string => {
+  return `$${value.toFixed(2)}`;
+};
+
+interface AdvancedCampaignAnalyticsProps {
+  campaign: CampaignMetrics;
+}
+
+export function AdvancedCampaignAnalytics({ campaign }: AdvancedCampaignAnalyticsProps) {
   const [activeTab, setActiveTab] = useState('overview');
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showExportMenu, setShowExportMenu] = useState(false);
 
-  // Set default date range to last 30 days
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: new Date(new Date().setDate(new Date().getDate() - 30)),
-    to: new Date(),
-  });
+  // Safely access nested properties
+  const metrics = campaign.metrics || {};
+  const dayMetrics = campaign.dayMetrics || [];
+  const channelBreakdown = campaign.channelBreakdown || [];
+  const deviceBreakdown = campaign.deviceBreakdown || [];
 
-  // Format date range for display
-  const formatDateRange = () => {
-    if (!dateRange?.from || !dateRange?.to) return 'Select Date Range';
-    const fromDate = dateRange.from.toLocaleDateString();
-    const toDate = dateRange.to.toLocaleDateString();
-    return `${fromDate} - ${toDate}`;
-  };
-
-  // Fetch data
-  const fetchData = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      if (!campaign.id) throw new Error('Campaign ID is required');
-      const data = await fetchCampaignAnalytics(campaign.id, dateRange?.from, dateRange?.to);
-      setAnalyticsData(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch analytics data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [campaign.id, dateRange]);
-
-  // Refresh data
-  const refreshData = () => {
-    fetchData();
-  };
-
-  // Handle date range change
-  const handleDateRangeChange = (range: DateRange | undefined) => {
-    if (range) {
-      setDateRange(range);
-    }
-  };
-
-  // Prepare data for export
-  const prepareExportData = () => {
-    if (!analyticsData) return [];
-    const overviewData = {
-      Impressions: analyticsData.impressions,
-      Clicks: analyticsData.clicks,
-      Leads: analyticsData.leads,
-      Conversions: analyticsData.conversions,
-      Spend: analyticsData.spend,
-      Revenue: analyticsData.revenue,
-      CTR: analyticsData.ctr,
-      CPC: analyticsData.cpc,
-      CPA: analyticsData.cpa,
-      ROAS: analyticsData.roas,
-    };
-    const dailyMetricsData = analyticsData.dailyMetrics.map((item) => ({
-      Date: item.date,
-      Impressions: item.impressions,
-      Clicks: item.clicks,
-      Leads: item.leads,
-      Conversions: item.conversions,
-      Spend: item.spend,
-      Revenue: item.revenue,
-    }));
-    return [overviewData, ...dailyMetricsData];
-  };
-
-  // Export data
-  const handleExport = (type: 'csv' | 'pdf') => {
-    const exportData = prepareExportData();
-    if (type === 'csv') {
-      format.csv(exportData, `${campaign.name}-analytics`);
-    } else {
-      format.pdf(exportData, `${campaign.name}-analytics`);
-    }
-  };
-
-  // Prepare data for performance table
-  const preparePerformanceData = (): { data: ChannelPerformance[], totalMetrics: any } => {
-    if (!analyticsData) return { data: [], totalMetrics: null };
-    
-    // Example: convert platform metrics to channel performance data
-    const channelData: ChannelPerformance[] = Object.entries(analyticsData.platformMetrics).map(([platform, metrics]) => ({
-      channelName: platform,
-      metrics: {
-        impressions: metrics.impressions,
-        clicks: metrics.clicks,
-        ctr: metrics.ctr,
-        conversions: metrics.conversions,
-        conversionRate: metrics.conversions / metrics.clicks,
-        cost: metrics.spend,
-        revenue: metrics.revenue,
-        roi: metrics.revenue / metrics.spend - 1
-      }
-    }));
-    
-    // Calculate totals
-    const totalMetrics = {
-      totalImpressions: channelData.reduce((sum, item) => sum + item.metrics.impressions, 0),
-      totalClicks: channelData.reduce((sum, item) => sum + item.metrics.clicks, 0),
-      totalConversions: channelData.reduce((sum, item) => sum + item.metrics.conversions, 0),
-      totalCost: channelData.reduce((sum, item) => sum + item.metrics.cost, 0),
-      totalRevenue: channelData.reduce((sum, item) => sum + item.metrics.revenue, 0)
-    };
-    
-    return { data: channelData, totalMetrics };
-  };
+  // Calculate additional metrics with fallbacks
+  const impressions = safeNumber(metrics.impressions);
+  const clicks = safeNumber(metrics.clicks);
+  const conversions = safeNumber(metrics.conversions);
+  const cost = safeNumber(metrics.cost);
   
-  // Prepare data for conversion funnel
-  const prepareFunnelData = () => {
-    if (!analyticsData) return null;
-    
-    return {
-      impressions: analyticsData.impressions,
-      clicks: analyticsData.clicks,
-      leads: analyticsData.leads,
-      conversions: analyticsData.conversions
-    };
-  };
+  const ctr = metrics.ctr ?? (impressions > 0 ? clicks / impressions : 0);
+  const cpc = metrics.cpc ?? (clicks > 0 ? cost / clicks : 0);
+  const conversionRate = metrics.conversionRate ?? (clicks > 0 ? conversions / clicks : 0);
+  const roi = metrics.roi ?? (cost > 0 ? ((conversions * 100) - cost) / cost : 0);
 
-  const performanceData = preparePerformanceData();
-  const funnelData = prepareFunnelData();
+  // Performance overview data for the card metrics
+  const performanceData = [
+    { name: 'Impressions', value: impressions },
+    { name: 'Clicks', value: clicks },
+    { name: 'Conversions', value: conversions },
+    { name: 'CTR', value: ctr, format: formatAsPercent },
+    { name: 'CPC', value: cpc, format: formatAsCurrency },
+    { name: 'Conv. Rate', value: conversionRate, format: formatAsPercent },
+    { name: 'ROI', value: roi, format: (v: number) => `${(v * 100).toFixed(2)}%` },
+  ];
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-3xl font-bold">Campaign Analytics</h2>
-        <div className="flex flex-wrap gap-3">
-          <DateRangePicker
-            value={dateRange}
-            onChange={handleDateRangeChange}
-            className="w-[280px]"
-          />
-          <Button variant="outline" onClick={refreshData} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <div className="relative">
-            <Button variant="outline" onClick={() => setShowExportMenu(!showExportMenu)}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-              <ChevronDown className="h-4 w-4 ml-2" />
-            </Button>
-            {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-10">
-                <div className="py-1">
-                  <button
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => handleExport('csv')}
-                  >
-                    Export as CSV
-                  </button>
-                  <button
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => handleExport('pdf')}
-                  >
-                    Export as PDF
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">{campaign.name} Analytics</h2>
+      
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {performanceData.slice(0, 4).map((item, index) => (
+          <Card key={index}>
+            <CardContent className="p-4 text-center">
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">{item.name}</h3>
+              <p className="text-2xl font-bold">
+                {item.format ? item.format(item.value) : item.value.toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          {analyticsTabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <MetricCard
-              title="Impressions"
-              value={formatNumber(analyticsData?.impressions)}
-              change={calculatePercentChange(analyticsData?.comparisonData?.impressions?.previous, analyticsData?.comparisonData?.impressions?.current)}
-            />
-            <MetricCard
-              title="Clicks"
-              value={formatNumber(analyticsData?.clicks)}
-              change={calculatePercentChange(analyticsData?.comparisonData?.clicks?.previous, analyticsData?.comparisonData?.clicks?.current)}
-            />
-            <MetricCard
-              title="Leads"
-              value={formatNumber(analyticsData?.leads)}
-              change={calculatePercentChange(analyticsData?.comparisonData?.leads?.previous, analyticsData?.comparisonData?.leads?.current)}
-            />
-            <MetricCard
-              title="Conversions"
-              value={formatNumber(analyticsData?.conversions)}
-              change={calculatePercentChange(analyticsData?.comparisonData?.conversions?.previous, analyticsData?.comparisonData?.conversions?.current)}
-            />
-            <MetricCard
-              title="Spend"
-              value={formatCurrency(analyticsData?.spend)}
-              change={calculatePercentChange(analyticsData?.comparisonData?.spend?.previous, analyticsData?.comparisonData?.spend?.current)}
-            />
-            <MetricCard
-              title="Revenue"
-              value={formatCurrency(analyticsData?.revenue)}
-              change={calculatePercentChange(analyticsData?.comparisonData?.revenue?.previous, analyticsData?.comparisonData?.revenue?.current)}
-            />
-          </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Daily Performance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {analyticsData?.dailyMetrics && analyticsData?.dailyMetrics.length > 0 ? (
-                <LineChart
-                  data={analyticsData?.dailyMetrics}
-                  index="date"
-                  categories={['impressions', 'clicks', 'leads', 'conversions']}
-                />
-              ) : (
-                <p>No daily metrics data available.</p>
-              )}
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {performanceData.slice(4).map((item, index) => (
+          <Card key={index}>
+            <CardContent className="p-4 text-center">
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">{item.name}</h3>
+              <p className="text-2xl font-bold">
+                {item.format ? item.format(item.value) : item.value.toLocaleString()}
+              </p>
             </CardContent>
           </Card>
-        </TabsContent>
-        <TabsContent value="performance" className="space-y-4">
-          {funnelData && performanceData.data.length > 0 ? (
-            <PerformanceTable 
-              data={performanceData.data} 
-              totalMetrics={performanceData.totalMetrics}
-            />
-          ) : (
-            <p>No performance data available.</p>
-          )}
-        </TabsContent>
-        <TabsContent value="conversions" className="space-y-4">
-          {funnelData ? (
-            <ConversionFunnel data={funnelData} />
-          ) : (
-            <p>No conversion data available.</p>
-          )}
-        </TabsContent>
-        <TabsContent value="platforms" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Platform Metrics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {analyticsData?.platformMetrics && Object.keys(analyticsData?.platformMetrics).length > 0 ? (
-                <BarChart
-                  data={Object.entries(analyticsData?.platformMetrics).map(([platform, metrics]) => ({
-                    platform,
-                    impressions: metrics.impressions,
-                    clicks: metrics.clicks,
-                    leads: metrics.leads,
-                    conversions: metrics.conversions,
-                  }))}
-                  index="platform"
-                  categories={['impressions', 'clicks', 'leads', 'conversions']}
-                />
-              ) : (
-                <p>No platform metrics data available.</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        ))}
+      </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Performance Analysis</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="overview">Trends</TabsTrigger>
+              <TabsTrigger value="channels">Channels</TabsTrigger>
+              <TabsTrigger value="devices">Devices</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="overview">
+              <div className="h-80">
+                {dayMetrics.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={dayMetrics}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        yAxisId="left"
+                        type="monotone" 
+                        dataKey="impressions" 
+                        stroke="#8884d8" 
+                        name="Impressions"
+                        dot={false}
+                      />
+                      <Line 
+                        yAxisId="right"
+                        type="monotone" 
+                        dataKey="clicks" 
+                        stroke="#82ca9d" 
+                        name="Clicks" 
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    No daily metrics available
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="channels">
+              <div className="h-80">
+                {channelBreakdown.length > 0 ? (
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <ResponsiveContainer width="50%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={channelBreakdown}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {channelBreakdown.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`${value}`, 'Value']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    
+                    <ResponsiveContainer width="50%" height={300}>
+                      <BarChart data={channelBreakdown}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="channel" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="value" fill="#8884d8" name="Value" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    No channel breakdown available
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="devices">
+              <div className="h-80">
+                {deviceBreakdown.length > 0 ? (
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <ResponsiveContainer width="50%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={deviceBreakdown}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#82ca9d"
+                          dataKey="value"
+                        >
+                          {deviceBreakdown.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`${value}`, 'Value']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    
+                    <ResponsiveContainer width="50%" height={300}>
+                      <BarChart data={deviceBreakdown}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="device" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="value" fill="#82ca9d" name="Value" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    No device breakdown available
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -18,7 +18,7 @@ import MessageList from "./bot-detail/MessageList";
 import MessageInput from "./bot-detail/MessageInput";
 import NotFoundCard from "./bot-detail/NotFoundCard";
 import BotDetailSkeleton from "./bot-detail/BotDetailSkeleton";
-import { useBotConsultation } from "./bot-detail/useBotConsultation";
+import { useBotConsultation, Bot } from "./bot-detail/useBotConsultation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -71,6 +71,14 @@ export default function BotDetail() {
 
   // Determine if we can retry based on whether there are messages and we're not loading
   const canRetry = messages.length > 0 && !isLoading;
+
+  // Create a fallback bot object with required fields if any are missing
+  const enhancedBot: Bot = {
+    name: bot.name,
+    title: bot.title || role || 'Executive Advisor',
+    role: bot.role || role || '',
+    expertise: bot.expertise || 'Business Strategy'
+  };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -140,7 +148,7 @@ export default function BotDetail() {
       
       <Card>
         <CardHeader className="pb-3">
-          <BotInfo bot={bot} />
+          <BotInfo bot={enhancedBot} />
           {retryCount > 2 && (
             <CardDescription className="mt-2 text-amber-500 flex items-center gap-2">
               <Info className="h-4 w-4" />

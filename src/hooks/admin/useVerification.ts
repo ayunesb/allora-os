@@ -1,306 +1,126 @@
 
-import { useState } from 'react';
-import { validateLaunchReadiness } from '@/utils/launchValidator';
-import { 
-  validateRLSPolicies,
-  validateDatabaseFunctions,
-  validatePerformanceOptimization
-} from '@/utils/validators';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useCallback } from 'react';
+import { useApiClient } from '@/utils/api/enhancedApiClient';
 import { toast } from 'sonner';
-import { addDemoDataButton } from '@/utils/demoData';
-import type { ValidationResultsUI, DatabaseTableStatus } from '@/components/admin/launch-verification/types';
 
-export function useVerification(profileCompanyId?: string) {
-  const [isChecking, setIsChecking] = useState(false);
-  const [results, setResults] = useState<ValidationResultsUI | null>(null);
-  const [isReady, setIsReady] = useState<boolean | null>(null);
-  const [isAddingDemo, setIsAddingDemo] = useState(false);
-  const [isVerifyingTables, setIsVerifyingTables] = useState(false);
-  const [isCheckingIndexes, setIsCheckingIndexes] = useState(false);
-  const [isVerifyingRLS, setIsVerifyingRLS] = useState(false);
-  const [isVerifyingFunctions, setIsVerifyingFunctions] = useState(false);
-  
-  const runChecks = async () => {
-    setIsChecking(true);
-    try {
-      const validation = await validateLaunchReadiness();
-      
-      // Transform the validation results to match ValidationResultsUI format
-      const transformedResults: ValidationResultsUI = {
-        apis: {
-          heygen: 'connected',
-          postmark: 'connected',
-          stripe: 'connected',
-          twilio: 'connected',
-          openai: 'connected'
-        },
-        database: {
-          status: 'ready'
-        },
-        features: {
-          authentication: true,
-          onboarding: true,
-          strategies: true,
-          campaigns: true,
-          aiDebate: true,
-          welcomeVideo: true,
-          billing: true
-        },
-        compliance: {
-          whatsappOptIn: true,
-          emailUnsubscribe: true,
-          billingCompliance: true,
-          apiSecurityLevel: 'high'
-        },
-        overallStatus: 'ready'
-      };
-      
-      // Add validation results - check if results include extended properties
-      if (validation.results && 'legalAcceptance' in validation.results) {
-        transformedResults.legalAcceptance = validation.results.legalAcceptance;
-      }
-      
-      // Convert rlsPolicies from ValidationResult to required array format if it exists
-      if (validation.results && 'rlsPolicies' in validation.results) {
-        transformedResults.rlsPolicies = [{
-          table: 'All tables',
-          status: validation.results.rlsPolicies.valid ? 'verified' : 'issues',
-          message: validation.results.rlsPolicies.message
-        }];
-      }
-      
-      // Similarly transform databaseFunctions
-      if (validation.results && 'databaseFunctions' in validation.results) {
-        transformedResults.databaseFunctions = [{
-          name: 'Database Functions',
-          status: validation.results.databaseFunctions.valid ? 'verified' : 'issues',
-          message: validation.results.databaseFunctions.message
-        }];
-      }
-      
-      setResults(transformedResults);
-      setIsReady(validation.valid);
-    } catch (error) {
-      console.error("Error during launch verification:", error);
-      setIsReady(false);
-    } finally {
-      setIsChecking(false);
-    }
-  };
+export interface ValidationItem {
+  id: string;
+  name: string;
+  description: string;
+  type: 'table' | 'function' | 'policy' | 'other';
+  status: 'ok' | 'warning' | 'error' | 'pending';
+  message?: string;
+  details?: any;
+}
 
-  const handleAddDemoData = async () => {
-    setIsAddingDemo(true);
+export interface ValidationResults {
+  tables?: ValidationItem[];
+  databaseFunctions?: ValidationItem[];
+  rlsPolicies?: ValidationItem[];
+  other?: ValidationItem[];
+  success: boolean;
+  timestamp: string;
+}
+
+export interface VerificationResponse {
+  success: boolean;
+  results: ValidationResults;
+  errors?: string[];
+  warnings?: string[];
+}
+
+export function useVerification() {
+  const [validation, setValidation] = useState<{ results: ValidationResults; loading: boolean }>({
+    results: { success: false, timestamp: '' },
+    loading: false
+  });
+  const [error, setError] = useState<string | null>(null);
+  const { execute } = useApiClient();
+
+  const runVerification = useCallback(async () => {
+    setValidation(prev => ({ ...prev, loading: true }));
+    setError(null);
+    
     try {
-      await addDemoDataButton(profileCompanyId);
-      toast.success('Demo data added successfully');
-    } catch (error) {
-      console.error("Error adding demo data:", error);
-      toast.error('Failed to add demo data');
-    } finally {
-      setIsAddingDemo(false);
-    }
-  };
-  
-  const verifyRequiredTables = async () => {
-    setIsVerifyingTables(true);
-    
-    const requiredTables = [
-      'companies',
-      'profiles',
-      'strategies',
-      'leads',
-      'campaigns',
-      'ai_boardroom_debates',
-      'user_legal_acceptances'
-    ];
-    
-    const tableResults: Record<string, DatabaseTableStatus> = {};
-    
-    try {
-      for (const table of requiredTables) {
-        try {
-          // First check if the table exists
-          const { error } = await supabase
-            .from(table)
-            .select('id')
-            .limit(1);
-            
-          if (error) {
-            if (error.code === '42P01') {
-              tableResults[table] = {
-                exists: false,
-                message: `Table '${table}' does not exist in the database`,
-                rls: false
-              };
-            } else {
-              // If error is not "table doesn't exist", check if it's a permissions error
-              // which would indicate RLS is active
-              const rlsActive = error.message.includes('permission denied');
-              tableResults[table] = {
-                exists: true,
-                message: rlsActive 
-                  ? `Table '${table}' exists with RLS active` 
-                  : `Error checking table '${table}': ${error.message}`,
-                rls: rlsActive
-              };
-            }
-          } else {
-            // Table exists, now check if it has RLS enabled
-            const { data: rlsData, error: rlsError } = await supabase
-              .rpc('check_table_rls', { table_name: table })
-              .single();
-              
-            const hasRls = rlsError ? false : !!rlsData;
-              
-            tableResults[table] = {
-              exists: true,
-              message: `Table '${table}' exists and is accessible`,
-              rls: hasRls
-            };
-          }
-        } catch (err: any) {
-          tableResults[table] = {
-            exists: false,
-            message: `Error checking table '${table}': ${err.message}`,
-            rls: false
-          };
-        }
-      }
+      const response = await execute<VerificationResponse>('/api/admin/verification', 'POST');
       
-      const missingTables = Object.entries(tableResults)
-        .filter(([_, result]) => !result.exists)
-        .map(([table]) => table);
+      if (response.success) {
+        setValidation({
+          results: response.results,
+          loading: false
+        });
         
-      if (missingTables.length === 0) {
-        toast.success('All required database tables exist');
+        toast.success('Verification completed');
       } else {
-        toast.error(`Missing tables: ${missingTables.join(', ')}`);
+        setError('Verification failed');
+        toast.error('Verification failed');
       }
       
-      setResults(prev => prev ? {
-        ...prev,
-        databaseTables: tableResults
-      } : null);
-      
-    } catch (error) {
-      console.error("Error verifying tables:", error);
-      toast.error('Failed to verify database tables');
+      return response;
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during verification');
+      toast.error(err.message || 'Verification failed');
+      throw err;
     } finally {
-      setIsVerifyingTables(false);
+      setValidation(prev => ({ ...prev, loading: false }));
     }
-  };
-  
-  const checkDatabaseIndexes = async () => {
-    setIsCheckingIndexes(true);
+  }, [execute]);
+
+  const getErrorCount = useCallback(() => {
+    const { results } = validation;
+    let count = 0;
     
-    try {
-      const indexResults = await validatePerformanceOptimization();
-      
-      const formattedResults = [{
-        name: 'Performance Optimization',
-        status: indexResults.valid ? 'verified' : 'issues',
-        message: indexResults.message
-      }];
-      
-      setResults(prev => prev ? {
-        ...prev,
-        databaseIndexes: formattedResults
-      } : null);
-      
-      if (indexResults.valid) {
-        toast.success('Database indexes verified successfully');
-      } else {
-        toast.error(indexResults.message);
-      }
-    } catch (error) {
-      console.error("Error checking indexes:", error);
-      toast.error('Failed to verify database indexes');
-    } finally {
-      setIsCheckingIndexes(false);
+    // Safely check if rlsPolicies exists before iterating
+    if (results.rlsPolicies) {
+      count += results.rlsPolicies.filter(item => item.status === 'error').length;
     }
-  };
-  
-  const verifyRLSPolicies = async () => {
-    setIsVerifyingRLS(true);
     
-    try {
-      const rlsResults = await validateRLSPolicies();
-      
-      const formattedResults = [{
-        table: 'All tables',
-        status: rlsResults.valid ? 'verified' : 'issues',
-        message: rlsResults.message
-      }];
-      
-      setResults(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          rlsPolicies: formattedResults
-        };
-      });
-      
-      if (rlsResults.valid) {
-        toast.success('RLS policies verified successfully');
-      } else {
-        toast.error(rlsResults.message);
-      }
-    } catch (error) {
-      console.error("Error verifying RLS policies:", error);
-      toast.error('Failed to verify RLS policies');
-    } finally {
-      setIsVerifyingRLS(false);
+    // Safely check if databaseFunctions exists before iterating
+    if (results.databaseFunctions) {
+      count += results.databaseFunctions.filter(item => item.status === 'error').length;
     }
-  };
-  
-  const verifyDatabaseFunctions = async () => {
-    setIsVerifyingFunctions(true);
     
-    try {
-      const functionResults = await validateDatabaseFunctions();
-      
-      const formattedResults = [{
-        name: 'Database Functions',
-        status: functionResults.valid ? 'verified' : 'issues',
-        message: functionResults.message
-      }];
-      
-      setResults(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          databaseFunctions: formattedResults
-        };
-      });
-      
-      if (functionResults.valid) {
-        toast.success('Database functions verified successfully');
-      } else {
-        toast.error(functionResults.message);
-      }
-    } catch (error) {
-      console.error("Error verifying database functions:", error);
-      toast.error('Failed to verify database functions');
-    } finally {
-      setIsVerifyingFunctions(false);
+    if (results.tables) {
+      count += results.tables.filter(item => item.status === 'error').length;
     }
-  };
+    
+    if (results.other) {
+      count += results.other.filter(item => item.status === 'error').length;
+    }
+    
+    return count;
+  }, [validation]);
+  
+  const getWarningCount = useCallback(() => {
+    const { results } = validation;
+    let count = 0;
+    
+    // Safely check if rlsPolicies exists before iterating
+    if (results.rlsPolicies) {
+      count += results.rlsPolicies.filter(item => item.status === 'warning').length;
+    }
+    
+    // Safely check if databaseFunctions exists before iterating
+    if (results.databaseFunctions) {
+      count += results.databaseFunctions.filter(item => item.status === 'warning').length;
+    }
+    
+    if (results.tables) {
+      count += results.tables.filter(item => item.status === 'warning').length;
+    }
+    
+    if (results.other) {
+      count += results.other.filter(item => item.status === 'warning').length;
+    }
+    
+    return count;
+  }, [validation]);
 
   return {
-    isChecking,
-    results,
-    isReady,
-    isAddingDemo,
-    isVerifyingTables,
-    isCheckingIndexes,
-    isVerifyingRLS,
-    isVerifyingFunctions,
-    runChecks,
-    handleAddDemoData,
-    verifyRequiredTables,
-    checkDatabaseIndexes,
-    verifyRLSPolicies,
-    verifyDatabaseFunctions
+    validation,
+    error,
+    runVerification,
+    getErrorCount,
+    getWarningCount
   };
 }

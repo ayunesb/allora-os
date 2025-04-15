@@ -1,209 +1,167 @@
 
-import { useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { useApiClient } from '@/utils/api/enhancedApiClient';
 import { toast } from 'sonner';
-import { SocialMediaPost, CreatePostInput, UpdatePostInput } from '@/types/socialMedia';
-import { logger } from '@/utils/loggingService';
-import { validateCreatePost, validateUpdatePost, validateMediaUrl } from '@/utils/validators/socialMediaValidator';
-import { clearApiCache } from '@/utils/api/apiClient';
 
-export function usePostOperations(refreshCallback?: () => void) {
-  const createPost = useCallback(async (postData: CreatePostInput) => {
+export interface SocialPost {
+  id: string;
+  title: string;
+  content: string;
+  platform: 'facebook' | 'twitter' | 'linkedin' | 'instagram' | string;
+  status: 'draft' | 'scheduled' | 'published' | string;
+  scheduled_date?: string;
+  published_date?: string;
+  media_urls?: string[];
+  author_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export function usePostOperations() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { execute } = useApiClient();
+
+  const createPost = async (postData: Omit<SocialPost, 'id' | 'created_at' | 'updated_at'>): Promise<SocialPost> => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      // Validate the input data
-      const validation = validateCreatePost(postData);
+      const result = await execute<SocialPost>('/api/social-posts', 'POST', postData);
+      toast.success('Post created successfully');
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to create post';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      if (!validation.valid || !validation.data) {
-        return {
-          success: false,
-          error: 'Invalid post data',
-          validationErrors: validation.errors
-        };
-      }
+  const updatePost = async (id: string, postData: Partial<SocialPost>): Promise<SocialPost> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await execute<SocialPost>(`/api/social-posts/${id}`, 'PUT', postData);
+      toast.success('Post updated successfully');
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to update post';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      // Validated and sanitized data
-      const validatedData = validation.data;
+  const deletePost = async (id: string): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      await execute<void>(`/api/social-posts/${id}`, 'DELETE');
+      toast.success('Post deleted successfully');
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to delete post';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      // Additional validation for media URLs
-      if (validatedData.media_urls?.length) {
-        const invalidUrls = validatedData.media_urls.filter(url => !validateMediaUrl(url));
-        if (invalidUrls.length > 0) {
-          return {
-            success: false,
-            error: 'One or more media URLs are invalid or from untrusted sources',
-            validationErrors: {
-              media_urls: 'Contains invalid or untrusted URLs'
-            }
-          };
-        }
-      }
-
-      // Get the company ID (assuming it's stored in local storage or context)
-      const companyId = localStorage.getItem('companyId'); // Replace with your actual method
-
-      if (!companyId) {
-        return { success: false, error: 'Company ID not found' };
-      }
-
-      // Insert post into database
-      const { data, error } = await supabase
-        .from('social_media_posts')
-        .insert({
-          company_id: companyId,
-          title: validatedData.title,
-          content: validatedData.content,
-          platform: validatedData.platform,
-          scheduled_date: validatedData.scheduled_date,
-          publish_time: validatedData.publish_time,
-          status: 'draft', // Default status
-          content_type: validatedData.content_type,
-          media_urls: validatedData.media_urls,
-          campaign_id: validatedData.campaign_id,
-          is_approved: validatedData.is_approved || false,
-          tags: validatedData.tags || [],
-          mentions: validatedData.mentions || [],
-          hashtags: validatedData.hashtags || [],
-          location: validatedData.location,
-          link_url: validatedData.link_url,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select('id')
-        .single();
-
-      if (error) throw error;
-
-      // Clear any cached data to ensure fresh data
-      // clearApiCache(getSocialMediaCacheKey(companyId));
-
-      // Log the successful creation
-      logger.info('Social media post created', {
-        companyId,
-        postId: data?.id,
-        platform: validatedData.platform
+  const uploadMedia = async (file: File): Promise<string> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const result = await execute<{ url: string }>('/api/upload/social-media', 'POST', formData, {
+        'Content-Type': 'multipart/form-data'
       });
-
-      // Call refresh callback if provided
-      if (refreshCallback) refreshCallback();
-
-      return {
-        success: true,
-        postId: data?.id
-      };
-    } catch (error: any) {
-      logger.error('Error creating social media post', error);
-      return { success: false, error: error.message };
+      
+      return result.url;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to upload media';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  }, [refreshCallback]);
+  };
 
-  const updatePost = useCallback(async (postData: UpdatePostInput) => {
+  const schedulePost = async (id: string, scheduledDate: string): Promise<SocialPost> => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      // Validate the input data
-      const validation = validateUpdatePost(postData);
-
-      if (!validation.valid || !validation.data) {
-        return {
-          success: false,
-          error: 'Invalid post update data',
-          validationErrors: validation.errors
-        };
-      }
-
-      // Validated and sanitized data
-      const validatedData = validation.data;
-
-      // Additional validation for media URLs if provided
-      if (validatedData.media_urls?.length) {
-        const invalidUrls = validatedData.media_urls.filter(url => !validateMediaUrl(url));
-        if (invalidUrls.length > 0) {
-          return {
-            success: false,
-            error: 'One or more media URLs are invalid or from untrusted sources',
-            validationErrors: {
-              media_urls: 'Contains invalid or untrusted URLs'
-            }
-          };
-        }
-      }
-
-      // Update post in database
-      const { error } = await supabase
-        .from('social_media_posts')
-        .update({
-          title: validatedData.title,
-          content: validatedData.content,
-          platform: validatedData.platform,
-          scheduled_date: validatedData.scheduled_date,
-          publish_time: validatedData.publish_time,
-          status: validatedData.status,
-          content_type: validatedData.content_type,
-          media_urls: validatedData.media_urls,
-          campaign_id: validatedData.campaign_id,
-          is_approved: validatedData.is_approved,
-          approval_notes: validatedData.approval_notes,
-          tags: validatedData.tags,
-          mentions: validatedData.mentions,
-          hashtags: validatedData.hashtags,
-          location: validatedData.location,
-          link_url: validatedData.link_url,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', validatedData.id);
-
-      if (error) throw error;
-
-      // Clear the specific post cache and the posts list cache
-      // clearApiCache(`social_media_post_${validatedData.id}`);
-      // if (currentPost.company_id) {
-      //   clearApiCache(getSocialMediaCacheKey(currentPost.company_id));
-      // }
-
-      // Log the successful update
-      logger.info('Social media post updated', {
-        postId: validatedData.id,
-        fieldCount: Object.keys(validatedData).length - 1 // Exclude the ID
+      const result = await execute<SocialPost>(`/api/social-posts/${id}/schedule`, 'POST', {
+        scheduled_date: scheduledDate
       });
-
-      // Call refresh callback if provided
-      if (refreshCallback) refreshCallback();
-
-      return { success: true };
-    } catch (error: any) {
-      logger.error('Error updating social media post', error);
-      return { success: false, error: error.message };
+      
+      toast.success('Post scheduled successfully');
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to schedule post';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  }, [refreshCallback]);
+  };
 
-  const deletePost = useCallback(async (postId: string) => {
+  const publishPost = async (id: string): Promise<SocialPost> => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      // Delete the post
-      const { error } = await supabase
-        .from('social_media_posts')
-        .delete()
-        .eq('id', postId);
-
-      if (error) throw error;
-
-      // Clear the specific post cache and the posts list cache
-      // clearApiCache(`social_media_post_${postId}`);
-      // clearApiCache(getSocialMediaCacheKey(post.company_id));
-
-      // Log the successful deletion
-      logger.info('Social media post deleted', { postId });
-
-      // Call refresh callback if provided
-      if (refreshCallback) refreshCallback();
-
-      return { success: true };
-    } catch (error: any) {
-      logger.error('Error deleting social media post', error);
-      return { success: false, error: error.message };
+      const result = await execute<SocialPost>(`/api/social-posts/${id}/publish`, 'POST');
+      toast.success('Post published successfully');
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to publish post';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  }, [refreshCallback]);
+  };
+
+  const getPresignedUrl = async (filename: string, contentType: string): Promise<string> => {
+    try {
+      const result = await execute<{ url: string }>('/api/upload/presigned-url', 'POST', {
+        filename,
+        contentType
+      });
+      
+      return result.url;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to get upload URL';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    }
+  };
 
   return {
+    isLoading,
+    error,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    uploadMedia,
+    schedulePost,
+    publishPost,
+    getPresignedUrl
   };
 }
