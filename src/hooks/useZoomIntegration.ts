@@ -1,216 +1,98 @@
 
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { fetchApi } from '@/utils/api/apiClient';
 
-export interface ZoomMeeting {
-  id: string;
-  topic: string;
-  start_time: string;
-  duration: number;
-  join_url: string;
-  password?: string;
+interface ZoomCallbackResult {
+  success: boolean;
+  data?: any;
+  error?: {
+    message: string;
+    code?: string;
+  };
 }
 
 export function useZoomIntegration() {
-  const { profile } = useAuth();
-  const companyId = profile?.company_id;
-  
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isCreatingMeeting, setIsCreatingMeeting] = useState(false);
-  const [integration, setIntegration] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Check if Zoom is connected
-  const checkConnection = useCallback(async () => {
-    if (!companyId) return { connected: false };
-    
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('company_zoom_integrations')
-        .select('*')
-        .eq('company_id', companyId)
-        .eq('is_connected', true)
-        .single();
-      
-      if (error) {
-        console.error('Error checking Zoom connection:', error);
-        return { connected: false };
-      }
-      
-      setIntegration(data);
-      return { connected: !!data };
-    } catch (error) {
-      console.error('Error checking Zoom connection:', error);
-      return { connected: false };
-    } finally {
-      setIsLoading(false);
-    }
-  }, [companyId]);
-  
-  // Start OAuth flow
-  const connectZoom = useCallback(async () => {
-    if (!companyId) {
-      toast.error('Company profile not found');
-      return;
-    }
-    
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const initiateZoomConnection = async (): Promise<string> => {
     setIsConnecting(true);
+    setError(null);
+    
     try {
-      // Configure redirect URI based on environment
-      const redirectUri = `${window.location.origin}/zoom-callback`;
-      
-      // Get the authorization URL
-      const response = await supabase.functions.invoke('zoom', {
-        body: { 
-          action: 'auth-url',
-          redirectUri,
-          companyId
-        }
+      const response = await fetchApi<{ authUrl: string }>('/api/zoom/authorize', 'POST', {
+        redirectUri: `${window.location.origin}/zoom-callback`,
+        state: Math.random().toString(36).substring(2)
       });
       
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      
-      // Redirect to Zoom OAuth
-      window.location.href = response.data.url;
-    } catch (error) {
-      console.error('Error connecting to Zoom:', error);
-      toast.error('Failed to connect to Zoom: ' + error.message);
+      return response.authUrl;
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect to Zoom');
+      throw err;
     } finally {
       setIsConnecting(false);
     }
-  }, [companyId]);
+  };
   
-  // Handle OAuth callback
-  const handleCallback = useCallback(async (code: string, state: string, redirectUri: string) => {
-    try {
-      const response = await supabase.functions.invoke('zoom', {
-        body: {
-          action: 'auth-callback',
-          code,
-          state,
-          redirectUri
-        }
-      });
-      
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      
-      toast.success('Zoom connected successfully!');
-      return { success: true };
-    } catch (error) {
-      console.error('Error handling Zoom callback:', error);
-      toast.error('Failed to connect Zoom: ' + error.message);
-      return { success: false, error };
-    }
-  }, []);
-  
-  // Create a Zoom meeting
-  const createMeeting = useCallback(async (
-    topic: string,
-    startTime: string,
-    duration: number = 60,
-    agenda?: string,
-    password?: string
-  ) => {
-    if (!companyId) {
-      toast.error('Company profile not found');
-      return null;
-    }
+  const handleCallback = async (code: string, state: string, redirectUri: string): Promise<ZoomCallbackResult> => {
+    setIsConnecting(true);
+    setError(null);
     
-    setIsCreatingMeeting(true);
     try {
-      const response = await supabase.functions.invoke('zoom', {
-        body: {
-          action: 'create-meeting',
-          companyId,
-          topic,
-          startTime,
-          duration,
-          agenda,
-          password
-        }
+      const response = await fetchApi<{ success: boolean }>('/api/zoom/callback', 'POST', {
+        code,
+        state,
+        redirectUri
       });
       
-      if (response.error) {
-        throw new Error(response.error);
+      if (response.success) {
+        setIsConnected(true);
+        return { success: true, data: response };
+      } else {
+        setError('Failed to connect Zoom account');
+        return { 
+          success: false, 
+          error: { 
+            message: 'Failed to connect Zoom account'
+          }
+        };
       }
-      
-      toast.success('Zoom meeting created successfully!');
-      return response.data.meeting as ZoomMeeting;
-    } catch (error) {
-      console.error('Error creating Zoom meeting:', error);
-      toast.error('Failed to create Zoom meeting: ' + error.message);
-      return null;
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while connecting to Zoom');
+      return {
+        success: false,
+        error: {
+          message: err.message || 'An error occurred while connecting to Zoom',
+          code: err.code
+        }
+      };
     } finally {
-      setIsCreatingMeeting(false);
+      setIsConnecting(false);
     }
-  }, [companyId]);
+  };
   
-  // Get upcoming meetings
-  const getUpcomingMeetings = useCallback(async () => {
-    if (!companyId) return [];
-    
+  const disconnectZoom = async (): Promise<boolean> => {
     try {
-      const { data, error } = await supabase
-        .from('company_zoom_meetings')
-        .select('*')
-        .eq('company_id', companyId)
-        .gte('start_time', new Date().toISOString())
-        .order('start_time', { ascending: true });
+      const response = await fetchApi<{ success: boolean }>('/api/zoom/disconnect', 'POST');
       
-      if (error) {
-        throw error;
+      if (response.success) {
+        setIsConnected(false);
+        return true;
       }
-      
-      return data;
-    } catch (error) {
-      console.error('Error fetching upcoming meetings:', error);
-      return [];
+      return false;
+    } catch (err: any) {
+      setError(err.message || 'Failed to disconnect Zoom');
+      return false;
     }
-  }, [companyId]);
-  
-  // Disconnect Zoom
-  const disconnectZoom = useCallback(async () => {
-    if (!companyId) return { success: false };
-    
-    try {
-      const response = await supabase.functions.invoke('zoom', {
-        body: {
-          action: 'disconnect',
-          companyId
-        }
-      });
-      
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      
-      toast.success('Zoom disconnected successfully');
-      setIntegration(null);
-      return { success: true };
-    } catch (error) {
-      console.error('Error disconnecting Zoom:', error);
-      toast.error('Failed to disconnect Zoom: ' + error.message);
-      return { success: false, error };
-    }
-  }, [companyId]);
+  };
   
   return {
-    checkConnection,
-    connectZoom,
-    handleCallback,
-    createMeeting,
-    getUpcomingMeetings,
-    disconnectZoom,
     isConnecting,
-    isCreatingMeeting,
-    isLoading,
-    integration
+    isConnected,
+    error,
+    initiateZoomConnection,
+    handleCallback,
+    disconnectZoom
   };
 }

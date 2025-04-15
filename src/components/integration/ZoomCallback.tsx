@@ -46,7 +46,7 @@ export default function ZoomCallback() {
           setStatus('error');
           setErrorMessage(result.error?.message || 'Failed to connect Zoom');
         }
-      } catch (error) {
+      } catch (error: any) {
         setStatus('error');
         setErrorMessage(error.message || 'An unexpected error occurred');
       }

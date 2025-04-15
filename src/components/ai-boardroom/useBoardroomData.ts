@@ -32,7 +32,7 @@ export function useBoardroomData(companyId?: string | null) {
   const [error, setError] = useState<string | null>(null);
   const [timeoutError, setTimeoutError] = useState<boolean>(false);
   const { profile } = useAuth();
-  const { riskAppetite } = useCompanyDetails(companyId);
+  const { riskAppetite } = useCompanyDetails(companyId || undefined);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;

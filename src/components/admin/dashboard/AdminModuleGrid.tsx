@@ -24,50 +24,58 @@ export function AdminModuleGrid({ modules, isLoading }: AdminModuleGridProps = {
       title: "User Management",
       description: "Manage system users and permissions",
       icon: <Users className="h-5 w-5" />,
-      href: "/admin/users"
+      href: "/admin/users",
+      count: undefined
     },
     {
       title: "Companies",
       description: "Manage company accounts and details",
       icon: <Building2 className="h-5 w-5" />,
-      href: "/admin/companies"
+      href: "/admin/companies",
+      count: undefined
     },
     {
       title: "Webhooks",
       description: "Configure integrations with external services",
       icon: <Webhook className="h-5 w-5" />,
-      href: "/admin/webhooks"
+      href: "/admin/webhooks",
+      count: undefined
     },
     {
       title: "API Keys",
       description: "Manage API keys for external services",
       icon: <Key className="h-5 w-5" />,
-      href: "/admin/api-config"
+      href: "/admin/api-config",
+      count: undefined
     },
     {
       title: "Database Verification",
       description: "Verify database structure and security",
       icon: <Database className="h-5 w-5" />,
-      href: "/admin/database"
+      href: "/admin/database",
+      count: undefined
     },
     {
       title: "Launch Check",
       description: "Verify system readiness for production",
       icon: <RocketIcon className="h-5 w-5" />,
-      href: "/admin/launch-check"
+      href: "/admin/launch-check",
+      count: undefined
     },
     {
       title: "Launch Preparation",
       description: "Prepare and deploy the application",
       icon: <RocketIcon className="h-5 w-5" />,
       href: "/admin/launch-prep",
-      highlight: true
+      highlight: true,
+      count: undefined
     },
     {
       title: "System Settings",
       description: "Configure global system preferences",
       icon: <Settings className="h-5 w-5" />,
-      href: "/admin/settings"
+      href: "/admin/settings",
+      count: undefined
     }
   ];
 

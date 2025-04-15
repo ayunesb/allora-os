@@ -84,20 +84,20 @@ const WebhooksTab = () => {
 
   const handleSave = () => {
     handleSaveWebhooks(
-      isStripeWebhookValid, 
-      isZapierWebhookValid,
-      isGithubWebhookValid,
-      isSlackWebhookValid,
-      isCustomWebhookValid
+      isStripeWebhookValid || false, 
+      isZapierWebhookValid || false,
+      isGithubWebhookValid || false,
+      isSlackWebhookValid || false,
+      isCustomWebhookValid || false
     );
   };
   
   // Test handlers that correctly return Promise<boolean>
-  const testStripeWebhook = () => handleTestStripeWebhook(isStripeWebhookValid);
-  const testZapierWebhook = () => handleTestZapierWebhook(isZapierWebhookValid);
-  const testGithubWebhook = () => handleTestGithubWebhook(isGithubWebhookValid);
-  const testSlackWebhook = () => handleTestSlackWebhook(isSlackWebhookValid);
-  const testCustomWebhook = () => handleTestCustomWebhook(isCustomWebhookValid);
+  const testStripeWebhook = () => handleTestStripeWebhook(isStripeWebhookValid || false);
+  const testZapierWebhook = () => handleTestZapierWebhook(isZapierWebhookValid || false);
+  const testGithubWebhook = () => handleTestGithubWebhook(isGithubWebhookValid || false);
+  const testSlackWebhook = () => handleTestSlackWebhook(isSlackWebhookValid || false);
+  const testCustomWebhook = () => handleTestCustomWebhook(isCustomWebhookValid || false);
 
   return (
     <Card>
@@ -131,11 +131,11 @@ const WebhooksTab = () => {
               isSaving={isSaving}
               testingWebhook={testingWebhook}
               testLoading={testLoading}
-              isStripeWebhookValid={isStripeWebhookValid}
-              isZapierWebhookValid={isZapierWebhookValid}
-              isGithubWebhookValid={isGithubWebhookValid}
-              isSlackWebhookValid={isSlackWebhookValid}
-              isCustomWebhookValid={isCustomWebhookValid}
+              isStripeWebhookValid={isStripeWebhookValid || false}
+              isZapierWebhookValid={isZapierWebhookValid || false}
+              isGithubWebhookValid={isGithubWebhookValid || false}
+              isSlackWebhookValid={isSlackWebhookValid || false}
+              isCustomWebhookValid={isCustomWebhookValid || false}
             />
           </CardContent>
         </TabsContent>
