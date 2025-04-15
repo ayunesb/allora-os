@@ -6,6 +6,7 @@ import { initializeAgentExecutorWithOptions } from "npm:langchain/agents";
 import { ChatOpenAI } from "npm:@langchain/openai";
 import { DynamicTool } from "npm:langchain/tools";
 import { OpenAI } from "npm:langchain/llms/openai";
+import { Client } from "npm:@notionhq/client";
 
 // CORS headers for the response
 const corsHeaders = {
@@ -85,6 +86,52 @@ serve(async (req) => {
         },
       }),
     ];
+
+    // Add Notion tool if environment variables are set
+    const notionApiKey = Deno.env.get("NOTION_API_KEY");
+    const notionDbId = Deno.env.get("NOTION_DB_ID");
+    
+    if (notionApiKey && notionDbId) {
+      const notion = new Client({ auth: notionApiKey });
+      
+      tools.push(
+        new DynamicTool({
+          name: "NotionMemory",
+          description: "Save a strategy or decision log into Notion with title and content. The input should be formatted with a title on the first line followed by content.",
+          func: async (input: string) => {
+            try {
+              console.log("Running Notion tool with input:", input);
+              const [titleLine, ...bodyLines] = input.split('\n');
+              const title = titleLine.trim();
+              const content = bodyLines.join('\n').trim();
+
+              const response = await notion.pages.create({
+                parent: { database_id: notionDbId },
+                properties: {
+                  Name: {
+                    title: [{ text: { content: title } }]
+                  }
+                },
+                children: [
+                  {
+                    object: 'block',
+                    type: 'paragraph',
+                    paragraph: {
+                      rich_text: [{ type: 'text', text: { content } }]
+                    }
+                  }
+                ]
+              });
+
+              return `Successfully logged to Notion: ${title}`;
+            } catch (err) {
+              console.error('NotionTool error:', err);
+              return `Failed to log to Notion: ${err instanceof Error ? err.message : String(err)}`;
+            }
+          },
+        })
+      );
+    }
 
     // Record tool calls for reporting
     const toolCalls: Array<{ tool: string; input: any; output: any }> = [];

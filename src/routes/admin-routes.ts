@@ -92,6 +92,13 @@ export const adminRoutes: RouteObject[] = [
           const { default: AdminLeads } = await import("@/pages/admin/AdminLeads");
           return { Component: AdminLeads };
         },
+      },
+      {
+        path: "notion-integration",
+        async lazy() {
+          const { default: NotionIntegration } = await import("@/pages/admin/NotionIntegration");
+          return { Component: NotionIntegration };
+        },
       }
     ]
   }

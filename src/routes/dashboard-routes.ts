@@ -9,8 +9,8 @@ export const dashboardRoutes: RouteObject[] = [
       const { default: Dashboard } = await import("@/pages/dashboard/Dashboard");
       return { 
         Component: () => {
-          const ProtectedDashboard = ProtectedRoute(Dashboard);
-          return <ProtectedDashboard />;
+          const Protected = ProtectedRoute(Dashboard);
+          return <Protected />;
         }
       };
     }
@@ -22,8 +22,8 @@ export const dashboardRoutes: RouteObject[] = [
       const { default: Campaigns } = await import("@/pages/dashboard/Campaigns");
       return { 
         Component: () => {
-          const ProtectedCampaigns = ProtectedRoute(Campaigns);
-          return <ProtectedCampaigns />;
+          const Protected = ProtectedRoute(Campaigns);
+          return <Protected />;
         }
       };
     }
@@ -35,8 +35,8 @@ export const dashboardRoutes: RouteObject[] = [
       const { default: Leads } = await import("@/pages/dashboard/Leads");
       return { 
         Component: () => {
-          const ProtectedLeads = ProtectedRoute(Leads);
-          return <ProtectedLeads />;
+          const Protected = ProtectedRoute(Leads);
+          return <Protected />;
         }
       };
     }
@@ -48,8 +48,8 @@ export const dashboardRoutes: RouteObject[] = [
       const { default: AIAgent } = await import("@/pages/dashboard/AIAgent");
       return { 
         Component: () => {
-          const ProtectedAIAgent = ProtectedRoute(AIAgent);
-          return <ProtectedAIAgent />;
+          const Protected = ProtectedRoute(AIAgent);
+          return <Protected />;
         }
       };
     }

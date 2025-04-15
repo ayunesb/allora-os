@@ -9,8 +9,8 @@ export const onboardingRoutes: RouteObject[] = [
       const { default: Onboarding } = await import("@/pages/Onboarding");
       return { 
         Component: () => {
-          const ProtectedOnboarding = ProtectedRoute(Onboarding);
-          return <ProtectedOnboarding />;
+          const Protected = ProtectedRoute(Onboarding);
+          return <Protected />;
         }
       };
     }
