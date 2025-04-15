@@ -43,5 +43,12 @@ export const aiRoutes: RouteObject[] = [
       const { default: LangChainAgentAPI } = await import("@/pages/dashboard/LangChainAgentAPI");
       return { Component: LangChainAgentAPI };
     }
+  },
+  {
+    path: "executive-actions",
+    async lazy() {
+      const { default: ExecutiveActions } = await import("@/pages/dashboard/ExecutiveActions");
+      return { Component: AIBoardroom };
+    }
   }
 ];
