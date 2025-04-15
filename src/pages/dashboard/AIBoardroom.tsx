@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { TypographyH1, TypographyP } from '@/components/ui/typography';
-import { AIExecutiveBoardroom } from '@/components/ai-boardroom/AIExecutiveBoardroom';
+import AIExecutiveBoardroom from '@/components/ai-boardroom/AIExecutiveBoardroom';
 import ExecutiveActionPanel from '@/components/executives/ExecutiveActionPanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
