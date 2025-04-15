@@ -1,73 +1,97 @@
 
 import { RouteObject } from "react-router-dom";
-import { lazy } from "react";
-
-const AdminLayout = lazy(() => import("@/components/layouts/AdminLayout"));
-const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
-const AdminEntities = lazy(() => import("@/pages/admin/AdminEntities"));
-const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
-const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
-const AdminSystemHealth = lazy(() => import("@/pages/admin/SystemHealth"));
-const AdminLaunchPrep = lazy(() => import("@/pages/admin/AdminLaunchPrep"));
-const AdminCampaigns = lazy(() => import("@/pages/admin/AdminCampaigns"));
-const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
-const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
-const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
-const AdminCompanies = lazy(() => import("@/pages/admin/AdminCompanies"));
-const SystemPage = lazy(() => import("@/pages/admin/system"));
 
 export const adminRoutes: RouteObject[] = [
   {
     path: "admin",
-    element: <AdminLayout />,
+    async lazy() {
+      const { default: AdminLayout } = await import("@/components/layouts/AdminLayout");
+      return { element: <AdminLayout /> };
+    },
     children: [
       {
         index: true,
-        element: <AdminDashboard />
+        async lazy() {
+          const { default: AdminDashboard } = await import("@/pages/admin/AdminDashboard");
+          return { element: <AdminDashboard /> };
+        },
       },
       {
         path: "entities",
-        element: <AdminEntities />
+        async lazy() {
+          const { default: AdminEntities } = await import("@/pages/admin/AdminEntities");
+          return { element: <AdminEntities /> };
+        },
       },
       {
         path: "users",
-        element: <AdminUsers />
+        async lazy() {
+          const { default: AdminUsers } = await import("@/pages/admin/AdminUsers");
+          return { element: <AdminUsers /> };
+        },
       },
       {
         path: "companies",
-        element: <AdminCompanies />
+        async lazy() {
+          const { default: AdminCompanies } = await import("@/pages/admin/AdminCompanies");
+          return { element: <AdminCompanies /> };
+        },
       },
       {
         path: "settings",
-        element: <AdminSettings />
+        async lazy() {
+          const { default: AdminSettings } = await import("@/pages/admin/AdminSettings");
+          return { element: <AdminSettings /> };
+        },
       },
       {
         path: "webhooks",
-        element: <AdminWebhooks />
+        async lazy() {
+          const { default: AdminWebhooks } = await import("@/pages/admin/AdminWebhooks");
+          return { element: <AdminWebhooks /> };
+        },
       },
       {
         path: "system-health",
-        element: <AdminSystemHealth />
+        async lazy() {
+          const { default: AdminSystemHealth } = await import("@/pages/admin/SystemHealth");
+          return { element: <AdminSystemHealth /> };
+        },
       },
       {
         path: "diagnostics",
-        element: <SystemPage />
+        async lazy() {
+          const { default: SystemPage } = await import("@/pages/admin/system");
+          return { element: <SystemPage /> };
+        },
       },
       {
         path: "launch-prep",
-        element: <AdminLaunchPrep />
+        async lazy() {
+          const { default: AdminLaunchPrep } = await import("@/pages/admin/AdminLaunchPrep");
+          return { element: <AdminLaunchPrep /> };
+        },
       },
       {
         path: "campaigns",
-        element: <AdminCampaigns />
+        async lazy() {
+          const { default: AdminCampaigns } = await import("@/pages/admin/AdminCampaigns");
+          return { element: <AdminCampaigns /> };
+        },
       },
       {
         path: "analytics",
-        element: <AdminAnalytics />
+        async lazy() {
+          const { default: AdminAnalytics } = await import("@/pages/admin/AdminAnalytics");
+          return { element: <AdminAnalytics /> };
+        },
       },
       {
         path: "leads",
-        element: <AdminLeads />
+        async lazy() {
+          const { default: AdminLeads } = await import("@/pages/admin/AdminLeads");
+          return { element: <AdminLeads /> };
+        },
       }
     ]
   }

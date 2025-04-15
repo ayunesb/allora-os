@@ -1,46 +1,61 @@
 
 import { RouteObject } from "react-router-dom";
-import { lazy } from "react";
-
-const Login = lazy(() => import("@/pages/Login"));
-const SignUpNew = lazy(() => import("@/pages/SignUpNew"));
-const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
-const EmailConfirm = lazy(() => import("@/pages/EmailConfirm"));
-const VerifyOtp = lazy(() => import("@/pages/VerifyOtp"));
-const TiktokCallback = lazy(() => import("@/components/auth/TiktokCallback"));
-const UpdatePassword = lazy(() => import("@/pages/UpdatePassword"));
 
 export const authRoutes: RouteObject[] = [
   {
     path: "login",
-    element: <Login />
+    async lazy() {
+      const { default: Login } = await import("@/pages/Login");
+      return { element: <Login /> };
+    }
   },
   {
     path: "auth/login",
-    element: <Login />
+    async lazy() {
+      const { default: Login } = await import("@/pages/Login");
+      return { element: <Login /> };
+    }
   },
   {
     path: "signup",
-    element: <SignUpNew />
+    async lazy() {
+      const { default: SignUpNew } = await import("@/pages/SignUpNew");
+      return { element: <SignUpNew /> };
+    }
   },
   {
     path: "reset-password",
-    element: <ResetPassword />
+    async lazy() {
+      const { default: ResetPassword } = await import("@/pages/ResetPassword");
+      return { element: <ResetPassword /> };
+    }
   },
   {
     path: "email-confirm",
-    element: <EmailConfirm />
+    async lazy() {
+      const { default: EmailConfirm } = await import("@/pages/EmailConfirm");
+      return { element: <EmailConfirm /> };
+    }
   },
   {
     path: "verify-otp",
-    element: <VerifyOtp />
+    async lazy() {
+      const { default: VerifyOtp } = await import("@/pages/VerifyOtp");
+      return { element: <VerifyOtp /> };
+    }
   },
   {
     path: "update-password",
-    element: <UpdatePassword />
+    async lazy() {
+      const { default: UpdatePassword } = await import("@/pages/UpdatePassword");
+      return { element: <UpdatePassword /> };
+    }
   },
   {
     path: "auth/tiktok/callback",
-    element: <TiktokCallback />
+    async lazy() {
+      const { default: TiktokCallback } = await import("@/components/auth/TiktokCallback");
+      return { element: <TiktokCallback /> };
+    }
   }
 ];

@@ -1,16 +1,19 @@
 
-import { lazy } from 'react';
+import { RouteObject } from "react-router-dom";
 
-const DevAdminHelper = lazy(() => import('@/pages/dev/DevAdminHelper'));
-const DevDebugPage = lazy(() => import('@/pages/dev/DevDebugPage'));
-
-export const devRoutes = [
+export const devRoutes: RouteObject[] = [
   {
-    path: '/dev-admin-helper',
-    element: <DevAdminHelper />,
+    path: "/dev-admin-helper",
+    async lazy() {
+      const { default: DevAdminHelper } = await import("@/pages/dev/DevAdminHelper");
+      return { element: <DevAdminHelper /> };
+    }
   },
   {
-    path: '/dev/debug',
-    element: <DevDebugPage />,
-  },
+    path: "/dev/debug",
+    async lazy() {
+      const { default: DevDebugPage } = await import("@/pages/dev/DevDebugPage");
+      return { element: <DevDebugPage /> };
+    }
+  }
 ];

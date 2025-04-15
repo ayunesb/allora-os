@@ -1,21 +1,26 @@
 
-import { lazy } from 'react';
+import { RouteObject } from "react-router-dom";
 
-const Home = lazy(() => import('@/pages/Home'));
-const Pricing = lazy(() => import('@/pages/Pricing'));
-const FeatureOverview = lazy(() => import('@/pages/FeatureOverview'));
-
-export const marketingRoutes = [
+export const marketingRoutes: RouteObject[] = [
   {
-    path: '/home',
-    element: <Home />,
+    path: "/home",
+    async lazy() {
+      const { default: Home } = await import("@/pages/Home");
+      return { element: <Home /> };
+    }
   },
   {
-    path: '/pricing',
-    element: <Pricing />,
+    path: "/pricing",
+    async lazy() {
+      const { default: Pricing } = await import("@/pages/Pricing");
+      return { element: <Pricing /> };
+    }
   },
   {
-    path: '/features',
-    element: <FeatureOverview />,
-  },
+    path: "/features",
+    async lazy() {
+      const { default: FeatureOverview } = await import("@/pages/FeatureOverview");
+      return { element: <FeatureOverview /> };
+    }
+  }
 ];

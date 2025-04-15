@@ -1,27 +1,37 @@
 
-import { lazy } from 'react';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { RouteObject } from "react-router-dom";
 
-const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
-const Campaigns = lazy(() => import('@/pages/dashboard/Campaigns'));
-const Leads = lazy(() => import('@/pages/dashboard/Leads'));
-const AIAgent = lazy(() => import('@/pages/dashboard/AIAgent'));
-
-export const dashboardRoutes = [
+export const dashboardRoutes: RouteObject[] = [
   {
-    path: '/dashboard',
-    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
+    path: "/dashboard",
+    async lazy() {
+      const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
+      const { default: Dashboard } = await import("@/pages/dashboard/Dashboard");
+      return { element: <ProtectedRoute><Dashboard /></ProtectedRoute> };
+    }
   },
   {
-    path: '/dashboard/campaigns',
-    element: <ProtectedRoute><Campaigns /></ProtectedRoute>,
+    path: "/dashboard/campaigns",
+    async lazy() {
+      const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
+      const { default: Campaigns } = await import("@/pages/dashboard/Campaigns");
+      return { element: <ProtectedRoute><Campaigns /></ProtectedRoute> };
+    }
   },
   {
-    path: '/dashboard/leads',
-    element: <ProtectedRoute><Leads /></ProtectedRoute>,
+    path: "/dashboard/leads",
+    async lazy() {
+      const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
+      const { default: Leads } = await import("@/pages/dashboard/Leads");
+      return { element: <ProtectedRoute><Leads /></ProtectedRoute> };
+    }
   },
   {
-    path: '/dashboard/ai-agent',
-    element: <ProtectedRoute><AIAgent /></ProtectedRoute>,
-  },
+    path: "/dashboard/ai-agent",
+    async lazy() {
+      const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
+      const { default: AIAgent } = await import("@/pages/dashboard/AIAgent");
+      return { element: <ProtectedRoute><AIAgent /></ProtectedRoute> };
+    }
+  }
 ];

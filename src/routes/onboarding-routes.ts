@@ -1,12 +1,13 @@
 
-import { lazy } from 'react';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { RouteObject } from "react-router-dom";
 
-const Onboarding = lazy(() => import('@/pages/Onboarding'));
-
-export const onboardingRoutes = [
+export const onboardingRoutes: RouteObject[] = [
   {
-    path: '/onboarding',
-    element: <ProtectedRoute><Onboarding /></ProtectedRoute>,
-  },
+    path: "/onboarding",
+    async lazy() {
+      const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
+      const { default: Onboarding } = await import("@/pages/Onboarding");
+      return { element: <ProtectedRoute><Onboarding /></ProtectedRoute> };
+    }
+  }
 ];

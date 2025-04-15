@@ -1,41 +1,54 @@
 
-import { lazy } from 'react';
+import { RouteObject } from "react-router-dom";
 
-const NotFound = lazy(() => import('@/pages/NotFound'));
-const Legal = lazy(() => import('@/pages/Legal'));
-const FAQ = lazy(() => import('@/pages/FAQ'));
-const Privacy = lazy(() => import('@/pages/Privacy'));
-const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
-const Contact = lazy(() => import('@/pages/Contact'));
-const Security = lazy(() => import('@/pages/Security'));
-
-export const globalRoutes = [
+export const globalRoutes: RouteObject[] = [
   {
-    path: '/404',
-    element: <NotFound />,
+    path: "/404",
+    async lazy() {
+      const { default: NotFound } = await import("@/pages/NotFound");
+      return { element: <NotFound /> };
+    }
   },
   {
-    path: '/legal',
-    element: <Legal />,
+    path: "/legal",
+    async lazy() {
+      const { default: Legal } = await import("@/pages/Legal");
+      return { element: <Legal /> };
+    }
   },
   {
-    path: '/faq',
-    element: <FAQ />,
+    path: "/faq",
+    async lazy() {
+      const { default: FAQ } = await import("@/pages/FAQ");
+      return { element: <FAQ /> };
+    }
   },
   {
-    path: '/privacy',
-    element: <Privacy />,
+    path: "/privacy",
+    async lazy() {
+      const { default: Privacy } = await import("@/pages/Privacy");
+      return { element: <Privacy /> };
+    }
   },
   {
-    path: '/terms',
-    element: <TermsOfService />,
+    path: "/terms",
+    async lazy() {
+      const { default: TermsOfService } = await import("@/pages/TermsOfService");
+      return { element: <TermsOfService /> };
+    }
   },
   {
-    path: '/contact',
-    element: <Contact />,
+    path: "/contact",
+    async lazy() {
+      const { default: Contact } = await import("@/pages/Contact");
+      return { element: <Contact /> };
+    }
   },
   {
-    path: '/security',
-    element: <Security />,
-  },
+    path: "/security",
+    async lazy() {
+      const { default: Security } = await import("@/pages/Security");
+      return { element: <Security /> };
+    }
+  }
 ];
