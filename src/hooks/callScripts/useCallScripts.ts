@@ -12,7 +12,7 @@ interface CallScript {
 }
 
 interface CallScriptParams {
-  companySize?: string;
+  companySize?: string | number;
   industry?: string;
   scriptType: string;
   productName?: string;

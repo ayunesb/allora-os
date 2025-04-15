@@ -372,10 +372,12 @@ export type Database = {
           management_fee: number | null
           name: string
           payment_status: string | null
+          payment_status_updated_at: string | null
           performance_metrics: Json | null
           platform: string | null
           platform_specific_id: string | null
           platform_status: string | null
+          stripe_invoice_id: string | null
           stripe_payment_id: string | null
           targeting: Json | null
           total_amount: number | null
@@ -392,10 +394,12 @@ export type Database = {
           management_fee?: number | null
           name: string
           payment_status?: string | null
+          payment_status_updated_at?: string | null
           performance_metrics?: Json | null
           platform?: string | null
           platform_specific_id?: string | null
           platform_status?: string | null
+          stripe_invoice_id?: string | null
           stripe_payment_id?: string | null
           targeting?: Json | null
           total_amount?: number | null
@@ -412,10 +416,12 @@ export type Database = {
           management_fee?: number | null
           name?: string
           payment_status?: string | null
+          payment_status_updated_at?: string | null
           performance_metrics?: Json | null
           platform?: string | null
           platform_specific_id?: string | null
           platform_status?: string | null
+          stripe_invoice_id?: string | null
           stripe_payment_id?: string | null
           targeting?: Json | null
           total_amount?: number | null
@@ -645,6 +651,44 @@ export type Database = {
           },
         ]
       }
+      creative_assets: {
+        Row: {
+          alt_text: string | null
+          asset_type: string | null
+          company_id: string | null
+          id: string
+          metadata: Json | null
+          uploaded_at: string | null
+          url: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          asset_type?: string | null
+          company_id?: string | null
+          id?: string
+          metadata?: Json | null
+          uploaded_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          asset_type?: string | null
+          company_id?: string | null
+          id?: string
+          metadata?: Json | null
+          uploaded_at?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creative_assets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debate_messages: {
         Row: {
           content: string
@@ -741,6 +785,50 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      execution_results: {
+        Row: {
+          company_id: string | null
+          context: Json | null
+          created_at: string | null
+          executed_at: string | null
+          executive_id: string | null
+          id: string
+          input_prompt: string | null
+          result: string | null
+          tool_used: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          context?: Json | null
+          created_at?: string | null
+          executed_at?: string | null
+          executive_id?: string | null
+          id?: string
+          input_prompt?: string | null
+          result?: string | null
+          tool_used?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          context?: Json | null
+          created_at?: string | null
+          executed_at?: string | null
+          executive_id?: string | null
+          id?: string
+          input_prompt?: string | null
+          result?: string | null
+          tool_used?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_results_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       executive_actions: {
         Row: {
@@ -853,6 +941,47 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_logs: {
+        Row: {
+          action_summary: string | null
+          body_text: string | null
+          company_id: string | null
+          created_at: string | null
+          executive_id: string | null
+          id: string
+          metadata: Json | null
+          tool_used: string | null
+        }
+        Insert: {
+          action_summary?: string | null
+          body_text?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          executive_id?: string | null
+          id?: string
+          metadata?: Json | null
+          tool_used?: string | null
+        }
+        Update: {
+          action_summary?: string | null
+          body_text?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          executive_id?: string | null
+          id?: string
+          metadata?: Json | null
+          tool_used?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "executive_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       executive_memory: {
         Row: {
           context_embedding: string | null
@@ -912,6 +1041,50 @@ export type Database = {
           to_executive?: string
         }
         Relationships: []
+      }
+      executive_personas: {
+        Row: {
+          active: boolean | null
+          company_id: string | null
+          created_at: string | null
+          description: string | null
+          domain_expertise: string | null
+          id: string
+          mental_model: Json | null
+          role: string | null
+          tone: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          company_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          domain_expertise?: string | null
+          id?: string
+          mental_model?: Json | null
+          role?: string | null
+          tone?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          company_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          domain_expertise?: string | null
+          id?: string
+          mental_model?: Json | null
+          role?: string | null
+          tone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "executive_personas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       executives: {
         Row: {
@@ -1107,9 +1280,9 @@ export type Database = {
         Row: {
           approval_notes: string | null
           author_id: string | null
+          body_text: string
           campaign_id: string | null
           company_id: string
-          content: string
           content_type: string
           created_at: string
           hashtags: string[] | null
@@ -1131,9 +1304,9 @@ export type Database = {
         Insert: {
           approval_notes?: string | null
           author_id?: string | null
+          body_text: string
           campaign_id?: string | null
           company_id: string
-          content: string
           content_type: string
           created_at?: string
           hashtags?: string[] | null
@@ -1155,9 +1328,9 @@ export type Database = {
         Update: {
           approval_notes?: string | null
           author_id?: string | null
+          body_text?: string
           campaign_id?: string | null
           company_id?: string
-          content?: string
           content_type?: string
           created_at?: string
           hashtags?: string[] | null

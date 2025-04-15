@@ -9,15 +9,18 @@ export interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   isLoading: boolean;
+  isProfileLoading: boolean;
   isEmailVerified: boolean;
   isSessionExpired: boolean;
   hasInitialized: boolean;
   authError?: Error | null;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   signOut: () => Promise<{ success: boolean; error?: string }>;
-  refreshSession: () => Promise<void>;
+  refreshSession: () => Promise<boolean>;
   refreshProfile: () => Promise<void>;
   sendPasswordReset?: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
   isAuthenticated: boolean;
 }
 
@@ -26,6 +29,9 @@ export interface UserProfile {
   id?: string;
   email?: string;
   name?: string;
+  avatar_url?: string;
+  company?: string;
+  industry?: string;
   role?: string;
   company_id?: string;
   goals?: string[];
@@ -44,14 +50,17 @@ export const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   isLoading: true,
+  isProfileLoading: true,
   isEmailVerified: false,
   isSessionExpired: false,
   hasInitialized: false,
   authError: null,
   signIn: async () => ({ success: false }),
+  signUp: async () => ({ success: false }),
   signOut: async () => ({ success: false }),
-  refreshSession: async () => {},
+  refreshSession: async () => false,
   refreshProfile: async () => {},
+  updatePassword: async () => ({ success: false }),
   isAuthenticated: false
 });
 
@@ -60,6 +69,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -160,6 +170,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const signUp = async (email: string, password: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+      return { success: true, user: data.user };
+    } catch (error: any) {
+      logger.error('Sign-up error:', error);
+      setAuthError(error);
+      return { success: false, error: error.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const signOut = async () => {
     setIsLoading(true);
     setAuthError(null);
@@ -231,20 +263,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updatePassword = async (password: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password
+      });
+      
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      logger.error('Password update error:', error);
+      setAuthError(error);
+      return { success: false, error: error.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     session,
     profile,
     isLoading,
+    isProfileLoading,
     isEmailVerified,
     isSessionExpired,
     hasInitialized,
     authError,
     signIn,
+    signUp,
     signOut,
     refreshSession,
     refreshProfile,
     sendPasswordReset,
+    updatePassword,
     isAuthenticated
   };
 

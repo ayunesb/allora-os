@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useExternalLangChainAPI } from '@/utils/langchain/hooks/useExternalLangChainAPI';
 
@@ -6,6 +5,19 @@ import { useExternalLangChainAPI } from '@/utils/langchain/hooks/useExternalLang
 interface AgentResponse {
   result: string;
   error?: string;
+}
+
+// Re-export existing types or create new ones as needed
+export interface CompanyProfile {
+  name: string;
+  industry: string;
+  size?: string;
+  founded?: string;
+  location?: string;
+  website?: string;
+  description?: string;
+  goals?: string[];
+  challenges?: string[];
 }
 
 // Get a response from the OpenAI API via Supabase Edge Function

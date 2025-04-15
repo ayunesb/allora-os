@@ -24,6 +24,7 @@ export interface UserProfile {
   subscription_status?: string;
   subscription_plan_id?: string;
   subscription_expires_at?: string;
+  isProfileLoading?: boolean;
 }
 
 export interface AuthContextType {

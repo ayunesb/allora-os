@@ -1,180 +1,176 @@
 
-import { useState, useEffect } from "react";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { useSelfLearning } from "@/hooks/useSelfLearning";
-import { useAuthState } from "@/hooks/useAuthState";
-import { useCallScripts } from "@/hooks/useCallScripts";
-import { useCommunications } from "@/hooks/communications";
-import { useBreakpoint } from "@/hooks/use-mobile";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageTitle } from '@/components/ui/typography';
+import { useCallScripts } from '@/hooks/callScripts/useCallScripts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
-// Import the components
-import CallsHeader from "@/components/calls/CallsHeader";
-import CallTabs from "@/components/calls/CallTabs";
-import ScriptSection from "@/components/calls/ScriptSection";
-import CommunicationTimeline from "@/components/calls/CommunicationTimeline";
-import UpcomingCommunications from "@/components/calls/UpcomingCommunications";
-import PastCommunications from "@/components/calls/PastCommunications";
-import CommunicationActions from "@/components/calls/CommunicationActions";
-import AiZoomAssistant from "@/components/calls/AiZoomAssistant";
-import CommunicationAnalytics from "@/components/calls/CommunicationAnalytics";
-import CommunicationNotes from "@/components/calls/CommunicationNotes";
-import AiScriptGenerator from "@/components/calls/AiScriptGenerator";
+const Calls = () => {
+  const [scriptType, setScriptType] = useState('sales');
+  const { scripts, isLoading, error, generateScript } = useCallScripts();
+  const [isFetching, setIsFetching] = useState(false);
 
-export default function Calls() {
-  const [activeTab, setActiveTab] = useState("timeline");
-  const { callScripts, messageScripts, isLoading: scriptsLoading } = useCallScripts();
-  const { 
-    upcomingCommunications, 
-    pastCommunications, 
-    isLoading: communicationsLoading 
-  } = useCommunications();
-
-  const { user } = useAuthState();
-  const { trackAction } = useSelfLearning();
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
-
-  useEffect(() => {
-    if (user?.id) {
-      trackAction(
-        'view_page',
-        'page_view',
-        'calls_page',
-        'page',
-        { tab: activeTab }
-      );
+  const onGenerateScript = async () => {
+    setIsFetching(true);
+    try {
+      const result = await generateScript({ scriptType });
+      if (result) {
+        toast.success('Script generated successfully');
+      } else {
+        toast.error('Failed to generate script');
+      }
+    } catch (err) {
+      console.error('Error generating script:', err);
+      toast.error('Error generating script');
+    } finally {
+      setIsFetching(false);
     }
-  }, [user, trackAction, activeTab]);
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    
-    if (user?.id) {
-      trackAction(
-        'switch_tab',
-        'page_view',
-        `calls_${value}`,
-        'tab',
-        { from: activeTab, to: value }
-      );
-    }
-  };
-
-  const handleUseScript = (scriptId: string, scriptTitle: string) => {
-    if (user?.id) {
-      trackAction(
-        'use_script',
-        'strategy_view',
-        scriptTitle,
-        'call_script',
-        { scriptId, scriptTitle }
-      );
-    }
-    
-    setActiveTab("timeline");
   };
 
   return (
-    <div className={`container mx-auto ${isMobileView ? 'px-1 py-2' : 'px-4 py-6'}`}>
-      <CallsHeader />
+    <div className="container mx-auto p-4">
+      <PageTitle 
+        title="Communication Scripts" 
+        description="AI-generated scripts for your sales calls, follow-ups, and customer engagement"
+      />
       
-      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <CallTabs activeTab={activeTab} onTabChange={handleTabChange} />
-        
-        <TabsContent value="timeline" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6">
-            <div className="lg:col-span-2">
-              <CommunicationTimeline 
-                upcomingCommunications={upcomingCommunications}
-                pastCommunications={pastCommunications}
-                isLoading={communicationsLoading}
-              />
+      <div className="grid gap-6 mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Generate New Script</CardTitle>
+            <CardDescription>
+              Choose the type of communication script you need
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="col-span-3">
+                <Select 
+                  value={scriptType} 
+                  onValueChange={setScriptType}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select script type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sales">Sales Call</SelectItem>
+                    <SelectItem value="followup">Follow-up Email</SelectItem>
+                    <SelectItem value="introduction">Introduction Message</SelectItem>
+                    <SelectItem value="meeting">Meeting Agenda</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                onClick={onGenerateScript} 
+                disabled={isFetching}
+                className="col-span-1"
+              >
+                {isFetching ? 'Generating...' : 'Generate'}
+              </Button>
             </div>
-            <div>
-              <CommunicationActions />
-            </div>
-          </div>
-        </TabsContent>
+          </CardContent>
+        </Card>
         
-        <TabsContent value="upcoming" className="space-y-6">
-          <UpcomingCommunications 
-            communications={upcomingCommunications}
-            isLoading={communicationsLoading}
-          />
-        </TabsContent>
-        
-        <TabsContent value="history" className="space-y-6">
-          <PastCommunications 
-            communications={pastCommunications}
-            isLoading={communicationsLoading}
-          />
-        </TabsContent>
-        
-        <TabsContent value="scripts" className="space-y-6">
-          {/* AI Call Scripts */}
-          <ScriptSection 
-            title="AI Generated Call Scripts"
-            scripts={callScripts}
-            onUseScript={handleUseScript}
-            type="call"
-            isAiSection={true}
-          />
-          
-          {/* Standard Call Scripts */}
-          <ScriptSection 
-            title="Standard Call Scripts"
-            scripts={callScripts}
-            onUseScript={handleUseScript}
-            type="call"
-            isAiSection={false}
-          />
-        </TabsContent>
-
-        <TabsContent value="messages" className="space-y-6">
-          {/* AI Message Templates */}
-          <ScriptSection 
-            title="AI Generated Message Templates"
-            scripts={messageScripts}
-            onUseScript={handleUseScript}
-            type="message"
-            isAiSection={true}
-          />
-          
-          {/* Standard Message Templates */}
-          <ScriptSection 
-            title="Standard Message Templates"
-            scripts={messageScripts}
-            onUseScript={handleUseScript}
-            type="message"
-            isAiSection={false}
-          />
-        </TabsContent>
-        
-        <TabsContent value="zoom" className="space-y-6">
-          <AiZoomAssistant />
-        </TabsContent>
-        
-        <TabsContent value="ai-assistant" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <CommunicationNotes 
-                communications={[...upcomingCommunications, ...pastCommunications]}
-                isLoading={communicationsLoading}
-              />
-            </div>
-            <div>
-              <AiScriptGenerator />
-            </div>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="analytics" className="space-y-6">
-          <CommunicationAnalytics 
-            communications={pastCommunications}
-            isLoading={communicationsLoading}
-          />
-        </TabsContent>
-      </Tabs>
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Scripts</CardTitle>
+            <CardDescription>
+              Previously generated communication scripts
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="all">
+              <TabsList className="mb-4">
+                <TabsTrigger value="all">All Scripts</TabsTrigger>
+                <TabsTrigger value="sales">Sales</TabsTrigger>
+                <TabsTrigger value="followup">Follow-ups</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="all" className="space-y-4">
+                {isLoading ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                  </div>
+                ) : scripts.length > 0 ? (
+                  scripts.map(script => (
+                    <div key={script.id} className="p-4 border rounded-md">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium">{script.title || script.script_type}</h3>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          {script.script_type}
+                        </span>
+                      </div>
+                      <p className="text-sm whitespace-pre-line">{script.content}</p>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Created: {new Date(script.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    No scripts generated yet. Create your first script!
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="sales" className="space-y-4">
+                {isLoading ? (
+                  <Skeleton className="h-24 w-full" />
+                ) : scripts.filter(s => s.script_type === 'sales').length > 0 ? (
+                  scripts
+                    .filter(s => s.script_type === 'sales')
+                    .map(script => (
+                      <div key={script.id} className="p-4 border rounded-md">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-medium">{script.title || 'Sales Script'}</h3>
+                        </div>
+                        <p className="text-sm whitespace-pre-line">{script.content}</p>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          Created: {new Date(script.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    No sales scripts yet. Generate one now!
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="followup" className="space-y-4">
+                {isLoading ? (
+                  <Skeleton className="h-24 w-full" />
+                ) : scripts.filter(s => s.script_type === 'followup').length > 0 ? (
+                  scripts
+                    .filter(s => s.script_type === 'followup')
+                    .map(script => (
+                      <div key={script.id} className="p-4 border rounded-md">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-medium">{script.title || 'Follow-up Script'}</h3>
+                        </div>
+                        <p className="text-sm whitespace-pre-line">{script.content}</p>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          Created: {new Date(script.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    No follow-up scripts yet. Generate one now!
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-}
+};
+
+export default Calls;

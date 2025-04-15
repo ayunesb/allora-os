@@ -9,27 +9,14 @@ export interface PageTitleProps {
 
 export const PageTitle: React.FC<PageTitleProps> = ({ 
   title, 
-  description, 
+  description,
   children 
 }) => {
   return (
-    <div>
-      <h1>{title}</h1>
-      <p>{description}</p>
+    <div className="mb-6">
+      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+      <p className="text-muted-foreground mt-1">{description}</p>
       {children}
     </div>
   );
-};
-
-// Add required Typography components
-export const TypographyH1: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => {
-  return <h1 className={`text-3xl font-bold tracking-tight ${className || ''}`}>{children}</h1>;
-};
-
-export const TypographyP: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => {
-  return <p className={`leading-7 ${className || ''}`}>{children}</p>;
-};
-
-export const TypographySmall: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => {
-  return <small className={`text-sm font-medium leading-none ${className || ''}`}>{children}</small>;
 };
