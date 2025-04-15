@@ -5,29 +5,22 @@ export const aiRoutes: RouteObject[] = [
   {
     path: "ai-bots",
     async lazy() {
-      const { default: AiBots } = await import("@/pages/dashboard/AiBots");
-      return { Component: AiBots };
+      const { default: AIBots } = await import("@/pages/dashboard/AIBots");
+      return { Component: AIBots };
     }
   },
   {
-    path: "ai-bots/:botId",
+    path: "ai-boardroom",
     async lazy() {
-      const { default: BotDetail } = await import("@/pages/dashboard/BotDetail");
-      return { Component: BotDetail };
+      const { default: AIBoardroom } = await import("@/pages/dashboard/AIBoardroom");
+      return { Component: AIBoardroom };
     }
   },
   {
-    path: "debate",
+    path: "ai-executive-debate",
     async lazy() {
-      const { default: Debate } = await import("@/pages/dashboard/Debate");
-      return { Component: Debate };
-    }
-  },
-  {
-    path: "ai-chat",
-    async lazy() {
-      const { default: AIChat } = await import("@/pages/dashboard/AIChat");
-      return { Component: AIChat };
+      const { default: AIExecutiveDebate } = await import("@/pages/dashboard/AIExecutiveDebate");
+      return { Component: AIExecutiveDebate };
     }
   },
   {
@@ -38,17 +31,17 @@ export const aiRoutes: RouteObject[] = [
     }
   },
   {
-    path: "ai-settings",
+    path: "ai-chat",
     async lazy() {
-      const { default: AISettings } = await import("@/pages/dashboard/AISettings");
-      return { Component: AISettings };
+      const { default: AIChat } = await import("@/pages/dashboard/AIChat");
+      return { Component: AIChat };
     }
   },
   {
-    path: "ai-workflow",
+    path: "langchain-agent-api",
     async lazy() {
-      const { default: OnboardingWorkflow } = await import("@/pages/dashboard/OnboardingWorkflow");
-      return { Component: OnboardingWorkflow };
+      const { default: LangChainAgentAPI } = await import("@/pages/dashboard/LangChainAgentAPI");
+      return { Component: LangChainAgentAPI };
     }
   }
 ];

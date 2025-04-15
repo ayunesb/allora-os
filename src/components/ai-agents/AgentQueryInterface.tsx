@@ -1,12 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAgentQuery } from '@/utils/langchain/hooks/useAgentQuery';
+import { useExternalLangChainAPI } from '@/utils/langchain/hooks/useExternalLangChainAPI';
 import { PageLoader } from '@/components/ui/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { AlignLeft, Clock, Settings, Tool } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface AgentQueryInterfaceProps {
   title?: string;
@@ -23,36 +26,68 @@ export function AgentQueryInterface({
 }: AgentQueryInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
   const [showToolCalls, setShowToolCalls] = useState(false);
+  const [useExternalAPI, setUseExternalAPI] = useState(() => {
+    return localStorage.getItem('use_external_langchain_api') === 'true';
+  });
   
   const {
     executeQuery,
-    result,
+    result: internalResult,
     toolCalls,
-    isLoading,
-    error,
+    isLoading: isInternalLoading,
+    error: internalError,
     setContext
   } = useAgentQuery({
     onSuccess: (data) => {
-      if (onResult && data.result) {
+      if (onResult && data.result && !useExternalAPI) {
         onResult(data.result);
       }
     },
     enabled: false
   });
   
+  const {
+    executeQuery: executeExternalQuery,
+    result: externalResult,
+    isLoading: isExternalLoading,
+    error: externalError
+  } = useExternalLangChainAPI();
+  
+  // Determine which result, loading state, and error to use based on the API choice
+  const result = useExternalAPI ? externalResult : internalResult;
+  const isLoading = useExternalAPI ? isExternalLoading : isInternalLoading;
+  const error = useExternalAPI ? externalError : internalError;
+  
   // Set initial context when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     if (Object.keys(initialContext).length > 0) {
       setContext(initialContext);
     }
   }, [initialContext, setContext]);
+  
+  // Handle API toggle change
+  const handleApiToggle = (checked: boolean) => {
+    setUseExternalAPI(checked);
+    localStorage.setItem('use_external_langchain_api', checked ? 'true' : 'false');
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
     
     try {
-      await executeQuery(inputValue);
+      if (useExternalAPI) {
+        const result = await executeExternalQuery({
+          query: inputValue,
+          context: initialContext
+        });
+        
+        if (onResult && result.result) {
+          onResult(result.result);
+        }
+      } else {
+        await executeQuery(inputValue);
+      }
     } catch (err) {
       console.error("Error executing query:", err);
     }
@@ -61,10 +96,25 @@ export function AgentQueryInterface({
   return (
     <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {title}
-          <Badge variant="outline" className="ml-2">LangChain</Badge>
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2">
+            {title}
+            <Badge variant="outline" className="ml-2">
+              {useExternalAPI ? "External API" : "LangChain"}
+            </Badge>
+          </CardTitle>
+          
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="api-toggle" className="text-sm">
+              {useExternalAPI ? "Using External API" : "Using Built-in API"}
+            </Label>
+            <Switch
+              id="api-toggle"
+              checked={useExternalAPI}
+              onCheckedChange={handleApiToggle}
+            />
+          </div>
+        </div>
       </CardHeader>
       
       <CardContent className="space-y-4">
@@ -101,7 +151,7 @@ export function AgentQueryInterface({
                 <AlignLeft size={18} className="text-primary" /> Response
               </h3>
               
-              {toolCalls.length > 0 && (
+              {!useExternalAPI && toolCalls && toolCalls.length > 0 && (
                 <Button 
                   variant="outline" 
                   size="sm"
@@ -117,7 +167,7 @@ export function AgentQueryInterface({
               {result}
             </div>
             
-            {showToolCalls && toolCalls.length > 0 && (
+            {!useExternalAPI && showToolCalls && toolCalls && toolCalls.length > 0 && (
               <div className="mt-4 p-4 bg-muted/20 rounded-md">
                 <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                   <Settings size={16} /> Tool Executions ({toolCalls.length})
@@ -148,7 +198,11 @@ export function AgentQueryInterface({
           <Clock size={14} />
           {new Date().toLocaleString()}
         </div>
-        <div>Powered by LangChain.js</div>
+        <div>
+          {useExternalAPI 
+            ? "Powered by External LangChain API" 
+            : "Powered by LangChain.js"}
+        </div>
       </CardFooter>
     </Card>
   );
