@@ -62,7 +62,7 @@ export default function ResetPassword() {
           <CardDescription>
             {resetSent
               ? 'Check your email for reset instructions'
-              : 'Enter your email address and we'll send you a reset link'}
+              : 'Enter your email address and we\'ll send you a reset link'}
           </CardDescription>
         </CardHeader>
         
