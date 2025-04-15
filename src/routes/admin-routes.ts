@@ -1,3 +1,4 @@
+
 import { RouteObject } from "react-router-dom";
 
 export const adminRoutes: RouteObject[] = [
@@ -111,6 +112,13 @@ export const adminRoutes: RouteObject[] = [
         async lazy() {
           const { default: ClearbitIntegration } = await import("@/pages/admin/ClearbitIntegration");
           return { Component: ClearbitIntegration };
+        },
+      },
+      {
+        path: "calendly-integration",
+        async lazy() {
+          const { default: CalendlyIntegration } = await import("@/pages/admin/CalendlyIntegration");
+          return { Component: CalendlyIntegration };
         },
       }
     ]

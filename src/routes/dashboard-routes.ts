@@ -53,5 +53,18 @@ export const dashboardRoutes: RouteObject[] = [
         }
       };
     }
+  },
+  {
+    path: "/dashboard/calendly",
+    async lazy() {
+      const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
+      const { default: CalendlyIntegration } = await import("@/pages/admin/CalendlyIntegration");
+      return { 
+        Component() {
+          const Protected = ProtectedRoute(CalendlyIntegration);
+          return <Protected />;
+        }
+      };
+    }
   }
 ];
