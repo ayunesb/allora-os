@@ -1,117 +1,130 @@
 
-import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
-import { toast } from "sonner";
-import { addCsrfToFormData, getCsrfToken } from "@/utils/csrfProtection";
-import { logger } from "@/utils/loggingService";
+import { useState, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
-type ApiFunction<T, R> = (params: T) => Promise<R>;
-
-interface UseProtectedApiOptions {
+interface ApiOptions {
   requireAuth?: boolean;
-  showSuccessToast?: boolean;
-  successMessage?: string;
-  showErrorToast?: boolean;
-  redirectOnUnauth?: boolean;
-  requireCsrf?: boolean;
+  headers?: Record<string, string>;
+  baseUrl?: string;
+  defaultErrorMessage?: string;
 }
 
-export function useProtectedApi<T, R>(
-  apiFunction: ApiFunction<T, R>,
-  options: UseProtectedApiOptions = {}
-) {
+export function useProtectedApi(options: ApiOptions = {}) {
   const {
     requireAuth = true,
-    showSuccessToast = false,
-    successMessage = "Operation successful",
-    showErrorToast = true,
-    redirectOnUnauth = true,
-    requireCsrf = true
+    headers: customHeaders = {},
+    baseUrl = '/api',
+    defaultErrorMessage = 'API request failed'
   } = options;
-  
-  const { user, refreshSession } = useAuth();
+
+  const { user, session } = useAuth();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [data, setData] = useState<R | null>(null);
 
-  const execute = async (params: T): Promise<R | null> => {
-    // Check if user is authenticated when required
-    if (requireAuth && !user) {
-      const authError = new Error("Authentication required");
-      setError(authError);
-      
-      if (showErrorToast) {
-        toast.error("Please login to perform this action");
-      }
-      
-      if (redirectOnUnauth) {
-        // We could add a redirect here if needed
-        // navigate("/login");
-      }
-      
-      return null;
-    }
-    
-    // Check for CSRF token when required
-    if (requireCsrf && !getCsrfToken()) {
-      logger.warn("Missing CSRF token for protected API call");
-      await refreshSession(); // This will regenerate the CSRF token
-      
-      if (!getCsrfToken()) {
-        const csrfError = new Error("Security token missing");
-        setError(csrfError);
-        
-        if (showErrorToast) {
-          toast.error("Security verification failed. Please try again.");
-        }
-        
-        return null;
-      }
-    }
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // Add CSRF token to params if required and params is an object
-      const secureParams = requireCsrf && typeof params === 'object' && params !== null
-        ? addCsrfToFormData(params as Record<string, any>) as unknown as T
-        : params;
-      
-      const result = await apiFunction(secureParams);
-      setData(result);
-      
-      if (showSuccessToast) {
-        toast.success(successMessage);
-      }
-      
-      return result;
-    } catch (err: any) {
-      const errorObject = err instanceof Error ? err : new Error(err?.message || "An unknown error occurred");
-      setError(errorObject);
-      
-      // Log security related errors
-      if (err?.message?.includes('CSRF') || err?.message?.includes('token')) {
-        logger.warn("Possible security issue in API call:", { 
-          error: err?.message,
-          path: window.location.pathname
+  const fetchApi = useCallback(
+    async <T = any>(
+      endpoint: string,
+      method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
+      data?: Record<string, any> | FormData,
+      additionalHeaders: Record<string, string> = {}
+    ): Promise<{ data: T | null; error: string | null }> => {
+      if (requireAuth && !session) {
+        const error = 'Authentication required';
+        toast({
+          title: 'Authentication Error',
+          description: 'You must be logged in to perform this action',
+          variant: 'destructive'
         });
+        return { data: null, error };
       }
-      
-      if (showErrorToast) {
-        toast.error(err?.message || "An error occurred");
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
+        
+        // Default headers
+        const defaultHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+          ...customHeaders,
+          ...additionalHeaders
+        };
+        
+        // Add authorization header if user is logged in
+        if (session?.access_token) {
+          defaultHeaders['Authorization'] = `Bearer ${session.access_token}`;
+        }
+
+        // Don't set Content-Type for FormData
+        if (data instanceof FormData) {
+          delete defaultHeaders['Content-Type'];
+        }
+
+        // Build request options
+        const requestOptions: RequestInit = {
+          method,
+          headers: defaultHeaders,
+        };
+
+        // Add body for non-GET requests
+        if (method !== 'GET' && data) {
+          if (data instanceof FormData) {
+            requestOptions.body = data;
+          } else {
+            // Convert data to FormData if needed
+            const formData = new FormData();
+            Object.entries(data).forEach(([key, value]) => {
+              formData.append(key, value);
+            });
+            requestOptions.body = formData;
+          }
+        }
+
+        const response = await fetch(url, requestOptions);
+        
+        // Handle non-JSON responses
+        const contentType = response.headers.get('content-type');
+        let responseData: T;
+        
+        if (contentType?.includes('application/json')) {
+          responseData = await response.json();
+        } else if (contentType?.includes('text/')) {
+          responseData = await response.text() as unknown as T;
+        } else {
+          responseData = await response.blob() as unknown as T;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            responseData && typeof responseData === 'object' && 'error' in responseData
+              ? (responseData as any).error
+              : defaultErrorMessage
+          );
+        }
+
+        return { data: responseData, error: null };
+      } catch (err: any) {
+        const errorMessage = err.message || defaultErrorMessage;
+        setError(err);
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive'
+        });
+        return { data: null, error: errorMessage };
+      } finally {
+        setIsLoading(false);
       }
-      
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [baseUrl, customHeaders, requireAuth, session, toast]
+  );
 
   return {
-    execute,
+    fetchApi,
     isLoading,
-    error,
-    data
+    error
   };
 }

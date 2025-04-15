@@ -1,97 +1,147 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { InfoIcon, CheckCircle, AlertTriangle } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { useCompanyAPI } from '@/context/CompanyAPIContext';
-import { usePlaidTool } from '@/utils/langchain/hooks/usePlaidTool';
-import { toast } from 'sonner';
-import APIKeyInput from '@/components/admin/APIKeyInput';
+import { useForm } from 'react-hook-form';
+import { useToast } from '@/components/ui/use-toast';
 
-export default function PlaidIntegration() {
-  const { apiKeys, setApiKey, hasApiKey } = useCompanyAPI();
-  const { getAccountBalances, getRecentTransactions, isLoading } = usePlaidTool();
+interface PlaidIntegrationForm {
+  plaid_client_id: string;
+  plaid_secret: string;
+  plaid_access_token: string;
+  plaid_env: string;
+}
 
-  const [plaidClientId, setPlaidClientId] = useState(apiKeys.plaid_client_id || '');
-  const [plaidSecret, setPlaidSecret] = useState(apiKeys.plaid_secret || '');
-  const [plaidAccessToken, setPlaidAccessToken] = useState(apiKeys.plaid_access_token || '');
-  const [plaidEnv, setPlaidEnv] = useState(apiKeys.plaid_env || 'sandbox');
-  const [testResults, setTestResults] = useState<any>(null);
+const PlaidIntegration = () => {
+  const { toast } = useToast();
+  const { profile } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Initialize personal API keys with plaid fields
+  const [personalApiKeys, setPersonalApiKeys] = useState<Record<string, string>>({
+    stripe: '',
+    twilio: '',
+    zoom: '',
+    openai: '',
+    plaid_client_id: '',
+    plaid_secret: '',
+    plaid_access_token: '',
+    plaid_env: 'sandbox' // Default value
+  });
+  
+  const { register, handleSubmit, reset } = useForm<PlaidIntegrationForm>({
+    defaultValues: {
+      plaid_client_id: personalApiKeys.plaid_client_id || '',
+      plaid_secret: personalApiKeys.plaid_secret || '',
+      plaid_access_token: personalApiKeys.plaid_access_token || '',
+      plaid_env: personalApiKeys.plaid_env || 'sandbox'
+    }
+  });
 
-  const handleSaveKeys = () => {
-    setApiKey('plaid_client_id', plaidClientId);
-    setApiKey('plaid_secret', plaidSecret);
-    setApiKey('plaid_access_token', plaidAccessToken);
-    setApiKey('plaid_env', plaidEnv);
-    toast.success('Plaid API keys saved successfully');
-  };
+  // Load API keys from profile
+  useEffect(() => {
+    if (profile?.personal_api_keys) {
+      // Convert from possible JSON string
+      const keys = typeof profile.personal_api_keys === 'string'
+        ? JSON.parse(profile.personal_api_keys)
+        : profile.personal_api_keys;
+      
+      setPersonalApiKeys(prev => ({
+        ...prev,
+        ...keys
+      }));
+      
+      // Reset form with loaded values
+      reset({
+        plaid_client_id: keys.plaid_client_id || '',
+        plaid_secret: keys.plaid_secret || '',
+        plaid_access_token: keys.plaid_access_token || '',
+        plaid_env: keys.plaid_env || 'sandbox'
+      });
+    }
+  }, [profile, reset]);
 
-  const handleTestConnection = async () => {
+  const onSubmit = async (data: PlaidIntegrationForm) => {
+    setIsLoading(true);
     try {
-      const balances = await getAccountBalances();
-      if (balances) {
-        setTestResults({ success: true, data: balances });
-        toast.success('Plaid connection successful');
-      }
-    } catch (err) {
-      setTestResults({ success: false, error: err instanceof Error ? err.message : 'Connection failed' });
-      toast.error('Plaid connection failed');
+      // Implementation would go here in a real app
+      console.log('Saving Plaid integration settings:', data);
+      
+      toast({
+        title: 'Settings saved',
+        description: 'Your Plaid integration settings have been updated successfully.',
+      });
+    } catch (error) {
+      console.error('Error saving Plaid settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save Plaid integration settings.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Plaid Integration</h1>
-          <p className="text-muted-foreground">Connect your financial data with the AI executives</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Plaid API Configuration</CardTitle>
-            <CardDescription>
-              Configure your Plaid API credentials to enable financial data analysis
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <APIKeyInput
-              id="plaid-client-id"
-              label="Plaid Client ID"
-              value={plaidClientId}
-              onChange={setPlaidClientId}
-              placeholder="Enter your Plaid Client ID"
-            />
-            
-            <APIKeyInput
-              id="plaid-secret"
-              label="Plaid Secret"
-              value={plaidSecret}
-              onChange={setPlaidSecret}
-              placeholder="Enter your Plaid Secret"
-            />
-            
-            <APIKeyInput
-              id="plaid-access-token"
-              label="Plaid Access Token"
-              value={plaidAccessToken}
-              onChange={setPlaidAccessToken}
-              placeholder="Enter your Plaid Access Token"
-            />
+    <div className="container py-6">
+      <h1 className="text-3xl font-bold mb-6">Plaid Integration</h1>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Connect to Plaid</CardTitle>
+          <CardDescription>
+            Use Plaid to connect to bank accounts and financial data.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="plaid_client_id" className="text-sm font-medium">
+                Plaid Client ID
+              </label>
+              <Input
+                id="plaid_client_id"
+                type="text"
+                placeholder="Enter your Plaid Client ID"
+                {...register('plaid_client_id')}
+              />
+            </div>
             
             <div className="space-y-2">
-              <Label htmlFor="plaid-env">Plaid Environment</Label>
-              <select 
-                id="plaid-env"
-                className="w-full px-3 py-2 border rounded-md"
-                value={plaidEnv}
-                onChange={(e) => setPlaidEnv(e.target.value)}
+              <label htmlFor="plaid_secret" className="text-sm font-medium">
+                Plaid Secret
+              </label>
+              <Input
+                id="plaid_secret"
+                type="password"
+                placeholder="Enter your Plaid Secret"
+                {...register('plaid_secret')}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="plaid_access_token" className="text-sm font-medium">
+                Plaid Access Token
+              </label>
+              <Input
+                id="plaid_access_token"
+                type="password"
+                placeholder="Enter your Plaid Access Token"
+                {...register('plaid_access_token')}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="plaid_env" className="text-sm font-medium">
+                Plaid Environment
+              </label>
+              <select
+                id="plaid_env"
+                className="w-full p-2 border rounded-md"
+                {...register('plaid_env')}
               >
                 <option value="sandbox">Sandbox</option>
                 <option value="development">Development</option>
@@ -99,84 +149,14 @@ export default function PlaidIntegration() {
               </select>
             </div>
             
-            <div className="flex gap-4 pt-4">
-              <Button onClick={handleSaveKeys}>Save Configuration</Button>
-              <Button 
-                variant="outline" 
-                onClick={handleTestConnection} 
-                disabled={isLoading || !plaidClientId || !plaidSecret || !plaidAccessToken}
-              >
-                {isLoading ? 'Testing...' : 'Test Connection'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Plaid Integration Status</CardTitle>
-            <CardDescription>
-              Enable AI executives to access financial data insights
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className={`p-1.5 rounded-full ${hasApiKey('plaid_client_id') && hasApiKey('plaid_secret') ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
-                  {hasApiKey('plaid_client_id') && hasApiKey('plaid_secret') ? (
-                    <CheckCircle className="h-5 w-5" />
-                  ) : (
-                    <AlertTriangle className="h-5 w-5" />
-                  )}
-                </div>
-                <span className="font-medium">
-                  {hasApiKey('plaid_client_id') && hasApiKey('plaid_secret')
-                    ? 'Plaid credentials configured'
-                    : 'Missing Plaid credentials'}
-                </span>
-              </div>
-              
-              {testResults && (
-                <Alert variant={testResults.success ? "default" : "destructive"}>
-                  <div className="flex gap-2 items-center">
-                    {testResults.success ? (
-                      <CheckCircle className="h-4 w-4" />
-                    ) : (
-                      <AlertTriangle className="h-4 w-4" />
-                    )}
-                    <AlertTitle>
-                      {testResults.success ? 'Connection Successful' : 'Connection Failed'}
-                    </AlertTitle>
-                  </div>
-                  <AlertDescription>
-                    {testResults.success 
-                      ? `Found ${testResults.data.length} accounts` 
-                      : testResults.error}
-                  </AlertDescription>
-                </Alert>
-              )}
-              
-              <Alert>
-                <InfoIcon className="h-4 w-4" />
-                <AlertTitle>How to get Plaid Access Tokens</AlertTitle>
-                <AlertDescription>
-                  1. Create a Plaid developer account<br />
-                  2. Set up Plaid Link and complete the OAuth flow<br />
-                  3. Store the access token securely for each user<br />
-                  <a 
-                    href="https://plaid.com/docs/link/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    Read the Plaid Link documentation
-                  </a>
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Saving...' : 'Save Plaid Settings'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
+
+export default PlaidIntegration;

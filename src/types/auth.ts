@@ -12,6 +12,18 @@ export interface UserProfile {
   company_id?: string;
   created_at?: string;
   updated_at?: string;
+  phone?: string;
+  location?: string;
+  website?: string;
+  bio?: string;
+  personal_api_keys?: Record<string, string> | null;
+  company_size?: string;
+  risk_appetite?: string;
+  goals?: string[];
+  stripe_customer_id?: string;
+  subscription_status?: string;
+  subscription_plan_id?: string;
+  subscription_expires_at?: string;
 }
 
 export interface AuthContextType {

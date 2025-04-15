@@ -1,175 +1,133 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Link, useNavigate } from "react-router-dom";
-import { RocketIcon, ArrowLeft, Mail, Loader2, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-const resetSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
-
-type ResetFormValues = z.infer<typeof resetSchema>;
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { sendPasswordResetEmail } from '@/services/authService';
+import { useToast } from '@/components/ui/use-toast';
+import { Link } from 'react-router-dom';
 
 export default function ResetPassword() {
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [resetError, setResetError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { sendPasswordReset } = useAuth();
-  
-  const form = useForm<ResetFormValues>({
-    resolver: zodResolver(resetSchema),
-    defaultValues: {
-      email: "",
-    },
-  });
+  const [resetSent, setResetSent] = useState(false);
+  const { toast } = useToast();
 
-  async function onSubmit(data: ResetFormValues) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email.trim()) {
+      toast({
+        title: 'Email required',
+        description: 'Please enter your email address',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsLoading(true);
-    setResetError(null);
     
     try {
-      const { success, error } = await sendPasswordReset(data.email);
+      const result = await sendPasswordResetEmail(email);
       
-      if (!success) {
-        throw new Error(error);
-      }
-      
-      setIsSubmitted(true);
-      toast.success("Password reset instructions sent to your email");
-    } catch (error: any) {
-      console.error("Reset password error:", error);
-      
-      // Handle specific error cases
-      if (error.message.includes("not found")) {
-        setResetError("No account found with this email address.");
-      } else if (error.message.includes("rate limit")) {
-        setResetError("Too many requests. Please try again later.");
+      if (result.success) {
+        setResetSent(true);
+        toast({
+          title: 'Reset email sent',
+          description: 'Check your email for password reset instructions',
+        });
       } else {
-        setResetError(error.message || "Failed to send reset instructions");
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to send reset instructions',
+          variant: 'destructive',
+        });
       }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'An unexpected error occurred',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex items-center justify-between p-6 border-b">
-        <div className="flex items-center gap-2">
-          <RocketIcon className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">Allora AI</span>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={() => navigate("/login")}>
-            Login
-          </Button>
-          <Button variant="ghost" onClick={() => navigate("/signup")}>
-            Signup
-          </Button>
-        </div>
-      </div>
-      
-      <div className="flex-1 container max-w-md mx-auto px-4 py-12 flex items-center justify-center">
-        <Card className="w-full border-primary/10 shadow-lg">
-          <CardHeader className="text-center space-y-2">
-            <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center">
-              <Mail className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-            <CardDescription>
-              {isSubmitted 
-                ? "Check your email for reset instructions" 
-                : "Enter your email to receive reset instructions"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {resetError && !isSubmitted && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{resetError}</AlertDescription>
-              </Alert>
-            )}
-
-            {isSubmitted ? (
-              <div className="text-center space-y-4">
-                <Alert className="bg-green-50 border-green-200">
-                  <Mail className="h-4 w-4 text-green-500" />
-                  <AlertTitle className="text-green-700">Email Sent!</AlertTitle>
-                  <AlertDescription className="text-green-600">
-                    We've sent instructions to reset your password. Please check your email inbox and spam folder.
-                  </AlertDescription>
-                </Alert>
-                <div className="flex flex-col space-y-2 mt-4">
-                  <Button onClick={() => navigate("/login")} variant="outline">
-                    Return to Login
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      setIsSubmitted(false);
-                      form.reset();
-                    }}
-                    variant="ghost"
-                  >
-                    Try another email
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="you@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+    <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+          <CardDescription>
+            {resetSent
+              ? 'Check your email for reset instructions'
+              : 'Enter your email address and we'll send you a reset link'}
+          </CardDescription>
+        </CardHeader>
+        
+        {!resetSent ? (
+          <>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full mt-6" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...
-                      </>
-                    ) : "Send Reset Instructions"}
-                  </Button>
-
-                  <div className="text-center mt-4">
-                    <Button 
-                      variant="link" 
-                      className="p-0" 
-                      onClick={() => navigate("/login")}
-                      type="button"
-                    >
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back to login
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            )}
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Sending...' : 'Send Reset Link'}
+                </Button>
+              </form>
+            </CardContent>
+            
+            <CardFooter>
+              <div className="text-center w-full text-sm">
+                <Link to="/login" className="text-primary hover:underline">
+                  Back to login
+                </Link>
+              </div>
+            </CardFooter>
+          </>
+        ) : (
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-green-50 text-green-800 rounded-md">
+              <p className="text-sm">
+                We've sent an email to <strong>{email}</strong> with instructions to reset your password.
+              </p>
+            </div>
+            
+            <div className="text-center space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Didn't receive the email? Check your spam folder or try again.
+              </p>
+              
+              <Button
+                variant="outline"
+                className="mt-2"
+                onClick={() => setResetSent(false)}
+              >
+                Try Again
+              </Button>
+              
+              <div className="mt-4">
+                <Link to="/login" className="text-primary hover:underline text-sm">
+                  Back to login
+                </Link>
+              </div>
+            </div>
           </CardContent>
-        </Card>
-      </div>
+        )}
+      </Card>
     </div>
   );
 }

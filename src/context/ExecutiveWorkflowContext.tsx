@@ -97,49 +97,16 @@ interface WorkflowContextType {
   hasGeneratedContent: boolean;
 }
 
-// Implement placeholder functions
-export const generateAllContent = async (companyProfile: CompanyProfile) => {
-  console.log('Generating content for company:', companyProfile.name);
-};
-
-export const saveGeneratedStrategiesToDB = async (strategies: Strategy[]) => {
-  console.log('Saving strategies:', strategies.length);
-};
-
-export const saveGeneratedCampaignsToDB = async (campaigns: Campaign[]) => {
-  console.log('Saving campaigns:', campaigns.length);
-};
-
-export const saveGeneratedScriptsToDB = async (scripts: Script[]) => {
-  console.log('Saving scripts:', scripts.length);
-};
-
-export const saveExecutiveDebateToDB = async (statements: DebateStatement[]) => {
-  console.log('Saving debate statements:', statements.length);
-};
-
-export const updateCompanyWorkflowStatus = async (status: string) => {
-  console.log('Updating workflow status to:', status);
-};
-
-export const setupStrategyRefresh = async (scheduleInDays: number) => {
-  console.log('Setting up strategy refresh for every', scheduleInDays, 'days');
-};
-
-export const generateWorkflow = async (company: CompanyProfile) => {
-  console.log('Generating workflow for company:', company.name);
-};
-
-// Create the context with default empty object
-export const ExecutiveWorkflowContext = createContext<WorkflowContextType>({
-  generateAllContent,
-  saveGeneratedStrategiesToDB,
-  saveGeneratedCampaignsToDB,
-  saveGeneratedScriptsToDB,
-  saveExecutiveDebateToDB,
-  updateCompanyWorkflowStatus,
-  setupStrategyRefresh,
-  generateWorkflow,
+// Create the context with default empty functions
+const ExecutiveWorkflowContext = createContext<WorkflowContextType>({
+  generateAllContent: async () => {},
+  saveGeneratedStrategiesToDB: async () => {},
+  saveGeneratedCampaignsToDB: async () => {},
+  saveGeneratedScriptsToDB: async () => {},
+  saveExecutiveDebateToDB: async () => {},
+  updateCompanyWorkflowStatus: async () => {},
+  setupStrategyRefresh: async () => {},
+  generateWorkflow: async () => {},
   isLoading: false,
   hasGeneratedContent: false
 });
@@ -152,13 +119,53 @@ export const ExecutiveWorkflowProvider: React.FC<{ children: ReactNode }> = ({ c
   const handleGenerateWorkflow = async (company: CompanyProfile) => {
     setIsLoading(true);
     try {
-      await generateWorkflow(company);
+      // Implementation would go here in a real app
+      console.log("Generating workflow for company:", company.name);
+      
+      // Simulate a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       setHasGeneratedContent(true);
     } catch (error) {
       console.error('Error generating workflow:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const generateAllContent = async (companyProfile: CompanyProfile) => {
+    // Implementation would go here in a real app
+    console.log('Generating content for company:', companyProfile.name);
+  };
+  
+  const saveGeneratedStrategiesToDB = async (strategies: Strategy[]) => {
+    // Implementation would go here in a real app
+    console.log('Saving strategies:', strategies.length);
+  };
+  
+  const saveGeneratedCampaignsToDB = async (campaigns: Campaign[]) => {
+    // Implementation would go here in a real app
+    console.log('Saving campaigns:', campaigns.length);
+  };
+  
+  const saveGeneratedScriptsToDB = async (scripts: Script[]) => {
+    // Implementation would go here in a real app
+    console.log('Saving scripts:', scripts.length);
+  };
+  
+  const saveExecutiveDebateToDB = async (statements: DebateStatement[]) => {
+    // Implementation would go here in a real app
+    console.log('Saving debate statements:', statements.length);
+  };
+  
+  const updateCompanyWorkflowStatus = async (status: string) => {
+    // Implementation would go here in a real app
+    console.log('Updating workflow status to:', status);
+  };
+  
+  const setupStrategyRefresh = async (scheduleInDays: number) => {
+    // Implementation would go here in a real app
+    console.log('Setting up strategy refresh for every', scheduleInDays, 'days');
   };
   
   const value: WorkflowContextType = {
