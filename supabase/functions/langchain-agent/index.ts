@@ -99,7 +99,7 @@ serve(async (req) => {
         new DynamicTool({
           name: "NotionMemory",
           description: "Save a strategy or decision log into Notion with title and content. The input should be formatted with a title on the first line followed by content.",
-          func: async (input: string) => {
+          func: async (input) => {
             try {
               console.log("Running Notion tool with input:", input);
               const [titleLine, ...bodyLines] = input.split('\n');
@@ -146,7 +146,7 @@ serve(async (req) => {
         new DynamicTool({
           name: "StripeAnalytics",
           description: "Use this to retrieve payment info, revenue totals, or subscription status from Stripe.",
-          func: async (input: string) => {
+          func: async (input) => {
             try {
               console.log("Running Stripe tool with input:", input);
               const normalized = input.toLowerCase();
@@ -206,6 +206,57 @@ serve(async (req) => {
             } catch (err) {
               console.error('StripeAnalytics tool error:', err);
               return `Failed to retrieve data from Stripe: ${err instanceof Error ? err.message : String(err)}`;
+            }
+          }
+        })
+      );
+    }
+    
+    // Add Clearbit tool if environment variable is set
+    const clearbitApiKey = Deno.env.get("CLEARBIT_API_KEY");
+    
+    if (clearbitApiKey) {
+      tools.push(
+        new DynamicTool({
+          name: "ClearbitLookup",
+          description: "Use this to enrich a lead or company using Clearbit (domain or email).",
+          func: async (input) => {
+            try {
+              console.log("Running Clearbit tool with input:", input);
+              const trimmed = input.trim().toLowerCase();
+              
+              // Company domain input (e.g., "notion.so")
+              if (trimmed.includes('.') && !trimmed.includes('@')) {
+                const res = await fetch(`https://company.clearbit.com/v2/companies/find?domain=${trimmed}`, {
+                  headers: {
+                    Authorization: `Bearer ${clearbitApiKey}`
+                  }
+                });
+
+                if (!res.ok) return 'Company not found.';
+                const data = await res.json();
+
+                return `Company: ${data.name}\nIndustry: ${data.category?.industry || 'Unknown'}\nSize: ${data.metrics?.employees || 'Unknown'} employees\nLocation: ${data.location || 'Unknown'}\nTags: ${data.tags?.join(', ') || 'None'}`;
+              }
+
+              // Email input (e.g., "user@company.com")
+              if (trimmed.includes('@')) {
+                const res = await fetch(`https://person.clearbit.com/v2/people/find?email=${trimmed}`, {
+                  headers: {
+                    Authorization: `Bearer ${clearbitApiKey}`
+                  }
+                });
+
+                if (!res.ok) return 'Lead not found.';
+                const person = await res.json();
+
+                return `Lead: ${person.name?.fullName || 'Unknown'}\nTitle: ${person.title || 'Unknown'}\nCompany: ${person.employment?.name || 'Unknown'}\nLocation: ${person.location || 'Unknown'}`;
+              }
+
+              return 'Please provide a company domain (e.g., "notion.so") or email (e.g., "jane@company.com").';
+            } catch (err) {
+              console.error('ClearbitTool error:', err);
+              return `Failed to retrieve data from Clearbit: ${err instanceof Error ? err.message : String(err)}`;
             }
           }
         })

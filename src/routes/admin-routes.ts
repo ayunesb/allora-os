@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 
 export const adminRoutes: RouteObject[] = [
@@ -105,6 +104,13 @@ export const adminRoutes: RouteObject[] = [
         async lazy() {
           const { default: StripeIntegration } = await import("@/pages/admin/StripeIntegration");
           return { Component: StripeIntegration };
+        },
+      },
+      {
+        path: "clearbit-integration",
+        async lazy() {
+          const { default: ClearbitIntegration } = await import("@/pages/admin/ClearbitIntegration");
+          return { Component: ClearbitIntegration };
         },
       }
     ]
