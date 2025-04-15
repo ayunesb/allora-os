@@ -3,37 +3,39 @@ import { lazy } from 'react';
 
 const NotFound = lazy(() => import('@/pages/NotFound'));
 const Legal = lazy(() => import('@/pages/Legal'));
+const FAQ = lazy(() => import('@/pages/FAQ'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
-const GDPRCompliance = lazy(() => import('@/pages/GDPRCompliance'));
-const CookieSettings = lazy(() => import('@/pages/CookieSettings'));
+const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const Security = lazy(() => import('@/pages/Security'));
 
 export const globalRoutes = [
   {
-    path: '/',
-    element: <Legal />,
+    path: '/404',
+    element: <NotFound />,
   },
   {
     path: '/legal',
     element: <Legal />,
   },
   {
+    path: '/faq',
+    element: <FAQ />,
+  },
+  {
     path: '/privacy',
     element: <Privacy />,
   },
   {
-    path: '/gdpr',
-    element: <GDPRCompliance />,
+    path: '/terms',
+    element: <TermsOfService />,
   },
   {
-    path: '/cookie-settings',
-    element: <CookieSettings />,
+    path: '/contact',
+    element: <Contact />,
   },
   {
-    path: '/not-found',
-    element: <NotFound />,
-  },
-  {
-    path: '*',
-    element: <NotFound />,
+    path: '/security',
+    element: <Security />,
   },
 ];

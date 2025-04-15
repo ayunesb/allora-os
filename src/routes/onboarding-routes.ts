@@ -7,10 +7,6 @@ const Onboarding = lazy(() => import('@/pages/Onboarding'));
 export const onboardingRoutes = [
   {
     path: '/onboarding',
-    element: (
-      <ProtectedRoute>
-        <Onboarding />
-      </ProtectedRoute>
-    ),
+    element: <ProtectedRoute><Onboarding /></ProtectedRoute>,
   },
 ];

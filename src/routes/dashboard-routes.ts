@@ -2,33 +2,26 @@
 import { lazy } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-const DashboardIndex = lazy(() => import('@/pages/dashboard/Index'));
-const DashboardProfile = lazy(() => import('@/pages/dashboard/Profile'));
-const DashboardSettings = lazy(() => import('@/pages/dashboard/Settings'));
+const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
+const Campaigns = lazy(() => import('@/pages/dashboard/Campaigns'));
+const Leads = lazy(() => import('@/pages/dashboard/Leads'));
+const AIAgent = lazy(() => import('@/pages/dashboard/AIAgent'));
 
 export const dashboardRoutes = [
   {
     path: '/dashboard',
-    element: (
-      <ProtectedRoute>
-        <DashboardIndex />
-      </ProtectedRoute>
-    ),
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
   },
   {
-    path: '/dashboard/profile',
-    element: (
-      <ProtectedRoute>
-        <DashboardProfile />
-      </ProtectedRoute>
-    ),
+    path: '/dashboard/campaigns',
+    element: <ProtectedRoute><Campaigns /></ProtectedRoute>,
   },
   {
-    path: '/dashboard/settings',
-    element: (
-      <ProtectedRoute>
-        <DashboardSettings />
-      </ProtectedRoute>
-    ),
+    path: '/dashboard/leads',
+    element: <ProtectedRoute><Leads /></ProtectedRoute>,
+  },
+  {
+    path: '/dashboard/ai-agent',
+    element: <ProtectedRoute><AIAgent /></ProtectedRoute>,
   },
 ];
