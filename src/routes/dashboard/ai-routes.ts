@@ -11,38 +11,43 @@ const ExecutiveLeaderboard = lazy(() => import('@/pages/dashboard/ExecutiveLeade
 const AIExecutiveDebate = lazy(() => import('@/pages/dashboard/AIExecutiveDebate'));
 const Executives = lazy(() => import('@/pages/dashboard/Executives'));
 const LangChainAgentAPI = lazy(() => import('@/pages/dashboard/LangChainAgentAPI'));
+const AIChat = lazy(() => import('@/pages/dashboard/AIChat'));
 
 export const aiRoutes: RouteObject[] = [
   {
     path: 'ai-bots',
-    element: <AIBots />,
+    element: <AIBots />
   },
   {
     path: 'ai-boardroom',
-    element: <AiBoardroom />,
+    element: <AiBoardroom />
   },
   {
     path: 'ai-agent',
-    element: <AIAgent />,
+    element: <AIAgent />
   },
   {
     path: 'ai-settings',
-    element: <AISettings />,
+    element: <AISettings />
   },
   {
     path: 'executive-leaderboard',
-    element: <ExecutiveLeaderboard />,
+    element: <ExecutiveLeaderboard />
   },
   {
     path: 'debate',
-    element: <AIExecutiveDebate />,
+    element: <AIExecutiveDebate />
   },
   {
     path: 'executives',
-    element: <Executives />,
+    element: <Executives />
   },
   {
     path: 'langchain-agent',
-    element: <LangChainAgentAPI />,
+    element: <LangChainAgentAPI />
   },
+  {
+    path: 'ai-chat',
+    element: <AIChat />
+  }
 ];
