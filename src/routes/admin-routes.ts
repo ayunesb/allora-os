@@ -99,6 +99,13 @@ export const adminRoutes: RouteObject[] = [
           const { default: NotionIntegration } = await import("@/pages/admin/NotionIntegration");
           return { Component: NotionIntegration };
         },
+      },
+      {
+        path: "stripe-integration",
+        async lazy() {
+          const { default: StripeIntegration } = await import("@/pages/admin/StripeIntegration");
+          return { Component: StripeIntegration };
+        },
       }
     ]
   }
