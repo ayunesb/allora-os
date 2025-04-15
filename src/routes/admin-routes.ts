@@ -6,91 +6,91 @@ export const adminRoutes: RouteObject[] = [
     path: "admin",
     async lazy() {
       const { default: AdminLayout } = await import("@/components/layouts/AdminLayout");
-      return { element: <AdminLayout /> };
+      return { Component: AdminLayout };
     },
     children: [
       {
         index: true,
         async lazy() {
           const { default: AdminDashboard } = await import("@/pages/admin/AdminDashboard");
-          return { element: <AdminDashboard /> };
+          return { Component: AdminDashboard };
         },
       },
       {
         path: "entities",
         async lazy() {
           const { default: AdminEntities } = await import("@/pages/admin/AdminEntities");
-          return { element: <AdminEntities /> };
+          return { Component: AdminEntities };
         },
       },
       {
         path: "users",
         async lazy() {
           const { default: AdminUsers } = await import("@/pages/admin/AdminUsers");
-          return { element: <AdminUsers /> };
+          return { Component: AdminUsers };
         },
       },
       {
         path: "companies",
         async lazy() {
           const { default: AdminCompanies } = await import("@/pages/admin/AdminCompanies");
-          return { element: <AdminCompanies /> };
+          return { Component: AdminCompanies };
         },
       },
       {
         path: "settings",
         async lazy() {
           const { default: AdminSettings } = await import("@/pages/admin/AdminSettings");
-          return { element: <AdminSettings /> };
+          return { Component: AdminSettings };
         },
       },
       {
         path: "webhooks",
         async lazy() {
           const { default: AdminWebhooks } = await import("@/pages/admin/AdminWebhooks");
-          return { element: <AdminWebhooks /> };
+          return { Component: AdminWebhooks };
         },
       },
       {
         path: "system-health",
         async lazy() {
           const { default: AdminSystemHealth } = await import("@/pages/admin/SystemHealth");
-          return { element: <AdminSystemHealth /> };
+          return { Component: AdminSystemHealth };
         },
       },
       {
         path: "diagnostics",
         async lazy() {
           const { default: SystemPage } = await import("@/pages/admin/system");
-          return { element: <SystemPage /> };
+          return { Component: SystemPage };
         },
       },
       {
         path: "launch-prep",
         async lazy() {
           const { default: AdminLaunchPrep } = await import("@/pages/admin/AdminLaunchPrep");
-          return { element: <AdminLaunchPrep /> };
+          return { Component: AdminLaunchPrep };
         },
       },
       {
         path: "campaigns",
         async lazy() {
           const { default: AdminCampaigns } = await import("@/pages/admin/AdminCampaigns");
-          return { element: <AdminCampaigns /> };
+          return { Component: AdminCampaigns };
         },
       },
       {
         path: "analytics",
         async lazy() {
           const { default: AdminAnalytics } = await import("@/pages/admin/AdminAnalytics");
-          return { element: <AdminAnalytics /> };
+          return { Component: AdminAnalytics };
         },
       },
       {
         path: "leads",
         async lazy() {
           const { default: AdminLeads } = await import("@/pages/admin/AdminLeads");
-          return { element: <AdminLeads /> };
+          return { Component: AdminLeads };
         },
       }
     ]

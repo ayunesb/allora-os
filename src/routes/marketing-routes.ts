@@ -6,21 +6,21 @@ export const marketingRoutes: RouteObject[] = [
     path: "/home",
     async lazy() {
       const { default: Home } = await import("@/pages/Home");
-      return { element: <Home /> };
+      return { Component: Home };
     }
   },
   {
     path: "/pricing",
     async lazy() {
       const { default: Pricing } = await import("@/pages/Pricing");
-      return { element: <Pricing /> };
+      return { Component: Pricing };
     }
   },
   {
     path: "/features",
     async lazy() {
       const { default: FeatureOverview } = await import("@/pages/FeatureOverview");
-      return { element: <FeatureOverview /> };
+      return { Component: FeatureOverview };
     }
   }
 ];

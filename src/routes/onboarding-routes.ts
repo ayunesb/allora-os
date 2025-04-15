@@ -7,7 +7,12 @@ export const onboardingRoutes: RouteObject[] = [
     async lazy() {
       const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
       const { default: Onboarding } = await import("@/pages/Onboarding");
-      return { element: <ProtectedRoute><Onboarding /></ProtectedRoute> };
+      return { 
+        Component: () => {
+          const ProtectedOnboarding = ProtectedRoute(Onboarding);
+          return <ProtectedOnboarding />;
+        }
+      };
     }
   }
 ];

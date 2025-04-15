@@ -6,49 +6,49 @@ export const globalRoutes: RouteObject[] = [
     path: "/404",
     async lazy() {
       const { default: NotFound } = await import("@/pages/NotFound");
-      return { element: <NotFound /> };
+      return { Component: NotFound };
     }
   },
   {
     path: "/legal",
     async lazy() {
       const { default: Legal } = await import("@/pages/Legal");
-      return { element: <Legal /> };
+      return { Component: Legal };
     }
   },
   {
     path: "/faq",
     async lazy() {
       const { default: FAQ } = await import("@/pages/FAQ");
-      return { element: <FAQ /> };
+      return { Component: FAQ };
     }
   },
   {
     path: "/privacy",
     async lazy() {
       const { default: Privacy } = await import("@/pages/Privacy");
-      return { element: <Privacy /> };
+      return { Component: Privacy };
     }
   },
   {
     path: "/terms",
     async lazy() {
       const { default: TermsOfService } = await import("@/pages/TermsOfService");
-      return { element: <TermsOfService /> };
+      return { Component: TermsOfService };
     }
   },
   {
     path: "/contact",
     async lazy() {
       const { default: Contact } = await import("@/pages/Contact");
-      return { element: <Contact /> };
+      return { Component: Contact };
     }
   },
   {
     path: "/security",
     async lazy() {
       const { default: Security } = await import("@/pages/Security");
-      return { element: <Security /> };
+      return { Component: Security };
     }
   }
 ];

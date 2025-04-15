@@ -7,7 +7,12 @@ export const dashboardRoutes: RouteObject[] = [
     async lazy() {
       const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
       const { default: Dashboard } = await import("@/pages/dashboard/Dashboard");
-      return { element: <ProtectedRoute><Dashboard /></ProtectedRoute> };
+      return { 
+        Component: () => {
+          const ProtectedDashboard = ProtectedRoute(Dashboard);
+          return <ProtectedDashboard />;
+        }
+      };
     }
   },
   {
@@ -15,7 +20,12 @@ export const dashboardRoutes: RouteObject[] = [
     async lazy() {
       const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
       const { default: Campaigns } = await import("@/pages/dashboard/Campaigns");
-      return { element: <ProtectedRoute><Campaigns /></ProtectedRoute> };
+      return { 
+        Component: () => {
+          const ProtectedCampaigns = ProtectedRoute(Campaigns);
+          return <ProtectedCampaigns />;
+        }
+      };
     }
   },
   {
@@ -23,7 +33,12 @@ export const dashboardRoutes: RouteObject[] = [
     async lazy() {
       const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
       const { default: Leads } = await import("@/pages/dashboard/Leads");
-      return { element: <ProtectedRoute><Leads /></ProtectedRoute> };
+      return { 
+        Component: () => {
+          const ProtectedLeads = ProtectedRoute(Leads);
+          return <ProtectedLeads />;
+        }
+      };
     }
   },
   {
@@ -31,7 +46,12 @@ export const dashboardRoutes: RouteObject[] = [
     async lazy() {
       const { default: ProtectedRoute } = await import("@/components/ProtectedRoute");
       const { default: AIAgent } = await import("@/pages/dashboard/AIAgent");
-      return { element: <ProtectedRoute><AIAgent /></ProtectedRoute> };
+      return { 
+        Component: () => {
+          const ProtectedAIAgent = ProtectedRoute(AIAgent);
+          return <ProtectedAIAgent />;
+        }
+      };
     }
   }
 ];
