@@ -14,8 +14,8 @@ export const strategyRoutes: RouteObject[] = [
     async lazy() {
       const { Navigate } = await import("react-router-dom");
       return { 
-        Component() {
-          return <Navigate to="/dashboard/strategies" replace />;
+        Component: () => {
+          return Navigate ? <Navigate to="/dashboard/strategies" replace /> : null;
         }
       };
     }
