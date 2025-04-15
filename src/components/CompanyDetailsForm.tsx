@@ -21,7 +21,7 @@ export default function CompanyDetailsForm() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({});
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(null); // Changed null to undefined
 
   // Load company details when profile changes
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function CompanyDetailsForm() {
     }
 
     setIsUpdating(true);
-    setErrorMessage(null);
+    setErrorMessage(undefined);
 
     try {
       // Extract basic info that's required by the API

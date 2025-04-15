@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,7 +45,7 @@ export default function PreLaunchAudit() {
         // Update statuses based on audit results
         if (validationResults) {
           const ready = validationResults.ready || false;
-          const criticalIssues = validationResults.issues.filter(i => i.severity === 'critical').length;
+          const criticalIssues = validationResults.issues.filter((i: any) => i.severity === 'critical').length;
           
           if (ready) {
             // If system is ready, set most statuses to passed

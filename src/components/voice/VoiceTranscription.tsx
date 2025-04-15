@@ -98,12 +98,12 @@ export function VoiceTranscription() {
         </Card>
       )}
       
-      {transcript && !isProcessing && (
+      {transcript && !isProcessing && file && (
         <Card>
           <CardHeader>
             <CardTitle>Transcript</CardTitle>
             <CardDescription>
-              {file?.name} ({Math.round(file?.size / 1024)} KB)
+              {file.name} ({Math.round((file.size || 0) / 1024)} KB)
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -1,94 +1,47 @@
 
-export enum ErrorType {
-  VALIDATION = 'VALIDATION_ERROR',
-  AUTHENTICATION = 'AUTHENTICATION_ERROR',
-  AUTHORIZATION = 'AUTHORIZATION_ERROR',
-  NOT_FOUND = 'NOT_FOUND_ERROR',
-  CONFLICT = 'CONFLICT_ERROR',
-  SERVER = 'SERVER_ERROR',
-  NETWORK = 'NETWORK_ERROR',
-  TIMEOUT = 'TIMEOUT_ERROR',
-  UNKNOWN = 'UNKNOWN_ERROR',
-  BUSINESS_LOGIC = 'BUSINESS_LOGIC_ERROR',
-  INTEGRATION = 'INTEGRATION_ERROR',
-  DATABASE = 'DATABASE_ERROR',
-  API = 'API_ERROR'
-}
-
-export interface AppError extends Error {
-  statusCode?: number;
+/**
+ * Basic error interface for application errors
+ */
+export interface AppError {
+  message: string;
   code?: string;
-  type?: ErrorType;
-  context?: Record<string, unknown>;
-  originalError?: Error;
+  isCritical?: boolean; // Added this property to fix the GlobalErrorModal error
+  data?: any;
+  timestamp?: Date;
+  source?: string;
 }
 
-export class ValidationError extends Error implements AppError {
-  statusCode = 400;
-  type = ErrorType.VALIDATION;
-  context?: Record<string, unknown>;
-  originalError?: Error;
+/**
+ * Error types that can occur in the application
+ */
+export enum ErrorType {
+  // API related errors
+  API_CONNECTION = 'api_connection',
+  API_RESPONSE = 'api_response',
+  API_TIMEOUT = 'api_timeout',
+  API_VALIDATION = 'api_validation',
   
-  constructor(message: string, context?: Record<string, unknown>, originalError?: Error) {
-    super(message);
-    this.name = 'ValidationError';
-    this.context = context;
-    this.originalError = originalError;
-  }
-}
-
-export class AuthenticationError extends Error implements AppError {
-  statusCode = 401;
-  type = ErrorType.AUTHENTICATION;
-  context?: Record<string, unknown>;
-  originalError?: Error;
+  // Authentication errors
+  AUTH_EXPIRED = 'auth_expired',
+  AUTH_INVALID = 'auth_invalid',
+  AUTH_MISSING = 'auth_missing',
+  AUTH_REQUIRED = 'auth_required',
   
-  constructor(message: string, context?: Record<string, unknown>, originalError?: Error) {
-    super(message);
-    this.name = 'AuthenticationError';
-    this.context = context;
-    this.originalError = originalError;
-  }
-}
-
-export class AuthorizationError extends Error implements AppError {
-  statusCode = 403;
-  type = ErrorType.AUTHORIZATION;
-  context?: Record<string, unknown>;
-  originalError?: Error;
+  // Data errors
+  DATA_CORRUPT = 'data_corrupt',
+  DATA_MISSING = 'data_missing',
+  DATA_VALIDATION = 'data_validation',
   
-  constructor(message: string, context?: Record<string, unknown>, originalError?: Error) {
-    super(message);
-    this.name = 'AuthorizationError';
-    this.context = context;
-    this.originalError = originalError;
-  }
-}
-
-export class NotFoundError extends Error implements AppError {
-  statusCode = 404;
-  type = ErrorType.NOT_FOUND;
-  context?: Record<string, unknown>;
-  originalError?: Error;
+  // Network errors
+  NETWORK_ERROR = 'network_error',
+  SERVER_ERROR = 'server_error',
   
-  constructor(message: string, context?: Record<string, unknown>, originalError?: Error) {
-    super(message);
-    this.name = 'NotFoundError';
-    this.context = context;
-    this.originalError = originalError;
-  }
-}
-
-export class ServerError extends Error implements AppError {
-  statusCode = 500;
-  type = ErrorType.SERVER;
-  context?: Record<string, unknown>;
-  originalError?: Error;
+  // User input errors
+  USER_INPUT = 'user_input',
   
-  constructor(message: string, context?: Record<string, unknown>, originalError?: Error) {
-    super(message);
-    this.name = 'ServerError';
-    this.context = context;
-    this.originalError = originalError;
-  }
+  // Permission errors
+  PERMISSION_DENIED = 'permission_denied',
+  
+  // Unknown/unexpected errors
+  UNKNOWN = 'unknown'
 }

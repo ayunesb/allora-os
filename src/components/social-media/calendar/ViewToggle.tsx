@@ -16,9 +16,16 @@ interface ViewToggleProps {
 }
 
 export function ViewToggle({ view, onViewChange, postCount }: ViewToggleProps) {
+  // Create a typed wrapper function for onViewChange
+  const handleViewChange = (value: string) => {
+    if (value === 'calendar' || value === 'list') {
+      onViewChange(value);
+    }
+  };
+
   return (
     <div className="flex justify-between items-center">
-      <Tabs value={view} onValueChange={onViewChange}>
+      <Tabs value={view} onValueChange={handleViewChange}>
         <TabsList>
           <TabsTrigger value="calendar">
             <CalendarIcon className="mr-2 h-4 w-4" />

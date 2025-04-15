@@ -13,13 +13,18 @@ import { Button } from '@/components/ui/button';
 import { errorEventBus } from '@/utils/errorHandling/errorEventBus';
 import { AppError } from '@/utils/errorHandling/errorTypes';
 
+// Update the AppError interface if it doesn't already include isCritical
+interface EnhancedAppError extends AppError {
+  isCritical?: boolean;
+}
+
 export function GlobalErrorModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const [error, setError] = useState<AppError | null>(null);
+  const [error, setError] = useState<EnhancedAppError | null>(null);
 
   useEffect(() => {
     // Subscribe to global errors
-    const handleError = (appError: AppError) => {
+    const handleError = (appError: EnhancedAppError) => {
       // Only show the modal for critical errors
       if (appError.isCritical) {
         setError(appError);

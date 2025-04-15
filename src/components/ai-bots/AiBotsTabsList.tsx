@@ -96,7 +96,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({
               />
             )}
             <div className="flex items-center gap-2">
-              {React.createElement(tab.icon, { 
+              {tab.icon && React.createElement(tab.icon, { 
                 className: `h-4 w-4 ${activeTab === tab.id ? 'text-primary' : 'text-gray-400 group-hover:text-primary/80'} transition-colors`
               })}
               <span>{propsMobileView ? tab.shortLabel || tab.label : tab.label}</span>
@@ -112,7 +112,7 @@ export const AiBotsTabsList: React.FC<AiBotsTabsListProps> = ({
       <ScrollableTabs 
         tabs={tabs} 
         activeTab={activeTab || tabs[0].id}
-        onTabChange={onTabChange}
+        onTabChange={onTabChange || (() => {})}
         className="mb-6 py-2 bg-black/30 border border-white/10 backdrop-blur-md rounded-lg"
         variant="default"
       />
