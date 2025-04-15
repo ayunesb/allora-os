@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -55,7 +54,7 @@ export function useCallScripts() {
       const executiveScripts = createExecutiveCollectiveScripts(
         companyName,
         industry,
-        profile?.company_size || 'Small',
+        typeof profile?.company_size === 'number' ? profile?.company_size.toString() : profile?.company_size,
         profile?.risk_appetite || 'medium'
       );
       

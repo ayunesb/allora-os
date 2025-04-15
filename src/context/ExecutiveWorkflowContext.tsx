@@ -92,6 +92,9 @@ interface WorkflowContextType {
   saveExecutiveDebateToDB: (statements: DebateStatement[]) => Promise<void>;
   updateCompanyWorkflowStatus: (status: string) => Promise<void>;
   setupStrategyRefresh: (scheduleInDays: number) => Promise<void>;
+  generateWorkflow: (company: CompanyProfile) => Promise<void>;
+  isLoading: boolean;
+  hasGeneratedContent: boolean;
 }
 
 // Implement placeholder functions
@@ -123,6 +126,10 @@ export const setupStrategyRefresh = async (scheduleInDays: number) => {
   console.log('Setting up strategy refresh for every', scheduleInDays, 'days');
 };
 
+export const generateWorkflow = async (company: CompanyProfile) => {
+  console.log('Generating workflow for company:', company.name);
+};
+
 // Create the context with default empty object
 export const ExecutiveWorkflowContext = createContext<WorkflowContextType>({
   generateAllContent,
@@ -131,11 +138,28 @@ export const ExecutiveWorkflowContext = createContext<WorkflowContextType>({
   saveGeneratedScriptsToDB,
   saveExecutiveDebateToDB,
   updateCompanyWorkflowStatus,
-  setupStrategyRefresh
+  setupStrategyRefresh,
+  generateWorkflow,
+  isLoading: false,
+  hasGeneratedContent: false
 });
 
 // Create a provider component
 export const ExecutiveWorkflowProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasGeneratedContent, setHasGeneratedContent] = useState(false);
+  
+  const handleGenerateWorkflow = async (company: CompanyProfile) => {
+    setIsLoading(true);
+    try {
+      await generateWorkflow(company);
+      setHasGeneratedContent(true);
+    } catch (error) {
+      console.error('Error generating workflow:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   const value: WorkflowContextType = {
     generateAllContent,
@@ -144,7 +168,10 @@ export const ExecutiveWorkflowProvider: React.FC<{ children: ReactNode }> = ({ c
     saveGeneratedScriptsToDB,
     saveExecutiveDebateToDB,
     updateCompanyWorkflowStatus,
-    setupStrategyRefresh
+    setupStrategyRefresh,
+    generateWorkflow: handleGenerateWorkflow,
+    isLoading,
+    hasGeneratedContent
   };
 
   return (

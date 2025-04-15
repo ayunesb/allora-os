@@ -22,14 +22,14 @@ export const PageTitle: React.FC<PageTitleProps> = ({
 };
 
 // Add required Typography components
-export const TypographyH1: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <h1 className="text-3xl font-bold tracking-tight">{children}</h1>;
+export const TypographyH1: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => {
+  return <h1 className={`text-3xl font-bold tracking-tight ${className || ''}`}>{children}</h1>;
 };
 
-export const TypographyP: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <p className="leading-7">{children}</p>;
+export const TypographyP: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => {
+  return <p className={`leading-7 ${className || ''}`}>{children}</p>;
 };
 
-export const TypographySmall: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <small className="text-sm font-medium leading-none">{children}</small>;
+export const TypographySmall: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => {
+  return <small className={`text-sm font-medium leading-none ${className || ''}`}>{children}</small>;
 };

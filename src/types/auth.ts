@@ -1,6 +1,18 @@
 
 import { User, Session } from '@supabase/supabase-js';
-import { UserProfile } from '@/utils/profileHelpers';
+
+export interface UserProfile {
+  id?: string;
+  email?: string;
+  name?: string;
+  avatar_url?: string;
+  company?: string;
+  industry?: string;
+  role?: string;
+  company_id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export interface AuthContextType {
   user: User | null;
