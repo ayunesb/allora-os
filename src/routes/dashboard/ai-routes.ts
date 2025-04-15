@@ -4,7 +4,7 @@ import { type RouteObject } from 'react-router-dom';
 
 // Lazy load the components
 const AIBots = lazy(() => import('@/pages/dashboard/AIBots'));
-const AiBoardroom = lazy(() => import('@/pages/dashboard/AIBoardroom'));
+const AiBoardroom = lazy(() => import('@/pages/dashboard/AiBoardroom'));
 const AIAgent = lazy(() => import('@/pages/dashboard/AIAgent'));
 const AISettings = lazy(() => import('@/pages/dashboard/AISettings'));
 const ExecutiveLeaderboard = lazy(() => import('@/pages/dashboard/ExecutiveLeaderboard'));
