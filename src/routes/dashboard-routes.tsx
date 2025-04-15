@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import Dashboard from "@/pages/dashboard/Dashboard";
 import Leads from "@/pages/dashboard/Leads";
@@ -44,7 +43,6 @@ export const dashboardRoutes: RouteObject[] = [
         index: true,
         element: <Dashboard />,
       },
-      // route definitions for leads, campaigns, etc.
       {
         path: "leads",
         element: <Leads />,
@@ -53,7 +51,6 @@ export const dashboardRoutes: RouteObject[] = [
         path: "leads/:leadId",
         element: <Leads />,
       },
-      // Campaigns section - consolidated
       {
         path: "campaigns",
         element: <Campaigns />,
@@ -74,7 +71,6 @@ export const dashboardRoutes: RouteObject[] = [
         path: "analytics",
         element: <Analytics />,
       },
-      // Strategy section - consolidated to clear naming
       {
         path: "strategies",
         element: <Strategies />,
@@ -99,37 +95,30 @@ export const dashboardRoutes: RouteObject[] = [
         path: "executives",
         element: <Executives />,
       },
-      // New Executive Agents route
       {
         path: "executive-agents",
         element: <ExecutiveAgents />,
       },
-      // New Executive Decisions route
       {
         path: "decisions",
         element: <ExecutiveDecisions />,
       },
-      // New Risk Heatmap route
       {
         path: "risk-heatmap",
         element: <RiskHeatmap />,
       },
-      // New Executive Leaderboard route
       {
         path: "leaderboard",
         element: <ExecutiveLeaderboard />,
       },
-      // New Forecast Dashboard route
       {
         path: "forecast",
         element: <Forecast />,
       },
-      // New Digital Twin Dashboard route
       {
         path: "digital-twin",
         element: <DigitalTwin />,
       },
-      // Executive preferences/settings route
       {
         path: "executive-preferences",
         element: <AISettings />,
@@ -154,7 +143,6 @@ export const dashboardRoutes: RouteObject[] = [
         path: "ai-agent",
         element: <AIAgent />,
       },
-      // Integration routes
       {
         path: "calendly",
         element: <CalendlyIntegration />,
@@ -163,17 +151,14 @@ export const dashboardRoutes: RouteObject[] = [
         path: "plaid",
         element: <PlaidIntegration />,
       },
-      // route definitions for remaining paths
       {
         path: "ai-settings",
         element: <AISettings />,
       },
-      // New AI Executive Workflow Onboarding
       {
         path: "ai-workflow",
         element: <OnboardingWorkflow />,
       },
-      // Settings section - consolidated
       {
         path: "settings",
         element: <Settings />,
