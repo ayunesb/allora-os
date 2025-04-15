@@ -19,7 +19,7 @@ interface AdminModuleGridProps {
 
 export function AdminModuleGrid({ modules, isLoading }: AdminModuleGridProps = {}) {
   // If modules are provided, use them. Otherwise use the default ones.
-  const gridModules = modules || [
+  const gridModules: AdminModule[] = modules || [
     {
       title: "User Management",
       description: "Manage system users and permissions",

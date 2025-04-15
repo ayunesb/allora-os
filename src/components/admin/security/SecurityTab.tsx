@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Shield, Lock, Key, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useProtectedApi } from '@/utils/api/enhancedApiClient';
+import { useProtectedApi, SaveSecuritySettingsParams } from '@/utils/api/enhancedApiClient';
 import { logSystemChange } from '@/utils/auditLogger';
 import { useAuth } from '@/context/AuthContext';
 import { SecuritySettingsType } from './types';
@@ -26,7 +26,7 @@ const SecurityTab = ({ initialSettings }: SecurityTabProps) => {
     }
   );
 
-  const { execute, isLoading } = useProtectedApi(
+  const { execute, isLoading } = useProtectedApi<boolean, SaveSecuritySettingsParams>(
     saveSecuritySettings,
     {
       showSuccessToast: true,

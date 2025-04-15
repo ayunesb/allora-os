@@ -12,6 +12,8 @@ export interface UserPreferences {
   showSources?: boolean;
   darkMode?: boolean;
   fontSize?: 'small' | 'medium' | 'large';
+  writingStyle?: string;
+  tone?: string;
   notificationPreferences?: {
     email?: boolean;
     push?: boolean;

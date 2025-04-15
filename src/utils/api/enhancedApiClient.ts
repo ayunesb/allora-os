@@ -13,14 +13,18 @@ export interface UseProtectedApiOptions {
   onError?: (error: any) => void;
 }
 
+export interface SaveSecuritySettingsParams {
+  settings: any;
+}
+
 export function useProtectedApi<T, P = any>(
-  apiFunction: (params?: P) => Promise<T>,
+  apiFunction: (params: P) => Promise<T>,
   options: UseProtectedApiOptions = {}
 ) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   
-  const execute = async (params?: P): Promise<T> => {
+  const execute = async (params: P): Promise<T> => {
     setIsLoading(true);
     setError(null);
     
