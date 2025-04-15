@@ -209,33 +209,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const refreshSession = async () => {
+  const refreshSession = async (): Promise<boolean> => {
     try {
-      logger.info('Refreshing session...');
       const { data, error } = await supabase.auth.refreshSession();
-
+      
       if (error) {
-        logger.error('Session refresh failed:', error);
-        // Check if the error indicates an expired session
-        if (error.message.includes('JWT expired')) {
-          setIsSessionExpired(true);
-        }
+        console.error("Error refreshing session:", error.message);
         setAuthError(error);
-        return;
+        setSession(null);
+        setIsSessionExpired(true);
+        return false;
       }
-
-      setSession(data.session);
-      setUser(data.session?.user || null);
-      setIsSessionExpired(false); // Reset session expired state on refresh
-
-      if (data.session?.user) {
-        await fetchProfile(data.session.user.id);
+      
+      if (data.session) {
+        setSession(data.session);
+        setUser(data.user);
+        setIsSessionExpired(false);
+        return true;
       }
-      logger.info('Session refreshed successfully.');
-    } catch (error: any) {
-      logger.error('Session refresh error:', error);
-      setAuthError(error);
+      
+      return false;
+    } catch (err) {
+      console.error("Error in refreshSession:", err);
       setIsSessionExpired(true);
+      return false;
     }
   };
 
