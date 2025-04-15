@@ -107,10 +107,11 @@ export default function ProtectedRoute({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Handle auth errors
+  // Handle auth errors - Fix: Change authError type to string
   if (authError) {
+    const errorMessage = authError instanceof Error ? authError.message : String(authError);
     return <AuthErrorState 
-      error={authError} 
+      error={errorMessage} 
       onRetry={async () => {
         await refreshSession();
       }} 

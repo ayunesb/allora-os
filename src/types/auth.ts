@@ -9,7 +9,7 @@ export interface AuthContextType {
   profile: UserProfile | null;
   isProfileLoading: boolean;
   isEmailVerified: boolean;
-  authError: string | null;
+  authError: string | Error | null;
   isSessionExpired: boolean;
   isAuthenticated?: boolean; 
   hasInitialized?: boolean; 

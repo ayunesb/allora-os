@@ -7,7 +7,7 @@ import { useAgentQuery } from '@/utils/langchain/hooks/useAgentQuery';
 import { useExternalLangChainAPI } from '@/utils/langchain/hooks/useExternalLangChainAPI';
 import { PageLoader } from '@/components/ui/page-loader';
 import { Badge } from '@/components/ui/badge';
-import { AlignLeft, Clock, Settings, Tool } from 'lucide-react';
+import { AlignLeft, Clock, Settings, Wrench } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -157,7 +157,7 @@ export function AgentQueryInterface({
                   size="sm"
                   onClick={() => setShowToolCalls(!showToolCalls)}
                 >
-                  <Tool size={16} className="mr-2" />
+                  <Wrench size={16} className="mr-2" />
                   {showToolCalls ? "Hide Tools" : "Show Tools"}
                 </Button>
               )}
