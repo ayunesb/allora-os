@@ -9,7 +9,7 @@ import { PageLoader } from '@/components/ui/page-loader';
 const Dashboard = lazy(() => import('@/pages/dashboard/Index'));
 const Profile = lazy(() => import('@/pages/dashboard/Profile'));
 const Login = lazy(() => import('@/pages/Login'));
-const Signup = lazy(() => import('@/pages/Signup'));
+const SignUpNew = lazy(() => import('@/pages/SignUpNew'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
 const Onboarding = lazy(() => import('@/pages/Onboarding'));
@@ -27,7 +27,7 @@ export const AppRoutes = () => {
         {/* Public routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<SignUpNew />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/gdpr-compliance" element={<GDPRCompliance />} />
