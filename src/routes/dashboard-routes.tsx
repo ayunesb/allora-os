@@ -31,6 +31,9 @@ import ExecutiveLeaderboard from "@/pages/dashboard/ExecutiveLeaderboard";
 import AIChat from "@/pages/dashboard/AIChat";
 import Forecast from "@/pages/dashboard/Forecast";
 import DigitalTwin from "@/pages/dashboard/DigitalTwin";
+import AIAgent from "@/pages/dashboard/AIAgent";
+import CalendlyIntegration from "@/pages/admin/CalendlyIntegration";
+import PlaidIntegration from "@/pages/admin/PlaidIntegration";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -146,6 +149,19 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "ai-chat",
         element: <AIChat />,
+      },
+      {
+        path: "ai-agent",
+        element: <AIAgent />,
+      },
+      // Integration routes
+      {
+        path: "calendly",
+        element: <CalendlyIntegration />,
+      },
+      {
+        path: "plaid",
+        element: <PlaidIntegration />,
       },
       // route definitions for remaining paths
       {
