@@ -42,12 +42,11 @@ generateCsrfToken();
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <GlobalErrorBoundary 
-      onError={handleError} 
-      fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}
-    >
+      onError={handleError}
+      fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>} children={undefined}    >
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <HelpProvider>
+          <HelpProvider children={undefined}>
             <App />
           </HelpProvider>
         </QueryClientProvider>

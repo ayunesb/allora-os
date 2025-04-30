@@ -74,3 +74,44 @@ declare global {
     clearApiCache: (endpoint?: string) => void;
   }
 }
+
+/**
+ * Fetch API wrapper for making HTTP requests with enhanced features
+ */
+export const fetchApi = async <T>(
+  endpoint: string,
+  method: string = 'GET',
+  data?: any,
+  additionalHeaders?: Record<string, string>
+): Promise<T> => {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(additionalHeaders || {}),
+  };
+
+  const options: RequestInit = {
+    method,
+    headers,
+    credentials: 'include',
+  };
+
+  if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+    options.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(endpoint, options);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    let errorMessage: string;
+    try {
+      const errorJson = JSON.parse(errorText);
+      errorMessage = errorJson.message || errorJson.error || `API error: ${response.status}`;
+    } catch {
+      errorMessage = errorText || `API error: ${response.status}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};

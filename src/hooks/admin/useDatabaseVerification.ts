@@ -1,214 +1,146 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
+import { useApiClient } from '@/utils/api/enhancedApiClient';
 import { toast } from 'sonner';
-import { DatabaseVerificationResult, DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/types/databaseVerification';
-import { 
-  verifyDatabaseTables, 
-  verifyRlsPolicies, 
-  verifyDatabaseFunctions,
-  displayVerificationResults,
-  checkVerificationAccess
-} from '@/utils/admin/database-verification';
-import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
 
-/**
- * Hook for verifying database configuration.
- * Provides functionality to check database tables, RLS policies, and functions.
- * @returns Object containing verification results and function to trigger verification
- */
+export interface TableInfo {
+  name: string;
+  rowCount: number;
+  description: string | null;
+  status: 'ok' | 'warning' | 'error';
+  message?: string;
+}
+
+export interface FunctionInfo {
+  name: string;
+  returnType: string;
+  language: string;
+  status: 'ok' | 'warning' | 'error';
+  message?: string;
+}
+
+export interface RlsPolicy {
+  table: string;
+  name: string;
+  definition: string;
+  roles: string[];
+  status: 'ok' | 'warning' | 'error';
+  message?: string;
+}
+
+export interface DatabaseVerificationResult {
+  tables: TableInfo[];
+  functions: FunctionInfo[];
+  rlsPolicies: RlsPolicy[];
+  lastUpdated: string;
+}
+
+export interface DatabaseIssue {
+  type: 'table' | 'function' | 'policy';
+  name: string;
+  message: string;
+  severity: 'warning' | 'error';
+}
+
 export function useDatabaseVerification() {
-  const [verificationResult, setVerificationResult] = useState<DatabaseVerificationResult>({
-    tables: [],
-    policies: [],
-    functions: [],
-    isVerifying: false
-  });
-  
-  const [connectionStatus, setConnectionStatus] = useState({
-    checked: false,
-    connected: false,
-    authenticated: false,
-    error: null as any,
-    accessError: null as string | null
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState<DatabaseVerificationResult | null>(null);
+  const [issues, setIssues] = useState<DatabaseIssue[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const { execute } = useApiClient();
 
-  // Check connection status on mount
-  useEffect(() => {
-    const initialConnectionCheck = async () => {
-      try {
-        console.log("Performing initial connection check...");
-        const status = await checkSupabaseConnection();
-        
-        // Check verification access permissions
-        const accessCheck = await checkVerificationAccess();
-        
-        setConnectionStatus({
-          checked: true,
-          connected: status.connected,
-          authenticated: status.authenticated,
-          error: status.error || null,
-          accessError: !accessCheck.canAccess ? accessCheck.message : null
-        });
-        
-        // If not connected or not authenticated, we don't need to try verification
-        if (!status.connected || !status.authenticated || !accessCheck.canAccess) {
-          console.log("Not proceeding with verification due to connection/auth issues");
-          return;
-        }
-        
-        // Auto-verify if we're connected and authenticated and have access
-        console.log("Connection check passed, proceeding with verification");
-        verifyDatabaseConfiguration();
-      } catch (err) {
-        console.error("Initial connection check failed:", err);
-        setConnectionStatus(prev => ({
-          ...prev,
-          checked: true,
-          error: err
-        }));
-      }
-    };
+  const fetchDatabaseInfo = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     
-    if (!connectionStatus.checked) {
-      initialConnectionCheck();
-    }
-  }, [connectionStatus.checked]);
-
-  /**
-   * Attempts to ensure the check_function_exists RPC exists
-   * This function will not create the RPC but will check for its existence
-   */
-  const createFunctionCheckerRPC = async () => {
     try {
-      // Log API details to help troubleshoot connection issues
-      console.log('Checking Supabase connection status...');
+      const data = await execute<DatabaseVerificationResult>('/api/admin/database-verification', 'GET');
+      setResults(data);
       
-      // Basic connection test to check auth token validity
-      const { data: { session } } = await supabase.auth.getSession();
+      // Process issues
+      const newIssues: DatabaseIssue[] = [];
       
-      if (!session) {
-        console.warn("No active session found during function verification setup");
-        toast.error("Authentication required", {
-          description: "Please log in to verify database functions"
-        });
-        return false;
-      }
-      
-      // Check if the helper function exists
-      const { data, error } = await supabase.rpc('check_function_exists', { function_name: 'check_function_exists' });
-      
-      if (error) {
-        console.error('Error checking function existence:', error);
-        
-        // Only show toast for specific errors, not if the function doesn't exist
-        if (!error.message.includes('does not exist')) {
-          toast.error('Error with database verification tools', {
-            description: error.message
+      // Table issues
+      data.tables.forEach(table => {
+        if (table.status !== 'ok') {
+          newIssues.push({
+            type: 'table',
+            name: table.name,
+            message: table.message || `Issue with table: ${table.name}`,
+            severity: table.status === 'error' ? 'error' : 'warning'
           });
         }
-        return false;
-      }
+      });
       
-      return true;
-    } catch (err) {
-      console.error('Error setting up function checker:', err);
-      return false;
+      // Function issues
+      data.functions.forEach(func => {
+        if (func.status !== 'ok') {
+          newIssues.push({
+            type: 'function',
+            name: func.name,
+            message: func.message || `Issue with function: ${func.name}`,
+            severity: func.status === 'error' ? 'error' : 'warning'
+          });
+        }
+      });
+      
+      // RLS policy issues
+      data.rlsPolicies.forEach(policy => {
+        if (policy.status !== 'ok') {
+          newIssues.push({
+            type: 'policy',
+            name: `${policy.table}.${policy.name}`,
+            message: policy.message || `Issue with RLS policy: ${policy.name}`,
+            severity: policy.status === 'error' ? 'error' : 'warning'
+          });
+        }
+      });
+      
+      setIssues(newIssues);
+      
+      return data;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch database information';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [execute]);
 
-  /**
-   * Triggers the verification process for database configuration
-   * Checks tables, RLS policies, and functions in parallel
-   */
-  const verifyDatabaseConfiguration = useCallback(async () => {
-    // First check connection
-    setVerificationResult(prev => ({ ...prev, isVerifying: true }));
+  const repairAutomatically = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     
     try {
-      console.log('Starting database verification process...');
-      const connectionStatus = await checkSupabaseConnection();
+      const result = await execute<{ success: boolean; message: string; repaired: string[] }>('/api/admin/database-repair', 'POST');
       
-      if (!connectionStatus.connected) {
-        toast.error("Cannot verify database - connection failed", {
-          description: "Please check your Supabase connection and try again."
-        });
-        setVerificationResult(prev => ({ ...prev, isVerifying: false }));
-        return;
-      }
-      
-      if (!connectionStatus.authenticated) {
-        toast.error("Cannot verify database - authentication required", {
-          description: "Please sign in to access database verification features."
-        });
-        setVerificationResult(prev => ({ ...prev, isVerifying: false }));
-        return;
-      }
-      
-      // Check access permissions
-      const accessCheck = await checkVerificationAccess();
-      if (!accessCheck.canAccess) {
-        toast.error("Access denied", {
-          description: accessCheck.message
-        });
-        setVerificationResult(prev => ({ ...prev, isVerifying: false }));
-        return;
-      }
-      
-      // Create function checker if needed
-      await createFunctionCheckerRPC();
-      
-      // Run all verification checks in parallel for better performance
-      const [tablesResults, policiesResults, functionsResults] = await Promise.all([
-        verifyDatabaseTables(),
-        verifyRlsPolicies(),
-        verifyDatabaseFunctions()
-      ]);
-      
-      console.log('Verification results:', { 
-        tables: tablesResults, 
-        policies: policiesResults, 
-        functions: functionsResults
-      });
-      
-      // Update state with all results
-      setVerificationResult({
-        tables: tablesResults,
-        policies: policiesResults,
-        functions: functionsResults,
-        isVerifying: false
-      });
-      
-      // Display user-friendly messages based on results
-      displayVerificationResults(tablesResults, policiesResults, functionsResults);
-      
-      // Count issues
-      const issuesCount = 
-        tablesResults.filter(t => !t.exists).length +
-        policiesResults.filter(p => !p.exists).length +
-        functionsResults.filter(f => !f.exists || !f.isSecure).length;
-      
-      if (tablesResults.length === 0 && policiesResults.length === 0 && functionsResults.length === 0) {
-        toast.error("No database verification data returned", {
-          description: "Check your Supabase connection and permissions"
-        });
-      } else if (issuesCount === 0) {
-        toast.success("Database verification completed - All checks passed");
+      if (result.success) {
+        toast.success(result.message || 'Database repaired successfully');
+        // Refresh verification data
+        await fetchDatabaseInfo();
       } else {
-        toast.warning(`Database verification completed - ${issuesCount} issues found`, {
-          description: "Some tables, policies or functions need configuration"
-        });
+        toast.error(result.message || 'Failed to repair database');
       }
       
-    } catch (error: any) {
-      console.error('Error during database verification:', error);
-      toast.error(`Verification failed: ${error.message || String(error)}`);
-      setVerificationResult(prev => ({ ...prev, isVerifying: false }));
+      return result;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to repair database';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [execute, fetchDatabaseInfo]);
 
   return {
-    verificationResult,
-    connectionStatus,
-    verifyDatabaseConfiguration
+    isLoading,
+    results,
+    issues,
+    error,
+    fetchDatabaseInfo,
+    repairAutomatically
   };
 }

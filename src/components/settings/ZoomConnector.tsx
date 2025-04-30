@@ -13,8 +13,10 @@ export function ZoomConnector() {
     connectZoom, 
     disconnectZoom, 
     isConnecting, 
-    integration 
+    integration,
+    isConnected: connectionStatus
   } = useZoomIntegration();
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   
@@ -29,7 +31,11 @@ export function ZoomConnector() {
   }, [checkConnection]);
   
   const handleConnect = async () => {
-    await connectZoom();
+    try {
+      await connectZoom();
+    } catch (error) {
+      toast.error('Failed to initiate Zoom connection');
+    }
   };
   
   const handleDisconnect = async () => {
@@ -41,6 +47,9 @@ export function ZoomConnector() {
     
     if (result.success) {
       setIsConnected(false);
+      toast.success('Zoom account disconnected successfully');
+    } else {
+      toast.error('Failed to disconnect Zoom account');
     }
   };
   

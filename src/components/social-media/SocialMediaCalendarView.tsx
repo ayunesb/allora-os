@@ -1,177 +1,151 @@
 
-import React from 'react';
-import { SocialMediaPost } from '@/types/socialMedia';
-import { 
-  format, 
-  startOfMonth, 
-  endOfMonth, 
-  eachDayOfInterval,
-  isSameMonth, 
-  isToday,
-  parseISO,
-  isSameDay
-} from 'date-fns';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
-import SocialPostCard from './SocialPostCard';
+import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { ViewToggle } from './calendar/ViewToggle';
 
 interface SocialMediaCalendarViewProps {
-  posts: SocialMediaPost[];
-  currentMonth: Date;
-  onEditPost: (post: SocialMediaPost) => void;
-  onDeletePost: (postId: string) => Promise<{ success: boolean; error?: string }>;
-  onSchedulePost: (postId: string) => Promise<{ success: boolean; error?: string }>;
-  onApprovePost: (postId: string, notes?: string) => Promise<{ success: boolean; error?: string }>;
+  posts: any[];
+  onCreatePost: () => void;
+  onEditPost: (postId: string) => void;
+  onDeletePost: (postId: string) => void;
 }
 
-/**
- * Calendar view for social media posts
- * Displays posts organized by day in a monthly calendar format
- */
-export default function SocialMediaCalendarView({
+export function SocialMediaCalendarView({
   posts,
-  currentMonth,
+  onCreatePost,
   onEditPost,
-  onDeletePost,
-  onSchedulePost,
-  onApprovePost
+  onDeletePost
 }: SocialMediaCalendarViewProps) {
-  // Get all days in the current month
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  
-  // Get the day of week for the first day (0 for Sunday, 1 for Monday, etc.)
-  const startDay = monthStart.getDay();
-  
-  // Find posts for a specific day
-  const getPostsForDay = (day: Date) => {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [view, setView] = useState<'calendar' | 'list'>('calendar');
+
+  // Count posts for the month if in calendar view
+  const postCount = posts.length;
+
+  // Function to handle date selection
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+  };
+
+  // Function to filter posts for the selected date
+  const getPostsForSelectedDate = () => {
+    if (!selectedDate) return [];
+    
     return posts.filter(post => {
-      const postDate = parseISO(post.scheduled_date);
-      return isSameDay(postDate, day);
+      // Safely handle potentially undefined scheduled_date
+      if (!post.scheduled_date) return false;
+      
+      const postDate = new Date(post.scheduled_date);
+      return (
+        postDate.getDate() === selectedDate.getDate() &&
+        postDate.getMonth() === selectedDate.getMonth() &&
+        postDate.getFullYear() === selectedDate.getFullYear()
+      );
     });
   };
-  
-  // Get platform color
-  const getPlatformColor = (platform: string) => {
-    switch (platform) {
-      case 'Facebook':
-        return 'bg-blue-100 text-blue-800';
-      case 'Instagram':
-        return 'bg-purple-100 text-purple-800';
-      case 'LinkedIn':
-        return 'bg-blue-900 text-white';
-      case 'Twitter':
-        return 'bg-blue-400 text-white';
-      case 'TikTok':
-        return 'bg-black text-white';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-  
-  // Get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-gray-100 text-gray-800';
-      case 'scheduled':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'published':
-        return 'bg-green-100 text-green-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-  
-  // Create an array of 7 days (for the week header)
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
+
+  // Get posts for the selected date
+  const selectedDatePosts = getPostsForSelectedDate();
+
   return (
-    <div className="mt-4">
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {weekDays.map((day, i) => (
-          <div 
-            key={i} 
-            className="text-center font-medium text-sm py-2"
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-      
-      <div className="grid grid-cols-7 gap-1">
-        {/* Empty cells for days before the start of the month */}
-        {Array.from({ length: startDay }).map((_, i) => (
-          <div 
-            key={`empty-start-${i}`} 
-            className="bg-gray-50 rounded-md min-h-[120px]"
-          ></div>
-        ))}
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
+        <ViewToggle view={view} onViewChange={setView} postCount={postCount} />
         
-        {/* Calendar days */}
-        {days.map((day, i) => {
-          const dayPosts = getPostsForDay(day);
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2">
+            <CalendarIcon className="h-4 w-4" />
+            <span>
+              {selectedDate ? format(selectedDate, 'PPP') : 'Select date'}
+            </span>
+          </Button>
           
-          return (
-            <div 
-              key={i}
-              className={cn(
-                "border rounded-md min-h-[120px] p-1 relative",
-                isToday(day) ? "border-primary" : "border-gray-200",
-                !isSameMonth(day, currentMonth) && "bg-gray-50 text-gray-400"
-              )}
-            >
-              <div className="sticky top-0 z-10 bg-background">
-                <div className={cn(
-                  "flex items-center justify-center h-6 w-6 rounded-full text-xs font-medium",
-                  isToday(day) ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                )}>
-                  {format(day, 'd')}
-                </div>
+          <Button onClick={onCreatePost}>Create Post</Button>
+        </div>
+      </div>
+
+      {view === 'calendar' && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-1/2">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={handleDateSelect}
+                  className="rounded-md border"
+                />
               </div>
               
-              <div className="mt-1 space-y-1 max-h-[300px] overflow-y-auto">
-                {dayPosts.map((post) => (
-                  <TooltipProvider key={post.id}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div 
-                          className={cn(
-                            "text-xs p-1 rounded cursor-pointer truncate",
-                            getPlatformColor(post.platform)
-                          )}
-                          onClick={() => onEditPost(post)}
-                        >
-                          {post.title}
+              <div className="md:w-1/2">
+                <h3 className="font-medium text-lg mb-4">
+                  {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Selected Date'}
+                </h3>
+                
+                {selectedDatePosts.length > 0 ? (
+                  <div className="space-y-3">
+                    {selectedDatePosts.map(post => (
+                      <Card key={post.id} className="p-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium">{post.title || 'Untitled Post'}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {post.platform || 'All Platforms'} • {post.status || 'Draft'}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => onEditPost(post.id)}>Edit</Button>
+                            <Button variant="ghost" size="sm" onClick={() => onDeletePost(post.id)}>Delete</Button>
+                          </div>
                         </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" align="start" className="max-w-xs">
-                        <SocialPostCard 
-                          post={post}
-                          onEdit={() => onEditPost(post)}
-                          onDelete={() => onDeletePost(post.id)}
-                          onSchedule={() => onSchedulePost(post.id)}
-                          onApprove={() => onApprovePost(post.id)}
-                          compact
-                        />
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ))}
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No posts scheduled for this date.</p>
+                )}
               </div>
             </div>
-          );
-        })}
-      </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {view === 'list' && (
+        // List view implementation will go here
+        <Card>
+          <CardContent className="p-4">
+            <div className="space-y-4">
+              {posts.length > 0 ? (
+                posts.map(post => (
+                  <Card key={post.id} className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium">{post.title || 'Untitled Post'}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {post.platform || 'All Platforms'} • {post.status || 'Draft'}
+                        </p>
+                        <p className="text-sm mt-1">
+                          {post.scheduled_date ? format(new Date(post.scheduled_date), 'PPP') : 'Not scheduled'}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => onEditPost(post.id)}>Edit</Button>
+                        <Button variant="ghost" size="sm" onClick={() => onDeletePost(post.id)}>Delete</Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-center py-8">No posts available.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

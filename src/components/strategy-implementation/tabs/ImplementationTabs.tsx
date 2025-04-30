@@ -1,45 +1,21 @@
 
 import React from 'react';
-import { FileText, Calculator, Target } from "lucide-react";
-import ScrollableTabs, { TabItem } from "@/components/ui/scrollable-tabs";
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface ImplementationTabsProps {
+export interface ImplementationTabsProps {
   activeTab: string;
-  onTabChange?: (value: string) => void;
+  onTabChange: (tab: string) => void;
 }
 
-const ImplementationTabs: React.FC<ImplementationTabsProps> = ({ activeTab, onTabChange }) => {
-  const tabs: TabItem[] = [
-    {
-      id: "implementation",
-      label: "Implementation Tracker",
-      shortLabel: "Implement",
-      icon: FileText
-    },
-    {
-      id: "roi",
-      label: "ROI Calculator",
-      shortLabel: "ROI",
-      icon: Calculator
-    },
-    {
-      id: "competitors",
-      label: "Competitor Benchmarking",
-      shortLabel: "Competitors",
-      icon: Target
-    }
-  ];
-  
+export function ImplementationTabs({ activeTab, onTabChange }: ImplementationTabsProps) {
   return (
-    <div className="w-full max-w-full overflow-hidden">
-      <ScrollableTabs 
-        tabs={tabs} 
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-        variant="outline"
-      />
-    </div>
+    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+      <TabsList className="grid grid-cols-4 mb-4">
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="tasks">Tasks</TabsTrigger>
+        <TabsTrigger value="milestones">Milestones</TabsTrigger>
+        <TabsTrigger value="metrics">Metrics</TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
-};
-
-export default ImplementationTabs;
+}

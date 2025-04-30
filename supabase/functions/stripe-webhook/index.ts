@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { Stripe } from "https://esm.sh/stripe@12.6.0?target=deno";
 
 // Load environment variables
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
@@ -26,7 +27,12 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize supabase client with service role key
+    // Initialize Stripe
+    const stripe = new Stripe(STRIPE_SECRET_KEY, {
+      apiVersion: "2022-11-15",
+    });
+
+    // Initialize Supabase client with service role key
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Verify Stripe signature to ensure the webhook is legitimate
@@ -51,12 +57,6 @@ serve(async (req) => {
       });
     }
 
-    // Import Stripe library
-    const { Stripe } = await import("https://esm.sh/stripe@12.6.0?target=deno");
-    const stripe = new Stripe(STRIPE_SECRET_KEY, {
-      apiVersion: "2022-11-15",
-    });
-
     // Verify the webhook signature
     let event;
     try {
@@ -69,111 +69,52 @@ serve(async (req) => {
       });
     }
 
-    // Handle specific events with additional validation for each event type
-    switch (event.type) {
-      case "checkout.session.completed":
-        const session = event.data.object;
-        console.log("Payment succeeded:", session.id);
-        
-        // Additional validation for the session object
-        if (!session || !session.customer_details || !session.metadata?.userId) {
-          console.error("Invalid session data in webhook:", session);
-          return new Response(JSON.stringify({ error: "Invalid session data" }), { 
-            status: 400,
+    console.log(`Webhook event received: ${event.type}`);
+
+    // Handle checkout.session.completed event
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      console.log(`Payment succeeded: ${session.id}`);
+      
+      // Extract metadata from the session
+      const metadata = session.metadata || {};
+      const tenantId = metadata.tenant_id;
+      const credits = parseInt(metadata.credits || "0", 10);
+
+      if (tenantId && credits) {
+        // Update user credits by calling the decrement_credits function with a negative value to add credits
+        const { error: creditError } = await supabase.rpc("decrement_credits", {
+          p_tenant_id: tenantId,
+          p_amount: -credits // Negative value to add credits
+        });
+
+        if (creditError) {
+          console.error(`Error updating credits: ${creditError.message}`);
+          return new Response(JSON.stringify({ error: `Failed to update credits: ${creditError.message}` }), {
+            status: 500,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
-        
-        // Handle successful payment
-        const userId = session.metadata.userId;
-        const customerEmail = session.customer_details.email;
-        
-        // Get subscription details if this is a subscription
-        if (session.mode === 'subscription' && session.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-          const pricingPlanId = subscription.items.data[0].price.id;
-          
-          // Update user's subscription details
-          const { error } = await supabase
-            .from("profiles")
-            .update({ 
-              stripe_customer_id: session.customer,
-              subscription_status: "active",
-              subscription_plan_id: pricingPlanId,
-              subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString()
-            })
-            .eq("id", userId);
-            
-          if (error) {
-            console.error("Error updating user subscription:", error);
-            return new Response(JSON.stringify({ success: false, error: error.message }), { 
-              status: 500,
-              headers: { ...corsHeaders, "Content-Type": "application/json" }
-            });
-          }
-        } else {
-          // One-time payment handling
-          const { error } = await supabase
-            .from("profiles")
-            .update({ 
-              stripe_customer_id: session.customer
-            })
-            .eq("id", userId);
-            
-          if (error) {
-            console.error("Error updating user profile:", error);
-          }
+
+        // Log the credit purchase
+        const { error: logError } = await supabase.from("credit_logs").insert({
+          tenant_id: tenantId,
+          credits_added: credits,
+          source: "stripe",
+          session_id: session.id,
+          amount: session.amount_total,
+          email: session.customer_email
+        });
+
+        if (logError) {
+          console.error(`Error logging credit purchase: ${logError.message}`);
+          // Continue anyway, since the credits were already added
         }
-        break;
-        
-      case "customer.subscription.updated":
-        const subscription = event.data.object;
-        console.log("Subscription updated:", subscription.id);
-        
-        // Update subscription status in the database
-        if (subscription.metadata?.userId) {
-          const userId = subscription.metadata.userId;
-          const pricingPlanId = subscription.items.data[0].price.id;
-          
-          const { error } = await supabase
-            .from("profiles")
-            .update({ 
-              subscription_status: subscription.status,
-              subscription_plan_id: pricingPlanId,
-              subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString()
-            })
-            .eq("id", userId);
-            
-          if (error) {
-            console.error("Error updating subscription status:", error);
-          }
-        }
-        break;
-        
-      case "customer.subscription.deleted":
-        const canceledSubscription = event.data.object;
-        console.log("Subscription canceled:", canceledSubscription.id);
-        
-        // Update subscription status in the database
-        if (canceledSubscription.metadata?.userId) {
-          const userId = canceledSubscription.metadata.userId;
-          
-          const { error } = await supabase
-            .from("profiles")
-            .update({ 
-              subscription_status: "canceled",
-              subscription_expires_at: new Date(canceledSubscription.current_period_end * 1000).toISOString()
-            })
-            .eq("id", userId);
-            
-          if (error) {
-            console.error("Error updating subscription status:", error);
-          }
-        }
-        break;
-        
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
+
+        console.log(`✅ Added ${credits} credits to tenant ${tenantId}`);
+      } else {
+        console.warn("Missing tenant_id or credits in session metadata");
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {

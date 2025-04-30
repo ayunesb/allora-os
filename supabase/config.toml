@@ -1,8 +1,8 @@
 
-project_id = "ofwxyctfzskeeniaaazw"
+project_id = "tnfqzklfdwknmplrygag"
 
-[functions.langchain-agent]
-verify_jwt = true
+[functions.stripe-webhook]
+verify_jwt = false
 
-[functions.notion-tool]
-verify_jwt = true
+[functions.stripe]
+verify_jwt = false

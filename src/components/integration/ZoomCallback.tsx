@@ -3,16 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useZoomIntegration } from '@/hooks/useZoomIntegration';
 import { Loader2 } from 'lucide-react';
-
-// Define the ZoomCallbackResult interface to match the useZoomIntegration hook's return type
-interface ZoomCallbackResult {
-  success: boolean;
-  data?: any;
-  error?: {
-    message: string;
-    code?: string;
-  };
-}
+import { ZoomCallbackResult } from '@/hooks/useZoomIntegration';
 
 export default function ZoomCallback() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -44,7 +35,7 @@ export default function ZoomCallback() {
         
         // Handle the callback
         const redirectUri = `${window.location.origin}/zoom-callback`;
-        const result: ZoomCallbackResult = await handleCallback(code, state, redirectUri);
+        const result = await handleCallback(code, state, redirectUri);
         
         if (result.success) {
           setStatus('success');
