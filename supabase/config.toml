@@ -1,8 +1,1 @@
-
-project_id = "ofwxyctfzskeeniaaazw"
-
-[functions.langchain-agent]
-verify_jwt = true
-
-[functions.notion-tool]
-verify_jwt = true
+project_id = "tnfqzklfdwknmplrygag"

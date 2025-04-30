@@ -9,1824 +9,3717 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      ad_platform_connections: {
+      activity_feed: {
         Row: {
-          access_token: string
-          ad_account_id: string
-          company_id: string
+          actor: string
           created_at: string
           id: string
-          is_active: boolean
-          platform: string
-          refresh_token: string | null
-          scopes: string[] | null
-          token_expires_at: string
-          updated_at: string
-          user_id: string
+          payload: Json | null
+          type: string
         }
         Insert: {
-          access_token: string
-          ad_account_id: string
-          company_id: string
+          actor: string
           created_at?: string
           id?: string
-          is_active?: boolean
-          platform: string
-          refresh_token?: string | null
-          scopes?: string[] | null
-          token_expires_at: string
-          updated_at?: string
-          user_id: string
+          payload?: Json | null
+          type: string
         }
         Update: {
-          access_token?: string
-          ad_account_id?: string
-          company_id?: string
+          actor?: string
           created_at?: string
           id?: string
-          is_active?: boolean
-          platform?: string
-          refresh_token?: string | null
-          scopes?: string[] | null
-          token_expires_at?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ad_platform_connections_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_boardroom_debates: {
-        Row: {
-          company_id: string
-          conclusion: string | null
-          created_at: string | null
-          discussion: Json | null
-          executives: Json | null
-          id: string
-          rls_enabled: boolean | null
-          status: string | null
-          summary: string | null
-          topic: string
-          updated_at: string | null
-        }
-        Insert: {
-          company_id: string
-          conclusion?: string | null
-          created_at?: string | null
-          discussion?: Json | null
-          executives?: Json | null
-          id?: string
-          rls_enabled?: boolean | null
-          status?: string | null
-          summary?: string | null
-          topic: string
-          updated_at?: string | null
-        }
-        Update: {
-          company_id?: string
-          conclusion?: string | null
-          created_at?: string | null
-          discussion?: Json | null
-          executives?: Json | null
-          id?: string
-          rls_enabled?: boolean | null
-          status?: string | null
-          summary?: string | null
-          topic?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_boardroom_debates_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_campaigns: {
-        Row: {
-          company_id: string
-          created_at: string
-          executive_bot: string
-          id: string
-          objective: string
-          platform: string
-          script: string
-          target_audience: string
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          executive_bot: string
-          id?: string
-          objective: string
-          platform: string
-          script: string
-          target_audience: string
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          executive_bot?: string
-          id?: string
-          objective?: string
-          platform?: string
-          script?: string
-          target_audience?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_campaigns_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_communication_scripts: {
-        Row: {
-          company_id: string
-          content: string
-          created_at: string
-          executive_bot: string
-          id: string
-          script_type: string
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          content: string
-          created_at?: string
-          executive_bot: string
-          id?: string
-          script_type: string
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          content?: string
-          created_at?: string
-          executive_bot?: string
-          id?: string
-          script_type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_communication_scripts_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_executive_debates: {
-        Row: {
-          company_id: string
-          created_at: string
-          debate_content: Json
-          id: string
-          summary: string | null
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          debate_content?: Json
-          id?: string
-          summary?: string | null
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          debate_content?: Json
-          id?: string
-          summary?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_executive_debates_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_strategies: {
-        Row: {
-          company_id: string
-          created_at: string
-          executive_bot: string
-          expected_outcome: string | null
-          id: string
-          reasoning: string | null
-          risk_level: string
-          summary: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          executive_bot: string
-          expected_outcome?: string | null
-          id?: string
-          reasoning?: string | null
-          risk_level: string
-          summary: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          executive_bot?: string
-          expected_outcome?: string | null
-          id?: string
-          reasoning?: string | null
-          risk_level?: string
-          summary?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_strategies_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bot_interactions: {
-        Row: {
-          bot_name: string
-          bot_response: string
-          bot_role: string
-          created_at: string | null
-          embedding: string | null
-          id: string
-          metadata: Json | null
-          user_feedback: string | null
-          user_id: string | null
-          user_message: string
-        }
-        Insert: {
-          bot_name: string
-          bot_response: string
-          bot_role: string
-          created_at?: string | null
-          embedding?: string | null
-          id?: string
-          metadata?: Json | null
-          user_feedback?: string | null
-          user_id?: string | null
-          user_message: string
-        }
-        Update: {
-          bot_name?: string
-          bot_response?: string
-          bot_role?: string
-          created_at?: string | null
-          embedding?: string | null
-          id?: string
-          metadata?: Json | null
-          user_feedback?: string | null
-          user_id?: string | null
-          user_message?: string
+          payload?: Json | null
+          type?: string
         }
         Relationships: []
       }
-      campaign_creatives: {
+      agent_briefings: {
         Row: {
-          call_to_action: string | null
-          campaign_id: string
+          agent_name: string
+          audio_url: string | null
           created_at: string
-          description: string | null
           id: string
-          image_url: string | null
-          title: string
-          updated_at: string
+          script: string
+          tenant_id: string
           video_url: string | null
         }
         Insert: {
-          call_to_action?: string | null
-          campaign_id: string
+          agent_name: string
+          audio_url?: string | null
           created_at?: string
-          description?: string | null
           id?: string
-          image_url?: string | null
-          title: string
-          updated_at?: string
+          script: string
+          tenant_id: string
           video_url?: string | null
         }
         Update: {
-          call_to_action?: string | null
-          campaign_id?: string
+          agent_name?: string
+          audio_url?: string | null
           created_at?: string
-          description?: string | null
           id?: string
-          image_url?: string | null
-          title?: string
-          updated_at?: string
+          script?: string
+          tenant_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      agent_conversations: {
+        Row: {
+          agent_name: string
+          content: string
+          created_at: string
+          id: string
+          role: string
+          tenant_id: string
+        }
+        Insert: {
+          agent_name: string
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          tenant_id: string
+        }
+        Update: {
+          agent_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      agent_memory: {
+        Row: {
+          agent: string
+          created_at: string
+          id: string
+          performance: string
+          strategy_id: string
+          tags: string[] | null
+          tenant_id: string
+        }
+        Insert: {
+          agent: string
+          created_at?: string
+          id?: string
+          performance: string
+          strategy_id: string
+          tags?: string[] | null
+          tenant_id: string
+        }
+        Update: {
+          agent?: string
+          created_at?: string
+          id?: string
+          performance?: string
+          strategy_id?: string
+          tags?: string[] | null
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      agent_mentorships: {
+        Row: {
+          created_at: string
+          mentee: string
+          mentor: string
+          shared_tags: string[] | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          mentee: string
+          mentor: string
+          shared_tags?: string[] | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          mentee?: string
+          mentor?: string
+          shared_tags?: string[] | null
+          status?: string
+        }
+        Relationships: []
+      }
+      ai_suggestions: {
+        Row: {
+          applied: boolean | null
+          category: string | null
+          created_at: string
+          feedback: string | null
+          id: string
+          message: string
+          source: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          applied?: boolean | null
+          category?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          message: string
+          source?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          applied?: boolean | null
+          category?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          message?: string
+          source?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggestions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "ai_suggestions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "ai_suggestions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string | null
+          deadline: string | null
+          id: string
+          next_recommendation: string | null
+          output: string | null
+          status: string | null
+          strategy_id: string | null
+          task: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          next_recommendation?: string | null
+          output?: string | null
+          status?: string | null
+          strategy_id?: string | null
+          task?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          next_recommendation?: string | null
+          output?: string | null
+          status?: string | null
+          strategy_id?: string | null
+          task?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tasks_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tasks_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tasks_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "ai_tasks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "ai_tasks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "ai_tasks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_keys: {
+        Row: {
+          created_at: string | null
+          id: string
+          key: string | null
+          name: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key?: string | null
+          name?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key?: string | null
+          name?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "api_keys_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "api_keys_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_logs: {
+        Row: {
+          approved: boolean | null
+          approved_by: string | null
+          created_at: string | null
+          feedback: string | null
+          id: string
+          strategy_id: string | null
+          tenant_id: string | null
+          video_url: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          approved_by?: string | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          strategy_id?: string | null
+          tenant_id?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          approved_by?: string | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          strategy_id?: string | null
+          tenant_id?: string | null
           video_url?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "campaign_creatives_campaign_id_fkey"
+            foreignKeyName: "approval_logs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_logs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_logs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "approval_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "approval_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "approval_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          details: Json | null
+          export_log_id: string | null
+          id: string
+          resource: string | null
+          result: string | null
+          tenant_id: string | null
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          details?: Json | null
+          export_log_id?: string | null
+          id?: string
+          resource?: string | null
+          result?: string | null
+          tenant_id?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          details?: Json | null
+          export_log_id?: string | null
+          id?: string
+          resource?: string | null
+          result?: string | null
+          tenant_id?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "audit_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      benchmark_metrics: {
+        Row: {
+          avg_cpl: number | null
+          avg_strategy_score: number | null
+          created_at: string
+          id: string
+          tenant_id: string
+          top_strategies: number | null
+          total_mrr: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_cpl?: number | null
+          avg_strategy_score?: number | null
+          created_at?: string
+          id?: string
+          tenant_id: string
+          top_strategies?: number | null
+          total_mrr?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_cpl?: number | null
+          avg_strategy_score?: number | null
+          created_at?: string
+          id?: string
+          tenant_id?: string
+          top_strategies?: number | null
+          total_mrr?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      benchmarks: {
+        Row: {
+          comparison: string | null
+          id: string
+          metric: string
+          target: number | null
+          tenant_id: string
+          updated_at: string | null
+          value: number
+        }
+        Insert: {
+          comparison?: string | null
+          id?: string
+          metric: string
+          target?: number | null
+          tenant_id: string
+          updated_at?: string | null
+          value: number
+        }
+        Update: {
+          comparison?: string | null
+          id?: string
+          metric?: string
+          target?: number | null
+          tenant_id?: string
+          updated_at?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
+      billing_profiles: {
+        Row: {
+          created_at: string | null
+          plan: string | null
+          reset_date: string | null
+          usage_credits: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          plan?: string | null
+          reset_date?: string | null
+          usage_credits?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          plan?: string | null
+          reset_date?: string | null
+          usage_credits?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      campaign_experiments: {
+        Row: {
+          campaign_id: string | null
+          cost_usd: number | null
+          created_at: string | null
+          id: string
+          implementation_notes: string | null
+          leads_generated: number | null
+          original_name: string
+          promoted: boolean | null
+          revenue_usd: number | null
+          suggestion: string
+          synced: boolean | null
+          synced_at: string | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          cost_usd?: number | null
+          created_at?: string | null
+          id?: string
+          implementation_notes?: string | null
+          leads_generated?: number | null
+          original_name: string
+          promoted?: boolean | null
+          revenue_usd?: number | null
+          suggestion: string
+          synced?: boolean | null
+          synced_at?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          cost_usd?: number | null
+          created_at?: string | null
+          id?: string
+          implementation_notes?: string | null
+          leads_generated?: number | null
+          original_name?: string
+          promoted?: boolean | null
+          revenue_usd?: number | null
+          suggestion?: string
+          synced?: boolean | null
+          synced_at?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_experiments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_experiments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_experiments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_leads: {
+        Row: {
+          campaign_id: string | null
+          campaign_name: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          phone: string | null
+          strategy_id: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          campaign_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          strategy_id?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          campaign_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          strategy_id?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_leads_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_metrics: {
+        Row: {
+          campaign_id: string | null
+          cost_usd: number | null
+          created_at: string | null
+          id: string
+          revenue_usd: number | null
+          tenant_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          cost_usd?: number | null
+          created_at?: string | null
+          id?: string
+          revenue_usd?: number | null
+          tenant_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          cost_usd?: number | null
+          created_at?: string | null
+          id?: string
+          revenue_usd?: number | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_metrics_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
       }
       campaigns: {
         Row: {
-          ad_platform: string | null
-          budget: number | null
-          company_id: string
-          created_at: string
-          creatives: Json | null
-          deployment_status: string | null
-          id: string
-          last_synced_at: string | null
-          management_fee: number | null
-          name: string
-          payment_status: string | null
-          payment_status_updated_at: string | null
-          performance_metrics: Json | null
-          platform: string | null
-          platform_specific_id: string | null
-          platform_status: string | null
-          stripe_invoice_id: string | null
-          stripe_payment_id: string | null
-          targeting: Json | null
-          total_amount: number | null
-        }
-        Insert: {
-          ad_platform?: string | null
-          budget?: number | null
-          company_id: string
-          created_at?: string
-          creatives?: Json | null
-          deployment_status?: string | null
-          id?: string
-          last_synced_at?: string | null
-          management_fee?: number | null
-          name: string
-          payment_status?: string | null
-          payment_status_updated_at?: string | null
-          performance_metrics?: Json | null
-          platform?: string | null
-          platform_specific_id?: string | null
-          platform_status?: string | null
-          stripe_invoice_id?: string | null
-          stripe_payment_id?: string | null
-          targeting?: Json | null
-          total_amount?: number | null
-        }
-        Update: {
-          ad_platform?: string | null
-          budget?: number | null
-          company_id?: string
-          created_at?: string
-          creatives?: Json | null
-          deployment_status?: string | null
-          id?: string
-          last_synced_at?: string | null
-          management_fee?: number | null
-          name?: string
-          payment_status?: string | null
-          payment_status_updated_at?: string | null
-          performance_metrics?: Json | null
-          platform?: string | null
-          platform_specific_id?: string | null
-          platform_status?: string | null
-          stripe_invoice_id?: string | null
-          stripe_payment_id?: string | null
-          targeting?: Json | null
-          total_amount?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "campaigns_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      communications: {
-        Row: {
-          ai_summary: string | null
-          created_at: string
-          created_by: string | null
-          ended_at: string | null
-          id: string
-          lead_id: string
-          meeting_link: string | null
-          metadata: Json | null
-          notes: string | null
-          outcome: string | null
-          scheduled_at: string | null
-          status: string
-          type: string
-        }
-        Insert: {
-          ai_summary?: string | null
-          created_at?: string
-          created_by?: string | null
-          ended_at?: string | null
-          id?: string
-          lead_id: string
-          meeting_link?: string | null
-          metadata?: Json | null
-          notes?: string | null
-          outcome?: string | null
-          scheduled_at?: string | null
-          status: string
-          type: string
-        }
-        Update: {
-          ai_summary?: string | null
-          created_at?: string
-          created_by?: string | null
-          ended_at?: string | null
-          id?: string
-          lead_id?: string
-          meeting_link?: string | null
-          metadata?: Json | null
-          notes?: string | null
-          outcome?: string | null
-          scheduled_at?: string | null
-          status?: string
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "communications_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      companies: {
-        Row: {
-          ai_workflow_data: Json | null
-          ai_workflow_generated: boolean | null
-          ai_workflow_generated_at: string | null
-          created_at: string
-          details: Json | null
-          id: string
-          industry: string | null
-          name: string
-        }
-        Insert: {
-          ai_workflow_data?: Json | null
-          ai_workflow_generated?: boolean | null
-          ai_workflow_generated_at?: string | null
-          created_at?: string
-          details?: Json | null
-          id?: string
-          industry?: string | null
-          name: string
-        }
-        Update: {
-          ai_workflow_data?: Json | null
-          ai_workflow_generated?: boolean | null
-          ai_workflow_generated_at?: string | null
-          created_at?: string
-          details?: Json | null
-          id?: string
-          industry?: string | null
-          name?: string
-        }
-        Relationships: []
-      }
-      company_integrations: {
-        Row: {
-          company_id: string
-          created_at: string
-          id: string
-          integration_ids: Json | null
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          id?: string
-          integration_ids?: Json | null
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          id?: string
-          integration_ids?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "company_integrations_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      company_zoom_integrations: {
-        Row: {
-          access_token: string
-          company_id: string
-          created_at: string
-          id: string
-          is_connected: boolean
-          refresh_token: string
-          scope: string | null
-          token_expires_at: string
-          updated_at: string
-        }
-        Insert: {
-          access_token: string
-          company_id: string
-          created_at?: string
-          id?: string
-          is_connected?: boolean
-          refresh_token: string
-          scope?: string | null
-          token_expires_at: string
-          updated_at?: string
-        }
-        Update: {
-          access_token?: string
-          company_id?: string
-          created_at?: string
-          id?: string
-          is_connected?: boolean
-          refresh_token?: string
-          scope?: string | null
-          token_expires_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "company_zoom_integrations_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: true
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      company_zoom_meetings: {
-        Row: {
-          agenda: string | null
-          company_id: string
-          created_at: string
-          duration: number
-          id: string
-          join_url: string
-          password: string | null
-          start_time: string
-          status: string
-          topic: string
-          updated_at: string
-          zoom_meeting_id: string
-        }
-        Insert: {
-          agenda?: string | null
-          company_id: string
-          created_at?: string
-          duration?: number
-          id?: string
-          join_url: string
-          password?: string | null
-          start_time: string
-          status?: string
-          topic: string
-          updated_at?: string
-          zoom_meeting_id: string
-        }
-        Update: {
-          agenda?: string | null
-          company_id?: string
-          created_at?: string
-          duration?: number
-          id?: string
-          join_url?: string
-          password?: string | null
-          start_time?: string
-          status?: string
-          topic?: string
-          updated_at?: string
-          zoom_meeting_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "company_zoom_meetings_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      creative_assets: {
-        Row: {
-          alt_text: string | null
-          asset_type: string | null
-          company_id: string | null
-          id: string
-          metadata: Json | null
-          uploaded_at: string | null
-          url: string | null
-        }
-        Insert: {
-          alt_text?: string | null
-          asset_type?: string | null
-          company_id?: string | null
-          id?: string
-          metadata?: Json | null
-          uploaded_at?: string | null
-          url?: string | null
-        }
-        Update: {
-          alt_text?: string | null
-          asset_type?: string | null
-          company_id?: string | null
-          id?: string
-          metadata?: Json | null
-          uploaded_at?: string | null
-          url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "creative_assets_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      debate_messages: {
-        Row: {
-          content: string
-          created_at: string | null
-          debate_id: string | null
-          id: string
-          sender: string
-          sender_role: string | null
-          sequence: number
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          debate_id?: string | null
-          id?: string
-          sender: string
-          sender_role?: string | null
-          sequence: number
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          debate_id?: string | null
-          id?: string
-          sender?: string
-          sender_role?: string | null
-          sequence?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "debate_messages_debate_id_fkey"
-            columns: ["debate_id"]
-            isOneToOne: false
-            referencedRelation: "debates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      debate_summaries: {
-        Row: {
-          content: string
-          created_at: string | null
-          debate_id: string | null
-          id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          debate_id?: string | null
-          id?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          debate_id?: string | null
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "debate_summaries_debate_id_fkey"
-            columns: ["debate_id"]
-            isOneToOne: false
-            referencedRelation: "debates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      debates: {
-        Row: {
-          context: Json | null
+          channel: string | null
           created_at: string | null
           id: string
-          participants: Json
+          roi: number | null
+          start_date: string | null
           status: string | null
-          topic: string
-          user_id: string | null
-        }
-        Insert: {
-          context?: Json | null
-          created_at?: string | null
-          id?: string
-          participants: Json
-          status?: string | null
-          topic: string
-          user_id?: string | null
-        }
-        Update: {
-          context?: Json | null
-          created_at?: string | null
-          id?: string
-          participants?: Json
-          status?: string | null
-          topic?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      execution_results: {
-        Row: {
-          company_id: string | null
-          context: Json | null
-          created_at: string | null
-          executed_at: string | null
-          executive_id: string | null
-          id: string
-          input_prompt: string | null
-          result: string | null
-          tool_used: string | null
-        }
-        Insert: {
-          company_id?: string | null
-          context?: Json | null
-          created_at?: string | null
-          executed_at?: string | null
-          executive_id?: string | null
-          id?: string
-          input_prompt?: string | null
-          result?: string | null
-          tool_used?: string | null
-        }
-        Update: {
-          company_id?: string | null
-          context?: Json | null
-          created_at?: string | null
-          executed_at?: string | null
-          executive_id?: string | null
-          id?: string
-          input_prompt?: string | null
-          result?: string | null
-          tool_used?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "execution_results_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      executive_actions: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          error: string | null
-          id: string
-          outcome: string | null
-          performance_notes: string | null
-          result: string | null
-          status: string
-          task: string
-          triggered_by: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          error?: string | null
-          id?: string
-          outcome?: string | null
-          performance_notes?: string | null
-          result?: string | null
-          status?: string
-          task: string
-          triggered_by: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          error?: string | null
-          id?: string
-          outcome?: string | null
-          performance_notes?: string | null
-          result?: string | null
-          status?: string
-          task?: string
-          triggered_by?: string
-        }
-        Relationships: []
-      }
-      executive_debates: {
-        Row: {
-          created_at: string
-          executive_name: string
-          id: string
-          opinion: string
-          role: string
-          task: string
-          vote: string
-        }
-        Insert: {
-          created_at?: string
-          executive_name: string
-          id?: string
-          opinion: string
-          role: string
-          task: string
-          vote: string
-        }
-        Update: {
-          created_at?: string
-          executive_name?: string
-          id?: string
-          opinion?: string
-          role?: string
-          task?: string
-          vote?: string
-        }
-        Relationships: []
-      }
-      executive_decisions: {
-        Row: {
-          created_at: string
-          executive_name: string
-          executive_role: string
-          id: string
-          options: string[]
-          priority: string | null
-          reasoning: string | null
-          risk_assessment: string | null
-          selected_option: string
-          task: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          executive_name: string
-          executive_role: string
-          id?: string
-          options?: string[]
-          priority?: string | null
-          reasoning?: string | null
-          risk_assessment?: string | null
-          selected_option: string
-          task: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          executive_name?: string
-          executive_role?: string
-          id?: string
-          options?: string[]
-          priority?: string | null
-          reasoning?: string | null
-          risk_assessment?: string | null
-          selected_option?: string
-          task?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      executive_logs: {
-        Row: {
-          action_summary: string | null
-          body_text: string | null
-          company_id: string | null
-          created_at: string | null
-          executive_id: string | null
-          id: string
-          metadata: Json | null
-          tool_used: string | null
-        }
-        Insert: {
-          action_summary?: string | null
-          body_text?: string | null
-          company_id?: string | null
-          created_at?: string | null
-          executive_id?: string | null
-          id?: string
-          metadata?: Json | null
-          tool_used?: string | null
-        }
-        Update: {
-          action_summary?: string | null
-          body_text?: string | null
-          company_id?: string | null
-          created_at?: string | null
-          executive_id?: string | null
-          id?: string
-          metadata?: Json | null
-          tool_used?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "executive_logs_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      executive_memory: {
-        Row: {
-          context_embedding: string | null
-          decision: string
-          executive_name: string
-          id: string
-          task: string
-          timestamp: string
-          user_id: string
-        }
-        Insert: {
-          context_embedding?: string | null
-          decision: string
-          executive_name: string
-          id?: string
-          task: string
-          timestamp?: string
-          user_id: string
-        }
-        Update: {
-          context_embedding?: string | null
-          decision?: string
-          executive_name?: string
-          id?: string
-          task?: string
-          timestamp?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      executive_messages: {
-        Row: {
-          created_at: string
-          from_executive: string
-          id: string
-          message_content: string
-          status: string
-          task_link: string | null
-          to_executive: string
-        }
-        Insert: {
-          created_at?: string
-          from_executive: string
-          id?: string
-          message_content: string
-          status?: string
-          task_link?: string | null
-          to_executive: string
-        }
-        Update: {
-          created_at?: string
-          from_executive?: string
-          id?: string
-          message_content?: string
-          status?: string
-          task_link?: string | null
-          to_executive?: string
-        }
-        Relationships: []
-      }
-      executive_personas: {
-        Row: {
-          active: boolean | null
-          company_id: string | null
-          created_at: string | null
-          description: string | null
-          domain_expertise: string | null
-          id: string
-          mental_model: Json | null
-          role: string | null
-          tone: string | null
-        }
-        Insert: {
-          active?: boolean | null
-          company_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          domain_expertise?: string | null
-          id?: string
-          mental_model?: Json | null
-          role?: string | null
-          tone?: string | null
-        }
-        Update: {
-          active?: boolean | null
-          company_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          domain_expertise?: string | null
-          id?: string
-          mental_model?: Json | null
-          role?: string | null
-          tone?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "executive_personas_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      executives: {
-        Row: {
-          created_at: string
-          failed_actions: number
-          id: string
-          level: string
-          name: string
-          promotions: number
-          resource_points: number
-          role: string
-          star_rating: number
-          successful_actions: number
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          failed_actions?: number
-          id?: string
-          level?: string
-          name: string
-          promotions?: number
-          resource_points?: number
-          role: string
-          star_rating?: number
-          successful_actions?: number
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          failed_actions?: number
-          id?: string
-          level?: string
-          name?: string
-          promotions?: number
-          resource_points?: number
-          role?: string
-          star_rating?: number
-          successful_actions?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      leads: {
-        Row: {
-          campaign_id: string
-          created_at: string
-          email: string | null
-          id: string
-          name: string
-          phone: string | null
-          status: string | null
-        }
-        Insert: {
-          campaign_id: string
-          created_at?: string
-          email?: string | null
-          id?: string
-          name: string
-          phone?: string | null
-          status?: string | null
-        }
-        Update: {
-          campaign_id?: string
-          created_at?: string
-          email?: string | null
-          id?: string
-          name?: string
-          phone?: string | null
-          status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "leads_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaigns"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      learning_models: {
-        Row: {
-          bot_name: string
-          bot_role: string
-          created_at: string | null
-          id: string
-          negative_feedback_count: number | null
-          positive_feedback_count: number | null
-          topics: Json | null
+          strategy_id: string | null
+          summary: string | null
+          tags: string[] | null
+          tenant_id: string | null
+          title: string
           updated_at: string | null
         }
         Insert: {
-          bot_name: string
-          bot_role: string
+          channel?: string | null
           created_at?: string | null
           id?: string
-          negative_feedback_count?: number | null
-          positive_feedback_count?: number | null
-          topics?: Json | null
+          roi?: number | null
+          start_date?: string | null
+          status?: string | null
+          strategy_id?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          tenant_id?: string | null
+          title: string
           updated_at?: string | null
         }
         Update: {
-          bot_name?: string
-          bot_role?: string
+          channel?: string | null
           created_at?: string | null
           id?: string
-          negative_feedback_count?: number | null
-          positive_feedback_count?: number | null
-          topics?: Json | null
+          roi?: number | null
+          start_date?: string | null
+          status?: string | null
+          strategy_id?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          tenant_id?: string | null
+          title?: string
           updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "campaigns_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaigns_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaigns_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certification_status: {
+        Row: {
+          badge_url: string | null
+          id: string
+          score: number | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          badge_url?: string | null
+          id?: string
+          score?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          badge_url?: string | null
+          id?: string
+          score?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certification_status_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coaching_insights: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string | null
+          id: string
+          strategy_focus: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          strategy_focus?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          strategy_focus?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coaching_insights_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "coaching_insights_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "coaching_insights_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_profiles: {
+        Row: {
+          company_name: string
+          created_at: string | null
+          current_mrr: number | null
+          has_active_sales_team: boolean | null
+          id: string
+          industry: string | null
+          offers: string[] | null
+          pricing_model: string | null
+          revenue_goal: number | null
+          sales_channels: string[] | null
+          shopify_connected: boolean | null
+          target_customer: string | null
+          tenant_id: string | null
+          tone_of_voice: string | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          company_name: string
+          created_at?: string | null
+          current_mrr?: number | null
+          has_active_sales_team?: boolean | null
+          id?: string
+          industry?: string | null
+          offers?: string[] | null
+          pricing_model?: string | null
+          revenue_goal?: number | null
+          sales_channels?: string[] | null
+          shopify_connected?: boolean | null
+          target_customer?: string | null
+          tenant_id?: string | null
+          tone_of_voice?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          company_name?: string
+          created_at?: string | null
+          current_mrr?: number | null
+          has_active_sales_team?: boolean | null
+          id?: string
+          industry?: string | null
+          offers?: string[] | null
+          pricing_model?: string | null
+          revenue_goal?: number | null
+          sales_channels?: string[] | null
+          shopify_connected?: boolean | null
+          target_customer?: string | null
+          tenant_id?: string | null
+          tone_of_voice?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "company_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "company_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_conversion_logs: {
+        Row: {
+          id: string
+          sandbox_engaged: boolean | null
+          session_id: string | null
+          signed_up_at: string | null
+          started_at: string | null
+        }
+        Insert: {
+          id?: string
+          sandbox_engaged?: boolean | null
+          session_id?: string | null
+          signed_up_at?: string | null
+          started_at?: string | null
+        }
+        Update: {
+          id?: string
+          sandbox_engaged?: boolean | null
+          session_id?: string | null
+          signed_up_at?: string | null
+          started_at?: string | null
+        }
+        Relationships: []
+      }
+      email_logs: {
+        Row: {
+          error: string | null
+          id: string
+          recipient: string | null
+          status: string
+          subject: string | null
+          tenant_id: string
+          timestamp: string
+        }
+        Insert: {
+          error?: string | null
+          id?: string
+          recipient?: string | null
+          status: string
+          subject?: string | null
+          tenant_id: string
+          timestamp?: string
+        }
+        Update: {
+          error?: string | null
+          id?: string
+          recipient?: string | null
+          status?: string
+          subject?: string | null
+          tenant_id?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
+      export_logs: {
+        Row: {
+          crm_status: string | null
+          drive_url: string | null
+          id: string
+          notion_url: string | null
+          slack_status: string | null
+          tenant_id: string
+          timestamp: string | null
+        }
+        Insert: {
+          crm_status?: string | null
+          drive_url?: string | null
+          id?: string
+          notion_url?: string | null
+          slack_status?: string | null
+          tenant_id: string
+          timestamp?: string | null
+        }
+        Update: {
+          crm_status?: string | null
+          drive_url?: string | null
+          id?: string
+          notion_url?: string | null
+          slack_status?: string | null
+          tenant_id?: string
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "export_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "export_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "export_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founder_guilds: {
+        Row: {
+          access_type: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          industry: string | null
+          name: string | null
+        }
+        Insert: {
+          access_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          industry?: string | null
+          name?: string | null
+        }
+        Update: {
+          access_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          industry?: string | null
+          name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_guilds_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      galaxy_playbooks: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          downloads: number | null
+          id: string
+          industry: string | null
+          strategy_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          downloads?: number | null
+          id?: string
+          industry?: string | null
+          strategy_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          downloads?: number | null
+          id?: string
+          industry?: string | null
+          strategy_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "galaxy_playbooks_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "galaxy_playbooks_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "galaxy_playbooks_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+        ]
+      }
+      insight_feedback: {
+        Row: {
+          created_at: string | null
+          feedback: string
+          id: string
+          insight_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feedback: string
+          id?: string
+          insight_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feedback?: string
+          id?: string
+          insight_id?: string
+        }
+        Relationships: []
+      }
+      kpi_metrics: {
+        Row: {
+          id: string
+          recorded_at: string | null
+          strategy_id: string | null
+          tenant_id: string
+          type: string
+          value: number
+        }
+        Insert: {
+          id?: string
+          recorded_at?: string | null
+          strategy_id?: string | null
+          tenant_id: string
+          type: string
+          value: number
+        }
+        Update: {
+          id?: string
+          recorded_at?: string | null
+          strategy_id?: string | null
+          tenant_id?: string
+          type?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      kpi_reports: {
+        Row: {
+          bounce_status: string | null
+          chart_image_urls: string[] | null
+          click_rate: number | null
+          created_at: string
+          id: string
+          open_rate: number | null
+          opens_a: number | null
+          opens_b: number | null
+          pdf_url: string | null
+          subject_a: string | null
+          subject_b: string | null
+          summary: string
+          tenant_id: string
+        }
+        Insert: {
+          bounce_status?: string | null
+          chart_image_urls?: string[] | null
+          click_rate?: number | null
+          created_at?: string
+          id?: string
+          open_rate?: number | null
+          opens_a?: number | null
+          opens_b?: number | null
+          pdf_url?: string | null
+          subject_a?: string | null
+          subject_b?: string | null
+          summary: string
+          tenant_id: string
+        }
+        Update: {
+          bounce_status?: string | null
+          chart_image_urls?: string[] | null
+          click_rate?: number | null
+          created_at?: string
+          id?: string
+          open_rate?: number | null
+          opens_a?: number | null
+          opens_b?: number | null
+          pdf_url?: string | null
+          subject_a?: string | null
+          subject_b?: string | null
+          summary?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      launch_list: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          email: string
+          id: string
+          name: string | null
+          referral_code: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          referral_code?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          referral_code?: string | null
+        }
+        Relationships: []
+      }
+      lead_auto_replies: {
+        Row: {
+          created_at: string | null
+          id: string
+          lead_id: string | null
+          response: Json | null
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          response?: Json | null
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          response?: Json | null
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_auto_replies_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_auto_replies_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "lead_engagement_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_auto_replies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "lead_auto_replies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "lead_auto_replies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_pros: {
+        Row: {
+          bio: string | null
+          contact_url: string | null
+          created_at: string
+          id: string
+          industry_tags: string[] | null
+          is_verified: boolean | null
+          languages: string[] | null
+          location: string | null
+          name: string
+          profile_image_url: string | null
+          role: string
+          tenant_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          contact_url?: string | null
+          created_at?: string
+          id?: string
+          industry_tags?: string[] | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          location?: string | null
+          name: string
+          profile_image_url?: string | null
+          role: string
+          tenant_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          contact_url?: string | null
+          created_at?: string
+          id?: string
+          industry_tags?: string[] | null
+          is_verified?: boolean | null
+          languages?: string[] | null
+          location?: string | null
+          name?: string
+          profile_image_url?: string | null
+          role?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_pros_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "marketplace_pros_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "marketplace_pros_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_queue: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          reason: string
+          status: string
+          type: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          reason: string
+          status?: string
+          type: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          status?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      plugin_config: {
+        Row: {
+          config: Json | null
+          created_at: string | null
+          id: string
+          plugin_slug: string
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          plugin_slug: string
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          plugin_slug?: string
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plugin_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "plugin_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "plugin_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plugin_usage_logs: {
+        Row: {
+          call_type: string | null
+          created_at: string | null
+          id: string
+          plugin_slug: string
+          result: Json | null
+          tenant_id: string | null
+        }
+        Insert: {
+          call_type?: string | null
+          created_at?: string | null
+          id?: string
+          plugin_slug: string
+          result?: Json | null
+          tenant_id?: string | null
+        }
+        Update: {
+          call_type?: string | null
+          created_at?: string | null
+          id?: string
+          plugin_slug?: string
+          result?: Json | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plugin_usage_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "plugin_usage_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "plugin_usage_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plugins: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          integration_url: string | null
+          name: string
+          slug: string
+          tags: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          integration_url?: string | null
+          name: string
+          slug: string
+          tags?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          integration_url?: string | null
+          name?: string
+          slug?: string
+          tags?: string[] | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
-          company: string | null
-          company_id: string | null
-          created_at: string
+          ai_consent_timestamp: string | null
+          ai_strategy_consent: boolean | null
+          created_at: string | null
           email: string | null
           id: string
           industry: string | null
-          location: string | null
           name: string | null
-          onboarding_completed: boolean | null
-          onboarding_completed_at: string | null
-          personal_api_keys: Json | null
-          phone: string | null
+          onboarding_complete: boolean | null
+          onboarding_step: string | null
           role: string | null
-          stripe_customer_id: string | null
-          subscription_expires_at: string | null
-          subscription_plan_id: string | null
-          subscription_status: string | null
-          website: string | null
+          strategy_focus: string[] | null
+          strategy_preferences: string[] | null
+          tenant_id: string | null
+          updated_at: string | null
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          company?: string | null
-          company_id?: string | null
-          created_at?: string
+          ai_consent_timestamp?: string | null
+          ai_strategy_consent?: boolean | null
+          created_at?: string | null
           email?: string | null
           id: string
           industry?: string | null
-          location?: string | null
           name?: string | null
-          onboarding_completed?: boolean | null
-          onboarding_completed_at?: string | null
-          personal_api_keys?: Json | null
-          phone?: string | null
+          onboarding_complete?: boolean | null
+          onboarding_step?: string | null
           role?: string | null
-          stripe_customer_id?: string | null
-          subscription_expires_at?: string | null
-          subscription_plan_id?: string | null
-          subscription_status?: string | null
-          website?: string | null
+          strategy_focus?: string[] | null
+          strategy_preferences?: string[] | null
+          tenant_id?: string | null
+          updated_at?: string | null
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          company?: string | null
-          company_id?: string | null
-          created_at?: string
+          ai_consent_timestamp?: string | null
+          ai_strategy_consent?: boolean | null
+          created_at?: string | null
           email?: string | null
           id?: string
           industry?: string | null
-          location?: string | null
           name?: string | null
-          onboarding_completed?: boolean | null
-          onboarding_completed_at?: string | null
-          personal_api_keys?: Json | null
-          phone?: string | null
+          onboarding_complete?: boolean | null
+          onboarding_step?: string | null
           role?: string | null
-          stripe_customer_id?: string | null
-          subscription_expires_at?: string | null
-          subscription_plan_id?: string | null
-          subscription_status?: string | null
-          website?: string | null
+          strategy_focus?: string[] | null
+          strategy_preferences?: string[] | null
+          tenant_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_company_id_fkey"
-            columns: ["company_id"]
+            foreignKeyName: "profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: "companies"
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
       }
-      social_media_posts: {
+      referral_links: {
         Row: {
-          approval_notes: string | null
-          author_id: string | null
-          body_text: string
-          campaign_id: string | null
-          company_id: string
-          content_type: string
-          created_at: string
-          hashtags: string[] | null
+          bonus_unlocked: boolean | null
+          code: string | null
           id: string
-          is_approved: boolean | null
-          link_url: string | null
-          location: string | null
-          media_urls: string[] | null
-          mentions: string[] | null
-          platform: string
-          publish_time: string | null
-          published_date: string | null
-          scheduled_date: string
-          status: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string
+          user_id: string | null
+          uses: number | null
         }
         Insert: {
-          approval_notes?: string | null
-          author_id?: string | null
-          body_text: string
-          campaign_id?: string | null
-          company_id: string
-          content_type: string
-          created_at?: string
-          hashtags?: string[] | null
+          bonus_unlocked?: boolean | null
+          code?: string | null
           id?: string
-          is_approved?: boolean | null
-          link_url?: string | null
-          location?: string | null
-          media_urls?: string[] | null
-          mentions?: string[] | null
-          platform: string
-          publish_time?: string | null
-          published_date?: string | null
-          scheduled_date: string
-          status?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string
+          user_id?: string | null
+          uses?: number | null
         }
         Update: {
-          approval_notes?: string | null
-          author_id?: string | null
-          body_text?: string
-          campaign_id?: string | null
-          company_id?: string
-          content_type?: string
-          created_at?: string
-          hashtags?: string[] | null
+          bonus_unlocked?: boolean | null
+          code?: string | null
           id?: string
-          is_approved?: boolean | null
-          link_url?: string | null
-          location?: string | null
-          media_urls?: string[] | null
-          mentions?: string[] | null
-          platform?: string
-          publish_time?: string | null
-          published_date?: string | null
-          scheduled_date?: string
-          status?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
+          user_id?: string | null
+          uses?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "social_media_posts_campaign_id_fkey"
-            columns: ["campaign_id"]
+            foreignKeyName: "referral_links_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "campaigns"
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shopify_stores: {
+        Row: {
+          access_token: string | null
+          connected_at: string | null
+          id: string
+          scope: string | null
+          shop_domain: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          connected_at?: string | null
+          id?: string
+          scope?: string | null
+          shop_domain?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          connected_at?: string | null
+          id?: string
+          scope?: string | null
+          shop_domain?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopify_stores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "shopify_stores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "shopify_stores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      startup_followers: {
+        Row: {
+          created_at: string | null
+          followed_tenant_id: string | null
+          follower_id: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          followed_tenant_id?: string | null
+          follower_id?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          followed_tenant_id?: string | null
+          follower_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "startup_followers_followed_tenant_id_fkey"
+            columns: ["followed_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "startup_followers_followed_tenant_id_fkey"
+            columns: ["followed_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "startup_followers_followed_tenant_id_fkey"
+            columns: ["followed_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      startup_kits: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          items: string[] | null
+          tenant_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          items?: string[] | null
+          tenant_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          items?: string[] | null
+          tenant_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "startup_kits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "startup_kits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "startup_kits_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      startup_vault: {
+        Row: {
+          category: string | null
+          content: string
+          contributor_id: string | null
+          created_at: string | null
+          id: string
+          label: string
+          remix_of: string | null
+          tags: string[] | null
+          tenant_id: string | null
+          type: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          contributor_id?: string | null
+          created_at?: string | null
+          id?: string
+          label: string
+          remix_of?: string | null
+          tags?: string[] | null
+          tenant_id?: string | null
+          type: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          contributor_id?: string | null
+          created_at?: string | null
+          id?: string
+          label?: string
+          remix_of?: string | null
+          tags?: string[] | null
+          tenant_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "startup_vault_remix_of_fkey"
+            columns: ["remix_of"]
+            isOneToOne: false
+            referencedRelation: "startup_vault"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "social_media_posts_company_id_fkey"
-            columns: ["company_id"]
+            foreignKeyName: "startup_vault_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: "companies"
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "startup_vault_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "startup_vault_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
       }
       strategies: {
         Row: {
-          company_id: string
-          created_at: string
-          description: string | null
+          created_at: string | null
+          duration: number | null
+          estimated_budget: number | null
           id: string
-          risk_level: string | null
-          title: string
+          industry: string | null
+          launch_date: string | null
+          priority: string | null
+          priority_justification: string | null
+          status: string | null
+          summary: string | null
+          tenant_id: string | null
+          title: string | null
         }
         Insert: {
-          company_id: string
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
+          duration?: number | null
+          estimated_budget?: number | null
           id?: string
-          risk_level?: string | null
-          title: string
+          industry?: string | null
+          launch_date?: string | null
+          priority?: string | null
+          priority_justification?: string | null
+          status?: string | null
+          summary?: string | null
+          tenant_id?: string | null
+          title?: string | null
         }
         Update: {
-          company_id?: string
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
+          duration?: number | null
+          estimated_budget?: number | null
           id?: string
-          risk_level?: string | null
-          title?: string
+          industry?: string | null
+          launch_date?: string | null
+          priority?: string | null
+          priority_justification?: string | null
+          status?: string | null
+          summary?: string | null
+          tenant_id?: string | null
+          title?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "strategies_company_id_fkey"
-            columns: ["company_id"]
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: "companies"
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
       }
-      system_settings: {
+      strategy_board: {
         Row: {
-          created_at: string
+          ai_feedback: string | null
+          created_at: string | null
+          description: string | null
           id: string
-          key: string
-          updated_at: string
-          value: Json
+          tags: string[] | null
+          tenant_id: string | null
+          title: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          ai_feedback?: string | null
+          created_at?: string | null
+          description?: string | null
           id?: string
-          key: string
-          updated_at?: string
-          value?: Json
+          tags?: string[] | null
+          tenant_id?: string | null
+          title: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          ai_feedback?: string | null
+          created_at?: string | null
+          description?: string | null
           id?: string
-          key?: string
-          updated_at?: string
-          value?: Json
-        }
-        Relationships: []
-      }
-      tasks: {
-        Row: {
-          created_at: string
-          id: string
-          status: string | null
-          strategy_id: string
-          title: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          status?: string | null
-          strategy_id: string
-          title: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          status?: string | null
-          strategy_id?: string
+          tags?: string[] | null
+          tenant_id?: string | null
           title?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "tasks_strategy_id_fkey"
+            foreignKeyName: "fk_board_tenant"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_board_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_board_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_board_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_briefing_videos: {
+        Row: {
+          created_at: string
+          id: string
+          pdf_url: string | null
+          strategy_id: string | null
+          summary: string
+          tenant_id: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          strategy_id?: string | null
+          summary: string
+          tenant_id: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          strategy_id?: string | null
+          summary?: string
+          tenant_id?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_briefing_strategy_id"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_board"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_briefing_tenant"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_briefing_videos_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_briefing_videos_strategy_id_fkey"
             columns: ["strategy_id"]
             isOneToOne: false
             referencedRelation: "strategies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "strategy_briefing_videos_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
         ]
       }
-      user_actions: {
+      strategy_collaborations: {
+        Row: {
+          created_at: string | null
+          id: string
+          shared_title: string | null
+          status: string | null
+          strategy_id: string | null
+          with_tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          shared_title?: string | null
+          status?: string | null
+          strategy_id?: string | null
+          with_tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          shared_title?: string | null
+          status?: string | null
+          strategy_id?: string | null
+          with_tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_collaborations_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_collaborations_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_collaborations_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "strategy_collaborations_with_tenant_id_fkey"
+            columns: ["with_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_collaborations_with_tenant_id_fkey"
+            columns: ["with_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_collaborations_with_tenant_id_fkey"
+            columns: ["with_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_decision_logs: {
         Row: {
           action: string
-          category: string
-          entity_id: string | null
-          entity_type: string | null
+          created_at: string | null
           id: string
-          metadata: Json | null
+          strategy_id: string
+          tenant_id: string
           timestamp: string
-          user_id: string
         }
         Insert: {
           action: string
-          category: string
-          entity_id?: string | null
-          entity_type?: string | null
+          created_at?: string | null
           id?: string
-          metadata?: Json | null
+          strategy_id: string
+          tenant_id: string
           timestamp?: string
-          user_id: string
         }
         Update: {
           action?: string
-          category?: string
-          entity_id?: string | null
-          entity_type?: string | null
+          created_at?: string | null
           id?: string
-          metadata?: Json | null
+          strategy_id?: string
+          tenant_id?: string
           timestamp?: string
-          user_id?: string
         }
         Relationships: []
       }
-      user_feedback: {
+      strategy_feedback_log: {
         Row: {
-          bot_name: string
-          bot_role: string
           comment: string | null
           created_at: string | null
           id: string
-          interaction_id: string | null
-          is_positive: boolean
-          message_id: string | null
-          metadata: Json | null
+          rating: number
+          strategy_id: string
+          tenant_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating: number
+          strategy_id: string
+          tenant_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number
+          strategy_id?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      strategy_goals: {
+        Row: {
+          created_at: string | null
+          due_date: string | null
+          goal: string | null
+          id: string
+          status: string | null
+          strategy_id: string | null
+          target_value: number | null
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          due_date?: string | null
+          goal?: string | null
+          id?: string
+          status?: string | null
+          strategy_id?: string | null
+          target_value?: number | null
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          due_date?: string | null
+          goal?: string | null
+          id?: string
+          status?: string | null
+          strategy_id?: string | null
+          target_value?: number | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_goals_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_goals_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_goals_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+        ]
+      }
+      strategy_history: {
+        Row: {
+          approved_at: string | null
+          created_at: string | null
+          id: string
+          mrr_generated: number | null
+          plugin_calls: number | null
+          status: string
+          strategy_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string | null
+          id?: string
+          mrr_generated?: number | null
+          plugin_calls?: number | null
+          status?: string
+          strategy_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string | null
+          id?: string
+          mrr_generated?: number | null
+          plugin_calls?: number | null
+          status?: string
+          strategy_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_history_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_history_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_history_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "strategy_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_marketplace: {
+        Row: {
+          author_id: string | null
+          created_at: string | null
+          id: string
+          price_usd: number | null
+          strategy_id: string | null
+          stripe_price_id: string | null
+          summary: string | null
+          title: string | null
+          type: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          created_at?: string | null
+          id?: string
+          price_usd?: number | null
+          strategy_id?: string | null
+          stripe_price_id?: string | null
+          summary?: string | null
+          title?: string | null
+          type?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          created_at?: string | null
+          id?: string
+          price_usd?: number | null
+          strategy_id?: string | null
+          stripe_price_id?: string | null
+          summary?: string | null
+          title?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_marketplace_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_marketplace_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_marketplace_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_marketplace_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+        ]
+      }
+      strategy_meetings: {
+        Row: {
+          created_at: string | null
+          host_url: string | null
+          id: string
+          join_url: string | null
+          meeting_id: string | null
+          start_time: string | null
+          strategy_id: string | null
+          tenant_id: string | null
+          topic: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          host_url?: string | null
+          id?: string
+          join_url?: string | null
+          meeting_id?: string | null
+          start_time?: string | null
+          strategy_id?: string | null
+          tenant_id?: string | null
+          topic?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          host_url?: string | null
+          id?: string
+          join_url?: string | null
+          meeting_id?: string | null
+          start_time?: string | null
+          strategy_id?: string | null
+          tenant_id?: string | null
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_meeting_strategy_id"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_board"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_meeting_tenant"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_meetings_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_meetings_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_meetings_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+          {
+            foreignKeyName: "strategy_meetings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_meetings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_meetings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_mrr_logs: {
+        Row: {
+          id: string
+          mrr: number | null
+          roi: number | null
+          strategy_id: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          id?: string
+          mrr?: number | null
+          roi?: number | null
+          strategy_id?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          id?: string
+          mrr?: number | null
+          roi?: number | null
+          strategy_id?: string | null
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_mrr_strategy_id"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_board"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_mrr_logs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_mrr_logs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_mrr_logs_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+        ]
+      }
+      strategy_pitches: {
+        Row: {
+          approved: boolean | null
+          created_at: string | null
+          description: string | null
+          generated_by: string | null
+          id: string
+          status: string | null
+          tenant_id: string | null
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          generated_by?: string | null
+          id?: string
+          status?: string | null
+          tenant_id?: string | null
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          generated_by?: string | null
+          id?: string
+          status?: string | null
+          tenant_id?: string | null
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_pitches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_pitches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategy_pitches_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_tags: {
+        Row: {
+          created_at: string | null
+          id: string
+          strategy_id: string | null
+          tag: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          strategy_id?: string | null
+          tag?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          strategy_id?: string | null
+          tag?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_tags_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "prioritized_strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_tags_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_tags_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_mrr_ranking"
+            referencedColumns: ["strategy_id"]
+          },
+        ]
+      }
+      subject_line_logs: {
+        Row: {
+          click_rate: number | null
+          created_at: string | null
+          id: string
+          industry: string | null
+          open_rate: number | null
+          subject_line: string | null
+          tenant_id: string | null
+          tone: string | null
+          variant: string | null
+        }
+        Insert: {
+          click_rate?: number | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          open_rate?: number | null
+          subject_line?: string | null
+          tenant_id?: string | null
+          tone?: string | null
+          variant?: string | null
+        }
+        Update: {
+          click_rate?: number | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          open_rate?: number | null
+          subject_line?: string | null
+          tenant_id?: string | null
+          tone?: string | null
+          variant?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subject_line_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "subject_line_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "subject_line_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
-          bot_name: string
-          bot_role: string
-          comment?: string | null
-          created_at?: string | null
+          created_at?: string
+          email: string
           id?: string
-          interaction_id?: string | null
-          is_positive: boolean
-          message_id?: string | null
-          metadata?: Json | null
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
-          bot_name?: string
-          bot_role?: string
-          comment?: string | null
-          created_at?: string | null
+          created_at?: string
+          email?: string
           id?: string
-          interaction_id?: string | null
-          is_positive?: boolean
-          message_id?: string | null
-          metadata?: Json | null
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
       }
-      user_legal_acceptances: {
+      tenant_activity_logs: {
         Row: {
-          accepted_at: string
-          consent_version: string
+          action: string
           id: string
-          ip_address: string | null
-          messaging_consent: boolean
-          privacy_policy: boolean
-          privacy_version: string
-          terms_of_service: boolean
-          terms_version: string
-          user_agent: string | null
-          user_id: string
+          tenant_id: string
+          timestamp: string
+          username: string
         }
         Insert: {
-          accepted_at?: string
-          consent_version: string
+          action: string
           id?: string
-          ip_address?: string | null
-          messaging_consent?: boolean
-          privacy_policy?: boolean
-          privacy_version: string
-          terms_of_service?: boolean
-          terms_version: string
-          user_agent?: string | null
-          user_id: string
+          tenant_id: string
+          timestamp?: string
+          username: string
         }
         Update: {
-          accepted_at?: string
-          consent_version?: string
+          action?: string
           id?: string
-          ip_address?: string | null
-          messaging_consent?: boolean
-          privacy_policy?: boolean
-          privacy_version?: string
-          terms_of_service?: boolean
-          terms_version?: string
-          user_agent?: string | null
-          user_id?: string
+          tenant_id?: string
+          timestamp?: string
+          username?: string
         }
         Relationships: []
       }
-      user_preferences: {
+      tenant_alerts: {
         Row: {
-          activity_peak_times: Json | null
-          communication_style: string | null
-          dashboard_preferences: Json | null
-          favorite_topics: Json | null
+          created_at: string | null
+          dismissed: boolean | null
           id: string
-          last_updated: string | null
-          preferred_executives: Json | null
-          risk_appetite: string | null
-          tone: string | null
-          user_id: string
-          writing_style: string | null
+          message: string
+          resolved_at: string | null
+          tenant_id: string
+          type: string
+          username: string | null
         }
         Insert: {
-          activity_peak_times?: Json | null
-          communication_style?: string | null
-          dashboard_preferences?: Json | null
-          favorite_topics?: Json | null
+          created_at?: string | null
+          dismissed?: boolean | null
           id?: string
-          last_updated?: string | null
-          preferred_executives?: Json | null
-          risk_appetite?: string | null
-          tone?: string | null
-          user_id: string
-          writing_style?: string | null
+          message: string
+          resolved_at?: string | null
+          tenant_id: string
+          type: string
+          username?: string | null
         }
         Update: {
-          activity_peak_times?: Json | null
-          communication_style?: string | null
-          dashboard_preferences?: Json | null
-          favorite_topics?: Json | null
+          created_at?: string | null
+          dismissed?: boolean | null
           id?: string
-          last_updated?: string | null
-          preferred_executives?: Json | null
-          risk_appetite?: string | null
-          tone?: string | null
-          user_id?: string
-          writing_style?: string | null
+          message?: string
+          resolved_at?: string | null
+          tenant_id?: string
+          type?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_alerts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "tenant_alerts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "tenant_alerts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_plugins: {
+        Row: {
+          created_at: string | null
+          id: string
+          plugin_slug: string
+          status: string
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          plugin_slug: string
+          status?: string
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          plugin_slug?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_plugins_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "tenant_plugins_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "tenant_plugins_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_settings: {
+        Row: {
+          automation_settings: Json | null
+          created_at: string
+          crm_webhook_url: string | null
+          drive_url: string | null
+          gdrive_webhook_url: string | null
+          id: string
+          last_export_timestamp: string | null
+          milestone_webhook_url: string | null
+          notion_url: string | null
+          notion_webhook_url: string | null
+          slack_webhook_url: string | null
+          tenant_id: string
+          updated_at: string
+          zapier_webhook_url: string | null
+        }
+        Insert: {
+          automation_settings?: Json | null
+          created_at?: string
+          crm_webhook_url?: string | null
+          drive_url?: string | null
+          gdrive_webhook_url?: string | null
+          id?: string
+          last_export_timestamp?: string | null
+          milestone_webhook_url?: string | null
+          notion_url?: string | null
+          notion_webhook_url?: string | null
+          slack_webhook_url?: string | null
+          tenant_id: string
+          updated_at?: string
+          zapier_webhook_url?: string | null
+        }
+        Update: {
+          automation_settings?: Json | null
+          created_at?: string
+          crm_webhook_url?: string | null
+          drive_url?: string | null
+          gdrive_webhook_url?: string | null
+          id?: string
+          last_export_timestamp?: string | null
+          milestone_webhook_url?: string | null
+          notion_url?: string | null
+          notion_webhook_url?: string | null
+          slack_webhook_url?: string | null
+          tenant_id?: string
+          updated_at?: string
+          zapier_webhook_url?: string | null
         }
         Relationships: []
+      }
+      tenant_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          role: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          role: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          role?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      tenant_webhooks: {
+        Row: {
+          created_at: string | null
+          tenant_id: string
+          type: string
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          tenant_id: string
+          type: string
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          tenant_id?: string
+          type?: string
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_webhooks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "tenant_webhooks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "tenant_webhooks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          ai_autonomy_level: string
+          blaze_enabled: boolean | null
+          created_at: string | null
+          domain: string | null
+          email_recipients: string[] | null
+          heygen_enabled: boolean | null
+          id: string
+          logo_url: string | null
+          name: string | null
+          report_day: string | null
+          report_time: string | null
+          stripe_customer_id: string | null
+        }
+        Insert: {
+          ai_autonomy_level?: string
+          blaze_enabled?: boolean | null
+          created_at?: string | null
+          domain?: string | null
+          email_recipients?: string[] | null
+          heygen_enabled?: boolean | null
+          id?: string
+          logo_url?: string | null
+          name?: string | null
+          report_day?: string | null
+          report_time?: string | null
+          stripe_customer_id?: string | null
+        }
+        Update: {
+          ai_autonomy_level?: string
+          blaze_enabled?: boolean | null
+          created_at?: string | null
+          domain?: string | null
+          email_recipients?: string[] | null
+          heygen_enabled?: boolean | null
+          id?: string
+          logo_url?: string | null
+          name?: string | null
+          report_day?: string | null
+          report_time?: string | null
+          stripe_customer_id?: string | null
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          awarded_at: string | null
+          badge: string
+          id: string
+          unlocked_feature: string | null
+          user_id: string | null
+        }
+        Insert: {
+          awarded_at?: string | null
+          badge: string
+          id?: string
+          unlocked_feature?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          awarded_at?: string | null
+          badge?: string
+          id?: string
+          unlocked_feature?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_tokens: {
+        Row: {
+          badges: Json | null
+          id: string
+          level: string | null
+          points: number | null
+          user_id: string | null
+        }
+        Insert: {
+          badges?: Json | null
+          id?: string
+          level?: string | null
+          points?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          badges?: Json | null
+          id?: string
+          level?: string | null
+          points?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      variant_feedback: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          feedback: string | null
+          id: string
+          tenant_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          tenant_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variant_feedback_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "variant_feedback_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "variant_feedback_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_logs: {
+        Row: {
+          attempt: number | null
+          created_at: string | null
+          id: string
+          message_type: string | null
+          payload: Json | null
+          response: string | null
+          status: string | null
+          tenant_id: string | null
+          url: string
+          webhook_id: string | null
+        }
+        Insert: {
+          attempt?: number | null
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          payload?: Json | null
+          response?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          url: string
+          webhook_id?: string | null
+        }
+        Update: {
+          attempt?: number | null
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          payload?: Json | null
+          response?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          url?: string
+          webhook_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "webhook_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "webhook_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_snapshots: {
+        Row: {
+          ai_summary: string | null
+          churn_rate: number | null
+          id: string
+          ltv: number | null
+          mrr: number | null
+          mrr_growth: number | null
+          tenant_id: string
+          timestamp: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          churn_rate?: number | null
+          id?: string
+          ltv?: number | null
+          mrr?: number | null
+          mrr_growth?: number | null
+          tenant_id: string
+          timestamp?: string
+        }
+        Update: {
+          ai_summary?: string | null
+          churn_rate?: number | null
+          id?: string
+          ltv?: number | null
+          mrr?: number | null
+          mrr_growth?: number | null
+          tenant_id?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
+      wiki_entries: {
+        Row: {
+          ai_categories: Json | null
+          ai_insights: string | null
+          category: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          summary: string | null
+          tenant_id: string | null
+          title: string
+          updated_at: string
+          vote_count: number | null
+        }
+        Insert: {
+          ai_categories?: Json | null
+          ai_insights?: string | null
+          category?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          summary?: string | null
+          tenant_id?: string | null
+          title: string
+          updated_at?: string
+          vote_count?: number | null
+        }
+        Update: {
+          ai_categories?: Json | null
+          ai_insights?: string | null
+          category?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          summary?: string | null
+          tenant_id?: string | null
+          title?: string
+          updated_at?: string
+          vote_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wiki_entries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "wiki_entries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "wiki_entries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wiki_votes: {
+        Row: {
+          created_at: string
+          entry_id: string | null
+          id: string
+          user_id: string | null
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id?: string | null
+          id?: string
+          user_id?: string | null
+          vote_type: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string | null
+          id?: string
+          user_id?: string | null
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wiki_votes_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "wiki_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_members: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: string | null
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: string | null
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: string | null
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspaces: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      zoom_accounts: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          refresh_token: string | null
+          tenant_id: string | null
+          zoom_user_id: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          tenant_id?: string | null
+          zoom_user_id?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          tenant_id?: string | null
+          zoom_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zoom_accounts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "zoom_accounts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "zoom_accounts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      agent_task_summary: {
+        Row: {
+          assigned_to: string | null
+          avg_output_length: number | null
+          completed_tasks: number | null
+          last_task_completed: string | null
+          total_tasks: number | null
+        }
+        Relationships: []
+      }
+      galaxy_follow_ranking: {
+        Row: {
+          follower_count: number | null
+          startup_name: string | null
+          tenant_id: string | null
+        }
+        Relationships: []
+      }
+      galaxy_mrr_leaderboard: {
+        Row: {
+          active_strategies: number | null
+          startup_name: string | null
+          tenant_id: string | null
+          total_mrr: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_engagement_summary: {
+        Row: {
+          days_since_contact: unknown | null
+          email: string | null
+          id: string | null
+          last_contact: string | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_leads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prioritized_strategies: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          estimated_budget: number | null
+          id: string | null
+          industry: string | null
+          launch_date: string | null
+          priority: string | null
+          priority_justification: string | null
+          priority_rank: number | null
+          status: string | null
+          summary: string | null
+          tenant_id: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          estimated_budget?: number | null
+          id?: string | null
+          industry?: string | null
+          launch_date?: string | null
+          priority?: string | null
+          priority_justification?: string | null
+          priority_rank?: never
+          status?: string | null
+          summary?: string | null
+          tenant_id?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          estimated_budget?: number | null
+          id?: string | null
+          industry?: string | null
+          launch_date?: string | null
+          priority?: string | null
+          priority_justification?: string | null
+          priority_rank?: never
+          status?: string | null
+          summary?: string | null
+          tenant_id?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_decision_logs_summary: {
+        Row: {
+          approved: number | null
+          auto_ready: boolean | null
+          declined: number | null
+          edited: number | null
+          tenant_id: string | null
+          tenant_name: string | null
+          total: number | null
+        }
+        Relationships: []
+      }
+      strategy_mrr_ranking: {
+        Row: {
+          avg_roi: number | null
+          strategy_id: string | null
+          tenant_id: string | null
+          title: string | null
+          total_mrr: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "strategies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_vs_industry_kpi_tone: {
+        Row: {
+          industry: string | null
+          industry_rate: number | null
+          tenant_name: string | null
+          tenant_rate: number | null
+          tenant_uses: number | null
+          tone: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      binary_quantize: {
-        Args: { "": string } | { "": unknown }
-        Returns: unknown
+      decrement_credits: {
+        Args: { uid: string; amount?: number }
+        Returns: undefined
       }
-      check_function_exists: {
-        Args: { function_name: string }
-        Returns: {
-          function_exists: boolean
-          is_secure: boolean
-        }[]
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
       }
-      check_rls_enabled: {
-        Args: { table_name: string }
-        Returns: {
-          rls_enabled: boolean
-        }[]
+      increment_column: {
+        Args: { table_name: string; column_name: string; row_id: string }
+        Returns: undefined
       }
-      check_table_rls: {
-        Args: { table_name: string }
-        Returns: boolean
-      }
-      get_company_integrations: {
-        Args: { p_company_id: string }
+      match_vault_by_embedding: {
+        Args: {
+          query_embedding: string
+          match_threshold?: number
+          match_limit?: number
+        }
         Returns: {
           id: string
-          company_id: string
-          integration_ids: Json
+          type: string
+          label: string
+          content: string
+          tenant_id: string
+          contributor_id: string
           created_at: string
+          similarity: number
         }[]
-      }
-      get_lead_communication_summary: {
-        Args: { p_lead_id: string }
-        Returns: {
-          lead_id: string
-          total_communications: number
-          last_communication_at: string
-          last_communication_type: string
-          last_communication_status: string
-          scheduled_communications: number
-        }[]
-      }
-      get_recent_user_actions: {
-        Args: { p_user_id: string; p_days: number }
-        Returns: {
-          action: string
-          category: string
-          entity_id: string | null
-          entity_type: string | null
-          id: string
-          metadata: Json | null
-          timestamp: string
-          user_id: string
-        }[]
-      }
-      get_security_settings: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_user_action_categories: {
-        Args: { p_user_id: string }
-        Returns: {
-          category: string
-          count: number
-        }[]
-      }
-      get_user_preferences: {
-        Args: { p_user_id: string }
-        Returns: {
-          activity_peak_times: Json | null
-          communication_style: string | null
-          dashboard_preferences: Json | null
-          favorite_topics: Json | null
-          id: string
-          last_updated: string | null
-          preferred_executives: Json | null
-          risk_appetite: string | null
-          tone: string | null
-          user_id: string
-          writing_style: string | null
-        }
-      }
-      halfvec_avg: {
-        Args: { "": number[] }
-        Returns: unknown
-      }
-      halfvec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      halfvec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      halfvec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
-      hnsw_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_sparsevec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnswhandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      insert_company_integrations: {
-        Args: { p_company_id: string; p_integration_ids: Json }
-        Returns: undefined
-      }
-      insert_user_action: {
-        Args: {
-          p_user_id: string
-          p_action: string
-          p_category: string
-          p_entity_id: string
-          p_entity_type: string
-          p_metadata: Json
-          p_timestamp: string
-        }
-        Returns: undefined
-      }
-      ivfflat_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflat_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflathandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      l2_norm: {
-        Args: { "": unknown } | { "": unknown }
-        Returns: number
-      }
-      l2_normalize: {
-        Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: string
-      }
-      sparsevec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      sparsevec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      sparsevec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
-      update_company_integrations: {
-        Args: { p_company_id: string; p_integration_ids: Json }
-        Returns: undefined
-      }
-      update_security_settings: {
-        Args: { p_settings: Json }
-        Returns: boolean
-      }
-      update_user_preferences: {
-        Args: {
-          p_user_id: string
-          p_risk_appetite: string
-          p_preferred_executives: Json
-          p_favorite_topics: Json
-          p_communication_style: string
-          p_activity_peak_times: Json
-          p_dashboard_preferences: Json
-          p_last_updated: string
-        }
-        Returns: undefined
-      }
-      vector_avg: {
-        Args: { "": number[] }
-        Returns: string
-      }
-      vector_dims: {
-        Args: { "": string } | { "": unknown }
-        Returns: number
-      }
-      vector_norm: {
-        Args: { "": string }
-        Returns: number
-      }
-      vector_out: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      vector_send: {
-        Args: { "": string }
-        Returns: string
-      }
-      vector_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
       }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "user" | "admin" | "superadmin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1941,6 +3834,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["user", "admin", "superadmin"],
+    },
   },
 } as const
