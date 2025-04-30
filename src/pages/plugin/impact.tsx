@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { fetchApi } from '@/utils/api/apiClient';
+import { fetchPluginImpact } from '@/utils/api/pluginAPI';
 import { Card, CardContent } from '@/components/ui/card';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { Badge } from '@/components/ui/badge';
@@ -14,15 +14,18 @@ interface PluginImpact {
 export default function PluginImpactPage() {
   const [impact, setImpact] = useState<PluginImpact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchImpact = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchApi('/api/plugin/impact');
+        setError(null);
+        const data = await fetchPluginImpact();
         setImpact(data || []);
       } catch (error) {
         console.error('Failed to fetch plugin impact data:', error);
+        setError('Failed to load plugin impact data. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -50,6 +53,12 @@ export default function PluginImpactPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <Card className="border-destructive">
+          <CardContent className="p-6 text-center">
+            <p className="text-destructive">{error}</p>
+          </CardContent>
+        </Card>
       ) : impact.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {impact.map(p => (

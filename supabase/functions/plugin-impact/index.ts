@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
     }
     
     // Get plugin impact data aggregated by plugin name
+    // If stored procedure exists, use it, otherwise fall back to direct SQL query
     const { data, error } = await adminClient.rpc('get_plugin_impact_summary', {
       user_tenant_id: user.app_metadata.tenant_id || user.id
     }).catch(() => {

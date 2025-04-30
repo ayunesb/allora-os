@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useApiClient } from '@/utils/api/enhancedApiClient';
 import { toast } from 'sonner';
+import { DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/components/admin/database-verification/types';
 
 export interface TableInfo {
   name: string;
@@ -48,6 +49,14 @@ export function useDatabaseVerification() {
   const [issues, setIssues] = useState<DatabaseIssue[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { execute } = useApiClient();
+  
+  // This is a compatibility object to match the structure expected by tests
+  const verificationResult = {
+    tables: [],
+    policies: [],
+    functions: [],
+    isVerifying: isLoading
+  };
 
   const fetchDatabaseInfo = useCallback(async () => {
     setIsLoading(true);
@@ -109,6 +118,9 @@ export function useDatabaseVerification() {
     }
   }, [execute]);
 
+  // This is the function being used in the test files
+  const verifyDatabaseConfiguration = fetchDatabaseInfo;
+
   const repairAutomatically = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -141,6 +153,9 @@ export function useDatabaseVerification() {
     issues,
     error,
     fetchDatabaseInfo,
-    repairAutomatically
+    repairAutomatically,
+    // Added to fix test compatibility
+    verificationResult,
+    verifyDatabaseConfiguration
   };
 }

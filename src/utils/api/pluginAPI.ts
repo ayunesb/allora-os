@@ -5,7 +5,7 @@ import { fetchApi } from './apiClient';
  * Fetches plugin usage logs for admin review
  */
 export const fetchPluginLogs = async () => {
-  return await fetchApi('/api/plugin-logs');
+  return await fetchApi('/api/admin/plugin-logs');
 };
 
 /**
