@@ -530,26 +530,54 @@ export type Database = {
       billing_profiles: {
         Row: {
           created_at: string | null
+          credits: number | null
           plan: string | null
           reset_date: string | null
+          tenant_id: string | null
           usage_credits: number | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          credits?: number | null
           plan?: string | null
           reset_date?: string | null
+          tenant_id?: string | null
           usage_credits?: number | null
           user_id: string
         }
         Update: {
           created_at?: string | null
+          credits?: number | null
           plan?: string | null
           reset_date?: string | null
+          tenant_id?: string | null
           usage_credits?: number | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "billing_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "billing_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "billing_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       campaign_experiments: {
         Row: {
@@ -3689,7 +3717,7 @@ export type Database = {
     }
     Functions: {
       decrement_credits: {
-        Args: { uid: string; amount?: number }
+        Args: { p_tenant_id: string; p_amount: number }
         Returns: undefined
       }
       get_user_role: {

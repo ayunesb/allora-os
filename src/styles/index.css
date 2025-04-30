@@ -1,24 +1,13 @@
 
-/* Base styles */
 @import './base.css';
-
-/* UI components and utilities */
 @import './components.css';
 @import './utilities.css';
-
-/* Premium theme */
 @import './theme.css';
-
-/* Responsive styles */
 @import './responsive.css';
-
-/* Global styles */
 @import './globals.css';
-
-/* For admin-specific styles */
 @import './responsive/admin-styles.css';
 
-/* Dark mode is part of our default premium style */
+/* Global styles */
 html {
   color-scheme: dark;
 }
