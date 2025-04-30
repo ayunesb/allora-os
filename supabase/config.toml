@@ -31,3 +31,6 @@ verify_jwt = false
 [functions.vault-vote-template]
 verify_jwt = false
 
+[functions.twitter-post]
+verify_jwt = true
+
