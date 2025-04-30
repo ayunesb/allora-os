@@ -9,7 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { LayoutDashboard, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, HelpCircle, Sparkles } from 'lucide-react';
 import { HelpButton } from '@/components/ui/help-button';
 
 interface BreadcrumbRoute {
@@ -60,6 +60,11 @@ export function DashboardBreadcrumb({
     'digital-twin': { path: '/dashboard/digital-twin', label: 'Digital Twin' },
     'insights': { path: '/dashboard/insights', label: 'Insights', helpId: 'dashboard.insights' },
     
+    // Galaxy routes
+    'galaxy': { path: '/galaxy', label: 'Galaxy', icon: <Sparkles className="h-3.5 w-3.5" /> },
+    'plugins': { path: '/galaxy/plugins', label: 'Plugins' },
+    'leaderboard': { path: '/galaxy/plugins/leaderboard', label: 'Leaderboard' },
+    
     // Admin routes (reused in AdminBreadcrumb but good to have here for consistency)
     'admin': { path: '/admin', label: 'Admin', icon: <LayoutDashboard className="h-3.5 w-3.5" /> },
     'entities': { path: '/admin/entities', label: 'Entities' },
@@ -99,6 +104,9 @@ export function DashboardBreadcrumb({
     }
     if (basePath === 'compliance') {
       return { path: '/compliance', label: 'Compliance', icon: <LayoutDashboard className="h-3.5 w-3.5" /> };
+    }
+    if (basePath === 'galaxy') {
+      return { path: '/galaxy', label: 'Galaxy', icon: <Sparkles className="h-3.5 w-3.5" /> };
     }
     return { path: rootPath, label: rootLabel, icon: rootIcon };
   };
