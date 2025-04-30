@@ -33,6 +33,8 @@ import DigitalTwin from "@/pages/dashboard/DigitalTwin";
 import AIAgent from "@/pages/dashboard/AIAgent";
 import CalendlyIntegration from "@/pages/admin/CalendlyIntegration";
 import PlaidIntegration from "@/pages/admin/PlaidIntegration";
+import KPIMetricsPage from "@/pages/insights/kpis";
+import AgentPerformancePage from "@/pages/agents/performance";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -178,6 +180,14 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "executives/:name",
         element: <ExecutiveProfile />,
+      },
+      {
+        path: "insights/kpis",
+        element: <KPIMetricsPage />,
+      },
+      {
+        path: "agents/performance",
+        element: <AgentPerformancePage />,
       },
       {
         path: "*",
