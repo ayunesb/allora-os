@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SUPABASE_CONFIG } from '@/config/appConfig';
 
 // Define the types
 export interface User {
@@ -41,9 +42,18 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Use values from config or fallback to environment variables
+const supabaseUrl = SUPABASE_CONFIG.url;
+const supabaseKey = SUPABASE_CONFIG.anonKey;
+
+// Create the Supabase client with explicit URL and key
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined
+  }
+});
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null | undefined>(undefined);
