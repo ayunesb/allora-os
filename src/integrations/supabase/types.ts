@@ -174,6 +174,57 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_win_logs: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          tenant_id: string
+          xp: number | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          tenant_id: string
+          xp?: number | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          tenant_id?: string
+          xp?: number | null
+        }
+        Relationships: []
+      }
+      agent_win_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          upvote: boolean | null
+          user_id: string | null
+          win_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          upvote?: boolean | null
+          user_id?: string | null
+          win_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          upvote?: boolean | null
+          user_id?: string | null
+          win_id?: string | null
+        }
+        Relationships: []
+      }
       ai_suggestions: {
         Row: {
           applied: boolean | null
@@ -2780,6 +2831,57 @@ export type Database = {
             referencedColumns: ["strategy_id"]
           },
         ]
+      }
+      strategy_template_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          template_id: string | null
+          upvote: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          template_id?: string | null
+          upvote?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          template_id?: string | null
+          upvote?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      strategy_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          industry: string | null
+          summary: string | null
+          title: string
+          used_by: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          summary?: string | null
+          title: string
+          used_by?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          summary?: string | null
+          title?: string
+          used_by?: number | null
+        }
+        Relationships: []
       }
       subject_line_logs: {
         Row: {

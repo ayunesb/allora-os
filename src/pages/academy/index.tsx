@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from 'react';
-import { fetchApi } from '@/utils/api/apiClient';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AgentWin {
   agent_id: string;
@@ -18,15 +18,26 @@ export default function AcademyPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    fetchApi<AgentWin[]>('/api/academy/wins')
-      .then(data => {
-        setWins(data || []);
+    
+    async function fetchWins() {
+      try {
+        const { data, error } = await supabase.functions.invoke('academy-wins');
+        
+        if (error) {
+          console.error('Error loading agent wins:', error);
+          setWins([]);
+        } else {
+          setWins(data || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch agent wins:', err);
+        setWins([]);
+      } finally {
         setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Failed to load agent wins:', error);
-        setIsLoading(false);
-      });
+      }
+    }
+    
+    fetchWins();
   }, []);
 
   return (

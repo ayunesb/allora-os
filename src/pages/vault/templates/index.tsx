@@ -1,11 +1,12 @@
 
 import { useEffect, useState } from 'react';
-import { fetchApi } from '@/utils/api/apiClient';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { File } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 interface StrategyTemplate {
   id: string;
@@ -19,18 +20,30 @@ export default function VaultTemplatesPage() {
   const [templates, setTemplates] = useState<StrategyTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsLoading(true);
-    fetchApi<StrategyTemplate[]>('/api/strategy-templates')
-      .then(data => {
-        setTemplates(data || []);
+    
+    async function fetchTemplates() {
+      try {
+        const { data, error } = await supabase.functions.invoke('strategy-templates');
+        
+        if (error) {
+          console.error('Error loading strategy templates:', error);
+          setTemplates([]);
+        } else {
+          setTemplates(data || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch strategy templates:', err);
+        setTemplates([]);
+      } finally {
         setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Failed to load strategy templates:', error);
-        setIsLoading(false);
-      });
+      }
+    }
+    
+    fetchTemplates();
   }, []);
 
   const industries = [...new Set(templates.map(t => t.industry))];
@@ -39,10 +52,33 @@ export default function VaultTemplatesPage() {
     ? templates.filter(t => t.industry === selectedIndustry)
     : templates;
     
-  const handleRemix = (templateId: string, templateTitle: string) => {
-    toast.success(`Starting remix of "${templateTitle}"`, {
-      description: "Template will be added to your strategy board"
-    });
+  const handleRemix = async (templateId: string, templateTitle: string) => {
+    try {
+      const tenant_id = user?.tenant_id || user?.id; // Fallback to user id if tenant_id is not available
+      
+      if (!tenant_id) {
+        toast.error("You must be logged in to remix templates");
+        return;
+      }
+      
+      toast.info(`Starting remix of "${templateTitle}"...`);
+      
+      const { data, error } = await supabase.functions.invoke('strategy-remix', {
+        body: { template_id: templateId, tenant_id }
+      });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      
+      toast.success(`Successfully remixed "${templateTitle}"`, {
+        description: "Template will be added to your strategy board"
+      });
+      
+    } catch (err) {
+      console.error("Error remixing template:", err);
+      toast.error("Failed to remix template");
+    }
   };
 
   return (

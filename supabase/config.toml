@@ -1,6 +1,15 @@
 
 project_id = "tnfqzklfdwknmplrygag"
 
+[functions.academy-wins]
+verify_jwt = false
+
+[functions.strategy-templates]
+verify_jwt = false
+
+[functions.strategy-remix]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false
 
