@@ -1,74 +1,59 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 
-/**
- * Create a checkout session for purchasing credits
- * @param creditAmount The amount of credits to purchase
- * @param priceId The Stripe price ID for this purchase
- * @returns A URL to redirect the user to Stripe checkout
- */
-export const createCreditPurchaseCheckout = async (
-  creditAmount: number,
-  priceId: string
-): Promise<string | null> => {
-  try {
-    // Get the current user's tenant ID
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .single();
-    
-    if (!profileData?.tenant_id) {
-      toast.error('Unable to identify your account. Please try again or contact support.');
-      return null;
-    }
+interface CheckoutParams {
+  userId: string;
+  credits: number;
+  priceUsd: number;
+}
 
-    // Create a checkout session through our Edge Function
+export async function createCreditPurchaseCheckout(params: CheckoutParams) {
+  try {
+    // Call to Supabase edge function or directly to Stripe API
+    // This is a placeholder implementation - in a real app, you would call
+    // your Stripe backend function to create a checkout session
     const { data, error } = await supabase.functions.invoke('stripe', {
       body: {
-        action: 'create-checkout-session',
-        priceId: priceId,
-        metadata: {
-          tenant_id: profileData.tenant_id,
-          credits: creditAmount.toString()
-        }
+        action: 'createCheckoutSession',
+        userId: params.userId,
+        credits: params.credits,
+        amount: params.priceUsd * 100, // Convert to cents
+        mode: 'payment',
+        successUrl: `${window.location.origin}/billing/success`,
+        cancelUrl: `${window.location.origin}/checkout`
       }
     });
 
-    if (error || !data?.url) {
-      console.error('Error creating checkout session:', error || 'No URL returned');
-      toast.error('Unable to create checkout session. Please try again.');
-      return null;
-    }
-
-    return data.url;
+    if (error) throw error;
+    
+    return data;
   } catch (error) {
-    console.error('Error in createCreditPurchaseCheckout:', error);
-    toast.error('An unexpected error occurred. Please try again.');
-    return null;
+    console.error('Failed to create checkout session:', error);
+    toast.error('Payment initialization failed');
+    throw error;
   }
-};
+}
 
-/**
- * Fetch the current credit balance for the user
- * @returns The number of credits available or null if there was an error
- */
-export const getCurrentCreditBalance = async (): Promise<number | null> => {
+export async function getCurrentCreditBalance() {
   try {
+    const { data: user } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return 0;
+    }
+    
     const { data, error } = await supabase
       .from('billing_profiles')
       .select('credits')
+      .eq('user_id', user.user.id)
       .single();
     
-    if (error || data === null) {
-      console.error('Error fetching credit balance:', error);
-      return null;
-    }
+    if (error) throw error;
     
-    return data.credits;
+    return data?.credits || 0;
   } catch (error) {
-    console.error('Error in getCurrentCreditBalance:', error);
-    return null;
+    console.error('Failed to fetch credit balance:', error);
+    return 0;
   }
-};
+}

@@ -1,95 +1,152 @@
 
-import React, { useState } from 'react';
-import { createCreditPurchaseCheckout, getCurrentCreditBalance } from '@/utils/stripePayments';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { createCreditPurchaseCheckout } from '@/utils/stripePayments';
+import { useUser } from '@/hooks/useUser';
 import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
 
-// Define the credit package options
-const CREDIT_PACKAGES = [
-  { id: 'small', name: 'Starter', credits: 100, priceId: 'price_example1', price: '$9.99' },
-  { id: 'medium', name: 'Professional', credits: 500, priceId: 'price_example2', price: '$39.99' },
-  { id: 'large', name: 'Enterprise', credits: 1000, priceId: 'price_example3', price: '$69.99' },
-];
+interface CreditPackage {
+  id: string;
+  credits: number;
+  price: number;
+  popular?: boolean;
+}
 
 export function CreditsCheckout() {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+  const { user } = useUser();
+  
+  const creditPackages: CreditPackage[] = [
+    { id: 'basic', credits: 100, price: 9.99 },
+    { id: 'standard', credits: 500, price: 39.99, popular: true },
+    { id: 'premium', credits: 1000, price: 69.99 },
+  ];
 
-  // Fetch the current credit balance
-  const { data: creditBalance } = useQuery({
-    queryKey: ['credits'],
-    queryFn: getCurrentCreditBalance,
-  });
+  const handleCheckout = async (packageId: string) => {
+    if (!user) {
+      toast.error('You must be logged in to purchase credits');
+      return;
+    }
 
-  const handlePurchaseCredits = async (packageId: string) => {
-    setIsLoading(packageId);
     try {
-      const creditPackage = CREDIT_PACKAGES.find(pkg => pkg.id === packageId);
-      if (!creditPackage) {
-        toast.error('Invalid package selection');
-        return;
-      }
-
-      const checkoutUrl = await createCreditPurchaseCheckout(
-        creditPackage.credits,
-        creditPackage.priceId
-      );
-
-      if (checkoutUrl) {
-        // Redirect to Stripe checkout
-        window.location.href = checkoutUrl;
-      }
+      setIsProcessing(true);
+      setSelectedPackage(packageId);
+      
+      const pkg = creditPackages.find(p => p.id === packageId);
+      if (!pkg) return;
+      
+      const session = await createCreditPurchaseCheckout({
+        userId: user.id,
+        credits: pkg.credits,
+        priceUsd: pkg.price
+      });
+      
+      // Redirect to Stripe checkout
+      window.location.href = session.url;
     } catch (error) {
-      console.error('Error during checkout:', error);
-      toast.error('Failed to initiate checkout process');
+      console.error('Error creating checkout session:', error);
+      toast.error('Failed to initiate checkout. Please try again.');
     } finally {
-      setIsLoading(null);
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Purchase Credits</h1>
-        <p className="text-muted-foreground mt-2">
-          Credits are used for premium features in the platform.
-          {creditBalance !== null && (
-            <span className="ml-2 font-medium">
-              Your current balance: <span className="text-primary">{creditBalance} credits</span>
-            </span>
-          )}
-        </p>
+    <div className="container mx-auto py-8 px-4 max-w-5xl">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold mb-2">Purchase Credits</h1>
+        <p className="text-muted-foreground">Add more credits to unlock additional AI-powered features.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {CREDIT_PACKAGES.map((pkg) => (
-          <Card key={pkg.id} className="flex flex-col">
+      <div className="grid gap-6 md:grid-cols-3">
+        {creditPackages.map((pkg) => (
+          <Card key={pkg.id} className={`relative overflow-hidden ${pkg.popular ? 'border-primary shadow-md' : ''}`}>
+            {pkg.popular && (
+              <div className="absolute top-0 right-0 bg-primary text-white px-3 py-1 text-xs font-medium">
+                POPULAR
+              </div>
+            )}
             <CardHeader>
-              <CardTitle>{pkg.name}</CardTitle>
-              <CardDescription>{pkg.credits} credits</CardDescription>
+              <CardTitle className="text-2xl font-bold">{pkg.credits} Credits</CardTitle>
+              <CardDescription>${pkg.price.toFixed(2)}</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow">
-              <div className="text-3xl font-bold">{pkg.price}</div>
-              <p className="text-sm text-muted-foreground mt-2">
-                {(pkg.credits / parseFloat(pkg.price.replace('$', ''))).toFixed(1)} credits per dollar
-              </p>
+            <CardContent>
+              <ul className="space-y-2">
+                <li className="flex items-center">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-green-500 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                  {pkg.credits} AI interactions
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-green-500 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                  Advanced AI features
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-green-500 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                  No monthly commitment
+                </li>
+              </ul>
             </CardContent>
             <CardFooter>
-              <Button 
-                className="w-full" 
-                onClick={() => handlePurchaseCredits(pkg.id)}
-                disabled={!!isLoading}
+              <Button
+                className="w-full"
+                variant={pkg.popular ? "default" : "outline"}
+                onClick={() => handleCheckout(pkg.id)}
+                disabled={isProcessing && selectedPackage === pkg.id}
               >
-                {isLoading === pkg.id ? 'Processing...' : `Buy Now`}
+                {isProcessing && selectedPackage === pkg.id ? (
+                  <span className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </span>
+                ) : (
+                  'Purchase'
+                )}
               </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
       
-      <div className="mt-8 text-sm text-muted-foreground">
-        <p>Note: You'll be redirected to a secure Stripe checkout page to complete your purchase.</p>
+      <div className="mt-8 text-center text-sm text-muted-foreground">
+        <p>Need a custom plan? <a href="/contact" className="text-primary hover:underline">Contact us</a> for enterprise solutions.</p>
       </div>
     </div>
   );
