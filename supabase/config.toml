@@ -21,3 +21,7 @@ verify_jwt = false
 
 [functions.send-weekly-digest]
 verify_jwt = false
+
+[functions.admin-unpublished-wins]
+verify_jwt = false
+

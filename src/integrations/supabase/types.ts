@@ -180,6 +180,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_published: boolean | null
           tenant_id: string
           xp: number | null
         }
@@ -188,6 +189,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_published?: boolean | null
           tenant_id: string
           xp?: number | null
         }
@@ -196,6 +198,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_published?: boolean | null
           tenant_id?: string
           xp?: number | null
         }

@@ -17,6 +17,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase
       .from('agent_win_logs')
       .select('agent_id, description, xp, created_at')
+      .eq('is_published', true) // Only fetch published wins
       .order('created_at', { ascending: false })
       .limit(20);
 
