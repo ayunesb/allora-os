@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -17,7 +16,7 @@ const App = () => {
   useEffect(() => {
     // Initialize error logging
     setupErrorLogging();
-    
+
     // Initialize analytics (only if consent is given)
     const cookieConsent = localStorage.getItem('cookie-consent');
     if (cookieConsent) {
@@ -39,7 +38,7 @@ const App = () => {
               <Toaster position="top-right" />
               <GlobalErrorModal />
               <CookieConsent />
-              
+
               {/* Accessibility helpers */}
               <div id="aria-live-polite" className="sr-only" aria-live="polite"></div>
               <div id="aria-live-assertive" className="sr-only" aria-live="assertive"></div>

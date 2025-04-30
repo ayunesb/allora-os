@@ -8,6 +8,9 @@ import { onboardingRoutes } from "./onboarding-routes";
 import { marketingRoutes } from "./marketing-routes";
 import { devRoutes } from "./dev-routes";
 import { globalRoutes } from "./global-routes";
+import { galaxyRoutes } from "./galaxy-routes";
+import { academyRoutes } from "./academy-routes";
+import { vaultRoutes } from "./vault-routes";
 import { NavigationManager } from "@/components/NavigationManager";
 import { NavigationTracker } from "@/components/NavigationTracker";
 import NavigationFixer from "@/components/navigation/NavigationFixer";
@@ -132,6 +135,9 @@ const createLazyRoutes = () => {
     ...onboardingRoutes,
     ...marketingRoutes, 
     ...devRoutes,
+    ...galaxyRoutes,
+    ...academyRoutes,
+    ...vaultRoutes,
     // Add the compliance routes wrapper
     {
       path: "compliance/*",
