@@ -58,6 +58,7 @@ export function DashboardBreadcrumb({
     'leaderboard': { path: '/dashboard/leaderboard', label: 'Leaderboard' },
     'forecast': { path: '/dashboard/forecast', label: 'Forecast' },
     'digital-twin': { path: '/dashboard/digital-twin', label: 'Digital Twin' },
+    'insights': { path: '/dashboard/insights', label: 'Insights', helpId: 'dashboard.insights' },
     
     // Admin routes (reused in AdminBreadcrumb but good to have here for consistency)
     'admin': { path: '/admin', label: 'Admin', icon: <LayoutDashboard className="h-3.5 w-3.5" /> },

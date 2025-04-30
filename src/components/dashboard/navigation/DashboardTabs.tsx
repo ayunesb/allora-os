@@ -1,117 +1,76 @@
 
-import { memo } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { 
-  Home, 
-  Users, 
-  GitBranch, 
-  Phone, 
-  BarChart2, 
-  Bot, 
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Users,
+  Megaphone,
+  FileText,
+  Phone,
+  Bot,
   Settings,
-  MessageSquare,
-  Activity,
-  ClipboardList,
-  Globe
-} from "lucide-react";
+  UserCircle,
+  BarChartHorizontal,
+  Lightbulb
+} from 'lucide-react';
 
-const DashboardTabs = () => {
-  const location = useLocation();
-  const currentPath = location.pathname;
+interface NavItemProps {
+  to: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  end?: boolean;
+}
 
-  const isActive = (path: string) => {
-    // Special case for strategies/strategy route
-    if (path === "/dashboard/strategies" && 
-        (currentPath === "/dashboard/strategies" || currentPath === "/dashboard/strategy")) {
-      return true;
+const NavItem = ({ to, icon, children, end }: NavItemProps) => (
+  <NavLink
+    to={to}
+    end={end}
+    className={({ isActive }) =>
+      `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+        isActive
+          ? 'bg-primary text-primary-foreground'
+          : 'hover:bg-secondary'
+      }`
     }
-    return currentPath === path || currentPath.startsWith(path + "/");
-  };
+  >
+    {icon}
+    <span>{children}</span>
+  </NavLink>
+);
 
-  const tabs = [
-    {
-      name: "Dashboard",
-      path: "/dashboard",
-      icon: <Home className="h-5 w-5" />,
-      exact: true
-    },
-    {
-      name: "Leads",
-      path: "/dashboard/leads",
-      icon: <Users className="h-5 w-5" />
-    },
-    {
-      name: "Strategies",
-      path: "/dashboard/strategies",
-      icon: <GitBranch className="h-5 w-5" />
-    },
-    {
-      name: "Calls",
-      path: "/dashboard/calls",
-      icon: <Phone className="h-5 w-5" />
-    },
-    {
-      name: "Campaigns",
-      path: "/dashboard/campaigns",
-      icon: <BarChart2 className="h-5 w-5" />
-    },
-    {
-      name: "Executives",
-      path: "/dashboard/executives",
-      icon: <Bot className="h-5 w-5" />
-    },
-    {
-      name: "Decisions",
-      path: "/dashboard/decisions",
-      icon: <ClipboardList className="h-5 w-5" />
-    },
-    {
-      name: "Forecast",
-      path: "/dashboard/forecast",
-      icon: <Activity className="h-5 w-5" />
-    },
-    {
-      name: "Digital Twin",
-      path: "/dashboard/digital-twin",
-      icon: <Globe className="h-5 w-5" />
-    },
-    {
-      name: "AI Bots",
-      path: "/dashboard/ai-bots",
-      icon: <Bot className="h-5 w-5" />
-    },
-    {
-      name: "Debate",
-      path: "/dashboard/debate",
-      icon: <MessageSquare className="h-5 w-5" />
-    },
-    {
-      name: "Settings",
-      path: "/dashboard/settings",
-      icon: <Settings className="h-5 w-5" />
-    }
-  ];
-
+export function DashboardTabs() {
   return (
-    <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 mx-6 overflow-x-auto pb-2 w-full">
-      {tabs.map((tab) => (
-        <Link
-          key={tab.name}
-          to={tab.path}
-          className={cn(
-            "flex items-center text-sm font-medium transition-colors hover:text-primary whitespace-nowrap",
-            isActive(tab.path)
-              ? "text-primary"
-              : "text-muted-foreground"
-          )}
-        >
-          {tab.icon}
-          <span className="ml-2">{tab.name}</span>
-        </Link>
-      ))}
+    <nav className="flex-1 space-y-1">
+      <NavItem to="/dashboard" icon={<LayoutDashboard className="h-5 w-5" />} end>
+        Dashboard
+      </NavItem>
+      <NavItem to="/dashboard/leads" icon={<Users className="h-5 w-5" />}>
+        Leads
+      </NavItem>
+      <NavItem to="/dashboard/campaigns" icon={<Megaphone className="h-5 w-5" />}>
+        Campaigns
+      </NavItem>
+      <NavItem to="/dashboard/strategies" icon={<FileText className="h-5 w-5" />}>
+        Strategies
+      </NavItem>
+      <NavItem to="/dashboard/calls" icon={<Phone className="h-5 w-5" />}>
+        Calls
+      </NavItem>
+      <NavItem to="/dashboard/ai-bots" icon={<Bot className="h-5 w-5" />}>
+        AI Bots
+      </NavItem>
+      <NavItem to="/dashboard/insights" icon={<Lightbulb className="h-5 w-5" />}>
+        Insights
+      </NavItem>
+      <NavItem to="/dashboard/analytics" icon={<BarChartHorizontal className="h-5 w-5" />}>
+        Analytics
+      </NavItem>
+      <NavItem to="/dashboard/profile" icon={<UserCircle className="h-5 w-5" />}>
+        Profile
+      </NavItem>
+      <NavItem to="/dashboard/settings" icon={<Settings className="h-5 w-5" />}>
+        Settings
+      </NavItem>
     </nav>
   );
-};
-
-export default memo(DashboardTabs);
+}
