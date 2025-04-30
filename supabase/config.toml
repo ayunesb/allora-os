@@ -25,3 +25,9 @@ verify_jwt = false
 [functions.admin-unpublished-wins]
 verify_jwt = false
 
+[functions.academy-vote-win]
+verify_jwt = false
+
+[functions.vault-vote-template]
+verify_jwt = false
+
