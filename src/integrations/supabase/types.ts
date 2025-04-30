@@ -90,6 +90,36 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_logs: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          id: string
+          success: boolean | null
+          task: string | null
+          tenant_id: string
+          xp: number | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          id?: string
+          success?: boolean | null
+          task?: string | null
+          tenant_id: string
+          xp?: number | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          id?: string
+          success?: boolean | null
+          task?: string | null
+          tenant_id?: string
+          xp?: number | null
+        }
+        Relationships: []
+      }
       agent_memory: {
         Row: {
           agent: string

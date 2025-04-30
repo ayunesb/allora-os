@@ -1,7 +1,7 @@
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.5';
-import { Resend } from 'https://esm.sh/resend@2.0.0';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.5";
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -44,7 +44,7 @@ serve(async (req) => {
         .from('kpi_metrics')
         .select('*')
         .eq('tenant_id', tenant.id)
-        .order('recorded_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(5);
       
       if (kpisError) {
@@ -62,7 +62,7 @@ serve(async (req) => {
         <h2>Your Weekly KPI Summary</h2>
         <p>Here are your latest KPI metrics:</p>
         <ul>
-          ${kpis.map(kpi => `<li><strong>${kpi.type}:</strong> ${kpi.value}</li>`).join('')}
+          ${kpis.map(kpi => `<li><strong>${kpi.metric}:</strong> ${kpi.value}</li>`).join('')}
         </ul>
         <p>Access your dashboard for more detailed insights.</p>
       `;
