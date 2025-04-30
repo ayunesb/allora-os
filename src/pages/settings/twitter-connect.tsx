@@ -12,6 +12,10 @@ export default function TwitterConnectPage() {
   const [username, setUsername] = useState('');
   const [lastTweet, setLastTweet] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [autoPostSettings, setAutoPostSettings] = useState({
+    post_wins: true,
+    post_strategies: true
+  });
 
   // Load connection status
   useEffect(() => {
@@ -36,6 +40,10 @@ export default function TwitterConnectPage() {
         // setConnected(!!res.connected);
         // setUsername(res.username || '');
         // setLastTweet(res.last_tweet_at || null);
+        // setAutoPostSettings({
+        //   post_wins: res.settings?.post_wins ?? true,
+        //   post_strategies: res.settings?.post_strategies ?? true
+        // });
       } catch (err) {
         console.error('Failed to load Twitter status', err);
         toast.error('Failed to load Twitter connection status');
@@ -94,6 +102,42 @@ export default function TwitterConnectPage() {
     }
   };
 
+  const handleSettingChange = async (setting: string, value: boolean) => {
+    setAutoPostSettings(prev => ({ ...prev, [setting]: value }));
+    
+    // In a real implementation, save the settings to the backend
+    // await fetchApi('/api/twitter/settings', {
+    //   method: 'POST',
+    //   body: JSON.stringify({ 
+    //     tenant_id: user?.tenant_id,
+    //     settings: { ...autoPostSettings, [setting]: value }
+    //   })
+    // });
+    
+    toast.success('Settings updated');
+  };
+
+  const handleTestTweet = async () => {
+    try {
+      toast.success('Sending test tweet to queue...');
+      
+      // This would actually call the real API in production
+      await fetchApi('/api/twitter-post', {
+        method: 'POST',
+        body: JSON.stringify({
+          tenant_id: user?.tenant_id || 'test-tenant',
+          message: `This is a test tweet from Allora AI at ${new Date().toLocaleTimeString()}! #AlloraAI #TestTweet`,
+          queue: true
+        })
+      });
+      
+      toast.success('Test tweet sent to approval queue!');
+    } catch (err) {
+      toast.error('Failed to send test tweet');
+      console.error('Test tweet error:', err);
+    }
+  };
+
   return (
     <div className="p-6 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">🔗 Twitter Integration</h1>
@@ -120,24 +164,45 @@ export default function TwitterConnectPage() {
               <h3 className="text-sm font-medium mb-2">Auto-posting preferences</h3>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" id="post-wins" defaultChecked />
+                  <input 
+                    type="checkbox" 
+                    id="post-wins" 
+                    checked={autoPostSettings.post_wins}
+                    onChange={(e) => handleSettingChange('post_wins', e.target.checked)}
+                  />
                   <label htmlFor="post-wins" className="text-sm">Post agent wins</label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" id="post-strategies" defaultChecked />
+                  <input 
+                    type="checkbox" 
+                    id="post-strategies" 
+                    checked={autoPostSettings.post_strategies}
+                    onChange={(e) => handleSettingChange('post_strategies', e.target.checked)}
+                  />
                   <label htmlFor="post-strategies" className="text-sm">Post new strategies</label>
                 </div>
               </div>
             </div>
             
-            <Button 
-              variant="destructive" 
-              size="sm" 
-              onClick={handleDisconnect}
-              className="mt-4"
-            >
-              Disconnect Twitter
-            </Button>
+            <div className="pt-2 space-y-4">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={handleTestTweet}
+                className="w-full"
+              >
+                Send Test Tweet
+              </Button>
+              
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleDisconnect}
+                className="w-full"
+              >
+                Disconnect Twitter
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

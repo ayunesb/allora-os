@@ -34,3 +34,5 @@ verify_jwt = false
 [functions.twitter-post]
 verify_jwt = true
 
+[functions.tweet-queue]
+verify_jwt = true

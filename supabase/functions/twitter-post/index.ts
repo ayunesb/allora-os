@@ -101,6 +101,26 @@ async function postTweet(text: string, accessToken: string, accessTokenSecret: s
   return response.json();
 }
 
+// Queue a tweet for moderation if queueing is enabled
+async function queueTweet(tenant_id: string, message: string) {
+  // Add tweet to queue
+  const { data, error } = await supabase
+    .from('tweet_queue')
+    .insert({
+      tenant_id,
+      content: message,
+      status: 'pending'
+    })
+    .select()
+    .single();
+  
+  if (error) {
+    throw new Error(`Failed to queue tweet: ${error.message}`);
+  }
+  
+  return { success: true, queued: true, queue_id: data.id };
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -120,7 +140,7 @@ Deno.serve(async (req) => {
       );
     }
     
-    const { tenant_id, message } = await req.json();
+    const { tenant_id, message, queue = true } = await req.json();
     
     if (!tenant_id || !message) {
       return new Response(
@@ -131,7 +151,18 @@ Deno.serve(async (req) => {
         }
       );
     }
+
+    // Check if queueing is enabled - default to true for moderation
+    if (queue) {
+      const queueResult = await queueTweet(tenant_id, message);
+      
+      return new Response(
+        JSON.stringify(queueResult),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
+    // Direct posting - only used by the admin approval process
     // Get the Twitter tokens for this tenant
     const { data: tenant, error: tenantError } = await supabase
       .from('tenants')
