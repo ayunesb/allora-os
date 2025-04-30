@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.stripe]
 verify_jwt = false
+
+[functions.kpi-cron]
+verify_jwt = false
