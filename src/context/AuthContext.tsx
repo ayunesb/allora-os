@@ -1,13 +1,4 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-  ReactNode,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-} from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Define the types
@@ -29,7 +20,14 @@ interface AuthContextProps {
   user: User | null | undefined;
   session: any;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User | undefined }>;
+  isEmailVerified?: boolean;
+  isSessionExpired?: boolean;
+  hasInitialized?: boolean;
+  authError?: string;
+  profile?: User;
+  refreshSession?: () => void;
+  refreshProfile?: () => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   signUp: (email: string, password: string, metadata?: any) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   updateUser: (updates: any) => Promise<{ data: User | null; error: any }>;
@@ -43,21 +41,22 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [supabase] = useState(() => createClient(supabaseUrl, supabaseKey));
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const getSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-
       setSession(session);
     };
 
@@ -71,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(null);
       }
     });
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     if (session?.user) {
@@ -80,41 +79,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
     }
     setLoading(false);
-  }, [session, supabase]);
+  }, [session]);
 
-  const login = async (email: string, password: string): Promise<{ 
-    success: boolean; 
-    error?: string; 
-    user?: User | undefined;
-  }> => {
+  const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
+        setAuthError(error.message);
         setLoading(false);
         return { success: false, error: error.message };
       }
 
-      if (data?.user) {
+      if (data.user) {
         await refreshUserData(data.user.id);
+        setAuthError(null);
         setLoading(false);
         return { success: true, user: data.user as User };
       }
 
       setLoading(false);
-      return { success: false, error: 'Login failed with unknown error' };
+      return { success: false, error: 'Login failed' };
     } catch (err: any) {
-      console.error('Login error:', err);
       setLoading(false);
-      return { success: false, error: err.message || 'An unexpected error occurred during login' };
+      return { success: false, error: err.message || 'Unexpected login error' };
     }
   };
 
-  const signUp = async (email: string, password: string, metadata?: any): Promise<{ success: boolean; error?: string }> => {
+  const signUp = async (email: string, password: string, metadata?: any) => {
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -129,28 +121,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
         return { success: false, error: error.message };
       }
+
       if (data.user) {
         await refreshUserData(data.user.id);
       }
+
       setLoading(false);
       return { success: true };
     } catch (err: any) {
-      console.error('Signup error:', err);
       setLoading(false);
-      return { success: false, error: err.message || 'An unexpected error occurred during signup' };
+      return { success: false, error: err.message || 'Unexpected signup error' };
     }
   };
 
-  const signOut = async (): Promise<void> => {
+  const signOut = async () => {
     try {
       await supabase.auth.signOut();
       setUser(null);
     } catch (error: any) {
-      console.error('Error signing out:', error.message);
+      console.error('Sign-out error:', error.message);
     }
   };
 
-  const updateUser = async (updates: any): Promise<{ data: User | null; error: any }> => {
+  const updateUser = async (updates: any) => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -161,27 +154,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .single();
 
       if (error) {
-        console.error('Error updating user:', error);
         setLoading(false);
         return { data: null, error };
       }
 
-      // Refresh user data after update
       if (session?.user?.id) {
         await refreshUserData(session.user.id);
       }
+
       setLoading(false);
       return { data: data as User, error: null };
     } catch (err: any) {
-      console.error('Update user error:', err);
       setLoading(false);
-      return { data: null, error: err.message || 'An unexpected error occurred during user update' };
+      return { data: null, error: err.message || 'Unexpected update error' };
     }
   };
 
-  const refreshUserData = async (userId: string): Promise<void> => {
+  const refreshUserData = async (userId: string) => {
     try {
-      const { data: profile, error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select(`
           id,
@@ -195,27 +186,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .single();
 
       if (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Profile fetch error:', error.message);
         return;
       }
 
-      if (profile) {
+      if (data) {
         const userProfile: User = {
-          id: profile.id,
-          email: profile.email,
+          id: data.id,
+          email: data.email,
           user_metadata: {
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            avatar: profile.avatar,
-            role: profile.role,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            avatar: data.avatar,
+            role: data.role,
           },
           aud: 'authenticated',
           created_at: new Date().toISOString(),
         };
         setUser(userProfile);
       }
-    } catch (err: any) {
-      console.error('Error refreshing user data:', err);
+    } catch (err) {
+      console.error('Refresh user error:', err);
     }
   };
 
@@ -230,6 +221,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUser,
     refreshUserData,
     setUser,
+    isEmailVerified: true,
+    isSessionExpired: false,
+    hasInitialized: true,
+    authError,
+    profile: user || undefined,
+    refreshSession: async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+    },
+    refreshProfile: async () => {
+      if (session?.user?.id) {
+        await refreshUserData(session.user.id);
+      }
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -237,8 +244,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 export const useAuth = (): AuthContextProps => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };

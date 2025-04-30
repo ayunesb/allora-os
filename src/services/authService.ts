@@ -1,5 +1,4 @@
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
 
 export async function handleSignIn(email: string, password: string, rememberMe = false) {
   try {
