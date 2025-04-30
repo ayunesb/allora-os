@@ -29,7 +29,7 @@ const App = () => {
   }, []);
 
   return (
-    <GlobalErrorBoundary children={undefined}>
+    <GlobalErrorBoundary>
       <ThemeProvider>
         <BrowserRouter>
           <AuthProvider>
