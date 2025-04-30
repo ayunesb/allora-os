@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { File } from 'lucide-react';
+import { File, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -14,6 +14,7 @@ interface StrategyTemplate {
   summary: string;
   industry: string;
   used_by: number;
+  is_public: boolean;
 }
 
 export default function VaultTemplatesPage() {
@@ -33,7 +34,15 @@ export default function VaultTemplatesPage() {
           console.error('Error loading strategy templates:', error);
           setTemplates([]);
         } else {
-          setTemplates(data || []);
+          // Sort by is_public DESC to show public/featured templates first
+          const sortedData = (data || []).sort((a, b) => {
+            // First sort by public status (public first)
+            if (a.is_public && !b.is_public) return -1;
+            if (!a.is_public && b.is_public) return 1;
+            // Then sort by used_by count
+            return b.used_by - a.used_by;
+          });
+          setTemplates(sortedData);
         }
       } catch (err) {
         console.error('Failed to fetch strategy templates:', err);
@@ -136,11 +145,23 @@ export default function VaultTemplatesPage() {
           {filteredTemplates.map((tpl) => (
             <Card 
               key={tpl.id}
-              className="border border-border hover:border-primary/50 transition-colors"
+              className="border border-border hover:border-primary/50 transition-colors relative"
             >
+              {/* Featured badge */}
+              {tpl.is_public && (
+                <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 text-xs rounded-md flex items-center gap-1">
+                  <Star className="h-3 w-3" /> Public
+                </div>
+              )}
+              
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
+                    {tpl.is_public && (
+                      <span className="text-xs text-green-500 font-semibold inline-block mb-1">
+                        🌟 Featured
+                      </span>
+                    )}
                     <h2 className="font-semibold text-lg">{tpl.title}</h2>
                     <p className="text-sm text-muted-foreground">{tpl.industry}</p>
                     <p className="mt-2">{tpl.summary}</p>

@@ -17,7 +17,8 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase
       .from('strategy_templates')
       .select('*')
-      .order('used_by', { ascending: false });
+      .order('is_public', { ascending: false })  // Sort public templates first
+      .order('used_by', { ascending: false });   // Then by usage
 
     if (error) throw error;
 

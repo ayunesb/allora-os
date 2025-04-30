@@ -22,3 +22,10 @@ export const recordPluginEvent = async (params: {
     body: JSON.stringify(params)
   });
 };
+
+/**
+ * Fetches aggregated plugin impact data showing ROI per tenant
+ */
+export const fetchPluginImpact = async () => {
+  return await fetchApi('/api/plugin/impact');
+};
