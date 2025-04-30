@@ -1,89 +1,105 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
-import { corsHeaders } from '../_shared/cors.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
+// Environment variables
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
-// Initialize the Supabase client
-const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+interface PluginImpactRow {
+  tenant_id: string;
+  plugin_name: string;
+  total_value: number;
+  usage_count: number;
+  average_value: number;
+  tenant_name?: string;
+}
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // Create Supabase client with service role key for higher privileges
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   
   try {
-    // Only allow GET requests
-    if (req.method !== 'GET') {
-      return new Response(JSON.stringify({ 
-        error: 'Method not allowed' 
-      }), { 
-        status: 405, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      });
-    }
-    
-    // Verify the request is from an authenticated user
+    // Retrieve authorization from request
     const authHeader = req.headers.get('Authorization');
+    
     if (!authHeader) {
-      return new Response(JSON.stringify({ 
-        error: 'Unauthorized' 
-      }), { 
-        status: 401, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
       });
     }
     
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    // Analyze plugin impact data
+    const { data: pluginLogs, error: pluginError } = await supabase
+      .from('plugin_logs')
+      .select('tenant_id, plugin_name, value, created_at');
     
-    if (userError || !user) {
-      return new Response(JSON.stringify({ 
-        error: 'Unauthorized' 
-      }), { 
-        status: 401, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    if (pluginError) {
+      console.error('Error fetching plugin logs:', pluginError);
+      return new Response(JSON.stringify({ error: 'Failed to retrieve plugin logs' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
       });
     }
     
-    // Get plugin impact data aggregated by plugin name
-    // If stored procedure exists, use it, otherwise fall back to direct SQL query
-    const { data, error } = await adminClient.rpc('get_plugin_impact_summary', {
-      user_tenant_id: user.app_metadata.tenant_id || user.id
-    }).catch(() => {
-      // Fallback to direct query if RPC is not available
-      return adminClient
-        .from('plugin_logs')
-        .select('plugin_name, count(*) as events, sum(value) as total_value')
-        .eq('tenant_id', user.app_metadata.tenant_id || user.id)
-        .group('plugin_name');
+    if (!pluginLogs || pluginLogs.length === 0) {
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // Aggregate data by tenant and plugin
+    const impactMap = new Map();
+    
+    for (const log of pluginLogs) {
+      const key = `${log.tenant_id}-${log.plugin_name}`;
+      
+      if (!impactMap.has(key)) {
+        impactMap.set(key, {
+          tenant_id: log.tenant_id,
+          plugin_name: log.plugin_name,
+          total_value: 0,
+          usage_count: 0,
+          average_value: 0
+        });
+      }
+      
+      const entry = impactMap.get(key);
+      entry.total_value += log.value || 0;
+      entry.usage_count += 1;
+      entry.average_value = entry.total_value / entry.usage_count;
+    }
+    
+    // Get tenant names
+    const tenantIds = [...new Set(pluginLogs.map(log => log.tenant_id))];
+    
+    const { data: tenants, error: tenantError } = await supabase
+      .from('tenants')
+      .select('id, name')
+      .in('id', tenantIds);
+    
+    if (!tenantError && tenants) {
+      const tenantMap = new Map(tenants.map(t => [t.id, t.name]));
+      
+      // Add tenant names to results
+      for (const [_, impact] of impactMap.entries()) {
+        impact.tenant_name = tenantMap.get(impact.tenant_id) || undefined;
+      }
+    }
+    
+    const results: PluginImpactRow[] = Array.from(impactMap.values());
+    
+    return new Response(JSON.stringify(results), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
-    
-    if (error) {
-      console.error('Error fetching plugin impact:', error);
-      return new Response(JSON.stringify({ 
-        error: 'Failed to fetch plugin impact data' 
-      }), { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      });
-    }
-    
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-    
   } catch (error) {
-    console.error('Unexpected error:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Internal server error' 
-    }), { 
-      status: 500, 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    console.error('Error in plugin-impact function:', error);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 });

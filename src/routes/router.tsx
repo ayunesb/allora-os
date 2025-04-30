@@ -32,6 +32,7 @@ const Compliance = lazy(() => import("@/pages/Compliance"));
 const ComplianceRoutesWrapper = lazy(() => import('./ComplianceRoutesWrapper'));
 const ShopAssistant = lazy(() => import("@/pages/shop/index"));
 const CampaignBuilder = lazy(() => import("@/pages/campaigns/create"));
+const PluginImpact = lazy(() => import("@/pages/plugins/impact"));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -106,6 +107,10 @@ const createLazyRoutes = () => {
     {
       path: "/campaigns/create",
       element: withSuspense(CampaignBuilder),
+    },
+    {
+      path: "/plugins/impact",
+      element: withSuspense(PluginImpact),
     },
     // Root compliance page that handles setup and redirects to the compliance dashboard
     {
