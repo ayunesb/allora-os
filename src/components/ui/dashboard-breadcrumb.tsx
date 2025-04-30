@@ -9,7 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { LayoutDashboard, HelpCircle, Sparkles } from 'lucide-react';
+import { LayoutDashboard, HelpCircle, Sparkles, Trophy, File } from 'lucide-react';
 import { HelpButton } from '@/components/ui/help-button';
 
 interface BreadcrumbRoute {
@@ -65,6 +65,13 @@ export function DashboardBreadcrumb({
     'plugins': { path: '/galaxy/plugins', label: 'Plugins' },
     'leaderboard': { path: '/galaxy/plugins/leaderboard', label: 'Leaderboard' },
     
+    // Academy routes
+    'academy': { path: '/academy', label: 'Academy', icon: <Trophy className="h-3.5 w-3.5" /> },
+    
+    // Vault routes
+    'vault': { path: '/vault', label: 'Vault', icon: <File className="h-3.5 w-3.5" /> },
+    'templates': { path: '/vault/templates', label: 'Templates' },
+    
     // Admin routes (reused in AdminBreadcrumb but good to have here for consistency)
     'admin': { path: '/admin', label: 'Admin', icon: <LayoutDashboard className="h-3.5 w-3.5" /> },
     'entities': { path: '/admin/entities', label: 'Entities' },
@@ -107,6 +114,12 @@ export function DashboardBreadcrumb({
     }
     if (basePath === 'galaxy') {
       return { path: '/galaxy', label: 'Galaxy', icon: <Sparkles className="h-3.5 w-3.5" /> };
+    }
+    if (basePath === 'academy') {
+      return { path: '/academy', label: 'Academy', icon: <Trophy className="h-3.5 w-3.5" /> };
+    }
+    if (basePath === 'vault') {
+      return { path: '/vault', label: 'Vault', icon: <File className="h-3.5 w-3.5" /> };
     }
     return { path: rootPath, label: rootLabel, icon: rootIcon };
   };

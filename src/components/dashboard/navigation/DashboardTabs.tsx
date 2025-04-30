@@ -12,7 +12,9 @@ import {
   UserCircle,
   BarChartHorizontal,
   Lightbulb,
-  Sparkles
+  Sparkles,
+  Trophy,
+  File
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -68,6 +70,12 @@ export function DashboardTabs() {
       </NavItem>
       <NavItem to="/galaxy/plugins/leaderboard" icon={<Sparkles className="h-5 w-5" />}>
         Plugin Leaderboard
+      </NavItem>
+      <NavItem to="/academy" icon={<Trophy className="h-5 w-5" />}>
+        Academy
+      </NavItem>
+      <NavItem to="/vault/templates" icon={<File className="h-5 w-5" />}>
+        Strategy Templates
       </NavItem>
       <NavItem to="/dashboard/profile" icon={<UserCircle className="h-5 w-5" />}>
         Profile
