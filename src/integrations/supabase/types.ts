@@ -1032,6 +1032,39 @@ export type Database = {
           },
         ]
       }
+      credit_logs: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          credits_added: number | null
+          email: string | null
+          id: string
+          session_id: string | null
+          source: string | null
+          tenant_id: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          credits_added?: number | null
+          email?: string | null
+          id?: string
+          session_id?: string | null
+          source?: string | null
+          tenant_id: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          credits_added?: number | null
+          email?: string | null
+          id?: string
+          session_id?: string | null
+          source?: string | null
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       demo_conversion_logs: {
         Row: {
           id: string
