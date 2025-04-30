@@ -1674,6 +1674,55 @@ export type Database = {
           },
         ]
       }
+      plugin_logs: {
+        Row: {
+          created_at: string | null
+          event: string
+          id: string
+          plugin_name: string
+          tenant_id: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          event: string
+          id?: string
+          plugin_name: string
+          tenant_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          event?: string
+          id?: string
+          plugin_name?: string
+          tenant_id?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plugin_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "plugin_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "plugin_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plugin_usage_logs: {
         Row: {
           call_type: string | null
@@ -2864,6 +2913,7 @@ export type Database = {
           created_at: string | null
           id: string
           industry: string | null
+          is_public: boolean | null
           summary: string | null
           title: string
           used_by: number | null
@@ -2872,6 +2922,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           industry?: string | null
+          is_public?: boolean | null
           summary?: string | null
           title: string
           used_by?: number | null
@@ -2880,6 +2931,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           industry?: string | null
+          is_public?: boolean | null
           summary?: string | null
           title?: string
           used_by?: number | null

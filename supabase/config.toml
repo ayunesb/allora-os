@@ -36,3 +36,9 @@ verify_jwt = true
 
 [functions.tweet-queue]
 verify_jwt = true
+
+[functions.plugin-logs]
+verify_jwt = true
+
+[functions.vault-templates]
+verify_jwt = true
