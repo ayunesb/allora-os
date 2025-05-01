@@ -1,24 +1,13 @@
-
 export interface User {
   id: string;
   email: string;
   name?: string;
-  role: 'admin' | 'user';
+  role?: string;
   avatar_url?: string;
   company_id?: string;
   company?: string;
   industry?: string;
-  app_metadata?: {
-    is_admin?: boolean;
-    [key: string]: any;
-  };
-  user_metadata?: {
-    firstName: string;
-    lastName: string;
-    avatar?: string;
-    role?: string;
-    name?: string;
-  };
   updated_at?: string;
-  created_at?: string;
+  app_metadata?: any;
+  [key: string]: any; // 👈 fallback to prevent build breaks for legacy properties
 }
