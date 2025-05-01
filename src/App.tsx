@@ -1,20 +1,20 @@
 
-import React, { useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import React from 'react';
+import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { AppRoutes } from './routes';
+import { router } from './routes/router';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { GlobalErrorBoundary } from './components/errorHandling/GlobalErrorBoundary';
 import { setupErrorLogging } from './utils/errorHandling/errorLogging';
 import { GlobalErrorModal } from './components/errorHandling/GlobalErrorModal';
-import NavigationFixer from './components/navigation/NavigationFixer';
 import { CompanyAPIProvider } from './context/CompanyAPIContext';
 import { initializeAnalytics } from './utils/analytics';
+import { AccessibilityProvider } from './context/AccessibilityContext';
 import CookieConsent from './components/CookieConsent';
 
 const App = () => {
-  useEffect(() => {
+  React.useEffect(() => {
     // Initialize error logging
     setupErrorLogging();
 
@@ -22,7 +22,7 @@ const App = () => {
     const cookieConsent = localStorage.getItem('cookie-consent');
     if (cookieConsent) {
       const settings = JSON.parse(cookieConsent);
-      if (settings.analytics) {
+      if (settings?.analytics) {
         initializeAnalytics();
       }
     }
@@ -30,12 +30,11 @@ const App = () => {
 
   return (
     <GlobalErrorBoundary>
-      <ThemeProvider>
-        <BrowserRouter>
-          <AuthProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
+        <AuthProvider>
+          <AccessibilityProvider>
             <CompanyAPIProvider>
-              <NavigationFixer />
-              <AppRoutes />
+              <RouterProvider router={router} />
               <Toaster position="top-right" />
               <GlobalErrorModal />
               <CookieConsent />
@@ -44,8 +43,8 @@ const App = () => {
               <div id="aria-live-polite" className="sr-only" aria-live="polite"></div>
               <div id="aria-live-assertive" className="sr-only" aria-live="assertive"></div>
             </CompanyAPIProvider>
-          </AuthProvider>
-        </BrowserRouter>
+          </AccessibilityProvider>
+        </AuthProvider>
       </ThemeProvider>
     </GlobalErrorBoundary>
   );

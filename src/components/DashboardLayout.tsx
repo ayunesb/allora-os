@@ -6,7 +6,7 @@ import SkipToContent from '@/components/accessibility/SkipToContent';
 import AccessibilityAnnouncer from '@/components/accessibility/AccessibilityAnnouncer';
 import { useAccessibility } from '@/context/AccessibilityContext';
 import { useTheme } from '@/context/ThemeContext';
-import { LayoutDashboard, FileText, Graduation, ShoppingBag, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, GraduationCap, ShoppingBag, Settings } from 'lucide-react';
 
 // Loading spinner for lazy-loaded dashboard components
 const DashboardLoadingSpinner = () => (
@@ -20,24 +20,31 @@ const DashboardLoadingSpinner = () => (
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: FileText, label: "Strategies", path: "/dashboard/strategies" },
-  { icon: Graduation, label: "Academy", path: "/academy" },
+  { icon: GraduationCap, label: "Academy", path: "/academy" },
   { icon: ShoppingBag, label: "Shop", path: "/shop" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
 export default function DashboardLayout() {
-  const { preferences, applyAccessibilityClasses } = useAccessibility();
+  const { preferences } = useAccessibility();
   
   // Apply accessibility classes when the layout mounts
   useEffect(() => {
-    applyAccessibilityClasses();
+    if (preferences) {
+      document.documentElement.classList.toggle('high-contrast', !!preferences.highContrast);
+      document.documentElement.classList.toggle('large-text', !!preferences.largeText);
+      document.documentElement.classList.toggle('reduced-motion', !!preferences.reducedMotion);
+      document.documentElement.classList.toggle('enhanced-focus', !!preferences.enhancedFocus);
+      document.documentElement.classList.toggle('screen-reader-friendly', !!preferences.screenReaderFriendly);
+      document.documentElement.classList.toggle('improved-spacing', !!preferences.improvedTextSpacing);
+    }
     
     // Add a "main-content" id to the main element if it doesn't have one
     const mainElement = document.querySelector('main');
     if (mainElement && !mainElement.id) {
       mainElement.id = 'main-content';
     }
-  }, [preferences, applyAccessibilityClasses]);
+  }, [preferences]);
 
   return (
     <div className="min-h-screen flex flex-col">

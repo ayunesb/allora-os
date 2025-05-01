@@ -1,5 +1,5 @@
 
-import { createBrowserRouter, Outlet, Navigate, RouteObject } from "react-router-dom";
+import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { adminRoutes } from "./admin-routes";
 import { authRoutes } from "./auth-routes";
@@ -17,9 +17,6 @@ import NavigationFixer from "@/components/navigation/NavigationFixer";
 import { HelpModal } from "@/components/help/HelpModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
-import { AccessibilityProvider } from "@/context/AccessibilityContext";
-import { AuthProvider } from "@/context/AuthContext";
-import { AuthProviderWrapper } from "@/components/auth/AuthProviderWrapper";
 import { ComplianceProvider } from "@/context/ComplianceContext";
 
 // Lazy-loaded components
@@ -52,17 +49,7 @@ const withSuspense = (Component: React.ComponentType<any>) => (
   </Suspense>
 );
 
-// Accessibility wrapper for the entire application
-const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <AccessibilityProvider>
-      <AuthProviderWrapper>
-        {children}
-      </AuthProviderWrapper>
-    </AccessibilityProvider>
-  );
-};
-
+// Navigation layout with error boundary
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
   
@@ -76,6 +63,9 @@ const NavigationLayout = () => {
     </ErrorBoundary>
   );
 };
+
+// Fix missing Outlet import
+import { Outlet } from 'react-router-dom';
 
 // Wrap compliance routes with the ComplianceProvider
 const ComplianceRoutes = () => {
@@ -160,6 +150,9 @@ const createLazyRoutes = () => {
     },
   ];
 
+  // Add missing Navigate import
+  import { Navigate } from 'react-router-dom';
+
   // Combine all routes - ensure rootRoutes are first
   const routes: RouteObject[] = [
     ...rootRoutes,
@@ -189,11 +182,9 @@ const createLazyRoutes = () => {
 export const router = createBrowserRouter([
   {
     element: (
-      <AccessibleLayout>
-        <Suspense fallback={<LoadingFallback />}>
-          <RootLayout />
-        </Suspense>
-      </AccessibleLayout>
+      <Suspense fallback={<LoadingFallback />}>
+        <RootLayout />
+      </Suspense>
     ),
     errorElement: withSuspense(NotFound),
     children: [
