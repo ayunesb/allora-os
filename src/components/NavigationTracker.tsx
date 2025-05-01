@@ -11,7 +11,7 @@ import { useAccessibility } from '@/context/AccessibilityContext';
  */
 export function NavigationTracker() {
   const location = useLocation();
-  const { applyAccessibilityClasses } = useAccessibility();
+  const { preferences } = useAccessibility();
   
   useEffect(() => {
     // Track the current route
@@ -25,7 +25,7 @@ export function NavigationTracker() {
     
     // Re-apply accessibility classes on route change
     // This ensures consistent experience across page navigation
-    applyAccessibilityClasses();
+    applyAccessibilityClasses(preferences);
     
     // Move focus to the main content area for keyboard users 
     // (only if coming from a different page and not on initial load)
@@ -41,7 +41,7 @@ export function NavigationTracker() {
         }, 100);
       }
     }
-  }, [location.pathname, applyAccessibilityClasses]);
+  }, [location.pathname, preferences]);
   
   // This component doesn't render anything visually
   return null;
