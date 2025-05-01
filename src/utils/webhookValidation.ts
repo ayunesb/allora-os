@@ -34,7 +34,7 @@ export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolea
   }
 };
 
-export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
+export const sanitizeWebhookUrl = (url: string): string => {
   if (!url) return '';
   
   try {
@@ -45,7 +45,7 @@ export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
   }
 };
 
-export const testWebhook = async (url: string, type: WebhookType) => {
+export const testWebhook = async (url: string) => {
   if (!url) {
     return {
       success: false,
@@ -64,7 +64,7 @@ export const testWebhook = async (url: string, type: WebhookType) => {
         source: 'Allora AI Platform',
         timestamp: new Date().toISOString(),
         data: {
-          message: `This is a test webhook from Allora AI for ${type} integration`,
+          message: `This is a test webhook from Allora AI`,
           testId: Math.random().toString(36).substring(7)
         }
       }),
@@ -74,7 +74,7 @@ export const testWebhook = async (url: string, type: WebhookType) => {
     // With no-cors, we don't get a useful response, so assume success
     return {
       success: true,
-      message: `${type} webhook test successful`
+      message: `Webhook test successful`
     };
   } catch (error) {
     return {

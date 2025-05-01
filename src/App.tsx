@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { router } from './routes/router';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { GlobalErrorBoundary } from './components/errorHandling/GlobalErrorBoundary';
@@ -12,6 +10,8 @@ import { CompanyAPIProvider } from './context/CompanyAPIContext';
 import { initializeAnalytics } from './utils/analytics';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import CookieConsent from './components/CookieConsent';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './routes/router';
 
 const App = () => {
   React.useEffect(() => {
