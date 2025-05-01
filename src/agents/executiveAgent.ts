@@ -79,7 +79,7 @@ export async function runExecutiveAgent(
   } catch (error: any) {
     logger.error("Error in runExecutiveAgent:", error);
     
-    // Return a basic decision object with error information
+    // Return a complete fallback decision object with all required properties
     return {
       id: uuidv4(),
       executiveName: executiveProfile.name,
