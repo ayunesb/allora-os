@@ -1,17 +1,17 @@
 
 import { triggerBusinessEvent } from '@/lib/zapier';
-import { logAuditEvent } from '@/utils/auditLogger';
 import { 
   BusinessEventType, 
   StrategyApprovalPayload, 
   LeadPayload, 
-  CampaignPayload 
+  CampaignPayload,
+  WebhookResult
 } from '@/utils/webhookTypes';
 
 /**
  * Sends a strategy approval event to Zapier
  */
-export async function onStrategyApproved(strategy: StrategyApprovalPayload) {
+export async function onStrategyApproved(strategy: StrategyApprovalPayload): Promise<WebhookResult> {
   try {
     const result = await triggerBusinessEvent('strategy_approved', {
       entityId: strategy.entityId,
@@ -62,7 +62,7 @@ export async function onStrategyApproved(strategy: StrategyApprovalPayload) {
 /**
  * Sends a new lead added event to Zapier
  */
-export async function onNewLeadAdded(lead: LeadPayload) {
+export async function onNewLeadAdded(lead: LeadPayload): Promise<WebhookResult> {
   try {
     return await triggerBusinessEvent('lead_added', {
       leadId: lead.leadId,
@@ -84,7 +84,7 @@ export async function onNewLeadAdded(lead: LeadPayload) {
 /**
  * Sends a campaign launched event to Zapier
  */
-export async function onCampaignLaunched(campaign: CampaignPayload) {
+export async function onCampaignLaunched(campaign: CampaignPayload): Promise<WebhookResult> {
   try {
     return await triggerBusinessEvent('campaign_launched', {
       campaignId: campaign.campaignId,

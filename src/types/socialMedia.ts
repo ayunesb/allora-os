@@ -22,6 +22,7 @@ export interface SocialMediaPost {
   status?: PostStatus;
   created_at?: string;
   updated_at?: string;
+  is_approved?: boolean; // Added to support components using this field
 }
 
 export interface EngagementMetrics {

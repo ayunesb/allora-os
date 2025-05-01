@@ -1,145 +1,100 @@
 
-import { WebhookType, WebhookResult } from './webhookTypes';
+import { WebhookType, WebhookResult, BusinessEventType } from './webhookTypes';
 
 /**
- * Validates webhook URL format for different webhook types
+ * Validates a webhook URL format based on the webhook type
  */
-export function validateWebhookUrlFormat(url: string, type: WebhookType): boolean {
-  if (!url || url.trim() === '') return false;
+export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolean => {
+  if (!url) return false;
   
-  try {
-    // Basic URL validation
-    new URL(url);
-    
-    // Type-specific validation
-    switch (type) {
-      case 'zapier':
-        return url.includes('hooks.zapier.com/hooks/catch/');
-      case 'stripe':
-        return url.includes('stripe.com/') || url.includes('api.stripe.com/');
-      case 'github':
-        return url.includes('github.com/') || url.includes('api.github.com/');
-      case 'slack':
-        return url.includes('hooks.slack.com/');
-      case 'custom':
-        return true; // No specific validation for custom webhooks
-      default:
-        return false;
-    }
-  } catch (error) {
-    return false; // Invalid URL format
+  const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/i;
+  
+  // Basic URL validation
+  if (!urlPattern.test(url)) {
+    return false;
   }
-}
+  
+  // Type-specific validation
+  switch (type) {
+    case 'stripe':
+      return url.includes('stripe.com') || url.includes('localhost');
+    case 'zapier':
+      return url.includes('hooks.zapier.com') || url.includes('localhost');
+    case 'github':
+      return url.includes('github.com') || url.includes('localhost');
+    case 'slack':
+      return url.includes('hooks.slack.com') || url.includes('localhost');
+    case 'custom':
+      return true; // Custom URLs just need to be valid URLs
+    default:
+      return false;
+  }
+};
 
 /**
- * Tests a webhook by sending a test payload
+ * Sanitizes a webhook URL before saving
  */
-export async function testWebhook(url: string, type: WebhookType): Promise<WebhookResult> {
-  if (!validateWebhookUrlFormat(url, type)) {
-    return { success: false, message: `Invalid ${type} webhook URL format` };
+export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
+  if (!url) return '';
+  
+  // Basic sanitization
+  const trimmedUrl = url.trim();
+  
+  // Ensure URLs start with https:// (except for local development)
+  if (!trimmedUrl.startsWith('http://localhost') && !trimmedUrl.startsWith('https://')) {
+    return `https://${trimmedUrl}`;
   }
   
+  return trimmedUrl;
+};
+
+/**
+ * Test a webhook URL with a sample payload
+ */
+export const testWebhook = async (url: string, type: WebhookType): Promise<WebhookResult> => {
+  if (!url) {
+    return {
+      success: false,
+      message: 'No webhook URL provided'
+    };
+  }
+
   try {
-    // Create a test payload based on webhook type
-    const payload = createTestPayload(type);
+    const testPayload = {
+      event: 'test_webhook',
+      timestamp: new Date().toISOString(),
+      source: 'Allora AI Platform',
+      message: `This is a test from the webhook testing utility (${type})`,
+    };
+
+    const startTime = Date.now();
     
-    const start = Date.now();
-    
-    // Send the test request
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      mode: 'no-cors', // Use no-cors to prevent CORS issues
-      body: JSON.stringify(payload),
+      mode: 'no-cors', // This helps with CORS issues in the browser
+      body: JSON.stringify(testPayload)
     });
     
-    const duration = Date.now() - start;
+    const duration = Date.now() - startTime;
     
-    // Since we're using no-cors, we won't get proper response data
-    // Instead, we assume it worked if no error was thrown
+    // With no-cors mode, we can't access response details
+    // So we just assume the request was sent successfully
     return {
       success: true,
-      message: `${type} webhook test successfully sent`,
-      duration,
+      message: 'Webhook test request sent',
+      duration
     };
   } catch (error) {
-    console.error(`Error testing ${type} webhook:`, error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      error
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+      error: error instanceof Error ? error : new Error('Unknown error')
     };
   }
-}
+};
 
-/**
- * Creates an appropriate test payload based on webhook type
- */
-function createTestPayload(type: WebhookType): any {
-  const timestamp = new Date().toISOString();
-  const basePayload = {
-    test: true,
-    timestamp,
-    source: 'Allora AI Platform',
-  };
-  
-  switch (type) {
-    case 'zapier':
-      return {
-        ...basePayload,
-        eventType: 'test_webhook',
-        data: {
-          message: 'This is a test webhook from Allora AI',
-          source: 'Webhook Test'
-        }
-      };
-    case 'stripe':
-      return {
-        ...basePayload,
-        type: 'test_webhook',
-        data: {
-          object: 'event',
-          api_version: '2020-08-27',
-          created: Math.floor(Date.now() / 1000),
-          livemode: false,
-          pending_webhooks: 0,
-          request: { id: null },
-          type: 'test_webhook',
-        }
-      };
-    case 'github':
-      return {
-        ...basePayload,
-        action: 'test',
-        sender: {
-          login: 'allora-ai',
-          type: 'Organization'
-        }
-      };
-    case 'slack':
-      return {
-        text: "This is a test webhook from Allora AI Platform",
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: "*Webhook Test* from Allora AI\nTimestamp: " + timestamp
-            }
-          }
-        ]
-      };
-    case 'custom':
-    default:
-      return {
-        ...basePayload,
-        message: 'This is a test webhook from Allora AI Platform',
-        details: {
-          application: 'Allora AI',
-          test: true
-        }
-      };
-  }
-}
+// Export the types
+export { WebhookType, WebhookResult, BusinessEventType };
