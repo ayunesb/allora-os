@@ -2,7 +2,7 @@
 // This file provides type compatibility for legacy code
 import { User } from './fixed/User';
 import { WebhookEvent, WebhookType, BusinessEventType } from './fixed/Webhook';
-import { SocialMediaPost, SocialPlatform, ContentType, PostStatus } from './fixed/SocialMedia';
+import { SocialMediaPost, SocialPlatform, ContentType, PostStatus } from './unified-types';
 
 // Type aliases for backward compatibility
 export type UserRole = 'admin' | 'user';
@@ -10,7 +10,7 @@ export type WebhookStatus = 'success' | 'failed' | 'pending';
 
 // Legacy webhook types
 export type { WebhookType, BusinessEventType };
-export interface LegacyWebhookEvent extends Partial<WebhookEvent> {
+export interface UnifiedWebhookEvent extends Partial<WebhookEvent> {
   type?: WebhookType;
   event_type?: string;
   timestamp?: string;
@@ -23,7 +23,7 @@ export interface LegacyWebhookEvent extends Partial<WebhookEvent> {
 
 // Social media compatibility types
 export interface LegacySocialPost extends Partial<SocialMediaPost> {
-  scheduled_at?: string;
+  scheduled_at?: string;  // Legacy field
 }
 
 // Export for backward compatibility

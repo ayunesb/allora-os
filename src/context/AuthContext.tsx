@@ -1,21 +1,11 @@
+
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
+import { normalizeUserObject } from '@/utils/authCompatibility';
+import { User } from '@/types/fixed/User';
 
 // Define the types
-export interface User {
-  id: string;
-  email: string;
-  user_metadata: {
-    firstName: string;
-    lastName: string;
-    avatar?: string;
-    role?: string;
-  };
-  aud: string;
-  created_at: string;
-}
-
 interface AuthContextProps {
   supabase: SupabaseClient;
   user: User | null | undefined;
@@ -102,10 +92,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (data.user) {
-        await refreshUserData(data.user.id);
+        const normalizedUser = normalizeUserObject(data.user);
+        setUser(normalizedUser);
         setAuthError(null);
         setLoading(false);
-        return { success: true, user: data.user as User };
+        return { success: true, user: normalizedUser };
       }
 
       setLoading(false);
@@ -133,7 +124,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (data.user) {
-        await refreshUserData(data.user.id);
+        const normalizedUser = normalizeUserObject(data.user);
+        setUser(normalizedUser);
       }
 
       setLoading(false);
@@ -173,7 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       setLoading(false);
-      return { data: data as User, error: null };
+      return { data: normalizeUserObject(data) as User, error: null };
     } catch (err: any) {
       setLoading(false);
       return { data: null, error: err.message || 'Unexpected update error' };
@@ -190,7 +182,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           firstName,
           lastName,
           avatar,
-          role
+          role,
+          company,
+          company_id,
+          industry
         `)
         .eq('id', userId)
         .single();
@@ -203,15 +198,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data) {
         const userProfile: User = {
           id: data.id,
-          email: data.email,
-          user_metadata: {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            avatar: data.avatar,
-            role: data.role,
-          },
-          aud: 'authenticated',
+          email: data.email || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+          avatar: data.avatar || '',
+          avatar_url: data.avatar || '',
+          role: data.role || 'user',
+          company_id: data.company_id || '',
+          company: data.company || '',
+          industry: data.industry || '',
+          app_metadata: { is_admin: data.role === 'admin' },
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         };
         setUser(userProfile);
       }

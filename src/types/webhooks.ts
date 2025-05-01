@@ -1,61 +1,29 @@
 
-export type WebhookType = 'zapier' | 'custom' | 'slack' | 'github' | 'stripe' | 'notion';
+import { WebhookType, WebhookStatus, WebhookEvent, WebhookConfig } from './fixed/Webhook';
 
-export type BusinessEventType = 
-  | 'campaign_created' 
-  | 'strategy_approved' 
-  | 'lead_converted'
-  | 'revenue_milestone'
-  | 'user_onboarded'
-  | 'campaign_launched'
-  | 'lead_added'
-  | 'test_event';
+export type { WebhookType, WebhookStatus, WebhookEvent, WebhookConfig };
 
-export interface BusinessEventPayload {
-  eventType: BusinessEventType | string;
-  data: Record<string, any>;
+export interface UnifiedWebhookEvent extends WebhookEvent {
+  type?: WebhookType;
+  event_type?: string;
+  timestamp?: string;
+  webhookType?: WebhookType;
+  eventType?: string;
+  targetUrl?: string;
+  url?: string;
+  source?: string;
 }
 
-export interface CampaignPayload {
-  campaignId: string;
-  campaignTitle: string;
-  platform: string;
-  owner: string;
-  budget: number;
-  companyId: string;
-}
-
-export interface LeadPayload {
-  leadId: string;
-  leadName: string;
-  company: string;
-  email: string;
-  source: string;
-}
-
-export interface WebhookResult {
+export interface WebhookTestResult {
   success: boolean;
   message?: string;
-  error?: any;
   statusCode?: number;
-  responseData?: any;
+  data?: any;
 }
 
-export interface WebhookEvent {
-  id: string;
-  webhookType: WebhookType;
-  webhook_type?: WebhookType; // For backward compatibility
-  eventType: string;
-  event_type?: string; // For backward compatibility
-  type?: string; // For backward compatibility
-  targetUrl: string;
-  url?: string; // For backward compatibility
-  status: 'success' | 'failed' | 'pending';
-  timestamp: string;
-  payload: any;
-  response?: any;
-  duration?: number;
-  errorMessage?: string;
-  responseCode?: number;
-  source?: string;
+export interface WebhookFilter {
+  types?: WebhookType[];
+  status?: WebhookStatus | '';
+  dateRange?: [Date | null, Date | null];
+  search?: string;
 }

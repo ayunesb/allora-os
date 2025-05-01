@@ -65,4 +65,3 @@ export function sanitizeWebhookUrl(url: string): string {
 
 // Re-export the WebhookType from types/fixed/Webhook for consistency
 export type { WebhookType };
-export { testWebhook, sanitizeWebhookUrl };

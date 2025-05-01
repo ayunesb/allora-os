@@ -73,6 +73,7 @@ export function normalizeExecutiveMessage(msg: any): UnifiedExecutiveMessage {
   return {
     id: msg.id || '',
     content: msg.message_content || msg.content || '',
+    message_content: msg.message_content || msg.content || '',
     created_at: msg.created_at || new Date().toISOString(),
     from_executive: msg.from_executive ?? true,
     to_executive: msg.to_executive ?? false,

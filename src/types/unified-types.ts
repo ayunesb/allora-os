@@ -55,6 +55,7 @@ export interface SocialMediaCalendarFilters {
 export interface UnifiedExecutiveMessage {
   id: string;
   content: string;
+  message_content?: string;  // Adding for backward compatibility
   created_at: string;
   from_executive: boolean;
   to_executive: boolean;
