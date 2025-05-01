@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 interface ExecutiveInteractionProps {
   riskAppetite: 'low' | 'medium' | 'high';
@@ -14,10 +15,11 @@ interface ExecutiveInteractionProps {
 
 export function ExecutiveInteraction({ riskAppetite }: ExecutiveInteractionProps) {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   
   // Loading state
-  if (!profile) {
+  if (!auth.profile) {
     return (
       <Card className="bg-primary/5 border-primary/20">
         <CardHeader className="pb-2">
@@ -39,7 +41,7 @@ export function ExecutiveInteraction({ riskAppetite }: ExecutiveInteractionProps
     );
   }
   
-  const companyName = profile?.company || "your company";
+  const companyName = auth.profile?.company || "your company";
 
   // Get appropriate executive and message based on risk appetite
   const getExecutiveInfo = () => {

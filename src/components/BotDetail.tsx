@@ -1,205 +1,129 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardFooter,
-  CardDescription
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle, Info, HelpCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import UserPreferencesDialog from "@/components/UserPreferencesDialog";
-import BotInfo from "./bot-detail/BotInfo";
-import MessageList from "./bot-detail/MessageList";
-import MessageInput from "./bot-detail/MessageInput";
-import NotFoundCard from "./bot-detail/NotFoundCard";
-import BotDetailSkeleton from "./bot-detail/BotDetailSkeleton";
-import { useBotConsultation, type Bot } from "./bot-detail/useBotConsultation";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MessageCircle, Settings, Info, Star, ArrowLeft } from 'lucide-react';
+import { BotChatPanel } from '@/components/bot-chat/BotChatPanel';
+import { BotSettingsPanel } from '@/components/bot-chat/BotSettingsPanel';
+import { BotInfoPanel } from '@/components/bot-chat/BotInfoPanel';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
-export default function BotDetail() {
-  const { botId } = useParams<{ botId: string }>();
-  const [botName, role] = botId?.split('-') || ['', ''];
+interface BotDetailProps {
+  bot?: {
+    name: string;
+    title: string;
+    expertise: string;
+    id?: string;
+    description?: string;
+    avatar?: string;
+    industry?: string;
+    specialties?: string[];
+    [key: string]: any;
+  }
+}
+
+export default function BotDetail({ bot: initialBot }: BotDetailProps) {
+  const { botId } = useParams();
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+  const [activeTab, setActiveTab] = useState('chat');
   
-  const { 
-    bot, 
-    messages, 
-    isLoading, 
-    isTyping,
-    error, 
-    retryCount,
-    handleSendMessage,
-    retryLastMessage,
-    clearConversation
-  } = useBotConsultation(botName, role);
-  const [isInitializing, setIsInitializing] = useState(true);
-  const isMobile = useIsMobile();
+  // If no bot was passed in props, use the botId from URL params to create a default bot
+  const bot = initialBot || {
+    id: botId,
+    name: "AI Advisor",
+    title: "Business Strategist",
+    expertise: "Growth Strategies",
+    description: "I help businesses identify growth opportunities and develop strategic plans to achieve their goals.",
+    avatar: "/ai-advisors/business-strategist.png",
+    industry: profile?.industry || "General Business",
+    specialties: ["Market Analysis", "Competitive Strategy", "Growth Planning"]
+  };
 
-  // Simulate initial loading state for better UX
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitializing(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isInitializing) {
-    return (
-      <div className="space-y-6 max-w-4xl mx-auto" aria-live="polite" aria-busy="true">
-        <div className="flex items-center justify-between">
-          <div className="h-9"><div className="w-32 h-4 bg-muted rounded animate-pulse"></div></div>
-          <div className="w-10 h-9 bg-muted rounded animate-pulse"></div>
-        </div>
-        <BotDetailSkeleton />
-      </div>
-    );
-  }
-
-  if (!bot) {
-    return (
-      <Card className="max-w-4xl mx-auto">
-        <NotFoundCard />
-      </Card>
-    );
-  }
-
-  // Determine if we can retry based on whether there are messages and we're not loading
-  const canRetry = messages.length > 0 && !isLoading;
-
-  // Create a fallback bot object with required fields if any are missing
-  const enhancedBot: Bot = {
-    id: bot?.id,
-    name: bot?.name || '',
-    title: bot?.title || role || 'Executive Advisor',
-    role: bot?.role || role || 'Executive Advisor',
-    description: bot?.description,
-    avatar: bot?.avatar,
-    expertise: bot?.expertise || 'Business Strategy',
-    isActive: bot?.isActive
+  const handleBackClick = () => {
+    navigate('/dashboard/ai-bots');
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'items-center justify-between'}`}>
-        <Link to="/dashboard/ai-bots">
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            <span>Back to Advisors</span>
-          </Button>
-        </Link>
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-2" 
-                  onClick={clearConversation} 
-                  disabled={messages.length === 0}
-                >
-                  <span>New Conversation</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Start a new conversation</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>
-                  <UserPreferencesDialog />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Customize advisor responses</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-8 w-8">
-                  <HelpCircle className="h-4 w-4" />
-                  <span className="sr-only">Help</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left" align="center" className="max-w-xs">
-                <div className="space-y-1">
-                  <p className="font-medium">How to use this advisor</p>
-                  <ul className="text-xs space-y-1 list-disc pl-3">
-                    <li>Ask specific questions about your business</li>
-                    <li>Share details about your situation for better advice</li>
-                    <li>Use the preferences to customize responses</li>
-                    <li>Save your favorite responses for later reference</li>
-                  </ul>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
-      
-      <Card>
-        <CardHeader className="pb-3">
-          <BotInfo bot={enhancedBot} />
-          {retryCount > 2 && (
-            <CardDescription className="mt-2 text-amber-500 flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              Having trouble? Try adjusting your question or check your user preferences for this advisor.
-            </CardDescription>
-          )}
-        </CardHeader>
-      </Card>
-      
-      {error && !isLoading && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      
-      <Card 
-        className="flex flex-col h-[calc(100vh-350px)] min-h-[400px]"
-        aria-label={`Consultation with ${bot.name}`}
+    <div className="container mx-auto px-4 py-6 max-w-5xl">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="mb-4" 
+        onClick={handleBackClick}
       >
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Consultation</CardTitle>
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Advisors
+      </Button>
+      
+      <Card className="border-primary/20">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              <AvatarImage src={bot.avatar} alt={bot.name} />
+              <AvatarFallback className="bg-primary/10 text-lg">
+                {bot.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="space-y-1 text-center sm:text-left">
+              <CardTitle className="text-xl">{bot.name}</CardTitle>
+              <CardDescription className="text-base">{bot.title}</CardDescription>
+              
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start mt-2">
+                <Badge variant="outline" className="bg-primary/10">
+                  {bot.expertise}
+                </Badge>
+                {bot.industry && (
+                  <Badge variant="outline" className="bg-secondary/10">
+                    {bot.industry}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
         </CardHeader>
         
-        <CardContent 
-          className="overflow-y-auto flex-grow pb-0" 
-          aria-live="polite"
-        >
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-muted-foreground text-center p-4">
-              <p>Start your consultation with {bot.name} by sending a message below.</p>
-            </div>
-          ) : (
-            <MessageList messages={messages} />
-          )}
-        </CardContent>
-        
-        <CardFooter className="pt-4 pb-4 border-t">
-          <MessageInput 
-            botName={bot.name}
-            isLoading={isLoading || isTyping}
-            onSendMessage={handleSendMessage}
-            onRetry={retryLastMessage}
-            onClear={clearConversation}
-            error={error}
-            canRetry={canRetry}
-          />
-        </CardFooter>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="px-4 sm:px-6">
+            <TabsList className="grid grid-cols-3 w-full">
+              <TabsTrigger value="chat" className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="info" className="flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                <span className="hidden sm:inline">Info</span>
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Settings</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <CardContent className="pt-6">
+            <TabsContent value="chat" className="mt-0">
+              <BotChatPanel botId={bot.id || ''} botName={bot.name} />
+            </TabsContent>
+            
+            <TabsContent value="info" className="mt-0">
+              <BotInfoPanel 
+                description={bot.description || ''} 
+                specialties={bot.specialties || []} 
+                expertise={bot.expertise} 
+              />
+            </TabsContent>
+            
+            <TabsContent value="settings" className="mt-0">
+              <BotSettingsPanel botId={bot.id || ''} />
+            </TabsContent>
+          </CardContent>
+        </Tabs>
       </Card>
     </div>
   );

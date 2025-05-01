@@ -3,23 +3,27 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { User } from '@/types/fixed/User';
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 type AdminOnlyProps = {
   children: React.ReactNode;
 };
 
 export default function AdminOnly({ children }: AdminOnlyProps) {
-  const { user, profile } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   
   // Calculate isAuthenticated based on user presence
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!auth?.user;
   
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" replace />;
   }
   
-  if (profile && profile.role !== 'admin') {
+  // Check if the user has admin role
+  const isAdmin = auth.user?.role === 'admin' || auth.user?.app_metadata?.is_admin;
+  
+  if (!isAdmin) {
     toast.error('Access denied. Admin rights required.', {
       id: 'admin-access-denied',
     });

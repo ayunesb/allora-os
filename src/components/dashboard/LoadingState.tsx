@@ -1,57 +1,38 @@
 
 import React from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function DashboardLoadingState() {
+export const DashboardLoadingState: React.FC = () => {
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <Skeleton className="h-8 w-64 mb-2" />
-          <Skeleton className="h-4 w-40" />
-        </div>
-        <Skeleton className="h-10 w-32" />
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {Array(4).fill(0).map((_, i) => (
-          <Skeleton key={i} className="h-32 rounded-md" />
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="pb-2">
+              <Skeleton className="h-5 w-40" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-24 w-full" />
+            </CardContent>
+          </Card>
         ))}
       </div>
       
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-32 w-full rounded-md" />
-      </div>
+      <Card>
+        <CardHeader className="pb-2">
+          <Skeleton className="h-5 w-64" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-40 w-full" />
+          <div className="flex justify-end">
+            <Skeleton className="h-9 w-32" />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
 
-export function ProfileLoadingState() {
-  return (
-    <div className="container max-w-4xl mx-auto px-4 py-10">
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-1/3" />
-        <Skeleton className="h-4 w-2/3" />
-        <div className="grid gap-6">
-          <Skeleton className="h-36 w-full" />
-          <Skeleton className="h-36 w-full" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function FormLoadingState() {
-  return (
-    <div className="space-y-4">
-      {Array(4).fill(0).map((_, i) => (
-        <div key={i} className="space-y-2">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ))}
-      <Skeleton className="h-10 w-32 mt-6" />
-    </div>
-  );
-}
+// Also export default for components that import it directly
+export default DashboardLoadingState;

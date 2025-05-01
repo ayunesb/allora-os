@@ -7,6 +7,7 @@ import { AuthLoadingState } from "./auth/AuthLoadingState";
 import { AuthErrorState } from "./auth/AuthErrorState";
 import { VerificationRequiredState } from "./auth/VerificationRequiredState";
 import { logger } from "@/utils/loggingService";
+import { createAuthCompatibilityLayer } from "@/utils/authCompatibility";
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -21,16 +22,8 @@ export default function ProtectedRoute({
   adminOnly,
   requireVerified = false 
 }: ProtectedRouteProps) {
-  const { 
-    user, 
-    isLoading, 
-    profile, 
-    isEmailVerified, 
-    refreshSession, 
-    authError,
-    isSessionExpired,
-    hasInitialized
-  } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(true);
@@ -40,19 +33,19 @@ export default function ProtectedRoute({
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       logger.debug('Protected Route Auth State:', { 
-        user: user?.id, // Use user id instead of the whole user object
-        profile, 
+        user: auth.user?.id, // Use user id instead of the whole user object
+        profile: auth.profile, 
         roleRequired, 
         adminOnly,
-        isLoading,
-        hasInitialized,
+        isLoading: auth.isLoading,
+        hasInitialized: auth.hasInitialized,
         isVerifying,
-        profileRole: profile?.role,
-        isEmailVerified,
+        profileRole: auth.profile?.role,
+        isEmailVerified: auth.isEmailVerified,
         path: location.pathname
       });
     }
-  }, [user, profile, roleRequired, adminOnly, isLoading, hasInitialized, isEmailVerified, location.pathname, isVerifying]);
+  }, [auth.user, auth.profile, roleRequired, adminOnly, auth.isLoading, auth.hasInitialized, auth.isEmailVerified, location.pathname, isVerifying]);
 
   // Force session verification on sensitive routes or after time threshold
   useEffect(() => {
@@ -64,11 +57,11 @@ export default function ProtectedRoute({
       const isSensitiveRoute = adminOnly || roleRequired === 'admin' || requireVerified;
       const timeThreshold = isSensitiveRoute ? 30000 : 300000; // 30 seconds for sensitive routes, 5 minutes for others
       const shouldVerify = 
-        user && 
+        auth.user && 
         (Date.now() - lastVerified > timeThreshold || isSensitiveRoute);
       
-      if (shouldVerify) {
-        await refreshSession();
+      if (shouldVerify && auth.refreshSession) {
+        await auth.refreshSession();
         setLastVerified(Date.now());
       }
       
@@ -76,30 +69,30 @@ export default function ProtectedRoute({
     };
     
     verifyAuthentication();
-  }, [location.pathname, user, adminOnly, roleRequired, requireVerified, refreshSession]);
+  }, [location.pathname, auth.user, adminOnly, roleRequired, requireVerified, auth.refreshSession]);
 
   // Show notification for session expiration
   useEffect(() => {
-    if (isSessionExpired && user) {
+    if (auth.isSessionExpired && auth.user) {
       toast.error("Your session has expired. Please log in again.", {
         description: "You'll be redirected to the login page."
       });
     }
-  }, [isSessionExpired, user]);
+  }, [auth.isSessionExpired, auth.user]);
 
   // Handle loading state
-  if (isLoading || isVerifying) {
+  if (auth.isLoading || isVerifying) {
     return <AuthLoadingState />;
   }
 
   // Handle expired session
-  if (isSessionExpired) {
+  if (auth.isSessionExpired) {
     logger.warn("Session expired, redirecting to login", { path: location.pathname });
     return <Navigate to="/login" state={{ from: location, expired: true }} replace />;
   }
 
   // Handle unauthenticated users
-  if (!user && hasInitialized) {
+  if (!auth.user && auth.hasInitialized) {
     logger.warn("Unauthenticated access attempt", { path: location.pathname });
     toast.error("Please log in to access this page", {
       description: "This page requires authentication."
@@ -107,27 +100,35 @@ export default function ProtectedRoute({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Handle auth errors - Fix: Change authError type to string
-  if (authError) {
-    const errorMessage = typeof authError === 'string' ? authError : 
-                         authError instanceof Error ? authError.message : 
-                         'Unknown authentication error';
+  // Handle auth errors
+  if (auth.authError) {
+    let errorMessage = "Unknown authentication error";
+    
+    if (typeof auth.authError === 'string') {
+      errorMessage = auth.authError;
+    } else if (auth.authError instanceof Error) {
+      errorMessage = auth.authError.message;
+    }
     
     return <AuthErrorState 
       error={errorMessage} 
       onRetry={async () => {
-        await refreshSession();
+        if (auth.refreshSession) {
+          await auth.refreshSession();
+        }
       }} 
       isRetrying={false} 
     />;
   }
 
   // Handle verification requirement
-  if (requireVerified && !isEmailVerified && hasInitialized) {
+  if (requireVerified && !auth.isEmailVerified && auth.hasInitialized) {
     logger.warn("Unverified user attempted to access restricted content", { path: location.pathname });
     return <VerificationRequiredState 
       onRefresh={async () => {
-        await refreshSession();
+        if (auth.refreshSession) {
+          await auth.refreshSession();
+        }
       }}
       onResendVerification={async () => {}}
       isResending={false}
@@ -135,11 +136,14 @@ export default function ProtectedRoute({
   }
 
   // Handle admin access check
-  if ((adminOnly || roleRequired === 'admin') && hasInitialized) {
-    if (profile?.role !== 'admin') {
+  if ((adminOnly || roleRequired === 'admin') && auth.hasInitialized) {
+    const isAdmin = auth.profile?.role === 'admin' || 
+                  auth.user?.app_metadata?.is_admin;
+    
+    if (!isAdmin) {
       logger.warn("Non-admin attempted to access admin area", { 
         path: location.pathname,
-        userRole: profile?.role 
+        userRole: auth.profile?.role 
       });
       
       toast.error("You don't have permission to access this page", {
@@ -148,15 +152,16 @@ export default function ProtectedRoute({
       return <Navigate to="/dashboard" replace />;
     }
   }
-  else if (roleRequired && profile && hasInitialized) {
-    const hasRequiredRole = profile.role === roleRequired || 
-                          (roleRequired === 'user' && profile.role === 'admin');
+  else if (roleRequired && auth.profile && auth.hasInitialized) {
+    const userRole = auth.profile?.role || 'user';
+    const hasRequiredRole = userRole === roleRequired || 
+                          (roleRequired === 'user' && userRole === 'admin');
     
     if (!hasRequiredRole) {
       logger.warn("Insufficient role for route access", { 
         path: location.pathname,
         requiredRole: roleRequired,
-        userRole: profile?.role 
+        userRole: userRole
       });
       
       toast.error("You don't have permission to access this page", {

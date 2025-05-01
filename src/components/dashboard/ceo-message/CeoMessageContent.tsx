@@ -3,16 +3,22 @@ import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { useCeoSelection } from "@/hooks/useCeoSelection";
 import { useCeoMessage } from "@/hooks/useCeoMessage";
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 interface CeoMessageContentProps {
   riskAppetite: 'low' | 'medium' | 'high';
 }
 
 export function CeoMessageContent({ riskAppetite }: CeoMessageContentProps) {
-  const { profile } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   const { selectedCeo } = useCeoSelection();
-  const { message, isLoading } = useCeoMessage(riskAppetite, profile?.industry, profile?.company);
-  const companyName = profile?.company || "Your Company";
+  const { message, isLoading } = useCeoMessage(
+    riskAppetite, 
+    auth.profile?.industry || undefined, 
+    auth.profile?.company || undefined
+  );
+  const companyName = auth.profile?.company || "Your Company";
   
   if (isLoading) {
     return (

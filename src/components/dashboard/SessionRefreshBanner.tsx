@@ -4,6 +4,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 interface SessionRefreshBannerProps {
   threshold?: number; // Time in minutes before showing the banner
@@ -14,14 +15,19 @@ export const SessionRefreshBanner: React.FC<SessionRefreshBannerProps> = ({
 }) => {
   const [showBanner, setShowBanner] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { user, refreshSession } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   
   useEffect(() => {
-    // Check if session needs refreshing
+    // Check if session needs refreshing - use last activity or created_at
     const checkSessionAge = () => {
-      if (!user?.updated_at) return;
+      if (!auth.user) return;
       
-      const sessionUpdateTime = new Date(user.updated_at).getTime();
+      // Use updated_at if available, otherwise fall back to created_at
+      const sessionTimestamp = auth.user.updated_at || auth.user.created_at;
+      if (!sessionTimestamp) return;
+      
+      const sessionUpdateTime = new Date(sessionTimestamp).getTime();
       const thresholdMs = threshold * 60 * 1000; // Convert minutes to ms
       const now = Date.now();
       
@@ -34,12 +40,14 @@ export const SessionRefreshBanner: React.FC<SessionRefreshBannerProps> = ({
     const interval = setInterval(checkSessionAge, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, [user, threshold]);
+  }, [auth.user, threshold]);
   
   const handleRefresh = async () => {
+    if (!auth.refreshSession) return;
+    
     setIsRefreshing(true);
     try {
-      await refreshSession();
+      await auth.refreshSession();
       setShowBanner(false);
       toast.success('Session refreshed successfully');
     } catch (error) {
@@ -80,4 +88,4 @@ export const SessionRefreshBanner: React.FC<SessionRefreshBannerProps> = ({
       </div>
     </div>
   );
-};
+}

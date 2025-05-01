@@ -6,17 +6,19 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from '@/components/ui/skeleton';
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 interface CeoMessageProps {
   riskAppetite: string;
 }
 
 export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
-  const { profile } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   const navigate = useNavigate();
   
   // Loading state
-  if (!profile) {
+  if (!auth.profile) {
     return (
       <Card className="border-primary/20">
         <CardHeader className="flex flex-col sm:flex-row items-center sm:items-start sm:justify-between pb-2 space-y-2 sm:space-y-0">
@@ -37,8 +39,8 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
   }
   
   // Get company name from profile or use default
-  const companyName = profile?.company || "your company";
-  const industry = profile?.industry || "your industry";
+  const companyName = auth.profile?.company || "your company";
+  const industry = auth.profile?.industry || "your industry";
   
   // Define dynamic content based on risk appetite
   const getMessageContent = () => {

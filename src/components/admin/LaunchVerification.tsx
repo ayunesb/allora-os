@@ -7,9 +7,13 @@ import { VerificationContent } from './launch-verification/VerificationContent';
 import { VerificationActions } from './launch-verification/VerificationActions';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useVerification } from '@/hooks/admin/useVerification';
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 export default function LaunchVerification() {
-  const { profile } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
+  const companyId = auth.profile?.company_id || null;
+  
   const {
     isChecking,
     results,
@@ -25,7 +29,7 @@ export default function LaunchVerification() {
     checkDatabaseIndexes,
     verifyRLSPolicies,
     verifyDatabaseFunctions
-  } = useVerification(profile?.company_id);
+  } = useVerification(companyId);
   
   return (
     <ErrorBoundary>

@@ -15,10 +15,11 @@ import { updateCompanyDetails } from "@/utils/company";
 import { PartialCompanyDetails } from "@/models/companyDetails";
 import { CompanyDetailsSurvey } from "@/components/onboarding/company-details";
 import { fetchUserCompany } from "@/utils/companyHelpers";
-import { User } from '@/types/fixed/User';
+import { createAuthCompatibilityLayer } from "@/utils/authCompatibility";
 
 export default function CompanyDetailsForm() {
-  const { user, profile, refreshProfile } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({});
@@ -27,15 +28,15 @@ export default function CompanyDetailsForm() {
   // Load company details when profile changes
   useEffect(() => {
     async function loadCompanyData() {
-      if (!profile?.company_id) {
+      if (!auth.profile?.company_id) {
         setIsLoading(false);
         return;
       }
       
       setIsLoading(true);
       try {
-        console.log("Loading company details for company ID:", profile.company_id);
-        const company = await fetchUserCompany(user?.id || '');
+        console.log("Loading company details for company ID:", auth.profile.company_id);
+        const company = await fetchUserCompany(auth.user?.id || '');
         
         if (company) {
           console.log("Company details loaded:", company);
@@ -51,14 +52,14 @@ export default function CompanyDetailsForm() {
     }
     
     loadCompanyData();
-  }, [profile, user]);
+  }, [auth.profile, auth.user]);
 
   const updateCompanyDetailsState = (details: PartialCompanyDetails) => {
     setCompanyDetails({ ...companyDetails, ...details });
   };
 
   const handleSaveCompanyDetails = async () => {
-    if (!user) {
+    if (!auth.user) {
       toast.error("You must be logged in to update company details");
       return;
     }
@@ -68,16 +69,16 @@ export default function CompanyDetailsForm() {
 
     try {
       // Extract basic info that's required by the API
-      const companyName = profile?.company || "";
-      const industryName = profile?.industry || "";
+      const companyName = auth.profile?.company || "";
+      const industryName = auth.profile?.industry || "";
       
-      console.log("Saving company details for user:", user.id);
+      console.log("Saving company details for user:", auth.user.id);
       console.log("Company name:", companyName);
       console.log("Industry:", industryName);
       console.log("Company details:", companyDetails);
       
       // Provide the bare minimum required fields plus the additionalDetails
-      const result = await updateCompanyDetails(user.id, {
+      const result = await updateCompanyDetails(auth.user.id, {
         name: companyName,
         industry: industryName,
         description: companyDetails.description || "",
@@ -93,7 +94,9 @@ export default function CompanyDetailsForm() {
       }
 
       // Refresh profile to get updated data
-      await refreshProfile();
+      if (auth.refreshProfile) {
+        await auth.refreshProfile();
+      }
 
       toast.success("Company details updated successfully!");
     } catch (error: any) {

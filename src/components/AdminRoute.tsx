@@ -5,16 +5,15 @@ import { useAuth } from "@/context/AuthContext";
 import { logger } from "@/utils/loggingService";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User } from '@/types/fixed/User';
-import { AuthContextProps } from '@/types/fixed/Auth';
+import { createAuthCompatibilityLayer } from "@/utils/authCompatibility";
 
 export interface AdminRouteProps {
   children: React.ReactNode;
 }
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const auth = useAuth();
-  const { profile, user } = auth;
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   const isLoading = auth.loading || false;
   const location = useLocation();
   const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(true);
@@ -23,6 +22,10 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   // Define refreshSession function locally if not available from useAuth
   const refreshSession = async () => {
     try {
+      if (auth.refreshSession) {
+        return await auth.refreshSession();
+      }
+      
       const { data, error } = await supabase.auth.refreshSession();
       
       if (error) {
@@ -42,8 +45,10 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
       setIsVerifyingAdmin(true);
       
       try {
-        // First check local profile
-        if (profile?.role === "admin") {
+        // First check if user has admin role
+        const userIsAdmin = auth.user?.role === 'admin' || auth.user?.app_metadata?.is_admin;
+        
+        if (userIsAdmin) {
           // Double-check with server for sensitive admin routes
           const { data, error } = await supabase.rpc('verify_admin_status');
           
@@ -61,7 +66,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
             await refreshSession(); // Refresh the session to update local state
           }
         } else {
-          logger.debug("User is not an admin based on profile", { role: profile?.role });
+          logger.debug("User is not an admin based on profile", { role: auth.user?.role });
           setIsAdmin(false);
         }
       } catch (error) {
@@ -74,7 +79,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     };
 
     verifyAdminStatus();
-  }, [profile?.role]);
+  }, [auth.user]);
 
   if (isLoading || isVerifyingAdmin) {
     return <div className="flex justify-center items-center min-h-screen">

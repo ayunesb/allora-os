@@ -1,135 +1,96 @@
 
-import React, { useState } from 'react';
-import { TableCell, TableRow } from '@/components/ui/table';
+import React from 'react';
+import { TableRow, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { WebhookEvent } from '@/types/webhooks';
-import { Eye, RotateCw } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Eye } from 'lucide-react';
+import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { truncateUrl } from '@/utils/formatting';
+import { formatRelativeTime } from '@/utils/dateUtils';
 
 interface WebhookEventRowProps {
-  event: WebhookEvent;
+  event: UnifiedWebhookEvent;
+  onViewDetail: () => void;
 }
 
-export function WebhookEventRow({ event }: WebhookEventRowProps) {
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  
-  const getStatusColor = (status: string) => {
-    switch (status) {
+const WebhookEventRow: React.FC<WebhookEventRowProps> = ({ event, onViewDetail }) => {
+  // Helper function to determine status badge variant
+  const getStatusVariant = (status: string) => {
+    switch (status.toLowerCase()) {
       case 'success':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+        return {
+          variant: 'success' as const,
+          label: 'Success',
+          className: 'bg-green-500/10 text-green-500 border-green-500/20' 
+        };
       case 'failed':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+        return {
+          variant: 'destructive' as const,
+          label: 'Failed',
+          className: 'bg-red-500/10 text-red-500 border-red-500/20'
+        };
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+        return {
+          variant: 'outline' as const,
+          label: 'Pending',
+          className: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+        };
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
+        return {
+          variant: 'secondary' as const,
+          label: status,
+          className: ''
+        };
     }
   };
+
+  // Determine the badge variant based on status
+  const statusConfig = getStatusVariant(event.status);
   
-  const getWebhookTypeIcon = (type: string) => {
-    // This would be replaced with actual icons based on the webhook type
-    return null;
-  };
+  // Either use eventType or event_type property based on which one exists
+  const eventType = event.eventType || event.event_type || 'unknown';
   
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    }).format(date);
-  };
+  // Use the URL from either targetUrl or url property
+  const url = event.targetUrl || event.url || '';
   
+  // Format the timestamp
+  const formattedTime = formatRelativeTime(event.timestamp || event.created_at);
+
   return (
-    <>
-      <TableRow>
-        <TableCell>
-          <div className="flex items-center gap-2">
-            {getWebhookTypeIcon(event.webhookType)}
-            <span className="capitalize">{event.webhookType}</span>
-          </div>
-        </TableCell>
-        <TableCell>{event.event_type || 'N/A'}</TableCell>
-        <TableCell>
-          <Badge className={getStatusColor(event.status)}>
-            {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-          </Badge>
-        </TableCell>
-        <TableCell>{formatDate(event.timestamp)}</TableCell>
-        <TableCell className="text-right">
-          <Button variant="ghost" size="sm" onClick={() => setDetailsOpen(true)}>
-            <Eye className="h-4 w-4 mr-1" />
-            Details
-          </Button>
-        </TableCell>
-      </TableRow>
-      
-      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Webhook Event Details</DialogTitle>
-            <DialogDescription>
-              {event.webhookType} webhook event from {formatDate(event.timestamp)}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Tabs defaultValue="payload">
-            <TabsList>
-              <TabsTrigger value="payload">Payload</TabsTrigger>
-              <TabsTrigger value="response">Response</TabsTrigger>
-              <TabsTrigger value="meta">Metadata</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="payload" className="max-h-96 overflow-auto">
-              <pre className="bg-muted p-4 rounded-md text-xs">
-                {JSON.stringify(event.payload, null, 2)}
-              </pre>
-            </TabsContent>
-            
-            <TabsContent value="response" className="max-h-96 overflow-auto">
-              <pre className="bg-muted p-4 rounded-md text-xs">
-                {JSON.stringify(event.response, null, 2)}
-              </pre>
-            </TabsContent>
-            
-            <TabsContent value="meta" className="max-h-96 overflow-auto">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="font-medium">ID:</div>
-                  <div>{event.id}</div>
-                  
-                  <div className="font-medium">Type:</div>
-                  <div className="capitalize">{event.webhookType}</div>
-                  
-                  <div className="font-medium">Event:</div>
-                  <div>{event.event_type || 'N/A'}</div>
-                  
-                  <div className="font-medium">Status:</div>
-                  <div>
-                    <Badge className={getStatusColor(event.status)}>
-                      {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                    </Badge>
-                  </div>
-                  
-                  <div className="font-medium">Target URL:</div>
-                  <div className="break-all">{event.targetUrl}</div>
-                  
-                  <div className="font-medium">Timestamp:</div>
-                  <div>{formatDate(event.timestamp)}</div>
-                  
-                  <div className="font-medium">Source:</div>
-                  <div>{event.source || 'N/A'}</div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
-    </>
+    <TableRow>
+      <TableCell>
+        <Badge variant="outline" className={statusConfig.className}>
+          {statusConfig.label}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <span className="font-mono text-xs">
+          {eventType}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="text-xs truncate block max-w-[200px]" title={url}>
+          {truncateUrl(url)}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {formattedTime}
+        </span>
+      </TableCell>
+      <TableCell className="text-right">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onViewDetail}
+          className="h-8 w-8 p-0"
+        >
+          <Eye className="h-4 w-4" />
+          <span className="sr-only">View Details</span>
+        </Button>
+      </TableCell>
+    </TableRow>
   );
-}
+};
+
+export default WebhookEventRow;

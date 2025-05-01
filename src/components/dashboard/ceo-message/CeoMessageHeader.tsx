@@ -2,11 +2,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useCeoSelection } from "@/hooks/useCeoSelection";
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 export function CeoMessageHeader() {
-  const { profile } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   const { selectedCeo } = useCeoSelection();
-  const companyName = profile?.company || "Your Company";
+  const companyName = auth.profile?.company || "Your Company";
   
   return (
     <div className="flex items-start gap-4">
