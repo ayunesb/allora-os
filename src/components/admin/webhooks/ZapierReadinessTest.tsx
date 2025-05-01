@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,13 +56,14 @@ export default function ZapierReadinessTest() {
       
       const result = await onCampaignLaunched(webhookUrl, campaign);
       
-      setResults(prev => ({ ...prev, campaign: result.success }));
-      
-      if (result.success) {
-        toast.success("Campaign webhook test successful");
+      const success = result.success;
+      if (success) {
+        toast.success("Test event sent successfully");
       } else {
-        toast.error("Campaign webhook test failed");
+        toast.error(`Failed to send test event: ${result.message || 'Unknown error'}`);
       }
+      
+      setResults(prev => ({ ...prev, campaign: success }));
     } catch (error) {
       console.error('Error testing campaign webhook:', error);
       setResults(prev => ({ ...prev, campaign: false }));
@@ -94,13 +94,14 @@ export default function ZapierReadinessTest() {
       
       const result = await onNewLeadAdded(webhookUrl, lead);
       
-      setResults(prev => ({ ...prev, lead: result.success }));
-      
-      if (result.success) {
+      const success = result.success;
+      if (success) {
         toast.success("Lead webhook test successful");
       } else {
         toast.error("Lead webhook test failed");
       }
+      
+      setResults(prev => ({ ...prev, lead: success }));
     } catch (error) {
       console.error('Error testing lead webhook:', error);
       setResults(prev => ({ ...prev, lead: false }));
@@ -130,13 +131,14 @@ export default function ZapierReadinessTest() {
       
       const result = await onStrategyApproved(webhookUrl, strategy);
       
-      setResults(prev => ({ ...prev, strategy: result.success }));
-      
-      if (result.success) {
-        toast.success("Strategy webhook test successful");
+      const success = result.success;
+      if (success) {
+        toast.success("Strategy approved event sent successfully");
       } else {
-        toast.error("Strategy webhook test failed");
+        toast.error(`Failed to send strategy approved event: ${result.message || 'Unknown error'}`);
       }
+      
+      setResults(prev => ({ ...prev, strategy: success }));
     } catch (error) {
       console.error('Error testing strategy webhook:', error);
       setResults(prev => ({ ...prev, strategy: false }));
@@ -167,13 +169,14 @@ export default function ZapierReadinessTest() {
       
       const result = await onLeadConverted(webhookUrl, lead);
       
-      setResults(prev => ({ ...prev, conversion: result.success }));
-      
-      if (result.success) {
+      const success = result.success;
+      if (success) {
         toast.success("Conversion webhook test successful");
       } else {
         toast.error("Conversion webhook test failed");
       }
+      
+      setResults(prev => ({ ...prev, conversion: success }));
     } catch (error) {
       console.error('Error testing conversion webhook:', error);
       setResults(prev => ({ ...prev, conversion: false }));
@@ -204,13 +207,14 @@ export default function ZapierReadinessTest() {
       
       const result = await onRevenueMilestoneReached(webhookUrl, revenue);
       
-      setResults(prev => ({ ...prev, revenue: result.success }));
-      
-      if (result.success) {
+      const success = result.success;
+      if (success) {
         toast.success("Revenue milestone webhook test successful");
       } else {
         toast.error("Revenue milestone webhook test failed");
       }
+      
+      setResults(prev => ({ ...prev, revenue: success }));
     } catch (error) {
       console.error('Error testing revenue webhook:', error);
       setResults(prev => ({ ...prev, revenue: false }));

@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import { CampaignPayload, LeadPayload } from '@/components/admin/launch-verification/types';
+import { CampaignPayload, LeadPayload, WebhookResult } from '@/types/Webhooks';
 import { BusinessEventType } from '@/utils/webhookTypes';
 
 export type { BusinessEventType };
@@ -11,10 +11,10 @@ export interface BusinessEventPayload {
 }
 
 export const useZapier = () => {
-  const triggerWebhook = async (url: string, payload: any) => {
+  const triggerWebhook = async (url: string, payload: any): Promise<WebhookResult> => {
     if (!url) {
       toast.error("No webhook URL provided");
-      return false;
+      return { success: false, message: "No webhook URL provided" };
     }
 
     try {
@@ -30,10 +30,14 @@ export const useZapier = () => {
         }),
       });
       
-      return true;
+      return { success: true };
     } catch (error) {
       console.error('Error triggering webhook:', error);
-      return false;
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : "Unknown error",
+        error 
+      };
     }
   };
 
@@ -41,27 +45,26 @@ export const useZapier = () => {
     webhookUrl: string,
     eventType: BusinessEventType,
     data: Record<string, any>
-  ) => {
+  ): Promise<WebhookResult> => {
     return triggerWebhook(webhookUrl, {
       eventType,
       data,
     });
   };
 
-  const triggerCampaignCreated = async (webhookUrl: string, campaign: CampaignPayload) => {
+  const triggerCampaignCreated = async (webhookUrl: string, campaign: CampaignPayload): Promise<WebhookResult> => {
     return triggerBusinessEvent(webhookUrl, 'campaign_created', campaign);
   };
 
-  const triggerLeadConverted = async (webhookUrl: string, lead: LeadPayload) => {
+  const triggerLeadConverted = async (webhookUrl: string, lead: LeadPayload): Promise<WebhookResult> => {
     return triggerBusinessEvent(webhookUrl, 'lead_converted', lead);
   };
   
-  // Add missing triggerWorkflow function
   const triggerWorkflow = async (
     webhookUrl: string,
     eventType: string,
     data: Record<string, any>
-  ) => {
+  ): Promise<WebhookResult> => {
     return triggerWebhook(webhookUrl, {
       eventType,
       data,
@@ -82,7 +85,7 @@ export const triggerBusinessEvent = async (
   webhookUrl: string,
   eventType: BusinessEventType,
   data: Record<string, any>
-) => {
+): Promise<WebhookResult> => {
   // This is a simplified version for test mocking purposes
   console.log(`Simulating business event: ${eventType}`, data);
   return { success: true };
@@ -93,7 +96,7 @@ export const triggerWorkflow = async (
   webhookUrl: string,
   eventType: string,
   data: Record<string, any>
-) => {
+): Promise<WebhookResult> => {
   console.log(`Simulating workflow trigger: ${eventType}`, data);
   return { success: true };
 };

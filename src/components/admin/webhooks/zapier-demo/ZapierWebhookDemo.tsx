@@ -31,10 +31,9 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       );
       
       if (result.success) {
-        toast.success(`Successfully triggered "${event}" event`);
+        toast.success(`Event triggered successfully`);
       } else {
-        const errorMessage = result.message || (result.error && result.error.message) || "Unknown error";
-        toast.error(`Failed to trigger "${event}" event: ${errorMessage}`);
+        toast.error(`Failed to trigger event: ${result.message || (result.error instanceof Error ? result.error.message : 'Unknown error')}`);
       }
     } catch (error: any) {
       console.error(`Error triggering "${event}" event:`, error);
@@ -64,8 +63,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
       if (result.success) {
         toast.success(`Successfully triggered "${eventType}" business event`);
       } else {
-        const errorMessage = result.message || "Unknown error";
-        toast.error(`Failed to trigger "${eventType}" business event: ${errorMessage}`);
+        toast.error(`Failed to trigger "${eventType}" business event: ${result.message || "Unknown error"}`);
       }
     } catch (error: any) {
       console.error(`Error triggering "${eventType}" business event:`, error);

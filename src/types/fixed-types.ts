@@ -18,6 +18,7 @@ export interface AuthContextProps {
   isLoading: boolean;
   login: () => void;
   logout: () => void;
+  profile?: User;
 }
 
 // ExecutiveAgentProfile
@@ -25,7 +26,7 @@ export interface ExecutiveAgentProfile {
   name: string;
   role: string;
   expertise: string[];
-  description?: string;
+  description: string;
   personality: string;
   decisionStyle: string;
 }
@@ -93,6 +94,10 @@ export interface AccessibilityContextType {
   fontSize: number;
   setFontSize: (size: number) => void;
   updatePreference?: (key: string, value: any) => void;
+  highContrast?: boolean;
+  reducedMotion?: boolean;
+  textToSpeech?: boolean;
+  screenReaderFriendly?: boolean;
 }
 
 export interface LaunchProgressProps {
@@ -101,6 +106,22 @@ export interface LaunchProgressProps {
   status: 'pending' | 'in-progress' | 'completed' | 'error';
   isComplete?: boolean;
   launchStep?: number;
+}
+
+export interface LaunchInfoBoxProps {
+  title: string;
+  description?: string;
+  icon?: React.ReactNode;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  children?: React.ReactNode;
+}
+
+export interface LaunchInfoProps {
+  title: string;
+  description?: string;
+  icon?: React.ReactNode;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  children?: React.ReactNode;
 }
 
 // Additional needed WebhookType export
@@ -115,3 +136,11 @@ export type BusinessEventType =
   | 'user_onboarded'
   | 'campaign_launched'
   | 'lead_added';
+
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+  statusCode?: number;
+  responseData?: any;
+}

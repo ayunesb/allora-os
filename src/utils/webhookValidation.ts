@@ -1,5 +1,5 @@
 
-import { WebhookType } from './webhookTypes';
+import { WebhookType, WebhookResult } from '@/types/Webhooks';
 
 export function validateWebhookUrlFormat(url: string, type: WebhookType): boolean {
   if (!url || typeof url !== 'string') {
@@ -45,7 +45,7 @@ export function sanitizeWebhookUrl(url: string, type: WebhookType): string {
   return url.trim();
 }
 
-export async function testWebhook(url: string, type: WebhookType) {
+export async function testWebhook(url: string, type: WebhookType): Promise<WebhookResult> {
   if (!validateWebhookUrlFormat(url, type)) {
     return {
       success: false,

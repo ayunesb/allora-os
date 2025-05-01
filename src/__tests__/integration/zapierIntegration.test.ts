@@ -14,6 +14,8 @@ vi.mock('@/utils/auditLogger', () => ({
 }));
 
 describe('Zapier Integration Tests', () => {
+  const webhookUrl = 'https://hooks.zapier.com/hooks/catch/test/webhook';
+  
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -33,20 +35,19 @@ describe('Zapier Integration Tests', () => {
       };
 
       // Act
-      const result = await onStrategyApproved(strategy);
+      const result = await onStrategyApproved(webhookUrl, strategy);
 
       // Assert
       expect(result).toEqual({ success: true });
-      expect(triggerBusinessEvent).toHaveBeenCalledWith('strategy_approved', expect.objectContaining({
+      expect(triggerBusinessEvent).toHaveBeenCalledWith(webhookUrl, 'strategy_approved', expect.objectContaining({
         entityId: strategy.strategyId,
         entityType: 'strategy',
         strategyTitle: strategy.strategyTitle,
         companyId: strategy.companyId
       }));
       
-      expect(logAuditEvent).toHaveBeenCalledWith(expect.objectContaining({
-        action: 'SYSTEM_CHANGE',
-        resource: 'zapier_event'
+      expect(logAuditEvent).toHaveBeenCalledWith('SYSTEM_CHANGE', 'Triggered strategy_approved Zapier webhook', undefined, expect.objectContaining({
+        strategyId: strategy.strategyId
       }));
     });
 
@@ -62,7 +63,7 @@ describe('Zapier Integration Tests', () => {
       };
 
       // Act
-      const result = await onStrategyApproved(strategy);
+      const result = await onStrategyApproved(webhookUrl, strategy);
 
       // Assert
       expect(result).toEqual({ success: false, error: expect.any(Error) });
@@ -83,11 +84,11 @@ describe('Zapier Integration Tests', () => {
       };
 
       // Act
-      const result = await onNewLeadAdded(lead);
+      const result = await onNewLeadAdded(webhookUrl, lead);
 
       // Assert
       expect(result).toEqual({ success: true });
-      expect(triggerBusinessEvent).toHaveBeenCalledWith('lead_added', expect.objectContaining({
+      expect(triggerBusinessEvent).toHaveBeenCalledWith(webhookUrl, 'lead_added', expect.objectContaining({
         entityId: lead.leadId,
         entityType: 'lead',
         leadName: lead.leadName,
@@ -109,11 +110,11 @@ describe('Zapier Integration Tests', () => {
       };
 
       // Act
-      const result = await onCampaignLaunched(campaign);
+      const result = await onCampaignLaunched(webhookUrl, campaign);
 
       // Assert
       expect(result).toEqual({ success: true });
-      expect(triggerBusinessEvent).toHaveBeenCalledWith('campaign_launched', expect.objectContaining({
+      expect(triggerBusinessEvent).toHaveBeenCalledWith(webhookUrl, 'campaign_launched', expect.objectContaining({
         entityId: campaign.campaignId,
         entityType: 'campaign',
         campaignTitle: campaign.campaignTitle,

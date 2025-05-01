@@ -4,7 +4,7 @@
  */
 import { runExecutiveAgent } from './executiveAgent';
 import { executiveProfiles } from './agentProfiles';
-import { ExecutiveAgentProfile, AgentRunOptions } from '@/types/agents';
+import { ExecutiveAgentProfile, AgentRunOptions } from '@/types/Agent';
 
 /**
  * Run a test of the executive agent system

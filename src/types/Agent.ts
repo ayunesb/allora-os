@@ -12,3 +12,9 @@ export interface AgentOptions {
   saveToDatabase?: boolean;
   includeRiskAssessment?: boolean;
 }
+
+export interface AgentRunOptions {
+  includeRiskAssessment?: boolean;
+  marketConditions?: string;
+  [key: string]: any;
+}

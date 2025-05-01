@@ -4,6 +4,7 @@ export interface AccessibilityContextType {
   reducedMotion?: boolean;
   fontSize: number;
   textToSpeech?: boolean;
+  screenReaderFriendly?: boolean;
   setFontSize: (v: number) => void;
   updatePreference?: (key: string, value: any) => void;
 }
