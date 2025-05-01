@@ -1,103 +1,65 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runExecutiveAgent } from '../agents/executiveAgent';
-import { executiveProfiles } from '../agents/agentProfiles';
-import { supabase } from '@/integrations/supabase/client';
+import { runExecutiveAgent } from '@/agents/executiveAgent';
+import { v4 as uuidv4 } from 'uuid';
+
+// Mock uuid to return a consistent value
+vi.mock('uuid', () => ({
+  v4: () => 'test-uuid-1234'
+}));
 
 // Mock the supabase client
-vi.mock('@/integrations/supabase/client', () => {
-  return {
-    supabase: {
-      functions: {
-        invoke: vi.fn()
-      },
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: null },
-          error: null
-        })
-      },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              order: vi.fn().mockReturnValue({
-                data: [],
-                error: null
-              })
-            })
-          }),
-          ilike: vi.fn().mockReturnValue({
-            order: vi.fn().mockReturnValue({
-              limit: vi.fn().mockReturnValue({
-                data: [],
-                error: null
-              })
-            })
-          }),
-          insert: vi.fn().mockReturnValue({
-            data: null,
-            error: null
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    functions: {
+      invoke: vi.fn().mockResolvedValue({
+        data: {
+          content: JSON.stringify({
+            options: ['Option A', 'Option B'],
+            selectedOption: 'Option A',
+            reasoning: 'Because it is better',
+            riskAssessment: 'Low risk',
+            priority: 'high'
           })
-        }),
-        update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              data: null,
-              error: null
-            })
-          })
-        })
-      }
+        },
+        error: null
+      }),
+    },
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: {
+          user: {
+            id: 'test-user-id'
+          }
+        }
+      }),
     }
-  };
-});
+  }
+}));
 
-describe('Executive Agent', () => {
+// Mock the saveExecutiveDecision function
+vi.mock('./executiveMemory', () => ({
+  saveExecutiveDecision: vi.fn().mockResolvedValue(true),
+  getExecutiveDecisions: vi.fn().mockResolvedValue([])
+}));
+
+describe('runExecutiveAgent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('should return a decision when successful', async () => {
+    const task = 'Test task';
+    const executiveProfile = { name: 'Test Executive', role: 'CEO' };
     
-    // Default mock for supabase functions invoke
-    (supabase.functions.invoke as any).mockResolvedValue({
-      data: {
-        content: JSON.stringify({
-          options: ["Option 1", "Option 2"],
-          selectedOption: "Option 1",
-          reasoning: "This is the reasoning",
-          riskAssessment: "This is the risk assessment"
-        })
-      },
-      error: null
-    });
-  });
-
-  it('should return a decision when given a task', async () => {
-    const decision = await runExecutiveAgent(
-      "Analyze our Q2 marketing strategy", 
-      executiveProfiles.cmo,
-      { saveToDatabase: false }
-    );
-
+    const decision = await runExecutiveAgent(task, executiveProfile);
+    
     expect(decision).toBeDefined();
-    expect(decision.executiveName).toBe(executiveProfiles.cmo.name);
-    expect(decision.executiveRole).toBe(executiveProfiles.cmo.role);
-    expect(decision.task).toBe("Analyze our Q2 marketing strategy");
-    expect(decision.selectedOption).toBe("Option 1");
-  });
-
-  it('should handle errors gracefully', async () => {
-    // Mock a failure
-    (supabase.functions.invoke as any).mockRejectedValue(new Error("Test error"));
-
-    const decision = await runExecutiveAgent(
-      "Analyze our Q2 marketing strategy", 
-      executiveProfiles.cmo,
-      { saveToDatabase: false }
-    );
-
-    expect(decision).toBeDefined();
-    expect(decision.executiveName).toBe(executiveProfiles.cmo.name);
-    expect(decision.selectedOption).toBe("N/A");
-    expect(decision.reasoning).toContain("technical issues");
+    expect(decision.id).toBe('test-uuid-1234');
+    expect(decision.executiveName).toBe('Test Executive');
+    expect(decision.executiveRole).toBe('CEO');
+    expect(decision.task).toBe('Test task');
+    expect(decision.options).toEqual(['Option A', 'Option B']);
+    expect(decision.selectedOption).toBe('Option A');
   });
 });

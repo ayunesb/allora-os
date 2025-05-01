@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -8,44 +7,38 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
 export function AccessibilitySettings() {
-  const {
-    highContrast,
-    toggleHighContrast,
-    largeText,
-    toggleLargeText,
-    reducedMotion,
-    toggleReducedMotion,
-    screenReaderFriendly,
-    toggleScreenReaderFriendly
-  } = useAccessibility();
-  
+  const { preferences, updatePreference, applyAccessibilityClasses } = useAccessibility();
   const [showFeedback, setShowFeedback] = useState(true);
   
   const handleToggleHighContrast = () => {
-    toggleHighContrast();
+    updatePreference('highContrast', !preferences.highContrast);
+    applyAccessibilityClasses();
     if (showFeedback) {
-      toast.success(highContrast ? "High contrast mode disabled" : "High contrast mode enabled");
+      toast.success(preferences.highContrast ? "High contrast mode disabled" : "High contrast mode enabled");
     }
   };
   
   const handleToggleLargeText = () => {
-    toggleLargeText();
+    updatePreference('largeText', !preferences.largeText);
+    applyAccessibilityClasses();
     if (showFeedback) {
-      toast.success(largeText ? "Large text mode disabled" : "Large text mode enabled");
+      toast.success(preferences.largeText ? "Large text mode disabled" : "Large text mode enabled");
     }
   };
   
   const handleToggleReducedMotion = () => {
-    toggleReducedMotion();
+    updatePreference('reducedMotion', !preferences.reducedMotion);
+    applyAccessibilityClasses();
     if (showFeedback) {
-      toast.success(reducedMotion ? "Reduced motion mode disabled" : "Reduced motion mode enabled");
+      toast.success(preferences.reducedMotion ? "Reduced motion mode disabled" : "Reduced motion mode enabled");
     }
   };
   
   const handleToggleScreenReader = () => {
-    toggleScreenReaderFriendly();
+    updatePreference('screenReaderFriendly', !preferences.screenReaderFriendly);
+    applyAccessibilityClasses();
     if (showFeedback) {
-      toast.success(screenReaderFriendly ? "Screen reader optimizations disabled" : "Screen reader optimizations enabled");
+      toast.success(preferences.screenReaderFriendly ? "Screen reader optimizations disabled" : "Screen reader optimizations enabled");
     }
   };
   
@@ -99,7 +92,7 @@ export function AccessibilitySettings() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [highContrast, largeText, reducedMotion, screenReaderFriendly, showFeedback]);
+  }, [preferences, showFeedback]);
 
   return (
     <Card>
@@ -119,7 +112,7 @@ export function AccessibilitySettings() {
           </div>
           <Switch
             id="high-contrast"
-            checked={highContrast}
+            checked={preferences.highContrast}
             onCheckedChange={handleToggleHighContrast}
             aria-label="Toggle high contrast mode"
           />
@@ -134,7 +127,7 @@ export function AccessibilitySettings() {
           </div>
           <Switch
             id="large-text"
-            checked={largeText}
+            checked={preferences.largeText}
             onCheckedChange={handleToggleLargeText}
             aria-label="Toggle large text mode"
           />
@@ -149,7 +142,7 @@ export function AccessibilitySettings() {
           </div>
           <Switch
             id="reduced-motion"
-            checked={reducedMotion}
+            checked={preferences.reducedMotion}
             onCheckedChange={handleToggleReducedMotion}
             aria-label="Toggle reduced motion mode"
           />
@@ -164,7 +157,7 @@ export function AccessibilitySettings() {
           </div>
           <Switch
             id="screen-reader"
-            checked={screenReaderFriendly}
+            checked={preferences.screenReaderFriendly}
             onCheckedChange={handleToggleScreenReader}
             aria-label="Toggle screen reader optimization"
           />

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import SkipToContent from '@/components/accessibility/SkipToContent';
 import AccessibilityAnnouncer from '@/components/accessibility/AccessibilityAnnouncer';
 import { useAccessibility } from '@/context/AccessibilityContext';
+import { applyAccessibilityClasses } from '@/utils/accessibilityHelpers';
 
 // Loading spinner for lazy-loaded dashboard components
 const DashboardLoadingSpinner = () => (
@@ -15,18 +16,18 @@ const DashboardLoadingSpinner = () => (
 );
 
 export default function DashboardLayout() {
-  const { applyAccessibilityClasses } = useAccessibility();
+  const { preferences } = useAccessibility();
   
   // Apply accessibility classes when the layout mounts
   useEffect(() => {
-    applyAccessibilityClasses();
+    applyAccessibilityClasses(preferences);
     
     // Add a "main-content" id to the main element if it doesn't have one
     const mainElement = document.querySelector('main');
     if (mainElement && !mainElement.id) {
       mainElement.id = 'main-content';
     }
-  }, [applyAccessibilityClasses]);
+  }, [preferences]);
 
   return (
     <div className="min-h-screen flex flex-col">

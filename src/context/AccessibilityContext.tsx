@@ -1,5 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { applyAccessibilityClasses as applyClasses } from '@/utils/accessibilityHelpers';
 
 export type AccessibilityPreferences = {
   highContrast: boolean;
@@ -17,6 +18,7 @@ interface AccessibilityContextType {
     value: AccessibilityPreferences[K]
   ) => void;
   resetPreferences: () => void;
+  applyAccessibilityClasses: () => void;
 }
 
 const defaultPreferences: AccessibilityPreferences = {
@@ -32,6 +34,7 @@ const AccessibilityContext = createContext<AccessibilityContextType>({
   preferences: defaultPreferences,
   updatePreference: () => {},
   resetPreferences: () => {},
+  applyAccessibilityClasses: () => {},
 });
 
 export const AccessibilityProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
@@ -48,26 +51,8 @@ export const AccessibilityProvider: React.FC<{children: React.ReactNode}> = ({ c
     }
     
     // Apply classes to body element
-    const classList = document.body.classList;
+    applyClasses(preferences);
     
-    if (preferences.highContrast) classList.add('high-contrast');
-    else classList.remove('high-contrast');
-    
-    if (preferences.largeText) classList.add('large-text');
-    else classList.remove('large-text');
-    
-    if (preferences.reducedMotion) classList.add('reduced-motion');
-    else classList.remove('reduced-motion');
-    
-    if (preferences.enhancedFocus) classList.add('enhanced-focus');
-    else classList.remove('enhanced-focus');
-    
-    if (preferences.screenReaderFriendly) classList.add('screen-reader-friendly');
-    else classList.remove('screen-reader-friendly');
-    
-    if (preferences.improvedTextSpacing) classList.add('improved-text-spacing');
-    else classList.remove('improved-text-spacing');
-
   }, [preferences]);
 
   const updatePreference = <K extends keyof AccessibilityPreferences>(
@@ -83,9 +68,18 @@ export const AccessibilityProvider: React.FC<{children: React.ReactNode}> = ({ c
   const resetPreferences = () => {
     setPreferences(defaultPreferences);
   };
+  
+  const applyAccessibilityClasses = () => {
+    applyClasses(preferences);
+  };
 
   return (
-    <AccessibilityContext.Provider value={{ preferences, updatePreference, resetPreferences }}>
+    <AccessibilityContext.Provider value={{ 
+      preferences, 
+      updatePreference, 
+      resetPreferences,
+      applyAccessibilityClasses
+    }}>
       {children}
     </AccessibilityContext.Provider>
   );
