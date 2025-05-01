@@ -1,30 +1,34 @@
 
-/**
- * Content Validators for Social Media
- * 
- * This file contains utility functions for validating social media content
- */
-
 import { SocialPlatform } from '@/types/socialMedia';
-import { PLATFORM_CHARACTER_LIMITS, HASHTAG_PATTERN } from './constants';
 
 /**
- * Validates if hashtags follow the correct pattern
- * @param hashtags Array of hashtag strings to validate
- * @returns Boolean indicating if all hashtags are valid
+ * Platform-specific character limits
+ */
+const PLATFORM_CHARACTER_LIMITS: Record<string, number> = {
+  'Twitter': 280,
+  'Facebook': 63206,
+  'Instagram': 2200,
+  'LinkedIn': 3000
+};
+
+/**
+ * Validates hashtags to ensure they follow the correct format
  */
 export function validateHashtags(hashtags: string[]): boolean {
-  if (!Array.isArray(hashtags)) return false;
-  return hashtags.every(tag => HASHTAG_PATTERN.test(tag));
+  if (!Array.isArray(hashtags)) {
+    return false;
+  }
+
+  // Valid hashtag pattern: # followed by letters, numbers, or underscores
+  const hashtagPattern = /^#[a-zA-Z0-9_]+$/;
+  
+  return hashtags.every(tag => hashtagPattern.test(tag));
 }
 
 /**
- * Validates if content length is appropriate for the selected platform
- * @param content Post content to validate
- * @param platform Social media platform
- * @returns Boolean indicating if content length is valid
+ * Validates content length based on platform-specific limits
  */
 export function validateContentLength(content: string, platform: SocialPlatform): boolean {
-  const limit = PLATFORM_CHARACTER_LIMITS[platform];
+  const limit = PLATFORM_CHARACTER_LIMITS[platform] || 1000; // Default to 1000 if platform not found
   return content.length <= limit;
 }

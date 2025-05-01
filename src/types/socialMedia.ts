@@ -1,87 +1,38 @@
 
-// Social media platform types
-export type SocialMediaPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'Other';
-export type PostStatus = 'draft' | 'scheduled' | 'published' | 'approved' | 'Draft' | 'Scheduled' | 'Published' | 'Approved';
+export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn';
 
-// Adding required types
-export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok';
-export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
-export type PostContentType = ContentType;
+export type PostContentType = 'text' | 'image' | 'video' | 'link';
 
-export interface SocialMediaCalendarFilters {
-  platform?: string;
-  status?: string;
-  content_type?: string;
-  campaign_id?: string;
-  author_id?: string;
-  startDate?: string;
-  endDate?: string;
-  search?: string;
-  tags?: string[];
-}
-
-export interface CreatePostInput {
-  title: string;
-  content: string;
-  platform: SocialPlatform;
-  scheduled_date: string;
-  publish_time?: string;
-  content_type: ContentType;
-  media_urls?: string[];
-  campaign_id?: string;
-  tags?: string[];
-  is_approved?: boolean;
-  mentions?: string[];
-  hashtags?: string[];
-  location?: string;
-  link_url?: string;
-}
-
-export interface UpdatePostInput extends Partial<CreatePostInput> {
-  id: string;
-  status?: PostStatus;
-  approval_notes?: string;
-}
-
-export interface BatchPostResponse {
-  success: boolean;
-  processed: number;
-  failed: number;
-  error_details?: Array<{ post_id: string; error: string }>;
-}
+export type PostStatus = 'Draft' | 'Scheduled' | 'Published' | 'Failed' | 'Approved';
 
 export interface SocialMediaPost {
   id: string;
   title: string;
   content: string;
-  platform: SocialMediaPlatform | SocialPlatform | string;
-  status?: PostStatus | string;
-  scheduled_date?: string;
-  published_date?: string;
-  author_id?: string;
-  company_id?: string;
-  media_urls?: string[];
-  engagement?: {
-    likes?: number;
-    shares?: number;
-    comments?: number;
-    views?: number;
-  };
-  approver?: string;
-  created_at?: string;
-  updated_at?: string;
-  tags?: string[];
-  aiGenerated?: boolean;
-  aiSuggestions?: string[];
-  
-  // Adding required properties
+  platform: SocialPlatform;
+  content_type: PostContentType;
+  scheduled_date: string;
   publish_time?: string;
-  content_type?: ContentType;
-  is_approved?: boolean;
+  status: PostStatus;
+  is_approved: boolean;
+  media_urls?: string[];
   link_url?: string;
   campaign_id?: string;
-  approval_notes?: string;
-  mentions?: string[];
-  hashtags?: string[];
-  location?: string;
+  tags?: string[];
+  created_at: string;
+  updated_at: string;
+  company_id: string;
+}
+
+export interface NewSocialMediaPost {
+  title: string;
+  content: string;
+  platform: SocialPlatform;
+  content_type: PostContentType;
+  scheduled_date: string;
+  publish_time?: string;
+  media_urls?: string[];
+  link_url?: string;
+  campaign_id?: string;
+  tags?: string[];
 }

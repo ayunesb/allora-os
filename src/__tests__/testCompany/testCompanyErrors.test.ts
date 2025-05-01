@@ -1,65 +1,66 @@
 
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runTestCompanySetup, getTestCompany, createTestCompany } from '@/utils/company/test';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { supabase } from '@/integrations/supabase/client';
 
 // Mock dependencies
-jest.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    insert: jest.fn().mockReturnThis(),
-    update: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    single: jest.fn().mockReturnThis(),
-    maybeSingle: jest.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
   }
 }));
 
-jest.mock('@/utils/users/fetchUsers', () => ({
-  getUserProfileByEmail: jest.fn()
+vi.mock('@/utils/users/fetchUsers', () => ({
+  getUserProfileByEmail: vi.fn()
 }));
 
-jest.mock('@/utils/company/testCompany', () => ({
-  ...jest.requireActual('@/utils/company/testCompany'),
-  getTestCompany: jest.fn(),
-  createTestCompany: jest.fn()
+vi.mock('@/utils/company/test', () => ({
+  ...vi.importActual('@/utils/company/test'),
+  getTestCompany: vi.fn(),
+  createTestCompany: vi.fn()
 }));
 
 // Reset mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe('runTestCompanySetup error handling', () => {
-  test('should handle profile update error', async () => {
+  it('should handle profile update error', async () => {
     const mockUser = { id: 'user-123', email: 'test@example.com' };
     const mockNewCompany = { id: 'new-company-123', name: 'Test Company - test', created_at: '2023-01-01' };
     
     // Mock user exists
-    (getUserProfileByEmail as jest.Mock).mockResolvedValue(mockUser);
+    vi.mocked(getUserProfileByEmail).mockResolvedValue(mockUser);
     
     // Mock no existing company
-    (getTestCompany as jest.Mock).mockResolvedValue({
+    vi.mocked(getTestCompany).mockResolvedValue({
       success: true,
       data: null,
       message: 'No test company found'
     });
     
     // Mock successful company creation
-    (createTestCompany as jest.Mock).mockResolvedValue({
+    vi.mocked(createTestCompany).mockResolvedValue({
       success: true,
       data: mockNewCompany,
       message: 'Test company "Test Company - test" created successfully'
     });
     
     // Mock failed profile update
-    (supabase.from as jest.Mock).mockImplementation((table) => {
+    vi.mocked(supabase.from).mockImplementation((table) => {
       if (table === 'profiles') {
         return {
-          update: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockResolvedValue({ 
+          update: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockResolvedValue({ 
             error: { 
               message: 'Profile update failed', 
               code: 'PROFILE_UPDATE_ERROR' 
@@ -68,12 +69,12 @@ describe('runTestCompanySetup error handling', () => {
         };
       }
       return {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        insert: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        single: jest.fn().mockReturnThis(),
-        maybeSingle: jest.fn().mockReturnThis(),
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        insert: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        single: vi.fn().mockReturnThis(),
+        maybeSingle: vi.fn().mockReturnThis(),
       };
     });
     
@@ -84,8 +85,8 @@ describe('runTestCompanySetup error handling', () => {
     expect(result.errorCode).toBe('PROFILE_UPDATE_ERROR');
   });
 
-  test('should handle unexpected exceptions', async () => {
-    (getUserProfileByEmail as jest.Mock).mockRejectedValue(new Error('Unexpected error'));
+  it('should handle unexpected exceptions', async () => {
+    vi.mocked(getUserProfileByEmail).mockRejectedValue(new Error('Unexpected error'));
     
     const result = await runTestCompanySetup('test@example.com');
     

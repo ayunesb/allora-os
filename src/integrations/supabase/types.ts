@@ -1203,6 +1203,102 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_decisions: {
+        Row: {
+          created_at: string | null
+          executive_name: string
+          executive_role: string
+          id: string
+          options: string[]
+          priority: string | null
+          reasoning: string | null
+          risk_assessment: string | null
+          selected_option: string
+          task: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          executive_name: string
+          executive_role: string
+          id?: string
+          options: string[]
+          priority?: string | null
+          reasoning?: string | null
+          risk_assessment?: string | null
+          selected_option: string
+          task: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          executive_name?: string
+          executive_role?: string
+          id?: string
+          options?: string[]
+          priority?: string | null
+          reasoning?: string | null
+          risk_assessment?: string | null
+          selected_option?: string
+          task?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      executive_memory: {
+        Row: {
+          decision: string
+          executive_name: string
+          id: string
+          task: string
+          timestamp: string | null
+          user_id: string
+        }
+        Insert: {
+          decision: string
+          executive_name: string
+          id?: string
+          task: string
+          timestamp?: string | null
+          user_id: string
+        }
+        Update: {
+          decision?: string
+          executive_name?: string
+          id?: string
+          task?: string
+          timestamp?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      executive_messages: {
+        Row: {
+          created_at: string | null
+          from_executive: string
+          id: string
+          message_content: string
+          status: string | null
+          to_executive: string
+        }
+        Insert: {
+          created_at?: string | null
+          from_executive: string
+          id?: string
+          message_content: string
+          status?: string | null
+          to_executive: string
+        }
+        Update: {
+          created_at?: string | null
+          from_executive?: string
+          id?: string
+          message_content?: string
+          status?: string | null
+          to_executive?: string
+        }
+        Relationships: []
+      }
       export_logs: {
         Row: {
           crm_status: string | null

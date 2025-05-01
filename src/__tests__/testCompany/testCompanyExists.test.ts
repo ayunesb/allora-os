@@ -1,43 +1,44 @@
 
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runTestCompanySetup, getTestCompany } from '@/utils/company/test';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { supabase } from '@/integrations/supabase/client';
 
 // Mock dependencies
-jest.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    insert: jest.fn().mockReturnThis(),
-    update: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    single: jest.fn().mockReturnThis(),
-    maybeSingle: jest.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
   }
 }));
 
-jest.mock('@/utils/users/fetchUsers', () => ({
-  getUserProfileByEmail: jest.fn()
+vi.mock('@/utils/users/fetchUsers', () => ({
+  getUserProfileByEmail: vi.fn()
 }));
 
-jest.mock('@/utils/company/testCompany', () => ({
-  ...jest.requireActual('@/utils/company/testCompany'),
-  getTestCompany: jest.fn()
+vi.mock('@/utils/company/test', () => ({
+  ...vi.importActual('@/utils/company/test'),
+  getTestCompany: vi.fn()
 }));
 
 // Reset mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe('runTestCompanySetup with existing company', () => {
-  test('should return existing company if found', async () => {
+  it('should return existing company if found', async () => {
     const mockUser = { id: 'user-123', email: 'test@example.com' };
     const mockCompany = { id: 'company-123', name: 'Test Company', created_at: '2023-01-01' };
     
-    (getUserProfileByEmail as jest.Mock).mockResolvedValue(mockUser);
-    (getTestCompany as jest.Mock).mockResolvedValue({
+    vi.mocked(getUserProfileByEmail).mockResolvedValue(mockUser);
+    vi.mocked(getTestCompany).mockResolvedValue({
       success: true,
       data: mockCompany,
       message: 'Test company found'

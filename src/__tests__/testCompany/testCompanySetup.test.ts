@@ -1,33 +1,34 @@
 
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runTestCompanySetup } from '@/utils/company/test';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { supabase } from '@/integrations/supabase/client';
 
 // Mock dependencies
-jest.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    insert: jest.fn().mockReturnThis(),
-    update: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    single: jest.fn().mockReturnThis(),
-    maybeSingle: jest.fn().mockReturnThis(),
+    from: vi.fn().mockReturnThis(),
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    single: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn().mockReturnThis(),
   }
 }));
 
-jest.mock('@/utils/users/fetchUsers', () => ({
-  getUserProfileByEmail: jest.fn()
+vi.mock('@/utils/users/fetchUsers', () => ({
+  getUserProfileByEmail: vi.fn()
 }));
 
 // Reset mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe('runTestCompanySetup', () => {
-  test('should return validation error for invalid email', async () => {
+  it('should return validation error for invalid email', async () => {
     const result = await runTestCompanySetup('invalid-email');
     
     expect(result.success).toBe(false);
@@ -35,8 +36,8 @@ describe('runTestCompanySetup', () => {
     expect(getUserProfileByEmail).not.toHaveBeenCalled();
   });
 
-  test('should return error when user profile not found', async () => {
-    (getUserProfileByEmail as jest.Mock).mockResolvedValue(null);
+  it('should return error when user profile not found', async () => {
+    vi.mocked(getUserProfileByEmail).mockResolvedValue(null);
     
     const result = await runTestCompanySetup('valid@example.com');
     
