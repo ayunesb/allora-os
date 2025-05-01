@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ExecutiveMessage } from "@/types/agents";
 
@@ -39,4 +38,26 @@ export function formatInboxForPrompt(messages: ExecutiveMessage[]): string {
       (msg) => `From: ${msg.from_executive}\nMessage: ${msg.message_content}`
     )
     .join("\n\n");
+}
+
+/**
+ * Send a message from one executive agent to another
+ */
+export async function sendExecutiveMessage(
+  from: string,
+  to: string,
+  message: string
+): Promise<boolean> {
+  const { error } = await supabase.from("executive_messages").insert({
+    from_executive: from,
+    to_executive: to,
+    message_content: message
+  });
+
+  if (error) {
+    console.error("Failed to send executive message:", error);
+    return false;
+  }
+
+  return true;
 }
