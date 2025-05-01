@@ -6,18 +6,21 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 
 export interface BotSettingsPanelProps {
+  botId?: string;
   bot?: {
     name: string;
     title?: string;
   };
 }
 
-const BotSettingsPanel: React.FC<BotSettingsPanelProps> = ({ bot }) => {
+const BotSettingsPanel = ({ botId, bot }: BotSettingsPanelProps) => {
+  const botName = bot?.name || 'Bot';
+  
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-lg font-medium">
-          {bot?.name || 'Bot'} Settings
+          {botName} Settings
         </CardTitle>
       </CardHeader>
       <CardContent>

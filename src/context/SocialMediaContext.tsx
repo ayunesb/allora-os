@@ -1,139 +1,270 @@
 
-import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
-import { SocialMediaPost, SocialPlatform, PostStatus, SocialMediaCalendarFilters } from '@/types/socialMedia';
-import { useSocialMedia } from '@/hooks/social/useSocialMedia';
-import { toast } from 'sonner';
+import React, { createContext, useContext, ReactNode, useState } from 'react';
+import { 
+  SocialMediaPost, 
+  SocialPlatform, 
+  ContentType, 
+  PostStatus, 
+  SocialMediaCalendarFilters 
+} from '@/types/unified-types';
 
-interface SocialMediaContextType {
-  // Data
+export interface SocialMediaContextType {
   posts: SocialMediaPost[];
-  isLoading: boolean;
-  error: Error | string | null;
-  
-  // Filters
-  filters: SocialMediaCalendarFilters;
-  setPostFilters: (filters: SocialMediaCalendarFilters) => void;
-  clearFilters: () => void;
-  
-  // View state
-  view: 'calendar' | 'list';
-  setView: (view: 'calendar' | 'list') => void;
-  currentMonth: Date;
-  setCurrentMonth: (date: Date) => void;
-  
-  // Post operations
-  createPost: (data: any) => Promise<{ success: boolean; postId?: string; error?: string }>;
-  deletePost: (id: string) => Promise<{ success: boolean; error?: string }>;
-  schedule: (id: string) => Promise<{ success: boolean; error?: string }>;
-  approve: (id: string) => Promise<{ success: boolean; error?: string }>;
-  refreshPosts: () => Promise<void>;
-  
-  // Dialog state
-  isCreateDialogOpen: boolean;
-  openCreateDialog: () => void;
-  closeCreateDialog: () => void;
-  
-  // Search state
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedPlatform: string;
-  setSelectedPlatform: (platform: string) => void;
-  selectedStatus: string;
-  setSelectedStatus: (status: string) => void;
+  loading: boolean;
+  error: string | null;
+  createPost: (post: Partial<SocialMediaPost>) => Promise<void>;
+  updatePost: (postId: string, post: Partial<SocialMediaPost>) => Promise<void>;
+  deletePost: (postId: string) => Promise<void>;
+  approvePost: (postId: string) => Promise<void>;
+  schedulePost: (postId: string, scheduledDate: string) => Promise<void>;
+  publishPost: (postId: string) => Promise<void>;
+  fetchPosts: (filters?: SocialMediaCalendarFilters) => Promise<void>;
 }
 
+// Create context with undefined default value
 const SocialMediaContext = createContext<SocialMediaContextType | undefined>(undefined);
 
-export function SocialMediaProvider({ children }: { children: ReactNode }) {
-  // Social media data from hook
-  const {
-    posts,
-    isLoading,
-    error,
-    filters,
-    setPostFilters,
-    clearFilters,
-    createPost,
-    deletePost,
-    schedule,
-    approve,
-    refreshPosts
-  } = useSocialMedia();
+// Provider props interface
+export interface SocialMediaProviderProps {
+  children: ReactNode;
+}
+
+export const SocialMediaProvider: React.FC<SocialMediaProviderProps> = ({ children }) => {
+  const [posts, setPosts] = useState<SocialMediaPost[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  // Local UI state
-  const [view, setView] = useState<'calendar' | 'list'>('calendar');
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
-  
-  // Dialog handlers
-  const openCreateDialog = useCallback(() => setIsCreateDialogOpen(true), []);
-  const closeCreateDialog = useCallback(() => setIsCreateDialogOpen(false), []);
-  
-  // Create post wrapper
-  const handleCreatePost = useCallback(async (data: any) => {
-    const result = await createPost({
-      title: data.title,
-      content: data.content,
-      platform: data.platform,
-      scheduled_date: data.scheduled_date,
-      publish_time: data.publish_time,
-      content_type: data.content_type,
-      media_urls: data.media_urls,
-      campaign_id: data.campaign_id,
-      tags: data.tags
-    });
+  // Fetch posts with optional filters
+  const fetchPosts = async (filters?: SocialMediaCalendarFilters) => {
+    setLoading(true);
+    setError(null);
     
-    if (result.success) {
-      toast.success('Post created successfully');
-      closeCreateDialog();
-    } else {
-      toast.error(result.error || 'Failed to create post');
+    try {
+      // Example API call to fetch posts
+      // const response = await api.fetchSocialPosts(filters);
+      // setPosts(response.data);
+      
+      // Simulating API response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock data
+      const mockPosts: SocialMediaPost[] = [
+        {
+          id: '1',
+          platform: 'LinkedIn',
+          content: 'Example LinkedIn post',
+          content_type: 'text',
+          status: 'draft',
+          is_approved: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          platform: 'Twitter',
+          content: 'Example Twitter post',
+          content_type: 'text',
+          status: 'scheduled',
+          is_approved: true,
+          scheduled_at: new Date(Date.now() + 86400000).toISOString(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ];
+      
+      setPosts(mockPosts);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch posts');
+    } finally {
+      setLoading(false);
     }
-    
-    return result;
-  }, [createPost, closeCreateDialog]);
-  
-  const value: SocialMediaContextType = {
-    posts,
-    isLoading,
-    error,
-    filters,
-    setPostFilters,
-    clearFilters,
-    view,
-    setView,
-    currentMonth,
-    setCurrentMonth,
-    createPost: handleCreatePost,
-    deletePost,
-    schedule,
-    approve,
-    refreshPosts,
-    isCreateDialogOpen,
-    openCreateDialog,
-    closeCreateDialog,
-    searchQuery,
-    setSearchQuery,
-    selectedPlatform,
-    setSelectedPlatform,
-    selectedStatus,
-    setSelectedStatus
   };
   
+  // Create a new post
+  const createPost = async (post: Partial<SocialMediaPost>) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Example API call to create post
+      // const response = await api.createSocialPost(post);
+      
+      // Simulating API response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const newPost: SocialMediaPost = {
+        id: Date.now().toString(),
+        platform: post.platform || 'LinkedIn',
+        content: post.content || '',
+        content_type: post.content_type || 'text',
+        status: 'draft',
+        is_approved: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        ...post,
+      };
+      
+      setPosts(prevPosts => [...prevPosts, newPost]);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create post');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Update an existing post
+  const updatePost = async (postId: string, post: Partial<SocialMediaPost>) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Example API call to update post
+      // const response = await api.updateSocialPost(postId, post);
+      
+      // Simulating API response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setPosts(prevPosts => 
+        prevPosts.map(p => 
+          p.id === postId ? { ...p, ...post, updated_at: new Date().toISOString() } : p
+        )
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to update post');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Delete a post
+  const deletePost = async (postId: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Example API call to delete post
+      // await api.deleteSocialPost(postId);
+      
+      // Simulating API response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete post');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Approve a post
+  const approvePost = async (postId: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Example API call to approve post
+      // await api.approveSocialPost(postId);
+      
+      // Simulating API response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setPosts(prevPosts => 
+        prevPosts.map(p => 
+          p.id === postId ? { ...p, is_approved: true, updated_at: new Date().toISOString() } : p
+        )
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to approve post');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Schedule a post
+  const schedulePost = async (postId: string, scheduledDate: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Example API call to schedule post
+      // await api.scheduleSocialPost(postId, scheduledDate);
+      
+      // Simulating API response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setPosts(prevPosts => 
+        prevPosts.map(p => 
+          p.id === postId ? { 
+            ...p, 
+            status: 'scheduled' as PostStatus, 
+            scheduled_at: scheduledDate,
+            updated_at: new Date().toISOString() 
+          } : p
+        )
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to schedule post');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Publish a post immediately
+  const publishPost = async (postId: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Example API call to publish post
+      // await api.publishSocialPost(postId);
+      
+      // Simulating API response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setPosts(prevPosts => 
+        prevPosts.map(p => 
+          p.id === postId ? { 
+            ...p, 
+            status: 'published' as PostStatus, 
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString() 
+          } : p
+        )
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to publish post');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <SocialMediaContext.Provider value={value}>
+    <SocialMediaContext.Provider
+      value={{
+        posts,
+        loading,
+        error,
+        createPost,
+        updatePost,
+        deletePost,
+        approvePost,
+        schedulePost,
+        publishPost,
+        fetchPosts,
+      }}
+    >
       {children}
     </SocialMediaContext.Provider>
   );
-}
+};
 
-export function useSocialMediaContext() {
+// Custom hook to use the social media context
+export const useSocialMedia = (): SocialMediaContextType => {
   const context = useContext(SocialMediaContext);
+  
   if (context === undefined) {
-    throw new Error('useSocialMediaContext must be used within a SocialMediaProvider');
+    throw new Error('useSocialMedia must be used within a SocialMediaProvider');
   }
+  
   return context;
-}
+};

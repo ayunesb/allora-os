@@ -12,15 +12,28 @@ export interface BotInfoPanelProps {
     expertise?: string;
     specialties?: string[];
   };
+  description?: string;
+  specialties?: string[];
+  expertise?: string;
 }
 
-const BotInfoPanel: React.FC<BotInfoPanelProps> = ({ bot }) => {
-  if (!bot) {
+const BotInfoPanel = ({ 
+  bot, 
+  description: propDescription, 
+  specialties: propSpecialties,
+  expertise: propExpertise
+}: BotInfoPanelProps) => {
+  // Use props if provided, otherwise use bot object
+  const description = propDescription || bot?.description;
+  const specialties = propSpecialties || bot?.specialties;
+  const expertise = propExpertise || bot?.expertise;
+
+  if (!bot && !description && !expertise) {
     return (
       <Card className="h-full">
         <CardContent className="pt-6">
           <div className="text-center text-muted-foreground">
-            No bot selected
+            No bot information available
           </div>
         </CardContent>
       </Card>
@@ -31,12 +44,12 @@ const BotInfoPanel: React.FC<BotInfoPanelProps> = ({ bot }) => {
     <Card className="h-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-medium">
-          {bot.name} {bot.title ? `- ${bot.title}` : ''}
+          {bot?.name ? `About ${bot.name}` : 'Bot Information'}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {bot.avatar && (
+          {bot?.avatar && (
             <div className="flex justify-center">
               <div className="relative h-20 w-20 rounded-full overflow-hidden">
                 <img 
@@ -48,25 +61,27 @@ const BotInfoPanel: React.FC<BotInfoPanelProps> = ({ bot }) => {
             </div>
           )}
           
-          {bot.description && (
+          {description && (
             <div>
               <h3 className="text-sm font-medium mb-1">About</h3>
-              <p className="text-sm text-muted-foreground">{bot.description}</p>
+              <p className="text-sm text-muted-foreground">{description}</p>
             </div>
           )}
           
-          {bot.expertise && (
+          {expertise && (
             <div>
               <h3 className="text-sm font-medium mb-1">Expertise</h3>
-              <p className="text-sm text-muted-foreground">{bot.expertise}</p>
+              <Badge variant="outline" className="bg-primary/10 text-primary">
+                {expertise}
+              </Badge>
             </div>
           )}
           
-          {bot.specialties && bot.specialties.length > 0 && (
+          {specialties && specialties.length > 0 && (
             <div>
               <h3 className="text-sm font-medium mb-2">Specialties</h3>
               <div className="flex flex-wrap gap-2">
-                {bot.specialties.map((specialty, index) => (
+                {specialties.map((specialty, index) => (
                   <Badge key={index} variant="outline">
                     {specialty}
                   </Badge>

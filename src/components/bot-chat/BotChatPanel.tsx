@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Send } from 'lucide-react';
 
 export interface BotChatPanelProps {
-  // Define the required props
+  botId?: string;
   bot?: {
     name: string;
     title?: string;
@@ -14,9 +14,12 @@ export interface BotChatPanelProps {
   };
 }
 
-const BotChatPanel: React.FC<BotChatPanelProps> = ({ bot }) => {
+const BotChatPanel = ({ botId, bot }: BotChatPanelProps) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{ id: string; content: string; isUser: boolean }>>([]);
+  
+  // Use botId if provided
+  const botName = bot?.name || 'Bot';
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -32,7 +35,7 @@ const BotChatPanel: React.FC<BotChatPanelProps> = ({ bot }) => {
     setTimeout(() => {
       const botMessage = { 
         id: (Date.now() + 1).toString(), 
-        content: `This is a response from ${bot?.name || 'Bot'}`, 
+        content: `This is a response from ${botName}`, 
         isUser: false 
       };
       setChatHistory(prev => [...prev, botMessage]);
@@ -43,7 +46,7 @@ const BotChatPanel: React.FC<BotChatPanelProps> = ({ bot }) => {
     <Card className="flex flex-col h-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-medium">
-          {bot?.name || 'Chat'} {bot?.title ? `- ${bot.title}` : ''}
+          {botName} {bot?.title ? `- ${bot.title}` : ''}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-auto pb-6">
@@ -62,7 +65,7 @@ const BotChatPanel: React.FC<BotChatPanelProps> = ({ bot }) => {
           ))}
           {chatHistory.length === 0 && (
             <div className="text-center text-muted-foreground py-8">
-              Start a conversation with {bot?.name || 'the bot'}
+              Start a conversation with {botName}
             </div>
           )}
         </div>

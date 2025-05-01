@@ -1,31 +1,32 @@
 
-import { UnifiedUser, UnifiedExecutiveMessage, UnifiedWebhookEvent, WebhookType } from '@/types/unified-types';
+import { User, Bot, WebhookEvent, ExecutiveMessage, WebhookType } from '@/types/unified-types';
 
 /**
  * Ensures a user object has all the required properties for the application
  * by filling in missing values with sensible defaults
  */
-export function normalizeUserObject(user: any): UnifiedUser | null {
+export function normalizeUserObject(user: any): User | null {
   if (!user) return null;
   
   return {
     ...user,
     // Ensure these fields are always available
+    id: user.id || '',
+    email: user.email || '',
+    name: user.name || 
+          (user.user_metadata ? 
+            `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : '') || '',
     role: user.role || user.user_metadata?.role || 'user',
     company_id: user.company_id || null,
     company: user.company || null,
     industry: user.industry || null,
-    name: user.name || 
-          (user.user_metadata ? 
-            `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : ''),
     app_metadata: user.app_metadata || { is_admin: user.role === 'admin' },
     user_metadata: user.user_metadata || { firstName: '', lastName: '' },
     avatar_url: user.avatar_url || 
-               (user.user_metadata ? user.user_metadata.avatar : null),
+               (user.user_metadata ? user.user_metadata.avatar : null) || null,
     created_at: user.created_at || new Date().toISOString(),
     updated_at: user.updated_at || new Date().toISOString(),
-    email: user.email || ''
-  } as UnifiedUser;
+  };
 }
 
 /**
@@ -46,15 +47,15 @@ export function createAuthCompatibilityLayer(auth: any) {
 /**
  * Ensures webhook events have all properties in both naming styles
  */
-export function normalizeWebhookEvent(event: any): UnifiedWebhookEvent {
+export function normalizeWebhookEvent(event: any): WebhookEvent {
   if (!event) return null as any;
   
   return {
     ...event,
     eventType: event.eventType || event.event_type || 'unknown',
     event_type: event.event_type || event.eventType || 'unknown',
-    webhookType: event.webhookType || event.webhook_type || 'custom',
-    webhook_type: event.webhook_type || event.webhookType || 'custom',
+    webhookType: event.webhookType || event.webhook_type || 'custom' as WebhookType,
+    webhook_type: event.webhook_type || event.webhookType || 'custom' as WebhookType,
     url: event.url || event.targetUrl,
     targetUrl: event.targetUrl || event.url,
     timestamp: event.timestamp || event.created_at || new Date().toISOString()
@@ -64,11 +65,12 @@ export function normalizeWebhookEvent(event: any): UnifiedWebhookEvent {
 /**
  * Ensures bot objects have all required properties
  */
-export function normalizeBot(bot: any) {
+export function normalizeBot(bot: any): Bot | null {
   if (!bot) return null;
   
   return {
     ...bot,
+    id: bot.id || '',
     name: bot.name || 'AI Advisor',
     title: bot.title || bot.name || 'AI Advisor',
     expertise: bot.expertise || 'General Business'
@@ -78,11 +80,12 @@ export function normalizeBot(bot: any) {
 /**
  * Normalize executive message objects
  */
-export function normalizeExecutiveMessage(message: any): UnifiedExecutiveMessage {
+export function normalizeExecutiveMessage(message: any): ExecutiveMessage {
   if (!message) return null as any;
   
   return {
     ...message,
+    id: message.id || '',
     content: message.content || message.message_content || '',
     message_content: message.message_content || message.content || '',
     created_at: message.created_at || new Date().toISOString(),

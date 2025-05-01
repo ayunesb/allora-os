@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useTransition, Suspense } from "react";
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useBreakpoint } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
@@ -24,7 +24,7 @@ import { BotsTabContent } from "./tabContents/BotsTabContent";
 import AIExecutiveBoardroom from "@/components/ai-boardroom/AIExecutiveBoardroom";
 import DebateStarterPage from "@/components/ai-debate/DebateStarterPage";
 import BotInsightsSection from "@/components/bot-insights/BotInsightsSection";
-import { BotChatPanel } from "@/components/bot-chat/BotChatPanel";
+import BotChatPanel from "@/components/bot-chat/BotChatPanel";
 import ExecutiveRoster from "@/components/ExecutiveRoster";
 import ConsultationHistory from "@/components/ConsultationHistory";
 import { executiveBots } from "@/backend/executiveBots";

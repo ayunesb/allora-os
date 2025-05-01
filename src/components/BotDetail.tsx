@@ -1,16 +1,15 @@
 
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageCircle, Settings, Info, ArrowLeft } from 'lucide-react';
-import { BotChatPanel } from '@/components/bot-chat/BotChatPanel';
-import { BotSettingsPanel } from '@/components/bot-chat/BotSettingsPanel';
-import { BotInfoPanel } from '@/components/bot-chat/BotInfoPanel';
-import { useNavigate } from 'react-router-dom';
+import BotChatPanel from '@/components/bot-chat/BotChatPanel';
+import BotSettingsPanel from '@/components/bot-chat/BotSettingsPanel';
+import BotInfoPanel from '@/components/bot-chat/BotInfoPanel';
 import { useAuth } from '@/context/AuthContext';
 import { normalizeUserObject } from '@/utils/authCompatibility';
 
@@ -112,19 +111,20 @@ export default function BotDetail({ bot: initialBot }: BotDetailProps) {
           
           <CardContent className="pt-6">
             <TabsContent value="chat" className="mt-0">
-              <BotChatPanel botId={bot.id || ''} />
+              <BotChatPanel botId={bot.id || ''} bot={bot} />
             </TabsContent>
             
             <TabsContent value="info" className="mt-0">
               <BotInfoPanel 
-                description={bot.description || ''} 
-                specialties={bot.specialties || []} 
+                bot={bot}
+                description={bot.description} 
+                specialties={bot.specialties} 
                 expertise={bot.expertise} 
               />
             </TabsContent>
             
             <TabsContent value="settings" className="mt-0">
-              <BotSettingsPanel botId={bot.id || ''} />
+              <BotSettingsPanel botId={bot.id || ''} bot={bot} />
             </TabsContent>
           </CardContent>
         </Tabs>

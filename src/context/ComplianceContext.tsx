@@ -1,91 +1,100 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { ComplianceContextType } from '@/types/fixed/Compliance';
-import { useCompliance } from '@/hooks/useCompliance';
+import { ExtendedComplianceContextType } from '@/types/unified-types';
 
-// Create the context with a default value
-export const ComplianceContext = createContext<ComplianceContextType | undefined>(undefined);
+// Create the context with a default undefined value
+export const ComplianceContext = createContext<ExtendedComplianceContextType | undefined>(undefined);
 
+// Provider props interface
 interface ComplianceProviderProps {
   children: ReactNode;
+  initialPendingUpdates?: string[];
 }
 
-export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
+export const ComplianceProvider: React.FC<ComplianceProviderProps> = ({ 
+  children,
+  initialPendingUpdates = []
+}) => {
   const [isLoaded, setIsLoaded] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
   const [lastChecked, setLastChecked] = useState<string | null>(null);
-  const [autoUpdate, setAutoUpdateState] = useState(false);
-  const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingUpdates, setPendingUpdates] = useState<string[]>(initialPendingUpdates);
   const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
+  const [autoUpdate, setAutoUpdate] = useState(false);
 
-  // Function to check for updates
-  const checkForUpdates = async () => {
+  // Check for compliance updates
+  const checkForUpdates = () => {
     setIsCheckingUpdates(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      // Simulated response
+      setLastChecked(new Date().toISOString());
+      setIsCheckingUpdates(false);
+    }, 1500);
+  };
+
+  // Apply a specific update
+  const applyUpdate = async (documentId: string): Promise<boolean> => {
+    setIsApplyingUpdate(true);
+    
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setLastChecked(new Date().toISOString());
-    } catch (err) {
-      setError('Failed to check for updates');
-      console.error('Error checking for updates:', err);
-    } finally {
-      setIsCheckingUpdates(false);
-    }
-  };
-
-  // Function to set auto-update preference
-  const setAutoUpdate = (value: boolean) => {
-    setAutoUpdateState(value);
-    // Here you would typically persist this setting to user preferences
-  };
-
-  // Function to update a specific preference
-  const updatePreference = (key: string, value: any) => {
-    console.log(`Updating compliance preference: ${key} to ${value}`);
-    // Implement preference update logic here
-  };
-
-  // Mock functions for the extended interface
-  const applyUpdate = async () => {
-    setIsApplyingUpdate(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setPendingUpdates(prev => prev.slice(1));
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Remove the applied update from pending
+      setPendingUpdates(current => current.filter(id => id !== documentId));
       return true;
-    } catch (error) {
-      console.error("Failed to apply update:", error);
+    } catch (err) {
+      setError('Failed to apply update');
       return false;
     } finally {
       setIsApplyingUpdate(false);
     }
   };
 
-  const applyAllUpdates = async () => {
+  // Apply all pending updates
+  const applyAllUpdates = async (): Promise<boolean> => {
+    if (pendingUpdates.length === 0) return true;
+    
     setIsApplyingUpdate(true);
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Clear all pending updates
       setPendingUpdates([]);
       return true;
-    } catch (error) {
-      console.error("Failed to apply all updates:", error);
+    } catch (err) {
+      setError('Failed to apply updates');
       return false;
     } finally {
       setIsApplyingUpdate(false);
     }
   };
 
-  const scheduleComplianceCheck = async (intervalDays?: number) => {
-    console.log(`Scheduling compliance check every ${intervalDays || 7} days`);
-    // Implementation would go here
+  // Schedule regular compliance checks
+  const scheduleComplianceCheck = async (intervalDays: number = 30): Promise<void> => {
+    // Implementation would depend on your app's infrastructure
+    console.log(`Scheduled compliance check every ${intervalDays} days`);
   };
 
-  const enableAutoUpdates = async (documentId: string, enabled: boolean) => {
-    console.log(`Setting auto-updates for ${documentId} to ${enabled}`);
+  // Enable auto-updates for a document
+  const enableAutoUpdates = async (documentId: string, enabled: boolean): Promise<boolean> => {
+    // Implementation for enabling auto updates
+    console.log(`${enabled ? 'Enabled' : 'Disabled'} auto-updates for document ${documentId}`);
     return true;
   };
 
-  const value: ComplianceContextType = {
+  // Update user preferences
+  const updatePreference = (key: string, value: any) => {
+    console.log(`Updated preference: ${key} = ${value}`);
+    // Implementation would depend on your app's state management
+  };
+
+  const value: ExtendedComplianceContextType = {
     isLoaded,
     error,
     checkForUpdates,
@@ -109,13 +118,13 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
   );
 };
 
-export const useComplianceContext = () => {
+// Custom hook to use the compliance context
+export const useCompliance = (): ExtendedComplianceContextType => {
   const context = useContext(ComplianceContext);
-  if (context === undefined) {
-    throw new Error('useComplianceContext must be used within a ComplianceProvider');
+  
+  if (!context) {
+    throw new Error('useCompliance must be used within a ComplianceProvider');
   }
+  
   return context;
 };
-
-// Re-export the hook for convenience
-export { useCompliance };

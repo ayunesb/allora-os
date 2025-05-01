@@ -26,9 +26,11 @@ export interface UnifiedUser {
     is_admin?: boolean;
     [key: string]: any;
   };
-  // Add other required properties here
-  [key: string]: any; // Allow additional properties
+  // Allow additional properties
+  [key: string]: any;
 }
+
+export type User = UnifiedUser;
 
 // Bot type with all required properties
 export interface UnifiedBot {
@@ -41,6 +43,8 @@ export interface UnifiedBot {
   industry?: string;
   specialties?: string[];
 }
+
+export type Bot = UnifiedBot;
 
 // Extended webhook event type
 export interface UnifiedWebhookEvent {
@@ -71,7 +75,16 @@ export interface UnifiedExecutiveMessage {
   to_executive?: boolean;
   message_content?: string;
   status?: string;
-  [key: string]: any;
+}
+
+export type ExecutiveMessage = UnifiedExecutiveMessage;
+
+// Message type for chat interfaces
+export interface Message {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
+  timestamp: Date;
 }
 
 // Types for accessibility context with all needed properties
@@ -115,7 +128,7 @@ export interface ExtendedComplianceContextType {
   enableAutoUpdates: (documentId: string, enabled: boolean) => Promise<boolean>;
 }
 
-// WebhookType definition for compatibility
+// WebhookType definition
 export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
 
 // Social media specific interfaces
@@ -130,6 +143,8 @@ export interface SocialMediaPost {
   content: string;
   content_type: ContentType;
   status: PostStatus;
+  is_approved: boolean; // Make is_approved required
+  company_id?: string; // Add company_id for backward compatibility
   scheduled_at?: string;
   scheduled_date?: string; // For form compatibility
   publish_time?: string; // For form compatibility
@@ -145,7 +160,6 @@ export interface SocialMediaPost {
   tags?: string[];
   title?: string; // For form compatibility
   campaign_id?: string; // For form compatibility
-  is_approved?: boolean; // For approval workflows
   created_at: string;
   updated_at: string;
 }
@@ -157,4 +171,31 @@ export interface SocialMediaCalendarFilters {
   search?: string;
   startDate?: string;
   endDate?: string;
+}
+
+// Database interfaces for verification
+export interface DatabaseTableStatus {
+  name: string;
+  status: string;
+  count: number;
+}
+
+// Company profile interface
+export interface CompanyProfile {
+  id: string;
+  tenant_id: string;
+  company_name: string; // Changed from companyName to company_name
+  industry?: string;
+  target_customer?: string;
+  sales_channels?: string[];
+  offers?: string[];
+  pricing_model?: string;
+  tone_of_voice?: string;
+  website_url?: string;
+  revenue_goal?: number;
+  current_mrr?: number;
+  shopify_connected?: boolean;
+  has_active_sales_team?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }

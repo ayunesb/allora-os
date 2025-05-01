@@ -1,8 +1,22 @@
 
-import { SocialPlatform, ContentType, PostStatus, SocialMediaPost, SocialMediaCalendarFilters } from './unified-types';
+import { 
+  SocialPlatform, 
+  ContentType, 
+  PostStatus, 
+  SocialMediaPost, 
+  SocialMediaCalendarFilters 
+} from './unified-types';
 
-export type { SocialPlatform, ContentType, PostStatus, SocialMediaPost, SocialMediaCalendarFilters };
-export type PostContentType = ContentType; // Alias for backward compatibility
+export type { 
+  SocialPlatform, 
+  ContentType, 
+  PostStatus, 
+  SocialMediaPost, 
+  SocialMediaCalendarFilters 
+};
+
+// For backward compatibility
+export type PostContentType = ContentType;
 
 export interface SocialMediaContextType {
   posts: SocialMediaPost[];
