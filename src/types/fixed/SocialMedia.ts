@@ -35,6 +35,9 @@ export interface SocialMediaPost {
   is_approved?: boolean;
   status?: PostStatus;
   company_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  published_at?: string; // Added for backward compatibility
 }
 
 export interface SocialMediaCalendarFilters {

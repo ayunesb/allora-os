@@ -23,3 +23,42 @@ export type {
 export type UserRole = 'admin' | 'user';
 export type WebhookStatus = 'success' | 'failed' | 'pending';
 export type ChecklistItemStatus = 'pending' | 'error' | 'completed' | 'warning' | 'in-progress';
+
+// Extended types for contexts
+export interface ExtendedAccessibilityContextType {
+  screenReaderFriendly: boolean;
+  highContrast: boolean;
+  reducedMotion: boolean;
+  largeText: boolean;
+  invertColors: boolean;
+  fontSize: number;
+  setFontSize: (size: number) => void;
+  toggleScreenReaderFriendly: () => void;
+  toggleHighContrast: () => void;
+  toggleReducedMotion: () => void;
+  toggleLargeText: () => void;
+  toggleInvertColors: () => void;
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+  autoUpdate: boolean;
+  updatePreference: (key: string, value: any) => void;
+}
+
+export interface ExtendedComplianceContextType {
+  isLoaded: boolean;
+  error: Error | null;
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+  autoUpdate: boolean;
+  updatePreference: (key: string, value: any) => void;
+  pendingUpdates: any[];
+  isApplyingUpdate: boolean;
+  applyUpdate: (id: string) => Promise<void>;
+  applyAllUpdates: () => Promise<void>;
+  scheduleComplianceCheck: () => Promise<void>;
+  enableAutoUpdates: () => Promise<boolean>;
+}

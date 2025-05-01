@@ -21,7 +21,7 @@ export const useAccessibility = (): ExtendedAccessibilityContextType => {
     invertColors: context.invertColors || false,
     fontSize: context.fontSize || 16,
     setFontSize: context.setFontSize || ((v: number) => console.warn('setFontSize not implemented', v)),
-    toggleScreenReader: context.toggleScreenReaderFriendly || (() => console.warn('toggleScreenReader not implemented')),
+    toggleScreenReaderFriendly: context.toggleScreenReaderFriendly || (() => console.warn('toggleScreenReader not implemented')),
     toggleHighContrast: context.toggleHighContrast || (() => console.warn('toggleHighContrast not implemented')),
     toggleReducedMotion: context.toggleReducedMotion || (() => console.warn('toggleReducedMotion not implemented')),
     toggleLargeText: context.toggleLargeText || (() => console.warn('toggleLargeText not implemented')),
