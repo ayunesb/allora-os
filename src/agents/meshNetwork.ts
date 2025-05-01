@@ -4,12 +4,16 @@ import { ExecutiveMessage } from "@/types/agents";
 /**
  * Fetch messages for a specific executive
  */
-export async function fetchMessagesForExecutive(executiveName: string): Promise<ExecutiveMessage[]> {
+export async function fetchMessagesForExecutive(
+  executiveName: string
+): Promise<ExecutiveMessage[]> {
   try {
     const { data, error } = await supabase
       .from("executive_messages")
       .select("*")
-      .or(`from_executive.eq.${executiveName},to_executive.eq.${executiveName}`)
+      .or(
+        `from_executive.eq.${executiveName},to_executive.eq.${executiveName}`
+      )
       .order("created_at", { ascending: false })
       .limit(20);
 
@@ -51,7 +55,8 @@ export async function sendExecutiveMessage(
   const { error } = await supabase.from("executive_messages").insert({
     from_executive: from,
     to_executive: to,
-    message_content: message
+    message_content: message,
+    status: "unread", // optional: set default read state
   });
 
   if (error) {
