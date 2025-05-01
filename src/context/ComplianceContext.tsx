@@ -11,10 +11,12 @@ export const ComplianceContext = createContext<ExtendedComplianceContextType>({
   setAutoUpdate: () => {},
   isCheckingUpdates: false,
   lastChecked: null,
+  autoUpdate: false,
+  updatePreference: () => {},
   pendingUpdates: [],
   isApplyingUpdate: false,
-  applyUpdate: async () => null,
-  applyAllUpdates: async () => null,
+  applyUpdate: async () => {},
+  applyAllUpdates: async () => {},
   scheduleComplianceCheck: async () => {},
   enableAutoUpdates: async () => false
 });
@@ -25,7 +27,7 @@ export interface ComplianceProviderProps {
 
 export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [isCheckingUpdates, setIsCheckingUpdates] = useState<boolean>(false);
   const [lastChecked, setLastChecked] = useState<string | null>(null);
   const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
@@ -64,12 +66,9 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
       // Remove from pending updates
       setPendingUpdates(pendingUpdates.filter(id => id !== documentId));
       toast.success(`Update ${documentId} applied successfully`);
-      
-      return { success: true };
     } catch (err) {
-      setError(`Failed to apply update ${documentId}`);
+      setError(new Error(`Failed to apply update ${documentId}`));
       toast.error(`Failed to apply update ${documentId}`);
-      return { success: false, error: err };
     } finally {
       setIsApplyingUpdate(false);
     }
@@ -86,12 +85,9 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
       // Clear pending updates
       setPendingUpdates([]);
       toast.success('All updates applied successfully');
-      
-      return { success: true };
     } catch (err) {
-      setError('Failed to apply updates');
+      setError(new Error('Failed to apply updates'));
       toast.error('Failed to apply updates');
-      return { success: false, error: err };
     } finally {
       setIsApplyingUpdate(false);
     }
@@ -105,21 +101,21 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
       
       toast.success(`Compliance check scheduled every ${intervalDays} days`);
     } catch (err) {
-      setError('Failed to schedule compliance check');
+      setError(new Error('Failed to schedule compliance check'));
       toast.error('Failed to schedule compliance check');
     }
   };
   
   // Enable auto-updates for a document
-  const enableAutoUpdates = async (documentId: string, enabled: boolean) => {
+  const enableAutoUpdates = async () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      toast.success(`Auto-updates ${enabled ? 'enabled' : 'disabled'} for ${documentId}`);
+      toast.success('Auto-updates enabled');
       return true;
     } catch (err) {
-      toast.error(`Failed to ${enabled ? 'enable' : 'disable'} auto-updates for ${documentId}`);
+      toast.error('Failed to enable auto-updates');
       return false;
     }
   };
@@ -139,7 +135,7 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsLoaded(true);
       } catch (err) {
-        setError('Failed to load compliance data');
+        setError(new Error('Failed to load compliance data'));
       }
     };
     
@@ -155,14 +151,14 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
         setAutoUpdate,
         isCheckingUpdates,
         lastChecked,
+        autoUpdate,
+        updatePreference,
         pendingUpdates,
         isApplyingUpdate,
         applyUpdate,
         applyAllUpdates,
         scheduleComplianceCheck,
-        enableAutoUpdates,
-        autoUpdate,
-        updatePreference
+        enableAutoUpdates
       }}
     >
       {children}
