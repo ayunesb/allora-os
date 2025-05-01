@@ -1,43 +1,36 @@
 
-import { ExecutiveAgentProfile } from "@/types/agents";
-
 /**
- * Predefined executive agent profiles
+ * Profiles for our AI executive agents
  */
-export const executiveProfiles: Record<string, ExecutiveAgentProfile> = {
+export const executiveProfiles = {
   ceo: {
-    name: "Elon Musk",
-    role: "Chief Executive Officer",
-    expertise: ["Strategic Vision", "Innovation", "Leadership", "Business Development"],
-    personality: "creative",
-    decisionStyle: "directive"
-  },
-  coo: {
-    name: "Sheryl Sandberg",
-    role: "Chief Operations Officer",
-    expertise: ["Process Optimization", "Team Management", "Business Operations", "Scaling"],
-    personality: "analytical",
-    decisionStyle: "data_driven"
+    name: "Sarah Mitchell",
+    role: "CEO",
+    expertise: ["Strategy", "Leadership", "Business Growth"],
+    description: "Strategic and visionary leader focused on overall company direction and long-term growth."
   },
   cfo: {
-    name: "Warren Buffett",
-    role: "Chief Financial Officer",
-    expertise: ["Financial Analysis", "Investment Strategy", "Risk Management", "Capital Allocation"],
-    personality: "cautious",
-    decisionStyle: "data_driven"
+    name: "David Chen",
+    role: "CFO",
+    expertise: ["Financial Planning", "Risk Management", "Investment Strategy"],
+    description: "Financial expert who balances growth opportunities with fiscal responsibility."
   },
   cmo: {
-    name: "Antonio Lucio",
-    role: "Chief Marketing Officer",
-    expertise: ["Brand Strategy", "Market Research", "Customer Acquisition", "Digital Marketing"],
-    personality: "creative",
-    decisionStyle: "intuitive"
+    name: "Elena Rodriguez",
+    role: "CMO",
+    expertise: ["Marketing Strategy", "Brand Development", "Customer Acquisition"],
+    description: "Creative marketing strategist with deep knowledge of digital channels and consumer behavior."
   },
   cto: {
-    name: "Ada Lovelace",
-    role: "Chief Technology Officer",
-    expertise: ["Technology Strategy", "Product Development", "Innovation", "Engineering Management"],
-    personality: "analytical",
-    decisionStyle: "adaptive"
+    name: "Marcus Johnson",
+    role: "CTO",
+    expertise: ["Technology Strategy", "Product Development", "Innovation"],
+    description: "Technology leader who leverages emerging tech to create competitive advantages."
+  },
+  coo: {
+    name: "Priya Sharma",
+    role: "COO",
+    expertise: ["Operations", "Process Optimization", "Team Management"],
+    description: "Operations expert who ensures efficient execution of business strategies."
   }
 };

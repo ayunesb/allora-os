@@ -3966,36 +3966,6 @@ export type Database = {
           tenant_id: string | null
           title: string | null
         }
-        Insert: {
-          created_at?: string | null
-          duration?: number | null
-          estimated_budget?: number | null
-          id?: string | null
-          industry?: string | null
-          launch_date?: string | null
-          priority?: string | null
-          priority_justification?: string | null
-          priority_rank?: never
-          status?: string | null
-          summary?: string | null
-          tenant_id?: string | null
-          title?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          duration?: number | null
-          estimated_budget?: number | null
-          id?: string | null
-          industry?: string | null
-          launch_date?: string | null
-          priority?: string | null
-          priority_justification?: string | null
-          priority_rank?: never
-          status?: string | null
-          summary?: string | null
-          tenant_id?: string | null
-          title?: string | null
-        }
         Relationships: [
           {
             foreignKeyName: "strategies_tenant_id_fkey"
@@ -4068,12 +4038,35 @@ export type Database = {
         Row: {
           industry: string | null
           industry_rate: number | null
+          tenant_id: string | null
           tenant_name: string | null
           tenant_rate: number | null
           tenant_uses: number | null
           tone: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "company_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "galaxy_follow_ranking"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "company_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_decision_logs_summary"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "company_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {

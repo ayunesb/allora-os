@@ -1,149 +1,94 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from "@/integrations/supabase/client";
-import {
-  ExecutiveAgentProfile,
-  ExecutiveDecision,
-  AgentRunOptions,
-} from "@/types/agents";
-import { executivePromptTemplate } from "@/agents/promptTemplates";
-import { generateStrategy } from "@/backend/strategy";
-import { getDecisionStyle, getPersonality } from "@/utils/agentUtils";
-import { executiveProfiles } from "./agentProfiles";
-import { 
-  fetchExecutiveInbox, 
-  formatInboxForPrompt, 
-  markMessagesAsRead, 
-  notifyOtherExecutives, 
-  sendExecutiveMessage 
-} from "./executiveMessaging";
-import { 
-  fetchCoachingMemories, 
-  saveExecutiveDecision, 
-  getExecutiveDecisions 
-} from "./executiveMemory";
+import { saveExecutiveDecision } from './executiveMemory';
+import { supabase } from '@/integrations/supabase/client';
+import { ExecutiveDecision } from '@/types/agents';
+import { logger } from '@/utils/loggingService';
 
-export { executiveProfiles };
+// Re-export executiveProfiles from agentProfiles
+export { executiveProfiles } from './agentProfiles';
 
-/**
- * Runs an executive agent to make a strategic decision
- */
-export async function runExecutiveAgent(
-  task: string,
-  profile: ExecutiveAgentProfile,
-  options: AgentRunOptions = {}
-): Promise<ExecutiveDecision> {
-  const {
-    saveToDatabase = true,
-    includeRiskAssessment = true,
-    priority = "medium",
-    companyContext = "",
-    marketConditions = "",
-    userId = "user-unknown",
-  } = options;
-
-  try {
-    // Fetch unread messages for the executive
-    const inboxMessages = await fetchExecutiveInbox(profile.name);
-    const memoryContext = formatInboxForPrompt(inboxMessages);
-
-    // Fetch coaching memories
-    const coachingMemories = await fetchCoachingMemories(profile.name);
-
-    // Construct user preferences string
-    const userPreferences = `User Risk Appetite: ${
-      options.includeRiskAssessment ? "High" : "Low"
-    }\nPriority: ${priority}`;
-
-    // Call our Supabase edge function to process the prompt
-    const { data, error } = await supabase.functions.invoke("executive-think", {
-      body: {
-        prompt: executivePromptTemplate,
-        executiveName: profile.name,
-        executiveRole: profile.role,
-        expertise: profile.expertise.join(", "),
-        decisionStyle: getDecisionStyle(profile.decisionStyle),
-        personality: getPersonality(profile.personality),
-        task: task,
-        memoryContext: memoryContext,
-        coachingMemories: coachingMemories,
-        userPreferences: userPreferences,
-        companyContext: companyContext,
-        marketConditions: marketConditions,
-      },
-    });
-
-    if (error) {
-      console.error("Error in edge function:", error);
-      throw new Error(`AI Execution error: ${error.message}`);
-    }
-
-    // Parse the JSON content
-    const content = data.content;
-    const parsed = JSON.parse(content);
-
-    // Create a new executive decision object
-    const decision: ExecutiveDecision = {
-      id: uuidv4(),
-      executiveName: profile.name,
-      executiveRole: profile.role,
-      task: task,
-      options: parsed.options,
-      selectedOption: parsed.selectedOption,
-      reasoning: parsed.reasoning,
-      riskAssessment: includeRiskAssessment ? parsed.riskAssessment : "N/A",
-      timestamp: new Date().toISOString(),
-      priority: priority,
-    };
-
-    // Save the decision to the database
-    if (saveToDatabase) {
-      await saveExecutiveDecision(decision, userId);
-    }
-
-    // Send message notifications to other executives
-    if (inboxMessages.length > 0) {
-      await notifyOtherExecutives(profile.name, profile.role, inboxMessages);
-    }
-
-    return decision;
-  } catch (error: any) {
-    console.error("Error during AI execution:", error);
-
-    // Return a fallback decision on error
-    return {
-      id: uuidv4(),
-      executiveName: profile.name,
-      executiveRole: profile.role,
-      task: task,
-      options: ["Unable to generate options due to technical issues."],
-      selectedOption: "N/A",
-      reasoning: `I apologize, but I was unable to properly analyze this task due to technical issues. Please try again later. Error details: ${error.message}`,
-      riskAssessment: "Unable to assess risks due to technical error",
-      timestamp: new Date().toISOString(),
-      priority: "medium",
-    };
-  }
+interface AgentOptions {
+  saveToDatabase?: boolean;
 }
 
 /**
- * Runs an executive agent to generate a business strategy
+ * Runs an executive agent to make a decision on a given task
+ * @param task The task to perform
+ * @param executiveProfile The executive profile to use
+ * @param options Additional options
+ * @returns The decision made by the executive
  */
-export async function runExecutiveStrategy(
+export async function runExecutiveAgent(
   task: string,
-  profile: ExecutiveAgentProfile,
-  options: AgentRunOptions = {}
-) {
+  executiveProfile: { name: string; role: string; },
+  options: AgentOptions = {}
+): Promise<ExecutiveDecision> {
+  const { saveToDatabase = true } = options;
+  
   try {
-    // Run the executive agent to get a decision
-    const decision = await runExecutiveAgent(task, profile, options);
-
-    // Generate a strategy from the decision
-    const strategy = await generateStrategy(decision);
-
-    return strategy;
-  } catch (error) {
-    console.error("Error during AI strategy execution:", error);
-    throw error;
+    logger.info(`Running ${executiveProfile.name} (${executiveProfile.role}) for task: ${task}`);
+    
+    // Create a UUID for this decision
+    const decisionId = uuidv4();
+    
+    // Call the edge function to get the agent's response
+    const { data, error } = await supabase.functions.invoke('executive-agent', {
+      body: {
+        task,
+        executiveName: executiveProfile.name,
+        executiveRole: executiveProfile.role
+      }
+    });
+    
+    if (error) {
+      throw new Error(`Error running executive agent: ${error.message}`);
+    }
+    
+    // Parse the response
+    const content = JSON.parse(data.content);
+    
+    const decision: ExecutiveDecision = {
+      id: decisionId,
+      executiveName: executiveProfile.name,
+      executiveRole: executiveProfile.role,
+      task,
+      options: content.options || [],
+      selectedOption: content.selectedOption || "N/A",
+      reasoning: content.reasoning || "No reasoning provided",
+      riskAssessment: content.riskAssessment || "No risk assessment provided",
+      priority: content.priority || "medium",
+      timestamp: new Date().toISOString()
+    };
+    
+    // Save the decision to the database if requested
+    if (saveToDatabase) {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        await saveExecutiveDecision(decision, user.id);
+      } else {
+        logger.warn("No user found, decision not saved to database");
+      }
+    }
+    
+    return decision;
+  } catch (error: any) {
+    logger.error("Error in runExecutiveAgent:", error);
+    
+    // Return a basic decision object with error information
+    return {
+      id: uuidv4(),
+      executiveName: executiveProfile.name,
+      executiveRole: executiveProfile.role,
+      task,
+      options: ["Error occurred"],
+      selectedOption: "N/A",
+      reasoning: `Unable to complete task due to technical issues: ${error.message}`,
+      riskAssessment: "N/A - Error occurred",
+      priority: "medium",
+      timestamp: new Date().toISOString()
+    };
   }
 }
