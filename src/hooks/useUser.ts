@@ -13,16 +13,16 @@ export const useUser = () => {
     userDetails: normalizedUser ? {
       id: normalizedUser.id,
       email: normalizedUser.email,
-      name: normalizedUser.name,
+      name: normalizedUser.name || `${normalizedUser.firstName || ''} ${normalizedUser.lastName || ''}`.trim(),
       firstName: normalizedUser.firstName || normalizedUser.user_metadata?.firstName || '',
       lastName: normalizedUser.lastName || normalizedUser.user_metadata?.lastName || '',
-      avatar_url: normalizedUser.avatar_url,
+      avatar_url: normalizedUser.avatar_url || normalizedUser.avatar,
       is_admin: normalizedUser.app_metadata?.is_admin || 
                normalizedUser.role === 'admin',
-      role: normalizedUser.role,
-      company: normalizedUser.company,
-      company_id: normalizedUser.company_id,
-      industry: normalizedUser.industry
+      role: normalizedUser.role || 'user',
+      company: normalizedUser.company || '',
+      company_id: normalizedUser.company_id || '',
+      industry: normalizedUser.industry || ''
     } : null,
     isAdmin: normalizedUser?.app_metadata?.is_admin || 
             normalizedUser?.role === 'admin' || false,

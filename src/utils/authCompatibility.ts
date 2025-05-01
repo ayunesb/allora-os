@@ -1,91 +1,66 @@
 
-import { User as FixedUser } from '@/types/fixed/User';
+import { User } from "@/types/fixed/User";
 
 /**
- * Normalizes user objects from different sources into a consistent User type
- * This ensures all user objects have the required properties regardless of source
+ * Normalizes user data from different auth sources into a consistent User object
+ * This helps handle differences between Supabase Auth user and our application User type
  */
-export function normalizeUserObject(rawUser: any | null | undefined): FixedUser | null {
-  if (!rawUser) return null;
-  
-  // Ensure all required fields have values, with fallbacks
-  return {
-    id: rawUser.id || '',
-    email: rawUser.email || '',
-    firstName: rawUser.firstName || rawUser.user_metadata?.firstName || '',
-    lastName: rawUser.lastName || rawUser.user_metadata?.lastName || '',
-    name: rawUser.name || 
-          rawUser.user_metadata?.name || 
-          `${rawUser.user_metadata?.firstName || ''} ${rawUser.user_metadata?.lastName || ''}`.trim() || '',
-    role: rawUser.role || rawUser.user_metadata?.role || 'user',
-    company_id: rawUser.company_id || '',
-    company: rawUser.company || '',
-    industry: rawUser.industry || '',
-    avatar: rawUser.avatar || rawUser.user_metadata?.avatar || '',
-    avatar_url: rawUser.avatar_url || rawUser.user_metadata?.avatar || '',
-    created_at: rawUser.created_at || new Date().toISOString(),
-    updated_at: rawUser.updated_at || new Date().toISOString(),
-    app_metadata: {
-      is_admin: rawUser.app_metadata?.is_admin || rawUser.role === 'admin' || false,
-      ...(rawUser.app_metadata || {})
-    },
-    user_metadata: {
-      firstName: rawUser.user_metadata?.firstName || '',
-      lastName: rawUser.user_metadata?.lastName || '',
-      avatar: rawUser.user_metadata?.avatar || rawUser.avatar_url || '',
-      name: rawUser.user_metadata?.name || rawUser.name || '',
-      role: rawUser.user_metadata?.role || rawUser.role || 'user',
-      ...(rawUser.user_metadata || {})
-    }
+export function normalizeUserObject(userInput: any): User | null {
+  if (!userInput) return null;
+
+  // Extract user_metadata from various possible locations
+  const userMetadata = userInput.user_metadata || userInput.metadata || {};
+
+  // Create a normalized user object
+  const normalizedUser: User = {
+    id: userInput.id || '',
+    email: userInput.email || '',
+    firstName: userMetadata.firstName || userInput.firstName || '',
+    lastName: userMetadata.lastName || userInput.lastName || '',
+    name: userMetadata.name || userInput.name || 
+          `${userMetadata.firstName || userInput.firstName || ''} ${userMetadata.lastName || userInput.lastName || ''}`.trim(),
+    role: userInput.role || userMetadata.role || (userInput.app_metadata?.is_admin ? 'admin' : 'user'),
+    avatar: userMetadata.avatar || userInput.avatar || '',
+    avatar_url: userInput.avatar_url || userMetadata.avatar || '',
+    company_id: userInput.company_id || userMetadata.company_id || '',
+    company: userInput.company || userMetadata.company || '',
+    industry: userInput.industry || userMetadata.industry || '',
+    updated_at: userInput.updated_at || new Date().toISOString(),
+    created_at: userInput.created_at || new Date().toISOString(),
+    app_metadata: userInput.app_metadata || {},
+    user_metadata: userInput.user_metadata || userMetadata,
   };
+
+  return normalizedUser;
 }
 
 /**
- * Normalizes webhook event objects for consistent access
- */
-export function normalizeWebhookEvent(event: any): any {
-  if (!event) return null;
-  
-  return {
-    ...event,
-    eventType: event.eventType || event.event_type || '',
-    event_type: event.eventType || event.event_type || '',
-    webhookType: event.webhookType || event.webhook_type || '',
-    webhook_type: event.webhookType || event.webhook_type || '',
-    targetUrl: event.targetUrl || event.url || '',
-    url: event.targetUrl || event.url || '',
-  };
-}
-
-/**
- * Normalizes executive message objects for consistent access
- */
-export function normalizeExecutiveMessage(message: any): any {
-  if (!message) return null;
-  
-  return {
-    ...message,
-    content: message.content || message.message_content || '',
-    message_content: message.content || message.message_content || '',
-  };
-}
-
-/**
- * Creates an compatibility layer for auth contexts to ensure consistent API
+ * Creates a compatibility layer to ensure backward compatibility
+ * for code expecting older auth interfaces
  */
 export function createAuthCompatibilityLayer(authContext: any) {
-  const user = normalizeUserObject(authContext?.user || authContext?.profile);
-  
+  if (!authContext) return { user: null };
+
   return {
-    user,
-    profile: user,
-    loading: authContext?.loading || authContext?.isLoading || false,
-    isLoading: authContext?.loading || authContext?.isLoading || false,
-    hasInitialized: authContext?.hasInitialized || true,
-    isEmailVerified: authContext?.isEmailVerified || true,
-    isSessionExpired: authContext?.isSessionExpired || false,
-    authError: authContext?.authError || null,
-    refreshSession: authContext?.refreshSession || (() => Promise.resolve(true)),
-    refreshProfile: authContext?.refreshProfile || (() => Promise.resolve())
+    ...authContext,
+    user: normalizeUserObject(authContext.user || authContext.profile),
+    profile: normalizeUserObject(authContext.user || authContext.profile)
+  };
+}
+
+/**
+ * Normalizes webhook event data to provide consistent access patterns
+ */
+export function normalizeWebhookEvent(webhookEvent: any): any {
+  if (!webhookEvent) return null;
+
+  return {
+    ...webhookEvent,
+    eventType: webhookEvent.eventType || webhookEvent.event_type || '',
+    event_type: webhookEvent.eventType || webhookEvent.event_type || '',
+    webhookType: webhookEvent.webhookType || webhookEvent.webhook_type || '',
+    webhook_type: webhookEvent.webhookType || webhookEvent.webhook_type || '',
+    targetUrl: webhookEvent.targetUrl || webhookEvent.url || '',
+    url: webhookEvent.targetUrl || webhookEvent.url || '',
   };
 }

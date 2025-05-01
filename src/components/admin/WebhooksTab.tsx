@@ -8,6 +8,7 @@ import { useWebhookValidation } from '@/hooks/admin/useWebhookValidation';
 import WebhookHeader from './webhooks/WebhookHeader';
 import WebhookConfigTab from './webhooks/config/WebhookConfigTab';
 import { useBreakpoint } from "@/hooks/use-mobile";
+import { WebhookType } from '@/types/fixed/Webhook';
 
 const WebhooksTab = () => {
   const [activeTab, setActiveTab] = useState<string>("config");
@@ -38,11 +39,11 @@ const WebhooksTab = () => {
   } = useWebhooks();
 
   // Validation hooks
-  const { isValid: isStripeWebhookValid, validateUrl: validateStripeUrl } = useWebhookValidation('stripe');
-  const { isValid: isZapierWebhookValid, validateUrl: validateZapierUrl } = useWebhookValidation('zapier');
-  const { isValid: isGithubWebhookValid, validateUrl: validateGithubUrl } = useWebhookValidation('github');
-  const { isValid: isSlackWebhookValid, validateUrl: validateSlackUrl } = useWebhookValidation('slack');
-  const { isValid: isCustomWebhookValid, validateUrl: validateCustomUrl } = useWebhookValidation('custom');
+  const { isValid: isStripeWebhookValid, validateUrl: validateStripeUrl } = useWebhookValidation('stripe' as WebhookType);
+  const { isValid: isZapierWebhookValid, validateUrl: validateZapierUrl } = useWebhookValidation('zapier' as WebhookType);
+  const { isValid: isGithubWebhookValid, validateUrl: validateGithubUrl } = useWebhookValidation('github' as WebhookType);
+  const { isValid: isSlackWebhookValid, validateUrl: validateSlackUrl } = useWebhookValidation('slack' as WebhookType);
+  const { isValid: isCustomWebhookValid, validateUrl: validateCustomUrl } = useWebhookValidation('custom' as WebhookType);
 
   // Initialize validation on mount
   React.useEffect(() => {
