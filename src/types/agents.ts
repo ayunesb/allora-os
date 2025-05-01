@@ -1,19 +1,43 @@
 
-export interface ExecutiveAgentProfile {
+export interface User {
+  id: string;
+  email: string;
   name: string;
+  company_id: string;
   role: string;
-  expertise: string[];
-  decisionStyle: string;
-  personality: string;
+  created_at: string;
 }
 
-export interface AgentRunOptions {
-  saveToDatabase?: boolean;
-  includeRiskAssessment?: boolean;
-  priority?: 'low' | 'medium' | 'high';
-  companyContext?: string;
-  marketConditions?: string;
-  userId?: string;
+export interface ExecutiveMessage {
+  id: string;
+  created_at: string;
+  from_executive: string;
+  to_executive: string;
+  message_content: string;
+  status: "read" | "unread";
+}
+
+export interface DebateEntry {
+  executiveName: string;
+  role: string;
+  opinion: string;
+  stance: string;
+}
+
+export interface DebateSummary {
+  totalExecutives: number;
+  forVotes: number;
+  againstVotes: number;
+  majority: 'For' | 'Against' | 'Tie';
+  confidenceScore: number;
+  topRisks: string[];
+  topOpportunities: string[];
+}
+
+export interface DebateSessionResult {
+  task: string;
+  debates: DebateEntry[];
+  summary: DebateSummary;
 }
 
 export interface ExecutiveDecision {
@@ -25,27 +49,14 @@ export interface ExecutiveDecision {
   selectedOption: string;
   reasoning: string;
   riskAssessment: string;
-  timestamp: string;
   priority: string;
+  timestamp: string;
 }
 
-export interface ExecutiveMessage {
-  id: string;
-  from_executive: string;
-  to_executive: string;
-  message_content: string;
-  created_at: string;
-  status: 'read' | 'unread';
-}
-
-export interface ToolResponse {
-  tool: string;
-  result: string;
-  data?: any;
-}
-
-export interface ExecutiveResponse {
-  aiResponse: string;
-  toolResponses?: ToolResponse[];
-  raw?: any;
+export interface ExecutiveAgentProfile {
+  name: string;
+  role: string;
+  expertise?: string[];
+  traits?: string[];
+  communication_style?: string;
 }

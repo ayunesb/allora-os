@@ -3,10 +3,48 @@ import { logger } from './loggingService';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
+ * Logs a security-related event
+ */
+export async function logSecurityEvent(event: {
+  user: string;
+  action: string;
+  resource: string;
+  details?: Record<string, any>;
+  severity?: 'low' | 'medium' | 'high';
+}): Promise<string> {
+  try {
+    // Log locally first
+    logger.info(`Security event: ${event.action} on ${event.resource}`, {
+      ...event.details,
+      severity: event.severity || 'low',
+    });
+    
+    // Also log to the database if available
+    if (supabase) {
+      const { data, error } = await supabase.from('audit_logs').insert({
+        user_id: event.user,
+        action: event.action,
+        resource: event.resource,
+        details: event.details || {},
+        severity: event.severity || 'low',
+      }).select();
+      
+      if (error) {
+        logger.error('Failed to log security event to database', error);
+      } else if (data && data[0]) {
+        return data[0].id;
+      }
+    }
+    
+    return 'local-log-only';
+  } catch (error) {
+    logger.error('Failed to log security event', error);
+    return 'error-logging';
+  }
+}
+
+/**
  * Logs a compliance-related change to both the local logger and the database
- * @param userId The user who made the change
- * @param action Description of the action taken
- * @param details Optional details about the action
  */
 export async function logComplianceChange(
   userId: string, 
@@ -19,9 +57,10 @@ export async function logComplianceChange(
   try {
     // Also log to the database if available
     if (supabase) {
-      await supabase.from('compliance_audit_logs').insert({
+      await supabase.from('audit_logs').insert({
         user_id: userId,
         action,
+        resource: 'compliance',
         details,
         created_at: new Date().toISOString()
       });
@@ -33,28 +72,32 @@ export async function logComplianceChange(
 }
 
 /**
- * Gets recent compliance audit logs
- * @param limit Number of logs to retrieve
+ * Logs an audit event for general application events
  */
-export async function getComplianceAuditLogs(limit = 50) {
+export async function logAuditEvent(event: {
+  user?: string;
+  action: string;
+  resource: string;
+  details?: Record<string, any>;
+  severity?: string;
+}): Promise<void> {
   try {
-    if (!supabase) {
-      return [];
+    // Log locally first
+    logger.info(`Audit event: ${event.action} on ${event.resource}`, {
+      ...event.details,
+      severity: event.severity || 'info',
+    });
+    
+    // Also log to the database if available
+    if (supabase) {
+      await supabase.from('audit_logs').insert({
+        user_id: event.user,
+        action: event.action,
+        resource: event.resource,
+        details: event.details || {},
+      });
     }
-    
-    const { data, error } = await supabase
-      .from('compliance_audit_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-    
-    if (error) {
-      throw error;
-    }
-    
-    return data || [];
   } catch (error) {
-    logger.error('Failed to retrieve compliance audit logs', error);
-    return [];
+    logger.error('Failed to log audit event', error);
   }
 }

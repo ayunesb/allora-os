@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runTestCompanySetup, getTestCompany } from '@/utils/company/test';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { supabase } from '@/integrations/supabase/client';
+import { User } from '@/types/agents';
 
 // Mock dependencies
 vi.mock('@/integrations/supabase/client', () => ({
@@ -34,7 +35,15 @@ beforeEach(() => {
 
 describe('runTestCompanySetup with existing company', () => {
   it('should return existing company if found', async () => {
-    const mockUser = { id: 'user-123', email: 'test@example.com' };
+    const mockUser = { 
+      id: 'user-123', 
+      email: 'test@example.com',
+      name: 'Test User',
+      company_id: 'company-123',
+      role: 'user',
+      created_at: '2023-01-01T00:00:00Z'
+    } as User;
+    
     const mockCompany = { id: 'company-123', name: 'Test Company', created_at: '2023-01-01' };
     
     vi.mocked(getUserProfileByEmail).mockResolvedValue(mockUser);

@@ -1,8 +1,6 @@
-
 import { runExecutiveDebate, saveDebateResult, analyzeDebateResponse } from "./debateEngine";
 import { DebateSessionResult, DebateEntry, DebateSummary } from "@/types/agents";
 import { executiveProfiles } from "@/agents/agentProfiles";
-import { ExecutiveAgentProfile } from "@/types/agents";
 
 const executives = [
   { name: "Elon Musk", role: "Chief Executive Officer" },

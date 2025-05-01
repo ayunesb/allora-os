@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
+import '../mocks/executivesMock'; // Import the mock implementation
 
 /**
  * Updates an executive's performance metrics based on action outcomes
@@ -64,6 +65,18 @@ export async function updateExecutivePerformance(executiveName: string, outcome:
     } else {
       logger.info(`Updated performance for ${executiveName}: ${outcome}`);
     }
+    
+    // Log the performance update in agent_logs (a real table)
+    await supabase
+      .from('agent_logs')
+      .insert({
+        agent_id: executiveName,
+        tenant_id: 'development',
+        success: outcome === 'success',
+        xp: outcome === 'success' ? 10 : -5,
+        task: `Performance update: ${outcome}`
+      });
+      
   } catch (err) {
     logger.error('Error in updateExecutivePerformance', { error: err });
   }

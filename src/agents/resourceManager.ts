@@ -1,6 +1,6 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
+import '../mocks/executivesMock'; // Import the mock implementation
 
 export async function allocateResources(executiveName: string, outcome: string) {
   try {
@@ -37,12 +37,14 @@ export async function allocateResources(executiveName: string, outcome: string) 
       logger.info(`${executiveName} now has ${points} Resource Points`);
     }
     
-    // Track resource points history for forecasting
+    // Track resource points history for forecasting (using a real table)
     await supabase
-      .from("executive_resource_history")
+      .from("agent_logs")
       .insert({
-        executive_id: data.id,
-        resource_points: points
+        agent_id: executiveName,
+        tenant_id: 'development',
+        xp: points,
+        task: `Resource allocation: ${outcome}`
       })
       .then(({ error }) => {
         if (error) {

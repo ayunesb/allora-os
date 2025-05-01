@@ -1,174 +1,111 @@
 
-import { toast } from 'sonner';
-import { triggerBusinessEvent, BusinessEventType, BusinessEventPayload } from '@/lib/zapier';
+import { triggerBusinessEvent } from '@/lib/zapier';
 import { logAuditEvent } from '@/utils/auditLogger';
 
 /**
- * Trigger a Zapier workflow when a campaign is launched
+ * Triggers a Zapier event when a strategy is approved
  */
-export async function onCampaignLaunched(payload: {
-  campaignTitle: string;
-  platform: string;
-  owner: string;
-  campaignId: string;
-  companyId: string;
-}) {
-  try {
-    console.log('Triggering campaign launched event:', payload);
-    
-    // Log audit event for tracking
-    await logAuditEvent({
-      action: 'SYSTEM_CHANGE',
-      resource: 'zapier_event',
-      details: { event_type: 'campaign_launched', payload }
-    });
-    
-    const result = await triggerBusinessEvent('campaign_launched', {
-      entityId: payload.campaignId,
-      entityType: 'campaign',
-      timestamp: new Date().toISOString(),
-      ...payload
-    });
-    
-    if (result.success) {
-      console.log('Campaign launch notification sent successfully');
-    } else if (result.message) {
-      console.warn('Campaign launch notification failed:', result.message);
-    }
-    
-    return result;
-  } catch (error) {
-    console.error('Error triggering campaign launched event:', error);
-    return { success: false, error };
-  }
-}
-
-/**
- * Trigger a Zapier workflow when a new lead is added
- */
-export async function onNewLeadAdded(payload: {
-  company: string;
-  leadName: string;
-  source: string;
-  leadId?: string;
-}) {
-  try {
-    console.log('Triggering new lead added event:', payload);
-    
-    const result = await triggerBusinessEvent('lead_added', {
-      entityId: payload.leadId || 'batch',
-      entityType: 'lead',
-      timestamp: new Date().toISOString(),
-      ...payload
-    });
-    
-    if (result.success) {
-      console.log('Lead added notification sent successfully');
-    } else if (result.message) {
-      console.warn('Lead added notification failed:', result.message);
-    }
-    
-    return result;
-  } catch (error) {
-    console.error('Error triggering lead added event:', error);
-    return { success: false, error };
-  }
-}
-
-/**
- * Trigger a Zapier workflow when a strategy is approved
- */
-export async function onStrategyApproved(payload: {
+export async function onStrategyApproved(strategy: {
   strategyTitle: string;
   strategyId: string;
   companyId: string;
   approvedBy: string;
 }) {
   try {
-    console.log('Triggering strategy approved event:', payload);
-    
-    // Log audit event for tracking
+    // Log the event
     await logAuditEvent({
       action: 'SYSTEM_CHANGE',
       resource: 'zapier_event',
-      details: { event_type: 'strategy_approved', payload }
+      details: {
+        event_type: 'strategy_approved',
+        strategy_id: strategy.strategyId,
+        strategy_title: strategy.strategyTitle
+      }
     });
     
-    const result = await triggerBusinessEvent('strategy_approved', {
-      entityId: payload.strategyId,
+    // Trigger the Zapier event
+    return await triggerBusinessEvent('strategy_approved', {
+      entityId: strategy.strategyId,
       entityType: 'strategy',
-      timestamp: new Date().toISOString(),
-      ...payload
+      strategyTitle: strategy.strategyTitle,
+      companyId: strategy.companyId,
+      approvedBy: strategy.approvedBy,
     });
-    
-    if (!result.success && result.message) {
-      console.warn('Strategy approved notification failed:', result.message);
-    }
-    
-    return result;
   } catch (error) {
-    console.error('Error triggering strategy approved event:', error);
     return { success: false, error };
   }
 }
 
 /**
- * Trigger a Zapier workflow when a lead is converted to a customer
+ * Triggers a Zapier event when a new lead is added
  */
-export async function onLeadConverted(payload: {
+export async function onNewLeadAdded(lead: {
   leadId: string;
   leadName: string;
-  conversionValue: number;
-  companyId: string;
-  convertedBy: string;
+  company: string;
+  email: string;
+  source: string;
 }) {
   try {
-    console.log('Triggering lead converted event:', payload);
-    
-    const result = await triggerBusinessEvent('lead_converted', {
-      entityId: payload.leadId,
-      entityType: 'lead',
-      timestamp: new Date().toISOString(),
-      ...payload
+    // Log the event
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource: 'zapier_event',
+      details: {
+        event_type: 'lead_added',
+        lead_id: lead.leadId,
+        lead_name: lead.leadName
+      }
     });
     
-    if (!result.success && result.message) {
-      console.warn('Lead conversion notification failed:', result.message);
-    }
-    
-    return result;
+    // Trigger the Zapier event
+    return await triggerBusinessEvent('lead_added', {
+      entityId: lead.leadId,
+      entityType: 'lead',
+      leadName: lead.leadName,
+      company: lead.company,
+      email: lead.email,
+      source: lead.source,
+    });
   } catch (error) {
-    console.error('Error triggering lead converted event:', error);
     return { success: false, error };
   }
 }
 
 /**
- * Trigger a Zapier workflow when a revenue milestone is reached
+ * Triggers a Zapier event when a campaign is launched
  */
-export async function onRevenueMilestoneReached(payload: {
-  milestoneName: string;
-  revenueAmount: number;
+export async function onCampaignLaunched(campaign: {
+  campaignId: string;
+  campaignTitle: string;
+  platform: string;
+  budget: number;
+  owner: string;
   companyId: string;
-  milestoneId?: string;
 }) {
   try {
-    console.log('Triggering revenue milestone event:', payload);
-    
-    const result = await triggerBusinessEvent('revenue_milestone_reached', {
-      entityId: payload.milestoneId || 'milestone',
-      entityType: 'revenue_milestone',
-      timestamp: new Date().toISOString(),
-      ...payload
+    // Log the event
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource: 'zapier_event',
+      details: {
+        event_type: 'campaign_launched',
+        campaign_id: campaign.campaignId,
+        campaign_title: campaign.campaignTitle
+      }
     });
     
-    if (!result.success && result.message) {
-      console.warn('Revenue milestone notification failed:', result.message);
-    }
-    
-    return result;
+    // Trigger the Zapier event
+    return await triggerBusinessEvent('campaign_launched', {
+      entityId: campaign.campaignId,
+      entityType: 'campaign',
+      campaignTitle: campaign.campaignTitle,
+      companyId: campaign.companyId,
+      platform: campaign.platform,
+      budget: campaign.budget,
+      owner: campaign.owner,
+    });
   } catch (error) {
-    console.error('Error triggering revenue milestone event:', error);
     return { success: false, error };
   }
 }

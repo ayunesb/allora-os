@@ -23,7 +23,7 @@ export async function saveExecutiveDecision(
       reasoning: decision.reasoning,
       risk_assessment: decision.riskAssessment,
       priority: decision.priority,
-      timestamp: decision.timestamp
+      created_at: decision.timestamp
     });
 
     if (error) {
@@ -84,7 +84,7 @@ export async function getExecutiveDecisions(userId: string, limit: number = 10):
       reasoning: item.reasoning,
       riskAssessment: item.risk_assessment,
       priority: item.priority,
-      timestamp: item.timestamp || item.created_at
+      timestamp: item.created_at
     })) : [];
   } catch (error: any) {
     logger.error("Error fetching executive decisions:", error);
