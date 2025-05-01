@@ -48,3 +48,42 @@ export interface LeadPayload {
   email: string;
   source: string;
 }
+
+// Add other required types that were missing
+export interface ChecklistItem {
+  id: string;
+  name: string;
+  status: 'pending' | 'completed' | 'error';
+  description?: string;
+}
+
+export interface ChecklistCategory {
+  title: string;
+  items: ChecklistItem[];
+}
+
+export interface EnhancedVerificationState {
+  categories: ChecklistCategory[];
+  isReady: boolean;
+}
+
+export interface DatabaseTableStatus {
+  name: string;
+  exists: boolean;
+  columns: {
+    name: string;
+    type: string;
+    exists: boolean;
+  }[];
+}
+
+export interface LaunchProgressProps {
+  totalItems: number;
+  completedItems: number;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+}
+
+export interface ValidationResultsUI extends ValidationResults {
+  // Additional UI specific properties if needed
+  isReady?: boolean;
+}

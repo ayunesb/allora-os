@@ -9,4 +9,8 @@ export interface User {
   company?: string;
   industry?: string;
   avatar_url?: string;
+  app_metadata?: {
+    is_admin?: boolean;
+    [key: string]: any;
+  };
 }

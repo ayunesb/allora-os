@@ -1,11 +1,7 @@
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  company_id: string;
-  role: "user" | "admin";
-  created_at: string;
-}
+
+import { User as UserModel } from '@/models/user';
+
+export type User = UserModel;
 
 // If file exists, add the types to it, otherwise create it
 export interface ExecutiveAgentProfile {

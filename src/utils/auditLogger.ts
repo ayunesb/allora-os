@@ -157,5 +157,8 @@ export async function logComplianceChange(
   }
 }
 
-// This will add the log export that was missing and causing the errors
+// Add the log export that was missing and causing errors
 export const log = logAuditEvent;
+
+// Also add logSystemChange for backward compatibility
+export const logSystemChange = logAuditEvent;
