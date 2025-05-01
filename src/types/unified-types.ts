@@ -62,6 +62,18 @@ export interface UnifiedExecutiveMessage {
   status: string;
 }
 
+// Webhook event with unified properties
+export interface UnifiedWebhookEvent extends WebhookEvent {
+  type?: WebhookType;
+  event_type?: string;
+  timestamp?: string;
+  webhookType?: WebhookType;
+  eventType?: string;
+  targetUrl?: string;
+  url?: string;
+  source?: string;
+}
+
 // Re-export key types
 export type {
   User,
