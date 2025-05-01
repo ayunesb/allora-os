@@ -55,12 +55,12 @@ export default function SocialMediaPostForm({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: post ? {
-      title: post.title,
+      title: post.title || '',
       content: post.content,
-      platform: (post.platform as SocialPlatform) || 'LinkedIn',
-      scheduled_date: post.scheduled_date || '',
+      platform: post.platform || 'LinkedIn',
+      scheduled_date: post.scheduled_date || post.scheduled_at?.split('T')[0] || '',
       publish_time: post.publish_time || '09:00',
-      content_type: (post.content_type as ContentType) || 'text',
+      content_type: post.content_type || 'text',
       media_urls: post.media_urls || [],
       link_url: post.link_url || '',
       campaign_id: post.campaign_id || '',
@@ -68,10 +68,10 @@ export default function SocialMediaPostForm({
     } : {
       title: '',
       content: '',
-      platform: 'LinkedIn' as SocialPlatform,
+      platform: 'LinkedIn',
       scheduled_date: new Date().toISOString().split('T')[0], // Today
       publish_time: '09:00',
-      content_type: 'text' as ContentType,
+      content_type: 'text',
       media_urls: [],
       link_url: '',
       campaign_id: '',

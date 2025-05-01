@@ -1,5 +1,5 @@
 
-import { UnifiedUser } from '@/types/unified-types';
+import { UnifiedUser, UnifiedExecutiveMessage, UnifiedWebhookEvent } from '@/types/unified-types';
 
 /**
  * Ensures a user object has all the required properties for the application
@@ -21,7 +21,7 @@ export function normalizeUserObject(user: any): UnifiedUser | null {
             `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : ''),
     avatar_url: user.avatar_url || 
                (user.user_metadata ? user.user_metadata.avatar : null)
-  };
+  } as UnifiedUser;
 }
 
 /**
@@ -42,8 +42,8 @@ export function createAuthCompatibilityLayer(auth: any) {
 /**
  * Ensures webhook events have all properties in both naming styles
  */
-export function normalizeWebhookEvent(event: any) {
-  if (!event) return null;
+export function normalizeWebhookEvent(event: any): UnifiedWebhookEvent {
+  if (!event) return null as any;
   
   return {
     ...event,
@@ -52,7 +52,8 @@ export function normalizeWebhookEvent(event: any) {
     webhookType: event.webhookType || event.webhook_type || 'custom',
     webhook_type: event.webhook_type || event.webhookType || 'custom',
     url: event.url || event.targetUrl,
-    targetUrl: event.targetUrl || event.url
+    targetUrl: event.targetUrl || event.url,
+    timestamp: event.timestamp || event.created_at || new Date().toISOString()
   };
 }
 
@@ -67,5 +68,20 @@ export function normalizeBot(bot: any) {
     name: bot.name || 'AI Advisor',
     title: bot.title || bot.name || 'AI Advisor',
     expertise: bot.expertise || 'General Business'
+  };
+}
+
+/**
+ * Normalize executive message objects
+ */
+export function normalizeExecutiveMessage(message: any): UnifiedExecutiveMessage {
+  if (!message) return null as any;
+  
+  return {
+    ...message,
+    content: message.content || message.message_content || '',
+    message_content: message.message_content || message.content || '',
+    created_at: message.created_at || new Date().toISOString(),
+    status: message.status || 'unread'
   };
 }

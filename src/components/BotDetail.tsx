@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,12 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageCircle, Settings, Info, Star, ArrowLeft } from 'lucide-react';
+import { MessageCircle, Settings, Info, ArrowLeft } from 'lucide-react';
 import { BotChatPanel } from '@/components/bot-chat/BotChatPanel';
 import { BotSettingsPanel } from '@/components/bot-chat/BotSettingsPanel';
 import { BotInfoPanel } from '@/components/bot-chat/BotInfoPanel';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { normalizeUserObject } from '@/utils/authCompatibility';
 
 interface BotDetailProps {
   bot?: {
@@ -32,6 +34,8 @@ export default function BotDetail({ bot: initialBot }: BotDetailProps) {
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState('chat');
   
+  const normalizedProfile = normalizeUserObject(profile);
+  
   // If no bot was passed in props, use the botId from URL params to create a default bot
   const bot = initialBot || {
     id: botId,
@@ -40,7 +44,7 @@ export default function BotDetail({ bot: initialBot }: BotDetailProps) {
     expertise: "Growth Strategies",
     description: "I help businesses identify growth opportunities and develop strategic plans to achieve their goals.",
     avatar: "/ai-advisors/business-strategist.png",
-    industry: profile?.industry || "General Business",
+    industry: normalizedProfile?.industry || "General Business",
     specialties: ["Market Analysis", "Competitive Strategy", "Growth Planning"]
   };
 
@@ -108,7 +112,7 @@ export default function BotDetail({ bot: initialBot }: BotDetailProps) {
           
           <CardContent className="pt-6">
             <TabsContent value="chat" className="mt-0">
-              <BotChatPanel botId={bot.id || ''} botName={bot.name} />
+              <BotChatPanel botId={bot.id || ''} />
             </TabsContent>
             
             <TabsContent value="info" className="mt-0">

@@ -54,6 +54,19 @@ export interface UnifiedWebhookEvent {
   url?: string;
   webhookType?: string;
   webhook_type?: string;
+  timestamp?: string;
+}
+
+// Executive message type
+export interface UnifiedExecutiveMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  from_executive: boolean;
+  to_executive?: boolean;
+  message_content?: string;
+  status?: string;
+  [key: string]: any;
 }
 
 // Types for accessibility context with all needed properties

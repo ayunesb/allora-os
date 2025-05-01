@@ -7,12 +7,13 @@ import { cn } from "@/lib/utils"
 export interface ProgressProps
   extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
   variant?: "default" | "success" | "warning" | "danger";
+  indicatorClassName?: string;
 }
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   ProgressProps
->(({ className, value, variant = "default", ...props }, ref) => {
+>(({ className, value, variant = "default", indicatorClassName, ...props }, ref) => {
   const getVariantClass = (variant: string) => {
     switch (variant) {
       case "success":
@@ -38,7 +39,8 @@ const Progress = React.forwardRef<
       <ProgressPrimitive.Indicator
         className={cn(
           "h-full w-full flex-1 transition-all",
-          getVariantClass(variant)
+          getVariantClass(variant),
+          indicatorClassName
         )}
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
