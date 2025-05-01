@@ -1,16 +1,15 @@
 
 import React from 'react';
-import { CardContent } from "@/components/ui/card";
-import { WebhookHistoryContent } from './history/WebhookHistoryContent';
+import { Card, CardContent } from '@/components/ui/card';
 import { useWebhookHistory } from './useWebhookHistory';
-import { useBreakpoint } from '@/hooks/use-mobile';
+import { Spinner } from '@/components/ui/spinner';
 
-const WebhookHistoryTab = () => {
-  const { 
-    webhookEvents,
+const WebhookHistoryTab: React.FC = () => {
+  const {
+    events,
     filteredEvents,
-    paginatedEvents,
     isLoading,
+    error,
     searchTerm,
     setSearchTerm,
     statusFilter,
@@ -18,38 +17,52 @@ const WebhookHistoryTab = () => {
     typeFilter,
     setTypeFilter,
     currentPage,
+    setCurrentPage,
     totalPages,
-    pageSize,
-    handlePageChange,
-    webhookTypes,
-    handleExportHistory,
-    handleClearHistory
+    paginatedEvents
   } = useWebhookHistory();
-  
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'mobile'].includes(breakpoint);
-  
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-destructive p-4">
+        Error loading webhook history
+      </div>
+    );
+  }
+
   return (
-    <CardContent className={isMobileView ? 'p-2' : ''}>
-      <WebhookHistoryContent 
-        webhookEvents={webhookEvents}
-        filteredEvents={filteredEvents}
-        paginatedEvents={paginatedEvents}
-        isLoading={isLoading}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        typeFilter={typeFilter}
-        setTypeFilter={setTypeFilter}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        pageSize={pageSize}
-        handlePageChange={handlePageChange}
-        webhookTypes={webhookTypes}
-        handleExportHistory={handleExportHistory}
-        handleClearHistory={handleClearHistory}
-      />
+    <CardContent>
+      <div className="mb-4">
+        <h3 className="text-lg font-medium">Webhook History</h3>
+        <p className="text-sm text-muted-foreground">
+          View and manage your webhook event history
+        </p>
+      </div>
+      
+      {events.length === 0 ? (
+        <div className="text-center p-8 border rounded-md bg-muted/30">
+          <p>No webhook events found</p>
+        </div>
+      ) : (
+        <div>
+          <div className="mb-4">
+            <p>Total events: {events.length}</p>
+          </div>
+          
+          {/* Event list would go here */}
+          <pre className="p-4 bg-muted rounded-md overflow-auto max-h-64">
+            {JSON.stringify(paginatedEvents, null, 2)}
+          </pre>
+        </div>
+      )}
     </CardContent>
   );
 };

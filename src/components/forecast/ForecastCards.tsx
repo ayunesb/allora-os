@@ -1,3 +1,4 @@
+
 import React, { useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
@@ -18,7 +19,7 @@ export function ForecastCards({ title, current, forecast, description }: Forecas
     if (ratio >= 1) return "success";
     if (ratio >= 0.7) return "secondary";
     if (ratio >= 0.5) return "outline";
-    return "destructive";  // was "destructive" | "warning" but "warning" is not a valid variant
+    return "destructive";  // Use only valid variants
   }, []);
 
   const variant = getVariant(ratio);

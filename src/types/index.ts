@@ -17,6 +17,3 @@ export * from './Checklist';
 
 // Define any additional types needed by multiple components
 export type { BusinessEventType, WebhookResult } from './fixed/Webhook';
-
-// For webhooks compatibility
-export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';

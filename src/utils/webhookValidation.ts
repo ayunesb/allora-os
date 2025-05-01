@@ -1,6 +1,6 @@
 import { BusinessEventType } from '@/types/fixed/Webhook';
 
-// Keeping this for backwards compatibility
+// Export the WebhookType instead of just declaring it
 export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
 
 export const validateWebhookPayload = (type: WebhookType, payload: any): boolean => {

@@ -44,3 +44,6 @@ export type WebhookResult = {
   message?: string;
   error?: Error;
 };
+
+// Export the WebhookType type
+export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
