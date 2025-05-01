@@ -30,7 +30,7 @@ const App = () => {
 
   return (
     <GlobalErrorBoundary>
-      <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
+      <ThemeProvider>
         <AuthProvider>
           <AccessibilityProvider>
             <CompanyAPIProvider>

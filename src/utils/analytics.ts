@@ -1,154 +1,53 @@
 
-import { logger } from '@/utils/loggingService';
-
-// Define allowed event types for type safety
-export type AnalyticsEventType = 
-  | 'page_view'
-  | 'feature_interaction'
-  | 'login'
-  | 'signup'
-  | 'strategy_view'
-  | 'strategy_created'
-  | 'executive_consultation'
-  | 'lead_management'
-  | 'campaign_action'
-  | 'settings_changed'
-  | 'api_error'
-  | 'subscription_event';
-
-interface AnalyticsEvent {
-  type: AnalyticsEventType;
-  properties?: Record<string, any>;
-  timestamp?: number;
-}
-
-// Track if analytics are initialized
-let analyticsInitialized = false;
+import { logger } from './loggingService';
 
 /**
- * Initialize analytics services based on user consent
+ * Initialize analytics tracking
  */
-export function initializeAnalytics(): boolean {
+export function initializeAnalytics() {
   try {
-    // Check for analytics consent
-    const consent = localStorage.getItem('cookie-consent');
-    if (!consent) {
-      logger.info('Analytics not initialized: No cookie consent found');
-      return false;
-    }
+    logger.info('Initializing analytics');
     
-    const cookieSettings = JSON.parse(consent);
-    if (!cookieSettings.analytics) {
-      logger.info('Analytics not initialized: User declined analytics cookies');
-      return false;
-    }
+    // This is a placeholder for actual analytics initialization
+    // In a real implementation, you would initialize a service like 
+    // Google Analytics, Mixpanel, Segment, etc.
     
-    // In a production app, you would initialize actual analytics services here
-    // such as Google Analytics, Segment, Mixpanel, etc.
+    // Set up event listeners
+    window.addEventListener('route-visit', handleRouteVisit);
+    
     logger.info('Analytics initialized successfully');
-    analyticsInitialized = true;
-    
-    // Track initial page view
-    trackEvent({
-      type: 'page_view',
-      properties: {
-        path: window.location.pathname,
-        title: document.title
-      }
-    });
-    
     return true;
   } catch (error) {
-    logger.error('Failed to initialize analytics:', error);
+    logger.error('Failed to initialize analytics', error);
     return false;
   }
 }
 
 /**
- * Track an analytics event
+ * Handle route visit events for analytics
  */
-export function trackEvent(event: AnalyticsEvent): void {
-  // Skip if analytics are not initialized
-  if (!analyticsInitialized) {
-    return;
-  }
-  
+function handleRouteVisit(event: Event) {
   try {
-    const eventToTrack = {
-      ...event,
-      timestamp: event.timestamp || Date.now()
-    };
+    const { route, timestamp } = (event as CustomEvent).detail;
+    logger.debug(`Analytics: Page visit - ${route} at ${timestamp}`);
     
-    // In a production app, you would send this to your analytics service
-    logger.debug('Analytics event tracked:', eventToTrack);
-    
-    // Dispatch custom event for testing and debugging
-    window.dispatchEvent(new CustomEvent('analytics-event', {
-      detail: eventToTrack
-    }));
+    // In a real implementation, you would track the page view
+    // Example: googleAnalytics.pageView(route);
   } catch (error) {
-    logger.warn('Failed to track analytics event:', error);
+    logger.error('Error handling route visit event', error);
   }
 }
 
 /**
- * Track page views automatically
+ * Track a user action
  */
-export function setupPageViewTracking(): void {
-  if (!analyticsInitialized) return;
-  
-  // Use the History API to track navigation changes
-  const originalPushState = history.pushState;
-  const originalReplaceState = history.replaceState;
-  
-  history.pushState = function(...args) {
-    originalPushState.apply(this, args);
-    handleLocationChange();
-  };
-  
-  history.replaceState = function(...args) {
-    originalReplaceState.apply(this, args);
-    handleLocationChange();
-  };
-  
-  window.addEventListener('popstate', handleLocationChange);
-  
-  // Initial page load
-  handleLocationChange();
-  
-  function handleLocationChange() {
-    const path = window.location.pathname + window.location.search;
-    
-    trackEvent({
-      type: 'page_view',
-      properties: {
-        path,
-        title: document.title,
-        referrer: document.referrer
-      }
-    });
-  }
-}
-
-/**
- * Get analytics consent status
- */
-export function getAnalyticsConsent(): boolean {
+export function trackEvent(category: string, action: string, label?: string, value?: number) {
   try {
-    const consent = localStorage.getItem('cookie-consent');
-    if (!consent) return false;
+    logger.debug(`Analytics: Event - ${category}/${action}${label ? `/${label}` : ''}${value !== undefined ? `/${value}` : ''}`);
     
-    const cookieSettings = JSON.parse(consent);
-    return cookieSettings.analytics === true;
+    // In a real implementation, you would track the event
+    // Example: googleAnalytics.trackEvent(category, action, label, value);
   } catch (error) {
-    return false;
+    logger.error('Error tracking event', error);
   }
-}
-
-/**
- * Reset analytics - useful when user revokes consent
- */
-export function resetAnalytics(): void {
-  analyticsInitialized = false;
-  logger.info('Analytics tracking reset');
 }

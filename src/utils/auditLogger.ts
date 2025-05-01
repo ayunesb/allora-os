@@ -1,103 +1,82 @@
 
-import { logger } from './loggingService';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/loggingService';
 
 /**
- * Logs a security-related event
+ * Log a security event to the audit log
+ * 
+ * @param eventType The type of security event
+ * @param details Details about the event
+ * @param userId Optional user ID associated with the event
+ * @param severity Severity level of the event (1-5, where 5 is most severe)
+ * @param metadata Any additional metadata to log
+ * @returns Success status
  */
-export async function logSecurityEvent(event: {
-  user: string;
-  action: string;
-  resource: string;
-  details?: Record<string, any>;
-  severity?: 'low' | 'medium' | 'high';
-}): Promise<string> {
+export async function logSecurityEvent(
+  eventType: string, 
+  details: string, 
+  userId?: string, 
+  severity: number = 1,
+  metadata?: Record<string, any>
+): Promise<boolean> {
   try {
-    // Log locally first
-    logger.info(`Security event: ${event.action} on ${event.resource}`, {
-      ...event.details,
-      severity: event.severity || 'low',
-    });
-    
-    // Also log to the database if available
-    if (supabase) {
-      const { data, error } = await supabase.from('audit_logs').insert({
-        user_id: event.user,
-        action: event.action,
-        resource: event.resource,
-        details: event.details || {},
-        severity: event.severity || 'low',
-      }).select();
-      
-      if (error) {
-        logger.error('Failed to log security event to database', error);
-      } else if (data && data[0]) {
-        return data[0].id;
-      }
+    // Log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      logger.warn(`SECURITY EVENT [${severity}]: ${eventType} - ${details} ${userId ? `(User: ${userId})` : ''}`);
     }
     
-    return 'local-log-only';
+    // Log to audit_logs table in Supabase
+    await supabase.from('agent_logs').insert({
+      type: 'security',
+      event: eventType,
+      details,
+      user_id: userId || null,
+      severity,
+      metadata: metadata || {},
+      tenant_id: 'development'
+    });
+    
+    return true;
   } catch (error) {
     logger.error('Failed to log security event', error);
-    return 'error-logging';
+    return false;
   }
 }
 
 /**
- * Logs a compliance-related change to both the local logger and the database
+ * Log an audit event for compliance or record-keeping
+ * 
+ * @param eventType The type of audit event
+ * @param details Details about the event
+ * @param userId Optional user ID associated with the event
+ * @param metadata Any additional metadata to log
+ * @returns Success status
  */
-export async function logComplianceChange(
-  userId: string, 
-  action: string, 
-  details?: Record<string, any>
-): Promise<void> {
-  // Log locally first
-  logger.info(`Compliance change: ${action}`, { userId, ...details });
-  
+export async function logAuditEvent(
+  eventType: string,
+  details: string,
+  userId?: string,
+  metadata?: Record<string, any>
+): Promise<boolean> {
   try {
-    // Also log to the database if available
-    if (supabase) {
-      await supabase.from('audit_logs').insert({
-        user_id: userId,
-        action,
-        resource: 'compliance',
-        details,
-        created_at: new Date().toISOString()
-      });
+    // Log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      logger.info(`AUDIT EVENT: ${eventType} - ${details} ${userId ? `(User: ${userId})` : ''}`);
     }
-  } catch (error) {
-    // Just log the error but don't fail the operation
-    logger.error('Failed to save compliance audit log to database', error);
-  }
-}
-
-/**
- * Logs an audit event for general application events
- */
-export async function logAuditEvent(event: {
-  user?: string;
-  action: string;
-  resource: string;
-  details?: Record<string, any>;
-  severity?: string;
-}): Promise<void> {
-  try {
-    // Log locally first
-    logger.info(`Audit event: ${event.action} on ${event.resource}`, {
-      ...event.details,
-      severity: event.severity || 'info',
+    
+    // Log to audit_logs table in Supabase
+    await supabase.from('agent_logs').insert({
+      type: 'audit',
+      event: eventType,
+      details,
+      user_id: userId || null,
+      metadata: metadata || {},
+      tenant_id: 'development'
     });
     
-    // Also log to the database if available
-    if (supabase) {
-      await supabase.from('audit_logs').insert({
-        user_id: event.user,
-        action: event.action,
-        resource: event.resource,
-        details: event.details || {},
-      });
-    }
+    return true;
   } catch (error) {
     logger.error('Failed to log audit event', error);
+    return false;
   }
 }

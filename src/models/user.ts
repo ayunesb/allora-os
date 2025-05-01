@@ -1,9 +1,9 @@
 
-export type User = {
+export interface User {
   id: string;
-  email?: string; // Make email optional since it's not in the profiles table
-  name: string | null;
-  company_id: string | null;
-  role: 'admin' | 'user';
+  email: string;
+  name: string;
+  company_id: string;
+  role: "user" | "admin";
   created_at: string;
-};
+}

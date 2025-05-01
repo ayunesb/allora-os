@@ -1,73 +1,75 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'dark' | 'light' | 'system'
 
-interface ThemeContextType {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  isDarkMode: boolean;
+type ThemeProviderProps = {
+  children: React.ReactNode
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+type ThemeProviderState = {
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const initialState: ThemeProviderState = {
+  theme: 'system',
+  setTheme: () => null,
+}
+
+export const ThemeContext = createContext<ThemeProviderState>(initialState)
+
+export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    return savedTheme || 'system';
-  });
-  
-  const [isDarkMode, setIsDarkMode] = useState(false);
+    // Check if we have a stored theme preference
+    if (typeof window !== 'undefined') {
+      const storedTheme = localStorage.getItem('allora-theme');
+      return (storedTheme as Theme) || 'dark';
+    }
+    return 'dark';
+  })
 
   useEffect(() => {
-    const root = window.document.documentElement;
-    
-    // Remove all theme classes
-    root.classList.remove('light', 'dark');
-    
-    // Add the appropriate theme class
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-      setIsDarkMode(systemTheme === 'dark');
-    } else {
-      root.classList.add(theme);
-      setIsDarkMode(theme === 'dark');
-    }
-    
-    // Save theme to localStorage
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    const root = window.document.documentElement
 
-  // Listen for system theme changes
-  useEffect(() => {
+    root.classList.remove('light', 'dark')
+
     if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      
-      const handleChange = (e: MediaQueryListEvent) => {
-        const root = window.document.documentElement;
-        root.classList.remove('light', 'dark');
-        const newTheme = e.matches ? 'dark' : 'light';
-        root.classList.add(newTheme);
-        setIsDarkMode(newTheme === 'dark');
-      };
-      
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+
+      root.classList.add(systemTheme)
+      return
     }
-  }, [theme]);
+
+    root.classList.add(theme)
+  }, [theme])
+
+  // Store theme preference in localStorage
+  useEffect(() => {
+    localStorage.setItem('allora-theme', theme)
+  }, [theme])
+
+  const value = {
+    theme,
+    setTheme: (theme: Theme) => {
+      setTheme(theme)
+    },
+  }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, isDarkMode }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
-  );
-};
+  )
+}
 
 export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
+  const context = useContext(ThemeContext)
+
+  if (context === undefined)
+    throw new Error('useTheme must be used within a ThemeProvider')
+
+  return context
+}

@@ -18,6 +18,7 @@ import { HelpModal } from "@/components/help/HelpModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
 import { ComplianceProvider } from "@/context/ComplianceContext";
+import { Outlet, Navigate } from 'react-router-dom';
 
 // Lazy-loaded components
 const RootLayout = lazy(() => import("@/components/layouts/RootLayout"));
@@ -63,9 +64,6 @@ const NavigationLayout = () => {
     </ErrorBoundary>
   );
 };
-
-// Fix missing Outlet import
-import { Outlet } from 'react-router-dom';
 
 // Wrap compliance routes with the ComplianceProvider
 const ComplianceRoutes = () => {
@@ -149,9 +147,6 @@ const createLazyRoutes = () => {
       element: <Navigate to="/dashboard/leads" replace />,
     },
   ];
-
-  // Add missing Navigate import
-  import { Navigate } from 'react-router-dom';
 
   // Combine all routes - ensure rootRoutes are first
   const routes: RouteObject[] = [
