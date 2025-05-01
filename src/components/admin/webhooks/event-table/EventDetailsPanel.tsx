@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { WebhookEvent, WebhookType } from '@/types/fixed/Webhook';
 import { Badge } from '@/components/ui/badge';
 import { formatDistance } from 'date-fns';
+import { WebhookEvent, WebhookType, WebhookStatus } from '@/types/webhooks';
 
 interface EventDetailsPanelProps {
   event: WebhookEvent;
@@ -12,15 +12,15 @@ const EventDetailsPanel: React.FC<EventDetailsPanelProps> = ({ event }) => {
   // Ensure we have consistent property access regardless of source format
   const normalizedEvent = {
     id: event.id,
-    type: event.type || event.webhookType || event.webhook_type as WebhookType,
+    type: event.webhookType || event.event_type as WebhookType,
     status: event.status,
     created_at: event.created_at || event.timestamp,
-    targetUrl: event.targetUrl || event.url,
+    targetUrl: event.targetUrl || event.webhook_id,
     payload: event.payload || {},
     response: event.response || {}
   };
   
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: WebhookStatus | string) => {
     switch (status) {
       case 'success':
         return 'bg-green-100 text-green-800';

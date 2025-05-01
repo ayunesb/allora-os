@@ -1,21 +1,14 @@
 
 import { useEffect, useState } from 'react';
-import { fetchApi } from '@/utils/api/apiClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import AdminOnly from '@/components/AdminOnly';
-
-interface PluginLog {
-  id: string;
-  plugin_name: string;
-  tenant_id: string;
-  event: string;
-  value: number;
-  created_at: string;
-}
+import { supabase } from '@/integrations/supabase/client';
+import { PluginLog } from '@/types/fixed/Plugin';
+import { Loading } from '@/components/ui/loading';
 
 export default function PluginLogsPage() {
   const [logs, setLogs] = useState<PluginLog[]>([]);
@@ -25,11 +18,20 @@ export default function PluginLogsPage() {
   const loadLogs = async () => {
     setLoading(true);
     try {
-      const data = await fetchApi('/api/plugin-logs');
-      setLogs(data || []);
+      const { data, error } = await supabase
+        .from('plugin_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+        
+      if (error) throw error;
+      
+      // Safely cast data and set state
+      const typedLogs = data as PluginLog[];
+      setLogs(typedLogs);
       
       // Calculate total value for reporting
-      const total = data?.reduce((sum: number, log: PluginLog) => sum + (log.value || 0), 0) || 0;
+      const total = typedLogs.reduce((sum, log) => sum + (log.value || 0), 0);
       setTotalValue(total);
     } catch (error) {
       console.error('Error loading plugin logs:', error);
@@ -74,7 +76,7 @@ export default function PluginLogsPage() {
   return (
     <AdminOnly>
       <div className="p-6 max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold">🧩 Plugin Usage Logs</h1>
             <p className="text-muted-foreground">Track plugin performance and tenant-level ROI activity.</p>
@@ -118,7 +120,7 @@ export default function PluginLogsPage() {
 
         {loading ? (
           <div className="flex justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <Loading size="lg" text="Loading plugin logs..." />
           </div>
         ) : (
           <Card>

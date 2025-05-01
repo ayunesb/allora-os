@@ -46,3 +46,6 @@ export const Navbar = () => {
     </nav>
   );
 };
+
+// This is exported as default for backwards compatibility
+export default Navbar;

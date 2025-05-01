@@ -1,60 +1,86 @@
 
-import { useState } from 'react';
-import { WebhookEvent, WebhookStatus } from '@/types/fixed/Webhook';
-import { normalizeWebhookEvent } from '@/utils/authCompatibility';
+import { useState, useCallback } from 'react';
+import { WebhookType, WebhookStatus, WebhookFilter } from '@/types/webhooks';
 
-interface FilterOptions {
-  status?: WebhookStatus | '';
-  type?: string;
-  searchTerm?: string;
-}
-
-export const useWebhookHistoryFilters = (events: WebhookEvent[]) => {
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+const useWebhookHistoryFilters = () => {
+  const [filters, setFilters] = useState<WebhookFilter>({
+    types: undefined,
     status: '',
-    type: '',
-    searchTerm: '',
+    dateRange: [null, null],
+    search: '',
   });
 
-  const filteredEvents = events?.filter((event) => {
-    const normalizedEvent = normalizeWebhookEvent(event);
-    
-    if (filterOptions.status && filterOptions.status !== '') {
-      if (normalizedEvent.status !== filterOptions.status) {
+  const updateFilter = useCallback((key: keyof WebhookFilter, value: any) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setFilters({
+      types: undefined,
+      status: '',
+      dateRange: [null, null],
+      search: '',
+    });
+  }, []);
+
+  // Filter function to apply to webhook events
+  const filterEvent = useCallback((event: any) => {
+    // Type filter
+    if (filters.types && filters.types.length > 0) {
+      const type = event.webhookType || event.type;
+      if (!filters.types.includes(type as WebhookType)) {
         return false;
       }
     }
 
-    if (filterOptions.type && filterOptions.type !== '') {
-      if (normalizedEvent.webhookType !== filterOptions.type) {
+    // Status filter
+    if (filters.status && filters.status !== '') {
+      if (event.status !== filters.status) {
         return false;
       }
     }
 
-    if (filterOptions.searchTerm && filterOptions.searchTerm !== '') {
-      const searchTermLower = filterOptions.searchTerm.toLowerCase();
-      if (
-        !normalizedEvent.eventType.toLowerCase().includes(searchTermLower) &&
-        !normalizedEvent.targetUrl.toLowerCase().includes(searchTermLower) &&
-        !normalizedEvent.id.toLowerCase().includes(searchTermLower)
-      ) {
+    // Date range filter
+    if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
+      const eventDate = new Date(event.timestamp || event.created_at);
+      const startDate = filters.dateRange[0];
+      const endDate = filters.dateRange[1];
+
+      if (eventDate < startDate || eventDate > endDate) {
+        return false;
+      }
+    }
+
+    // Search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const searchableContent = [
+        event.id,
+        event.webhookType,
+        event.eventType,
+        event.type,
+        event.targetUrl,
+        event.url,
+        JSON.stringify(event.payload),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      if (!searchableContent.includes(searchLower)) {
         return false;
       }
     }
 
     return true;
-  });
-
-  const setFilter = (key: keyof FilterOptions, value: string) => {
-    setFilterOptions((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
+  }, [filters]);
 
   return {
-    filterOptions,
-    filteredEvents,
-    setFilter,
+    filters,
+    updateFilter,
+    resetFilters,
+    filterEvent,
   };
 };
+
+export default useWebhookHistoryFilters;
