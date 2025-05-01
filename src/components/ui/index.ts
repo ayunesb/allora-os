@@ -1,7 +1,5 @@
 
-// Import all UI components here for easier export
-
-// Layout components
+// Import and export UI components
 export * from './accordion';
 export * from './alert';
 export * from './alert-dialog';
@@ -41,9 +39,8 @@ export * from './slider';
 export * from './switch';
 export * from './table';
 export * from './tabs';
-export * from './textarea';
-// Explicitly re-export Textarea to avoid duplicate export error
-// export * from './textarea';
+// Export Textarea separately to avoid collision
+export { Textarea } from './textarea';
 export * from './toggle';
 export * from './toggle-group';
 export * from './tooltip';
@@ -51,11 +48,8 @@ export * from './typography';
 
 // Import and re-export sonner for toast
 export { toast, Toaster } from 'sonner';
-// Export our custom useToast hook
-export { useToast } from './use-toast';
 
-// Define simple prop types for components that don't have them
-// These are just basic interfaces to satisfy TypeScript imports elsewhere
+// Define interface props for components
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
@@ -66,7 +60,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
-export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TabsProps {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
@@ -89,13 +83,13 @@ export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   max?: number;
 }
 
-export interface SwitchProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface SwitchProps {
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }
 
-export interface CheckboxProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface CheckboxProps {
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -105,7 +99,7 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'secondary' | 'destructive' | 'outline';
 }
 
-export interface SliderProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface SliderProps {
   defaultValue?: number[];
   value?: number[];
   max?: number;
@@ -119,7 +113,7 @@ export interface TooltipProps {
   side?: 'top' | 'right' | 'bottom' | 'left';
 }
 
-export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface AccordionProps {
   type?: 'single' | 'multiple';
   collapsible?: boolean;
   defaultValue?: string;
@@ -133,7 +127,7 @@ export interface CalendarProps {
   onSelect?: (date: Date | undefined) => void;
 }
 
-export interface RadioGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface RadioGroupProps {
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;

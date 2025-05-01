@@ -12,14 +12,17 @@ export interface BotChatPanelProps {
     title?: string;
     avatar?: string;
   };
+  selectedBot?: any;
+  onSelectBot?: React.Dispatch<any>;
+  allBots?: Array<any>;
 }
 
-const BotChatPanel = ({ botId, bot }: BotChatPanelProps) => {
+const BotChatPanel = ({ botId, bot, selectedBot, onSelectBot, allBots }: BotChatPanelProps) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{ id: string; content: string; isUser: boolean }>>([]);
   
-  // Use botId if provided
-  const botName = bot?.name || 'Bot';
+  // Use botId if provided or use selectedBot if available
+  const activeBotName = selectedBot?.name || bot?.name || 'Bot';
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -35,7 +38,7 @@ const BotChatPanel = ({ botId, bot }: BotChatPanelProps) => {
     setTimeout(() => {
       const botMessage = { 
         id: (Date.now() + 1).toString(), 
-        content: `This is a response from ${botName}`, 
+        content: `This is a response from ${activeBotName}`, 
         isUser: false 
       };
       setChatHistory(prev => [...prev, botMessage]);
@@ -46,7 +49,7 @@ const BotChatPanel = ({ botId, bot }: BotChatPanelProps) => {
     <Card className="flex flex-col h-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-medium">
-          {botName} {bot?.title ? `- ${bot.title}` : ''}
+          {activeBotName} {bot?.title ? `- ${bot.title}` : ''}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-auto pb-6">
@@ -65,7 +68,7 @@ const BotChatPanel = ({ botId, bot }: BotChatPanelProps) => {
           ))}
           {chatHistory.length === 0 && (
             <div className="text-center text-muted-foreground py-8">
-              Start a conversation with {botName}
+              Start a conversation with {activeBotName}
             </div>
           )}
         </div>

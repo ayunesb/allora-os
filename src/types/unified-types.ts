@@ -168,7 +168,7 @@ export interface SocialMediaPost {
   content: string;
   content_type: ContentType;
   status: PostStatus;
-  is_approved: boolean; 
+  is_approved: boolean;
   company_id?: string; 
   scheduled_at?: string;
   scheduled_date?: string; 

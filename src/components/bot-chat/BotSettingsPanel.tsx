@@ -22,7 +22,7 @@ export interface BotSettingsPanelProps {
   onSettingChange?: (setting: string, value: any) => void;
 }
 
-const BotSettingsPanel: React.FC<BotSettingsPanelProps> = ({ botId, bot, onSettingChange }) => {
+const BotSettingsPanel = ({ botId, bot, onSettingChange }: BotSettingsPanelProps) => {
   const settings = bot?.settings || {
     autoRespond: false,
     proactiveInsights: true,

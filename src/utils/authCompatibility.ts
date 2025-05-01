@@ -17,7 +17,7 @@ export function normalizeUserObject(user: any): User | null {
           (user.user_metadata ? 
             `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : '') || '',
     role: user.role || user.user_metadata?.role || 'user',
-    company_id: user.company_id || null,
+    company_id: user.company_id || '',
     company: user.company || null,
     industry: user.industry || null,
     app_metadata: user.app_metadata || { is_admin: user.role === 'admin' },
@@ -91,22 +91,5 @@ export function normalizeExecutiveMessage(message: any): ExecutiveMessage {
     message_content: message.message_content || message.content || '',
     created_at: message.created_at || new Date().toISOString(),
     status: message.status || 'unread'
-  };
-}
-
-/**
- * Normalize social media post objects
- */
-export function normalizeSocialMediaPost(post: any) {
-  if (!post) return null;
-  
-  return {
-    ...post,
-    platform: post.platform || 'LinkedIn',
-    content_type: post.content_type || 'text',
-    status: post.status || 'draft',
-    is_approved: post.is_approved !== undefined ? post.is_approved : false,
-    created_at: post.created_at || new Date().toISOString(),
-    updated_at: post.updated_at || new Date().toISOString()
   };
 }
