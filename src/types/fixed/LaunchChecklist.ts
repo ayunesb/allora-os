@@ -12,7 +12,7 @@ export interface ChecklistItem {
 }
 
 export interface ChecklistCategory {
-  id?: string; // Added for compatibility with existing code
+  id: string; // Added explicitly as required
   name: string;
   description?: string;
   items: ChecklistItem[];

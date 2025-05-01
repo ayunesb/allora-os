@@ -7,6 +7,7 @@ export interface Campaign {
   platform: string;
   budget: number;
   start_date: string;
+  startDate?: string; // Added for backward compatibility
   end_date?: string;
   owner_id: string;
   owner_name?: string;

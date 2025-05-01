@@ -5,16 +5,18 @@
  */
 
 import { Campaign } from '@/types/fixed/Campaign';
+import { User } from '@/types/fixed/User';
 
 export function normalizeCampaign(campaign: Campaign): Campaign {
   return {
     ...campaign,
     name: campaign.title || campaign.name,
     ad_platform: campaign.platform,
+    startDate: campaign.start_date
   };
 }
 
-export function normalizeUser(user: any): any {
+export function normalizeUser(user: any): User | null {
   if (!user) return null;
   
   // Ensure user has expected properties

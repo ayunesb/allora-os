@@ -1,7 +1,7 @@
 
 export type WebhookType = 'zapier' | 'slack' | 'github' | 'stripe' | 'notion' | 'custom';
 
-export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolean => {
+export const validateWebhookUrlFormat = (url: string, type?: WebhookType): boolean => {
   if (!url) return false;
   
   try {
@@ -12,23 +12,27 @@ export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolea
       return false;
     }
     
-    // Type-specific validation
-    switch (type) {
-      case 'zapier':
-        return urlObj.hostname.includes('hooks.zapier.com');
-      case 'slack':
-        return urlObj.hostname.includes('hooks.slack.com');
-      case 'github':
-        return urlObj.hostname.includes('api.github.com') || urlObj.hostname.includes('github.com');
-      case 'stripe':
-        return true; // No specific validation for stripe URLs
-      case 'notion':
-        return urlObj.hostname.includes('api.notion.com') || urlObj.hostname.includes('notion.com');
-      case 'custom':
-        return true; // Allow any valid URL for custom webhooks
-      default:
-        return true;
+    // Type-specific validation if type is provided
+    if (type) {
+      switch (type) {
+        case 'zapier':
+          return urlObj.hostname.includes('hooks.zapier.com');
+        case 'slack':
+          return urlObj.hostname.includes('hooks.slack.com');
+        case 'github':
+          return urlObj.hostname.includes('api.github.com') || urlObj.hostname.includes('github.com');
+        case 'stripe':
+          return true; // No specific validation for stripe URLs
+        case 'notion':
+          return urlObj.hostname.includes('api.notion.com') || urlObj.hostname.includes('notion.com');
+        case 'custom':
+          return true; // Allow any valid URL for custom webhooks
+        default:
+          return true;
+      }
     }
+    
+    return true;
   } catch (error) {
     return false;
   }
@@ -45,7 +49,7 @@ export const sanitizeWebhookUrl = (url: string): string => {
   }
 };
 
-export const testWebhook = async (url: string, type: WebhookType = 'custom') => {
+export const testWebhook = async (url: string) => {
   if (!url) {
     return {
       success: false,
@@ -65,8 +69,7 @@ export const testWebhook = async (url: string, type: WebhookType = 'custom') => 
         timestamp: new Date().toISOString(),
         data: {
           message: `This is a test webhook from Allora AI`,
-          testId: Math.random().toString(36).substring(7),
-          webhookType: type
+          testId: Math.random().toString(36).substring(7)
         }
       }),
       mode: 'no-cors', // Handle CORS issues

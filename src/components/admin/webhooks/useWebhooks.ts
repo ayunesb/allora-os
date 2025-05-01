@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { useZapier } from '@/lib/zapier';
 import { WebhookType, sanitizeWebhookUrl, testWebhook } from '@/utils/webhookValidation';
+import { testWebhookAdvanced } from './hookUtils';
 
 export const useWebhooks = () => {
   // Basic webhook URLs
@@ -60,11 +61,11 @@ export const useWebhooks = () => {
     setIsSaving(true);
     
     // Sanitize URLs before saving
-    const sanitizedStripeWebhook = sanitizeWebhookUrl(stripeWebhook, 'stripe');
-    const sanitizedZapierWebhook = sanitizeWebhookUrl(zapierWebhook, 'zapier');
-    const sanitizedGithubWebhook = sanitizeWebhookUrl(githubWebhook, 'github');
-    const sanitizedSlackWebhook = sanitizeWebhookUrl(slackWebhook, 'slack');
-    const sanitizedCustomWebhook = sanitizeWebhookUrl(customWebhook, 'custom');
+    const sanitizedStripeWebhook = sanitizeWebhookUrl(stripeWebhook);
+    const sanitizedZapierWebhook = sanitizeWebhookUrl(zapierWebhook);
+    const sanitizedGithubWebhook = sanitizeWebhookUrl(githubWebhook);
+    const sanitizedSlackWebhook = sanitizeWebhookUrl(slackWebhook);
+    const sanitizedCustomWebhook = sanitizeWebhookUrl(customWebhook);
     
     // Save to localStorage (in a real app, you would save to a database)
     localStorage.setItem('stripe_webhook_url', sanitizedStripeWebhook || '');
@@ -98,18 +99,18 @@ export const useWebhooks = () => {
       
       // For Zapier, use the existing trigger method
       if (type === 'zapier') {
-        result = await triggerWorkflow(
+        result = await triggerWorkflow({
           webhookUrl,
-          'test_webhook',
-          { 
+          eventType: 'test_webhook',
+          payload: { 
             timestamp: new Date().toISOString(),
             source: 'Webhook Test',
             message: 'This is a test from the Allora AI Platform'
           }
-        );
+        });
       } else {
-        // For other webhook types, use the generic test method
-        result = await testWebhook(webhookUrl, type);
+        // For other webhook types, use the advanced test method
+        result = await testWebhookAdvanced(webhookUrl, type);
       }
       
       if (result.success) {
@@ -142,7 +143,6 @@ export const useWebhooks = () => {
     handleTestWebhook('custom', customWebhook, isCustomWebhookValid);
   };
 
-  // Add the missing handleTestStripeWebhook method
   const handleTestStripeWebhook = (isStripeWebhookValid: boolean | null) => {
     handleTestWebhook('stripe', stripeWebhook, isStripeWebhookValid);
   };
@@ -173,7 +173,6 @@ export const useWebhooks = () => {
     handleTestGithubWebhook,
     handleTestSlackWebhook,
     handleTestCustomWebhook,
-    handleTestStripeWebhook  // Add the new handler to the returned object
+    handleTestStripeWebhook
   };
 };
-

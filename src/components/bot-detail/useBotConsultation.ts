@@ -91,7 +91,7 @@ export function useBotConsultation(botName?: string, role?: string, industry?: s
           ...filteredMessages,
           {
             id: uuidv4(),
-            content: response.reply || 'I apologize, but I couldn\'t generate a response.',
+            content: response?.reply || 'I apologize, but I couldn\'t generate a response.',
             sender: 'bot',
             timestamp: new Date()
           }

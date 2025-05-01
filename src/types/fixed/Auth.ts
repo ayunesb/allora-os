@@ -13,6 +13,4 @@ export interface AuthContextProps {
   authError?: Error | string;
   isSessionExpired?: boolean;
   hasInitialized?: boolean;
-  session?: any;
-  signOut?: () => Promise<void>;
 }
