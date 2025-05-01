@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -61,7 +60,7 @@ export default function PolicyToggles({
   onPolicyToggle = () => {}
 }: PolicyTogglesProps) {
   const [localPolicies, setLocalPolicies] = useState<DataPoliciesState>(policies);
-  
+
   const handleToggle = (policy: keyof DataPoliciesState) => {
     setLocalPolicies(prev => ({
       ...prev,
@@ -69,12 +68,10 @@ export default function PolicyToggles({
     }));
     onPolicyToggle(policy);
   };
-  
-  // Fix: Use proper function type check instead of direct comparison with (() => {})
-  const currentPolicies = typeof onPolicyToggle === 'function' && onPolicyToggle !== (() => {}) 
-    ? policies 
-    : localPolicies;
-  
+
+  // ✅ FIXED: Safe fallback using typeof check only
+  const currentPolicies = typeof onPolicyToggle === 'function' ? policies : localPolicies;
+
   return (
     <div className="space-y-6">
       <PolicyToggle
