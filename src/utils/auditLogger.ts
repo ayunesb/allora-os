@@ -26,7 +26,7 @@ export async function logSecurityEvent(
     }
     
     // Log to audit_logs table in Supabase
-    await supabase.from('agent_logs').insert({
+    await supabase.from('audit_logs').insert({
       type: 'security',
       event: eventType,
       details,
@@ -46,31 +46,31 @@ export async function logSecurityEvent(
 /**
  * Log an audit event for compliance or record-keeping
  * 
- * @param eventType The type of audit event
- * @param details Details about the event
+ * @param action The type of audit event
+ * @param resource Resource being modified
+ * @param details Additional event details
  * @param userId Optional user ID associated with the event
- * @param metadata Any additional metadata to log
- * @returns Success status
  */
 export async function logAuditEvent(
-  eventType: string,
-  details: string,
-  userId?: string,
-  metadata?: Record<string, any>
+  params: {
+    action: string;
+    resource?: string;
+    details: any;
+    user_id?: string;
+  }
 ): Promise<boolean> {
   try {
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      logger.info(`AUDIT EVENT: ${eventType} - ${details} ${userId ? `(User: ${userId})` : ''}`);
+      logger.info(`AUDIT EVENT: ${params.action} - ${JSON.stringify(params.details)} ${params.user_id ? `(User: ${params.user_id})` : ''}`);
     }
     
     // Log to audit_logs table in Supabase
-    await supabase.from('agent_logs').insert({
-      type: 'audit',
-      event: eventType,
-      details,
-      user_id: userId || null,
-      metadata: metadata || {},
+    await supabase.from('audit_logs').insert({
+      action: params.action,
+      resource: params.resource,
+      details: params.details,
+      user_id: params.user_id,
       tenant_id: 'development'
     });
     
@@ -80,6 +80,22 @@ export async function logAuditEvent(
     return false;
   }
 }
+
+/**
+ * Log a system change event
+ */
+export const logSystemChange = async (
+  action: string,
+  details: any,
+  userId?: string
+): Promise<boolean> => {
+  return logAuditEvent({
+    action: 'SYSTEM_CHANGE',
+    resource: action,
+    details,
+    user_id: userId
+  });
+};
 
 /**
  * Log a compliance change for audit purposes
@@ -101,7 +117,7 @@ export async function logComplianceChange(
     }
     
     // Log to audit_logs table in Supabase
-    await supabase.from('agent_logs').insert({
+    await supabase.from('audit_logs').insert({
       type: 'compliance',
       event: 'compliance_change',
       details,

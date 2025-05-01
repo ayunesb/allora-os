@@ -1,81 +1,50 @@
 
-import { triggerBusinessEvent } from '@/lib/zapier';
-import { logAuditEvent } from '@/utils/auditLogger';
+import { useZapier } from '@/lib/zapier';
 
 /**
- * Triggers a Zapier event when a strategy is approved
+ * Trigger a lead converted event
  */
-export async function onStrategyApproved(strategy: {
-  strategyTitle: string;
-  strategyId: string;
-  companyId: string;
-  approvedBy: string;
-}) {
-  try {
-    // Log the event
-    await logAuditEvent({
-      action: 'SYSTEM_CHANGE',
-      resource: 'zapier_event',
-      details: {
-        event_type: 'strategy_approved',
-        strategy_id: strategy.strategyId,
-        strategy_title: strategy.strategyTitle
-      }
-    });
-    
-    // Trigger the Zapier event
-    return await triggerBusinessEvent('strategy_approved', {
-      entityId: strategy.strategyId,
-      entityType: 'strategy',
-      strategyTitle: strategy.strategyTitle,
-      companyId: strategy.companyId,
-      approvedBy: strategy.approvedBy,
-    });
-  } catch (error) {
-    return { success: false, error };
-  }
-}
-
-/**
- * Triggers a Zapier event when a new lead is added
- */
-export async function onNewLeadAdded(lead: {
+export async function onLeadConverted({
+  leadId,
+  leadName,
+  company,
+  email,
+  source
+}: {
   leadId: string;
   leadName: string;
   company: string;
   email: string;
   source: string;
 }) {
-  try {
-    // Log the event
-    await logAuditEvent({
-      action: 'SYSTEM_CHANGE',
-      resource: 'zapier_event',
-      details: {
-        event_type: 'lead_added',
-        lead_id: lead.leadId,
-        lead_name: lead.leadName
-      }
-    });
-    
-    // Trigger the Zapier event
-    return await triggerBusinessEvent('lead_added', {
-      entityId: lead.leadId,
-      entityType: 'lead',
-      leadName: lead.leadName,
-      company: lead.company,
-      email: lead.email,
-      source: lead.source,
-    });
-  } catch (error) {
-    return { success: false, error };
+  const { webhookUrl, triggerWebhook } = useZapier();
+  
+  if (!webhookUrl) {
+    console.error('No Zapier webhook URL configured');
+    return false;
   }
+
+  return triggerWebhook('LEAD_CONVERTED', {
+    leadId,
+    leadName,
+    company,
+    email,
+    source,
+    conversionTimestamp: new Date().toISOString()
+  });
 }
 
 /**
- * Triggers a Zapier event when a campaign is launched
+ * Trigger a campaign created event
  */
-export async function onCampaignLaunched(campaign: {
+export async function onCampaignCreated({
+  campaignId,
+  campaignTitle,
+  platform,
+  budget,
+  owner,
+  companyId
+}: {
   campaignId: string;
   campaignTitle: string;
   platform: string;
@@ -83,29 +52,50 @@ export async function onCampaignLaunched(campaign: {
   owner: string;
   companyId: string;
 }) {
-  try {
-    // Log the event
-    await logAuditEvent({
-      action: 'SYSTEM_CHANGE',
-      resource: 'zapier_event',
-      details: {
-        event_type: 'campaign_launched',
-        campaign_id: campaign.campaignId,
-        campaign_title: campaign.campaignTitle
-      }
-    });
-    
-    // Trigger the Zapier event
-    return await triggerBusinessEvent('campaign_launched', {
-      entityId: campaign.campaignId,
-      entityType: 'campaign',
-      campaignTitle: campaign.campaignTitle,
-      companyId: campaign.companyId,
-      platform: campaign.platform,
-      budget: campaign.budget,
-      owner: campaign.owner,
-    });
-  } catch (error) {
-    return { success: false, error };
+  const { webhookUrl, triggerWebhook } = useZapier();
+  
+  if (!webhookUrl) {
+    console.error('No Zapier webhook URL configured');
+    return false;
   }
+
+  return triggerWebhook('CAMPAIGN_CREATED', {
+    campaignId,
+    campaignTitle,
+    platform,
+    budget,
+    owner,
+    companyId,
+    creationTimestamp: new Date().toISOString()
+  });
+}
+
+/**
+ * Trigger a revenue milestone event
+ */
+export async function onRevenueMilestoneReached({
+  companyId,
+  milestone,
+  amount,
+  currency = 'USD'
+}: {
+  companyId: string;
+  milestone: string;
+  amount: number;
+  currency?: string;
+}) {
+  const { webhookUrl, triggerWebhook } = useZapier();
+  
+  if (!webhookUrl) {
+    console.error('No Zapier webhook URL configured');
+    return false;
+  }
+
+  return triggerWebhook('REVENUE_MILESTONE', {
+    companyId,
+    milestone,
+    amount,
+    currency,
+    reachedAt: new Date().toISOString()
+  });
 }

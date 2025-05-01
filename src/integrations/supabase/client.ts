@@ -1,5 +1,4 @@
 
-// Export the existing supabase client from this file
 import { createClient } from '@supabase/supabase-js';
 import { getSupabaseUrl, getSupabaseAnonKey } from '@/utils/env';
 import { logger } from '@/utils/loggingService';
@@ -20,13 +19,23 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 // Add the checkSupabaseConnection function
 export async function checkSupabaseConnection() {
   try {
-    // In a real implementation, you would perform an actual connection check
-    // For now, we'll return a mock successful result
+    // Test the connection with a simple query
+    const { data, error } = await supabase.from('profiles').select('count').limit(1);
+    
+    if (error) {
+      console.error('Supabase connection error:', error);
+      return {
+        connected: false,
+        message: error.message
+      };
+    }
+    
     return {
       connected: true,
       message: "Connected to Supabase successfully"
     };
   } catch (error) {
+    console.error('Exception testing Supabase connection:', error);
     return {
       connected: false,
       message: error instanceof Error ? error.message : "Failed to connect to Supabase"

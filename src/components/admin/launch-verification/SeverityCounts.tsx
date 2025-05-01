@@ -1,33 +1,34 @@
 
 import React from 'react';
-import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
+import { SeverityCountsProps } from './types';
 
-interface SeverityCount {
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-}
-
-interface SeverityCountsProps {
-  counts: SeverityCount;
-}
-
-export function SeverityCounts({ counts }: SeverityCountsProps) {
+export function SeverityCounts({ completed, warnings, errors }: SeverityCountsProps) {
   return (
-    <div className="flex flex-wrap gap-2 my-3">
-      <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
-        Critical: {counts.critical}
-      </Badge>
-      <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200">
-        High: {counts.high}
-      </Badge>
-      <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
-        Medium: {counts.medium}
-      </Badge>
-      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-        Low: {counts.low}
-      </Badge>
+    <div className="grid grid-cols-3 gap-4">
+      <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
+        <CheckCircle2 className="h-5 w-5 text-green-500" />
+        <div>
+          <div className="font-semibold text-xl">{completed}</div>
+          <div className="text-muted-foreground text-xs">Complete</div>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
+        <AlertCircle className="h-5 w-5 text-amber-500" />
+        <div>
+          <div className="font-semibold text-xl">{warnings}</div>
+          <div className="text-muted-foreground text-xs">Warnings</div>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-md">
+        <XCircle className="h-5 w-5 text-red-500" />
+        <div>
+          <div className="font-semibold text-xl">{errors}</div>
+          <div className="text-muted-foreground text-xs">Errors</div>
+        </div>
+      </div>
     </div>
   );
 }
