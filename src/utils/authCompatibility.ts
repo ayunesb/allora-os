@@ -1,5 +1,5 @@
 
-import { UnifiedUser, UnifiedExecutiveMessage, UnifiedWebhookEvent } from '@/types/unified-types';
+import { UnifiedUser, UnifiedExecutiveMessage, UnifiedWebhookEvent, WebhookType } from '@/types/unified-types';
 
 /**
  * Ensures a user object has all the required properties for the application
@@ -16,11 +16,14 @@ export function normalizeUserObject(user: any): UnifiedUser | null {
     company: user.company || null,
     industry: user.industry || null,
     app_metadata: user.app_metadata || { is_admin: user.role === 'admin' },
+    user_metadata: user.user_metadata || { firstName: '', lastName: '' },
     name: user.name || 
           (user.user_metadata ? 
             `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : ''),
     avatar_url: user.avatar_url || 
-               (user.user_metadata ? user.user_metadata.avatar : null)
+               (user.user_metadata ? user.user_metadata.avatar : null),
+    created_at: user.created_at || new Date().toISOString(),
+    updated_at: user.updated_at || new Date().toISOString(),
   } as UnifiedUser;
 }
 
@@ -83,5 +86,22 @@ export function normalizeExecutiveMessage(message: any): UnifiedExecutiveMessage
     message_content: message.message_content || message.content || '',
     created_at: message.created_at || new Date().toISOString(),
     status: message.status || 'unread'
+  };
+}
+
+/**
+ * Normalize social media post objects
+ */
+export function normalizeSocialMediaPost(post: any) {
+  if (!post) return null;
+  
+  return {
+    ...post,
+    platform: post.platform || 'LinkedIn',
+    content_type: post.content_type || 'text',
+    status: post.status || 'draft',
+    is_approved: post.is_approved || false,
+    created_at: post.created_at || new Date().toISOString(),
+    updated_at: post.updated_at || new Date().toISOString()
   };
 }

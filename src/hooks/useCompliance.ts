@@ -14,6 +14,8 @@ export const useCompliance = (): ExtendedComplianceContextType => {
   const extendedContext: ExtendedComplianceContextType = {
     ...context,
     // Add missing properties with default implementations
+    isLoaded: context.isLoaded !== undefined ? context.isLoaded : true,
+    error: context.error || null,
     checkForUpdates: context.checkForUpdates || (() => console.warn('checkForUpdates not implemented')),
     setAutoUpdate: context.setAutoUpdate || ((v: boolean) => console.warn('setAutoUpdate not implemented', v)),
     isCheckingUpdates: context.isCheckingUpdates || false,

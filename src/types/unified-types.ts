@@ -9,12 +9,12 @@ export interface UnifiedUser {
   email: string;
   name: string;
   role: 'admin' | 'user';
-  company_id: string;
-  company: string;
-  industry: string;
+  company_id: string | null;
+  company: string | null;
+  industry: string | null;
   created_at: string;
   updated_at: string;
-  avatar_url: string;
+  avatar_url?: string;
   user_metadata: {
     firstName: string;
     lastName: string;
@@ -50,11 +50,11 @@ export interface UnifiedWebhookEvent {
   created_at: string;
   payload: any;
   response?: any;
-  targetUrl?: string;
+  targetUrl: string;
   url?: string;
-  webhookType?: string;
-  webhook_type?: string;
-  timestamp?: string;
+  webhookType: WebhookType;
+  webhook_type?: WebhookType;
+  timestamp: string;
 }
 
 // Executive message type
@@ -87,6 +87,7 @@ export interface ExtendedAccessibilityContextType {
   setAutoUpdate: (value: boolean) => void;
   isCheckingUpdates: boolean;
   lastChecked: string | null;
+  autoUpdate?: boolean;
   updatePreference?: (key: string, value: any) => void;
 }
 
@@ -100,4 +101,38 @@ export interface ExtendedComplianceContextType {
   lastChecked: string | null;
   autoUpdate?: boolean;
   updatePreference?: (key: string, value: any) => void;
+}
+
+// WebhookType definition for compatibility
+export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
+
+// Social media specific interfaces
+export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'YouTube';
+export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
+export type PostStatus = 'draft' | 'scheduled' | 'published' | 'failed' | 'archived';
+
+export interface SocialMediaPost {
+  id: string;
+  platform: SocialPlatform;
+  content: string;
+  content_type: ContentType;
+  status: PostStatus;
+  scheduled_at?: string;
+  scheduled_date?: string; // For form compatibility
+  publish_time?: string; // For form compatibility
+  published_at?: string;
+  media_urls?: string[];
+  link_url?: string;
+  engagement?: {
+    likes?: number;
+    comments?: number;
+    shares?: number;
+    views?: number;
+  };
+  tags?: string[];
+  title?: string; // For form compatibility
+  campaign_id?: string; // For form compatibility
+  is_approved?: boolean; // For approval workflows
+  created_at: string;
+  updated_at: string;
 }

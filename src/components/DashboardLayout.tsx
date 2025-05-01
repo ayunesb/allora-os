@@ -5,17 +5,20 @@ import { Sidebar } from '@/components/dashboard/Sidebar';
 import { MobileSidebar } from '@/components/dashboard/MobileSidebar';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Loading } from '@/components/ui/loading';
 import { normalizeUserObject } from '@/utils/authCompatibility';
+import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
+  const authContext = useAuth();
+  const auth = createAuthCompatibilityLayer(authContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  const normalizedUser = normalizeUserObject(user);
+  const normalizedUser = normalizeUserObject(auth?.user);
+  const isLoading = auth?.isLoading || auth?.loading;
 
   useEffect(() => {
     // Close sidebar when route changes
@@ -24,23 +27,23 @@ export default function DashboardLayout() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && !auth?.user) {
       navigate('/auth', { state: { from: location.pathname } });
     }
-  }, [user, isLoading, navigate, location.pathname]);
+  }, [auth?.user, isLoading, navigate, location.pathname]);
 
   // Check for admin routes and redirect if not admin
   useEffect(() => {
     if (
       !isLoading && 
-      user && 
+      auth?.user && 
       location.pathname.startsWith('/admin') && 
       normalizedUser?.role !== 'admin' && 
       !normalizedUser?.app_metadata?.is_admin
     ) {
       navigate('/dashboard', { replace: true });
     }
-  }, [user, isLoading, navigate, location.pathname, normalizedUser]);
+  }, [auth?.user, isLoading, navigate, location.pathname, normalizedUser]);
 
   if (isLoading) {
     return (
@@ -50,7 +53,7 @@ export default function DashboardLayout() {
     );
   }
 
-  if (!user) {
+  if (!auth?.user) {
     return null; // Will redirect to login via useEffect
   }
 

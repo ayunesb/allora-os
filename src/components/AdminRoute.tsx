@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { logger } from "@/utils/loggingService";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { createAuthCompatibilityLayer } from "@/utils/authCompatibility";
+import { Loading } from "@/components/ui/loading";
 
 export interface AdminRouteProps {
   children: React.ReactNode;
@@ -14,89 +15,56 @@ export interface AdminRouteProps {
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const authContext = useAuth();
   const auth = createAuthCompatibilityLayer(authContext);
-  const isLoading = auth.loading || false;
   const location = useLocation();
-  const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Define refreshSession function locally if not available from useAuth
-  const refreshSession = async () => {
-    try {
-      if (auth.refreshSession) {
-        return await auth.refreshSession();
-      }
-      
-      const { data, error } = await supabase.auth.refreshSession();
-      
-      if (error) {
-        logger.error("Error refreshing session:", error);
-        return false;
-      }
-      
-      return !!data.session;
-    } catch (error) {
-      logger.error("Session refresh error:", error);
-      return false;
-    }
-  };
-
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const isLoading = auth?.isLoading || auth?.loading || isAdmin === null;
+  
   useEffect(() => {
-    const verifyAdminStatus = async () => {
-      setIsVerifyingAdmin(true);
+    const checkAdminStatus = async () => {
+      if (!auth?.user) {
+        setIsAdmin(false);
+        return;
+      }
       
       try {
-        // First check if user has admin role
-        const userIsAdmin = auth.user?.role === 'admin' || auth.user?.app_metadata?.is_admin;
+        // Check if user has admin role
+        const isAdminUser = 
+          auth.user.role === 'admin' || 
+          auth.user?.app_metadata?.is_admin === true;
         
-        if (userIsAdmin) {
-          // Double-check with server for sensitive admin routes
-          const { data, error } = await supabase.rpc('verify_admin_status');
-          
-          if (error) {
-            logger.error("Error verifying admin status:", error);
-            throw error;
-          }
-          
-          if (data === true) {
-            logger.info("Admin status verified via server check");
-            setIsAdmin(true);
-          } else {
-            logger.warn("Admin verification failed - server returned false");
-            setIsAdmin(false);
-            await refreshSession(); // Refresh the session to update local state
-          }
-        } else {
-          logger.debug("User is not an admin based on profile", { role: auth.user?.role });
-          setIsAdmin(false);
+        setIsAdmin(isAdminUser);
+        
+        if (!isAdminUser) {
+          logger.warn('Non-admin user attempted to access admin route', {
+            userId: auth.user.id,
+            path: location.pathname
+          });
+          toast.error('You do not have permission to access this page');
         }
       } catch (error) {
-        logger.error("Admin verification failed:", error);
+        console.error('Error checking admin status:', error);
         setIsAdmin(false);
-        toast.error("Could not verify administrator status");
-      } finally {
-        setIsVerifyingAdmin(false);
+        toast.error('Something went wrong checking your permissions');
       }
     };
-
-    verifyAdminStatus();
-  }, [auth.user]);
-
-  if (isLoading || isVerifyingAdmin) {
-    return <div className="flex justify-center items-center min-h-screen">
-      <div className="flex flex-col items-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-        <p className="mt-4 text-muted-foreground">Verifying administrator access...</p>
-      </div>
-    </div>;
+    
+    checkAdminStatus();
+  }, [auth?.user, location.pathname]);
+  
+  if (isLoading) {
+    return <Loading size="lg" text="Checking permissions..." center fullHeight />;
   }
-
-  // If not admin, redirect to dashboard
+  
+  if (!auth?.user) {
+    // Redirect to login if not authenticated
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+  
   if (!isAdmin) {
-    logger.warn("Unauthorized admin access attempt", { path: location.pathname });
-    toast.error("Administrator access required");
-    return <Navigate to="/dashboard" state={{ from: location }} replace />;
+    // Redirect to dashboard if authenticated but not admin
+    return <Navigate to="/dashboard" replace />;
   }
-
+  
   return <>{children}</>;
 };
 
