@@ -7,4 +7,8 @@ export interface AccessibilityContextType {
   isCheckingUpdates?: boolean;
   lastChecked?: string;
   setAutoUpdate?: (enabled: boolean) => void;
+  highContrast?: boolean;
+  reducedMotion?: boolean;
+  textToSpeech?: boolean;
+  screenReaderFriendly?: boolean;
 }

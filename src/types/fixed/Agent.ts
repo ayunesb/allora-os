@@ -19,3 +19,12 @@ export interface AgentRunOptions {
   marketConditions?: string;
   [key: string]: any;
 }
+
+export interface ExecutiveMessage {
+  id: string;
+  from_executive: string;
+  to_executive: string;
+  message_content: string;
+  status: string;
+  created_at?: string;
+}
