@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -8,9 +7,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react({
       babel: {
-        plugins: [
-          // Add any additional babel plugins here
-        ],
+        plugins: [],
       },
     }),
     mode === 'development' && componentTagger(),
@@ -23,9 +20,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 8080,
     host: '::',
-    allowedHosts: ['.lovableproject.com'], // This allows all .lovableproject.com subdomains
+    allowedHosts: ['.lovableproject.com'],
     hmr: {
-      clientPort: 443, // For HTTPS environments
+      clientPort: 443,
       overlay: true,
     },
   },
@@ -39,7 +36,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['lucide-react', '@radix-ui/react-icons'],
+          'ui-vendor': ['lucide-react'], // ✅ clean
         },
       },
     },

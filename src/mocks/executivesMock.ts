@@ -1,4 +1,3 @@
-
 import { ExecutiveMessage } from '@/types/agents';
 
 /**
@@ -57,7 +56,7 @@ export const mockMessages: ExecutiveMessage[] = [
     created_at: '2025-04-28T15:45:00Z',
     from_executive: 'Marcus Johnson',
     to_executive: 'Sarah Chen',
-    message_content: 'I've prepared the financial forecast. Let's review it tomorrow morning.',
+    message_content: 'I\'ve prepared the financial forecast. Let\'s review it tomorrow morning.',
     status: 'read'
   },
   {
@@ -96,25 +95,3 @@ export const mockAgentLogsTable = {
     then: jest.fn().mockResolvedValue({ data: [], error: null })
   })
 };
-
-// Setup mock for supabase in test environment
-if (process.env.NODE_ENV === 'test') {
-  jest.mock('@/integrations/supabase/client', () => ({
-    supabase: {
-      from: (table: string) => {
-        if (table === 'executives') return mockExecutivesTable;
-        if (table === 'agent_logs') return mockAgentLogsTable;
-        return {
-          select: jest.fn().mockReturnThis(),
-          insert: jest.fn().mockResolvedValue({ data: null, error: null }),
-          update: jest.fn().mockReturnThis(),
-          delete: jest.fn().mockReturnThis(),
-          eq: jest.fn().mockReturnThis(),
-          order: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockReturnThis(),
-          then: jest.fn().mockResolvedValue({ data: [], error: null })
-        };
-      }
-    }
-  }));
-}
