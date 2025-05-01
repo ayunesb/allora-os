@@ -47,7 +47,7 @@ export function VerificationContent({ results, isChecking }: VerificationContent
         const result = results[key as keyof ValidationResultsUI];
         // Use the type guard to safely render ValidationResultItem
         if (isValidationResult(result)) {
-          return <ValidationResultItem key={key} name={key} result={result} />;
+          return <ValidationResultItem key={key} id={key} title={key} result={result} />;
         }
         return null;
       })}

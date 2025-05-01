@@ -17,7 +17,7 @@ export const useWebhookHistoryFilters = (events: WebhookEvent[]) => {
       result = result.filter(
         event => 
           event.webhookType.toLowerCase().includes(lowerCaseQuery) ||
-          (event.eventType && event.eventType.toLowerCase().includes(lowerCaseQuery)) ||
+          (event.event_type && event.event_type.toLowerCase().includes(lowerCaseQuery)) ||
           event.targetUrl.toLowerCase().includes(lowerCaseQuery)
       );
     }

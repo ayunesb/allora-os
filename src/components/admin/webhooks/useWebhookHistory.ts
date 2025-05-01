@@ -1,8 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { WebhookEvent } from '@/types/webhooks';
+import { WebhookEvent, WebhookType } from '@/types/webhooks';
 import { toast } from 'sonner';
-import { WebhookType } from '@/utils/webhookValidation';
 
 /**
  * Custom hook for managing webhook event history
@@ -50,36 +49,42 @@ export const useWebhookHistory = () => {
           const sampleEvents: WebhookEvent[] = [
             {
               id: 'wh_1',
+              webhook_id: 'whk_1',
               webhookType: 'zapier',
-              eventType: 'lead_created',
+              event_type: 'lead_created',
               targetUrl: 'https://hooks.zapier.com/hooks/catch/12345/abcdef/',
               source: 'app',
               status: 'success',
               timestamp: new Date().toISOString(),
+              created_at: new Date().toISOString(),
               payload: { data: 'lead data' },
               response: { status: '200' },
               duration: 120
             },
             {
               id: 'wh_2',
+              webhook_id: 'whk_2',
               webhookType: 'stripe',
-              eventType: 'payment.success',
+              event_type: 'payment.success',
               targetUrl: 'https://api.example.com/webhooks/stripe',
               source: 'stripe',
               status: 'success',
               timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+              created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
               payload: { data: 'payment data' },
               response: { status: '200' },
               duration: 89
             },
             {
               id: 'wh_3',
+              webhook_id: 'whk_3',
               webhookType: 'slack',
-              eventType: 'notification',
+              event_type: 'notification',
               targetUrl: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX',
               source: 'app',
               status: 'failed',
               timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+              created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
               payload: { message: 'Test notification' },
               response: { error: 'Invalid token' },
               duration: 67,
@@ -133,7 +138,7 @@ export const useWebhookHistory = () => {
       result = result.filter(
         event => 
           event.webhookType.toLowerCase().includes(lowerCaseQuery) ||
-          (event.eventType && event.eventType.toLowerCase().includes(lowerCaseQuery)) ||
+          (event.event_type && event.event_type.toLowerCase().includes(lowerCaseQuery)) ||
           event.targetUrl.toLowerCase().includes(lowerCaseQuery)
       );
     }

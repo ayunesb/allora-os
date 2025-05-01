@@ -10,11 +10,15 @@ export * from './Validation';
 export interface AuthContextProps {
   user: User | null;
   isLoading: boolean;
+  profile?: User;
+  isEmailVerified?: boolean;
+  isSessionExpired?: boolean;
+  hasInitialized?: boolean;
+  authError?: string | Error;
   login: () => void;
   logout: () => void;
   refreshSession?: () => Promise<void>;
   signOut?: () => Promise<void>;
-  profile?: any;
 }
 
 // Campaign / lead
@@ -62,9 +66,11 @@ export interface AccessibilityContextType {
 // Compliance
 export interface ComplianceContextType {
   hasUpdates: boolean;
+  pendingUpdates: string[];
   checkForUpdates: () => void;
   markAsReviewed: () => void;
+  applyUpdate: (docId: string) => Promise<void>;
+  setAutoUpdate: (docId: string, enabled: boolean) => Promise<void>;
+  isCheckingUpdates: boolean;
+  lastChecked: Date | null;
 }
-
-// Import required types
-import { User } from './User';

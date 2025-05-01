@@ -1,75 +1,75 @@
 
 import { BusinessEventType, BusinessEventPayload, WebhookResult } from '@/types';
 
-// Function to trigger a workflow through a webhook
-export const triggerWorkflow = async (
+/**
+ * Triggers a business event to a webhook URL
+ * @param webhookUrl The webhook URL to send the event to
+ * @param eventType The type of business event
+ * @param data The data for the event
+ * @returns A promise with the result of the webhook call
+ */
+export const triggerBusinessEvent = async (
   webhookUrl: string,
   eventType: BusinessEventType,
-  payload: Record<string, any>
+  data: Record<string, any>
 ): Promise<WebhookResult> => {
-  if (!webhookUrl) {
-    console.error('No webhook URL provided');
-    return { success: false, message: 'No webhook URL provided' };
-  }
-
-  const eventPayload: BusinessEventPayload = {
-    eventType,
-    data: payload
-  };
-
   try {
+    if (!webhookUrl) {
+      return {
+        success: false,
+        message: 'No webhook URL provided',
+      };
+    }
+
+    const payload: BusinessEventPayload = {
+      eventType,
+      data,
+    };
+
+    // Make the API call
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Source': 'Allora-AI',
-        'X-Event-Type': eventType
       },
-      body: JSON.stringify(eventPayload)
+      body: JSON.stringify(payload),
     });
 
-    if (response.ok) {
-      return { 
-        success: true, 
-        message: `Successfully triggered ${eventType} event`
-      };
-    } else {
-      return { 
-        success: false, 
-        message: `Failed to trigger webhook (${response.status})`,
-        error: `HTTP error: ${response.status}`
+    // Handle response
+    if (!response.ok) {
+      return {
+        success: false,
+        message: `Failed with status: ${response.status}`,
+        statusCode: response.status,
+        error: await response.text(),
       };
     }
+
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch (e) {
+      responseData = await response.text();
+    }
+
+    return {
+      success: true,
+      message: 'Webhook triggered successfully',
+      statusCode: response.status,
+      responseData,
+    };
   } catch (error) {
-    console.error('Error triggering Zapier webhook:', error);
     return {
       success: false,
-      message: 'Network error when triggering webhook',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+      error,
     };
   }
 };
 
-// Function to trigger a business event
-export const triggerBusinessEvent = async (
-  webhookUrl: string,
-  eventType: BusinessEventType | string,
-  data: Record<string, any>
-): Promise<WebhookResult> => {
-  return triggerWorkflow(webhookUrl as string, eventType as BusinessEventType, data);
+/**
+ * Trigger a workflow using a webhook
+ */
+export const triggerWorkflow = (webhookUrl: string, data: Record<string, any>): Promise<WebhookResult> => {
+  return triggerBusinessEvent(webhookUrl, 'test_webhook' as BusinessEventType, data);
 };
-
-// Hook for using Zapier within components
-export const useZapier = () => {
-  return {
-    triggerWorkflow,
-    triggerBusinessEvent,
-    triggerCampaignCreated: (webhookUrl: string, data: Record<string, any>) => 
-      triggerBusinessEvent(webhookUrl, 'campaign_created', data),
-    triggerLeadConverted: (webhookUrl: string, data: Record<string, any>) => 
-      triggerBusinessEvent(webhookUrl, 'lead_converted', data)
-  };
-};
-
-// Re-export types
-export type { BusinessEventType, BusinessEventPayload };

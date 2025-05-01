@@ -9,4 +9,10 @@ export interface User {
   company?: string;
   industry?: string;
   app_metadata?: any;
+  user_metadata?: {
+    firstName: string;
+    lastName: string;
+    avatar?: string;
+    role?: string;
+  };
 }

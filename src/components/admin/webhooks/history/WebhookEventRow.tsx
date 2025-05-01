@@ -54,7 +54,7 @@ export function WebhookEventRow({ event }: WebhookEventRowProps) {
             <span className="capitalize">{event.webhookType}</span>
           </div>
         </TableCell>
-        <TableCell>{event.eventType || 'N/A'}</TableCell>
+        <TableCell>{event.event_type || 'N/A'}</TableCell>
         <TableCell>
           <Badge className={getStatusColor(event.status)}>
             {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
@@ -107,7 +107,7 @@ export function WebhookEventRow({ event }: WebhookEventRowProps) {
                   <div className="capitalize">{event.webhookType}</div>
                   
                   <div className="font-medium">Event:</div>
-                  <div>{event.eventType || 'N/A'}</div>
+                  <div>{event.event_type || 'N/A'}</div>
                   
                   <div className="font-medium">Status:</div>
                   <div>

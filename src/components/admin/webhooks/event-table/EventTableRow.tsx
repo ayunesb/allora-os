@@ -34,7 +34,7 @@ export const EventTableRow: React.FC<EventTableRowProps> = ({ event }) => {
             {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
         </TableCell>
-        <TableCell>{event.eventType}</TableCell>
+        <TableCell>{event.event_type}</TableCell>
         <TableCell>
           <Badge variant="outline" className="font-mono text-xs capitalize">
             {event.webhookType}

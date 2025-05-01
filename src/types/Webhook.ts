@@ -1,5 +1,5 @@
 
-export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack';
+export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
 
 export type BusinessEventType = 
   | 'campaign_created' 
@@ -29,7 +29,7 @@ export interface WebhookResult {
 export interface WebhookEvent {
   id: string;
   webhook_id: string;
-  event_type: string;
+  event_type: string;  // Standardized to event_type instead of eventType
   status: 'success' | 'failed' | 'pending';
   created_at: string;
   payload: any;

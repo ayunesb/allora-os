@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { WebhookType } from '@/types';
 import { validateWebhookUrlFormat } from '@/utils/webhookValidation';
 
-export function useWebhookValidation(webhookType: WebhookType) {
+export function useWebhookValidation(webhookType: WebhookType | 'notion') {
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [validationMessage, setValidationMessage] = useState<string>('');
   
@@ -16,7 +16,7 @@ export function useWebhookValidation(webhookType: WebhookType) {
     }
     
     // Check URL format
-    const validFormat = validateWebhookUrlFormat(url, webhookType);
+    const validFormat = validateWebhookUrlFormat(url, webhookType as WebhookType);
     setIsValid(validFormat);
     
     if (validFormat) {

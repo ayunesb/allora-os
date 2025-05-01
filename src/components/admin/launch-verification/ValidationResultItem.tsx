@@ -1,22 +1,33 @@
 
 import React from 'react';
-import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { ValidationResultItemProps } from './types';
+import { Badge } from "@/components/ui/badge";
+import { Check, X, AlertCircle, Info } from "lucide-react";
+
+export interface ValidationResultItemProps {
+  id: string;
+  title: string;
+  result: {
+    valid: boolean;
+    message: string;
+    details?: Record<string, any>;
+  };
+}
 
 export function ValidationResultItem({ id, title, result }: ValidationResultItemProps) {
+  const getStatusIcon = () => {
+    if (result.valid) {
+      return <Check className="h-4 w-4 text-green-500" />;
+    } else {
+      return <X className="h-4 w-4 text-red-500" />;
+    }
+  };
+
   return (
-    <div className="flex items-start gap-3 p-2 border-b border-border/40 last:border-b-0">
-      <div className="mt-1">
-        {result.valid ? (
-          <CheckCircle className="h-5 w-5 text-green-500" />
-        ) : (
-          <XCircle className="h-5 w-5 text-red-500" />
-        )}
-      </div>
-      
+    <div className="flex items-start gap-4 px-4 py-3 border rounded-md bg-muted/20">
+      <div className="mt-0.5">{getStatusIcon()}</div>
       <div className="flex-1">
-        <div className="font-medium text-sm">{title}</div>
-        <div className="text-xs text-muted-foreground">{result.message}</div>
+        <div className="font-medium">{title}</div>
+        <p className="text-sm text-muted-foreground">{result.message}</p>
       </div>
     </div>
   );
