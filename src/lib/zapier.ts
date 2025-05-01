@@ -55,21 +55,45 @@ export const useZapier = () => {
   const triggerLeadConverted = async (webhookUrl: string, lead: LeadPayload) => {
     return triggerBusinessEvent(webhookUrl, 'lead_converted', lead);
   };
+  
+  // Add missing triggerWorkflow function
+  const triggerWorkflow = async (
+    webhookUrl: string,
+    eventType: string,
+    data: Record<string, any>
+  ) => {
+    return triggerWebhook(webhookUrl, {
+      eventType,
+      data,
+    });
+  };
 
   return {
     triggerWebhook,
     triggerBusinessEvent,
     triggerCampaignCreated,
     triggerLeadConverted,
+    triggerWorkflow,
   };
 };
 
 // Export triggerBusinessEvent for tests
 export const triggerBusinessEvent = async (
+  webhookUrl: string,
   eventType: BusinessEventType,
   data: Record<string, any>
 ) => {
   // This is a simplified version for test mocking purposes
   console.log(`Simulating business event: ${eventType}`, data);
+  return { success: true };
+};
+
+// Export triggerWorkflow for compatibility
+export const triggerWorkflow = async (
+  webhookUrl: string,
+  eventType: string,
+  data: Record<string, any>
+) => {
+  console.log(`Simulating workflow trigger: ${eventType}`, data);
   return { success: true };
 };

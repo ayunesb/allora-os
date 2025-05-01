@@ -26,7 +26,6 @@ export const onUserOnboarded = async (webhookUrl: string, userId: string, userDa
   });
 };
 
-// Add the missing functions
 export const onCampaignLaunched = async (webhookUrl: string, campaign: CampaignPayload) => {
   try {
     const { triggerBusinessEvent } = useZapier();
