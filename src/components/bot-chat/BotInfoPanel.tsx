@@ -1,43 +1,83 @@
 
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 
 export interface BotInfoPanelProps {
-  description: string;
-  specialties: string[];
-  expertise: string;
+  bot?: {
+    name: string;
+    title?: string;
+    avatar?: string;
+    description?: string;
+    expertise?: string;
+    specialties?: string[];
+  };
 }
 
-export function BotInfoPanel({ description, specialties, expertise }: BotInfoPanelProps) {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium mb-2">About</h3>
-        <p className="text-muted-foreground">{description}</p>
-      </div>
-
-      <div>
-        <h3 className="text-lg font-medium mb-2">Expertise</h3>
-        <Badge variant="outline" className="bg-primary/10 text-primary">
-          {expertise}
-        </Badge>
-      </div>
-
-      {specialties && specialties.length > 0 && (
-        <div>
-          <h3 className="text-lg font-medium mb-2">Specialties</h3>
-          <div className="flex flex-wrap gap-2">
-            {specialties.map((specialty, index) => (
-              <Badge key={index} variant="outline" className="bg-secondary/10">
-                {specialty}
-              </Badge>
-            ))}
+const BotInfoPanel: React.FC<BotInfoPanelProps> = ({ bot }) => {
+  if (!bot) {
+    return (
+      <Card className="h-full">
+        <CardContent className="pt-6">
+          <div className="text-center text-muted-foreground">
+            No bot selected
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="h-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-medium">
+          {bot.name} {bot.title ? `- ${bot.title}` : ''}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {bot.avatar && (
+            <div className="flex justify-center">
+              <div className="relative h-20 w-20 rounded-full overflow-hidden">
+                <img 
+                  src={bot.avatar} 
+                  alt={bot.name} 
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            </div>
+          )}
+          
+          {bot.description && (
+            <div>
+              <h3 className="text-sm font-medium mb-1">About</h3>
+              <p className="text-sm text-muted-foreground">{bot.description}</p>
+            </div>
+          )}
+          
+          {bot.expertise && (
+            <div>
+              <h3 className="text-sm font-medium mb-1">Expertise</h3>
+              <p className="text-sm text-muted-foreground">{bot.expertise}</p>
+            </div>
+          )}
+          
+          {bot.specialties && bot.specialties.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium mb-2">Specialties</h3>
+              <div className="flex flex-wrap gap-2">
+                {bot.specialties.map((specialty, index) => (
+                  <Badge key={index} variant="outline">
+                    {specialty}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
-}
+};
 
 export default BotInfoPanel;

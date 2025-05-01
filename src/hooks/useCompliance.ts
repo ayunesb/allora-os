@@ -22,12 +22,12 @@ export const useCompliance = (): ExtendedComplianceContextType => {
     lastChecked: context.lastChecked || null,
     autoUpdate: context.autoUpdate || false,
     updatePreference: context.updatePreference || ((key: string, value: any) => console.warn('updatePreference not implemented', key, value)),
-    pendingUpdates: [],
-    isApplyingUpdate: false,
-    applyUpdate: async () => {},
-    applyAllUpdates: async () => {},
-    scheduleComplianceCheck: async () => {},
-    enableAutoUpdates: async () => false
+    pendingUpdates: context.pendingUpdates || [],
+    isApplyingUpdate: context.isApplyingUpdate || false,
+    applyUpdate: context.applyUpdate || (async () => {}),
+    applyAllUpdates: context.applyAllUpdates || (async () => {}),
+    scheduleComplianceCheck: context.scheduleComplianceCheck || (async () => {}),
+    enableAutoUpdates: context.enableAutoUpdates || (async () => false)
   };
 
   return extendedContext;

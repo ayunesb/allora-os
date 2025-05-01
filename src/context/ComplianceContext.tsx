@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ComplianceContextType } from '@/types/fixed/Compliance';
+import { useCompliance } from '@/hooks/useCompliance';
 
 // Create the context with a default value
 export const ComplianceContext = createContext<ComplianceContextType | undefined>(undefined);
@@ -15,6 +16,8 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
   const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
   const [lastChecked, setLastChecked] = useState<string | null>(null);
   const [autoUpdate, setAutoUpdateState] = useState(false);
+  const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
+  const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
 
   // Function to check for updates
   const checkForUpdates = async () => {
@@ -43,6 +46,45 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
     // Implement preference update logic here
   };
 
+  // Mock functions for the extended interface
+  const applyUpdate = async () => {
+    setIsApplyingUpdate(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setPendingUpdates(prev => prev.slice(1));
+      return true;
+    } catch (error) {
+      console.error("Failed to apply update:", error);
+      return false;
+    } finally {
+      setIsApplyingUpdate(false);
+    }
+  };
+
+  const applyAllUpdates = async () => {
+    setIsApplyingUpdate(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setPendingUpdates([]);
+      return true;
+    } catch (error) {
+      console.error("Failed to apply all updates:", error);
+      return false;
+    } finally {
+      setIsApplyingUpdate(false);
+    }
+  };
+
+  const scheduleComplianceCheck = async (intervalDays?: number) => {
+    console.log(`Scheduling compliance check every ${intervalDays || 7} days`);
+    // Implementation would go here
+  };
+
+  const enableAutoUpdates = async (documentId: string, enabled: boolean) => {
+    console.log(`Setting auto-updates for ${documentId} to ${enabled}`);
+    return true;
+  };
+
   const value: ComplianceContextType = {
     isLoaded,
     error,
@@ -51,7 +93,13 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
     isCheckingUpdates,
     lastChecked,
     autoUpdate,
-    updatePreference
+    updatePreference,
+    pendingUpdates,
+    isApplyingUpdate,
+    applyUpdate,
+    applyAllUpdates,
+    scheduleComplianceCheck,
+    enableAutoUpdates
   };
 
   return (
@@ -68,3 +116,6 @@ export const useComplianceContext = () => {
   }
   return context;
 };
+
+// Re-export the hook for convenience
+export { useCompliance };

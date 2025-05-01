@@ -15,15 +15,16 @@ export function normalizeUserObject(user: any): UnifiedUser | null {
     company_id: user.company_id || null,
     company: user.company || null,
     industry: user.industry || null,
-    app_metadata: user.app_metadata || { is_admin: user.role === 'admin' },
-    user_metadata: user.user_metadata || { firstName: '', lastName: '' },
     name: user.name || 
           (user.user_metadata ? 
             `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : ''),
+    app_metadata: user.app_metadata || { is_admin: user.role === 'admin' },
+    user_metadata: user.user_metadata || { firstName: '', lastName: '' },
     avatar_url: user.avatar_url || 
                (user.user_metadata ? user.user_metadata.avatar : null),
     created_at: user.created_at || new Date().toISOString(),
     updated_at: user.updated_at || new Date().toISOString(),
+    email: user.email || ''
   } as UnifiedUser;
 }
 
@@ -100,7 +101,7 @@ export function normalizeSocialMediaPost(post: any) {
     platform: post.platform || 'LinkedIn',
     content_type: post.content_type || 'text',
     status: post.status || 'draft',
-    is_approved: post.is_approved || false,
+    is_approved: post.is_approved !== undefined ? post.is_approved : false,
     created_at: post.created_at || new Date().toISOString(),
     updated_at: post.updated_at || new Date().toISOString()
   };

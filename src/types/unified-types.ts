@@ -26,6 +26,8 @@ export interface UnifiedUser {
     is_admin?: boolean;
     [key: string]: any;
   };
+  // Add other required properties here
+  [key: string]: any; // Allow additional properties
 }
 
 // Bot type with all required properties
@@ -92,6 +94,7 @@ export interface ExtendedAccessibilityContextType {
   lastChecked: string | null;
   autoUpdate?: boolean;
   updatePreference?: (key: string, value: any) => void;
+  textToSpeech?: boolean;
 }
 
 // Extended compliance context types
@@ -106,8 +109,8 @@ export interface ExtendedComplianceContextType {
   updatePreference?: (key: string, value: any) => void;
   pendingUpdates: string[];
   isApplyingUpdate: boolean;
-  applyUpdate: (documentId: string) => Promise<void>;
-  applyAllUpdates: () => Promise<void>;
+  applyUpdate: (documentId: string) => Promise<any>;
+  applyAllUpdates: () => Promise<any>;
   scheduleComplianceCheck: (intervalDays?: number) => Promise<void>;
   enableAutoUpdates: (documentId: string, enabled: boolean) => Promise<boolean>;
 }
@@ -118,6 +121,7 @@ export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 
 // Social media specific interfaces
 export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'YouTube';
 export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
+export type PostContentType = ContentType; // Alias for backward compatibility
 export type PostStatus = 'draft' | 'scheduled' | 'published' | 'failed' | 'archived';
 
 export interface SocialMediaPost {

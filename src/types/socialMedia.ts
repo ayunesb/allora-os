@@ -1,51 +1,32 @@
 
-export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'YouTube';
-export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
-export type PostStatus = 'draft' | 'scheduled' | 'published' | 'failed' | 'archived';
+import { SocialPlatform, ContentType, PostStatus, SocialMediaPost, SocialMediaCalendarFilters } from './unified-types';
 
-export interface SocialMediaPost {
-  id: string;
-  platform: SocialPlatform;
-  content: string;
-  content_type: ContentType;
-  status: PostStatus;
-  scheduled_at?: string;
-  scheduled_date?: string; // For form compatibility
-  publish_time?: string; // For form compatibility
-  published_at?: string;
+export type { SocialPlatform, ContentType, PostStatus, SocialMediaPost, SocialMediaCalendarFilters };
+export type PostContentType = ContentType; // Alias for backward compatibility
+
+export interface SocialMediaContextType {
+  posts: SocialMediaPost[];
+  loading: boolean;
+  error: string | null;
+  createPost: (post: Partial<SocialMediaPost>) => Promise<void>;
+  updatePost: (postId: string, post: Partial<SocialMediaPost>) => Promise<void>;
+  deletePost: (postId: string) => Promise<void>;
+  approvePost: (postId: string) => Promise<void>;
+  schedulePost: (postId: string, scheduledDate: string) => Promise<void>;
+  publishPost: (postId: string) => Promise<void>;
+  fetchPosts: (filters?: SocialMediaCalendarFilters) => Promise<void>;
+}
+
+export interface PostFormData {
+  title?: string;
+  content?: string;
+  platform?: SocialPlatform;
+  scheduled_date?: string;
+  publish_time?: string;
+  content_type?: ContentType;
   media_urls?: string[];
   link_url?: string;
-  engagement?: {
-    likes?: number;
-    comments?: number;
-    shares?: number;
-    views?: number;
-  };
+  campaign_id?: string;
   tags?: string[];
-  title?: string; // For form compatibility
-  campaign_id?: string; // For form compatibility
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PostFilter {
-  platform?: SocialPlatform;
-  status?: PostStatus;
-  search?: string;
-  startDate?: string;
-  endDate?: string;
-  tags?: string[];
-}
-
-export interface CalendarViewProps {
-  posts: SocialMediaPost[];
-  currentMonth: Date;
-  isLoading?: boolean;
-  error?: Error | null;
-  onCreatePost: () => void;
-  onDeletePost: (postId: string) => Promise<any>;
-  onSchedulePost: (postId: string) => Promise<any>;
-  onApprovePost: (postId: string) => Promise<any>;
-  onEditPost?: (post: SocialMediaPost) => void;
-  onRefresh?: () => void;
+  is_approved?: boolean;
 }
