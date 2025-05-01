@@ -1,89 +1,50 @@
 
-export interface ChecklistItem {
-  id: string;
+export interface ValidationResultItem {
   name: string;
-  description?: string;
-  status: 'completed' | 'in-progress' | 'pending' | 'warning' | 'error';
-  statusMessage?: string;
+  status: 'success' | 'error' | 'warning' | 'info';
+  message: string;
   details?: string;
-  isRequired?: boolean;
 }
 
-export interface ChecklistCategory {
-  id: string;
-  name: string;
-  description?: string;
-  items: ChecklistItem[];
+export interface ValidationResults {
+  tables?: ValidationResultItem[];
+  functions?: ValidationResultItem[];
+  policies?: ValidationResultItem[];
+  indexes?: ValidationResultItem[];
+  other?: ValidationResultItem[];
 }
 
-export interface ValidationResultsUI {
-  apis: {
-    heygen: ApiStatus;
-    postmark: ApiStatus;
-    stripe: ApiStatus; 
-    twilio: ApiStatus;
-    openai: ApiStatus;
-    zapier?: ApiStatus;
-  };
-  database: {
-    status: 'ready' | 'error';
-    message?: string;
-    tables?: DatabaseTableStatus[];
-  };
-  features: {
-    authentication: boolean;
-    onboarding: boolean;
-    strategies: boolean;
-    campaigns: boolean;
-    aiDebate: boolean;
-    welcomeVideo: boolean;
-    billing: boolean;
-  };
-  compliance: {
-    whatsappOptIn: boolean;
-    emailUnsubscribe: boolean;
-    billingCompliance: boolean;
-    apiSecurityLevel: 'high' | 'medium' | 'low';
-  };
-  overallStatus: 'ready' | 'warning' | 'not_ready';
-  // Add the missing properties that our components are trying to access
-  databaseTables?: Record<string, DatabaseTableStatus>;
-  databaseIndexes?: Array<{name: string; status: string; message: string}>;
-  rlsPolicies?: Array<{table: string; status: string; message: string}>;
-  databaseFunctions?: Array<{name: string; status: string; message: string}>;
-  legalAcceptance?: { valid: boolean; message: string };
-}
-
-export type ApiStatus = 'connected' | 'error' | 'not_configured';
-
-export interface DatabaseTableStatus {
-  name?: string;
-  exists: boolean;
-  rowCount?: number;
-  hasRls?: boolean;
-  error?: string;
-  // Add the missing properties that our components are trying to access
-  rls?: boolean;
+export interface VerificationResponse {
+  success: boolean;
+  results: ValidationResults;
+  isReady?: boolean;
   message?: string;
 }
 
-export interface EnhancedVerificationState {
-  categories: ChecklistCategory[];
-  completedItems: number;
-  totalItems: number;
-  overallStatus: 'ready' | 'warning' | 'not_ready';
-  isLoading: boolean;
+export interface DatabaseVerificationProps {
+  results: ValidationResults | null;
+  isChecking: boolean;
 }
 
-export interface LaunchButtonProps {
-  className?: string;
+export interface LaunchInfoProps {
+  readinessStatus: 'pending' | 'ready' | 'not-ready';
+  errorCount: number;
+  warningCount: number;
 }
 
-export interface LaunchProgressProps {
-  isComplete: boolean;
-  launchStep: string | null;
+export interface CampaignPayload {
+  campaignId: string;
+  campaignTitle: string;
+  platform: string;
+  budget: number;
+  owner: string;
+  companyId: string;
 }
 
-export interface LaunchInfoBoxProps {
-  className?: string;
+export interface LeadPayload {
+  leadId: string;
+  leadName: string;
+  company: string;
+  email: string;
+  source: string;
 }

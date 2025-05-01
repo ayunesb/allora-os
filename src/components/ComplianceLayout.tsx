@@ -5,6 +5,15 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "react-router-dom";
 import { Shield, AlertCircle } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+
+// Custom DashboardBreadcrumb interface for the component
+interface DashboardBreadcrumbProps {
+  rootPath: string;
+  rootLabel: string;
+  rootIcon: React.ReactNode;
+}
+
+// Import a properly defined DashboardBreadcrumb
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 
 interface ComplianceLayoutProps {

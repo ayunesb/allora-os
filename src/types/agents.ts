@@ -1,27 +1,58 @@
-
 export interface User {
   id: string;
   email: string;
   name: string;
   company_id: string;
-  role: string;
+  role: "user" | "admin";
   created_at: string;
 }
 
-export interface ExecutiveMessage {
+// If file exists, add the types to it, otherwise create it
+export interface ExecutiveAgentProfile {
+  name: string;
+  role: string;
+  expertise: string[];
+  personality: 'analytical' | 'creative' | 'diplomatic' | 'aggressive' | 'cautious';
+  decisionStyle: 'data_driven' | 'intuitive' | 'consensus' | 'directive' | 'adaptive';
+  avatarUrl?: string;
+}
+
+export interface ExecutiveDecision {
   id: string;
-  created_at: string;
-  from_executive: string;
-  to_executive: string;
-  message_content: string;
-  status: "read" | "unread";
+  executiveName: string;
+  executiveRole: string;
+  task: string;
+  options: string[];
+  selectedOption: string;
+  reasoning: string;
+  riskAssessment: string;
+  timestamp: string;
+  priority: string;
+}
+
+export interface ExecutiveResponse {
+  aiResponse: string;
+  toolResponses?: Array<{
+    tool: string;
+    result: string;
+    data?: any;
+  }>;
+}
+
+export interface AgentRunOptions {
+  saveToDatabase?: boolean;
+  includeRiskAssessment?: boolean;
+  priority?: string;
+  companyContext?: string;
+  marketConditions?: string;
+  userId?: string;
 }
 
 export interface DebateEntry {
   executiveName: string;
   role: string;
   opinion: string;
-  stance: string;
+  stance: 'For' | 'Against' | 'Neutral';
 }
 
 export interface DebateSummary {
@@ -40,23 +71,18 @@ export interface DebateSessionResult {
   summary: DebateSummary;
 }
 
-export interface ExecutiveDecision {
+export interface ExecutiveMessage {
   id: string;
-  executiveName: string;
-  executiveRole: string;
-  task: string;
-  options: string[];
-  selectedOption: string;
-  reasoning: string;
-  riskAssessment: string;
-  priority: string;
-  timestamp: string;
+  from_executive: string;
+  to_executive: string;
+  message_content: string;
+  status: 'read' | 'unread';
+  created_at: string;
 }
 
-export interface ExecutiveAgentProfile {
-  name: string;
-  role: string;
-  expertise?: string[];
-  traits?: string[];
-  communication_style?: string;
+export interface Anomaly {
+  kpi: string;
+  issue: string;
+  value: number;
+  threshold: number;
 }

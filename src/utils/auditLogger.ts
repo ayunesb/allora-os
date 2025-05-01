@@ -156,3 +156,6 @@ export async function logComplianceChange(
     return false;
   }
 }
+
+// This will add the log export that was missing and causing the errors
+export const log = logAuditEvent;
