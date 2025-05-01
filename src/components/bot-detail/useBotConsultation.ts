@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { Bot } from '@/types/fixed/Bot';
 import { Message } from '@/types/fixed/Message';
 
-export { Bot };  // Export Bot for use in other components
+export type { Bot };  // Export Bot as a type for use in other components
 
 export interface UseBotConsultationResult {
   bot: Bot | null;

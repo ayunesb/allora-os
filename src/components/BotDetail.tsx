@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
@@ -18,7 +17,7 @@ import MessageList from "./bot-detail/MessageList";
 import MessageInput from "./bot-detail/MessageInput";
 import NotFoundCard from "./bot-detail/NotFoundCard";
 import BotDetailSkeleton from "./bot-detail/BotDetailSkeleton";
-import { useBotConsultation, Bot } from "./bot-detail/useBotConsultation";
+import { useBotConsultation, type Bot } from "./bot-detail/useBotConsultation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -74,10 +73,14 @@ export default function BotDetail() {
 
   // Create a fallback bot object with required fields if any are missing
   const enhancedBot: Bot = {
+    id: bot.id,
     name: bot.name,
     title: bot.title || role || 'Executive Advisor',
-    role: bot.role || role || '',
-    expertise: bot.expertise || 'Business Strategy'
+    role: bot.role || role || 'Executive Advisor',
+    description: bot.description,
+    avatar: bot.avatar,
+    expertise: bot.expertise || 'Business Strategy',
+    isActive: bot.isActive
   };
 
   return (
