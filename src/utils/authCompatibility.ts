@@ -45,7 +45,12 @@ export function createAuthCompatibilityLayer(authContext: any) {
   return {
     ...authContext,
     user: normalizeUserObject(authContext.user || authContext.profile),
-    profile: normalizeUserObject(authContext.user || authContext.profile)
+    profile: normalizeUserObject(authContext.user || authContext.profile),
+    isLoading: authContext.loading || false,
+    isAuthenticated: !!authContext.user || !!authContext.profile,
+    signIn: authContext.login || (() => {}),
+    signUp: authContext.signUp || (() => {}),
+    signOut: authContext.signOut || authContext.logout || (() => {})
   };
 }
 
@@ -57,12 +62,18 @@ export function normalizeWebhookEvent(webhookEvent: any): any {
 
   return {
     ...webhookEvent,
-    eventType: webhookEvent.eventType || webhookEvent.event_type || '',
+    id: webhookEvent.id || '',
+    webhook_id: webhookEvent.webhook_id || '',
     event_type: webhookEvent.eventType || webhookEvent.event_type || '',
-    webhookType: webhookEvent.webhookType || webhookEvent.webhook_type || '',
-    webhook_type: webhookEvent.webhookType || webhookEvent.webhook_type || '',
+    eventType: webhookEvent.eventType || webhookEvent.event_type || '',
+    created_at: webhookEvent.created_at || webhookEvent.timestamp || new Date().toISOString(),
+    timestamp: webhookEvent.timestamp || webhookEvent.created_at || new Date().toISOString(),
+    webhookType: webhookEvent.webhookType || webhookEvent.webhook_type || webhookEvent.type || '',
+    type: webhookEvent.type || webhookEvent.webhookType || webhookEvent.webhook_type || '',
     targetUrl: webhookEvent.targetUrl || webhookEvent.url || '',
     url: webhookEvent.targetUrl || webhookEvent.url || '',
+    status: webhookEvent.status || 'pending',
+    source: webhookEvent.source || ''
   };
 }
 

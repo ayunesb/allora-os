@@ -1,71 +1,94 @@
 
-import { WebhookType, BusinessEventType, WebhookResult } from '@/types/fixed/Webhook';
+import { WebhookResult, BusinessEventType } from '@/types/fixed/Webhook';
+import { toast } from 'sonner';
 
-export const triggerBusinessEvent = (
+/**
+ * Trigger a business event to a webhook URL
+ */
+export async function triggerBusinessEvent(
   webhookUrl: string,
   eventType: BusinessEventType,
-  data: Record<string, any>
-): Promise<WebhookResult> => {
-  return new Promise((resolve, reject) => {
-    fetch(webhookUrl, {
+  payload: Record<string, any>
+): Promise<WebhookResult> {
+  try {
+    console.log(`Triggering business event ${eventType} to ${webhookUrl}`, payload);
+    
+    // Format the payload
+    const body = {
+      eventType,
+      timestamp: new Date().toISOString(),
+      data: {
+        ...payload,
+        appSource: 'Allora AI',
+      }
+    };
+    
+    // Send the webhook request - using no-cors mode to handle CORS issues in browser environment
+    await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        eventType,
-        data,
-        timestamp: new Date().toISOString(),
-      }),
-      mode: 'no-cors', // Use no-cors to handle CORS issues
-    })
-      .then(() => {
-        // With no-cors, we don't get a useful response, so we assume success
-        resolve({ 
-          success: true,
-          message: "Webhook triggered successfully"
-        });
-      })
-      .catch((error) => {
-        console.error('Error triggering webhook:', error);
-        resolve({ 
-          success: false, 
-          message: error instanceof Error ? error.message : 'Unknown error',
-          error
-        });
-      });
-  });
-};
+      mode: 'no-cors',
+      body: JSON.stringify(body)
+    });
+    
+    // No actual response with no-cors, so we assume success
+    return {
+      success: true,
+      message: 'Webhook triggered successfully'
+    };
+  } catch (error) {
+    console.error('Error triggering business event:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      error
+    };
+  }
+}
 
-export const useZapier = () => {
-  return {
-    triggerBusinessEvent,
-    triggerWorkflow: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'test_webhook', data);
-    },
-    triggerCampaignCreated: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'campaign_created', data);
-    },
-    triggerLeadConverted: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'lead_converted', data);
-    },
-    triggerStrategyApproved: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'strategy_approved', data);
-    },
-    triggerRevenueMilestone: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'revenue_milestone', data);
-    },
-    triggerCampaignLaunched: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'campaign_launched', data);
-    },
-    triggerLeadAdded: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'lead_added', data);
-    },
-    triggerNewLead: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'new_lead', data);
-    },
-    triggerUserOnboarded: (webhookUrl: string, data: Record<string, any>) => {
-      return triggerBusinessEvent(webhookUrl, 'user_onboarded', data);
-    }
-  };
-};
+/**
+ * Test a webhook URL with a simple ping event
+ */
+export async function testWebhook(webhookUrl: string): Promise<WebhookResult> {
+  try {
+    return await triggerBusinessEvent(
+      webhookUrl,
+      'test_event' as BusinessEventType,
+      {
+        message: 'This is a test event from Allora AI',
+        testId: Date.now(),
+      }
+    );
+  } catch (error) {
+    console.error('Error testing webhook:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      error
+    };
+  }
+}
+
+/**
+ * Trigger a lead added webhook
+ */
+export async function triggerLeadAddedEvent(webhookUrl: string, leadData: any): Promise<WebhookResult> {
+  try {
+    return await triggerBusinessEvent(
+      webhookUrl,
+      'lead_added' as BusinessEventType,
+      {
+        lead: leadData,
+      }
+    );
+  } catch (error) {
+    console.error('Error triggering lead added webhook:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      error
+    };
+  }
+}

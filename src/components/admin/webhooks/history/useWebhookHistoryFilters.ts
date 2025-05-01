@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
-import { WebhookEvent } from '@/types/fixed/Webhook';
+import { WebhookEvent, WebhookStatus } from '@/types/fixed/Webhook';
 import { normalizeWebhookEvent } from '@/utils/authCompatibility';
 
 interface FilterOptions {
-  status?: 'success' | 'failed' | 'pending' | '';
+  status?: WebhookStatus | '';
   type?: string;
   searchTerm?: string;
 }

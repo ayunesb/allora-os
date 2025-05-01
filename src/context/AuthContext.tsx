@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
@@ -24,6 +23,12 @@ interface AuthContextProps {
   updateUser: (updates: any) => Promise<{ data: User | null; error: any }>;
   refreshUserData: (userId: string) => Promise<void>;
   setUser: Dispatch<SetStateAction<User | null | undefined>>;
+  
+  // Compatibility properties
+  isLoading?: boolean;
+  isAuthenticated?: boolean;
+  signIn?: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  logout?: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -246,6 +251,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await refreshUserData(session.user.id);
       }
     },
+    
+    // Compatibility properties
+    isLoading: loading,
+    isAuthenticated: !!user,
+    signIn: login,
+    logout: signOut
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

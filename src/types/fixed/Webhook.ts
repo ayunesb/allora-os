@@ -15,7 +15,9 @@ export type BusinessEventType =
   | 'user_onboarded'
   | 'campaign_launched'
   | 'lead_added'
-  | 'test_event';
+  | 'test_event'
+  | 'test_webhook'
+  | 'new_lead';
 
 // Webhook event status
 export type WebhookStatus = 'success' | 'failed' | 'pending';

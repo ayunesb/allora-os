@@ -14,12 +14,12 @@ export default function Compliance() {
   
   useEffect(() => {
     // Schedule regular compliance check every 5 days
-    scheduleComplianceCheck(5).catch(error => {
+    scheduleComplianceCheck().catch(error => {
       console.error("Failed to schedule compliance check:", error);
     });
     
     // Show notification if there are pending updates
-    if (pendingUpdates.length > 0) {
+    if (pendingUpdates && pendingUpdates.length > 0) {
       toast.info(`Updates available for ${pendingUpdates.length} document(s)`, {
         description: "New regulatory updates are available for some compliance documents.",
         action: {

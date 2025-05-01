@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { triggerBusinessEvent, triggerWorkflow } from '@/lib/zapier';
+import { triggerBusinessEvent, testWebhook } from '@/lib/zapier';
 import { BusinessEventType, WebhookResult } from '@/types';
 
 export const useZapier = () => {
@@ -29,7 +29,7 @@ export const useZapier = () => {
   return {
     isLoading,
     triggerWebhook,
-    triggerWorkflow,
+    testWebhook,
     triggerBusinessEvent
   };
 };

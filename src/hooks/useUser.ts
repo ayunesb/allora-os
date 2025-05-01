@@ -26,5 +26,7 @@ export const useUser = () => {
     } : null,
     isAdmin: normalizedUser?.app_metadata?.is_admin || 
             normalizedUser?.role === 'admin' || false,
+    isLoading: auth?.loading || auth?.isLoading || false,
+    isAuthenticated: !!normalizedUser
   };
 };
