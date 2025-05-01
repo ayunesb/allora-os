@@ -58,6 +58,11 @@ export interface ValidationResultsUI {
   [key: string]: any;
 }
 
+export interface EnhancedVerificationState {
+  completed: boolean;
+  results: any;
+}
+
 export interface LaunchInfoProps {
   title: string;
   description?: string;

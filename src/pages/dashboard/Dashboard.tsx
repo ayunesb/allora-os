@@ -16,8 +16,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useStrategies } from "@/hooks/useStrategies";
 import { useProductionData } from "@/hooks/useProductionData";
 import { normalizeUserObject } from "@/utils/authCompatibility";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { 
@@ -80,6 +82,10 @@ export default function Dashboard() {
     window.location.href = "/admin/launch-verification";
   };
 
+  const navigateToStrategyGenerator = () => {
+    navigate("/dashboard/strategy-generator");
+  };
+
   if (isLoading && !data) {
     return <DashboardLoading />;
   }
@@ -125,7 +131,7 @@ export default function Dashboard() {
               <p className="mt-4 text-sm text-muted-foreground">
                 Generate tailored business strategies using AI based on your company profile, goals, and risk tolerance.
               </p>
-              <Button className="mt-4 w-full" onClick={() => window.location.href = "/dashboard/strategy-generator"}>
+              <Button className="mt-4 w-full" onClick={navigateToStrategyGenerator}>
                 <span>Create Strategies</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

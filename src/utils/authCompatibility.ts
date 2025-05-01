@@ -12,6 +12,8 @@ export function normalizeUserObject(rawUser: any | null | undefined): FixedUser 
   return {
     id: rawUser.id || '',
     email: rawUser.email || '',
+    firstName: rawUser.firstName || rawUser.user_metadata?.firstName || '',
+    lastName: rawUser.lastName || rawUser.user_metadata?.lastName || '',
     name: rawUser.name || 
           rawUser.user_metadata?.name || 
           `${rawUser.user_metadata?.firstName || ''} ${rawUser.user_metadata?.lastName || ''}`.trim() || '',
@@ -19,6 +21,7 @@ export function normalizeUserObject(rawUser: any | null | undefined): FixedUser 
     company_id: rawUser.company_id || '',
     company: rawUser.company || '',
     industry: rawUser.industry || '',
+    avatar: rawUser.avatar || rawUser.user_metadata?.avatar || '',
     avatar_url: rawUser.avatar_url || rawUser.user_metadata?.avatar || '',
     created_at: rawUser.created_at || new Date().toISOString(),
     updated_at: rawUser.updated_at || new Date().toISOString(),

@@ -1,161 +1,188 @@
 
-import { useEffect, useState } from 'react';
-import { DatabaseTableStatus } from '@/types/unified-types';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export function useVerification(companyId: string | null) {
   const [isChecking, setIsChecking] = useState(false);
-  const [results, setResults] = useState({
-    tablesReady: false,
-    indexesReady: false,
-    rlsReady: false,
-    functionsReady: false,
-    requiredTables: [] as DatabaseTableStatus[],
-    requiredFunctions: [] as string[],
-  });
-  
   const [isAddingDemo, setIsAddingDemo] = useState(false);
   const [isVerifyingTables, setIsVerifyingTables] = useState(false);
   const [isCheckingIndexes, setIsCheckingIndexes] = useState(false);
   const [isVerifyingRLS, setIsVerifyingRLS] = useState(false);
   const [isVerifyingFunctions, setIsVerifyingFunctions] = useState(false);
+  
+  const [results, setResults] = useState<any>(null);
+  const [isReady, setIsReady] = useState<boolean | null>(null);
 
-  // Calculate overall readiness
-  const isReady = results.tablesReady && results.indexesReady && results.rlsReady && results.functionsReady;
+  // Run all verification checks
+  const runChecks = async (): Promise<void> => {
+    if (!companyId) {
+      toast.error('Company ID is required for verification checks');
+      return;
+    }
 
-  // Mock running all checks
-  const runChecks = async () => {
     setIsChecking(true);
-    
     try {
-      // Mock database verification
-      const mockTables = [
-        { name: 'profiles', count: 7, status: 'ready' },
-        { name: 'campaigns', count: 12, status: 'ready' },
-        { name: 'leads', count: 23, status: 'ready' },
-      ];
+      const { data, error } = await supabase.functions.invoke('verify-launch-readiness', {
+        body: { tenant_id: companyId }
+      });
+
+      if (error) throw new Error(error.message);
       
-      setResults(prev => ({
-        ...prev,
-        tablesReady: true,
-        indexesReady: true,
-        rlsReady: true,
-        functionsReady: true,
-        requiredTables: mockTables
-      }));
-    } catch (error) {
-      console.error('Error running verification checks:', error);
+      setResults(data);
+      setIsReady(data.overallStatus?.valid || false);
+      
+      if (data.overallStatus?.valid) {
+        toast.success('All verification checks passed!');
+      } else {
+        toast.warning('Some verification checks failed. Please review the results.');
+      }
+    } catch (err: any) {
+      console.error('Error running verification checks:', err);
+      toast.error('Failed to run verification checks');
     } finally {
       setIsChecking(false);
     }
   };
 
-  // Mock adding demo data
-  const handleAddDemoData = async () => {
+  // Add demo data
+  const handleAddDemoData = async (): Promise<void> => {
+    if (!companyId) {
+      toast.error('Company ID is required to add demo data');
+      return;
+    }
+
     setIsAddingDemo(true);
-    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Adding demo data for company ID:', companyId || 'unknown');
-      
-      // Success notification would be shown here
-    } catch (error) {
-      console.error('Error adding demo data:', error);
-      // Error notification would be shown here
+      const { error } = await supabase.functions.invoke('add-demo-data', {
+        body: { tenant_id: companyId }
+      });
+
+      if (error) throw new Error(error.message);
+      toast.success('Demo data added successfully');
+    } catch (err: any) {
+      console.error('Error adding demo data:', err);
+      toast.error('Failed to add demo data');
     } finally {
       setIsAddingDemo(false);
     }
   };
 
-  // Individual verification functions
-  const verifyRequiredTables = async () => {
+  // Verify required tables
+  const verifyRequiredTables = async (): Promise<void> => {
+    if (!companyId) {
+      toast.error('Company ID is required to verify tables');
+      return;
+    }
+
     setIsVerifyingTables(true);
-    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await supabase.functions.invoke('verify-database-tables', {
+        body: { tenant_id: companyId }
+      });
+
+      if (error) throw new Error(error.message);
       
-      setResults(prev => ({
+      setResults((prev: any) => ({
         ...prev,
-        tablesReady: true,
-        requiredTables: [
-          { name: 'profiles', count: 7, status: 'ready' },
-          { name: 'campaigns', count: 12, status: 'ready' },
-          { name: 'leads', count: 23, status: 'ready' },
-        ]
+        databaseTables: data.tables
       }));
       
-      return true;
-    } catch (error) {
-      console.error('Error verifying tables:', error);
-      return false;
+      toast.success('Tables verified');
+    } catch (err: any) {
+      console.error('Error verifying tables:', err);
+      toast.error('Failed to verify tables');
     } finally {
       setIsVerifyingTables(false);
     }
   };
 
-  const checkDatabaseIndexes = async () => {
+  // Check database indexes
+  const checkDatabaseIndexes = async (): Promise<void> => {
+    if (!companyId) {
+      toast.error('Company ID is required to check indexes');
+      return;
+    }
+
     setIsCheckingIndexes(true);
-    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const { data, error } = await supabase.functions.invoke('verify-database-indexes', {
+        body: { tenant_id: companyId }
+      });
+
+      if (error) throw new Error(error.message);
       
-      setResults(prev => ({ ...prev, indexesReady: true }));
-      return true;
-    } catch (error) {
-      console.error('Error checking indexes:', error);
-      return false;
+      setResults((prev: any) => ({
+        ...prev,
+        databaseIndexes: data.indexes
+      }));
+      
+      toast.success('Indexes verified');
+    } catch (err: any) {
+      console.error('Error checking indexes:', err);
+      toast.error('Failed to check indexes');
     } finally {
       setIsCheckingIndexes(false);
     }
   };
 
-  const verifyRLSPolicies = async () => {
+  // Verify RLS policies
+  const verifyRLSPolicies = async (): Promise<void> => {
+    if (!companyId) {
+      toast.error('Company ID is required to verify RLS policies');
+      return;
+    }
+
     setIsVerifyingRLS(true);
-    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      const { data, error } = await supabase.functions.invoke('verify-rls-policies', {
+        body: { tenant_id: companyId }
+      });
+
+      if (error) throw new Error(error.message);
       
-      setResults(prev => ({ ...prev, rlsReady: true }));
-      return true;
-    } catch (error) {
-      console.error('Error verifying RLS policies:', error);
-      return false;
+      setResults((prev: any) => ({
+        ...prev,
+        rlsPolicies: data.policies
+      }));
+      
+      toast.success('RLS policies verified');
+    } catch (err: any) {
+      console.error('Error verifying RLS policies:', err);
+      toast.error('Failed to verify RLS policies');
     } finally {
       setIsVerifyingRLS(false);
     }
   };
 
-  const verifyDatabaseFunctions = async () => {
+  // Verify database functions
+  const verifyDatabaseFunctions = async (): Promise<void> => {
+    if (!companyId) {
+      toast.error('Company ID is required to verify functions');
+      return;
+    }
+
     setIsVerifyingFunctions(true);
-    
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 900));
+      const { data, error } = await supabase.functions.invoke('verify-database-functions', {
+        body: { tenant_id: companyId }
+      });
+
+      if (error) throw new Error(error.message);
       
-      setResults(prev => ({
+      setResults((prev: any) => ({
         ...prev,
-        functionsReady: true,
-        requiredFunctions: ['handle_new_user', 'update_modified_column', 'check_user_role']
+        databaseFunctions: data.functions
       }));
       
-      return true;
-    } catch (error) {
-      console.error('Error verifying database functions:', error);
-      return false;
+      toast.success('Database functions verified');
+    } catch (err: any) {
+      console.error('Error verifying functions:', err);
+      toast.error('Failed to verify functions');
     } finally {
       setIsVerifyingFunctions(false);
     }
   };
-
-  // Auto-run checks on mount if companyId is available
-  useEffect(() => {
-    if (companyId) {
-      runChecks();
-    }
-  }, [companyId]);
 
   return {
     isChecking,

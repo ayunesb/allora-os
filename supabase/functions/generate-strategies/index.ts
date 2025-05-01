@@ -70,7 +70,7 @@ serve(async (req) => {
     Company: ${companyName || "My company"}
     Industry: ${industry}
     Company Size: ${companySize} employees
-    Annual Revenue: $${revenue}
+    Annual Revenue: ${revenue}
     Business Goals: ${goals}
     Risk Tolerance: ${riskTolerance}/10 (higher = more aggressive)
     Time Horizon: ${timeHorizon}

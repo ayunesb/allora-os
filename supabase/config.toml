@@ -28,3 +28,4 @@ enabled = true
 [functions]
 [functions.generate-strategies]
 verify_jwt = true
+

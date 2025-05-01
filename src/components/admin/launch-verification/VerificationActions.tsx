@@ -1,22 +1,26 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { PlusCircle, RefreshCw, ShieldCheck, Database, Table2, Lock, Code } from 'lucide-react';
 
-export interface VerificationActionsProps {
+interface VerificationActionsProps {
   isChecking: boolean;
   isAddingDemo: boolean;
   isVerifyingTables: boolean;
   isCheckingIndexes: boolean;
   isVerifyingRLS: boolean;
   isVerifyingFunctions: boolean;
-  onRunChecks: () => Promise<void>;
-  onAddDemoData: () => Promise<void>;
-  onVerifyTables: () => Promise<void>;
-  onCheckIndexes: () => Promise<void>;
-  onVerifyRLS: () => Promise<void>;
-  onVerifyFunctions: () => Promise<void>;
+  onRunChecks: () => void;
+  onAddDemoData: () => void;
+  onVerifyTables?: () => void;
+  onCheckIndexes?: () => void;
+  onVerifyRLS?: () => void;
+  onVerifyFunctions?: () => void;
   hasResults: boolean;
+  hasVerifiedTables?: boolean;
+  hasVerifiedIndexes?: boolean;
+  hasVerifiedRLS?: boolean;
+  hasVerifiedFunctions?: boolean;
 }
 
 export function VerificationActions({
@@ -32,47 +36,86 @@ export function VerificationActions({
   onCheckIndexes,
   onVerifyRLS,
   onVerifyFunctions,
-  hasResults
+  hasResults,
+  hasVerifiedTables,
+  hasVerifiedIndexes,
+  hasVerifiedRLS,
+  hasVerifiedFunctions
 }: VerificationActionsProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-2">
+    <div className="flex flex-wrap gap-2">
       <Button 
         onClick={onRunChecks} 
-        disabled={isChecking || isAddingDemo || isVerifyingTables || isCheckingIndexes || isVerifyingRLS || isVerifyingFunctions}
+        disabled={isChecking}
+        variant={hasResults ? "outline" : "default"} 
+        size="sm"
       >
-        {isChecking && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {isChecking ? 'Running Checks...' : 'Run All Checks'}
+        <RefreshCw className={`mr-2 h-4 w-4 ${isChecking ? 'animate-spin' : ''}`} />
+        {isChecking ? "Running Checks..." : hasResults ? "Re-run Checks" : "Run All Checks"}
       </Button>
-      
-      {hasResults && (
-        <>
-          <Button
-            variant="outline"
-            onClick={onVerifyTables}
-            disabled={isChecking || isAddingDemo || isVerifyingTables}
-          >
-            {isVerifyingTables && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isVerifyingTables ? 'Verifying...' : 'Verify Tables'}
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={onCheckIndexes}
-            disabled={isChecking || isAddingDemo || isCheckingIndexes}
-          >
-            {isCheckingIndexes && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isCheckingIndexes ? 'Checking...' : 'Check Indexes'}
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={onAddDemoData}
-            disabled={isChecking || isAddingDemo}
-          >
-            {isAddingDemo && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isAddingDemo ? 'Adding Demo Data...' : 'Add Demo Data'}
-          </Button>
-        </>
+
+      {onAddDemoData && (
+        <Button 
+          onClick={onAddDemoData} 
+          disabled={isAddingDemo} 
+          variant="outline" 
+          size="sm"
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          {isAddingDemo ? "Adding Data..." : "Add Demo Data"}
+        </Button>
+      )}
+
+      {onVerifyTables && (
+        <Button 
+          onClick={onVerifyTables} 
+          disabled={isVerifyingTables} 
+          variant="outline"
+          size="sm"
+          className={hasVerifiedTables ? "bg-green-50 text-green-700 hover:bg-green-100" : ""}
+        >
+          <Table2 className="mr-2 h-4 w-4" />
+          {isVerifyingTables ? "Checking Tables..." : "Verify Tables"}
+        </Button>
+      )}
+
+      {onCheckIndexes && (
+        <Button 
+          onClick={onCheckIndexes} 
+          disabled={isCheckingIndexes} 
+          variant="outline"
+          size="sm"
+          className={hasVerifiedIndexes ? "bg-green-50 text-green-700 hover:bg-green-100" : ""}
+        >
+          <Database className="mr-2 h-4 w-4" />
+          {isCheckingIndexes ? "Checking Indexes..." : "Check Indexes"}
+        </Button>
+      )}
+
+      {onVerifyRLS && (
+        <Button 
+          onClick={onVerifyRLS} 
+          disabled={isVerifyingRLS}
+          variant="outline" 
+          size="sm"
+          className={hasVerifiedRLS ? "bg-green-50 text-green-700 hover:bg-green-100" : ""}
+        >
+          <Lock className="mr-2 h-4 w-4" />
+          {isVerifyingRLS ? "Checking RLS..." : "Verify RLS"}
+        </Button>
+      )}
+
+      {onVerifyFunctions && (
+        <Button 
+          onClick={onVerifyFunctions}
+          disabled={isVerifyingFunctions} 
+          variant="outline"
+          size="sm"
+          className={hasVerifiedFunctions ? "bg-green-50 text-green-700 hover:bg-green-100" : ""}
+        >
+          <Code className="mr-2 h-4 w-4" />
+          {isVerifyingFunctions ? "Checking Functions..." : "Verify Functions"}
+        </Button>
       )}
     </div>
   );

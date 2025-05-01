@@ -12,7 +12,7 @@ import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 export default function LaunchVerification() {
   const authContext = useAuth();
   const auth = createAuthCompatibilityLayer(authContext);
-  const companyId = auth.profile?.company_id || null;
+  const companyId = auth.user?.company_id || null;
   
   const {
     isChecking,

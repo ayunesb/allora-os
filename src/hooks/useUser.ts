@@ -14,6 +14,8 @@ export const useUser = () => {
       id: normalizedUser.id,
       email: normalizedUser.email,
       name: normalizedUser.name,
+      firstName: normalizedUser.firstName || normalizedUser.user_metadata?.firstName || '',
+      lastName: normalizedUser.lastName || normalizedUser.user_metadata?.lastName || '',
       avatar_url: normalizedUser.avatar_url,
       is_admin: normalizedUser.app_metadata?.is_admin || 
                normalizedUser.role === 'admin',
