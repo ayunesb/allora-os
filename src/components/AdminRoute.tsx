@@ -5,13 +5,17 @@ import { useAuth } from "@/context/AuthContext";
 import { logger } from "@/utils/loggingService";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { User } from '@/types/fixed/User';
+import { AuthContextProps } from '@/types/fixed/Auth';
 
 export interface AdminRouteProps {
   children: React.ReactNode;
 }
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { profile, isLoading, user } = useAuth();
+  const auth = useAuth();
+  const { profile, user } = auth;
+  const isLoading = auth.isLoading || false;
   const location = useLocation();
   const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);

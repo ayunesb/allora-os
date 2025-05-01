@@ -1,46 +1,79 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { 
-  RefreshCcw, 
-  Play, 
-  AlertCircle, 
-  CheckCircle, 
-  CheckCircle2, 
-  FunctionSquare 
-} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export interface VerificationActionsProps {
-  onRefresh: () => void;
-  onLaunch: () => void;
-  isLoading: boolean;
-  canLaunch: boolean;
+  isChecking: boolean;
+  isAddingDemo: boolean;
+  isVerifyingTables: boolean;
+  isCheckingIndexes: boolean;
+  isVerifyingRLS: boolean;
+  isVerifyingFunctions: boolean;
+  onRunChecks: () => Promise<void>;
+  onAddDemoData: () => Promise<void>;
+  onVerifyTables: () => Promise<void>;
+  onCheckIndexes: () => Promise<void>;
+  onVerifyRLS: () => Promise<void>;
+  onVerifyFunctions: () => Promise<void>;
+  hasResults: boolean;
 }
 
-export function VerificationActions({ onRefresh, onLaunch, isLoading, canLaunch }: VerificationActionsProps) {
+export function VerificationActions({
+  isChecking,
+  isAddingDemo,
+  isVerifyingTables,
+  isCheckingIndexes,
+  isVerifyingRLS,
+  isVerifyingFunctions,
+  onRunChecks,
+  onAddDemoData,
+  onVerifyTables,
+  onCheckIndexes,
+  onVerifyRLS,
+  onVerifyFunctions,
+  hasResults
+}: VerificationActionsProps) {
   return (
-    <div className="flex gap-2 mt-4">
-      <Button
-        onClick={onRefresh}
-        variant="outline"
-        disabled={isLoading}
-        size="sm"
-        className="gap-2"
+    <div className="flex flex-col sm:flex-row gap-2">
+      <Button 
+        onClick={onRunChecks} 
+        disabled={isChecking || isAddingDemo || isVerifyingTables || isCheckingIndexes || isVerifyingRLS || isVerifyingFunctions}
       >
-        <RefreshCcw className="h-4 w-4" />
-        <span>Refresh</span>
+        {isChecking && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {isChecking ? 'Running Checks...' : 'Run All Checks'}
       </Button>
       
-      <Button
-        onClick={onLaunch}
-        variant="default"
-        disabled={!canLaunch || isLoading}
-        size="sm"
-        className="gap-2"
-      >
-        <Play className="h-4 w-4" />
-        <span>Launch</span>
-      </Button>
+      {hasResults && (
+        <>
+          <Button
+            variant="outline"
+            onClick={onVerifyTables}
+            disabled={isChecking || isAddingDemo || isVerifyingTables}
+          >
+            {isVerifyingTables && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isVerifyingTables ? 'Verifying...' : 'Verify Tables'}
+          </Button>
+          
+          <Button
+            variant="outline"
+            onClick={onCheckIndexes}
+            disabled={isChecking || isAddingDemo || isCheckingIndexes}
+          >
+            {isCheckingIndexes && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isCheckingIndexes ? 'Checking...' : 'Check Indexes'}
+          </Button>
+          
+          <Button
+            variant="outline"
+            onClick={onAddDemoData}
+            disabled={isChecking || isAddingDemo}
+          >
+            {isAddingDemo && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isAddingDemo ? 'Adding Demo Data...' : 'Add Demo Data'}
+          </Button>
+        </>
+      )}
     </div>
   );
 }

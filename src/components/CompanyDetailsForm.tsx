@@ -15,13 +15,14 @@ import { updateCompanyDetails } from "@/utils/company";
 import { PartialCompanyDetails } from "@/models/companyDetails";
 import { CompanyDetailsSurvey } from "@/components/onboarding/company-details";
 import { fetchUserCompany } from "@/utils/companyHelpers";
+import { User } from '@/types/fixed/User';
 
 export default function CompanyDetailsForm() {
   const { user, profile, refreshProfile } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [companyDetails, setCompanyDetails] = useState<PartialCompanyDetails>({});
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(null); // Changed null to undefined
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
   // Load company details when profile changes
   useEffect(() => {

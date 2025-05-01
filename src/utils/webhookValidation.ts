@@ -1,12 +1,13 @@
 
-export type WebhookType = 'zapier' | 'stripe' | 'github' | 'slack' | 'custom';
+import { WebhookType } from '@/types/fixed/Webhook';
 
 const VALID_WEBHOOK_PATTERNS = {
   zapier: /^https:\/\/hooks\.zapier\.com\/.+/i,
   slack: /^https:\/\/hooks\.slack\.com\/.+/i,
   github: /^https:\/\/.+/i,
   stripe: /^https:\/\/.+/i,
-  custom: /^https:\/\/.+/i
+  custom: /^https:\/\/.+/i,
+  notion: /^https:\/\/.+/i
 };
 
 export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolean => {

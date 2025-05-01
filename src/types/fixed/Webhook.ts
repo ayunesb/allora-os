@@ -1,20 +1,21 @@
 
 export interface WebhookEvent {
   id: string;
-  webhookType: string;
-  event_type: string; // Using snake_case to match API
-  webhook_id?: string;
+  webhookType: WebhookType;
   targetUrl: string;
+  event_type: string;
+  status: 'success' | 'failed' | 'pending';
   timestamp: string;
-  status: string;
-  responseCode?: number;
-  response?: any;
   payload?: any;
+  response?: any;
   duration?: number;
   errorMessage?: string;
+  responseCode?: number;
+  webhook_id?: string;
   source?: string;
-  // For backward compatibility
-  eventType?: string;
+  url?: string;
+  type?: string;
+  webhook_type?: string;
 }
 
 export interface Webhook {
@@ -27,23 +28,22 @@ export interface Webhook {
   events?: string[];
 }
 
-// Add BusinessEventType to support ZapierWebhookDemo
+export type WebhookType = 'zapier' | 'stripe' | 'github' | 'slack' | 'custom' | 'notion';
+
 export type BusinessEventType = 
-  | 'test_event' 
+  | 'campaign_created' 
   | 'strategy_approved' 
-  | 'lead_created' 
-  | 'campaign_created'
   | 'lead_converted'
+  | 'revenue_milestone'
+  | 'user_onboarded'
   | 'campaign_launched'
   | 'lead_added'
-  | 'revenue_milestone'
-  | 'user_onboarded';
+  | 'test_event';
 
-export type WebhookResult = { 
-  success: boolean; 
+export interface WebhookResult {
+  success: boolean;
   message?: string;
-  error?: Error;
-};
-
-// Export the WebhookType type
-export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
+  error?: any;
+  statusCode?: number;
+  responseData?: any;
+}

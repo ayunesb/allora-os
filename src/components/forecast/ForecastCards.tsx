@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Metric } from "@/components/ui/metric";
 import { Progress } from "@/components/ui/progress";
-import { TrendUp, TrendDown, Equal } from "lucide-react";
+import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 
 interface ForecastCardProps {
   title: string;
@@ -25,9 +25,9 @@ export function ForecastCards({ title, current, forecast, description }: Forecas
   const variant = getVariant(ratio);
 
   const getIcon = useCallback((ratio: number) => {
-    if (ratio > 1) return <TrendUp className="h-4 w-4 text-green-500" />;
-    if (ratio < 1) return <TrendDown className="h-4 w-4 text-red-500" />;
-    return <Equal className="h-4 w-4 text-gray-500" />;
+    if (ratio > 1) return <ArrowUp className="h-4 w-4 text-green-500" />;
+    if (ratio < 1) return <ArrowDown className="h-4 w-4 text-red-500" />;
+    return <Minus className="h-4 w-4 text-gray-500" />;
   }, []);
 
   const icon = getIcon(ratio);
