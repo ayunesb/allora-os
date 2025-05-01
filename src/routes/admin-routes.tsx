@@ -1,99 +1,63 @@
 
 import { RouteObject } from "react-router-dom";
-import { lazy } from "react";
-
-// Lazy load admin layout and all page components
-const AdminLayout = lazy(() => import("@/components/layouts/AdminLayout"));
-const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
-const AdminEntities = lazy(() => import("@/pages/admin/AdminEntities"));
-const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
-const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
-const AdminSystemHealth = lazy(() => import("@/pages/admin/AdminSystemHealth"));
-const AdminLaunchPrep = lazy(() => import("@/pages/admin/AdminLaunchPrep"));
-const AdminCampaigns = lazy(() => import("@/pages/admin/AdminCampaigns"));
-const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
-const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
-const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
-const AdminCompanies = lazy(() => import("@/pages/admin/AdminCompanies"));
-const SystemPage = lazy(() => import("@/pages/admin/system"));
-
-// Lazy load audit-related pages for better performance
-const AuditPage = lazy(() => import("@/pages/admin/AuditPage"));
-const RunAudit = lazy(() => import("@/pages/admin/RunAudit"));
-const TechnicalImprovementsPage = lazy(() => import("@/pages/admin/TechnicalImprovementsPage"));
-const StrategyImplementationPage = lazy(() => import("@/pages/admin/StrategyImplementationPage"));
 
 export const adminRoutes: RouteObject[] = [
   {
     path: "admin",
-    element: <AdminLayout />,
+    async lazy() {
+      const { default: AdminLayout } = await import("@/layouts/AdminLayout");
+      return { Component: AdminLayout };
+    },
     children: [
       {
         index: true,
-        element: <AdminDashboard />
-      },
-      {
-        path: "entities",
-        element: <AdminEntities />
-      },
-      {
-        path: "users",
-        element: <AdminUsers />
-      },
-      {
-        path: "companies",
-        element: <AdminCompanies />
-      },
-      {
-        path: "settings",
-        element: <AdminSettings />
-      },
-      {
-        path: "webhooks",
-        element: <AdminWebhooks />
-      },
-      {
-        path: "system-health",
-        element: <AdminSystemHealth />
-      },
-      {
-        path: "diagnostics",
-        element: <SystemPage />
-      },
-      {
-        path: "launch-prep",
-        element: <AdminLaunchPrep />
-      },
-      {
-        path: "campaigns",
-        element: <AdminCampaigns />
-      },
-      {
-        path: "analytics",
-        element: <AdminAnalytics />
-      },
-      {
-        path: "leads",
-        element: <AdminLeads />
+        async lazy() {
+          const { default: AdminDashboard } = await import("@/pages/admin/AdminDashboard");
+          return { Component: AdminDashboard };
+        }
       },
       {
         path: "audit",
-        element: <AuditPage />
+        async lazy() {
+          const { default: AuditDashboard } = await import("@/pages/admin/AuditDashboard");
+          return { Component: AuditDashboard };
+        }
       },
       {
         path: "run-audit",
-        element: <RunAudit />
+        async lazy() {
+          const { default: RunAudit } = await import("@/pages/admin/RunAudit");
+          return { Component: RunAudit };
+        }
       },
       {
-        path: "technical-improvements",
-        element: <TechnicalImprovementsPage />
+        path: "pre-launch-audit",
+        async lazy() {
+          const { default: PreLaunchAudit } = await import("@/pages/admin/PreLaunchAudit");
+          return { Component: PreLaunchAudit };
+        }
       },
       {
-        path: "strategy-implementation/:id",
-        element: <StrategyImplementationPage />
+        path: "database-verification",
+        async lazy() {
+          const { default: DatabaseVerification } = await import("@/pages/admin/DatabaseVerification");
+          return { Component: DatabaseVerification };
+        }
+      },
+      {
+        path: "launch-prep",
+        async lazy() {
+          const { default: LaunchPrep } = await import("@/pages/admin/LaunchPrep");
+          return { Component: LaunchPrep };
+        }
+      },
+      {
+        path: "launch-verification",
+        async lazy() {
+          const { default: LaunchVerification } = await import("@/pages/admin/LaunchVerification");
+          return { Component: LaunchVerification };
+        }
       }
     ]
   }
 ];
-
-export default adminRoutes;
