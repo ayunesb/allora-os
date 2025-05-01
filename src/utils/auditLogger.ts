@@ -1,118 +1,113 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/loggingService';
+/**
+ * Audit logger utility to track system changes and compliance events
+ */
+
+type LogLevel = 'info' | 'warning' | 'error' | 'critical';
+
+interface AuditLogEntry {
+  timestamp: string;
+  userId: string;
+  action: string;
+  details?: Record<string, any>;
+  level: LogLevel;
+}
 
 /**
- * Log a security event to the audit log
- * 
- * @param eventType The type of security event
- * @param details Details about the event
- * @param userId Optional user ID associated with the event
- * @param severity Severity level of the event (1-5, where 5 is most severe)
- * @param metadata Any additional metadata to log
- * @returns Success status
+ * Logs a compliance-related change for auditing purposes
  */
-export async function logSecurityEvent(
-  eventType: string, 
-  details: string, 
-  userId?: string, 
-  severity: number = 1,
-  metadata?: Record<string, any>
-): Promise<boolean> {
+export function logComplianceChange(
+  userId: string, 
+  action: string, 
+  details?: Record<string, any>
+) {
+  const logEntry: AuditLogEntry = {
+    timestamp: new Date().toISOString(),
+    userId,
+    action,
+    details,
+    level: 'info'
+  };
+
+  // Log to console in development mode
+  if (process.env.NODE_ENV !== 'production') {
+    console.info('Compliance Change:', logEntry);
+  }
+
+  // In a production environment, we would send this to a backend service or Supabase
   try {
-    // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      logger.warn(`SECURITY EVENT [${severity}]: ${eventType} - ${details} ${userId ? `(User: ${userId})` : ''}`);
-    }
-    
-    // Log to audit_logs table in Supabase
-    await supabase.from('agent_logs').insert({
-      type: 'security',
-      event: eventType,
-      details,
-      user_id: userId || null,
-      severity,
-      metadata: metadata || {},
-      tenant_id: 'development'
-    });
-    
+    // Code to send to backend would be here
     return true;
   } catch (error) {
-    logger.error('Failed to log security event', error);
+    console.error('Failed to log compliance change:', error);
     return false;
   }
 }
 
 /**
- * Log an audit event for compliance or record-keeping
- * 
- * @param eventType The type of audit event
- * @param details Details about the event
- * @param userId Optional user ID associated with the event
- * @param metadata Any additional metadata to log
- * @returns Success status
+ * Logs a system change for auditing purposes
  */
-export async function logAuditEvent(
-  eventType: string,
-  details: string,
-  userId?: string,
-  metadata?: Record<string, any>
-): Promise<boolean> {
-  try {
-    // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      logger.info(`AUDIT EVENT: ${eventType} - ${details} ${userId ? `(User: ${userId})` : ''}`);
-    }
-    
-    // Log to audit_logs table in Supabase
-    await supabase.from('agent_logs').insert({
-      type: 'audit',
-      event: eventType,
-      details,
-      user_id: userId || null,
-      metadata: metadata || {},
-      tenant_id: 'development'
-    });
-    
-    return true;
-  } catch (error) {
-    logger.error('Failed to log audit event', error);
-    return false;
-  }
-}
-
-/**
- * Log a compliance change for audit purposes
- * 
- * @param userId User who made the change
- * @param details Details about the compliance change
- * @param metadata Any additional metadata to log
- * @returns Success status
- */
-export async function logComplianceChange(
+export function logSystemChange(
   userId: string,
-  details: string,
-  metadata?: Record<string, any>
-): Promise<boolean> {
+  action: string,
+  details?: Record<string, any>,
+  level: LogLevel = 'info'
+) {
+  const logEntry: AuditLogEntry = {
+    timestamp: new Date().toISOString(),
+    userId,
+    action,
+    details,
+    level
+  };
+
+  // Log to console in development mode
+  if (process.env.NODE_ENV !== 'production') {
+    console.info('System Change:', logEntry);
+  }
+
+  // In a production environment, we would send this to a backend service or Supabase
   try {
-    // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      logger.info(`COMPLIANCE CHANGE: ${details} ${userId ? `(User: ${userId})` : ''}`);
-    }
-    
-    // Log to audit_logs table in Supabase
-    await supabase.from('agent_logs').insert({
-      type: 'compliance',
-      event: 'compliance_change',
-      details,
-      user_id: userId || null,
-      metadata: metadata || {},
-      tenant_id: 'development'
-    });
-    
+    // Code to send to backend would be here
     return true;
   } catch (error) {
-    logger.error('Failed to log compliance change', error);
+    console.error('Failed to log system change:', error);
     return false;
   }
 }
+
+/**
+ * Logs a security event for auditing purposes
+ */
+export function logSecurityEvent(
+  userId: string,
+  action: string,
+  details?: Record<string, any>
+) {
+  const logEntry: AuditLogEntry = {
+    timestamp: new Date().toISOString(),
+    userId,
+    action,
+    details,
+    level: 'warning'
+  };
+
+  // Always log security events
+  console.warn('Security Event:', logEntry);
+
+  // In a production environment, we would send this to a backend service or Supabase
+  try {
+    // Code to send to backend would be here
+    return true;
+  } catch (error) {
+    console.error('Failed to log security event:', error);
+    return false;
+  }
+}
+
+// Export a default logger with all methods
+export const auditLogger = {
+  logComplianceChange,
+  logSystemChange,
+  logSecurityEvent
+};

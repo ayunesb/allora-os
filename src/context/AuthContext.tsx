@@ -1,6 +1,8 @@
+
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
+import { getSupabaseUrl, getSupabaseAnonKey } from '@/utils/env';
 
 // Define the types
 export interface User {
@@ -42,9 +44,17 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Use values from config or fallback to environment variables
-const supabaseUrl = SUPABASE_CONFIG.url;
-const supabaseKey = SUPABASE_CONFIG.anonKey;
+// Get Supabase URL and key with robust fallbacks
+const supabaseUrl = getSupabaseUrl();
+const supabaseKey = getSupabaseAnonKey();
+
+// Validate before creating client to prevent runtime errors
+if (!supabaseUrl || !supabaseKey) {
+  console.error(
+    "Supabase URL or Anonymous Key is missing. Check your environment variables or config.",
+    { url: supabaseUrl ? "✓ Valid" : "✗ Missing", key: supabaseKey ? "✓ Valid" : "✗ Missing" }
+  );
+}
 
 // Create the Supabase client with explicit URL and key
 const supabase = createClient(supabaseUrl, supabaseKey, {
