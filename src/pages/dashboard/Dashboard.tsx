@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, RefreshCw } from "lucide-react";
+import { ArrowRight, RefreshCw, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import AiRecommendations from "@/components/dashboard/AiRecommendations";
@@ -15,6 +15,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { supabase } from "@/integrations/supabase/client";
 import { useStrategies } from "@/hooks/useStrategies";
 import { useProductionData } from "@/hooks/useProductionData";
+import { normalizeUserObject } from "@/utils/authCompatibility";
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
@@ -29,16 +30,17 @@ export default function Dashboard() {
   const { isProductionMode } = useProductionData();
   const [companyName, setCompanyName] = useState<string>("your company");
   const { strategies } = useStrategies();
+  const normalizedUser = normalizeUserObject(user || profile);
 
   // Fetch real company name
   useEffect(() => {
     const fetchCompanyData = async () => {
-      if (profile?.company_id) {
+      if (normalizedUser?.company_id) {
         try {
           const { data, error } = await supabase
             .from('companies')
             .select('name')
-            .eq('id', profile.company_id)
+            .eq('id', normalizedUser.company_id)
             .single();
             
           if (!error && data) {
@@ -51,7 +53,7 @@ export default function Dashboard() {
     };
     
     fetchCompanyData();
-  }, [profile?.company_id]);
+  }, [normalizedUser?.company_id]);
 
   useEffect(() => {
     if (error) {
@@ -103,7 +105,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-8">
         <div className="md:col-span-2">
           <CeoMessage 
-            riskAppetite={profile?.risk_appetite || 'medium'}
+            riskAppetite={normalizedUser?.risk_appetite || 'medium'}
           />
         </div>
         <div>
@@ -114,17 +116,17 @@ export default function Dashboard() {
             <CardContent>
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <span className="text-lg font-bold">BU</span>
+                  <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">Business Strategist</h3>
+                  <h3 className="text-lg font-bold">AI Strategy Generator</h3>
                 </div>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                I've been reviewing {companyName}'s position and have some balanced strategies that could help optimize your results.
+                Generate tailored business strategies using AI based on your company profile, goals, and risk tolerance.
               </p>
-              <Button className="mt-4 w-full" variant="outline" onClick={() => window.location.href = "/dashboard/strategies"}>
-                <span>View Strategies</span>
+              <Button className="mt-4 w-full" onClick={() => window.location.href = "/dashboard/strategy-generator"}>
+                <span>Create Strategies</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>

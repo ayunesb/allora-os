@@ -76,7 +76,22 @@ serve(async (req) => {
     Time Horizon: ${timeHorizon}
     ${challenges ? `Current Challenges: ${challenges}` : ""}
 
-    Please provide three distinct strategies that vary in their approach and risk level. Structure your response as valid JSON.`;
+    Please provide three distinct strategies that vary in their approach and risk level. Structure your response as valid JSON with this format:
+    {
+      "strategies": [
+        {
+          "title": "Strategy 1 Title",
+          "description": "Detailed description...",
+          "pros": ["Pro 1", "Pro 2", "Pro 3"],
+          "cons": ["Con 1", "Con 2", "Con 3"],
+          "estimatedROI": "Expected ROI range or description",
+          "riskLevel": "Low/Medium/High",
+          "timeline": "X months",
+          "implementationSteps": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"]
+        },
+        // Strategy 2 and 3 with the same structure
+      ]
+    }`;
 
     console.log("Calling OpenAI API for strategy generation");
     
@@ -101,11 +116,20 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("OpenAI API error:", errorText);
-      throw new Error(`OpenAI API error: ${errorText}`);
+      throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    const strategies = JSON.parse(data.choices[0].message.content);
+    const strategiesContent = data.choices[0].message.content;
+    
+    // Parse the response to ensure it's valid JSON
+    let strategies;
+    try {
+      strategies = JSON.parse(strategiesContent);
+    } catch (error) {
+      console.error("Failed to parse OpenAI response:", strategiesContent);
+      throw new Error("Failed to parse AI response. Invalid JSON format.");
+    }
 
     // Log the strategy generation in the database if we have user and company IDs
     if (userId && companyId) {
