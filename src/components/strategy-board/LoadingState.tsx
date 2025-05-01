@@ -1,15 +1,40 @@
 
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBreakpoint } from "@/hooks/use-mobile";
 
-interface LoadingStateProps {
-  isMobile: boolean;
-}
+export default function LoadingState() {
+  const breakpoint = useBreakpoint();
+  
+  // Determine number of skeleton cards to show based on breakpoint
+  const getCardCount = () => {
+    switch(breakpoint) {
+      case 'xs':
+      case 'mobile':
+        return 2;
+      case 'tablet':
+        return 4;
+      default:
+        return 6;
+    }
+  };
+  
+  // Determine grid columns based on breakpoint  
+  const getGridClass = () => {
+    switch(breakpoint) {
+      case 'xs':
+      case 'mobile':
+        return 'grid-cols-1';
+      case 'tablet':
+        return 'grid-cols-2';
+      default:
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+    }
+  };
 
-export default function LoadingState({ isMobile }: LoadingStateProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {Array.from({ length: isMobile ? 3 : 6 }).map((_, index) => (
+    <div className={`grid ${getGridClass()} gap-4 sm:gap-6`}>
+      {Array.from({ length: getCardCount() }).map((_, index) => (
         <div key={index} className="border border-white/10 bg-black/40 backdrop-blur-md rounded-lg p-4 sm:p-6 space-y-4">
           <div className="flex flex-wrap justify-between gap-2">
             <Skeleton className="h-6 w-20" />

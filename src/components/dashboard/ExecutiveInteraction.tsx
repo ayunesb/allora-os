@@ -26,7 +26,7 @@ export function ExecutiveInteraction({ riskAppetite }: ExecutiveInteractionProps
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <Skeleton className="h-12 w-12 rounded-full" />
             <div className="space-y-2 w-full">
               <Skeleton className="h-4 w-24" />
@@ -79,7 +79,7 @@ export function ExecutiveInteraction({ riskAppetite }: ExecutiveInteractionProps
             <AvatarImage src={executiveInfo.image} alt={executiveInfo.name} />
             <AvatarFallback>{executiveInfo.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <div className="space-y-2 text-center sm:text-left">
+          <div className="space-y-2 text-center sm:text-left w-full">
             <h3 className="font-semibold">{executiveInfo.name}</h3>
             <p className="text-sm text-muted-foreground">{executiveInfo.message}</p>
             <Button 

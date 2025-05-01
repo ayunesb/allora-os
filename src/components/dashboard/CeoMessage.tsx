@@ -19,10 +19,10 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
   if (!profile) {
     return (
       <Card className="border-primary/20">
-        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <div className="space-y-1">
-            <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-4 w-64" />
+        <CardHeader className="flex flex-col sm:flex-row items-center sm:items-start sm:justify-between pb-2 space-y-2 sm:space-y-0">
+          <div className="space-y-1 text-center sm:text-left">
+            <Skeleton className="h-5 w-48 mx-auto sm:mx-0" />
+            <Skeleton className="h-4 w-64 mx-auto sm:mx-0" />
           </div>
           <Skeleton className="h-8 w-8 rounded-full" />
         </CardHeader>
@@ -95,11 +95,11 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
       <CardContent>
         <p className={`text-sm ${content.textClass}`}>{content.message}</p>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex justify-center sm:justify-end">
         <Button 
           variant="ghost" 
           size="sm" 
-          className={`ml-auto flex items-center gap-1 ${content.buttonClass}`}
+          className={`flex items-center gap-1 ${content.buttonClass}`}
           onClick={() => navigate("/dashboard/strategy")}
         >
           View Full Strategy

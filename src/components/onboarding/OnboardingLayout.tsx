@@ -37,16 +37,17 @@ export default function OnboardingLayout({
   const { screenReaderFriendly } = useAccessibility();
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-background">
+    <div className="min-h-screen flex flex-col justify-center py-4 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8 bg-background">
       <Toaster position="top-right" closeButton richColors />
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md mb-4 text-center">
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
       </div>
 
-      <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-md">
-        <Card>
+      <div className="w-full sm:mx-auto sm:max-w-md">
+        <Card className="shadow-lg">
           <CardHeader className="pb-2">
+            <CardTitle className="text-base sm:text-lg">{stepDescription}</CardTitle>
             <OnboardingProgress
               currentStep={step}
               totalSteps={totalSteps}

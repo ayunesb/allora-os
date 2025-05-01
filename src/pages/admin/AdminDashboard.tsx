@@ -7,8 +7,15 @@ import { Activity, Users, Database, Shield, Server } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      <TypographyH1>Admin Dashboard</TypographyH1>
+    <div className="container mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <TypographyH1 className="text-xl sm:text-2xl">Admin Dashboard</TypographyH1>
+        
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">Refresh</Button>
+          <Button variant="outline" size="sm">Export</Button>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
@@ -64,14 +71,14 @@ export default function AdminDashboard() {
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>System Activity</CardTitle>
+            <CardTitle className="text-base sm:text-lg">System Activity</CardTitle>
             <CardDescription>Overview of platform usage and trends</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] flex items-center justify-center border border-dashed rounded-lg">
+            <div className="h-[300px] sm:h-[350px] flex items-center justify-center border border-dashed rounded-lg">
               <TypographyP>Activity chart will display here</TypographyP>
             </div>
           </CardContent>
@@ -79,7 +86,7 @@ export default function AdminDashboard() {
         
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Quick Actions</CardTitle>
             <CardDescription>Common administrative tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
