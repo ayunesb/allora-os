@@ -11,6 +11,12 @@ vi.mock('@/integrations/supabase/client', () => {
       functions: {
         invoke: vi.fn()
       },
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: null },
+          error: null
+        })
+      },
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({

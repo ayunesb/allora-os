@@ -70,8 +70,10 @@ export default function PolicyToggles({
     onPolicyToggle(policy);
   };
   
-  // Use either the prop policies or local state
-  const currentPolicies = onPolicyToggle === (() => {}) ? localPolicies : policies;
+  // Fix: Use proper function type check instead of direct comparison with (() => {})
+  const currentPolicies = typeof onPolicyToggle === 'function' && onPolicyToggle !== (() => {}) 
+    ? policies 
+    : localPolicies;
   
   return (
     <div className="space-y-6">
