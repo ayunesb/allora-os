@@ -1,18 +1,16 @@
 
 export interface User {
   id: string;
+  name: string;
   email: string;
-  name?: string;
-  role: 'admin' | 'user';
-  avatar_url?: string;
-  company_id?: string;
+  role: "user" | "admin";
+  company_id: string;
+  created_at: string;
   company?: string;
   industry?: string;
-  app_metadata?: any;
-  user_metadata?: {
-    firstName: string;
-    lastName: string;
-    avatar?: string;
-    role?: string;
+  avatar_url?: string;
+  app_metadata?: {
+    is_admin?: boolean;
+    [key: string]: any;
   };
 }
