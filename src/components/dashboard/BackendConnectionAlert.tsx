@@ -6,16 +6,8 @@ import { Button } from "@/components/ui/button";
 import { SUPABASE_CONFIG } from "@/config/appConfig";
 
 export function BackendConnectionAlert() {
-  // Safely check for fallback mode with proper type handling
-  let usingFallback = false;
-  
-  if (SUPABASE_CONFIG && typeof SUPABASE_CONFIG === 'object') {
-    usingFallback = 'usingFallback' in SUPABASE_CONFIG ? 
-      Boolean(SUPABASE_CONFIG.usingFallback) : false;
-  }
-  
   // Only show this alert when we're using fallback values
-  if (!usingFallback) return null;
+  if (!SUPABASE_CONFIG.usingFallback) return null;
   
   return (
     <Alert variant="warning" className="mb-4">

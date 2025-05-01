@@ -2,23 +2,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { useZapier } from '@/lib/zapier';
-import { WebhookType, BusinessEventType, WebhookResult } from '@/utils/webhookTypes';
-import { validateWebhookUrlFormat, testWebhook } from '@/utils/webhookValidation';
-
-// Helper function to sanitize webhook URLs before saving
-export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
-  if (!url) return '';
-  
-  // Basic sanitization
-  const trimmedUrl = url.trim();
-  
-  // Ensure URLs start with https:// (except for local development)
-  if (!trimmedUrl.startsWith('http://localhost') && !trimmedUrl.startsWith('https://')) {
-    return `https://${trimmedUrl}`;
-  }
-  
-  return trimmedUrl;
-};
+import { WebhookType, sanitizeWebhookUrl, testWebhook } from '@/utils/webhookValidation';
 
 export const useWebhooks = () => {
   // Basic webhook URLs
@@ -35,7 +19,7 @@ export const useWebhooks = () => {
   const [testLoading, setTestLoading] = useState(false);
   const [testingWebhook, setTestingWebhook] = useState<WebhookType | null>(null);
   
-  const { triggerWebhook } = useZapier();
+  const { triggerWorkflow } = useZapier();
 
   // Load webhooks from localStorage on mount
   useEffect(() => {
@@ -95,26 +79,27 @@ export const useWebhooks = () => {
     }, 500);
   };
 
-  const handleTestWebhook = async (type: WebhookType, webhookUrl: string, isWebhookValid: boolean | null): Promise<WebhookResult> => {
+  const handleTestWebhook = async (type: WebhookType, webhookUrl: string, isWebhookValid: boolean | null) => {
     if (!webhookUrl) {
       toast.error(`Please enter a ${type} webhook URL first`);
-      return { success: false, message: `Please enter a ${type} webhook URL first` };
+      return;
     }
 
     if (isWebhookValid !== true) {
       toast.error(`Please enter a valid ${type} webhook URL`);
-      return { success: false, message: `Please enter a valid ${type} webhook URL` };
+      return;
     }
 
     setTestLoading(true);
     setTestingWebhook(type);
     
     try {
-      let result: WebhookResult;
+      let result;
       
       // For Zapier, use the existing trigger method
       if (type === 'zapier') {
-        result = await triggerWebhook(
+        result = await triggerWorkflow(
+          webhookUrl,
           'test_webhook',
           { 
             timestamp: new Date().toISOString(),
@@ -132,43 +117,34 @@ export const useWebhooks = () => {
       } else {
         toast.error(`Failed to trigger ${type} webhook: ${result.message || "Unknown error"}`);
       }
-      
-      setTestLoading(false);
-      setTestingWebhook(null);
-      return result;
-      
     } catch (error: any) {
       console.error(`Error testing ${type} webhook:`, error);
       toast.error(`An error occurred while testing the webhook: ${error.message || "Unknown error"}`);
-      
+    } finally {
       setTestLoading(false);
       setTestingWebhook(null);
-      return { 
-        success: false, 
-        message: `An error occurred while testing the webhook: ${error.message || "Unknown error"}`,
-        error: error
-      };
     }
   };
 
   const handleTestZapierWebhook = (isZapierWebhookValid: boolean | null) => {
-    return handleTestWebhook('zapier', zapierWebhook, isZapierWebhookValid);
+    handleTestWebhook('zapier', zapierWebhook, isZapierWebhookValid);
   };
 
   const handleTestGithubWebhook = (isGithubWebhookValid: boolean | null) => {
-    return handleTestWebhook('github', githubWebhook, isGithubWebhookValid);
+    handleTestWebhook('github', githubWebhook, isGithubWebhookValid);
   };
 
   const handleTestSlackWebhook = (isSlackWebhookValid: boolean | null) => {
-    return handleTestWebhook('slack', slackWebhook, isSlackWebhookValid);
+    handleTestWebhook('slack', slackWebhook, isSlackWebhookValid);
   };
 
   const handleTestCustomWebhook = (isCustomWebhookValid: boolean | null) => {
-    return handleTestWebhook('custom', customWebhook, isCustomWebhookValid);
+    handleTestWebhook('custom', customWebhook, isCustomWebhookValid);
   };
 
+  // Add the missing handleTestStripeWebhook method
   const handleTestStripeWebhook = (isStripeWebhookValid: boolean | null) => {
-    return handleTestWebhook('stripe', stripeWebhook, isStripeWebhookValid);
+    handleTestWebhook('stripe', stripeWebhook, isStripeWebhookValid);
   };
 
   return {
@@ -197,6 +173,7 @@ export const useWebhooks = () => {
     handleTestGithubWebhook,
     handleTestSlackWebhook,
     handleTestCustomWebhook,
-    handleTestStripeWebhook
+    handleTestStripeWebhook  // Add the new handler to the returned object
   };
 };
+

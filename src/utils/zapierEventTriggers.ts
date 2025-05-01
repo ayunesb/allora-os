@@ -1,113 +1,111 @@
 
 import { triggerBusinessEvent } from '@/lib/zapier';
-import { 
-  BusinessEventType, 
-  StrategyApprovalPayload, 
-  LeadPayload, 
-  CampaignPayload,
-  WebhookResult
-} from '@/utils/webhookTypes';
+import { logAuditEvent } from '@/utils/auditLogger';
 
 /**
- * Sends a strategy approval event to Zapier
+ * Triggers a Zapier event when a strategy is approved
  */
-export async function onStrategyApproved(strategy: StrategyApprovalPayload): Promise<WebhookResult> {
+export async function onStrategyApproved(strategy: {
+  strategyTitle: string;
+  strategyId: string;
+  companyId: string;
+  approvedBy: string;
+}) {
   try {
-    const result = await triggerBusinessEvent('strategy_approved', {
-      entityId: strategy.entityId,
-      entityType: strategy.entityType,
-      strategyName: strategy.strategyName,
+    // Log the event
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource: 'zapier_event',
+      details: {
+        event_type: 'strategy_approved',
+        strategy_id: strategy.strategyId,
+        strategy_title: strategy.strategyTitle
+      }
+    });
+    
+    // Trigger the Zapier event
+    return await triggerBusinessEvent('strategy_approved', {
+      entityId: strategy.strategyId,
+      entityType: 'strategy',
+      strategyTitle: strategy.strategyTitle,
       companyId: strategy.companyId,
-      botName: strategy.botName,
-      suggestedBy: strategy.suggestedBy,
-      riskLevel: strategy.riskLevel,
-      timestamp: strategy.timestamp || new Date().toISOString()
+      approvedBy: strategy.approvedBy,
     });
-
-    await logAuditEvent({
-      action: 'SYSTEM_CHANGE',
-      resource: 'zapier_event',
-      result: result.success ? 'success' : 'failed',
-      details: {
-        eventType: 'strategy_approved',
-        strategyName: strategy.strategyName,
-        success: result.success,
-        errorMessage: result.success ? undefined : result.message
-      }
-    });
-
-    return result;
   } catch (error) {
-    console.error('Error sending strategy approved event to Zapier:', error);
-    
-    await logAuditEvent({
-      action: 'SYSTEM_CHANGE',
-      resource: 'zapier_event',
-      result: 'failed',
-      details: {
-        eventType: 'strategy_approved',
-        strategyName: strategy.strategyName,
-        success: false,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error'
-      }
-    });
-    
-    return {
-      success: false,
-      error: error instanceof Error ? error : new Error('Unknown error')
-    };
+    return { success: false, error };
   }
 }
 
 /**
- * Sends a new lead added event to Zapier
+ * Triggers a Zapier event when a new lead is added
  */
-export async function onNewLeadAdded(lead: LeadPayload): Promise<WebhookResult> {
+export async function onNewLeadAdded(lead: {
+  leadId: string;
+  leadName: string;
+  company: string;
+  email: string;
+  source: string;
+}) {
   try {
+    // Log the event
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource: 'zapier_event',
+      details: {
+        event_type: 'lead_added',
+        lead_id: lead.leadId,
+        lead_name: lead.leadName
+      }
+    });
+    
+    // Trigger the Zapier event
     return await triggerBusinessEvent('lead_added', {
-      leadId: lead.leadId,
+      entityId: lead.leadId,
+      entityType: 'lead',
       leadName: lead.leadName,
       company: lead.company,
-      source: lead.source,
       email: lead.email,
-      timestamp: new Date().toISOString()
+      source: lead.source,
     });
   } catch (error) {
-    console.error('Error sending lead added event to Zapier:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error : new Error('Unknown error')
-    };
+    return { success: false, error };
   }
 }
 
 /**
- * Sends a campaign launched event to Zapier
+ * Triggers a Zapier event when a campaign is launched
  */
-export async function onCampaignLaunched(campaign: CampaignPayload): Promise<WebhookResult> {
+export async function onCampaignLaunched(campaign: {
+  campaignId: string;
+  campaignTitle: string;
+  platform: string;
+  budget: number;
+  owner: string;
+  companyId: string;
+}) {
   try {
+    // Log the event
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource: 'zapier_event',
+      details: {
+        event_type: 'campaign_launched',
+        campaign_id: campaign.campaignId,
+        campaign_title: campaign.campaignTitle
+      }
+    });
+    
+    // Trigger the Zapier event
     return await triggerBusinessEvent('campaign_launched', {
-      campaignId: campaign.campaignId,
-      name: campaign.name,
-      type: campaign.type,
-      startDate: campaign.startDate,
+      entityId: campaign.campaignId,
+      entityType: 'campaign',
+      campaignTitle: campaign.campaignTitle,
+      companyId: campaign.companyId,
+      platform: campaign.platform,
       budget: campaign.budget,
-      timestamp: new Date().toISOString()
+      owner: campaign.owner,
     });
   } catch (error) {
-    console.error('Error sending campaign launched event to Zapier:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error : new Error('Unknown error')
-    };
+    return { success: false, error };
   }
-}
-
-/**
- * Utility function to format audit events for Zapier actions
- */
-export function logAuditEvent(event: any): Promise<void> {
-  // This is a placeholder that could be implemented to log events
-  console.log('Audit event:', event);
-  return Promise.resolve();
 }

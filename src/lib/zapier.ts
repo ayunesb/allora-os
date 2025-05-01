@@ -1,103 +1,45 @@
 
-import { BusinessEventType, WebhookResult } from '@/utils/webhookTypes';
+import { logger } from '@/utils/loggingService';
 
-interface ZapierWebhookConfig {
-  webhookUrl: string;
-}
-
-interface ZapierResult {
-  success: boolean;
-  message?: string;
-}
-
-export function useZapier() {
-  // State could be managed here in a real implementation
-  const webhookUrl = localStorage.getItem('zapier_webhook_url') || '';
-  const isLoading = false;
-  const lastTriggered = new Date();
-  const error = '';
-  
-  /**
-   * Updates the Zapier webhook URL
-   */
-  const updateWebhookUrl = (url: string): void => {
-    if (url) {
-      localStorage.setItem('zapier_webhook_url', url);
-    }
-  };
-  
-  /**
-   * Triggers a webhook event
-   */
-  const triggerWebhook = async (
-    eventType: BusinessEventType, 
-    data: Record<string, any>
-  ): Promise<WebhookResult> => {
-    const url = localStorage.getItem('zapier_webhook_url');
+/**
+ * Trigger a business event in Zapier
+ * @param eventType The type of event to trigger
+ * @param payload The payload to send to Zapier
+ * @returns Success status and any errors
+ */
+export async function triggerBusinessEvent(
+  eventType: string,
+  payload: Record<string, any>
+): Promise<{ success: boolean; error?: Error }> {
+  try {
+    const webhookUrl = process.env.VITE_ZAPIER_WEBHOOK_URL || '';
     
-    if (!url) {
-      return {
-        success: false,
-        message: 'Zapier webhook URL is not configured'
-      };
+    if (!webhookUrl) {
+      logger.warn('No Zapier webhook URL configured, skipping event trigger');
+      return { success: false, error: new Error('No Zapier webhook URL configured') };
     }
     
-    try {
-      const payload = {
-        eventType,
-        data,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Using no-cors mode to avoid CORS issues in browser
-      await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        mode: 'no-cors',
-        body: JSON.stringify(payload)
-      });
-      
-      // Since we're using no-cors, we can't actually check the response
-      // We assume it worked if no exception was thrown
-      return {
-        success: true
-      };
-    } catch (error) {
-      console.error('Error triggering Zapier webhook:', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        error
-      };
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        event_type: eventType,
+        ...payload,
+        timestamp: new Date().toISOString(),
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Zapier webhook error: ${response.status} ${response.statusText}`);
     }
-  };
-  
-  /**
-   * Alias for triggerWebhook for backwards compatibility
-   */
-  const triggerBusinessEvent = triggerWebhook;
-  
-  return {
-    webhookUrl,
-    isLoading,
-    lastTriggered,
-    error,
-    updateWebhookUrl,
-    triggerWebhook,
-    triggerBusinessEvent
-  };
+    
+    logger.info(`Successfully triggered Zapier event: ${eventType}`);
+    return { success: true };
+    
+  } catch (error) {
+    logger.error('Error triggering Zapier webhook:', error);
+    return { success: false, error: error as Error };
+  }
 }
-
-// Export the types directly
-export { BusinessEventType };
-
-// Function to trigger a business event with Zapier
-export const triggerBusinessEvent = async (
-  eventType: BusinessEventType, 
-  data: Record<string, any>
-): Promise<WebhookResult> => {
-  const { triggerWebhook } = useZapier();
-  return triggerWebhook(eventType, data);
-};

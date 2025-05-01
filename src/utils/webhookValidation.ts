@@ -1,100 +1,117 @@
+import { WebhookType, WebhookResult } from './webhookTypes';
 
-import { WebhookType, WebhookResult, BusinessEventType } from './webhookTypes';
+// Re-export WebhookType using export type
+export type { WebhookType };
 
 /**
- * Validates a webhook URL format based on the webhook type
+ * Validate webhook URL format based on webhook type
  */
-export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolean => {
-  if (!url) return false;
+export function validateWebhookUrlFormat(url: string, type: WebhookType): boolean {
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
   
-  const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/i;
+  // Remove whitespace
+  url = url.trim();
   
   // Basic URL validation
-  if (!urlPattern.test(url)) {
+  try {
+    new URL(url);
+  } catch (e) {
     return false;
   }
   
   // Type-specific validation
   switch (type) {
     case 'stripe':
-      return url.includes('stripe.com') || url.includes('localhost');
+      return url.startsWith('https://') && url.includes('stripe.com');
+      
     case 'zapier':
-      return url.includes('hooks.zapier.com') || url.includes('localhost');
+      // Zapier webhook URLs typically start with hooks.zapier.com
+      return (
+        url.startsWith('https://') && 
+        (url.includes('hooks.zapier.com') || url.includes('zapier.com/hooks'))
+      );
+      
     case 'github':
-      return url.includes('github.com') || url.includes('localhost');
+      return url.startsWith('https://') && url.includes('github.com');
+      
     case 'slack':
-      return url.includes('hooks.slack.com') || url.includes('localhost');
+      return url.startsWith('https://') && url.includes('hooks.slack.com');
+      
     case 'custom':
-      return true; // Custom URLs just need to be valid URLs
+      // Just basic HTTPS validation for custom webhooks
+      return url.startsWith('https://');
+      
     default:
       return false;
   }
-};
+}
 
 /**
- * Sanitizes a webhook URL before saving
+ * Sanitize webhook URL to ensure it's clean and safe
  */
-export const sanitizeWebhookUrl = (url: string, type: WebhookType): string => {
+export function sanitizeWebhookUrl(url: string, type: WebhookType): string {
   if (!url) return '';
   
-  // Basic sanitization
-  const trimmedUrl = url.trim();
+  // Trim whitespace
+  url = url.trim();
   
-  // Ensure URLs start with https:// (except for local development)
-  if (!trimmedUrl.startsWith('http://localhost') && !trimmedUrl.startsWith('https://')) {
-    return `https://${trimmedUrl}`;
+  // Basic URL validation
+  try {
+    // This will throw if the URL is invalid
+    const parsedUrl = new URL(url);
+    return parsedUrl.toString();
+  } catch (e) {
+    console.error('Invalid URL:', url);
+    return '';
   }
-  
-  return trimmedUrl;
-};
+}
 
 /**
- * Test a webhook URL with a sample payload
+ * Test a webhook by sending a simple test payload
  */
-export const testWebhook = async (url: string, type: WebhookType): Promise<WebhookResult> => {
+export async function testWebhook(url: string, type: WebhookType): Promise<WebhookResult> {
   if (!url) {
-    return {
-      success: false,
-      message: 'No webhook URL provided'
-    };
+    return { success: false, message: 'No webhook URL provided' };
   }
-
+  
+  if (!validateWebhookUrlFormat(url, type)) {
+    return { success: false, message: `Invalid ${type} webhook URL format` };
+  }
+  
   try {
+    console.log(`Testing ${type} webhook:`, url);
+    
+    // Prepare test payload based on webhook type
     const testPayload = {
-      event: 'test_webhook',
+      event: 'test',
+      source: 'Allora AI Webhook Test',
       timestamp: new Date().toISOString(),
-      source: 'Allora AI Platform',
-      message: `This is a test from the webhook testing utility (${type})`,
+      webhook_type: type
     };
-
-    const startTime = Date.now();
     
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      mode: 'no-cors', // This helps with CORS issues in the browser
-      body: JSON.stringify(testPayload)
+      body: JSON.stringify(testPayload),
+      mode: 'no-cors', // Use no-cors mode for cross-origin webhooks
     });
     
-    const duration = Date.now() - startTime;
-    
-    // With no-cors mode, we can't access response details
-    // So we just assume the request was sent successfully
-    return {
+    // Since we're using no-cors, we can't actually check the response status
+    // For now, we'll just assume success if no error is thrown
+    return { 
       success: true,
-      message: 'Webhook test request sent',
-      duration
+      message: 'Webhook test request sent successfully (no-cors mode)',
     };
-  } catch (error) {
+  } catch (error: any) {
+    console.error(`Error testing ${type} webhook:`, error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Unknown error occurred',
-      error: error instanceof Error ? error : new Error('Unknown error')
+      message: error.message || `Failed to test ${type} webhook`,
+      error
     };
   }
-};
-
-// Export the types
-export { WebhookType, WebhookResult, BusinessEventType };
+}

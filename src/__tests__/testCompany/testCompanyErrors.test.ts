@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runTestCompanySetup, getTestCompany, createTestCompany } from '@/utils/company/test';
 import { getUserProfileByEmail } from '@/utils/users/fetchUsers';
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@/models/user';
+import { User } from '@/types/agents';
 
 // Mock dependencies
 vi.mock('@/integrations/supabase/client', () => ({
@@ -35,14 +35,14 @@ beforeEach(() => {
 
 describe('runTestCompanySetup error handling', () => {
   it('should handle profile update error', async () => {
-    const mockUser: User = { 
+    const mockUser = { 
       id: 'user-123', 
       email: 'test@example.com',
       name: 'Test User',
       company_id: 'company-old',
       role: 'user',
       created_at: '2023-01-01T00:00:00Z'
-    };
+    } as User;
     
     const mockNewCompany = { 
       id: 'new-company-123', 

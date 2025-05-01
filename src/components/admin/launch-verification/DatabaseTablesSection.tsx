@@ -1,42 +1,44 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
-import { ValidationResultItem } from './ValidationResultItem';
-import type { DatabaseTableStatus } from './types';
+import { DatabaseTableStatus } from './types';
+import { CheckCircle, XCircle, Database, Shield, Lock } from 'lucide-react';
 
 interface DatabaseTablesSectionProps {
-  tables?: DatabaseTableStatus[];
+  tables: Record<string, DatabaseTableStatus>;
 }
 
-export function DatabaseTablesSection({ tables = [] }: DatabaseTablesSectionProps) {
-  if (!tables || tables.length === 0) {
-    return null;
-  }
+export function DatabaseTablesSection({ tables }: DatabaseTablesSectionProps) {
+  if (!tables) return null;
   
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Database Tables</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {tables.map((table) => (
-            <ValidationResultItem
-              key={table.name}
-              name={table.name}
-              status={table.status}
-              message={table.message || `Table ${table.exists ? 'exists' : 'missing'}${table.hasRLS ? ' with RLS enabled' : ''}`}
-              icon={table.status === 'success' 
-                ? <CheckCircle2 className="h-4 w-4 text-green-500" />
-                : table.status === 'warning'
-                  ? <AlertCircle className="h-4 w-4 text-amber-500" />
-                  : <XCircle className="h-4 w-4 text-red-500" />
-              }
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="p-3 rounded-md bg-[#1E293B]/80 border border-white/10">
+      <h3 className="font-medium mb-2 text-white flex items-center gap-1.5">
+        <Database className="h-4 w-4 text-blue-400" />
+        Database Tables Check
+      </h3>
+      <div className="space-y-1.5">
+        {Object.entries(tables).map(([table, result]) => (
+          <div key={table} className="flex items-center justify-between text-sm">
+            <span className="font-medium text-gray-300 flex items-center gap-1">
+              {table}
+              {/* Show a lock icon for tables with RLS enabled */}
+              {result.exists && result.rls && <Lock className="h-3 w-3 text-green-400" />}
+            </span>
+            <div className="flex items-center gap-1">
+              {result.exists ? (
+                <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+              ) : (
+                <XCircle className="h-3.5 w-3.5 text-red-500" />
+              )}
+              <span className={`px-2 py-0.5 rounded-full text-xs ${
+                result.exists ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'
+              }`}>
+                {result.exists ? 'Exists' : 'Missing'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

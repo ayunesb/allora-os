@@ -1,17 +1,8 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
-  onStrategyApproved, 
-  onNewLeadAdded, 
-  onCampaignLaunched 
-} from '@/utils/zapierEventTriggers';
+import { onStrategyApproved, onNewLeadAdded, onCampaignLaunched } from '@/utils/zapierEventTriggers';
 import { triggerBusinessEvent } from '@/lib/zapier';
 import { logAuditEvent } from '@/utils/auditLogger';
-import { 
-  StrategyApprovalPayload, 
-  LeadPayload, 
-  CampaignPayload 
-} from '@/utils/webhookTypes';
 
 // Mock dependencies
 vi.mock('@/lib/zapier', () => ({
@@ -34,15 +25,11 @@ describe('Zapier Integration Tests', () => {
   describe('onStrategyApproved', () => {
     it('should trigger a business event with the correct payload', async () => {
       // Arrange
-      const strategy: StrategyApprovalPayload = {
-        strategyName: 'Market Expansion Strategy',
-        entityId: 'strat-123',
+      const strategy = {
+        strategyTitle: 'Market Expansion Strategy',
+        strategyId: 'strat-123',
         companyId: 'Test Company',
-        entityType: 'strategy',
-        botName: 'AI CEO',
-        suggestedBy: 'AI CEO',
-        riskLevel: 'Medium',
-        timestamp: new Date().toISOString()
+        approvedBy: 'AI CEO'
       };
 
       // Act
@@ -51,9 +38,9 @@ describe('Zapier Integration Tests', () => {
       // Assert
       expect(result).toEqual({ success: true });
       expect(triggerBusinessEvent).toHaveBeenCalledWith('strategy_approved', expect.objectContaining({
-        entityId: strategy.entityId,
-        entityType: strategy.entityType,
-        strategyName: strategy.strategyName,
+        entityId: strategy.strategyId,
+        entityType: 'strategy',
+        strategyTitle: strategy.strategyTitle,
         companyId: strategy.companyId
       }));
       
@@ -67,15 +54,11 @@ describe('Zapier Integration Tests', () => {
       // Arrange
       vi.mocked(triggerBusinessEvent).mockRejectedValueOnce(new Error('Network error'));
       
-      const strategy: StrategyApprovalPayload = {
-        strategyName: 'Market Expansion Strategy',
-        entityId: 'strat-123',
+      const strategy = {
+        strategyTitle: 'Market Expansion Strategy',
+        strategyId: 'strat-123',
         companyId: 'Test Company',
-        entityType: 'strategy',
-        botName: 'AI CEO',
-        suggestedBy: 'AI CEO',
-        riskLevel: 'Medium',
-        timestamp: new Date().toISOString()
+        approvedBy: 'AI CEO'
       };
 
       // Act
@@ -91,7 +74,7 @@ describe('Zapier Integration Tests', () => {
   describe('onNewLeadAdded', () => {
     it('should trigger a business event with the correct payload', async () => {
       // Arrange
-      const lead: LeadPayload = {
+      const lead = {
         company: 'Test Company',
         leadName: 'John Doe',
         source: 'Website Form',
@@ -105,7 +88,8 @@ describe('Zapier Integration Tests', () => {
       // Assert
       expect(result).toEqual({ success: true });
       expect(triggerBusinessEvent).toHaveBeenCalledWith('lead_added', expect.objectContaining({
-        leadId: lead.leadId,
+        entityId: lead.leadId,
+        entityType: 'lead',
         leadName: lead.leadName,
         company: lead.company
       }));
@@ -115,11 +99,12 @@ describe('Zapier Integration Tests', () => {
   describe('onCampaignLaunched', () => {
     it('should trigger a business event with the correct payload', async () => {
       // Arrange
-      const campaign: CampaignPayload = {
-        name: 'Summer Promotion',
-        type: 'Facebook',
+      const campaign = {
+        campaignTitle: 'Summer Promotion',
+        platform: 'Facebook',
+        owner: 'Marketing Team',
         campaignId: 'camp-123',
-        startDate: new Date().toISOString(),
+        companyId: 'company-123',
         budget: 5000
       };
 
@@ -129,10 +114,10 @@ describe('Zapier Integration Tests', () => {
       // Assert
       expect(result).toEqual({ success: true });
       expect(triggerBusinessEvent).toHaveBeenCalledWith('campaign_launched', expect.objectContaining({
-        campaignId: campaign.campaignId,
-        name: campaign.name,
-        type: campaign.type,
-        startDate: campaign.startDate
+        entityId: campaign.campaignId,
+        entityType: 'campaign',
+        campaignTitle: campaign.campaignTitle,
+        companyId: campaign.companyId
       }));
     });
   });

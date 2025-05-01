@@ -19,7 +19,6 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
 import { ComplianceProvider } from "@/context/ComplianceContext";
 import { Outlet, Navigate } from 'react-router-dom';
-import { AuthProviderWrapper } from "@/components/auth/AuthProviderWrapper";
 
 // Lazy-loaded components
 const RootLayout = lazy(() => import("@/components/layouts/RootLayout"));
@@ -39,7 +38,7 @@ const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="flex flex-col items-center space-y-4">
       <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      <p className="mt-4 text-muted-foreground">Loading...</p>
+      <p className="text-muted-foreground">Loading...</p>
     </div>
   </div>
 );
@@ -51,19 +50,17 @@ const withSuspense = (Component: React.ComponentType<any>) => (
   </Suspense>
 );
 
-// Navigation layout with error boundary and auth provider
+// Navigation layout with error boundary
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
   
   return (
     <ErrorBoundary>
-      <AuthProviderWrapper>
-        <NavigationManager />
-        <NavigationTracker />
-        <NavigationFixer />
-        <HelpModal />
-        <Outlet />
-      </AuthProviderWrapper>
+      <NavigationManager />
+      <NavigationTracker />
+      <NavigationFixer />
+      <HelpModal />
+      <Outlet />
     </ErrorBoundary>
   );
 };

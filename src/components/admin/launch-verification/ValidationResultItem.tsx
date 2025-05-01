@@ -1,52 +1,34 @@
 
 import React from 'react';
-import { Check, AlertTriangle, XCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
-export interface ValidationResult {
-  valid: boolean;
-  message: string;
-}
-
-export interface ValidationResultItemProps {
+interface ValidationResultProps {
   name: string;
-  result: ValidationResult;
-  icon?: React.ReactNode;
-  status?: 'success' | 'warning' | 'error'; // Add status property
+  result: {
+    valid: boolean;
+    message: string;
+  };
 }
 
-export function ValidationResultItem({ name, result, icon, status }: ValidationResultItemProps) {
-  const { valid, message } = result;
-  
-  const StatusIcon = () => {
-    if (valid) {
-      return <Check className="h-5 w-5 text-green-500" />;
-    }
-    return <XCircle className="h-5 w-5 text-red-500" />;
-  };
-
-  // Determine badge variant based on status or valid state
-  const badgeVariant = status === 'warning' ? 'outline' : 
-                      status === 'error' || !valid ? 'destructive' : 
-                      'success';
-
+export function ValidationResultItem({ name, result }: ValidationResultProps) {
   return (
-    <Card className={valid ? "border-green-200 bg-green-50/30" : "border-red-200 bg-red-50/30"}>
-      <CardContent className="p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex-shrink-0">
-            {icon || <StatusIcon />}
-          </div>
-          <div>
-            <h4 className="text-sm font-medium capitalize">{name.replace(/([A-Z])/g, ' $1').trim()}</h4>
-            <p className="text-xs text-muted-foreground">{message}</p>
-          </div>
+    <div 
+      className={`p-3 rounded-md ${
+        result.valid ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'
+      }`}
+    >
+      <div className="flex items-start gap-2">
+        {result.valid ? 
+          <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" /> : 
+          <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
+        }
+        <div>
+          <p className={`font-medium ${result.valid ? 'text-green-700' : 'text-red-700'}`}>
+            {name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+          </p>
+          <p className={`text-sm ${result.valid ? 'text-green-600' : 'text-red-600'}`}>{result.message}</p>
         </div>
-        <Badge variant={badgeVariant as any}>
-          {valid ? "Passed" : "Failed"}
-        </Badge>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

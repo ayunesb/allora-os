@@ -1,6 +1,7 @@
 
 import { ReactNode, useState, useEffect } from "react";
 import { checkIfUserIsAdmin } from "@/utils/adminHelper";
+import { logSecurityEvent } from "@/utils/auditLogger";
 
 interface AdminCheckHandlerProps {
   user: any;
@@ -9,18 +10,6 @@ interface AdminCheckHandlerProps {
   hasInitialized: boolean;
   children: (isUserAdmin: boolean, adminCheckDone: boolean) => ReactNode;
 }
-
-// Function to log security events with proper arguments
-const logSecurityEvent = async (event: {
-  user: string;
-  action: string;
-  resource: string;
-  details: Record<string, any>;
-  severity?: string;
-}): Promise<void> => {
-  console.log('Security event logged:', event);
-  return Promise.resolve();
-};
 
 export const AdminCheckHandler = ({ 
   user, 

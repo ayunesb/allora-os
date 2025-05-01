@@ -1,80 +1,75 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { ChecklistItem } from './ChecklistItem';
-import { ChecklistCategory as CategoryType } from './types';
+import { ChecklistItem as ChecklistItemType, ChecklistCategory as ChecklistCategoryType } from './types';
 
 interface ChecklistCategoryProps {
-  category: CategoryType;
+  category: ChecklistCategoryType;
 }
 
 export function ChecklistCategory({ category }: ChecklistCategoryProps) {
-  const [expanded, setExpanded] = useState(true);
-
-  const statusCounts = {
-    completed: category.items.filter(item => item.status === 'completed').length,
-    warning: category.items.filter(item => item.status === 'warning').length,
-    error: category.items.filter(item => item.status === 'error').length,
-    pending: category.items.filter(item => ['pending', 'in-progress'].includes(item.status)).length
+  const [isExpanded, setIsExpanded] = useState(true);
+  
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
   };
-
+  
+  // Calculate status counts
+  const completedCount = category.items.filter(item => item.status === 'completed').length;
+  const warningCount = category.items.filter(item => item.status === 'warning').length;
+  const errorCount = category.items.filter(item => item.status === 'error').length;
+  
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-center">
-          <div className="space-y-1">
-            <CardTitle className="text-lg">{category.name}</CardTitle>
+    <div className="border rounded-lg overflow-hidden">
+      <div 
+        className="flex justify-between items-center p-4 bg-secondary/40 cursor-pointer"
+        onClick={toggleExpanded}
+      >
+        <div>
+          <h3 className="font-medium text-lg">{category.name}</h3>
+          {category.description && (
             <p className="text-sm text-muted-foreground">{category.description}</p>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-green-600 font-medium">{completedCount}</span>
+            <span className="text-muted-foreground">/</span>
+            <span className="font-medium">{category.items.length}</span>
+            
+            {warningCount > 0 && (
+              <span className="ml-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs">
+                {warningCount} warning{warningCount !== 1 ? 's' : ''}
+              </span>
+            )}
+            
+            {errorCount > 0 && (
+              <span className="ml-2 px-1.5 py-0.5 bg-red-100 text-red-800 rounded text-xs">
+                {errorCount} error{errorCount !== 1 ? 's' : ''}
+              </span>
+            )}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? (
-              <ChevronUp className="h-4 w-4" />
+          
+          <Button variant="ghost" size="sm" className="p-0 h-auto">
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-5 w-5" />
             )}
           </Button>
         </div>
-
-        <div className="flex gap-3 mt-2">
-          {statusCounts.completed > 0 && (
-            <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-              {statusCounts.completed} Completed
-            </div>
-          )}
-          {statusCounts.warning > 0 && (
-            <div className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
-              {statusCounts.warning} Warning
-            </div>
-          )}
-          {statusCounts.error > 0 && (
-            <div className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
-              {statusCounts.error} Error
-            </div>
-          )}
-          {statusCounts.pending > 0 && (
-            <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-              {statusCounts.pending} Pending
-            </div>
-          )}
+      </div>
+      
+      {isExpanded && (
+        <div className="divide-y">
+          {category.items.map(item => (
+            <ChecklistItem key={item.id} item={item} />
+          ))}
         </div>
-      </CardHeader>
-
-      {expanded && (
-        <CardContent className="pt-0">
-          <div className="space-y-3">
-            {category.items.map((item) => (
-              <ChecklistItem key={item.id} item={item} />
-            ))}
-          </div>
-        </CardContent>
       )}
-    </Card>
+    </div>
   );
 }

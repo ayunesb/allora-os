@@ -29,7 +29,7 @@ const ForecastCards: React.FC<ForecastCardsProps> = ({
               <CardTitle className="flex justify-between items-center text-lg">
                 <span>{kpiNames[kpi] || kpi}</span>
                 {isAnomaly && (
-                  <Badge variant={anomalyInfo?.severity === "critical" ? "destructive" : "outline"}>
+                  <Badge variant={anomalyInfo?.severity === "critical" ? "destructive" : "warning"}>
                     {anomalyInfo?.issue}
                   </Badge>
                 )}

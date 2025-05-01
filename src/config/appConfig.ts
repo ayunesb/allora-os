@@ -1,3 +1,4 @@
+
 // Central configuration file for the application
 
 export const APP_NAME = 'Allora AI';
@@ -10,8 +11,8 @@ export const API_VERSION = 'v1';
 
 // Supabase Configuration
 export const SUPABASE_CONFIG = {
-  url: import.meta.env.VITE_SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co",
-  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo",
+  url: import.meta.env.VITE_SUPABASE_URL || '',
+  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
 };
 
 // Feature Flags

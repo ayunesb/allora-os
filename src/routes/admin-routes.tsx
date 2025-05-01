@@ -1,63 +1,99 @@
 
 import { RouteObject } from "react-router-dom";
+import { lazy } from "react";
+
+// Lazy load admin layout and all page components
+const AdminLayout = lazy(() => import("@/components/layouts/AdminLayout"));
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminEntities = lazy(() => import("@/pages/admin/AdminEntities"));
+const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
+const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
+const AdminSystemHealth = lazy(() => import("@/pages/admin/AdminSystemHealth"));
+const AdminLaunchPrep = lazy(() => import("@/pages/admin/AdminLaunchPrep"));
+const AdminCampaigns = lazy(() => import("@/pages/admin/AdminCampaigns"));
+const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
+const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
+const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
+const AdminCompanies = lazy(() => import("@/pages/admin/AdminCompanies"));
+const SystemPage = lazy(() => import("@/pages/admin/system"));
+
+// Lazy load audit-related pages for better performance
+const AuditPage = lazy(() => import("@/pages/admin/AuditPage"));
+const RunAudit = lazy(() => import("@/pages/admin/RunAudit"));
+const TechnicalImprovementsPage = lazy(() => import("@/pages/admin/TechnicalImprovementsPage"));
+const StrategyImplementationPage = lazy(() => import("@/pages/admin/StrategyImplementationPage"));
 
 export const adminRoutes: RouteObject[] = [
   {
     path: "admin",
-    async lazy() {
-      const { default: AdminLayout } = await import("@/layouts/AdminLayout");
-      return { Component: AdminLayout };
-    },
+    element: <AdminLayout />,
     children: [
       {
         index: true,
-        async lazy() {
-          const { default: AdminDashboard } = await import("@/pages/admin/AdminDashboard");
-          return { Component: AdminDashboard };
-        }
+        element: <AdminDashboard />
       },
       {
-        path: "audit",
-        async lazy() {
-          const { default: AuditDashboard } = await import("@/pages/admin/AuditDashboard");
-          return { Component: AuditDashboard };
-        }
+        path: "entities",
+        element: <AdminEntities />
       },
       {
-        path: "run-audit",
-        async lazy() {
-          const { default: RunAudit } = await import("@/pages/admin/RunAudit");
-          return { Component: RunAudit };
-        }
+        path: "users",
+        element: <AdminUsers />
       },
       {
-        path: "pre-launch-audit",
-        async lazy() {
-          const { default: PreLaunchAudit } = await import("@/pages/admin/PreLaunchAudit");
-          return { Component: PreLaunchAudit };
-        }
+        path: "companies",
+        element: <AdminCompanies />
       },
       {
-        path: "database-verification",
-        async lazy() {
-          const { default: DatabaseVerification } = await import("@/pages/admin/DatabaseVerification");
-          return { Component: DatabaseVerification };
-        }
+        path: "settings",
+        element: <AdminSettings />
+      },
+      {
+        path: "webhooks",
+        element: <AdminWebhooks />
+      },
+      {
+        path: "system-health",
+        element: <AdminSystemHealth />
+      },
+      {
+        path: "diagnostics",
+        element: <SystemPage />
       },
       {
         path: "launch-prep",
-        async lazy() {
-          const { default: LaunchPrep } = await import("@/pages/admin/LaunchPrep");
-          return { Component: LaunchPrep };
-        }
+        element: <AdminLaunchPrep />
       },
       {
-        path: "launch-verification",
-        async lazy() {
-          const { default: LaunchVerification } = await import("@/pages/admin/LaunchVerification");
-          return { Component: LaunchVerification };
-        }
+        path: "campaigns",
+        element: <AdminCampaigns />
+      },
+      {
+        path: "analytics",
+        element: <AdminAnalytics />
+      },
+      {
+        path: "leads",
+        element: <AdminLeads />
+      },
+      {
+        path: "audit",
+        element: <AuditPage />
+      },
+      {
+        path: "run-audit",
+        element: <RunAudit />
+      },
+      {
+        path: "technical-improvements",
+        element: <TechnicalImprovementsPage />
+      },
+      {
+        path: "strategy-implementation/:id",
+        element: <StrategyImplementationPage />
       }
     ]
   }
 ];
+
+export default adminRoutes;

@@ -1,14 +1,9 @@
-
 import { createClient } from '@supabase/supabase-js';
-import { getSupabaseUrl, getSupabaseAnonKey } from '@/utils/env';
-import { logger } from '@/utils/loggingService';
 
-// Get Supabase configuration values
-const supabaseUrl = getSupabaseUrl();
-const supabaseAnonKey = getSupabaseAnonKey();
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Create the Supabase client with proper configuration
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -16,55 +11,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Add the checkSupabaseConnection function
-export async function checkSupabaseConnection() {
-  try {
-    // Test the connection with a simple query
-    const { data, error } = await supabase.from('profiles').select('count').limit(1);
-    
-    if (error) {
-      console.error('Supabase connection error:', error);
-      return {
-        connected: false,
-        message: error.message
-      };
-    }
-    
-    return {
-      connected: true,
-      message: "Connected to Supabase successfully"
-    };
-  } catch (error) {
-    console.error('Exception testing Supabase connection:', error);
-    return {
-      connected: false,
-      message: error instanceof Error ? error.message : "Failed to connect to Supabase"
-    };
-  }
-}
+/**
+ * Temporary stubs to avoid build errors — update with real logic as needed
+ */
+export const getSession = async () => {
+  const { data, error } = await supabase.auth.getSession();
+  return error ? null : data.session;
+};
 
-// Add getSession function
-export async function getSession() {
-  try {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) {
-      logger.error('Error getting session:', error);
-      return { session: null };
-    }
-    return { session: data.session };
-  } catch (error) {
-    logger.error('Exception getting session:', error);
-    return { session: null };
-  }
-}
-
-// Add getCurrentUser function
-export async function getCurrentUser() {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
-  } catch (error) {
-    logger.error('Exception getting current user:', error);
-    return null;
-  }
-}
+export const getCurrentUser = async () => {
+  const { data, error } = await supabase.auth.getUser();
+  return error ? null : data.user;
+};

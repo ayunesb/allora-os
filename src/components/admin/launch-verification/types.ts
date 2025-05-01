@@ -1,102 +1,89 @@
 
-export type ChecklistItemStatus = 'pending' | 'in-progress' | 'completed' | 'warning' | 'error';
-
 export interface ChecklistItem {
   id: string;
   name: string;
-  status: ChecklistItemStatus;
-  isRequired: boolean;
+  description?: string;
+  status: 'completed' | 'in-progress' | 'pending' | 'warning' | 'error';
   statusMessage?: string;
-  details?: string[];
+  details?: string;
+  isRequired?: boolean;
 }
 
 export interface ChecklistCategory {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   items: ChecklistItem[];
 }
 
-export interface ValidationResultItem {
-  id?: string;
-  name: string;
-  status: 'success' | 'warning' | 'error';
-  message?: string;
+export interface ValidationResultsUI {
+  apis: {
+    heygen: ApiStatus;
+    postmark: ApiStatus;
+    stripe: ApiStatus; 
+    twilio: ApiStatus;
+    openai: ApiStatus;
+    zapier?: ApiStatus;
+  };
+  database: {
+    status: 'ready' | 'error';
+    message?: string;
+    tables?: DatabaseTableStatus[];
+  };
+  features: {
+    authentication: boolean;
+    onboarding: boolean;
+    strategies: boolean;
+    campaigns: boolean;
+    aiDebate: boolean;
+    welcomeVideo: boolean;
+    billing: boolean;
+  };
+  compliance: {
+    whatsappOptIn: boolean;
+    emailUnsubscribe: boolean;
+    billingCompliance: boolean;
+    apiSecurityLevel: 'high' | 'medium' | 'low';
+  };
+  overallStatus: 'ready' | 'warning' | 'not_ready';
+  // Add the missing properties that our components are trying to access
+  databaseTables?: Record<string, DatabaseTableStatus>;
+  databaseIndexes?: Array<{name: string; status: string; message: string}>;
+  rlsPolicies?: Array<{table: string; status: string; message: string}>;
+  databaseFunctions?: Array<{name: string; status: string; message: string}>;
+  legalAcceptance?: { valid: boolean; message: string };
 }
 
-export interface ValidationResultProps {
-  id?: string;
-  name: string;
-  status: 'success' | 'warning' | 'error';
-  message?: string;
-  icon?: React.ReactNode;
-}
+export type ApiStatus = 'connected' | 'error' | 'not_configured';
 
 export interface DatabaseTableStatus {
-  name: string;
+  name?: string;
   exists: boolean;
-  hasRLS: boolean;
-  status: 'success' | 'warning' | 'error';
+  rowCount?: number;
+  hasRls?: boolean;
+  error?: string;
+  // Add the missing properties that our components are trying to access
+  rls?: boolean;
   message?: string;
 }
 
-export interface DatabaseCheckItem {
-  name: string;
-  exists: boolean;
-  isSecure?: boolean;
-  table?: string;
-  status: 'success' | 'warning' | 'error';
-  message?: string;
+export interface EnhancedVerificationState {
+  categories: ChecklistCategory[];
+  completedItems: number;
+  totalItems: number;
+  overallStatus: 'ready' | 'warning' | 'not_ready';
+  isLoading: boolean;
 }
 
-export interface ChecklistProgressProps {
-  value: number;
-}
-
-export interface SeverityCountsProps {
-  completed: number;
-  warnings: number;
-  errors: number;
-}
-
-export interface DatabaseChecksSectionProps {
-  title: string;
-  items: DatabaseCheckItem[];
-}
-
-export interface LaunchInfoBoxProps {
-  title: string;
-  content: React.ReactNode;
+export interface LaunchButtonProps {
+  className?: string;
 }
 
 export interface LaunchProgressProps {
-  value: number;
-  label?: string;
+  isComplete: boolean;
+  launchStep: string | null;
 }
 
-export interface VerificationActionsProps {
-  isChecking: boolean;
-  isAddingDemo: boolean;
-  isVerifyingTables: boolean;
-  isCheckingIndexes: boolean;
-  isVerifyingRLS: boolean;
-  isVerifyingFunctions: boolean;
-  onRerunVerification: () => void;
-  onAddDemoData: () => void;
-  onVerifyTables: () => void;
-  onCheckIndexes: () => void;
-  onVerifyRLS: () => void;
-  onVerifyFunctions: () => void;
-}
-
-export interface ValidationResultsUI {
-  authentication?: { valid: boolean; message: string };
-  database?: { valid: boolean; message: string };
-  storage?: { valid: boolean; message: string };
-  apis?: { valid: boolean; message: string };
-  databaseTables?: DatabaseTableStatus[];
-  databaseIndexes?: DatabaseCheckItem[];
-  rlsPolicies?: DatabaseCheckItem[];
-  databaseFunctions?: DatabaseCheckItem[];
-  overallStatus: 'ready' | 'not-ready' | 'warning';
+export interface LaunchInfoBoxProps {
+  className?: string;
 }
