@@ -6,12 +6,14 @@ interface ManualTriggerContentProps {
   webhookUrl: string;
   onTrigger: () => void;
   isLoading: boolean;
+  isTriggering?: string | null;
 }
 
 const ManualTriggerContent: React.FC<ManualTriggerContentProps> = ({
   webhookUrl,
   onTrigger,
-  isLoading
+  isLoading,
+  isTriggering
 }) => {
   return (
     <div className="space-y-4">
@@ -21,10 +23,10 @@ const ManualTriggerContent: React.FC<ManualTriggerContentProps> = ({
       
       <Button
         onClick={onTrigger}
-        disabled={!webhookUrl || isLoading}
+        disabled={!webhookUrl || isLoading || isTriggering === 'manual'}
         className="w-full"
       >
-        {isLoading ? 'Sending...' : 'Send Test Webhook'}
+        {isLoading || isTriggering === 'manual' ? 'Sending...' : 'Send Test Webhook'}
       </Button>
       
       <div className="bg-muted p-4 rounded-md mt-4">

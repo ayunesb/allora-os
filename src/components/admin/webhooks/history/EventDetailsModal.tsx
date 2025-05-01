@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { EventDetailsPanel } from '../event-table/EventDetailsPanel';
+import EventDetailsPanel from '../event-table/EventDetailsPanel';
 import { UnifiedWebhookEvent } from '@/types/unified-types';
 
 interface EventDetailsModalProps {
@@ -17,8 +17,10 @@ export function EventDetailsModal({ event, open, onOpenChange }: EventDetailsMod
         <DialogHeader>
           <DialogTitle>Webhook Event Details</DialogTitle>
         </DialogHeader>
-        <EventDetailsPanel event={event} />
+        <EventDetailsPanel event={event} expanded={true} />
       </DialogContent>
     </Dialog>
   );
 }
+
+export default EventDetailsModal;

@@ -66,3 +66,5 @@ export function useWebhookValidation(type: WebhookType) {
     validateUrl
   };
 }
+
+export default useWebhookValidation;

@@ -41,7 +41,7 @@ const ZapierReadinessTest: React.FC<ZapierReadinessTestProps> = ({ webhookUrl, i
       
       const result = await triggerBusinessEvent(
         webhookUrl, 
-        'test_event' as any, // We're sending a test event with specific context
+        'test_event', // We're sending a test event with specific context
         {
           ...payload,
           event_type: eventType,

@@ -2,9 +2,9 @@
 import React from 'react';
 import { WebhookEvent, WebhookType } from '@/types/fixed/Webhook';
 import { formatDistanceToNow } from 'date-fns';
-import StatusBadge from './StatusBadge';
-import JsonViewer from '@/components/JsonViewer';
 import { Calendar, Hash, Server, RefreshCw, Clock, File, MessageSquare } from 'lucide-react';
+import JsonViewer from '@/components/JsonViewer';
+import StatusBadge from './StatusBadge';
 
 interface EventDetailsPanelProps {
   event: WebhookEvent;

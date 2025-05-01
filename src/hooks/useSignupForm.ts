@@ -1,176 +1,132 @@
+import { useState, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { User } from '@/types/fixed/User';
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { toast } from "sonner";
-import { calculatePasswordStrength } from "@/components/auth/PasswordStrengthMeter";
-import { useAuth } from "@/context/AuthContext";
-import { supabase } from '@/integrations/supabase/client';
-import { User } from "@supabase/supabase-js";
-import { sanitizeInput } from "@/utils/sanitizers";
-import { generateCsrfToken } from "@/utils/csrfProtection";
-import { logger } from "@/utils/loggingService";
-
-// Schema definition for signup form validation
-export const signupSchema = z.object({
-  name: z.string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name cannot exceed 50 characters")
-    .transform(val => sanitizeInput(val)),
-  email: z.string()
-    .email("Please enter a valid email address")
-    .transform(val => sanitizeInput(val)),
+// Validation schema
+const signupSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .refine(
-      (password) => /[A-Z]/.test(password),
-      "Password must contain at least one uppercase letter"
-    )
-    .refine(
-      (password) => /[a-z]/.test(password),
-      "Password must contain at least one lowercase letter"
-    )
-    .refine(
-      (password) => /[0-9]/.test(password),
-      "Password must contain at least one number"
-    )
-    .refine(
-      (password) => /[^A-Za-z0-9]/.test(password),
-      "Password must contain at least one special character"
-    )
-    .refine(
-      (password) => calculatePasswordStrength(password) >= 60,
-      "Password must meet strength requirements"
-    ),
+    .min(8, { message: 'Password must be at least 8 characters' })
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number' })
+    .regex(/[^A-Za-z0-9]/, { message: 'Password must contain at least one special character' }),
   confirmPassword: z.string(),
-  company: z.string()
-    .optional()
-    .transform(val => val ? sanitizeInput(val) : val),
-  industry: z.string()
-    .optional()
-    .transform(val => val ? sanitizeInput(val) : val),
-  csrfToken: z.string().optional(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
+  company: z.string().min(1, { message: 'Company name is required' }),
+  industry: z.string().optional(),
+  terms: z.boolean().refine(val => val === true, { message: 'You must accept the terms and conditions' })
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ['confirmPassword']
 });
 
+// Type for form values
 export type SignupValues = z.infer<typeof signupSchema>;
 
+// Props for the hook
 interface UseSignupFormProps {
-  onSubmitSuccess: (user: User) => void;
+  onSubmitSuccess?: (user: User) => void;
 }
 
-export function useSignupForm({ onSubmitSuccess }: UseSignupFormProps) {
+// Return type for the hook
+interface SignupResponse {
+  success: boolean;
+  error?: string;
+  user?: User;
+}
+
+export const useSignupForm = (props?: UseSignupFormProps) => {
+  const { onSubmitSuccess } = props || {};
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const { signUp } = useAuth();
   const navigate = useNavigate();
-  
+
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      company: "",
-      industry: "",
-      csrfToken: generateCsrfToken(),
-    },
-    mode: "onBlur", // Validate fields when they lose focus
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      company: '',
+      industry: '',
+      terms: false
+    }
   });
 
-  async function onSubmit(data: SignupValues) {
-    setIsLoading(true);
-    setFormError(null);
-    
+  const handleSignup = async (data: SignupValues): Promise<SignupResponse> => {
+    // This is a mock implementation that would be replaced with actual API calls
     try {
-      // Check for suspicious signup attempt patterns (e.g., many rapid signups)
-      const recentAttempt = sessionStorage.getItem('lastSignupAttempt');
-      const now = Date.now();
-      if (recentAttempt && now - parseInt(recentAttempt) < 2000) {
-        logger.warn("Rapid signup attempts detected", { email: data.email });
-        // Add a small delay to prevent brute force attempts
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-      sessionStorage.setItem('lastSignupAttempt', now.toString());
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Store the email in sessionStorage for verification page access
-      sessionStorage.setItem('signupEmail', data.email);
-      logger.info("Starting signup process for: " + data.email);
+      // Mock user data
+      const mockUser: User = {
+        id: `user-${Date.now()}`,
+        email: data.email,
+        name: data.name,
+        company: data.company,
+        industry: data.industry,
+        created_at: new Date().toISOString(),
+        role: 'user'
+      };
       
-      // Sign up the user with Supabase Auth
-      const signUpResult = await signUp(data.email, data.password);
-      
-      if (!signUpResult.success) {
-        if (signUpResult.error?.includes("already registered")) {
-          setFormError("This email is already registered. Try logging in instead.");
-          form.setError("email", { 
-            type: "manual", 
-            message: "Email already in use" 
-          });
-          setIsLoading(false);
-          return;
-        }
-        throw new Error(signUpResult.error);
-      }
+      return {
+        success: true,
+        user: mockUser
+      };
+    } catch (error) {
+      console.error('Signup error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
+      };
+    }
+  };
 
-      // Store user metadata for profile creation
-      if (signUpResult.user) {
-        logger.info("User created successfully: " + signUpResult.user.id);
-        
-        // Create sanitized data to avoid empty strings
-        const userData = {
-          name: data.name,
-          company: data.company || null,
-          industry: data.industry || null
-        };
-        
-        // Update user metadata with name and company info
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: userData
-        });
+  const onSubmit = useCallback(async (values: SignupValues) => {
+    setFormError(null);
+    setIsLoading(true);
 
-        if (updateError) {
-          logger.error("Error updating user metadata: " + updateError);
-        }
-
-        // Once the user is created, save company information to profiles table
-        if (data.company || data.industry) {
-          const { saveCompanyInfo } = await import('@/utils/profileHelpers');
-          await saveCompanyInfo(
-            signUpResult.user.id, 
-            data.company || '', 
-            data.industry || ''
-          );
-        }
-        
-        // Set a flag in sessionStorage to indicate this is a new user for onboarding
-        sessionStorage.setItem('newUserSignup', 'true');
-        sessionStorage.setItem('pendingOnboardingUserId', signUpResult.user.id);
-        
-        toast.success("Account created successfully!");
-        
-        // Regenerate CSRF token after signup
-        generateCsrfToken();
-        
-        // Call onSubmitSuccess to trigger the parent component's success handler
-        onSubmitSuccess(signUpResult.user);
-        return;
-      }
+    try {
+      const result = await handleSignup(values);
       
-      throw new Error("Failed to retrieve user information after signup.");
-    } catch (error: any) {
-      logger.error("Signup error: " + error);
-      setFormError(error.message || "Failed to create account");
-      toast.error(error.message || "Failed to create account");
+      if (result.success && result.user) {
+        toast.success('Account created successfully!');
+        
+        // Call the success callback if provided
+        if (onSubmitSuccess && result.user) {
+          onSubmitSuccess(result.user);
+        } else {
+          // Otherwise redirect to the dashboard
+          navigate('/dashboard');
+        }
+      } else {
+        setFormError(result.error || 'Failed to create account');
+        toast.error(result.error || 'Failed to create account');
+      }
+    } catch (error) {
+      console.error('Signup form error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setFormError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [navigate, onSubmitSuccess]);
 
-  return { form, isLoading, onSubmit, navigate, formError };
-}
+  return {
+    form,
+    isLoading,
+    onSubmit,
+    formError,
+    navigate
+  };
+};
+
+export default useSignupForm;

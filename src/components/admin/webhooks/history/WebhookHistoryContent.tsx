@@ -1,55 +1,39 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { WebhookHistoryFilters } from './WebhookHistoryFilters';
+import { WebhookEventTable } from './WebhookEventTable';
 import { WebhookEvent } from '@/types/fixed/Webhook';
-import WebhookHistoryFilters from './WebhookHistoryFilters';
-import WebhookEventTable from './WebhookEventTable';
-import useWebhookHistoryFilters from './useWebhookHistoryFilters';
-import { WebhookEventDetailModal } from './WebhookEventDetailModal';
+import { UnifiedWebhookEvent } from '@/types/unified-types';
 
 interface WebhookHistoryContentProps {
-  events?: WebhookEvent[];
-  isLoading?: boolean;
+  events: WebhookEvent[];
 }
 
-const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({ 
-  events = [], 
-  isLoading = false 
-}) => {
-  const { filters, updateFilter, resetFilters, filterEvent } = useWebhookHistoryFilters();
-  const [selectedEvent, setSelectedEvent] = useState<WebhookEvent | null>(null);
+const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({ events }) => {
+  const [filteredEvents, setFilteredEvents] = useState<UnifiedWebhookEvent[]>(events);
   
-  const filteredEvents = events.filter(filterEvent);
-  
-  const handleEventClick = (event: WebhookEvent) => {
-    setSelectedEvent(event);
-  };
-  
-  const handleCloseModal = () => {
-    setSelectedEvent(null);
+  const handleFilterChange = (filtered: UnifiedWebhookEvent[]) => {
+    setFilteredEvents(filtered);
   };
   
   return (
-    <div className="space-y-4">
-      <WebhookHistoryFilters 
-        filters={filters}
-        onFilterChange={updateFilter}
-        onReset={resetFilters}
-      />
-      
-      <WebhookEventTable 
-        events={filteredEvents} 
-        isLoading={isLoading} 
-        onEventClick={handleEventClick}
-      />
-      
-      {selectedEvent && (
-        <WebhookEventDetailModal 
-          event={selectedEvent} 
-          isOpen={!!selectedEvent} 
-          onClose={handleCloseModal} 
-        />
-      )}
-    </div>
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 className="text-lg font-medium">Webhook History</h3>
+            <p className="text-sm text-muted-foreground">
+              View and filter recent webhook events
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <WebhookHistoryFilters events={events} onFilterChange={handleFilterChange} />
+        <WebhookEventTable events={filteredEvents} />
+      </CardContent>
+    </Card>
   );
 };
 

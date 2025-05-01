@@ -81,6 +81,17 @@ export interface UnifiedWebhookEvent extends Partial<WebhookEvent> {
   response?: any;
 }
 
+// Company Profile Type
+export interface CompanyProfile {
+  company: string;
+  companyName?: string; // For backward compatibility
+  industry: string;
+  target_customer?: string;
+  website_url?: string;
+  sales_channels?: string[];
+  pricing_model?: string;
+}
+
 // Re-export key types
 export type {
   User,

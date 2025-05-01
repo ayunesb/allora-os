@@ -108,7 +108,7 @@ export default function ZapierReadiness() {
                       isValid === false ? "border-red-500" : ""
                     }`}
                   />
-                  {isValid === false && (
+                  {isValid === false && webhookUrl && (
                     <p className="text-red-500 text-sm">
                       Please enter a valid Zapier webhook URL
                     </p>

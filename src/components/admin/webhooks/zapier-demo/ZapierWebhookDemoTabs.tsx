@@ -1,16 +1,17 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ManualTriggerContent } from './ManualTriggerContent';
-import { BusinessEventContent } from './BusinessEventContent';
+import ManualTriggerContent from './ManualTriggerContent';
+import BusinessEventContent from './BusinessEventContent';
 import { useBreakpoint } from "@/hooks/use-mobile";
+import { BusinessEventType } from '@/hooks/useZapier';
 
 interface ZapierWebhookDemoTabsProps {
   webhookUrl: string;
   isTriggering: string | null;
   triggerSample: (event: string, payload: Record<string, any>) => Promise<void>;
   triggerBusinessSample: (
-    eventType: string, 
+    eventType: BusinessEventType, 
     payload: Record<string, any>
   ) => Promise<void>;
 }
@@ -45,18 +46,22 @@ export function ZapierWebhookDemoTabs({
       <TabsContent value="business" className="mt-0">
         <BusinessEventContent 
           webhookUrl={webhookUrl}
+          onTrigger={triggerBusinessSample}
+          isLoading={false}
           isTriggering={isTriggering}
-          triggerBusinessSample={triggerBusinessSample}
         />
       </TabsContent>
       
       <TabsContent value="manual" className="mt-0">
         <ManualTriggerContent 
           webhookUrl={webhookUrl}
+          onTrigger={() => triggerSample('manual', { test: true })}
+          isLoading={false}
           isTriggering={isTriggering}
-          triggerSample={triggerSample}
         />
       </TabsContent>
     </Tabs>
   );
 }
+
+export default ZapierWebhookDemoTabs;

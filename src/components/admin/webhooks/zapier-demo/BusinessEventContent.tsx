@@ -9,12 +9,14 @@ interface BusinessEventContentProps {
   webhookUrl: string;
   onTrigger: (eventType: BusinessEventType, payload: Record<string, any>) => void;
   isLoading: boolean;
+  isTriggering?: string | null;
 }
 
 const BusinessEventContent: React.FC<BusinessEventContentProps> = ({
   webhookUrl,
   onTrigger,
-  isLoading
+  isLoading,
+  isTriggering
 }) => {
   const [selectedEvent, setSelectedEvent] = useState<BusinessEventType>('campaign_created');
   
@@ -108,10 +110,10 @@ const BusinessEventContent: React.FC<BusinessEventContentProps> = ({
       
       <Button
         onClick={handleTrigger}
-        disabled={!webhookUrl || isLoading}
+        disabled={!webhookUrl || isLoading || !!isTriggering}
         className="w-full"
       >
-        {isLoading ? 'Sending...' : 'Send Event'}
+        {isLoading || !!isTriggering ? 'Sending...' : 'Send Event'}
       </Button>
       
       <div className="bg-muted p-4 rounded-md mt-4">
