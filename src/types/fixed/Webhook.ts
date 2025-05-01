@@ -35,6 +35,9 @@ export interface WebhookEvent {
   webhook_type?: WebhookType;
   webhookType?: WebhookType;
   payload?: any;
+  timestamp?: string; // Added for compatibility
+  type?: WebhookType; // Added for compatibility
+  source?: string; // Added for compatibility
 }
 
 // Payload interface for business events
@@ -49,6 +52,7 @@ export interface WebhookResult {
   message?: string;
   statusCode?: number;
   data?: any;
+  error?: any; // Added for compatibility
 }
 
 // Webhook configuration

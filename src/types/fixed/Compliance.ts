@@ -1,17 +1,31 @@
 
+/**
+ * Type definitions for the compliance system
+ */
+
 export interface ComplianceContextType {
   isLoaded: boolean;
-  error: string | null;
-  updatePreference?: (key: string, value: any) => void;
+  error: Error | null;
+  checkForUpdates?: () => void;
+  setAutoUpdate?: (value: boolean) => void;
+  isCheckingUpdates?: boolean;
+  lastChecked?: string | null;
+}
+
+// Extended compliance context with additional properties
+export interface ExtendedComplianceContextType extends ComplianceContextType {
+  isLoaded: boolean;
+  error: Error | null;
   checkForUpdates: () => void;
   setAutoUpdate: (value: boolean) => void;
   isCheckingUpdates: boolean;
   lastChecked: string | null;
-  autoUpdate?: boolean;
-  pendingUpdates?: string[];
-  isApplyingUpdate?: boolean;
-  applyUpdate?: (documentId: string) => Promise<boolean>;
-  applyAllUpdates?: () => Promise<boolean>;
-  scheduleComplianceCheck?: (intervalDays?: number) => Promise<void>;
-  enableAutoUpdates?: (documentId: string, enabled: boolean) => Promise<boolean>;
+  autoUpdate: boolean;
+  updatePreference: (key: string, value: any) => void;
+  pendingUpdates: any[];
+  isApplyingUpdate: boolean;
+  applyUpdate: (id: string) => Promise<void>;
+  applyAllUpdates: () => Promise<void>;
+  scheduleComplianceCheck: () => Promise<void>;
+  enableAutoUpdates: () => Promise<boolean>;
 }
