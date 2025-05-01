@@ -1,3 +1,4 @@
+
 /**
  * Helper functions to safely access environment variables
  */
@@ -9,26 +10,12 @@ export function getAppUrl() {
 export function getSupabaseUrl() {
   // Use a fallback value for the Supabase URL if not defined in env variables
   // This ensures we never return an empty string which would cause the client initialization to fail
-  const envUrl = import.meta.env.VITE_SUPABASE_URL;
-  
-  if (!envUrl || envUrl === '') {
-    console.warn("VITE_SUPABASE_URL is not set! Using fallback URL.");
-    return "https://ofwxyctfzskeeniaaazw.supabase.co"; // Fallback URL
-  }
-  
-  return envUrl;
+  return import.meta.env.VITE_SUPABASE_URL || "https://ofwxyctfzskeeniaaazw.supabase.co";
 }
 
 export function getSupabaseAnonKey() {
   // Use the hardcoded anon key as fallback if not defined in env variables
-  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  
-  if (!envKey || envKey === '') {
-    console.warn("VITE_SUPABASE_ANON_KEY is not set! Using fallback key.");
-    return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo"; // Fallback key
-  }
-  
-  return envKey;
+  return import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9md3h5Y3RmenNrZWVuaWFhYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMjc2MzgsImV4cCI6MjA1OTcwMzYzOH0.0jE1ZlLt2VixvhJiw6kN0R_kfHlkryU4-Zvb_4VjQwo";
 }
 
 /**
