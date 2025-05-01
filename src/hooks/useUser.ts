@@ -1,7 +1,7 @@
 
 import { useAuth } from '@/context/AuthContext'; 
 import { normalizeUserObject } from '@/utils/authCompatibility';
-import { User } from '@/types/unified-types';
+import { User } from '@/types/fixed/User';
 
 export const useUser = () => {
   const auth = useAuth();

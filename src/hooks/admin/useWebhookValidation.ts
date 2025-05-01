@@ -6,8 +6,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import { WebhookType } from '@/utils/webhookTypes';
-import { validateWebhookUrlFormat } from '@/utils/validators/webhookValidator';
+import { WebhookType } from '@/types/unified-types';
+import { validateWebhookUrlFormat } from '@/utils/webhookValidation';
 
 interface ValidationResult {
   isValid: boolean | null;
@@ -28,7 +28,7 @@ export function useWebhookValidation(type: WebhookType) {
 
     try {
       // Use the imported validateWebhookUrlFormat function
-      const isValidFormat = validateWebhookUrlFormat(url, type);
+      const isValidFormat = validateWebhookUrlFormat(url);
       setIsValid(isValidFormat);
       
       if (!isValidFormat) {

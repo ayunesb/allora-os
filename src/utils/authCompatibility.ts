@@ -1,95 +1,58 @@
 
-import { User, Bot, WebhookEvent, ExecutiveMessage, WebhookType } from '@/types/unified-types';
+import { User as FixedUser } from '@/types/fixed/User';
 
 /**
- * Ensures a user object has all the required properties for the application
- * by filling in missing values with sensible defaults
+ * Normalizes user objects from different sources into a consistent User type
+ * This ensures all user objects have the required properties regardless of source
  */
-export function normalizeUserObject(user: any): User | null {
-  if (!user) return null;
+export function normalizeUserObject(rawUser: any | null | undefined): FixedUser | null {
+  if (!rawUser) return null;
   
+  // Ensure all required fields have values, with fallbacks
   return {
-    ...user,
-    // Ensure these fields are always available
-    id: user.id || '',
-    email: user.email || '',
-    name: user.name || 
-          (user.user_metadata ? 
-            `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : '') || '',
-    role: user.role || user.user_metadata?.role || 'user',
-    company_id: user.company_id || '',
-    company: user.company || null,
-    industry: user.industry || null,
-    app_metadata: user.app_metadata || { is_admin: user.role === 'admin' },
-    user_metadata: user.user_metadata || { firstName: '', lastName: '' },
-    avatar_url: user.avatar_url || 
-               (user.user_metadata ? user.user_metadata.avatar : null) || null,
-    created_at: user.created_at || new Date().toISOString(),
-    updated_at: user.updated_at || new Date().toISOString(),
+    id: rawUser.id || '',
+    email: rawUser.email || '',
+    name: rawUser.name || 
+          rawUser.user_metadata?.name || 
+          `${rawUser.user_metadata?.firstName || ''} ${rawUser.user_metadata?.lastName || ''}`.trim() || '',
+    role: rawUser.role || rawUser.user_metadata?.role || 'user',
+    company_id: rawUser.company_id || '',
+    company: rawUser.company || '',
+    industry: rawUser.industry || '',
+    avatar_url: rawUser.avatar_url || rawUser.user_metadata?.avatar || '',
+    created_at: rawUser.created_at || new Date().toISOString(),
+    updated_at: rawUser.updated_at || new Date().toISOString(),
+    app_metadata: {
+      is_admin: rawUser.app_metadata?.is_admin || rawUser.role === 'admin' || false,
+      ...(rawUser.app_metadata || {})
+    },
+    user_metadata: {
+      firstName: rawUser.user_metadata?.firstName || '',
+      lastName: rawUser.user_metadata?.lastName || '',
+      avatar: rawUser.user_metadata?.avatar || rawUser.avatar_url || '',
+      name: rawUser.user_metadata?.name || rawUser.name || '',
+      role: rawUser.user_metadata?.role || rawUser.role || 'user',
+      ...(rawUser.user_metadata || {})
+    }
   };
 }
 
 /**
- * Creates a facade around auth context to ensure all required properties
+ * Creates an compatibility layer for auth contexts to ensure consistent API
  */
-export function createAuthCompatibilityLayer(auth: any) {
-  if (!auth) return null;
+export function createAuthCompatibilityLayer(authContext: any) {
+  const user = normalizeUserObject(authContext?.user || authContext?.profile);
   
   return {
-    ...auth,
-    user: normalizeUserObject(auth.user),
-    profile: normalizeUserObject(auth.profile || auth.user),
-    isLoading: auth.isLoading || auth.loading || false,
-    loading: auth.loading || auth.isLoading || false
-  };
-}
-
-/**
- * Ensures webhook events have all properties in both naming styles
- */
-export function normalizeWebhookEvent(event: any): WebhookEvent {
-  if (!event) return null as any;
-  
-  return {
-    ...event,
-    eventType: event.eventType || event.event_type || 'unknown',
-    event_type: event.event_type || event.eventType || 'unknown',
-    webhookType: event.webhookType || event.webhook_type || 'custom' as WebhookType,
-    webhook_type: event.webhook_type || event.webhookType || 'custom' as WebhookType,
-    url: event.url || event.targetUrl,
-    targetUrl: event.targetUrl || event.url,
-    timestamp: event.timestamp || event.created_at || new Date().toISOString(),
-    type: event.type || event.webhookType || event.webhook_type || 'custom' // Add type field for components that expect it
-  };
-}
-
-/**
- * Ensures bot objects have all required properties
- */
-export function normalizeBot(bot: any): Bot | null {
-  if (!bot) return null;
-  
-  return {
-    ...bot,
-    id: bot.id || '',
-    name: bot.name || 'AI Advisor',
-    title: bot.title || bot.name || 'AI Advisor',
-    expertise: bot.expertise || 'General Business'
-  };
-}
-
-/**
- * Normalize executive message objects
- */
-export function normalizeExecutiveMessage(message: any): ExecutiveMessage {
-  if (!message) return null as any;
-  
-  return {
-    ...message,
-    id: message.id || '',
-    content: message.content || message.message_content || '',
-    message_content: message.message_content || message.content || '',
-    created_at: message.created_at || new Date().toISOString(),
-    status: message.status || 'unread'
+    user,
+    profile: user,
+    loading: authContext?.loading || authContext?.isLoading || false,
+    isLoading: authContext?.loading || authContext?.isLoading || false,
+    hasInitialized: authContext?.hasInitialized || true,
+    isEmailVerified: authContext?.isEmailVerified || true,
+    isSessionExpired: authContext?.isSessionExpired || false,
+    authError: authContext?.authError || null,
+    refreshSession: authContext?.refreshSession || (() => Promise.resolve(true)),
+    refreshProfile: authContext?.refreshProfile || (() => Promise.resolve())
   };
 }

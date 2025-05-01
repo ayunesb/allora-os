@@ -9,9 +9,9 @@ export interface UnifiedUser {
   email: string;
   name: string;
   role: 'admin' | 'user';
-  company_id: string | null;
-  company: string | null;
-  industry: string | null;
+  company_id: string;
+  company: string;
+  industry: string;
   created_at: string;
   updated_at: string;
   avatar_url?: string;
@@ -157,7 +157,7 @@ export interface ExtendedComplianceContextType {
 export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
 
 // Social media specific interfaces
-export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'YouTube';
+export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn' | 'TikTok';
 export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
 export type PostContentType = ContentType; // Alias for backward compatibility
 export type PostStatus = 'draft' | 'scheduled' | 'published' | 'failed' | 'archived';

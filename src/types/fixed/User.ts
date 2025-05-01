@@ -1,4 +1,8 @@
 
+/**
+ * Unified User type that all application code should reference
+ * This ensures consistency across the app and prevents type errors
+ */
 export interface User {
   id: string;
   email: string;

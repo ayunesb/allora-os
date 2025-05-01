@@ -1,75 +1,71 @@
 
-import { StandardResponse, successResponse, errorResponse } from './standardResponse';
-
 /**
- * Standardizes API responses throughout the application
- * @param data The data to include in the response
- * @param message A success message when data is present, or an error message when data is null
- * @param error Optional error details
- * @returns A standardized response object
+ * Standardizes API responses to ensure a consistent format
+ * @param result The result from the API call
+ * @param successMessage Default success message
+ * @param error Optional error object
  */
-export function standardizeApiResponse<T>(
-  data: T | null, 
-  message: string,
-  error?: any
-): StandardResponse<T> {
-  if (data === null && error) {
-    const errorMessage = error instanceof Error ? error.message : 
-      (typeof error === 'string' ? error : 'An unexpected error occurred');
-    return errorResponse(message, errorMessage);
+export function standardizeApiResponse(result: any, successMessage: string, error?: any) {
+  // If we have a direct result with success property, use that
+  if (result && typeof result.success === 'boolean') {
+    return {
+      success: result.success,
+      message: result.message || (result.success ? successMessage : 'Operation failed'),
+      data: result.data || null,
+      error: result.error || null,
+    };
   }
   
-  return successResponse(data as T, message);
+  // If we have an error, return an error response
+  if (error) {
+    const errorMessage = typeof error === 'object' && error !== null && 'message' in error
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : 'An unexpected error occurred';
+        
+    return {
+      success: false,
+      message: errorMessage,
+      data: null,
+      error,
+    };
+  }
+  
+  // Default success response
+  return {
+    success: true,
+    message: successMessage,
+    data: result || null,
+    error: null,
+  };
 }
 
 /**
- * Typed wrapper for fetch API that standardizes responses
- * @param url The URL to fetch
- * @param options Fetch options
- * @returns A standardized response
+ * Safely extracts error messages from various error object formats
+ * @param error Error object from API or exception
  */
-export async function typedFetch<T>(
-  url: string, 
-  options?: RequestInit
-): Promise<StandardResponse<T>> {
-  try {
-    const response = await fetch(url, options);
+export function extractErrorMessage(error: any): string {
+  if (!error) return 'Unknown error occurred';
+  
+  if (typeof error === 'string') return error;
+  
+  if (error instanceof Error) return error.message;
+  
+  if (typeof error === 'object') {
+    // Handle Supabase error format
+    if (error.message) return error.message;
     
-    if (!response.ok) {
-      return errorResponse<T>(
-        `Request failed with status ${response.status}`, 
-        await response.text(), 
-        response.status.toString()
-      );
-    }
-    
-    const data = await response.json();
-    return successResponse<T>(data);
-  } catch (error) {
-    return errorResponse<T>(
-      'Network request failed', 
-      error instanceof Error ? error.message : 'Unknown error'
-    );
-  }
-}
-
-/**
- * Handles errors consistently across the application
- * @param error The error to handle
- * @param fallbackMessage A fallback message if the error doesn't contain one
- * @returns A standardized error object
- */
-export function handleApiError<T>(error: any, fallbackMessage = 'An error occurred'): StandardResponse<T> {
-  if (error && 'success' in error && error.success === false) {
-    // Already a StandardResponse format
-    return error as StandardResponse<T>;
+    // Handle API response error format
+    if (error.error) return typeof error.error === 'string' 
+      ? error.error 
+      : extractErrorMessage(error.error);
+      
+    // Handle error object with details
+    if (error.details) return typeof error.details === 'string'
+      ? error.details
+      : JSON.stringify(error.details);
   }
   
-  const errorMessage = error instanceof Error ? error.message : 
-    (typeof error === 'string' ? error : fallbackMessage);
-  
-  return errorResponse<T>(
-    fallbackMessage,
-    errorMessage
-  );
+  return 'An unexpected error occurred';
 }

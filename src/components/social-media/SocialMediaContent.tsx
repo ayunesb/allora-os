@@ -64,8 +64,11 @@ export function SocialMediaContent() {
     toast.info('Filters have been cleared');
   };
   
+  // Format error properly without using instanceof
   const formattedError = error 
-    ? (error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error')) 
+    ? (typeof error === 'object' && error !== null && 'message' in error 
+        ? error 
+        : new Error(typeof error === 'string' ? error : 'Unknown error')) 
     : null;
   
   const handleCreatePost = async (data: any) => {
@@ -144,6 +147,15 @@ export function SocialMediaContent() {
     }
   };
   
+  // Function to convert Date to string for the social media post dialog
+  const handleSubmitPost = (data: any) => {
+    // Convert Date objects to strings if needed
+    if (data.scheduled_date && data.scheduled_date instanceof Date) {
+      data.scheduled_date = format(data.scheduled_date, 'yyyy-MM-dd');
+    }
+    return createPost(data);
+  };
+  
   return (
     <div className="space-y-6">
       <SocialMediaHeader 
@@ -190,7 +202,7 @@ export function SocialMediaContent() {
       <DialogCreate
         open={isCreateDialogOpen}
         onOpenChange={closeCreateDialog}
-        onSubmit={handleCreatePost}
+        onSubmit={handleSubmitPost}
       />
     </div>
   );
