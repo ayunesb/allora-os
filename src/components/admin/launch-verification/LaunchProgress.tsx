@@ -4,7 +4,13 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle } from "lucide-react";
 import { LaunchProgressProps } from './types';
 
-export function LaunchProgress({ isComplete, launchStep }: LaunchProgressProps) {
+export function LaunchProgress({ 
+  totalItems, 
+  completedItems, 
+  status, 
+  isComplete, 
+  launchStep 
+}: LaunchProgressProps) {
   return (
     <div className="animate-in fade-in space-y-4 bg-primary-foreground border border-border/70 rounded-lg p-4">
       {isComplete ? (

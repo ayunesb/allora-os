@@ -11,7 +11,12 @@ import { ExecutiveAgentProfile, AgentRunOptions } from '@/types/Agent';
  */
 export async function testExecutiveAgent() {
   // Select the CEO profile
-  const executive: ExecutiveAgentProfile = executiveProfiles.ceo;
+  const executive: ExecutiveAgentProfile = {
+    ...executiveProfiles.ceo,
+    // Add the required properties that are missing
+    personality: "Decisive and visionary",
+    decisionStyle: "Strategic and growth-oriented"
+  };
   
   // Define a test task
   const task = "Launch a new AI-powered marketplace for small businesses";

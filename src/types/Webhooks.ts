@@ -1,8 +1,18 @@
 
 export type WebhookType = 'zapier' | 'custom' | 'slack' | 'github' | 'stripe' | 'notion';
 
+export type BusinessEventType = 
+  | 'campaign_created' 
+  | 'strategy_approved' 
+  | 'lead_converted'
+  | 'revenue_milestone'
+  | 'user_onboarded'
+  | 'campaign_launched'
+  | 'lead_added'
+  | 'test_event';
+
 export interface BusinessEventPayload {
-  eventType: string;
+  eventType: BusinessEventType | string;
   data: Record<string, any>;
 }
 

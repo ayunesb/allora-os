@@ -1,140 +1,131 @@
 
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { ValidationResults } from '@/components/admin/launch-verification/types';
-import { toast } from 'sonner';
+import { useState, useCallback } from 'react';
+import { ValidationResultsUI } from '@/components/admin/launch-verification/types';
 
-export function useVerification(companyId?: string) {
+export const useVerification = (companyId: string | undefined) => {
   const [isChecking, setIsChecking] = useState(false);
-  const [results, setResults] = useState<ValidationResults | null>(null);
+  const [results, setResults] = useState<ValidationResultsUI | null>(null);
   const [isReady, setIsReady] = useState<boolean | null>(null);
+  
+  // Testing states
   const [isAddingDemo, setIsAddingDemo] = useState(false);
   const [isVerifyingTables, setIsVerifyingTables] = useState(false);
   const [isCheckingIndexes, setIsCheckingIndexes] = useState(false);
   const [isVerifyingRLS, setIsVerifyingRLS] = useState(false);
   const [isVerifyingFunctions, setIsVerifyingFunctions] = useState(false);
-
-  const runChecks = async () => {
+  
+  const runChecks = useCallback(async () => {
+    if (!companyId) {
+      console.error("No company ID provided to verification hook");
+      return;
+    }
+    
     setIsChecking(true);
     
     try {
-      // Simulate API call for verification checks
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Mock verification process
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const mockResults: ValidationResults = {
-        tables: [
-          { name: 'users', status: 'success', message: 'Table exists with all required columns' },
-          { name: 'profiles', status: 'success', message: 'Table exists with all required columns' },
-          { name: 'strategies', status: 'success', message: 'Table exists with all required columns' },
-          { name: 'campaigns', status: 'success', message: 'Table exists with all required columns' },
+      const mockResults: ValidationResultsUI = {
+        isReady: true,
+        databaseTables: [
+          { name: 'profiles', status: 'success', message: 'Table exists' },
+          { name: 'companies', status: 'success', message: 'Table exists' }
         ],
-        functions: [
-          { name: 'handle_new_user', status: 'success', message: 'Function exists and is properly secured' },
-          { name: 'get_user_role', status: 'success', message: 'Function exists and is properly secured' },
+        databaseIndexes: [
+          { name: 'profiles_company_id_idx', status: 'success', message: 'Index exists' }
+        ],
+        databaseFunctions: [
+          { name: 'get_user_profile', status: 'success', message: 'Function exists' }
+        ],
+        rlsPolicies: [
+          { name: 'profiles_allow_select', status: 'success', message: 'Policy exists' }
         ],
         policies: [
-          { name: 'users:select (auth.uid() = id)', status: 'success', message: 'Policy exists and restricts access properly' },
-          { name: 'profiles:select (auth.uid() = id)', status: 'success', message: 'Policy exists and restricts access properly' },
-        ],
-        indexes: [
-          { name: 'profiles_user_id_idx', status: 'success', message: 'Index exists on profiles.user_id' },
-          { name: 'strategies_tenant_id_idx', status: 'success', message: 'Index exists on strategies.tenant_id' },
+          { name: 'Data retention policy', status: 'success', message: 'Policy configured' }
         ]
       };
       
       setResults(mockResults);
-      
-      // Determine if the system is ready based on the results
-      const hasErrors = Object.values(mockResults).some(category => 
-        category?.some(item => item.status === 'error')
-      );
-      
-      setIsReady(!hasErrors);
-      
+      setIsReady(mockResults.isReady);
     } catch (error) {
-      console.error('Error running verification checks:', error);
-      toast.error('Failed to run verification checks');
+      console.error("Error running verification checks:", error);
       setIsReady(false);
     } finally {
       setIsChecking(false);
     }
-  };
-
-  const handleAddDemoData = async () => {
+  }, [companyId]);
+  
+  const handleAddDemoData = useCallback(async () => {
     setIsAddingDemo(true);
-    
     try {
-      // Simulate API call for adding demo data
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      toast.success('Demo data added successfully');
+      // Mock adding demo data
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Success
     } catch (error) {
-      console.error('Error adding demo data:', error);
-      toast.error('Failed to add demo data');
+      console.error("Error adding demo data:", error);
     } finally {
       setIsAddingDemo(false);
     }
-  };
-
-  const verifyRequiredTables = async () => {
+  }, []);
+  
+  const verifyRequiredTables = useCallback(async () => {
     setIsVerifyingTables(true);
-    
     try {
-      // Simulate API call for verifying required tables
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      toast.success('Tables verification completed');
+      // Mock verification
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Success
     } catch (error) {
-      console.error('Error verifying tables:', error);
-      toast.error('Failed to verify tables');
+      console.error("Error verifying tables:", error);
     } finally {
       setIsVerifyingTables(false);
     }
-  };
-
-  const checkDatabaseIndexes = async () => {
+  }, []);
+  
+  const checkDatabaseIndexes = useCallback(async () => {
     setIsCheckingIndexes(true);
-    
     try {
-      // Simulate API call for checking database indexes
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      toast.success('Index check completed');
+      // Mock verification
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Success
     } catch (error) {
-      console.error('Error checking indexes:', error);
-      toast.error('Failed to check indexes');
+      console.error("Error checking indexes:", error);
     } finally {
       setIsCheckingIndexes(false);
     }
-  };
-
-  const verifyRLSPolicies = async () => {
+  }, []);
+  
+  const verifyRLSPolicies = useCallback(async () => {
     setIsVerifyingRLS(true);
-    
     try {
-      // Simulate API call for verifying RLS policies
-      await new Promise(resolve => setTimeout(resolve, 1700));
-      toast.success('RLS policies verification completed');
+      // Mock verification
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // Success
     } catch (error) {
-      console.error('Error verifying RLS policies:', error);
-      toast.error('Failed to verify RLS policies');
+      console.error("Error verifying RLS policies:", error);
     } finally {
       setIsVerifyingRLS(false);
     }
-  };
-
-  const verifyDatabaseFunctions = async () => {
+  }, []);
+  
+  const verifyDatabaseFunctions = useCallback(async () => {
     setIsVerifyingFunctions(true);
-    
     try {
-      // Simulate API call for verifying database functions
-      await new Promise(resolve => setTimeout(resolve, 1300));
-      toast.success('Database functions verification completed');
+      // Mock verification
+      await new Promise(resolve => setTimeout(resolve, 900));
+      
+      // Success
     } catch (error) {
-      console.error('Error verifying functions:', error);
-      toast.error('Failed to verify functions');
+      console.error("Error verifying database functions:", error);
     } finally {
       setIsVerifyingFunctions(false);
     }
-  };
-
+  }, []);
+  
   return {
     isChecking,
     results,
@@ -151,4 +142,4 @@ export function useVerification(companyId?: string) {
     verifyRLSPolicies,
     verifyDatabaseFunctions
   };
-}
+};

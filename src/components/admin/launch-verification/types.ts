@@ -27,10 +27,14 @@ export interface DatabaseVerificationProps {
 }
 
 export interface LaunchInfoProps {
-  readinessStatus: 'pending' | 'ready' | 'not-ready';
-  errorCount: number;
-  warningCount: number;
+  title: string;
+  description?: string;
+  icon?: React.ReactNode;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  children?: React.ReactNode;
 }
+
+export interface LaunchInfoBoxProps extends LaunchInfoProps {}
 
 export interface CampaignPayload {
   campaignId: string;
@@ -49,7 +53,6 @@ export interface LeadPayload {
   source: string;
 }
 
-// Add other required types that were missing
 export interface ChecklistItem {
   id: string;
   name: string;
@@ -88,9 +91,15 @@ export interface LaunchProgressProps {
   totalItems: number;
   completedItems: number;
   status: 'pending' | 'in-progress' | 'completed' | 'error';
+  isComplete?: boolean;
+  launchStep?: number;
 }
 
-export interface ValidationResultsUI extends ValidationResults {
-  // Additional UI specific properties if needed
+export interface ValidationResultsUI {
   isReady?: boolean;
+  databaseTables?: any[];
+  databaseIndexes?: any[];
+  databaseFunctions?: any[];
+  rlsPolicies?: any[];
+  policies?: any[];
 }

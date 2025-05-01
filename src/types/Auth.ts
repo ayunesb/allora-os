@@ -6,4 +6,11 @@ export interface AuthContextProps {
   isLoading: boolean;
   login: () => void;
   logout: () => void;
+  profile?: User;
+  refreshProfile?: () => Promise<void>;
+  refreshSession?: () => Promise<boolean>;
+  isEmailVerified?: boolean;
+  authError?: Error | string;
+  isSessionExpired?: boolean;
+  hasInitialized?: boolean;
 }

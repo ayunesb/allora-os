@@ -3,9 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { VerificationContent, VerificationActions } from './launch-verification';
-import { useVerification } from '@/hooks/admin/useVerification';
+import { VerificationContent } from './launch-verification/VerificationContent';
+import { VerificationActions } from './launch-verification/VerificationActions';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useVerification } from '@/hooks/admin/useVerification';
 
 export default function LaunchVerification() {
   const { profile } = useAuth();

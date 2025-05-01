@@ -1,14 +1,9 @@
 
 import { toast } from 'sonner';
-import { CampaignPayload, LeadPayload, WebhookResult } from '@/types/Webhooks';
+import { CampaignPayload, LeadPayload, WebhookResult, BusinessEventPayload } from '@/types/Webhooks';
 import { BusinessEventType } from '@/utils/webhookTypes';
 
 export type { BusinessEventType };
-
-export interface BusinessEventPayload {
-  eventType: BusinessEventType;
-  data: Record<string, any>;
-}
 
 export const useZapier = () => {
   const triggerWebhook = async (url: string, payload: any): Promise<WebhookResult> => {
@@ -62,7 +57,7 @@ export const useZapier = () => {
   
   const triggerWorkflow = async (
     webhookUrl: string,
-    eventType: string,
+    eventType: BusinessEventType,
     data: Record<string, any>
   ): Promise<WebhookResult> => {
     return triggerWebhook(webhookUrl, {
@@ -94,7 +89,7 @@ export const triggerBusinessEvent = async (
 // Export triggerWorkflow for compatibility
 export const triggerWorkflow = async (
   webhookUrl: string,
-  eventType: string,
+  eventType: BusinessEventType,
   data: Record<string, any>
 ): Promise<WebhookResult> => {
   console.log(`Simulating workflow trigger: ${eventType}`, data);

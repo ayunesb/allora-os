@@ -8,7 +8,8 @@ export type BusinessEventType =
   | 'revenue_milestone'
   | 'user_onboarded'
   | 'campaign_launched'
-  | 'lead_added';
+  | 'lead_added'
+  | 'test_event';
 
 export interface BusinessEventPayload {
   eventType: BusinessEventType;
