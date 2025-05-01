@@ -4,6 +4,7 @@ export interface WebhookEvent {
   webhookType: WebhookType;
   targetUrl: string;
   event_type: string;
+  eventType?: string;  // Adding for backward compatibility
   status: 'success' | 'failed' | 'pending';
   timestamp: string;
   payload?: any;
@@ -38,6 +39,7 @@ export type BusinessEventType =
   | 'user_onboarded'
   | 'campaign_launched'
   | 'lead_added'
+  | 'test_webhook'
   | 'test_event';
 
 export interface WebhookResult {

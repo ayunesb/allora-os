@@ -4,6 +4,7 @@ import { User } from './User';
 export interface AuthContextProps {
   user: User | null;
   isLoading: boolean;
+  loading?: boolean;
   login: () => void;
   logout: () => void;
   profile?: User;

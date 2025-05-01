@@ -1,145 +1,124 @@
-
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { getExecutiveImage } from "@/utils/ai-executives";
-import { formatRoleTitle } from "@/utils/consultation/botRoleUtils";
-import { useBotConsultation } from "@/components/bot-detail/useBotConsultation";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Send, Mic, MicOff, RefreshCw } from "lucide-react";
 import { ChatMessageList } from "@/components/chat/ChatMessageList";
-import { ChatInput } from "@/components/chat/ChatInput";
-import { VoiceControls } from "./VoiceControls";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { IndustryExpertSelector } from "@/components/ai-bots/IndustryExpertSelector";
+import { useBotConsultation } from '@/components/bot-detail/useBotConsultation';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BotChatPanelProps {
-  selectedBot: any;
-  onSelectBot: (bot: any) => void;
-  allBots: any[];
+  botId: string;
+  title?: string;
+  description?: string;
+  className?: string;
 }
 
-const BotChatPanel: React.FC<BotChatPanelProps> = ({ 
-  selectedBot, 
-  onSelectBot,
-  allBots 
-}) => {
-  const [activeTab, setActiveTab] = useState("chat");
-  const [selectedIndustryBot, setSelectedIndustryBot] = useState<any | null>(null);
+export function BotChatPanel({ 
+  botId, 
+  title = "AI Assistant", 
+  description,
+  className = ""
+}: BotChatPanelProps) {
+  const [inputValue, setInputValue] = useState("");
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
   
-  const currentBot = selectedIndustryBot || selectedBot;
-  
-  const { 
-    bot, 
-    messages, 
-    isLoading, 
+  // Use the hook with just the botId parameter
+  const {
+    messages,
+    sendMessage,
+    isLoading,
     isTyping,
+    error,
+    clearMessages,
     isVoiceEnabled,
     isListening,
-    handleSendMessage, 
-    clearConversation,
     toggleVoiceInterface,
-    startVoiceRecognition 
-  } = useBotConsultation(
-    currentBot?.name, 
-    currentBot?.role,
-    currentBot?.industry
-  );
-
-  // Reset selected industry bot when main selected bot changes
-  useEffect(() => {
-    setSelectedIndustryBot(null);
-  }, [selectedBot]);
-
-  const handleIndustryExpertSelect = (expert: { name: string; role: string; industry: string }) => {
-    setSelectedIndustryBot({
-      name: expert.name,
-      role: expert.role,
-      title: formatRoleTitle(expert.role),
-      industry: expert.industry,
-      avatar: getExecutiveImage(expert.name)
-    });
-    setActiveTab("chat");
+    startVoiceRecognition
+  } = useBotConsultation(botId);
+  
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isInputDisabled) return;
+    
+    setIsInputDisabled(true);
+    await sendMessage(inputValue);
+    setInputValue("");
+    setIsInputDisabled(false);
   };
-
-  if (!currentBot) {
-    return (
-      <Card className="border shadow-sm">
-        <CardContent className="p-6">
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Select an executive advisor to start a conversation</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  
+  // Handle voice button click
+  const handleVoiceClick = () => {
+    if (isListening) {
+      // Stop listening
+      toggleVoiceInterface?.();
+    } else {
+      // Start listening
+      startVoiceRecognition?.();
+    }
+  };
+  
   return (
-    <div className="space-y-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="chat">Conversation</TabsTrigger>
-            <TabsTrigger value="experts">Industry Experts</TabsTrigger>
-          </TabsList>
+    <Card className={`flex flex-col h-[500px] ${className}`}>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">{title}</CardTitle>
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+      </CardHeader>
+      
+      <CardContent className="flex-grow overflow-y-auto pb-0">
+        {isLoading && messages.length === 0 ? (
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-12 w-5/6" />
+          </div>
+        ) : (
+          <ChatMessageList 
+            messages={messages} 
+            isTyping={isTyping}
+            onClearChat={clearMessages}
+          />
+        )}
+      </CardContent>
+      
+      <CardFooter className="pt-4 border-t">
+        <form onSubmit={handleSubmit} className="flex w-full gap-2">
+          <Input
+            placeholder="Type your message..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            disabled={isInputDisabled}
+            className="flex-grow"
+          />
           
-          {activeTab === "chat" && isVoiceEnabled !== undefined && (
-            <VoiceControls
-              isVoiceEnabled={isVoiceEnabled}
-              isListening={isListening || false}
-              toggleVoiceInterface={toggleVoiceInterface || (() => {})}
-              startVoiceRecognition={startVoiceRecognition || (() => {})}
-            />
+          {isVoiceEnabled && (
+            <Button 
+              type="button" 
+              size="icon" 
+              variant={isListening ? "destructive" : "outline"}
+              onClick={handleVoiceClick}
+              disabled={isInputDisabled}
+            >
+              {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+            </Button>
           )}
-        </div>
-        
-        <TabsContent value="chat" className="mt-4 space-y-4">
-          <Card className="border shadow-sm">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 border">
-                  <AvatarImage src={currentBot?.avatar || getExecutiveImage(currentBot?.name)} />
-                  <AvatarFallback>{currentBot?.name?.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-lg">{currentBot?.name}</CardTitle>
-                  <div className="flex gap-2 items-center">
-                    <span className="text-sm text-muted-foreground">{currentBot?.title}</span>
-                    {currentBot?.industry && (
-                      <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
-                        {currentBot.industry}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ChatMessageList 
-                messages={messages}
-                isTyping={isTyping}
-                onClearChat={clearConversation}
-              />
-              
-              <div className="mt-4">
-                <ChatInput 
-                  onSendMessage={handleSendMessage}
-                  isLoading={isLoading}
-                  placeholder={`Ask ${currentBot?.name} a question...`}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="experts" className="mt-4">
-          <Card className="border shadow-sm">
-            <CardContent className="p-6">
-              <IndustryExpertSelector onSelectExpert={handleIndustryExpertSelect} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+          
+          <Button 
+            type="submit" 
+            size="icon" 
+            disabled={!inputValue.trim() || isInputDisabled}
+          >
+            {isInputDisabled ? (
+              <RefreshCw size={18} className="animate-spin" />
+            ) : (
+              <Send size={18} />
+            )}
+          </Button>
+        </form>
+      </CardFooter>
+    </Card>
   );
-};
-
-export default BotChatPanel;
+}

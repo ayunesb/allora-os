@@ -1,5 +1,7 @@
-
 import { WebhookType } from '@/types/fixed/Webhook';
+
+// Export WebhookType for use in other components
+export { WebhookType };
 
 const VALID_WEBHOOK_PATTERNS = {
   zapier: /^https:\/\/hooks\.zapier\.com\/.+/i,
