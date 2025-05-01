@@ -1,5 +1,6 @@
 
 // Central configuration file for the application
+import { getSupabaseUrl, getSupabaseAnonKey } from '@/utils/env';
 
 export const APP_NAME = 'Allora AI';
 export const APP_VERSION = '1.0.0';
@@ -11,8 +12,10 @@ export const API_VERSION = 'v1';
 
 // Supabase Configuration
 export const SUPABASE_CONFIG = {
-  url: import.meta.env.VITE_SUPABASE_URL || '',
-  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+  url: getSupabaseUrl(),
+  anonKey: getSupabaseAnonKey(),
+  // Flag to indicate if we're using fallback values
+  usingFallback: !import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY
 };
 
 // Feature Flags

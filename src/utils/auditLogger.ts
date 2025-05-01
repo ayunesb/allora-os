@@ -2,15 +2,23 @@
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
 
+type SecurityEventDetails = {
+  user: string;
+  action: string;
+  resource: string;
+  details?: Record<string, any>;
+  severity?: 'low' | 'medium' | 'high';
+};
+
 /**
  * Log a security event to the audit log
- * 
- * @param eventType The type of security event
- * @param details Details about the event
- * @param userId Optional user ID associated with the event
- * @param severity Severity level of the event (1-5, where 5 is most severe)
- * @param metadata Any additional metadata to log
- * @returns Success status
+ */
+export async function logSecurityEvent(
+  eventDetails: SecurityEventDetails
+): Promise<boolean>;
+
+/**
+ * Legacy signature for backwards compatibility
  */
 export async function logSecurityEvent(
   eventType: string, 
@@ -18,17 +26,49 @@ export async function logSecurityEvent(
   userId?: string, 
   severity: number = 1,
   metadata?: Record<string, any>
+): Promise<boolean>;
+
+export async function logSecurityEvent(
+  eventTypeOrDetails: string | SecurityEventDetails, 
+  details?: string, 
+  userId?: string, 
+  severity: number = 1,
+  metadata?: Record<string, any>
 ): Promise<boolean> {
   try {
+    // Handle new format
+    if (typeof eventTypeOrDetails === 'object') {
+      const { user, action, resource, details, severity } = eventTypeOrDetails;
+      
+      // Log to console in development
+      if (process.env.NODE_ENV === 'development') {
+        logger.warn(`SECURITY EVENT [${severity}]: ${action} - ${resource} ${user ? `(User: ${user})` : ''}`);
+      }
+      
+      // Log to audit_logs table in Supabase
+      await supabase.from('agent_logs').insert({
+        type: 'security',
+        event: action,
+        details: JSON.stringify(details || {}),
+        user_id: user || null,
+        severity: severity === 'high' ? 3 : severity === 'medium' ? 2 : 1,
+        metadata: details || {},
+        tenant_id: 'development'
+      });
+      
+      return true;
+    }
+    
+    // Legacy format
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      logger.warn(`SECURITY EVENT [${severity}]: ${eventType} - ${details} ${userId ? `(User: ${userId})` : ''}`);
+      logger.warn(`SECURITY EVENT [${severity}]: ${eventTypeOrDetails} - ${details} ${userId ? `(User: ${userId})` : ''}`);
     }
     
     // Log to audit_logs table in Supabase
     await supabase.from('agent_logs').insert({
       type: 'security',
-      event: eventType,
+      event: eventTypeOrDetails,
       details,
       user_id: userId || null,
       severity,
