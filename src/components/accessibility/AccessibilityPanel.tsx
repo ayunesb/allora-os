@@ -6,13 +6,13 @@ import { Slider } from '@/components/ui/slider';
 import { Settings, Accessibility } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { useAccessibility } from '@/context/AccessibilityContext';
+import { useAccessibility } from '@/hooks/useAccessibility';
 import { ExtendedAccessibilityContextType } from '@/types/unified-types';
 
 export function AccessibilityPanel() {
   const [open, setOpen] = useState(false);
   
-  // Cast to extended type to ensure all properties are available
+  // Use our extended type to ensure all properties are available
   const {
     screenReaderFriendly, 
     highContrast, 
@@ -26,7 +26,7 @@ export function AccessibilityPanel() {
     toggleReducedMotion = () => {},
     toggleLargeText = () => {},
     toggleInvertColors = () => {},
-  } = useAccessibility() as ExtendedAccessibilityContextType;
+  } = useAccessibility();
 
   const handleFontSizeChange = (value: number[]) => {
     setFontSize(value[0]);

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Clock } from 'lucide-react';
-import { useCompliance } from '@/context/ComplianceContext';
+import { useCompliance } from '@/hooks/useCompliance';
 import { formatRelativeTime } from '@/utils/dateUtils';
 import { Skeleton } from '@/components/ui/skeleton';
 
