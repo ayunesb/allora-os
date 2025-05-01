@@ -10,6 +10,7 @@ export * from './fixed/Campaign';
 export * from './fixed/Compliance';
 export * from './fixed/Message';
 export * from './fixed/Bot';
+export * from './fixed/SocialMedia';
 
 // Export all from unified types
 export * from './unified-types';

@@ -1,75 +1,75 @@
 
-// This file unifies and re-exports all fixed types to ensure consistency
 import { User } from './fixed/User';
-import { WebhookType, WebhookEvent, BusinessEventType, BusinessEventPayload, WebhookResult } from './fixed/Webhook';
-import { SocialPlatform, ContentType, PostStatus, SocialMediaPost, SocialMediaCalendarFilters } from './fixed/SocialMedia';
+import { WebhookType, BusinessEventType, WebhookEvent, WebhookConfig, WebhookResult, BusinessEventPayload } from './fixed/Webhook';
+import { ExtendedComplianceContextType } from './fixed/Compliance';
+import { ExtendedAccessibilityContextType } from './fixed/Accessibility';
 
-// Re-export all types for consistent usage across the application
-export type {
-  User,
-  WebhookType,
-  WebhookEvent as UnifiedWebhookEvent,
-  BusinessEventType,
-  BusinessEventPayload,
-  WebhookResult,
-  SocialPlatform,
-  ContentType,
-  PostStatus,
-  SocialMediaPost,
-  SocialMediaCalendarFilters
-};
+// Social Media Types
+export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok' | 'YouTube';
+export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
+export type PostStatus = 'draft' | 'scheduled' | 'published' | 'failed';
 
-// Backward compatibility type aliases
-export type UserRole = 'admin' | 'user';
-export type WebhookStatus = 'success' | 'failed' | 'pending';
-export type ChecklistItemStatus = 'pending' | 'error' | 'completed' | 'warning' | 'in-progress';
-
-// Extended types for contexts
-export interface ExtendedAccessibilityContextType {
-  screenReaderFriendly: boolean;
-  highContrast: boolean;
-  reducedMotion: boolean;
-  largeText: boolean;
-  invertColors: boolean;
-  fontSize: number;
-  setFontSize: (size: number) => void;
-  toggleScreenReaderFriendly: () => void;
-  toggleHighContrast: () => void;
-  toggleReducedMotion: () => void;
-  toggleLargeText: () => void;
-  toggleInvertColors: () => void;
-  checkForUpdates: () => void;
-  setAutoUpdate: (value: boolean) => void;
-  isCheckingUpdates: boolean;
-  lastChecked: string | null;
-  autoUpdate: boolean;
-  updatePreference: (key: string, value: any) => void;
+export interface SocialMediaPost {
+  id: string;
+  title: string;
+  content: string;
+  platform: SocialPlatform;
+  content_type: ContentType;
+  status: PostStatus;
+  is_approved: boolean;
+  scheduled_date: string;
+  publish_time: string;
+  created_at: string;
+  updated_at: string;
+  published_at?: string;
+  company_id: string;
+  media_urls: string[];
+  link_url: string;
+  tags: string[];
+  campaign_id?: string;
 }
 
-export interface ExtendedComplianceContextType {
-  isLoaded: boolean;
-  error: Error | null;
-  checkForUpdates: () => void;
-  setAutoUpdate: (value: boolean) => void;
-  isCheckingUpdates: boolean;
-  lastChecked: string | null;
-  autoUpdate: boolean;
-  updatePreference: (key: string, value: any) => void;
-  pendingUpdates: any[];
-  isApplyingUpdate: boolean;
-  applyUpdate: (id: string) => Promise<void>;
-  applyAllUpdates: () => Promise<void>;
-  scheduleComplianceCheck: () => Promise<void>;
-  enableAutoUpdates: () => Promise<boolean>;
+export interface CreatePostInput {
+  title: string;
+  content: string;
+  platform: SocialPlatform;
+  content_type: ContentType;
+  scheduled_date?: string;
+  publish_time?: string;
+  media_urls?: string[];
+  link_url?: string;
+  tags?: string[];
+  campaign_id?: string;
 }
 
-// Add UnifiedExecutiveMessage interface
+export interface SocialMediaCalendarFilters {
+  platform?: SocialPlatform;
+  content_type?: ContentType;
+  status?: PostStatus;
+  date_range?: [Date | null, Date | null];
+  campaign_id?: string;
+  search_query?: string;
+}
+
+// Executive Message Type
 export interface UnifiedExecutiveMessage {
   id: string;
   content: string;
-  from_executive: boolean;
   created_at: string;
-  to_executive?: boolean;
-  message_content?: string;
-  status?: string;
+  from_executive: boolean;
+  to_executive: boolean;
+  status: string;
 }
+
+// Re-export key types
+export type {
+  User,
+  WebhookType,
+  BusinessEventType,
+  WebhookEvent,
+  WebhookConfig,
+  WebhookResult,
+  BusinessEventPayload,
+  ExtendedComplianceContextType,
+  ExtendedAccessibilityContextType
+};
