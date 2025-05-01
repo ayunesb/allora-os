@@ -1,155 +1,112 @@
 import React, { useState, useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { fetchMessagesForExecutive } from "@/agents/meshNetwork";
+import { fetchMessagesForExecutive, ExecutiveMessage } from "@/agents/meshNetwork";
 import { generateMessageTemplate } from "@/agents/promptTemplates";
 import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
-import { MoreVertical, Send, User } from "lucide-react";
 
-interface ExecutiveProfile {
-  name: string;
-  role: string;
+interface ExecutiveMessagesProps {
+  executiveName: string;
+  executiveRole?: string;
   avatarUrl?: string;
 }
 
-interface Message {
-  id: string;
-  content: string;
-  sender: string;
-  timestamp: string;
-}
-
-export default function ExecutiveMessages({ executive }: { executive: ExecutiveProfile }) {
-  const [messages, setMessages] = useState<Message[]>([]);
+export const ExecutiveMessages: React.FC<ExecutiveMessagesProps> = ({
+  executiveName,
+  executiveRole,
+  avatarUrl
+}) => {
+  const [messages, setMessages] = useState<ExecutiveMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user, profile } = useAuth();
-  const { toast } = useToast();
+  const { user } = useAuth();
   
   useEffect(() => {
     const loadMessages = async () => {
-      setIsLoading(true);
-      setError(null);
-      
       try {
-        const fetchedMessages = await fetchMessagesForExecutive(executive.name);
-        
-        // Map the fetched messages to the Message interface
-        const formattedMessages = fetchedMessages.map(msg => ({
-          id: msg.id,
-          content: msg.message_content,
-          sender: msg.from_executive,
-          timestamp: msg.created_at,
-        }));
-        
-        setMessages(formattedMessages);
-      } catch (err: any) {
-        console.error("Error fetching messages:", err);
-        setError(err.message || "Failed to load messages");
-        toast({
-          variant: "destructive",
-          title: "Failed to load messages",
-          description: "There was an error fetching the executive messages."
-        });
+        setIsLoading(true);
+        const executiveMessages = await fetchMessagesForExecutive(executiveName);
+        setMessages(executiveMessages);
+      } catch (error) {
+        console.error("Failed to fetch executive messages:", error);
       } finally {
         setIsLoading(false);
       }
     };
     
     loadMessages();
-  }, [executive.name, toast]);
+  }, [executiveName]);
   
-  const handleGenerateMessage = async () => {
-    // Mock implementation for generating a message
-    const newMessageContent = `[DRAFT] Strategic insight for ${executive.name} from ${profile?.name}`;
-    
-    // Optimistically update the UI
-    setMessages(prevMessages => [
-      ...prevMessages,
-      {
-        id: `temp-${Date.now()}`,
-        content: newMessageContent,
-        sender: profile?.name || 'You',
-        timestamp: new Date().toISOString(),
-      }
-    ]);
-    
-    toast({
-      title: "Message Generated",
-      description: "A draft message has been added to the conversation."
-    });
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase();
   };
-
+  
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <User className="h-4 w-4" />
-          {executive.name}
+    <Card className="w-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg flex items-center gap-2">
+          Messages
+          {messages.filter(m => !m.read).length > 0 && (
+            <Badge variant="destructive" className="rounded-full h-5 min-w-5 flex items-center justify-center p-1">
+              {messages.filter(m => !m.read).length}
+            </Badge>
+          )}
         </CardTitle>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleGenerateMessage}>
-              Generate Message
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Profile</DropdownMenuItem>
-            <DropdownMenuItem>Send Feedback</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <CardDescription>Communications with other executives</CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[150px] w-full pr-2">
-          {isLoading ? (
-            <div className="text-muted-foreground">Loading messages...</div>
-          ) : error ? (
-            <div className="text-destructive">{error}</div>
-          ) : messages.length === 0 ? (
-            <div className="text-muted-foreground">No messages yet.</div>
-          ) : (
-            <div className="space-y-2">
+        {isLoading ? (
+          <div className="flex items-center justify-center p-6">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : messages.length > 0 ? (
+          <ScrollArea className="h-[320px] pr-4">
+            <div className="space-y-4">
               {messages.map((message) => (
-                <div key={message.id} className="text-sm">
-                  <div className="font-bold">{message.sender}</div>
-                  <div className="text-muted-foreground">{message.content}</div>
-                  <div className="text-xs text-gray-500">{new Date(message.timestamp).toLocaleString()}</div>
+                <div key={message.id} className={`flex gap-3 ${!message.read ? 'bg-primary/5 p-2 rounded-md' : ''}`}>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={message.from === executiveName ? avatarUrl : undefined} />
+                    <AvatarFallback>{getInitials(message.from)}</AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-1 flex-1">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm font-medium">{message.from}</p>
+                      <time className="text-xs text-muted-foreground">
+                        {new Date(message.timestamp).toLocaleDateString()}
+                      </time>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{message.content}</p>
+                  </div>
                 </div>
               ))}
             </div>
-          )}
-        </ScrollArea>
+          </ScrollArea>
+        ) : (
+          <div className="text-center p-6 text-muted-foreground">
+            <p>No messages yet</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2"
+              onClick={() => {
+                // Placeholder for message generation
+                console.log("Generate sample message");
+              }}
+            >
+              Generate Introduction
+            </Button>
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="flex justify-end">
-        <Button size="sm">
-          <Send className="mr-2 h-4 w-4" />
-          Send Message
-        </Button>
-      </CardFooter>
     </Card>
   );
-}
+};
+
+export default ExecutiveMessages;

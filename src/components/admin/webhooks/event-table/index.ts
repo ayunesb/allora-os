@@ -1,6 +1,5 @@
 
-export * from './EventTableRow';
-export * from './StatusBadge';
-export * from './EventDetailsPanel';
-export * from './EmptyState';
-export * from './TableHeader';
+export { EventTableRow } from './EventTableRow';
+export { EventTableHeader } from './EventTableHeader';
+export { EmptyState } from './EmptyState';
+export { StatusBadge } from './StatusBadge';

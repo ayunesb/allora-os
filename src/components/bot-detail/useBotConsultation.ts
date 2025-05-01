@@ -1,146 +1,79 @@
 
-import { useState, useCallback, useEffect } from "react";
-import { Message, Bot } from "./MessageType";
-import { v4 as uuidv4 } from "uuid";
-import { toast } from "sonner";
+import { useState, useCallback } from 'react';
+import { Bot, Message } from './MessageType';
 
-export { Bot } from "./MessageType"; // Re-export for convenience
+export interface UseBotConsultationResult {
+  bot: Bot;
+  messages: Message[];
+  isLoading: boolean;
+  isTyping: boolean;
+  error: string;
+  retryCount: number;
+  handleSendMessage: (text: string) => Promise<void>;
+  retryLastMessage: () => void;
+  clearConversation: () => void;
+}
 
-export function useBotConsultation(botName: string = "", botRole: string = "") {
+export function useBotConsultation(initialBot: Bot): UseBotConsultationResult {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [bot, setBot] = useState<Bot | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const [retryCount, setRetryCount] = useState(0);
-
-  // Initialize the bot when component mounts
-  useEffect(() => {
-    // In a real implementation, this would fetch the bot from an API
-    // For now, we'll create a mock bot based on the provided name and role
-    if (botName) {
-      setBot({
-        id: `bot-${botName.toLowerCase().replace(/\s+/g, '-')}`,
-        name: botName,
-        title: botRole || 'Executive Advisor',
-        role: botRole || 'advisor',
-        expertise: 'Business Strategy',
-        isActive: true
-      });
-    }
-  }, [botName, botRole]);
-
-  // Simulate API call to get bot response
-  const getBotResponse = async (userMessage: string): Promise<string> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Simulate bot response
-    try {
-      // This would be a real API call in production
-      // const response = await fetch('/api/bot/chat', {
-      //  method: 'POST',
-      //  headers: { 'Content-Type': 'application/json' },
-      //  body: JSON.stringify({ message: userMessage, botId: bot?.id })
-      // });
-
-      // Simulate different bot responses based on the bot role
-      let response = "";
-      
-      if (botRole?.toLowerCase().includes('finance')) {
-        response = `As a financial advisor, I'd suggest looking at your cash flow statements and ROI metrics first. ${userMessage.length > 20 ? 'Your detailed question helps me provide better advice.' : 'Could you share more specific financial concerns?'}`;
-      }
-      else if (botRole?.toLowerCase().includes('market')) {
-        response = `From a market analysis perspective, we should examine your competitive positioning. ${userMessage.length > 20 ? 'I appreciate your detailed question.' : 'Could you elaborate on your market concerns?'}`;
-      }
-      else {
-        response = `I've analyzed your question about "${userMessage.substring(0, 30)}${userMessage.length > 30 ? '...' : ''}". As your ${botRole || 'executive advisor'}, I recommend focusing on strategic growth opportunities while maintaining operational excellence.`;
-      }
-
-      return response;
-    } catch (error) {
-      console.error("Error getting bot response:", error);
-      throw new Error("Failed to get a response from the AI advisor. Please try again.");
-    }
-  };
-
-  // Handle sending a new message
+  
   const handleSendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || !bot) return;
-
-    setIsLoading(true);
-    setError(null);
+    if (!text.trim()) return;
     
-    // Add user message
     const userMessage: Message = {
-      id: uuidv4(),
+      id: Date.now().toString(),
       text,
       sender: 'user',
       timestamp: new Date()
     };
     
     setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+    setIsTyping(true);
+    setError('');
     
     try {
-      // Add typing indicator
-      setIsTyping(true);
+      // Simulate API call with a delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Get bot response
-      const response = await getBotResponse(text);
+      const botResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: `This is a response to: ${text}`,
+        sender: 'bot',
+        timestamp: new Date()
+      };
       
-      setIsTyping(false);
-      
-      // Add bot message after a small delay to show typing indicator
-      setTimeout(() => {
-        const botMessage: Message = {
-          id: uuidv4(),
-          text: response,
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => [...prev, botMessage]);
-        setRetryCount(0);
-      }, 500);
-    } catch (error) {
-      setIsTyping(false);
-      setRetryCount(prev => prev + 1);
-      setError(error instanceof Error ? error.message : "Something went wrong with the AI advisor");
-      toast.error("Failed to get response from AI advisor");
+      setMessages(prev => [...prev, botResponse]);
+    } catch (err) {
+      setError('Failed to get bot response');
+      console.error(err);
     } finally {
       setIsLoading(false);
+      setIsTyping(false);
     }
-  }, [bot]);
-
-  // Handle retrying the last message
+  }, []);
+  
   const retryLastMessage = useCallback(() => {
-    const userMessages = messages.filter(m => m.sender === 'user');
-    if (userMessages.length === 0) return;
+    const lastUserMessage = [...messages].reverse().find(m => m.sender === 'user');
     
-    const lastUserMessage = userMessages[userMessages.length - 1];
-    
-    // Filter out the last bot message (if any) before retrying
-    const filteredMessages = messages.filter(m => {
-      if (m.sender === 'bot') {
-        const userIndex = messages.findIndex(msg => msg.id === lastUserMessage.id);
-        const botIndex = messages.findIndex(msg => msg.id === m.id);
-        return botIndex < userIndex;
-      }
-      return true;
-    });
-    
-    setMessages(filteredMessages);
-    handleSendMessage(lastUserMessage.text);
+    if (lastUserMessage) {
+      setRetryCount(prev => prev + 1);
+      handleSendMessage(lastUserMessage.text);
+    }
   }, [messages, handleSendMessage]);
-
-  // Clear the conversation
+  
   const clearConversation = useCallback(() => {
     setMessages([]);
-    setError(null);
+    setError('');
+    setRetryCount(0);
   }, []);
-
+  
   return {
-    bot,
+    bot: initialBot,
     messages,
     isLoading,
     isTyping,
