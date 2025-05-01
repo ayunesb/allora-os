@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
   checkForDocumentUpdates, 
@@ -9,20 +8,33 @@ import {
 import { toast } from 'sonner';
 import { logComplianceChange } from '@/utils/auditLogger';
 
-interface ComplianceContextType {
+export interface ComplianceContextType {
   pendingUpdates: string[];
   isApplyingUpdate: boolean;
   applyUpdate: (documentId: string) => Promise<void>;
   applyAllUpdates: () => Promise<void>;
   scheduleComplianceCheck: (intervalDays?: number) => Promise<void>;
   enableAutoUpdates: (documentId: string, enabled: boolean) => Promise<boolean>;
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+  autoUpdate: boolean;
+  isLoaded: boolean;
+  error: string | null;
+  updatePreference?: (key: string, value: any) => void;
 }
 
-const ComplianceContext = createContext<ComplianceContextType | undefined>(undefined);
+export const ComplianceContext = createContext<ComplianceContextType | undefined>(undefined);
 
 export function ComplianceProvider({ children }: { children: React.ReactNode }) {
   const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
   const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
+  const [autoUpdate, setAutoUpdate] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleUpdateAvailable = useCallback((documents: string[]) => {
     setPendingUpdates(prev => {
@@ -39,11 +51,31 @@ export function ComplianceProvider({ children }: { children: React.ReactNode }) 
         if (result.documentsNeedingUpdate.length > 0) {
           setPendingUpdates(result.documentsNeedingUpdate);
         }
+        setLastChecked(new Date().toISOString());
+        setIsLoaded(true);
       })
       .catch(error => {
         console.error("Error checking for document updates:", error);
+        setError("Failed to check for document updates");
+        setIsLoaded(true);
       });
   }, []);
+
+  const checkForUpdates = async () => {
+    setIsCheckingUpdates(true);
+    try {
+      const result = await checkForDocumentUpdates();
+      if (result.documentsNeedingUpdate.length > 0) {
+        setPendingUpdates(result.documentsNeedingUpdate);
+      }
+      setLastChecked(new Date().toISOString());
+    } catch (error) {
+      console.error("Error checking for updates:", error);
+      setError("Failed to check for updates");
+    } finally {
+      setIsCheckingUpdates(false);
+    }
+  };
 
   const applyUpdate = async (documentId: string) => {
     try {
@@ -121,6 +153,11 @@ export function ComplianceProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
+  const updatePreference = (key: string, value: any) => {
+    console.log(`Updating compliance preference: ${key} to ${value}`);
+    // In a real implementation, this would update user preferences
+  };
+
   return (
     <ComplianceContext.Provider value={{
       pendingUpdates,
@@ -129,6 +166,14 @@ export function ComplianceProvider({ children }: { children: React.ReactNode }) 
       applyAllUpdates,
       scheduleComplianceCheck,
       enableAutoUpdates,
+      checkForUpdates,
+      setAutoUpdate,
+      isCheckingUpdates,
+      lastChecked,
+      autoUpdate,
+      isLoaded,
+      error,
+      updatePreference,
     }}>
       {children}
     </ComplianceContext.Provider>

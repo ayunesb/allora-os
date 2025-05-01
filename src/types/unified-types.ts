@@ -57,6 +57,9 @@ export interface UnifiedWebhookEvent {
   timestamp: string;
 }
 
+// We export these explicitly to match what components are expecting
+export type WebhookEvent = UnifiedWebhookEvent;
+
 // Executive message type
 export interface UnifiedExecutiveMessage {
   id: string;
@@ -101,6 +104,12 @@ export interface ExtendedComplianceContextType {
   lastChecked: string | null;
   autoUpdate?: boolean;
   updatePreference?: (key: string, value: any) => void;
+  pendingUpdates: string[];
+  isApplyingUpdate: boolean;
+  applyUpdate: (documentId: string) => Promise<void>;
+  applyAllUpdates: () => Promise<void>;
+  scheduleComplianceCheck: (intervalDays?: number) => Promise<void>;
+  enableAutoUpdates: (documentId: string, enabled: boolean) => Promise<boolean>;
 }
 
 // WebhookType definition for compatibility
@@ -135,4 +144,13 @@ export interface SocialMediaPost {
   is_approved?: boolean; // For approval workflows
   created_at: string;
   updated_at: string;
+}
+
+// Calendar filters for social media
+export interface SocialMediaCalendarFilters {
+  platform?: string;
+  status?: string;
+  search?: string;
+  startDate?: string;
+  endDate?: string;
 }

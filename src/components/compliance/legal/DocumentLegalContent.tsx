@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Clock } from 'lucide-react';
-import { useCompliance } from '@/context/ComplianceContext';
+import { useCompliance } from '@/hooks/useCompliance';
 import { formatRelativeTime } from '@/utils/dateUtils';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -20,15 +21,10 @@ export default function DocumentLegalContent({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const compliance = useCompliance();
   
-  // Add fallback function if it doesn't exist
-  const checkForUpdates = compliance.checkForUpdates || (() => {
-    console.log('checkForUpdates not implemented');
-  });
-
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await checkForUpdates();
+      await compliance.checkForUpdates();
     } catch (error) {
       console.error('Error checking for updates:', error);
     } finally {

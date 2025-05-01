@@ -8,7 +8,7 @@ import {
   CardContent 
 } from '@/components/ui/card';
 import { ImplementationTabs } from './tabs/ImplementationTabs';
-import { ImplementationTabContent } from './tabs/ImplementationTabContent';
+import ImplementationTabContent from './tabs/ImplementationTabContent';
 
 interface StrategyImplementationToolsProps {
   strategyId?: string;
@@ -46,3 +46,5 @@ export function StrategyImplementationTools({
     </Card>
   );
 }
+
+export default StrategyImplementationTools;

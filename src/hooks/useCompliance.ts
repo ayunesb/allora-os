@@ -1,6 +1,6 @@
 
 import { useContext } from 'react';
-import { ComplianceContext } from '@/context/ComplianceContext';
+import { ComplianceContext, ComplianceContextType } from '@/context/ComplianceContext';
 import { ExtendedComplianceContextType } from '@/types/unified-types';
 
 export const useCompliance = (): ExtendedComplianceContextType => {

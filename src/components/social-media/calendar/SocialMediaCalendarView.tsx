@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { SocialMediaPost } from '@/types/socialMedia';
+import { SocialMediaPost } from '@/types/unified-types';
 import { 
   format, 
   startOfMonth, 
@@ -19,7 +19,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import SocialPostCard from '../SocialPostCard';
+import { SocialPostCard } from '../SocialPostCard';
 import { useBreakpoint } from '@/hooks/use-mobile';
 
 interface SocialMediaCalendarViewProps {
@@ -35,7 +35,7 @@ interface SocialMediaCalendarViewProps {
  * Calendar view for social media posts
  * Displays posts organized by day in a monthly calendar format
  */
-export default function SocialMediaCalendarView({
+export function SocialMediaCalendarView({
   posts,
   currentMonth,
   onEditPost,
@@ -57,8 +57,9 @@ export default function SocialMediaCalendarView({
   // Find posts for a specific day
   const getPostsForDay = (day: Date) => {
     return posts.filter(post => {
-      const postDate = parseISO(post.scheduled_date);
-      return isSameDay(postDate, day);
+      const postDate = post.scheduled_date ? parseISO(post.scheduled_date) : 
+                      post.scheduled_at ? parseISO(post.scheduled_at) : null;
+      return postDate && isSameDay(postDate, day);
     });
   };
   
@@ -80,81 +81,72 @@ export default function SocialMediaCalendarView({
     }
   };
   
-  // Create an array of 7 days (for the week header)
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
   return (
-    <div className="mt-4">
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {weekDays.map((day, i) => (
-          <div 
-            key={i} 
-            className="text-center font-medium text-xs sm:text-sm py-2"
-          >
+    <div className="bg-card rounded-lg border shadow">
+      {/* Calendar Header - Days of Week */}
+      <div className="grid grid-cols-7 gap-px bg-muted text-center">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+          <div key={day} className="py-2 text-sm font-medium">
             {isMobile ? day.charAt(0) : day}
           </div>
         ))}
       </div>
       
-      <div className="grid grid-cols-7 gap-1">
-        {/* Empty cells for days before the start of the month */}
-        {Array.from({ length: startDay }).map((_, i) => (
-          <div 
-            key={`empty-start-${i}`} 
-            className="bg-secondary/30 rounded-md min-h-[80px] sm:min-h-[120px]"
-          ></div>
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 gap-px bg-muted">
+        {/* Empty cells for days before the first of the month */}
+        {Array.from({ length: startDay }).map((_, index) => (
+          <div key={`empty-start-${index}`} className="bg-card h-24 md:h-32" />
         ))}
         
-        {/* Calendar days */}
-        {days.map((day, i) => {
+        {/* Days of the month */}
+        {days.map((day) => {
           const dayPosts = getPostsForDay(day);
+          const isCurrentDay = isToday(day);
           
           return (
             <div 
-              key={i}
+              key={day.toISOString()}
               className={cn(
-                "border rounded-md min-h-[80px] sm:min-h-[120px] p-1 relative",
-                isToday(day) ? "border-primary" : "border-border/50",
-                !isSameMonth(day, currentMonth) && "bg-secondary/20 text-muted-foreground"
+                "bg-card h-24 md:h-32 p-1 overflow-hidden relative",
+                isCurrentDay && "ring-2 ring-primary ring-inset"
               )}
             >
-              <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm">
-                <div className={cn(
-                  "flex items-center justify-center h-5 w-5 sm:h-6 sm:w-6 rounded-full text-xs font-medium",
-                  isToday(day) ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                )}>
-                  {format(day, 'd')}
-                </div>
+              {/* Date indicator */}
+              <div className="text-xs font-medium mb-1">
+                {format(day, 'd')}
               </div>
               
-              <div className="mt-1 space-y-1 max-h-[250px] sm:max-h-[300px] overflow-y-auto">
-                {dayPosts.map((post) => (
+              {/* Posts for this day */}
+              <div className="space-y-1">
+                {dayPosts.slice(0, 3).map((post) => (
                   <TooltipProvider key={post.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div 
                           className={cn(
-                            "text-xs p-1 rounded cursor-pointer truncate touch-target",
+                            "text-xs px-1.5 py-0.5 rounded truncate cursor-pointer",
                             getPlatformColor(post.platform)
                           )}
                           onClick={() => onEditPost(post)}
                         >
-                          {post.title}
+                          {post.title || post.content.substring(0, 20)}
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side={isMobile ? "bottom" : "right"} align="start" className="max-w-xs">
-                        <SocialPostCard 
-                          post={post}
-                          onEdit={() => onEditPost(post)}
-                          onDelete={() => onDeletePost(post.id)}
-                          onSchedule={() => onSchedulePost(post.id)}
-                          onApprove={() => onApprovePost(post.id)}
-                          compact
-                        />
+                      <TooltipContent>
+                        <p className="font-medium">{post.title || 'Untitled'}</p>
+                        <p className="text-xs">{post.platform} - {post.status}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 ))}
+                
+                {/* More indicator if there are additional posts */}
+                {dayPosts.length > 3 && (
+                  <div className="text-xs text-muted-foreground text-center">
+                    +{dayPosts.length - 3} more
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -163,3 +155,5 @@ export default function SocialMediaCalendarView({
     </div>
   );
 }
+
+export default SocialMediaCalendarView;
