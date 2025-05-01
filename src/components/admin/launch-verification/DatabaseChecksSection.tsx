@@ -1,69 +1,68 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle2, XCircle, Database } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Check, AlertTriangle, XCircle } from 'lucide-react';
+import { DatabaseCheckItem, DatabaseChecksSectionProps } from './types';
 
-interface DatabaseChecksSectionProps {
-  isVerifying: boolean;
-  isConnected?: boolean;
-  onVerify: () => void;
-  message?: string;
-}
+export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionProps) {
+  if (!items || items.length === 0) {
+    return null;
+  }
 
-export function DatabaseChecksSection({ 
-  isVerifying, 
-  isConnected,
-  onVerify,
-  message = 'Verify database connection and schema'
-}: DatabaseChecksSectionProps) {
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success':
+        return <Check className="h-5 w-5 text-green-500" />;
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+      case 'error':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-primary/80" />
-            <CardTitle className="text-lg">Database Connection</CardTitle>
-          </div>
-          <Button 
-            variant="outline"
-            size="sm" 
-            onClick={onVerify}
-            disabled={isVerifying}
-          >
-            {isVerifying ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              'Verify Connection'
-            )}
-          </Button>
-        </div>
+        <CardTitle className="text-lg font-medium">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-3 p-3 rounded-md border">
-          {isConnected === undefined ? (
-            <div className="text-muted-foreground flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              <span>Database connection not verified yet</span>
+        <div className="space-y-2">
+          {items.map((item: DatabaseCheckItem, index: number) => (
+            <div 
+              key={`${item.name}-${index}`} 
+              className={`p-3 rounded-md flex items-center justify-between ${
+                item.status === 'success' 
+                  ? 'bg-green-50 border border-green-100' 
+                  : item.status === 'warning'
+                  ? 'bg-amber-50 border border-amber-100'
+                  : 'bg-red-50 border border-red-100'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  {getStatusIcon(item.status)}
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium">{item.name}</h4>
+                  <p className="text-xs text-muted-foreground">
+                    {item.message || (item.exists ? 'Found' : 'Not found')}
+                  </p>
+                </div>
+              </div>
+              <span className={`text-xs px-2 py-1 rounded ${
+                item.status === 'success' 
+                  ? 'bg-green-100 text-green-800' 
+                  : item.status === 'warning'
+                  ? 'bg-amber-100 text-amber-800'
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {item.status === 'success' ? 'Passed' : item.status === 'warning' ? 'Warning' : 'Failed'}
+              </span>
             </div>
-          ) : isConnected ? (
-            <div className="text-green-600 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Database connection successful</span>
-            </div>
-          ) : (
-            <div className="text-red-600 flex items-center gap-2">
-              <XCircle className="h-4 w-4" />
-              <span>Database connection failed</span>
-            </div>
-          )}
+          ))}
         </div>
-        <p className="text-sm text-muted-foreground mt-2">
-          {message}
-        </p>
       </CardContent>
     </Card>
   );

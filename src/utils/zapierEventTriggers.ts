@@ -1,13 +1,10 @@
 
 import { logger } from './loggingService';
+import { triggerBusinessEvent, BusinessEventType } from '@/lib/zapier';
+import { logAuditEvent } from '@/utils/auditLogger';
 
 // Business event types for Zapier triggers
-export type BusinessEventType = 
-  | 'strategy_approved'
-  | 'new_lead_added'
-  | 'campaign_launched'
-  | 'lead_converted'
-  | 'revenue_milestone';
+export type { BusinessEventType } from '@/lib/zapier';
 
 // Base payload structure
 export interface BusinessEventPayload {
@@ -58,36 +55,50 @@ export interface RevenueMilestonePayload {
 /**
  * Trigger when a strategy has been approved
  */
-export const onStrategyApproved = async (payload: StrategyApprovalPayload): Promise<boolean> => {
+export const onStrategyApproved = async (payload: StrategyApprovalPayload) => {
   try {
-    return await triggerZapierEvent('strategy_approved', payload);
+    // Log the audit event
+    await logAuditEvent({
+      action: 'SYSTEM_CHANGE',
+      resource: 'zapier_event',
+      details: {
+        event_type: 'strategy_approved',
+        strategy_id: payload.entityId,
+        company_id: payload.companyId
+      }
+    });
+    
+    const result = await triggerBusinessEvent('strategy_approved', payload);
+    return { success: result.success, error: result.success ? undefined : new Error(result.message) };
   } catch (error) {
     logger.error('Failed to trigger strategy approved webhook', { error, payload });
-    return false;
+    return { success: false, error: error instanceof Error ? error : new Error('Unknown error') };
   }
 };
 
 /**
  * Trigger when a new lead has been added
  */
-export const onNewLeadAdded = async (payload: LeadPayload): Promise<boolean> => {
+export const onNewLeadAdded = async (payload: LeadPayload) => {
   try {
-    return await triggerZapierEvent('new_lead_added', payload);
+    const result = await triggerBusinessEvent('lead_added', payload);
+    return { success: result.success, error: result.success ? undefined : new Error(result.message) };
   } catch (error) {
     logger.error('Failed to trigger new lead webhook', { error, payload });
-    return false;
+    return { success: false, error: error instanceof Error ? error : new Error('Unknown error') };
   }
 };
 
 /**
  * Trigger when a campaign has been launched
  */
-export const onCampaignLaunched = async (payload: CampaignPayload): Promise<boolean> => {
+export const onCampaignLaunched = async (payload: CampaignPayload) => {
   try {
-    return await triggerZapierEvent('campaign_launched', payload);
+    const result = await triggerBusinessEvent('campaign_launched', payload);
+    return { success: result.success, error: result.success ? undefined : new Error(result.message) };
   } catch (error) {
     logger.error('Failed to trigger campaign launched webhook', { error, payload });
-    return false;
+    return { success: false, error: error instanceof Error ? error : new Error('Unknown error') };
   }
 };
 
@@ -97,40 +108,18 @@ export const onCampaignLaunched = async (payload: CampaignPayload): Promise<bool
 export const triggerZapierEvent = async (
   eventType: BusinessEventType, 
   data: Record<string, any>
-): Promise<boolean> => {
+) => {
   try {
-    // Get webhook URL from local storage
-    const webhookUrl = localStorage.getItem('zapier_webhook_url');
-    
-    if (!webhookUrl) {
-      logger.warn('No Zapier webhook URL configured');
-      return false;
+    const result = await triggerBusinessEvent(eventType, data);
+    if (result.success) {
+      logger.info(`Triggered Zapier webhook for ${eventType}`, { data });
+      return { success: true };
+    } else {
+      logger.error(`Failed to trigger Zapier webhook for ${eventType}`, { message: result.message });
+      return { success: false, error: new Error(result.message || 'Unknown error') };
     }
-
-    // Prepare the payload
-    const payload = {
-      eventType,
-      data,
-      timestamp: new Date().toISOString(),
-      source: window.location.origin
-    };
-
-    // Call the webhook
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      mode: 'no-cors', // Use no-cors mode to avoid CORS issues
-      body: JSON.stringify(payload)
-    });
-
-    // Since we're using no-cors, we won't get a proper response status
-    // We'll assume it worked if no exception is thrown
-    logger.info(`Triggered Zapier webhook for ${eventType}`, { payload });
-    return true;
   } catch (error) {
     logger.error(`Failed to trigger Zapier webhook for ${eventType}`, { error });
-    return false;
+    return { success: false, error: error instanceof Error ? error : new Error('Unknown error') };
   }
 };

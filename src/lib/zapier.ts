@@ -1,16 +1,17 @@
 
-// This is a placeholder implementation for the zapier library
-// In a real application, this would be a more robust implementation
-// that integrates with Zapier webhooks
+/**
+ * Zapier Integration Library
+ * Provides utilities for working with Zapier webhooks
+ */
 
 import { useState } from 'react';
 
 export type BusinessEventType = 
-  | 'LEAD_CONVERTED' 
-  | 'CAMPAIGN_CREATED'
-  | 'REVENUE_MILESTONE'
-  | 'STRATEGY_APPROVED'
-  | 'TASK_COMPLETED';
+  | 'strategy_approved' 
+  | 'lead_added'
+  | 'campaign_launched'
+  | 'revenue_milestone'
+  | 'test_webhook';
 
 export interface BusinessEventPayload {
   eventType: BusinessEventType;
@@ -25,23 +26,37 @@ interface ZapierState {
   error: string | null;
 }
 
+export interface ZapierResult {
+  success: boolean;
+  message?: string;
+}
+
+/**
+ * Custom hook for interacting with Zapier webhooks
+ */
 export function useZapier() {
   const [state, setState] = useState<ZapierState>({
-    webhookUrl: localStorage.getItem('zapierWebhookUrl') || '',
+    webhookUrl: localStorage.getItem('zapier_webhook_url') || '',
     isLoading: false,
     lastTriggered: null,
     error: null,
   });
 
+  /**
+   * Update the webhook URL in state and local storage
+   */
   const updateWebhookUrl = (url: string) => {
-    localStorage.setItem('zapierWebhookUrl', url);
+    localStorage.setItem('zapier_webhook_url', url);
     setState(prev => ({ ...prev, webhookUrl: url }));
   };
 
-  const triggerWebhook = async (eventType: BusinessEventType, data: Record<string, any>) => {
+  /**
+   * Trigger a webhook with the specified event type and data
+   */
+  const triggerWebhook = async (eventType: BusinessEventType, data: Record<string, any>): Promise<ZapierResult> => {
     if (!state.webhookUrl) {
       setState(prev => ({ ...prev, error: 'No webhook URL configured' }));
-      return false;
+      return { success: false, message: 'No webhook URL configured' };
     }
 
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -69,22 +84,78 @@ export function useZapier() {
         lastTriggered: new Date(),
       }));
       
-      return true;
+      return { success: true };
     } catch (error) {
       console.error('Error triggering Zapier webhook:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setState(prev => ({ 
         ...prev, 
         isLoading: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+        error: errorMessage
       }));
       
-      return false;
+      return { success: false, message: errorMessage };
     }
   };
 
+  /**
+   * Legacy function alias for triggerWebhook for backward compatibility
+   */
+  const triggerWorkflow = triggerWebhook;
+  
+  /**
+   * For compatibility with external modules
+   */
+  const triggerBusinessEvent = async (eventType: BusinessEventType, data: Record<string, any>): Promise<ZapierResult> => {
+    return triggerWebhook(eventType, data);
+  };
+
   return {
-    ...state,
+    webhookUrl: state.webhookUrl,
+    isLoading: state.isLoading,
+    lastTriggered: state.lastTriggered,
+    error: state.error,
     updateWebhookUrl,
     triggerWebhook,
+    triggerWorkflow,
+    triggerBusinessEvent
   };
 }
+
+/**
+ * Standalone function to trigger a business event (for non-hook usage)
+ */
+export const triggerBusinessEvent = async (
+  eventType: BusinessEventType,
+  data: Record<string, any>
+): Promise<ZapierResult> => {
+  try {
+    const webhookUrl = localStorage.getItem('zapier_webhook_url');
+    if (!webhookUrl) {
+      return { success: false, message: 'No webhook URL configured' };
+    }
+
+    const payload: BusinessEventPayload = {
+      eventType,
+      timestamp: new Date().toISOString(),
+      data,
+    };
+
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'no-cors',
+      body: JSON.stringify(payload),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error triggering business event:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+};

@@ -40,6 +40,15 @@ export interface DatabaseTableStatus {
   message?: string;
 }
 
+export interface DatabaseCheckItem {
+  name: string;
+  exists: boolean;
+  isSecure?: boolean;
+  table?: string;
+  status: 'success' | 'warning' | 'error';
+  message?: string;
+}
+
 export interface ChecklistProgressProps {
   value: number;
 }
@@ -52,7 +61,7 @@ export interface SeverityCountsProps {
 
 export interface DatabaseChecksSectionProps {
   title: string;
-  items: any[];
+  items: DatabaseCheckItem[];
 }
 
 export interface LaunchInfoBoxProps {
@@ -86,5 +95,8 @@ export interface ValidationResultsUI {
   storage?: { valid: boolean; message: string };
   apis?: { valid: boolean; message: string };
   databaseTables?: DatabaseTableStatus[];
+  databaseIndexes?: DatabaseCheckItem[];
+  rlsPolicies?: DatabaseCheckItem[];
+  databaseFunctions?: DatabaseCheckItem[];
   overallStatus: 'ready' | 'not-ready' | 'warning';
 }

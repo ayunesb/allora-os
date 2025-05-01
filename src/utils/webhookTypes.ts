@@ -11,14 +11,16 @@ export type BusinessEventType =
   | 'campaign_launched'
   | 'shopify_order_placed'
   | 'new_client_signed'
-  | 'revenue_milestone_reached';
+  | 'revenue_milestone_reached'
+  | 'test_webhook';
 
 export interface BusinessEventPayload {
+  eventType: BusinessEventType;
+  data: Record<string, any>;
+  timestamp?: string;
   companyId?: string;
   entityId?: string;
   entityType?: string;
-  timestamp?: string;
-  [key: string]: any;
 }
 
 // Result interface for webhook operations
