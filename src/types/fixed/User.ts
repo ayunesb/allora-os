@@ -8,7 +8,10 @@ export interface User {
   company_id?: string;
   company?: string;
   industry?: string;
-  app_metadata?: any;
+  app_metadata?: {
+    is_admin?: boolean;
+    [key: string]: any;
+  };
   user_metadata?: {
     firstName: string;
     lastName: string;

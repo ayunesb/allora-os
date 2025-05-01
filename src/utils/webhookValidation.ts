@@ -1,5 +1,5 @@
 
-import { WebhookType } from '@/types/fixed/Webhook';
+export type WebhookType = 'zapier' | 'slack' | 'github' | 'stripe' | 'notion' | 'custom';
 
 export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolean => {
   if (!url) return false;
@@ -45,7 +45,7 @@ export const sanitizeWebhookUrl = (url: string): string => {
   }
 };
 
-export const testWebhook = async (url: string) => {
+export const testWebhook = async (url: string, type: WebhookType = 'custom') => {
   if (!url) {
     return {
       success: false,
@@ -65,7 +65,8 @@ export const testWebhook = async (url: string) => {
         timestamp: new Date().toISOString(),
         data: {
           message: `This is a test webhook from Allora AI`,
-          testId: Math.random().toString(36).substring(7)
+          testId: Math.random().toString(36).substring(7),
+          webhookType: type
         }
       }),
       mode: 'no-cors', // Handle CORS issues
@@ -84,5 +85,3 @@ export const testWebhook = async (url: string) => {
     };
   }
 };
-
-export { WebhookType };

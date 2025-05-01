@@ -12,6 +12,7 @@ export interface ChecklistItem {
 }
 
 export interface ChecklistCategory {
+  id?: string; // Added for compatibility with existing code
   name: string;
   description?: string;
   items: ChecklistItem[];
@@ -24,6 +25,7 @@ export interface DatabaseTableStatus {
   missingColumns?: string[];
   valid: boolean;
   message?: string;
+  rls?: boolean; // Added for rls property used in components
 }
 
 export interface LaunchProgressProps {
@@ -60,7 +62,7 @@ export interface LaunchInfoProps {
   title: string;
   description?: string;
   icon?: ReactNode;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  status: 'pending' | 'in-progress' | 'completed' | 'error' | 'info' | 'success' | 'warning'; // Extended status types
   children?: ReactNode;
 }
 
@@ -68,22 +70,26 @@ export interface LaunchInfoBoxProps {
   title: string;
   description?: string;
   icon?: ReactNode;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  status: 'pending' | 'in-progress' | 'completed' | 'error' | 'info' | 'success' | 'warning'; // Extended status types
   children?: ReactNode;
 }
 
 export interface VerificationActionsProps {
   isChecking: boolean;
-  hasVerifiedTables: boolean;
-  hasVerifiedIndexes: boolean;
-  hasVerifiedRLS: boolean;
-  hasVerifiedFunctions: boolean;
-  onRunChecks: () => void;
-  onAddDemoData: () => void;
   isAddingDemo: boolean;
   isVerifyingTables: boolean;
   isCheckingIndexes: boolean;
   isVerifyingRLS: boolean;
   isVerifyingFunctions: boolean;
+  onRunChecks: () => void;
+  onAddDemoData: () => void;
+  onVerifyTables?: () => void;
+  onCheckIndexes?: () => void;
+  onVerifyRLS?: () => void;
+  onVerifyFunctions?: () => void;
   hasResults: boolean;
+  hasVerifiedTables?: boolean;
+  hasVerifiedIndexes?: boolean;
+  hasVerifiedRLS?: boolean;
+  hasVerifiedFunctions?: boolean;
 }
