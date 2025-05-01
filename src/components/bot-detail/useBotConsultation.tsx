@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Message } from '@/types/fixed/Message';
 import { Bot } from '@/types/fixed/Bot';
 
+export { Bot };  // Export Bot for use in other components
+
 export interface UseBotConsultationResult {
   messages: Message[];
   sendMessage: (text: string) => Promise<void>;

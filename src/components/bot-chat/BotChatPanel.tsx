@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,11 +27,11 @@ export function BotChatPanel({
   // Use the hook with just the botId parameter
   const {
     messages,
-    sendMessage,
+    handleSendMessage,
     isLoading,
     isTyping,
     error,
-    clearMessages,
+    clearConversation: clearMessages,
     isVoiceEnabled,
     isListening,
     toggleVoiceInterface,
@@ -43,7 +44,7 @@ export function BotChatPanel({
     if (!inputValue.trim() || isInputDisabled) return;
     
     setIsInputDisabled(true);
-    await sendMessage(inputValue);
+    await handleSendMessage(inputValue);
     setInputValue("");
     setIsInputDisabled(false);
   };

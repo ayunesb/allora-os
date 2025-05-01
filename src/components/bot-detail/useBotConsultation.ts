@@ -31,6 +31,8 @@ export function useBotConsultation(botName: string, role?: string): UseBotConsul
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState('');
   const [retryCount, setRetryCount] = useState(0);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
@@ -83,6 +85,22 @@ export function useBotConsultation(botName: string, role?: string): UseBotConsul
     setRetryCount(0);
   }, []);
   
+  const toggleVoiceInterface = useCallback(() => {
+    setIsVoiceEnabled(prev => !prev);
+  }, []);
+  
+  const startVoiceRecognition = useCallback(() => {
+    if (!isVoiceEnabled) return;
+    
+    setIsListening(true);
+    
+    // Placeholder for actual speech recognition
+    setTimeout(() => {
+      setIsListening(false);
+      handleSendMessage("This is a voice-transcribed message placeholder");
+    }, 2000);
+  }, [isVoiceEnabled, handleSendMessage]);
+  
   return {
     bot,
     messages,
@@ -90,8 +108,12 @@ export function useBotConsultation(botName: string, role?: string): UseBotConsul
     isTyping,
     error,
     retryCount,
+    isVoiceEnabled,
+    isListening,
     handleSendMessage,
     retryLastMessage,
-    clearConversation
+    clearConversation,
+    toggleVoiceInterface,
+    startVoiceRecognition
   };
 }
