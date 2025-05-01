@@ -35,6 +35,7 @@ import CalendlyIntegration from "@/pages/admin/CalendlyIntegration";
 import PlaidIntegration from "@/pages/admin/PlaidIntegration";
 import KPIMetricsPage from "@/pages/insights/kpis";
 import AgentPerformancePage from "@/pages/agents/performance";
+import StrategyGenerator from "@/pages/dashboard/StrategyGenerator";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -43,7 +44,10 @@ export const dashboardRoutes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        lazy: async () => {
+          const { default: Dashboard } = await import("@/pages/dashboard/Dashboard");
+          return { Component: Dashboard };
+        },
       },
       {
         path: "leads",
@@ -190,9 +194,18 @@ export const dashboardRoutes: RouteObject[] = [
         element: <AgentPerformancePage />,
       },
       {
+        path: "strategy-generator",
+        lazy: async () => {
+          const { default: StrategyGenerator } = await import("@/pages/dashboard/StrategyGenerator");
+          return { Component: StrategyGenerator };
+        },
+      },
+      {
         path: "*",
         element: <NotFound />,
       }
     ],
   },
 ];
+
+export { dashboardRoutes };

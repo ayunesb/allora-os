@@ -1,9 +1,11 @@
-
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody } from '@/components/ui/table';
 import WebhookEventRow from './history/WebhookEventRow';
 import { UnifiedWebhookEvent } from '@/types/unified-types';
 import { normalizeWebhookEvent } from '@/utils/authCompatibility';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/services/supabaseClient';
+import { WebhookEvent } from '@/types/fixed/Webhook';
 
 interface WebhookEventTableProps {
   events: UnifiedWebhookEvent[];

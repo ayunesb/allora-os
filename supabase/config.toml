@@ -1,47 +1,30 @@
 
 project_id = "tnfqzklfdwknmplrygag"
 
-[functions.academy-wins]
-verify_jwt = false
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
 
-[functions.strategy-templates]
-verify_jwt = false
+[db]
+port = 54322
 
-[functions.strategy-remix]
-verify_jwt = false
+[studio]
+port = 54323
 
-[functions.stripe-webhook]
-verify_jwt = false
+[inbucket]
+port = 54324
 
-[functions.stripe]
-verify_jwt = false
+[auth]
+enabled = true
 
-[functions.kpi-cron]
-verify_jwt = false
+[storage]
+enabled = true
 
-[functions.send-weekly-digest]
-verify_jwt = false
+[realtime]
+enabled = true
 
-[functions.admin-unpublished-wins]
-verify_jwt = false
-
-[functions.academy-vote-win]
-verify_jwt = false
-
-[functions.vault-vote-template]
-verify_jwt = false
-
-[functions.twitter-post]
-verify_jwt = true
-
-[functions.tweet-queue]
-verify_jwt = true
-
-[functions.plugin-logs]
-verify_jwt = true
-
-[functions.vault-templates]
-verify_jwt = true
-
-[functions.plugin-impact]
+# Configure the Edge Functions
+[functions]
+[functions.generate-strategies]
 verify_jwt = true

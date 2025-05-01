@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { WebhookType } from '@/types/unified-types';
+import { WebhookType } from '@/types/fixed/Webhook';
 import { validateWebhookUrlFormat } from '@/utils/webhookValidation';
 
 interface ValidationResult {

@@ -1,77 +1,59 @@
-
-import { useState, useEffect, useMemo } from 'react';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { useState } from 'react';
+import { WebhookEvent } from '@/types/fixed/Webhook';
 import { normalizeWebhookEvent } from '@/utils/authCompatibility';
 
-export default function useWebhookHistoryFilters(events: UnifiedWebhookEvent[]) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 10;
+interface FilterOptions {
+  status?: 'success' | 'failed' | 'pending' | '';
+  type?: string;
+  searchTerm?: string;
+}
 
-  // Normalize all events to ensure consistent properties
-  const normalizedEvents = useMemo(() => 
-    events.map(event => normalizeWebhookEvent(event)), 
-    [events]
-  );
-  
-  // Extract unique event types for filter dropdown
-  const eventTypes = useMemo(() => {
-    const types = new Set<string>();
-    normalizedEvents.forEach((event) => {
-      if (event.eventType) types.add(event.eventType);
-    });
-    return Array.from(types);
-  }, [normalizedEvents]);
+export const useWebhookHistoryFilters = (events: WebhookEvent[]) => {
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    status: '',
+    type: '',
+    searchTerm: '',
+  });
 
-  // Filter events based on search query, status, and type
-  const filteredEvents = useMemo(() => {
-    return normalizedEvents.filter((event) => {
-      // Filter by search query (case-insensitive)
-      const matchesSearch = searchQuery === '' || 
-        (event.eventType && event.eventType.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (event.url && event.url.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      // Filter by status
-      const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
-      
-      // Filter by event type
-      const matchesType = typeFilter === 'all' || event.eventType === typeFilter;
-      
-      return matchesSearch && matchesStatus && matchesType;
-    });
-  }, [normalizedEvents, searchQuery, statusFilter, typeFilter]);
+  const filteredEvents = events?.filter((event) => {
+    const normalizedEvent = normalizeWebhookEvent(event);
+    
+    if (filterOptions.status && filterOptions.status !== '') {
+      if (normalizedEvent.status !== filterOptions.status) {
+        return false;
+      }
+    }
 
-  // Get paginated results
-  const paginatedEvents = useMemo(() => {
-    const startIndex = (currentPage - 1) * eventsPerPage;
-    return filteredEvents.slice(startIndex, startIndex + eventsPerPage);
-  }, [filteredEvents, currentPage, eventsPerPage]);
+    if (filterOptions.type && filterOptions.type !== '') {
+      if (normalizedEvent.webhookType !== filterOptions.type) {
+        return false;
+      }
+    }
 
-  // Calculate pagination data
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
-  const hasMorePages = currentPage < totalPages;
+    if (filterOptions.searchTerm && filterOptions.searchTerm !== '') {
+      const searchTermLower = filterOptions.searchTerm.toLowerCase();
+      if (
+        !normalizedEvent.eventType.toLowerCase().includes(searchTermLower) &&
+        !normalizedEvent.targetUrl.toLowerCase().includes(searchTermLower) &&
+        !normalizedEvent.id.toLowerCase().includes(searchTermLower)
+      ) {
+        return false;
+      }
+    }
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter, typeFilter]);
+    return true;
+  });
+
+  const setFilter = (key: keyof FilterOptions, value: string) => {
+    setFilterOptions((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   return {
-    searchQuery,
-    setSearchQuery,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    currentPage,
-    setCurrentPage,
-    eventTypes,
+    filterOptions,
     filteredEvents,
-    paginatedEvents,
-    totalPages,
-    hasMorePages,
-    eventsPerPage
+    setFilter,
   };
-}
+};

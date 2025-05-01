@@ -38,6 +38,36 @@ export function normalizeUserObject(rawUser: any | null | undefined): FixedUser 
 }
 
 /**
+ * Normalizes webhook event objects for consistent access
+ */
+export function normalizeWebhookEvent(event: any): any {
+  if (!event) return null;
+  
+  return {
+    ...event,
+    eventType: event.eventType || event.event_type || '',
+    event_type: event.eventType || event.event_type || '',
+    webhookType: event.webhookType || event.webhook_type || '',
+    webhook_type: event.webhookType || event.webhook_type || '',
+    targetUrl: event.targetUrl || event.url || '',
+    url: event.targetUrl || event.url || '',
+  };
+}
+
+/**
+ * Normalizes executive message objects for consistent access
+ */
+export function normalizeExecutiveMessage(message: any): any {
+  if (!message) return null;
+  
+  return {
+    ...message,
+    content: message.content || message.message_content || '',
+    message_content: message.content || message.message_content || '',
+  };
+}
+
+/**
  * Creates an compatibility layer for auth contexts to ensure consistent API
  */
 export function createAuthCompatibilityLayer(authContext: any) {

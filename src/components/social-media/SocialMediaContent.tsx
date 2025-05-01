@@ -1,209 +1,315 @@
-
-import React, { FormEvent, Suspense, lazy } from 'react';
-import { useSocialMediaContext } from '@/context/SocialMediaContext';
-import { SocialMediaHeader } from './calendar/SocialMediaHeader';
-import { SocialMediaFilters } from './calendar/SocialMediaFilters';
-import { ViewToggle } from './calendar/ViewToggle';
-import { PostsDisplay } from './PostsDisplay';
-import { DialogCreate } from './SocialMediaPostDialog';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import React, { useState, useEffect } from 'react';
+import { SocialMediaPost } from '@/types/fixed/SocialMedia';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon, Copy, Edit, RefreshCw, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { useAccessibility } from '@/context/AccessibilityContext';
-import { Skeleton } from "@/components/ui/skeleton";
-import { standardizeApiResponse } from '@/utils/api/responseHandler';
+import { supabase } from '@/services/supabaseClient';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
+import AlertMessage from '@/components/ui/AlertMessage';
 
-export function SocialMediaContent() {
-  const {
-    posts,
-    isLoading,
-    error,
-    view,
-    setView,
-    currentMonth,
-    setCurrentMonth,
-    searchQuery,
-    setSearchQuery,
-    selectedPlatform,
-    setSelectedPlatform,
-    selectedStatus,
-    setSelectedStatus,
-    setPostFilters,
-    clearFilters,
-    isCreateDialogOpen,
-    openCreateDialog,
-    closeCreateDialog,
-    createPost,
-    deletePost,
-    schedule,
-    approve,
-    refreshPosts
-  } = useSocialMediaContext();
-  
-  const { screenReaderFriendly } = useAccessibility();
-  
-  const handleFilterSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    
-    setPostFilters({
-      platform: selectedPlatform as any || undefined,
-      status: selectedStatus as any || undefined,
-      search: searchQuery || undefined,
-      startDate: format(startOfMonth(currentMonth), 'yyyy-MM-dd'),
-      endDate: format(endOfMonth(currentMonth), 'yyyy-MM-dd')
-    });
-    
-    toast.success('Filters applied successfully');
-  };
-  
-  const handleClearFilters = () => {
-    setSearchQuery('');
-    setSelectedPlatform('');
-    setSelectedStatus('');
-    clearFilters();
-    
-    toast.info('Filters have been cleared');
-  };
-  
-  // Format error properly without using instanceof
-  const formattedError = error 
-    ? (typeof error === 'object' && error !== null && 'message' in error 
-        ? error 
-        : new Error(typeof error === 'string' ? error : 'Unknown error')) 
-    : null;
-  
-  const handleCreatePost = async (data: any) => {
+interface SocialMediaContentProps {
+  platform: string;
+  filters?: any;
+  onCreatePost?: () => void;
+}
+
+const LoadingState = () => (
+  <div className="space-y-3">
+    <Skeleton className="h-8 w-32" />
+    <Skeleton className="h-24 w-full" />
+    <Skeleton className="h-6 w-48" />
+    <Skeleton className="h-6 w-32" />
+  </div>
+);
+
+const EmptyState = ({ onCreatePost }: { onCreatePost?: () => void }) => (
+  <div className="flex flex-col items-center justify-center h-64">
+    <p className="text-muted-foreground mb-4">No posts found. Create your first post!</p>
+    {onCreatePost && (
+      <Button onClick={onCreatePost}>Create Post</Button>
+    )}
+  </div>
+);
+
+export default function SocialMediaContent({ platform, filters, onCreatePost }: SocialMediaContentProps) {
+  const [posts, setPosts] = useState<SocialMediaPost[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTime, setSelectedTime] = useState<string>("12:00");
+
+  useEffect(() => {
+    fetchPosts();
+  }, [platform, filters]);
+
+  const fetchPosts = async () => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const result = await createPost(data);
-      const response = standardizeApiResponse(result, 'Post created successfully');
-      
-      if (response.success) {
-        toast.success(response.message);
-      } else {
-        toast.error(response.message);
+      let query = supabase
+        .from('social_media_posts')
+        .select('*')
+        .eq('platform', platform);
+
+      if (filters?.status) {
+        query = query.eq('status', filters.status);
       }
-      
-      return response;
-    } catch (err) {
-      const errorResponse = standardizeApiResponse(null, 'Failed to create post', err);
-      toast.error(errorResponse.message);
-      return errorResponse;
+
+      if (filters?.search) {
+        query = query.ilike('content', `%${filters.search}%`);
+      }
+
+      if (selectedDate) {
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+        query = query.eq('scheduled_date', formattedDate);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      setPosts(data);
+    } catch (error: any) {
+      setError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  const handleDeletePost = async (postId: string) => {
-    try {
-      const result = await deletePost(postId);
-      const response = standardizeApiResponse(result, 'Post deleted successfully');
-      
-      if (response.success) {
-        toast.success(response.message);
-      } else {
-        toast.error(response.message);
-      }
-      
-      return response;
-    } catch (err) {
-      const errorResponse = standardizeApiResponse(null, 'Failed to delete post', err);
-      toast.error(errorResponse.message);
-      return errorResponse;
-    }
-  };
-  
+
   const handleSchedulePost = async (postId: string) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const result = await schedule(postId);
-      const response = standardizeApiResponse(result, 'Post scheduled successfully');
-      
-      if (response.success) {
-        toast.success(response.message);
-      } else {
-        toast.error(response.message);
+      if (!selectedDate) {
+        throw new Error("Please select a date to schedule the post.");
       }
-      
-      return response;
-    } catch (err) {
-      const errorResponse = standardizeApiResponse(null, 'Failed to schedule post', err);
-      toast.error(errorResponse.message);
-      return errorResponse;
+
+      const formattedDate = selectedDate.toISOString();
+
+      const { data, error } = await supabase
+        .from('social_media_posts')
+        .update({
+          status: 'scheduled',
+          scheduled_at: formattedDate,
+        })
+        .eq('id', postId)
+        .select()
+
+      if (error) {
+        throw error;
+      }
+
+      fetchPosts();
+      toast.success("Post scheduled successfully!");
+    } catch (error: any) {
+      setError(error);
+      toast.error(error.message || "Failed to schedule post");
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  const handleApprovePost = async (postId: string) => {
+
+  const handlePublishPost = async (postId: string) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const result = await approve(postId);
-      const response = standardizeApiResponse(result, 'Post approved successfully');
-      
-      if (response.success) {
-        toast.success(response.message);
-      } else {
-        toast.error(response.message);
+      const { data, error } = await supabase
+        .from('social_media_posts')
+        .update({
+          status: 'published',
+          published_at: new Date().toISOString(),
+        })
+        .eq('id', postId)
+        .select()
+
+      if (error) {
+        throw error;
       }
-      
-      return response;
-    } catch (err) {
-      const errorResponse = standardizeApiResponse(null, 'Failed to approve post', err);
-      toast.error(errorResponse.message);
-      return errorResponse;
+
+      fetchPosts();
+      toast.success("Post published successfully!");
+    } catch (error: any) {
+      setError(error);
+      toast.error(error.message || "Failed to publish post");
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  // Function to convert Date to string for the social media post dialog
-  const handleSubmitPost = (data: any) => {
-    // Convert Date objects to strings if needed
-    if (data.scheduled_date && data.scheduled_date instanceof Date) {
-      data.scheduled_date = format(data.scheduled_date, 'yyyy-MM-dd');
+
+  const handleUnpublishPost = async (postId: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase
+        .from('social_media_posts')
+        .update({
+          status: 'draft',
+          published_at: null,
+        })
+        .eq('id', postId)
+        .select()
+
+      if (error) {
+        throw error;
+      }
+
+      fetchPosts();
+      toast.success("Post unpublished successfully!");
+    } catch (error: any) {
+      setError(error);
+      toast.error(error.message || "Failed to unpublish post");
+    } finally {
+      setIsLoading(false);
     }
-    return createPost(data);
   };
-  
+
+  const handleDeletePost = async (postId: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase
+        .from('social_media_posts')
+        .delete()
+        .eq('id', postId)
+
+      if (error) {
+        throw error;
+      }
+
+      fetchPosts();
+      toast.success("Post deleted successfully!");
+    } catch (error: any) {
+      setError(error);
+      toast.error(error.message || "Failed to delete post");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (error !== null) {
+      return (
+        <div className="flex flex-col items-center justify-center h-64">
+          <AlertMessage 
+            title="Error Loading Content" 
+            description={error.message || "Failed to load social media content"} 
+          />
+        </div>
+      );
+    }
+
+    if (!posts || posts.length === 0) {
+      return <EmptyState onCreatePost={onCreatePost} />;
+    }
+
+    return (
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <Card key={post.id}>
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <Avatar>
+                  <AvatarImage src={`/icons/${platform}-logo.png`} alt={`${platform} logo`} />
+                  <AvatarFallback>{platform.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <CardTitle>{platform}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p>{post.content}</p>
+              {post.media_urls && post.media_urls.length > 0 && (
+                <img src={post.media_urls[0]} alt="Media" className="mt-4 rounded-md" />
+              )}
+            </CardContent>
+            <CardFooter className="flex items-center justify-between">
+              <div>
+                {post.status === 'scheduled' && post.scheduled_at && (
+                  <Badge variant="secondary">
+                    Scheduled for {new Date(post.scheduled_at).toLocaleString()}
+                  </Badge>
+                )}
+                {post.status === 'published' && post.published_at && (
+                  <Badge variant="default">
+                    Published on {new Date(post.published_at).toLocaleString()}
+                  </Badge>
+                )}
+                {post.status === 'draft' && (
+                  <Badge variant="outline">Draft</Badge>
+                )}
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => {}}>
+                    <Copy className="mr-2 h-4 w-4" /> Copy
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {post.status === 'draft' && (
+                    <DropdownMenuItem onClick={() => handlePublishPost(post.id)}>
+                      <RefreshCw className="mr-2 h-4 w-4" /> Publish Now
+                    </DropdownMenuItem>
+                  )}
+                  {post.status === 'published' && (
+                    <DropdownMenuItem onClick={() => handleUnpublishPost(post.id)}>
+                      <RefreshCw className="mr-2 h-4 w-4" /> Unpublish
+                    </DropdownMenuItem>
+                  )}
+                  {post.status === 'draft' && (
+                    <DropdownMenuItem onClick={() => handleSchedulePost(post.id)}>
+                      <CalendarIcon className="mr-2 h-4 w-4" /> Schedule Post
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => handleDeletePost(post.id)}>
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      <SocialMediaHeader 
-        onCreatePost={openCreateDialog} 
-        aria-label={screenReaderFriendly ? "Social Media Calendar Header with Create Post button" : undefined}
-      />
-      
-      <SocialMediaFilters 
-        currentMonth={currentMonth}
-        onMonthChange={setCurrentMonth}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedPlatform={selectedPlatform}
-        onPlatformChange={setSelectedPlatform}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        onApplyFilters={handleFilterSubmit}
-        onClearFilters={handleClearFilters}
-        aria-label={screenReaderFriendly ? "Social Media Content Filters" : undefined}
-      />
-      
-      <ViewToggle 
-        view={view}
-        onViewChange={setView}
-        postCount={posts.length}
-        aria-label={screenReaderFriendly ? "Toggle between list and calendar view" : undefined}
-      />
-      
-      <PostsDisplay
-        view={view}
-        posts={posts}
-        isLoading={isLoading}
-        error={formattedError}
-        currentMonth={currentMonth}
-        onEditPost={(post) => console.log('Edit post', post)}
-        onDeletePost={handleDeletePost}
-        onSchedulePost={handleSchedulePost}
-        onApprovePost={handleApprovePost}
-        onCreatePost={openCreateDialog}
-        onRefresh={refreshPosts}
-        aria-label={screenReaderFriendly ? "Social Media Posts List View" : undefined}
-      />
-      
-      <DialogCreate
-        open={isCreateDialogOpen}
-        onOpenChange={closeCreateDialog}
-        onSubmit={handleSubmitPost}
-      />
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold tracking-tight">{platform} Content</h2>
+      <div className="flex items-center space-x-4">
+        <DatePicker date={selectedDate} setDate={setSelectedDate} />
+        <TimePicker time={selectedTime} setTime={setSelectedTime} />
+      </div>
+      {renderContent()}
     </div>
   );
 }

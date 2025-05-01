@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UnifiedExecutiveMessage } from '@/types/unified-types';
@@ -7,6 +6,8 @@ import { ArrowRight, MessagesSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { normalizeExecutiveMessage } from '@/utils/authCompatibility';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/services/supabaseClient';
 
 interface RecentExecutiveMessagesProps {
   messages: UnifiedExecutiveMessage[];
