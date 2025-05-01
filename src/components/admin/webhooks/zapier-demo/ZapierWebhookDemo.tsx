@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useZapier } from '@/lib/zapier';
+import { useZapier } from '@/hooks/useZapier';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BusinessEventType } from '@/types/fixed/Webhook';
@@ -22,7 +22,7 @@ interface ZapierWebhookDemoProps {
 }
 
 const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => {
-  const zapier = useZapier();
+  const { triggerBusinessEvent } = useZapier();
   const [isTriggering, setIsTriggering] = useState(false);
   const [testEvent, setTestEvent] = useState<TestEvent>({
     entityId: 'test-strategy-123',
@@ -37,11 +37,11 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
   const triggerTestEvent = async () => {
     setIsTriggering(true);
     try {
-      const result = await zapier.triggerWorkflow(webhookUrl, { test: true });
+      const result = await triggerBusinessEvent(webhookUrl, 'test_event' as BusinessEventType, { test: true });
       if (result.success) {
         toast.success(`Event triggered successfully`);
       } else {
-        toast.error(`Failed to trigger event: ${result.message || 'Unknown error'}`);
+        toast.error(`Failed to trigger event: ${result.message || (result.error instanceof Error ? result.error.message : 'Unknown error')}`);
       }
     } catch (error: any) {
       console.error("Error triggering test event:", error);
@@ -54,7 +54,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
   const triggerStrategyApprovedEvent = async () => {
     setIsTriggering(true);
     try {
-      const result = await zapier.triggerStrategyApproved(webhookUrl, {
+      const result = await triggerBusinessEvent(webhookUrl, 'strategy_approved' as BusinessEventType, {
         entityId: testEvent.entityId,
         entityType: testEvent.entityType,
         strategyName: testEvent.strategyName,

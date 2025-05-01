@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { User } from '@/models/user';
+import { User } from '@/types/fixed/User';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -15,7 +15,7 @@ export function useUserManagement() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, company_id, role, created_at')
+        .select('id, name, email, company_id, role, created_at')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -26,9 +26,15 @@ export function useUserManagement() {
       const mappedUsers: User[] = (data || []).map(profile => ({
         id: profile.id,
         name: profile.name || '',
+        email: profile.email || '',
+        firstName: '',
+        lastName: '',
         company_id: profile.company_id,
         role: (profile.role as 'admin' | 'user') || 'user',
-        created_at: profile.created_at
+        created_at: profile.created_at,
+        company: '',
+        industry: '',
+        app_metadata: {}
       }));
 
       setUsers(mappedUsers);
@@ -47,7 +53,7 @@ export function useUserManagement() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, company_id, role, created_at')
+        .select('id, name, email, company_id, role, created_at')
         .eq('company_id', companyId)
         .order('created_at', { ascending: false });
 
@@ -59,9 +65,15 @@ export function useUserManagement() {
       const mappedUsers: User[] = (data || []).map(profile => ({
         id: profile.id,
         name: profile.name || '',
+        email: profile.email || '',
+        firstName: '',
+        lastName: '',
         company_id: profile.company_id,
         role: (profile.role as 'admin' | 'user') || 'user',
-        created_at: profile.created_at
+        created_at: profile.created_at,
+        company: '',
+        industry: '',
+        app_metadata: {}
       }));
       
       setCompanyUsers(mappedUsers);
