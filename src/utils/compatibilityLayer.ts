@@ -26,6 +26,10 @@ export function normalizeUser(user: any): User | null {
       `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() : ''),
     role: user.role || (user.user_metadata ? user.user_metadata.role : '') || 'user',
     avatar_url: user.avatar_url || (user.user_metadata ? user.user_metadata.avatar : undefined),
+    // Make sure the company_id is available
+    company_id: user.company_id || null,
+    company: user.company || null,
+    industry: user.industry || null
   };
 }
 

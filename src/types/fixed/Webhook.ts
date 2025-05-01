@@ -26,3 +26,11 @@ export interface Webhook {
   lastTriggered?: string;
   events?: string[];
 }
+
+// Add BusinessEventType to support ZapierWebhookDemo
+export type BusinessEventType = 'test_event' | 'strategy_approved' | 'lead_created' | 'campaign_created';
+export type WebhookResult = { 
+  success: boolean; 
+  message?: string;
+  error?: Error;
+};

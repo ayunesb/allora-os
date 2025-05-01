@@ -17,6 +17,7 @@ export interface User {
     lastName: string;
     avatar?: string;
     role?: string;
+    name?: string;
   };
   updated_at?: string;
   created_at?: string;

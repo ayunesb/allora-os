@@ -12,7 +12,7 @@ export interface ChecklistItem {
 }
 
 export interface ChecklistCategory {
-  id: string; // Added explicitly as required
+  id: string;
   name: string;
   description?: string;
   items: ChecklistItem[];
@@ -25,7 +25,7 @@ export interface DatabaseTableStatus {
   missingColumns?: string[];
   valid: boolean;
   message?: string;
-  rls?: boolean; // Added for rls property used in components
+  rls?: boolean;
 }
 
 export interface LaunchProgressProps {
@@ -62,7 +62,7 @@ export interface LaunchInfoProps {
   title: string;
   description?: string;
   icon?: ReactNode;
-  status: 'pending' | 'in-progress' | 'completed' | 'error' | 'info' | 'success' | 'warning'; // Extended status types
+  status: 'pending' | 'in-progress' | 'completed' | 'error' | 'info' | 'success' | 'warning';
   children?: ReactNode;
 }
 
@@ -70,7 +70,7 @@ export interface LaunchInfoBoxProps {
   title: string;
   description?: string;
   icon?: ReactNode;
-  status: 'pending' | 'in-progress' | 'completed' | 'error' | 'info' | 'success' | 'warning'; // Extended status types
+  status: 'pending' | 'in-progress' | 'completed' | 'error' | 'info' | 'success' | 'warning';
   children?: ReactNode;
 }
 

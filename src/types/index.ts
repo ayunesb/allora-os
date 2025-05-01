@@ -13,3 +13,6 @@ export { WebhookType } from '@/utils/webhookValidation';
 
 // Re-export any other types needed
 export * from './Checklist';
+
+// Define any additional types needed by multiple components
+export type { BusinessEventType, WebhookResult } from './fixed/Webhook';
