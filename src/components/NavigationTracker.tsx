@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { trackRouteVisit } from '@/utils/navigation';
 import { useAccessibility } from '@/context/AccessibilityContext';
+import { applyAccessibilityClasses } from '@/utils/accessibilityHelpers';
 
 /**
  * Component that silently tracks navigation to help with
