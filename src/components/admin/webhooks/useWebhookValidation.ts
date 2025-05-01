@@ -16,7 +16,7 @@ export function useWebhookValidation(webhookType: WebhookType | 'notion') {
     }
     
     // Check URL format
-    const validFormat = validateWebhookUrlFormat(url, webhookType as WebhookType);
+    const validFormat = validateWebhookUrlFormat(url);
     setIsValid(validFormat);
     
     if (validFormat) {

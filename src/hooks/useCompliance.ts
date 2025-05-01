@@ -1,5 +1,4 @@
 
-
 import { useContext } from 'react';
 import { ComplianceContext } from '@/context/ComplianceContext';
 import { ExtendedComplianceContextType } from '@/types/unified-types';

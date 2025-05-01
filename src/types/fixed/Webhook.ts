@@ -1,23 +1,12 @@
 
-export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
+/**
+ * Standard webhook type definitions used across the application
+ */
 
-export interface WebhookEvent {
-  id: string;
-  webhook_id: string;
-  eventType: string;
-  event_type: string;
-  status: 'success' | 'failed' | 'pending';
-  created_at: string;
-  payload: any;
-  response?: any;
-  targetUrl: string;
-  url?: string;
-  webhookType: WebhookType;
-  webhook_type?: WebhookType;
-  timestamp: string;
-  type?: string; // For backward compatibility
-}
+// Supported webhook integration types
+export type WebhookType = 'zapier' | 'custom' | 'slack' | 'notion' | 'github' | 'stripe';
 
+// Webhook event types for business events
 export type BusinessEventType = 
   | 'campaign_created' 
   | 'strategy_approved' 
@@ -28,15 +17,50 @@ export type BusinessEventType =
   | 'lead_added'
   | 'test_event';
 
+// Webhook event status
+export type WebhookStatus = 'success' | 'failed' | 'pending';
+
+// Standard webhook event interface
+export interface WebhookEvent {
+  id: string;
+  webhook_id?: string;
+  event_type: string;
+  eventType?: string;
+  status: WebhookStatus;
+  created_at: string;
+  targetUrl: string;
+  url?: string;
+  response?: any;
+  duration?: number;
+  webhook_type?: WebhookType;
+  webhookType?: WebhookType;
+  payload?: any;
+}
+
+// Payload interface for business events
 export interface BusinessEventPayload {
-  eventType: BusinessEventType | string;
+  eventType: BusinessEventType;
   data: Record<string, any>;
 }
 
+// Result of webhook operations
 export interface WebhookResult {
   success: boolean;
   message?: string;
-  error?: any;
   statusCode?: number;
-  responseData?: any;
+  data?: any;
+}
+
+// Webhook configuration
+export interface WebhookConfig {
+  id?: string;
+  type: WebhookType;
+  url: string;
+  name?: string;
+  description?: string;
+  events?: string[];
+  headers?: Record<string, string>;
+  enabled?: boolean;
+  created_at?: string;
+  tenant_id?: string;
 }
