@@ -1,46 +1,70 @@
 
 import React from 'react';
-import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, CheckCircle2, XCircle, Database } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-interface CheckItem {
-  name: string;
-  status: 'success' | 'warning' | 'error';
+interface DatabaseChecksSectionProps {
+  isVerifying: boolean;
+  isConnected?: boolean;
+  onVerify: () => void;
   message?: string;
 }
 
-interface DatabaseChecksSectionProps {
-  title: string;
-  items: CheckItem[];
-}
-
-export function DatabaseChecksSection({ title, items }: DatabaseChecksSectionProps) {
+export function DatabaseChecksSection({ 
+  isVerifying, 
+  isConnected,
+  onVerify,
+  message = 'Verify database connection and schema'
+}: DatabaseChecksSectionProps) {
   return (
-    <div className="bg-muted/50 rounded-md p-4">
-      <h3 className="font-medium mb-3">{title}</h3>
-      
-      <div className="space-y-2">
-        {items.map((item, index) => (
-          <div key={index} className="flex items-center justify-between p-2 bg-background rounded-md">
-            <div className="flex items-center gap-2">
-              {item.status === 'success' && <CheckCircle className="h-4 w-4 text-green-500" />}
-              {item.status === 'warning' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
-              {item.status === 'error' && <XCircle className="h-4 w-4 text-red-500" />}
-              <span>{item.name}</span>
-            </div>
-            {item.message && (
-              <span className="text-xs text-muted-foreground">
-                {item.message}
-              </span>
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary/80" />
+            <CardTitle className="text-lg">Database Connection</CardTitle>
+          </div>
+          <Button 
+            variant="outline"
+            size="sm" 
+            onClick={onVerify}
+            disabled={isVerifying}
+          >
+            {isVerifying ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              'Verify Connection'
             )}
-          </div>
-        ))}
-        
-        {items.length === 0 && (
-          <div className="text-center py-2 text-muted-foreground">
-            No checks available
-          </div>
-        )}
-      </div>
-    </div>
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-3 p-3 rounded-md border">
+          {isConnected === undefined ? (
+            <div className="text-muted-foreground flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              <span>Database connection not verified yet</span>
+            </div>
+          ) : isConnected ? (
+            <div className="text-green-600 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" />
+              <span>Database connection successful</span>
+            </div>
+          ) : (
+            <div className="text-red-600 flex items-center gap-2">
+              <XCircle className="h-4 w-4" />
+              <span>Database connection failed</span>
+            </div>
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground mt-2">
+          {message}
+        </p>
+      </CardContent>
+    </Card>
   );
 }

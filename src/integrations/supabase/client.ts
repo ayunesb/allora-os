@@ -1,23 +1,21 @@
 
 // Export the existing supabase client from this file
-export const supabase = {
-  from: (table: string) => ({
-    select: () => ({
-      eq: () => ({})
-    })
-  }),
+import { createClient } from '@supabase/supabase-js';
+import { getSupabaseUrl, getSupabaseAnonKey } from '@/utils/env';
+import { logger } from '@/utils/loggingService';
+
+// Get Supabase configuration values
+const supabaseUrl = getSupabaseUrl();
+const supabaseAnonKey = getSupabaseAnonKey();
+
+// Create the Supabase client with proper configuration
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    signIn: () => ({}),
-    signOut: () => ({}),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-    getSession: () => Promise.resolve({ data: { session: null } }),
-    refreshSession: () => Promise.resolve({ data: { session: null }, error: null })
-  },
-  storage: {
-    from: (bucket: string) => ({})
-  },
-  rpc: (func: string) => ({})
-};
+    persistSession: true,
+    autoRefreshToken: true,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined
+  }
+});
 
 // Add the checkSupabaseConnection function
 export async function checkSupabaseConnection() {
@@ -33,5 +31,31 @@ export async function checkSupabaseConnection() {
       connected: false,
       message: error instanceof Error ? error.message : "Failed to connect to Supabase"
     };
+  }
+}
+
+// Add getSession function
+export async function getSession() {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      logger.error('Error getting session:', error);
+      return { session: null };
+    }
+    return { session: data.session };
+  } catch (error) {
+    logger.error('Exception getting session:', error);
+    return { session: null };
+  }
+}
+
+// Add getCurrentUser function
+export async function getCurrentUser() {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    logger.error('Exception getting current user:', error);
+    return null;
   }
 }

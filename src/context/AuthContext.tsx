@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
@@ -43,8 +44,13 @@ interface AuthProviderProps {
 }
 
 // Use values from config or fallback to environment variables
-const supabaseUrl = SUPABASE_CONFIG.url;
-const supabaseKey = SUPABASE_CONFIG.anonKey;
+const supabaseUrl = SUPABASE_CONFIG.url || '';
+const supabaseKey = SUPABASE_CONFIG.anonKey || '';
+
+// Ensure we have valid configuration values
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Missing Supabase configuration. Check your environment variables or config file.');
+}
 
 // Create the Supabase client with explicit URL and key
 const supabase = createClient(supabaseUrl, supabaseKey, {

@@ -1,95 +1,106 @@
 
-import React from 'react';
-import { CheckCircle2, AlertTriangle, XCircle, Clock, Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ChecklistItem as ChecklistItemType } from './types';
+import React, { useState } from 'react';
+import { CheckCircle, AlertTriangle, Clock, Loader2, XCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import type { ChecklistItem as ChecklistItemType } from './types';
 
 interface ChecklistItemProps {
   item: ChecklistItemType;
 }
 
 export function ChecklistItem({ item }: ChecklistItemProps) {
-  // Determine status icon and color
-  const renderStatusIcon = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+  
+  // Map status to icon and color
+  const getStatusInfo = () => {
     switch (item.status) {
       case 'completed':
-        return <CheckCircle2 className="h-5 w-5 text-green-600" />;
+        return { 
+          icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+          textColor: 'text-green-600'
+        };
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      case 'error':
-        return <XCircle className="h-5 w-5 text-red-600" />;
+        return { 
+          icon: <AlertTriangle className="h-5 w-5 text-amber-500" />,
+          textColor: 'text-amber-600'
+        };
       case 'in-progress':
-        return <Clock className="h-5 w-5 text-blue-600" />;
+        return { 
+          icon: <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />,
+          textColor: 'text-blue-600'
+        };
+      case 'error':
+        return { 
+          icon: <XCircle className="h-5 w-5 text-red-500" />,
+          textColor: 'text-red-600'
+        };
       case 'pending':
       default:
-        return <Clock className="h-5 w-5 text-gray-400" />;
+        return { 
+          icon: <Clock className="h-5 w-5 text-gray-400" />,
+          textColor: 'text-gray-500'
+        };
     }
   };
   
-  const getStatusText = () => {
-    switch (item.status) {
-      case 'completed':
-        return 'Completed';
-      case 'warning':
-        return 'Warning';
-      case 'error':
-        return 'Error';
-      case 'in-progress':
-        return 'In Progress';
-      case 'pending':
-      default:
-        return 'Pending';
-    }
-  };
+  const { icon, textColor } = getStatusInfo();
   
   return (
-    <div className="p-3 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        {renderStatusIcon()}
+    <div className="border-b last:border-b-0 py-3">
+      <div className="flex items-start gap-3 px-4">
+        <div className="pt-0.5">
+          {icon}
+        </div>
         
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-medium">{item.name}</span>
-            {item.isRequired && (
-              <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">Required</span>
+        <div className="flex-grow">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium">{item.name}</h4>
+              {item.description && (
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+              )}
+            </div>
+            
+            {(item.status === 'error' || item.status === 'warning') && item.statusMessage && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={cn("text-xs", textColor)}
+                onClick={toggleExpanded}
+              >
+                {isExpanded ? "Hide Details" : "Show Details"}
+              </Button>
             )}
           </div>
           
-          {item.description && (
-            <p className="text-sm text-muted-foreground">{item.description}</p>
+          {/* Status message and details */}
+          {item.statusMessage && (
+            <div className={cn("text-sm mt-1", textColor)}>
+              {item.statusMessage}
+            </div>
           )}
           
-          {item.statusMessage && (
-            <p className={`text-sm mt-1 ${
-              item.status === 'warning' 
-                ? 'text-yellow-600' 
-                : item.status === 'error' 
-                ? 'text-red-600' 
-                : 'text-muted-foreground'
-            }`}>
-              {item.statusMessage}
-            </p>
+          {item.details && isExpanded && (
+            <div className="mt-2 p-3 bg-muted/50 rounded-md text-sm">
+              <pre className="whitespace-pre-wrap font-mono text-xs">
+                {item.details}
+              </pre>
+            </div>
           )}
         </div>
+        
+        {/* Required badge for required items */}
+        {item.isRequired && (
+          <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+            Required
+          </div>
+        )}
       </div>
-      
-      {item.details && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button 
-                className="p-1.5 rounded-full hover:bg-secondary"
-                aria-label="View details"
-              >
-                <Info className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs">{item.details}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
     </div>
   );
 }
