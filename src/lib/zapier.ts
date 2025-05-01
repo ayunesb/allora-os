@@ -1,9 +1,6 @@
 
 import { toast } from 'sonner';
-import { CampaignPayload, LeadPayload, WebhookResult, BusinessEventPayload } from '@/types/Webhooks';
-import { BusinessEventType } from '@/utils/webhookTypes';
-
-export type { BusinessEventType };
+import { CampaignPayload, LeadPayload, WebhookResult, BusinessEventPayload, BusinessEventType } from '@/types';
 
 export const useZapier = () => {
   const triggerWebhook = async (url: string, payload: any): Promise<WebhookResult> => {

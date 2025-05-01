@@ -1,105 +1,51 @@
 
-export interface ValidationResultItem {
-  name: string;
-  status: 'success' | 'error' | 'warning' | 'info';
-  message: string;
-  details?: string;
-}
-
-export interface ValidationResults {
-  tables?: ValidationResultItem[];
-  functions?: ValidationResultItem[];
-  policies?: ValidationResultItem[];
-  indexes?: ValidationResultItem[];
-  other?: ValidationResultItem[];
-}
-
-export interface VerificationResponse {
-  success: boolean;
-  results: ValidationResults;
-  isReady?: boolean;
-  message?: string;
-}
-
-export interface DatabaseVerificationProps {
-  results: ValidationResults | null;
-  isChecking: boolean;
-}
+import { ReactNode } from 'react';
 
 export interface LaunchInfoProps {
   title: string;
   description?: string;
-  icon?: React.ReactNode;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
-  children?: React.ReactNode;
+  icon?: ReactNode;
+  status?: 'initial' | 'in-progress' | 'completed' | 'error';
+  children?: ReactNode;
 }
 
-export interface LaunchInfoBoxProps extends LaunchInfoProps {}
-
-export interface CampaignPayload {
-  campaignId: string;
-  campaignTitle: string;
-  platform: string;
-  budget: number;
-  owner: string;
-  companyId: string;
-}
-
-export interface LeadPayload {
-  leadId: string;
-  leadName: string;
-  company: string;
-  email: string;
-  source: string;
-}
-
-export interface ChecklistItem {
-  id: string;
-  name: string;
-  status: 'pending' | 'completed' | 'error' | 'warning' | 'in-progress';
+export interface LaunchInfoBoxProps {
+  title: string;
   description?: string;
-  statusMessage?: string;
-  details?: string;
-  isRequired?: boolean;
-}
-
-export interface ChecklistCategory {
-  id: string;
-  name: string;
-  description?: string;
-  items: ChecklistItem[];
-}
-
-export interface EnhancedVerificationState {
-  categories: ChecklistCategory[];
-  isReady: boolean;
-}
-
-export interface DatabaseTableStatus {
-  name: string;
-  exists: boolean;
-  columns: {
-    name: string;
-    type: string;
-    exists: boolean;
-  }[];
-  rls?: boolean;
-  hasRLS?: boolean;
+  icon?: ReactNode;
+  status?: 'initial' | 'in-progress' | 'completed' | 'error';
+  children?: ReactNode;
 }
 
 export interface LaunchProgressProps {
   totalItems: number;
   completedItems: number;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  status: string;
   isComplete?: boolean;
-  launchStep?: number;
+  launchStep?: string;
 }
 
-export interface ValidationResultsUI {
-  isReady?: boolean;
-  databaseTables?: any[];
-  databaseIndexes?: any[];
-  databaseFunctions?: any[];
-  rlsPolicies?: any[];
-  policies?: any[];
+export interface ValidationResultItemProps {
+  id: string;
+  title: string;
+  result: { valid: boolean; message: string };
+}
+
+export interface DatabaseTableStatus {
+  name: string;
+  description?: string;
+  exists: boolean;
+  hasData?: boolean;
+  columnsValid?: boolean;
+}
+
+export interface ChecklistItemProps {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  isRequired?: boolean;
+  onAction?: () => void;
+  actionLabel?: string;
+  disableAction?: boolean;
 }

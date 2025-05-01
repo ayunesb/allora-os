@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useZapier } from '@/lib/zapier';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BusinessEventType, WebhookResult } from '@/types';
 
 interface TestEvent {
   entityId: string;
@@ -35,7 +37,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
   const triggerTestEvent = async () => {
     setIsTriggering(true);
     try {
-      const result = await triggerBusinessEvent(webhookUrl, 'test_event', { test: true });
+      const result = await triggerBusinessEvent(webhookUrl, 'test_event' as BusinessEventType, { test: true });
       if (result.success) {
         toast.success(`Event triggered successfully`);
       } else {
@@ -52,7 +54,7 @@ const ZapierWebhookDemo: React.FC<ZapierWebhookDemoProps> = ({ webhookUrl }) => 
   const triggerStrategyApprovedEvent = async () => {
     setIsTriggering(true);
     try {
-      const result = await triggerBusinessEvent(webhookUrl, 'strategy_approved', {
+      const result = await triggerBusinessEvent(webhookUrl, 'strategy_approved' as BusinessEventType, {
         entityId: testEvent.entityId,
         entityType: testEvent.entityType,
         strategyName: testEvent.strategyName,

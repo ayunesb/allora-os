@@ -1,86 +1,41 @@
 
-import { WebhookType, WebhookResult } from '@/types/Webhooks';
+import { WebhookType } from '@/types';
 
 export function validateWebhookUrlFormat(url: string, type: WebhookType): boolean {
-  if (!url || typeof url !== 'string') {
-    return false;
-  }
+  if (!url) return false;
   
   try {
-    const parsedUrl = new URL(url);
+    // First check if it's a valid URL
+    new URL(url);
     
-    // Basic checks
-    if (!parsedUrl.protocol.startsWith('http')) {
-      return false;
-    }
-    
-    // Specific webhook type validation
+    // Then check type-specific patterns
     switch (type) {
-      case 'stripe':
-        return parsedUrl.hostname === 'api.stripe.com' || parsedUrl.hostname.endsWith('.stripe.com');
-      
       case 'zapier':
-        return parsedUrl.hostname === 'hooks.zapier.com' || parsedUrl.hostname.endsWith('.zapier.com');
-      
-      case 'github':
-        return parsedUrl.hostname === 'api.github.com' || parsedUrl.hostname.endsWith('.github.com');
-      
+        return url.startsWith('https://hooks.zapier.com/');
       case 'slack':
-        return parsedUrl.hostname === 'hooks.slack.com' || parsedUrl.hostname.endsWith('.slack.com');
-      
+        return url.startsWith('https://hooks.slack.com/');
+      case 'github':
+        return url.includes('github.com') || url.includes('githubusercontent.com');
+      case 'stripe':
+        return url.startsWith('https://');
+      case 'notion':
+        return url.includes('notion.so') || url.includes('notion.site');
       case 'custom':
-        // For custom webhooks, just ensure it's a valid HTTPS URL
-        return parsedUrl.protocol === 'https:';
-      
+        return url.startsWith('https://') || url.startsWith('http://');
       default:
-        return true;
+        return url.startsWith('https://');
     }
-  } catch (error) {
-    // URL parsing failed
+  } catch (e) {
     return false;
   }
 }
 
-export function sanitizeWebhookUrl(url: string, type: WebhookType): string {
-  return url.trim();
-}
-
-export async function testWebhook(url: string, type: WebhookType): Promise<WebhookResult> {
-  if (!validateWebhookUrlFormat(url, type)) {
-    return {
-      success: false,
-      message: `Invalid ${type} webhook URL format`
-    };
+export function validateWebhookPayload(payload: any): boolean {
+  // Basic validation for webhook payloads
+  if (!payload || typeof payload !== 'object') {
+    return false;
   }
   
-  try {
-    // Send a test ping to the webhook
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      mode: 'no-cors',
-      body: JSON.stringify({
-        test: true,
-        message: `Test ping from Allora AI at ${new Date().toISOString()}`,
-        webhook_type: type
-      }),
-    });
-    
-    // With mode: 'no-cors', we won't get a proper response to check
-    // Just assume it was sent successfully
-    return {
-      success: true,
-      message: `Test sent to ${type} webhook`
-    };
-  } catch (error) {
-    console.error(`Error testing ${type} webhook:`, error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
+  // Must have at least some properties
+  return Object.keys(payload).length > 0;
 }
-
-export { WebhookType };
