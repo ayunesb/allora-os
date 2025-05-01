@@ -14,7 +14,7 @@ export default function ZapierReadiness() {
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState("test");
   const [webhookUrl, setWebhookUrl] = useState("");
-  const [isValid, setIsValid] = useState<boolean | null>(null);
+  const [isValid, setIsValid] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState(false);
   
   // Load webhook URL from localStorage on mount
@@ -28,11 +28,11 @@ export default function ZapierReadiness() {
   
   const validateUrl = (url: string) => {
     if (!url) {
-      setIsValid(null);
+      setIsValid(false);
       return;
     }
     
-    const validationResult = validateWebhookUrlFormat(url, 'zapier');
+    const validationResult = validateWebhookUrlFormat(url);
     setIsValid(validationResult);
   };
   
@@ -84,7 +84,7 @@ export default function ZapierReadiness() {
           </TabsList>
           
           <TabsContent value="test" className="space-y-4 mt-6">
-            <ZapierReadinessTest />
+            <ZapierReadinessTest webhookUrl={webhookUrl} isValid={isValid} />
           </TabsContent>
           
           <TabsContent value="config" className="space-y-4 mt-6">
@@ -110,7 +110,7 @@ export default function ZapierReadiness() {
                   />
                   {isValid === false && (
                     <p className="text-red-500 text-sm">
-                      Please enter a valid Zapier webhook URL (https://hooks.zapier.com/hooks/catch/...)
+                      Please enter a valid Zapier webhook URL
                     </p>
                   )}
                 </div>

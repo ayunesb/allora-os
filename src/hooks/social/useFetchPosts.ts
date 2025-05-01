@@ -1,91 +1,101 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { SocialMediaPost, SocialMediaCalendarFilters } from '@/types/socialMedia';
-import { fetchSocialMediaPosts } from '@/services/socialMediaService';
-import { handleApiError } from '@/utils/api/errorHandling';
-import { logger } from '@/utils/loggingService';
-import { refreshData } from '@/utils/shared/dataRefresh';
+import { toast } from 'sonner';
 
-/**
- * Hook for fetching social media posts
- * 
- * Handles loading, error states, and data refreshing for social media posts
- * based on the provided filters.
- */
-export function useFetchPosts(filters: SocialMediaCalendarFilters) {
-  const { profile } = useAuth();
+interface UseFetchPostsOptions {
+  initialFilters?: SocialMediaCalendarFilters;
+  enabled?: boolean;
+}
+
+const useFetchPosts = (options: UseFetchPostsOptions = {}) => {
   const [posts, setPosts] = useState<SocialMediaPost[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const companyId = profile?.company_id;
-  
-  /**
-   * Fetch social media posts
-   * 
-   * Retrieves posts from the backend based on the current filters
-   * and company ID.
-   */
-  const fetchPosts = useCallback(async () => {
-    if (!companyId) return;
-    
-    setIsLoading(true);
+  const [filters, setFilters] = useState<SocialMediaCalendarFilters>(
+    options.initialFilters || {}
+  );
+
+  const fetchPosts = useCallback(async (newFilters?: SocialMediaCalendarFilters) => {
+    const activeFilters = newFilters || filters;
+    setLoading(true);
     setError(null);
-    
+
     try {
-      logger.info('Fetching social media posts', { companyId, filters });
+      console.log('Fetching posts with filters:', activeFilters);
       
-      // Create a timer to measure performance
-      const endTimer = logger.time('fetchSocialMediaPosts');
-      
-      const fetchedPosts = await fetchSocialMediaPosts(companyId, filters);
-      
-      // End the timer
-      endTimer();
-      setPosts(fetchedPosts);
-      logger.info('Successfully fetched posts', { count: fetchedPosts.length });
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch social media posts';
-      
-      handleApiError(err, {
-        customMessage: 'Failed to fetch social media posts',
-        showToast: true,
-        logError: true
-      });
-      setError(errorMessage);
+      let query = supabase
+        .from('social_media_posts')
+        .select('*');
+
+      // Apply filters
+      if (activeFilters.platform) {
+        query = query.eq('platform', activeFilters.platform);
+      }
+
+      if (activeFilters.content_type) {
+        query = query.eq('content_type', activeFilters.content_type);
+      }
+
+      if (activeFilters.status) {
+        query = query.eq('status', activeFilters.status);
+      }
+
+      if (activeFilters.campaign_id) {
+        query = query.eq('campaign_id', activeFilters.campaign_id);
+      }
+
+      if (activeFilters.search_query) {
+        query = query.or(`title.ilike.%${activeFilters.search_query}%,content.ilike.%${activeFilters.search_query}%`);
+      }
+
+      if (activeFilters.date_range && activeFilters.date_range[0] && activeFilters.date_range[1]) {
+        query = query.gte('scheduled_date', activeFilters.date_range[0].toISOString());
+        query = query.lte('scheduled_date', activeFilters.date_range[1].toISOString());
+      }
+
+      const { data, error } = await query.order('scheduled_date', { ascending: true });
+
+      if (error) throw error;
+
+      console.log('Fetched posts:', data);
+      setPosts(data as SocialMediaPost[]);
+    } catch (err) {
+      console.error('Error fetching social media posts:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch posts');
+      toast.error('Failed to load social media posts');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [companyId, filters]);
-  
-  /**
-   * Refreshes posts data
-   * 
-   * Can be called from parent components to trigger a refresh
-   */
-  const refreshPosts = useCallback(async (): Promise<void> => {
-    return refreshData({
-      fetchFn: async () => {
-        const fetchedPosts = await fetchSocialMediaPosts(companyId as string, filters);
-        setPosts(fetchedPosts);
-      },
-      onComplete: async () => { /* No additional actions needed */ },
-      setIsRefreshing: setIsLoading,
-      successMessage: 'Social media posts refreshed',
-      errorMessage: 'Failed to refresh social media posts'
-    });
-  }, [companyId, filters]);
-  
+  }, [filters]);
+
+  const updateFilters = useCallback((newFilters: SocialMediaCalendarFilters) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({});
+  }, []);
+
   // Initial fetch
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    if (options.enabled !== false) {
+      fetchPosts();
+    }
+  }, [fetchPosts, options.enabled]);
 
   return {
     posts,
-    isLoading,
+    loading,
+    isLoading: loading,
     error,
-    refreshPosts
+    filters,
+    updateFilters,
+    clearFilters,
+    fetchPosts,
+    refreshPosts: fetchPosts
   };
-}
+};
+
+export default useFetchPosts;

@@ -6,18 +6,18 @@
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  name: string;
-  role: 'admin' | 'user';
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  role?: 'admin' | 'user';
   avatar?: string;
   avatar_url?: string;
-  company_id: string;
-  company: string;
-  industry: string;
+  company_id?: string;
+  company?: string;
+  industry?: string;
   updated_at?: string;
   created_at?: string;
-  app_metadata: {
+  app_metadata?: {
     is_admin?: boolean;
     [key: string]: any;
   };
@@ -30,6 +30,7 @@ export interface User {
     company_id?: string;
     company?: string;
     industry?: string;
+    [key: string]: any;
   };
-  [key: string]: any; // Fallback to prevent build breaks for legacy properties
+  [key: string]: any; // Fallback for legacy properties
 }

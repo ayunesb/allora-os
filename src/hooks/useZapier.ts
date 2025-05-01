@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { WebhookType } from '@/types/webhooks';
+import { WebhookType } from '@/types/fixed/Webhook';
 
 export interface WebhookResult {
   success: boolean;
@@ -17,7 +17,8 @@ export type BusinessEventType =
   | 'lead_converted'
   | 'revenue_milestone'
   | 'user_onboarded'
-  | 'test_webhook';
+  | 'test_webhook'
+  | 'test_event';
 
 export const useZapier = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);

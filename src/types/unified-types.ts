@@ -1,6 +1,6 @@
 
 import { User } from './fixed/User';
-import { WebhookType, BusinessEventType, WebhookEvent, WebhookConfig, WebhookResult, BusinessEventPayload } from './fixed/Webhook';
+import { WebhookType, BusinessEventType, WebhookEvent, WebhookConfig, WebhookResult, BusinessEventPayload, WebhookStatus } from './fixed/Webhook';
 import { ExtendedComplianceContextType } from './fixed/Compliance';
 import { ExtendedAccessibilityContextType } from './fixed/Accessibility';
 
@@ -62,16 +62,23 @@ export interface UnifiedExecutiveMessage {
   status: string;
 }
 
-// Webhook event with unified properties
-export interface UnifiedWebhookEvent extends WebhookEvent {
-  type?: WebhookType;
-  event_type?: string;
-  timestamp?: string;
-  webhookType?: WebhookType;
+// Unified webhook event that harmonizes all the different property names
+export interface UnifiedWebhookEvent extends Partial<WebhookEvent> {
+  id: string;
+  webhook_id?: string;
+  event_type: string; 
   eventType?: string;
+  status: WebhookStatus;
+  created_at: string;
   targetUrl?: string;
   url?: string;
+  webhook_type?: WebhookType;
+  webhookType?: WebhookType;
+  type?: WebhookType;
+  timestamp?: string;
   source?: string;
+  payload?: any;
+  response?: any;
 }
 
 // Re-export key types
@@ -83,6 +90,7 @@ export type {
   WebhookConfig,
   WebhookResult,
   BusinessEventPayload,
+  WebhookStatus,
   ExtendedComplianceContextType,
   ExtendedAccessibilityContextType
 };

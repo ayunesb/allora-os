@@ -28,12 +28,15 @@ export const Navbar = () => {
           {user ? (
             <div className="flex items-center gap-2">
               <img
-                src={user.avatar_url || user.avatar || '/placeholder-avatar.png'}
-                alt={`${user.name}'s avatar`}
+                src={user.avatar_url || user.avatar || user.user_metadata?.avatar || '/placeholder-avatar.png'}
+                alt={`${user.name || user.user_metadata?.name || ''}'s avatar`}
                 className="w-8 h-8 rounded-full"
               />
               <span className="text-sm font-medium">
-                {user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email}
+                {user.name || 
+                 user.user_metadata?.name || 
+                 `${user.firstName || user.user_metadata?.firstName || ''} ${user.lastName || user.user_metadata?.lastName || ''}`.trim() || 
+                 user.email}
               </span>
             </div>
           ) : (

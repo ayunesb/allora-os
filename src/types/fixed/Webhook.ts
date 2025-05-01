@@ -27,19 +27,19 @@ export interface WebhookEvent {
   id: string;
   webhook_id?: string;
   event_type: string;
-  eventType?: string;
   status: WebhookStatus;
   created_at: string;
-  targetUrl: string;
+  targetUrl?: string;
   url?: string;
   response?: any;
   duration?: number;
   webhook_type?: WebhookType;
   webhookType?: WebhookType;
   payload?: any;
-  timestamp?: string; // Added for compatibility
-  type?: WebhookType; // Added for compatibility
-  source?: string; // Added for compatibility
+  timestamp?: string;
+  type?: WebhookType;
+  source?: string;
+  eventType?: string;
 }
 
 // Payload interface for business events
@@ -54,7 +54,7 @@ export interface WebhookResult {
   message?: string;
   statusCode?: number;
   data?: any;
-  error?: any; // Added for compatibility
+  error?: any;
 }
 
 // Webhook configuration

@@ -1,6 +1,13 @@
 
 import { useState, useCallback } from 'react';
-import { WebhookType, WebhookStatus, WebhookFilter } from '@/types/webhooks';
+import { WebhookType, WebhookStatus, WebhookEvent } from '@/types/fixed/Webhook';
+
+interface WebhookFilter {
+  types?: WebhookType[];
+  status?: WebhookStatus | '';
+  dateRange?: [Date | null, Date | null];
+  search?: string;
+}
 
 const useWebhookHistoryFilters = () => {
   const [filters, setFilters] = useState<WebhookFilter>({
@@ -24,10 +31,10 @@ const useWebhookHistoryFilters = () => {
   }, []);
 
   // Filter function to apply to webhook events
-  const filterEvent = useCallback((event: any) => {
+  const filterEvent = useCallback((event: WebhookEvent) => {
     // Type filter
     if (filters.types && filters.types.length > 0) {
-      const type = event.webhookType || event.type;
+      const type = event.webhookType || event.webhook_type || event.type;
       if (!filters.types.includes(type as WebhookType)) {
         return false;
       }
@@ -57,7 +64,9 @@ const useWebhookHistoryFilters = () => {
       const searchableContent = [
         event.id,
         event.webhookType,
+        event.webhook_type,
         event.eventType,
+        event.event_type,
         event.type,
         event.targetUrl,
         event.url,

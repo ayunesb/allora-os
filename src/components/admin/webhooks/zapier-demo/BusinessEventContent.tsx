@@ -1,114 +1,127 @@
 
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { GitBranch, Users, CreditCard, BarChart } from "lucide-react";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BusinessEventType } from '@/hooks/useZapier';
 
 interface BusinessEventContentProps {
   webhookUrl: string;
-  isTriggering: string | null;
-  triggerBusinessSample: (
-    eventType: string, 
-    payload: Record<string, any>
-  ) => Promise<void>;
+  onTrigger: (eventType: BusinessEventType, payload: Record<string, any>) => void;
+  isLoading: boolean;
 }
 
-export function BusinessEventContent({ 
-  webhookUrl, 
-  isTriggering, 
-  triggerBusinessSample 
-}: BusinessEventContentProps) {
-  const businessEventSamples = [
-    {
-      icon: <GitBranch className="h-4 w-4" />,
-      title: "Strategy Approved",
-      event: "strategy_approved",
-      payload: {
-        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
-        entityId: "strat_" + Math.random().toString(36).substring(2, 8),
-        entityType: "strategy",
-        strategyName: "Global Expansion Strategy",
-        botName: "Elon Musk",
-        suggestedBy: "Reed Hastings",
-        riskLevel: "Medium",
-        timestamp: new Date().toISOString()
-      }
-    },
-    {
-      icon: <Users className="h-4 w-4" />,
-      title: "Lead Converted to Client",
-      event: "lead_converted",
-      payload: {
-        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
-        entityId: "lead_" + Math.random().toString(36).substring(2, 8),
-        entityType: "lead",
-        name: "Jane Smith",
-        company: "Innovatech Solutions",
-        previousStatus: "Qualified",
-        status: "Client",
-        botName: "Pat Wadors",
-        timestamp: new Date().toISOString()
-      }
-    },
-    {
-      icon: <BarChart className="h-4 w-4" />,
-      title: "Campaign Launched",
-      event: "campaign_launched",
-      payload: {
-        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
-        entityId: "camp_" + Math.random().toString(36).substring(2, 8),
-        entityType: "campaign",
-        name: "Q2 LinkedIn Campaign",
-        platform: "LinkedIn",
-        budget: 5000,
-        botName: "Antonio Lucio",
-        timestamp: new Date().toISOString()
-      }
-    },
-    {
-      icon: <CreditCard className="h-4 w-4" />,
-      title: "Revenue Milestone Reached",
-      event: "revenue_milestone_reached",
-      payload: {
-        companyId: "comp_" + Math.random().toString(36).substring(2, 8),
-        entityId: "rev_" + Math.random().toString(36).substring(2, 8),
-        entityType: "revenue",
-        amount: 100000,
-        milestone: "100K",
-        botName: "Warren Buffett",
-        timestamp: new Date().toISOString()
-      }
+const BusinessEventContent: React.FC<BusinessEventContentProps> = ({
+  webhookUrl,
+  onTrigger,
+  isLoading
+}) => {
+  const [selectedEvent, setSelectedEvent] = useState<BusinessEventType>('campaign_created');
+  
+  const getEventPayload = (eventType: BusinessEventType): Record<string, any> => {
+    const basePayload = {
+      id: `test-${Date.now().toString(36)}`,
+      timestamp: new Date().toISOString(),
+      tenant_id: "demo-tenant"
+    };
+    
+    switch(eventType) {
+      case 'campaign_created':
+        return {
+          ...basePayload,
+          campaign: {
+            name: "Test Campaign",
+            budget: 5000,
+            start_date: new Date().toISOString()
+          }
+        };
+      case 'strategy_approved':
+        return {
+          ...basePayload,
+          strategy: {
+            id: `strategy-${Date.now().toString(36)}`,
+            title: "Market Expansion Strategy",
+            approved_by: "CEO"
+          }
+        };
+      case 'lead_converted':
+        return {
+          ...basePayload,
+          lead: {
+            email: "test@example.com",
+            name: "John Doe",
+            converted_at: new Date().toISOString()
+          },
+          deal_value: 2500
+        };
+      case 'revenue_milestone':
+        return {
+          ...basePayload,
+          milestone: "1M ARR",
+          previous_value: 950000,
+          current_value: 1000000
+        };
+      case 'user_onboarded':
+        return {
+          ...basePayload,
+          user: {
+            email: "new-user@example.com",
+            name: "Jane Smith",
+            completed_steps: ["profile", "company", "goals"]
+          }
+        };
+      default:
+        return basePayload;
     }
-  ];
+  };
+  
+  const handleTrigger = () => {
+    const payload = getEventPayload(selectedEvent);
+    onTrigger(selectedEvent, payload);
+  };
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {businessEventSamples.map((trigger) => (
-        <Card key={trigger.event} className="h-full">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              {trigger.icon}
-              <CardTitle className="text-sm">{trigger.title}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground">
-            <p className="mb-1">Event: <code>{trigger.event}</code></p>
-            <p className="mb-1">Bot: <code>{trigger.payload.botName}</code></p>
-            <p>Payload: <code>{JSON.stringify(trigger.payload).substring(0, 60)}...</code></p>
-          </CardContent>
-          <CardFooter className="pb-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => triggerBusinessSample(trigger.event, trigger.payload)}
-              disabled={isTriggering === trigger.event || !webhookUrl}
-            >
-              {isTriggering === trigger.event ? "Sending..." : "Trigger Business Event"}
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground mb-4">
+        Send test business events to your Zapier webhook. This will help you test specific event handling in your Zaps.
+      </p>
+      
+      <div className="space-y-2">
+        <Label htmlFor="event-type">Event Type</Label>
+        <Select 
+          value={selectedEvent} 
+          onValueChange={(value) => setSelectedEvent(value as BusinessEventType)}
+        >
+          <SelectTrigger id="event-type">
+            <SelectValue placeholder="Select an event type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="campaign_created">Campaign Created</SelectItem>
+            <SelectItem value="strategy_approved">Strategy Approved</SelectItem>
+            <SelectItem value="lead_converted">Lead Converted</SelectItem>
+            <SelectItem value="revenue_milestone">Revenue Milestone</SelectItem>
+            <SelectItem value="user_onboarded">User Onboarded</SelectItem>
+            <SelectItem value="test_webhook">Test Webhook</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <Button
+        onClick={handleTrigger}
+        disabled={!webhookUrl || isLoading}
+        className="w-full"
+      >
+        {isLoading ? 'Sending...' : 'Send Event'}
+      </Button>
+      
+      <div className="bg-muted p-4 rounded-md mt-4">
+        <h4 className="font-medium text-sm mb-2">Event Payload</h4>
+        <pre className="text-xs overflow-auto bg-background p-2 rounded">
+          {JSON.stringify(getEventPayload(selectedEvent), null, 2)}
+        </pre>
+      </div>
     </div>
   );
-}
+};
+
+export default BusinessEventContent;

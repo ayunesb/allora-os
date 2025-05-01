@@ -4,7 +4,8 @@ import {
   ContentType, 
   PostStatus, 
   SocialMediaPost, 
-  SocialMediaCalendarFilters 
+  SocialMediaCalendarFilters,
+  CreatePostInput 
 } from './unified-types';
 
 export type { 
@@ -12,7 +13,8 @@ export type {
   ContentType, 
   PostStatus, 
   SocialMediaPost, 
-  SocialMediaCalendarFilters 
+  SocialMediaCalendarFilters,
+  CreatePostInput
 };
 
 // For backward compatibility

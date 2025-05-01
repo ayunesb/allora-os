@@ -4,7 +4,7 @@ import { WebhookType } from '@/types/fixed/Webhook';
 /**
  * Validates webhook URL format based on service type
  */
-export function validateWebhookUrlFormat(url: string): boolean {
+export function validateWebhookUrlFormat(url: string, type?: WebhookType): boolean {
   if (!url) return false;
   
   try {
@@ -13,6 +13,21 @@ export function validateWebhookUrlFormat(url: string): boolean {
     // Basic checks
     if (urlObj.protocol !== 'https:') {
       return false;
+    }
+    
+    // Type-specific validation
+    if (type) {
+      switch(type) {
+        case 'zapier':
+          return url.includes('hooks.zapier.com');
+        case 'slack':
+          return url.includes('hooks.slack.com');
+        case 'github':
+          return url.includes('api.github.com');
+        case 'stripe':
+          return url.includes('api.stripe.com');
+        // For other types, just validate it's a proper URL
+      }
     }
     
     return true;
