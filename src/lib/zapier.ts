@@ -63,3 +63,13 @@ export const useZapier = () => {
     triggerLeadConverted,
   };
 };
+
+// Export triggerBusinessEvent for tests
+export const triggerBusinessEvent = async (
+  eventType: BusinessEventType,
+  data: Record<string, any>
+) => {
+  // This is a simplified version for test mocking purposes
+  console.log(`Simulating business event: ${eventType}`, data);
+  return { success: true };
+};

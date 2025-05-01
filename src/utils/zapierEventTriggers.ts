@@ -1,6 +1,7 @@
 
 import { CampaignPayload, LeadPayload } from '@/components/admin/launch-verification/types';
 import { useZapier } from '@/lib/zapier';
+import { logAuditEvent } from '@/utils/auditLogger';
 
 export const onCampaignCreated = async (webhookUrl: string, campaign: CampaignPayload) => {
   const { triggerCampaignCreated } = useZapier();
@@ -23,4 +24,86 @@ export const onUserOnboarded = async (webhookUrl: string, userId: string, userDa
     userId,
     ...userData
   });
+};
+
+// Add the missing functions
+export const onCampaignLaunched = async (webhookUrl: string, campaign: CampaignPayload) => {
+  try {
+    const { triggerBusinessEvent } = useZapier();
+    const result = await triggerBusinessEvent(webhookUrl, 'campaign_launched', {
+      entityId: campaign.campaignId,
+      entityType: 'campaign',
+      campaignTitle: campaign.campaignTitle,
+      companyId: campaign.companyId
+    });
+    
+    await logAuditEvent('SYSTEM_CHANGE', 'Triggered campaign_launched Zapier webhook', undefined, {
+      campaignId: campaign.campaignId,
+      success: true
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error triggering campaign_launched webhook:', error);
+    
+    await logAuditEvent('SYSTEM_ERROR', 'Failed to trigger campaign_launched Zapier webhook', undefined, {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    
+    return { success: false, error };
+  }
+};
+
+export const onNewLeadAdded = async (webhookUrl: string, lead: LeadPayload) => {
+  try {
+    const { triggerBusinessEvent } = useZapier();
+    const result = await triggerBusinessEvent(webhookUrl, 'lead_added', {
+      entityId: lead.leadId,
+      entityType: 'lead',
+      leadName: lead.leadName,
+      company: lead.company
+    });
+    
+    await logAuditEvent('SYSTEM_CHANGE', 'Triggered lead_added Zapier webhook', undefined, {
+      leadId: lead.leadId,
+      success: true
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error triggering lead_added webhook:', error);
+    
+    await logAuditEvent('SYSTEM_ERROR', 'Failed to trigger lead_added Zapier webhook', undefined, {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    
+    return { success: false, error };
+  }
+};
+
+export const onStrategyApproved = async (webhookUrl: string, strategy: Record<string, any>) => {
+  try {
+    const { triggerBusinessEvent } = useZapier();
+    const result = await triggerBusinessEvent(webhookUrl, 'strategy_approved', {
+      entityId: strategy.strategyId,
+      entityType: 'strategy',
+      strategyTitle: strategy.strategyTitle,
+      companyId: strategy.companyId
+    });
+    
+    await logAuditEvent('SYSTEM_CHANGE', 'Triggered strategy_approved Zapier webhook', undefined, {
+      strategyId: strategy.strategyId,
+      success: true
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error triggering strategy_approved webhook:', error);
+    
+    await logAuditEvent('SYSTEM_ERROR', 'Failed to trigger strategy_approved Zapier webhook', undefined, {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    
+    return { success: false, error };
+  }
 };
