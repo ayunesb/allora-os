@@ -1,38 +1,33 @@
 
 export interface Campaign {
   id: string;
-  title: string;
+  name?: string;
+  title?: string;
   description?: string;
-  status: 'draft' | 'scheduled' | 'active' | 'completed' | 'paused';
-  platform: string;
-  budget: number;
-  start_date: string;
-  startDate?: string; // Added for backward compatibility
-  end_date?: string;
-  owner_id: string;
-  owner_name?: string;
-  name?: string; // Added for backward compatibility
-  created_at: string;
-  updated_at?: string;
-  company_id: string;
-  target_audience?: string;
-  kpis?: string[];
-  metrics?: Record<string, any>;
-  
-  // Additional fields used in components
-  payment_status?: string;
+  platform?: string;
+  ad_platform?: string;
+  status?: string;
+  start_date?: string;
+  startDate?: string;
+  endDate?: string;
+  budget?: number;
   deployment_status?: string;
+  payment_status?: string;
   platform_status?: string;
-  ad_platform?: string; // Alias for platform
+  channel?: string;
+  summary?: string;
+  tags?: string[];
+  metrics?: {
+    impressions?: number;
+    clicks?: number;
+    conversions?: number;
+    cost?: number;
+    ctr?: number;
+    cpc?: number;
+    conversionRate?: number;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
 }
-
-export interface CampaignMetrics {
-  views: number;
-  clicks: number;
-  conversions: number;
-  cost: number;
-  roi: number;
-  engagements: number;
-}
-
-export type CampaignStatus = 'draft' | 'scheduled' | 'active' | 'completed' | 'paused';

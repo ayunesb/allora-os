@@ -1,232 +1,124 @@
+import { useState, useCallback } from 'react';
+import { WebhookEvent, WebhookResult } from '@/types/fixed/Webhook';
+import { WebhookType } from '@/utils/webhookValidation';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { WebhookEvent, WebhookType } from '@/types/webhooks';
-import { toast } from 'sonner';
+interface FilterOptions {
+  webhookType?: WebhookType;
+  dateRange?: { from: Date | null; to: Date | null };
+}
 
-/**
- * Custom hook for managing webhook event history
- */
-export const useWebhookHistory = () => {
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
-  
-  // Event data state
-  const [webhookEvents, setWebhookEvents] = useState<WebhookEvent[]>([]);
+export function useWebhookHistory(initialFilter?: FilterOptions) {
+  const [filter, setFilter] = useState<FilterOptions | undefined>(initialFilter);
+  const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({
+    from: null,
+    to: null,
+  });
+  const [activeTab, setActiveTab] = useState<"pending" | "success" | "failed">("success");
   const [filteredEvents, setFilteredEvents] = useState<WebhookEvent[]>([]);
-  const [paginatedEvents, setPaginatedEvents] = useState<WebhookEvent[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  
-  // Filter state
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
-  
-  // Available options for filtering
-  const webhookTypes: WebhookType[] = ['stripe', 'zapier', 'github', 'slack', 'custom'];
-  
-  // Load events from localStorage (or in a real app, from the database)
-  useEffect(() => {
-    const loadEvents = () => {
-      setIsLoading(true);
-      
-      try {
-        // In a real app, you would fetch from your API or database
-        const storedHistory = localStorage.getItem('webhook_event_history');
-        
-        if (!storedHistory) {
-          setWebhookEvents([]);
-          setFilteredEvents([]);
-          setIsLoading(false);
-          return;
-        }
-        
-        const history = JSON.parse(storedHistory);
-        const eventsList = history.events || [];
-        
-        // Add sample events for demo if none exist
-        if (eventsList.length === 0) {
-          const sampleEvents: WebhookEvent[] = [
-            {
-              id: 'wh_1',
-              webhook_id: 'whk_1',
-              webhookType: 'zapier',
-              event_type: 'lead_created',
-              targetUrl: 'https://hooks.zapier.com/hooks/catch/12345/abcdef/',
-              source: 'app',
-              status: 'success',
-              timestamp: new Date().toISOString(),
-              created_at: new Date().toISOString(),
-              payload: { data: 'lead data' },
-              response: { status: '200' },
-              duration: 120
-            },
-            {
-              id: 'wh_2',
-              webhook_id: 'whk_2',
-              webhookType: 'stripe',
-              event_type: 'payment.success',
-              targetUrl: 'https://api.example.com/webhooks/stripe',
-              source: 'stripe',
-              status: 'success',
-              timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-              created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-              payload: { data: 'payment data' },
-              response: { status: '200' },
-              duration: 89
-            },
-            {
-              id: 'wh_3',
-              webhook_id: 'whk_3',
-              webhookType: 'slack',
-              event_type: 'notification',
-              targetUrl: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX',
-              source: 'app',
-              status: 'failed',
-              timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-              created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-              payload: { message: 'Test notification' },
-              response: { error: 'Invalid token' },
-              duration: 67,
-              errorMessage: 'Authentication failed'
-            }
-          ];
-          
-          // Save sample events to localStorage for demo
-          localStorage.setItem('webhook_event_history', JSON.stringify({
-            version: 1,
-            events: sampleEvents,
-            lastUpdated: new Date().toISOString()
-          }));
-          
-          setWebhookEvents(sampleEvents);
-          setFilteredEvents(sampleEvents);
-        } else {
-          setWebhookEvents(eventsList);
-          setFilteredEvents(eventsList);
-        }
-      } catch (error) {
-        console.error('Error loading webhook history:', error);
-        setWebhookEvents([]);
-        setFilteredEvents([]);
-      } finally {
-        setIsLoading(false);
+
+  // Fetch webhook events
+  const { data: events = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['webhookEvents'],
+    queryFn: async () => {
+      let query = supabase
+        .from('webhook_events')
+        .select('*')
+        .order('timestamp', { ascending: false });
+
+      if (dateRange.from) {
+        query = query.gte('timestamp', dateRange.from.toISOString());
       }
-    };
-    
-    loadEvents();
+      if (dateRange.to) {
+        query = query.lte('timestamp', dateRange.to.toISOString());
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as WebhookEvent[];
+    }
+  });
+
+  // Function to update the date range
+  const updateDateRange = useCallback((newRange: { from: Date | null; to: Date | null }) => {
+    setDateRange(newRange);
   }, []);
-  
-  // Calculate paginated events whenever filtered events or pagination settings change
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    setPaginatedEvents(filteredEvents.slice(startIndex, endIndex));
-  }, [filteredEvents, currentPage, pageSize]);
-  
-  // Apply filters when they change
-  useEffect(() => {
-    if (!webhookEvents.length) return;
+
+  // Function to clear the date range
+  const clearDateRange = useCallback(() => {
+    setDateRange({ from: null, to: null });
+  }, []);
+
+  // Function to apply the filter
+  const applyFilter = useCallback((newFilter: FilterOptions) => {
+    setFilter(newFilter);
+  }, []);
+
+  // Function to clear the filter
+  const clearFilter = useCallback(() => {
+    setFilter(undefined);
+  }, []);
+
+  // Filter events based on filter and date range
+  const filterEvents = useCallback((events: WebhookEvent[]) => {
+    return events.filter(event => {
+      // Use webhookType instead of webhook_id for filtering
+      if (filter?.webhookType && event.webhookType !== filter.webhookType) {
+        return false;
+      }
+
+      if (dateRange.from && new Date(event.timestamp) < dateRange.from) {
+        return false;
+      }
+      if (dateRange.to && new Date(event.timestamp) > dateRange.to) {
+        return false;
+      }
+      return true;
+    });
+  }, [filter, dateRange]);
+
+  // Function to filter events by status
+  const filterEventsBy = useCallback((status: "pending" | "success" | "failed") => {
+    let filteredEvents: WebhookEvent[] = [];
     
-    setIsLoading(true);
-    
-    // Apply filters
-    let result = [...webhookEvents];
-    
-    if (searchTerm) {
-      const lowerCaseQuery = searchTerm.toLowerCase();
-      result = result.filter(
-        event => 
-          event.webhookType.toLowerCase().includes(lowerCaseQuery) ||
-          (event.event_type && event.event_type.toLowerCase().includes(lowerCaseQuery)) ||
-          event.targetUrl.toLowerCase().includes(lowerCaseQuery)
+    if (status === "pending") {
+      filteredEvents = events.filter(e => 
+        e.status.toLowerCase() === "pending" || 
+        e.status.toLowerCase() === "processing"
+      );
+    } else if (status === "success") {
+      filteredEvents = events.filter(e => 
+        e.status.toLowerCase() === "success" || 
+        e.status.toLowerCase() === "succeeded"
+      );
+    } else if (status === "failed") {
+      filteredEvents = events.filter(e => 
+        e.status.toLowerCase() === "failed" || 
+        e.status.toLowerCase() === "error"
       );
     }
     
-    if (statusFilter) {
-      result = result.filter(event => event.status === statusFilter);
-    }
-    
-    if (typeFilter) {
-      result = result.filter(event => event.webhookType === typeFilter);
-    }
-    
-    // Set filtered events and reset to first page if filters changed
-    setFilteredEvents(result);
-    if (result.length > 0 && result.length !== filteredEvents.length) {
-      setCurrentPage(1);
-    }
-    
-    setIsLoading(false);
-  }, [webhookEvents, searchTerm, statusFilter, typeFilter]);
-  
-  // Calculate total pages based on filtered results
-  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / pageSize));
-  
-  // Handle exporting history
-  const handleExportHistory = useCallback(() => {
-    try {
-      // Prepare data
-      const exportData = {
-        exportDate: new Date().toISOString(),
-        events: webhookEvents
-      };
-      
-      // Create blob and download
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `webhook-history-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      toast.success('Webhook history exported successfully');
-    } catch (error) {
-      console.error('Error exporting webhook history:', error);
-      toast.error('Failed to export webhook history');
-    }
-  }, [webhookEvents]);
-  
-  // Handle clearing history
-  const handleClearHistory = useCallback(() => {
-    try {
-      // Clear from localStorage (or in a real app, from the database)
-      localStorage.setItem('webhook_event_history', JSON.stringify({
-        version: 1,
-        events: [],
-        lastUpdated: new Date().toISOString()
-      }));
-      
-      setWebhookEvents([]);
-      setFilteredEvents([]);
-      
-      toast.success('Webhook history cleared successfully');
-    } catch (error) {
-      console.error('Error clearing webhook history:', error);
-      toast.error('Failed to clear webhook history');
-    }
-  }, []);
+    setFilteredEvents(filteredEvents);
+    setActiveTab(status);
+  }, [events]);
 
   return {
-    webhookEvents,
+    events,
     filteredEvents,
-    paginatedEvents,
     isLoading,
-    searchTerm,
-    setSearchTerm,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    currentPage,
-    totalPages,
-    pageSize,
-    handlePageChange: setCurrentPage,
-    webhookTypes,
-    handleExportHistory,
-    handleClearHistory
+    error,
+    refetch,
+    filter,
+    dateRange,
+    activeTab,
+    applyFilter,
+    clearFilter,
+    updateDateRange,
+    clearDateRange,
+    filterEvents,
+    filterEventsBy,
+    setFilteredEvents,
+    setActiveTab
   };
-};
+}

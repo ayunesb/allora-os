@@ -1,8 +1,7 @@
-
-import React, { useRef, useEffect } from "react";
+import React from 'react';
+import { Message } from '@/components/bot-detail/MessageType';
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { Message } from "@/components/bot-detail/useBotConsultation";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ChatMessageListProps {

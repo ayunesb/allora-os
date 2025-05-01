@@ -1,178 +1,152 @@
+import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-import { useState, useEffect } from 'react';
-import { toast } from "sonner";
-import { useZapier } from '@/lib/zapier';
-import { WebhookType, sanitizeWebhookUrl, testWebhook } from '@/utils/webhookValidation';
-import { testWebhookAdvanced } from './hookUtils';
+interface Webhook {
+  id: string;
+  type: string;
+  url: string;
+  active: boolean;
+  createdAt: string;
+  lastTriggered?: string;
+  events?: string[];
+}
 
-export const useWebhooks = () => {
-  // Basic webhook URLs
-  const [stripeWebhook, setStripeWebhook] = useState<string>('');
-  const [zapierWebhook, setZapierWebhook] = useState<string>('');
+interface Filter {
+  type?: string;
+  url?: string;
+  active?: boolean;
+}
+
+export function useWebhooks() {
+  const [filter, setFilter] = useState<Filter | undefined>(undefined);
+  const queryClient = useQueryClient();
   
-  // Extended webhook URLs
-  const [githubWebhook, setGithubWebhook] = useState<string>('');
-  const [slackWebhook, setSlackWebhook] = useState<string>('');
-  const [customWebhook, setCustomWebhook] = useState<string>('');
-  
-  // State for UI
-  const [isSaving, setIsSaving] = useState(false);
-  const [testLoading, setTestLoading] = useState(false);
-  const [testingWebhook, setTestingWebhook] = useState<WebhookType | null>(null);
-  
-  const { triggerWorkflow } = useZapier();
-
-  // Load webhooks from localStorage on mount
-  useEffect(() => {
-    const savedStripeWebhook = localStorage.getItem('stripe_webhook_url');
-    const savedZapierWebhook = localStorage.getItem('zapier_webhook_url') || 'https://hooks.zapier.com/hooks/catch/22321548/20s5s0c/';
-    const savedGithubWebhook = localStorage.getItem('github_webhook_url');
-    const savedSlackWebhook = localStorage.getItem('slack_webhook_url');
-    const savedCustomWebhook = localStorage.getItem('custom_webhook_url');
-    
-    if (savedStripeWebhook) setStripeWebhook(savedStripeWebhook);
-    if (savedZapierWebhook) setZapierWebhook(savedZapierWebhook);
-    if (savedGithubWebhook) setGithubWebhook(savedGithubWebhook);
-    if (savedSlackWebhook) setSlackWebhook(savedSlackWebhook);
-    if (savedCustomWebhook) setCustomWebhook(savedCustomWebhook);
-  }, []);
-
-  const handleSaveWebhooks = (
-    isStripeWebhookValid: boolean | null,
-    isZapierWebhookValid: boolean | null,
-    isGithubWebhookValid: boolean | null,
-    isSlackWebhookValid: boolean | null,
-    isCustomWebhookValid: boolean | null
-  ) => {
-    // Validate URLs before saving
-    const isStripeValid = !stripeWebhook || isStripeWebhookValid === true;
-    const isZapierValid = !zapierWebhook || isZapierWebhookValid === true;
-    const isGithubValid = !githubWebhook || isGithubWebhookValid === true;
-    const isSlackValid = !slackWebhook || isSlackWebhookValid === true;
-    const isCustomValid = !customWebhook || isCustomWebhookValid === true;
-    
-    const hasInvalidUrls = !isStripeValid || !isZapierValid || !isGithubValid || !isSlackValid || !isCustomValid;
-    
-    if (hasInvalidUrls) {
-      toast.error("Please correct the invalid webhook URLs before saving");
-      return;
-    }
-    
-    setIsSaving(true);
-    
-    // Sanitize URLs before saving
-    const sanitizedStripeWebhook = sanitizeWebhookUrl(stripeWebhook);
-    const sanitizedZapierWebhook = sanitizeWebhookUrl(zapierWebhook);
-    const sanitizedGithubWebhook = sanitizeWebhookUrl(githubWebhook);
-    const sanitizedSlackWebhook = sanitizeWebhookUrl(slackWebhook);
-    const sanitizedCustomWebhook = sanitizeWebhookUrl(customWebhook);
-    
-    // Save to localStorage (in a real app, you would save to a database)
-    localStorage.setItem('stripe_webhook_url', sanitizedStripeWebhook || '');
-    localStorage.setItem('zapier_webhook_url', sanitizedZapierWebhook || '');
-    localStorage.setItem('github_webhook_url', sanitizedGithubWebhook || '');
-    localStorage.setItem('slack_webhook_url', sanitizedSlackWebhook || '');
-    localStorage.setItem('custom_webhook_url', sanitizedCustomWebhook || '');
-    
-    setTimeout(() => {
-      setIsSaving(false);
-      toast.success("Webhook settings saved successfully");
-    }, 500);
-  };
-
-  const handleTestWebhook = async (type: WebhookType, webhookUrl: string, isWebhookValid: boolean | null) => {
-    if (!webhookUrl) {
-      toast.error(`Please enter a ${type} webhook URL first`);
-      return;
-    }
-
-    if (isWebhookValid !== true) {
-      toast.error(`Please enter a valid ${type} webhook URL`);
-      return;
-    }
-
-    setTestLoading(true);
-    setTestingWebhook(type);
-    
-    try {
-      let result;
+  // Fetch webhooks
+  const { data: webhooks, isLoading, error } = useQuery({
+    queryKey: ['webhooks'],
+    queryFn: async () => {
+      let query = supabase.from('webhooks').select('*');
       
-      // For Zapier, use the existing trigger method
-      if (type === 'zapier') {
-        result = await triggerWorkflow({
-          webhookUrl,
-          eventType: 'test_webhook',
-          payload: { 
-            timestamp: new Date().toISOString(),
-            source: 'Webhook Test',
-            message: 'This is a test from the Allora AI Platform'
-          }
-        });
-      } else {
-        // For other webhook types, use the advanced test method
-        result = await testWebhookAdvanced(webhookUrl, type);
+      if (filter?.type) {
+        query = query.eq('type', filter.type);
+      }
+      if (filter?.url) {
+        query = query.ilike('url', `%${filter.url}%`);
+      }
+      if (filter?.active !== undefined) {
+        query = query.eq('active', filter.active);
       }
       
-      if (result.success) {
-        toast.success(`${type} webhook test successful!`);
-      } else {
-        toast.error(`Failed to trigger ${type} webhook: ${result.message || "Unknown error"}`);
-      }
-    } catch (error: any) {
-      console.error(`Error testing ${type} webhook:`, error);
-      toast.error(`An error occurred while testing the webhook: ${error.message || "Unknown error"}`);
-    } finally {
-      setTestLoading(false);
-      setTestingWebhook(null);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as Webhook[];
     }
+  });
+  
+  // Clear filter and refetch
+  const clearFilterAndRefetch = useCallback(() => {
+    setFilter(undefined);
+    queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+  }, [queryClient]);
+  
+  // Track event
+  const trackEvent = useCallback((eventType: string) => {
+    queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+  }, [queryClient]);
+  
+  // Create webhook
+  const createWebhookMutation = useMutation({
+    mutationFn: async (webhook: Omit<Webhook, 'id' | 'createdAt'>) => {
+      const { data, error } = await supabase
+        .from('webhooks')
+        .insert([webhook])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data as Webhook;
+    },
+    onSuccess: () => {
+      toast.success('Webhook created successfully');
+      queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+    },
+    onError: (err: any) => {
+      toast.error(`Failed to create webhook: ${err.message}`);
+    }
+  });
+  
+  const createWebhook = async (data: Omit<Webhook, 'id' | 'createdAt'>) => {
+    return createWebhookMutation.mutateAsync(data);
   };
-
-  const handleTestZapierWebhook = (isZapierWebhookValid: boolean | null) => {
-    handleTestWebhook('zapier', zapierWebhook, isZapierWebhookValid);
+  
+  // Update webhook
+  const updateWebhookMutation = useMutation({
+    mutationFn: async (webhook: Webhook) => {
+      const { id, ...updates } = webhook;
+      const { data, error } = await supabase
+        .from('webhooks')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data as Webhook;
+    },
+    onSuccess: () => {
+      toast.success('Webhook updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+    },
+    onError: (err: any) => {
+      toast.error(`Failed to update webhook: ${err.message}`);
+    }
+  });
+  
+  const updateWebhook = async (webhook: Webhook) => {
+    return updateWebhookMutation.mutateAsync(webhook);
   };
-
-  const handleTestGithubWebhook = (isGithubWebhookValid: boolean | null) => {
-    handleTestWebhook('github', githubWebhook, isGithubWebhookValid);
+  
+  // Delete webhook
+  const deleteWebhookMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('webhooks')
+        .delete()
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data as Webhook;
+    },
+    onSuccess: () => {
+      toast.success('Webhook deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+    },
+    onError: (err: any) => {
+      toast.error(`Failed to delete webhook: ${err.message}`);
+    }
+  });
+  
+  const deleteWebhook = async (id: string) => {
+    return deleteWebhookMutation.mutateAsync(id);
   };
-
-  const handleTestSlackWebhook = (isSlackWebhookValid: boolean | null) => {
-    handleTestWebhook('slack', slackWebhook, isSlackWebhookValid);
-  };
-
-  const handleTestCustomWebhook = (isCustomWebhookValid: boolean | null) => {
-    handleTestWebhook('custom', customWebhook, isCustomWebhookValid);
-  };
-
-  const handleTestStripeWebhook = (isStripeWebhookValid: boolean | null) => {
-    handleTestWebhook('stripe', stripeWebhook, isStripeWebhookValid);
-  };
-
+  
   return {
-    // Basic webhooks
-    stripeWebhook,
-    setStripeWebhook,
-    zapierWebhook,
-    setZapierWebhook,
-    
-    // Extended webhooks
-    githubWebhook,
-    setGithubWebhook,
-    slackWebhook,
-    setSlackWebhook,
-    customWebhook,
-    setCustomWebhook,
-    
-    // UI state
-    isSaving,
-    testLoading,
-    testingWebhook,
-    
-    // Handlers
-    handleSaveWebhooks,
-    handleTestZapierWebhook,
-    handleTestGithubWebhook,
-    handleTestSlackWebhook,
-    handleTestCustomWebhook,
-    handleTestStripeWebhook
+    webhooks,
+    isLoading,
+    error,
+    filter,
+    setFilter,
+    clearFilterAndRefetch,
+    trackEvent,
+    createWebhook,
+    updateWebhook,
+    deleteWebhook,
+    isCreating: createWebhookMutation.isPending,
+    isUpdating: updateWebhookMutation.isPending,
+    isDeleting: deleteWebhookMutation.isPending
   };
-};
+}

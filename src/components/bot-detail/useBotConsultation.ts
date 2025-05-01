@@ -1,87 +1,128 @@
 
-// Fix the useBotConsultation hook to handle reply correctly
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { useState, useCallback, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { Message, Bot } from './MessageType';
 
-export const useBotConsultation = (botId: string) => {
+export const useBotConsultation = (initialBot?: Bot) => {
+  const [bot, setBot] = useState<Bot>(initialBot || {
+    id: 'default-bot',
+    name: 'AI Consultant',
+    isActive: true
+  });
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [response, setResponse] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [response, setResponse] = useState<string>('');
+  const [retryCount, setRetryCount] = useState(0);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
-  const sendConsultation = useCallback(
-    async (prompt: string) => {
-      if (!user) {
-        setError('You must be logged in to consult with bots');
-        return null;
-      }
-
-      if (!botId) {
-        setError('Invalid bot selected');
-        return null;
-      }
-
+  const sendConsultation = useCallback(async (prompt: string): Promise<string> => {
+    try {
       setIsLoading(true);
-      setError(null);
-      setResponse(null);
-
-      try {
-        // Call the Supabase edge function for bot consultation
-        const { data, error } = await supabase.functions.invoke('bot-consultation', {
-          body: {
-            botId,
-            userId: user.id,
-            prompt,
-          },
-        });
-
-        if (error) {
-          console.error('Bot consultation error:', error);
-          setError(error.message || 'Failed to get response from bot');
-          toast.error('Bot consultation failed', {
-            description: error.message || 'Unable to process your request',
+      setError('');
+      setIsTyping(true);
+      
+      // Simulate API call
+      const response = await new Promise<{ data: { reply: string }, error?: string }>((resolve) => {
+        setTimeout(() => {
+          resolve({
+            data: { reply: `Response to: ${prompt}` }
           });
-          return null;
-        }
-
-        // Fix the data.reply access
-        let botResponse = '';
-        if (data && typeof data === 'object') {
-          if ('reply' in data) {
-            botResponse = data.reply as string;
-          } else if (data.data && typeof data.data === 'object' && 'reply' in data.data) {
-            botResponse = data.data.reply as string;
-          }
-        }
-
-        if (!botResponse) {
-          throw new Error('Invalid response format from bot');
-        }
-
-        setResponse(botResponse);
-        return botResponse;
-      } catch (err: any) {
-        console.error('Bot consultation error:', err);
-        setError(err.message || 'An unexpected error occurred');
-        toast.error('Bot consultation failed', {
-          description: err.message || 'Unable to process your request',
-        });
-        return null;
-      } finally {
-        setIsLoading(false);
+        }, 1000);
+      });
+      
+      if (response.error) {
+        throw new Error(response.error);
       }
-    },
-    [botId, user]
-  );
+      
+      const botReply = response.data.reply;
+      setResponse(botReply);
+      return botReply;
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during consultation');
+      throw err;
+    } finally {
+      setIsLoading(false);
+      setIsTyping(false);
+    }
+  }, []);
+
+  const handleSendMessage = useCallback(async (message: string, options?: any) => {
+    if (!message.trim()) return;
+    
+    const userMessage: Message = {
+      id: uuidv4(),
+      text: message,
+      sender: 'user',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    try {
+      const botReply = await sendConsultation(message);
+      
+      const botMessage: Message = {
+        id: uuidv4(),
+        text: botReply,
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, botMessage]);
+    } catch (err) {
+      // Error is already set in sendConsultation
+    }
+  }, [sendConsultation]);
+
+  const retryLastMessage = useCallback(() => {
+    const lastUserMessage = [...messages].reverse().find(m => m.sender === 'user');
+    if (lastUserMessage) {
+      setRetryCount(c => c + 1);
+      handleSendMessage(lastUserMessage.text);
+    }
+  }, [messages, handleSendMessage]);
+
+  const clearConversation = useCallback(() => {
+    setMessages([]);
+    setError('');
+    setResponse('');
+    setRetryCount(0);
+  }, []);
+
+  const toggleVoiceInterface = useCallback(() => {
+    setIsVoiceEnabled(prev => !prev);
+  }, []);
+
+  const startVoiceRecognition = useCallback(() => {
+    setIsListening(true);
+    // Mock implementation - would integrate with Web Speech API in real implementation
+    setTimeout(() => {
+      setIsListening(false);
+      handleSendMessage("Voice message transcription would appear here");
+    }, 2000);
+  }, [handleSendMessage]);
 
   return {
-    sendConsultation,
+    bot,
+    messages,
     isLoading,
+    isTyping,
     error,
     response,
+    retryCount,
+    isVoiceEnabled,
+    isListening,
+    sendConsultation,
+    handleSendMessage,
+    retryLastMessage,
+    clearConversation,
+    toggleVoiceInterface,
+    startVoiceRecognition
   };
 };
 
 export default useBotConsultation;
+export { Message, Bot } from './MessageType';

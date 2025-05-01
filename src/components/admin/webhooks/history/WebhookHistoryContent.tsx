@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -121,6 +121,47 @@ export const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({
         return <Badge>{type}</Badge>;
     }
   };
+
+  const statusCount = useMemo(() => {
+    const counts = { pending: 0, success: 0, failed: 0 };
+    
+    events.forEach(event => {
+      const status = event.status.toLowerCase();
+      if (status === 'pending' || status === 'processing') {
+        counts.pending++;
+      } else if (status === 'success' || status === 'succeeded') {
+        counts.success++;
+      } else if (status === 'failed' || status === 'error') {
+        counts.failed++;
+      }
+    });
+    
+    return counts;
+  }, [events]);
+
+  const filterEventsBy = useCallback((status: "pending" | "success" | "failed") => {
+    let filteredEvents: WebhookEvent[] = [];
+    
+    if (status === "pending") {
+      filteredEvents = events.filter(e => 
+        e.status.toLowerCase() === "pending" || 
+        e.status.toLowerCase() === "processing"
+      );
+    } else if (status === "success") {
+      filteredEvents = events.filter(e => 
+        e.status.toLowerCase() === "success" || 
+        e.status.toLowerCase() === "succeeded"
+      );
+    } else if (status === "failed") {
+      filteredEvents = events.filter(e => 
+        e.status.toLowerCase() === "failed" || 
+        e.status.toLowerCase() === "error"
+      );
+    }
+    
+    setFilteredEvents(filteredEvents);
+    setActiveTab(status);
+  }, [events]);
 
   return (
     <div className="space-y-4">

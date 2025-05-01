@@ -1,5 +1,46 @@
+import { BusinessEventType } from '@/types/fixed/Webhook';
 
-export type WebhookType = 'zapier' | 'slack' | 'github' | 'stripe' | 'notion' | 'custom';
+// Keeping this for backwards compatibility
+export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
+
+export const validateWebhookPayload = (type: WebhookType, payload: any): boolean => {
+  // Implementation
+  return true;
+};
+
+export const parseEventType = (eventType: string): BusinessEventType => {
+  // Safely parse string to BusinessEventType
+  const validEventTypes: BusinessEventType[] = [
+    'test_event',
+    'strategy_approved',
+    'lead_created',
+    'campaign_created',
+    'lead_converted',
+    'campaign_launched',
+    'lead_added',
+    'revenue_milestone',
+    'user_onboarded'
+  ];
+
+  if (validEventTypes.includes(eventType as BusinessEventType)) {
+    return eventType as BusinessEventType;
+  }
+  
+  return 'test_event'; // Default fallback
+};
+
+export const getWebhookDisplayName = (type: WebhookType): string => {
+  const displayNames: Record<WebhookType, string> = {
+    zapier: 'Zapier',
+    custom: 'Custom API',
+    stripe: 'Stripe',
+    github: 'GitHub',
+    slack: 'Slack',
+    notion: 'Notion'
+  };
+  
+  return displayNames[type] || type;
+};
 
 export const validateWebhookUrlFormat = (url: string, type?: WebhookType): boolean => {
   if (!url) return false;

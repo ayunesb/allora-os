@@ -1,81 +1,51 @@
-// Find the problematic line and replace 'warning' with 'secondary'
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowDownIcon, ArrowUpIcon, AlertTriangle } from "lucide-react";
+import { Metric } from "@/components/ui/metric";
+import { Progress } from "@/components/ui/progress";
+import { TrendUp, TrendDown, Equal } from "lucide-react";
 
-interface ForecastItem {
-  kpi: string;
+interface ForecastCardProps {
+  title: string;
   current: number;
-  predicted: number;
-  trend: 'up' | 'down' | 'stable';
-  anomaly: 'none' | 'minor' | 'critical';
+  forecast: number;
+  description: string;
 }
 
-interface ForecastCardsProps {
-  forecasts: ForecastItem[];
-}
+export function ForecastCards({ title, current, forecast, description }: ForecastCardProps) {
+  const ratio = forecast / current;
 
-export const ForecastCards: React.FC<ForecastCardsProps> = ({ forecasts }) => {
-  const getTrendIcon = (trend: string) => {
-    if (trend === 'up') {
-      return <ArrowUpIcon className="h-4 w-4 text-green-500" />;
-    } else if (trend === 'down') {
-      return <ArrowDownIcon className="h-4 w-4 text-red-500" />;
-    }
-    return null;
-  };
+  const getVariant = useCallback((ratio: number) => {
+    if (ratio >= 1) return "success";
+    if (ratio >= 0.7) return "secondary";
+    if (ratio >= 0.5) return "outline";
+    return "destructive";  // was "destructive" | "warning" but "warning" is not a valid variant
+  }, []);
 
-  const getAnomalyIcon = (anomaly: string) => {
-    if (anomaly === 'critical') {
-      return <AlertTriangle className="h-4 w-4 text-red-500" />;
-    }
-    return null;
-  };
+  const variant = getVariant(ratio);
 
-  const getVariant = (anomaly: string) => {
-    if (anomaly === 'critical') {
-      return 'destructive';
-    }
-    // Change 'warning' to 'secondary' since 'warning' isn't a valid variant
-    return 'secondary'; // previously 'warning'
-  };
+  const getIcon = useCallback((ratio: number) => {
+    if (ratio > 1) return <TrendUp className="h-4 w-4 text-green-500" />;
+    if (ratio < 1) return <TrendDown className="h-4 w-4 text-red-500" />;
+    return <Equal className="h-4 w-4 text-gray-500" />;
+  }, []);
+
+  const icon = getIcon(ratio);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {forecasts.map((forecast, index) => (
-        <Card key={index}>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center justify-between">
-              {forecast.kpi}
-              {forecast.anomaly !== 'none' && (
-                <Badge variant={getVariant(forecast.anomaly)}>
-                  {forecast.anomaly} {getAnomalyIcon(forecast.anomaly)}
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Current</p>
-                <p className="text-lg font-bold">{forecast.current}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Predicted</p>
-                <p className="text-lg font-bold">{forecast.predicted}</p>
-              </div>
-            </div>
-            {forecast.trend && (
-              <div className="mt-2 flex items-center text-sm text-muted-foreground">
-                Trend: {getTrendIcon(forecast.trend)} {forecast.trend}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center space-x-2">
+          <Metric>{forecast}</Metric>
+          {icon}
+        </div>
+        <Progress value={ratio * 100} variant={variant} className="mt-2" />
+        <p className="text-sm text-muted-foreground mt-2">
+          {description}
+        </p>
+      </CardContent>
+    </Card>
   );
-};
-
-export default ForecastCards;
+}

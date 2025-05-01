@@ -28,7 +28,17 @@ export interface Webhook {
 }
 
 // Add BusinessEventType to support ZapierWebhookDemo
-export type BusinessEventType = 'test_event' | 'strategy_approved' | 'lead_created' | 'campaign_created';
+export type BusinessEventType = 
+  | 'test_event' 
+  | 'strategy_approved' 
+  | 'lead_created' 
+  | 'campaign_created'
+  | 'lead_converted'
+  | 'campaign_launched'
+  | 'lead_added'
+  | 'revenue_milestone'
+  | 'user_onboarded';
+
 export type WebhookResult = { 
   success: boolean; 
   message?: string;

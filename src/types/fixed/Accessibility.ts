@@ -10,5 +10,5 @@ export interface AccessibilityContextType {
   checkForUpdates?: () => void;
   setAutoUpdate?: (value: boolean) => void;
   isCheckingUpdates?: boolean;
-  lastChecked?: string;
+  lastChecked?: string | null;
 }
