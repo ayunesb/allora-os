@@ -1,24 +1,54 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import WebhookEventTable from '@/components/admin/webhooks/WebhookEventTable';
-import { useWebhookHistory } from '../useWebhookHistory';
-import { Button } from '@/components/ui/button';
-import { Search, Filter, Trash2 } from 'lucide-react';
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import { CalendarIcon, ChevronDown, ChevronUp, Copy, MoreHorizontal } from "lucide-react"
+import { format } from "date-fns"
+import { WebhookEvent } from '@/types/fixed/Webhook';
+import { toast } from 'sonner';
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { useToast } from "@/components/ui/use-toast"
+import { CopyButton } from "@/components/CopyButton";
+
+// Import pagination components correctly
 import {
   Pagination,
   PaginationContent,
@@ -26,236 +56,189 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
+  PaginationPrevious
 } from "@/components/ui/pagination";
-import { WebhookType } from '@/types/fixed/Webhook';
 
-export function WebhookHistoryContent() {
-  const {
-    events,
-    filteredEvents,
-    isLoading,
-    error,
-    searchTerm,
-    setSearchTerm,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedEvents
-  } = useWebhookHistory();
+// Import our compatibility layer functions
+import { normalizeWebhookEvent } from "@/utils/compatibilityLayer";
 
-  const [showFilters, setShowFilters] = useState(false);
+interface WebhookHistoryContentProps {
+  events: WebhookEvent[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}
 
-  const handleClearFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('all');
-    setTypeFilter('all');
-  };
+const statusColors = {
+  success: "green",
+  failed: "red",
+  pending: "amber",
+}
 
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value as 'success' | 'failed' | 'pending' | 'all');
-  };
-
-  const handleTypeFilterChange = (value: string) => {
-    setTypeFilter(value as WebhookType | 'all');
-  };
-
-  // Generate pagination items
-  const getPaginationItems = () => {
-    const items = [];
-    
-    // Always show first page
-    items.push(
-      <PaginationItem key="first">
-        <PaginationLink
-          isActive={currentPage === 1}
-          onClick={() => setCurrentPage(1)}
-        >
-          1
-        </PaginationLink>
-      </PaginationItem>
-    );
-    
-    // Add ellipsis if needed
-    if (currentPage > 3) {
-      items.push(
-        <PaginationItem key="ellipsis-start">
-          <PaginationEllipsis />
-        </PaginationItem>
-      );
-    }
-    
-    // Add pages around current page
-    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
-      if (i === 1 || i === totalPages) continue; // Skip first and last as they're always shown
-      items.push(
-        <PaginationItem key={i}>
-          <PaginationLink
-            isActive={currentPage === i}
-            onClick={() => setCurrentPage(i)}
-          >
-            {i}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-    
-    // Add ellipsis if needed
-    if (currentPage < totalPages - 2) {
-      items.push(
-        <PaginationItem key="ellipsis-end">
-          <PaginationEllipsis />
-        </PaginationItem>
-      );
-    }
-    
-    // Always show last page if more than one page
-    if (totalPages > 1) {
-      items.push(
-        <PaginationItem key="last">
-          <PaginationLink
-            isActive={currentPage === totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-          >
-            {totalPages}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-    
-    return items;
-  };
-
+function WebhookEventRow({ event }: { event: WebhookEvent }) {
+  const { toast } = useToast()
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Webhook Events</CardTitle>
-        <CardDescription>
-          View and manage your webhook event history
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col space-y-4">
-          {/* Search and filter controls */}
-          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-            <div className="relative flex-1 md:max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search events..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                {showFilters ? "Hide Filters" : "Filters"}
-              </Button>
-              
-              {(searchTerm || statusFilter !== 'all' || typeFilter !== 'all') && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearFilters}
+    <TableRow key={event.id}>
+      <TableCell className="font-medium">{event.id}</TableCell>
+      <TableCell>{event.webhookType}</TableCell>
+      <TableCell>{event.targetUrl}</TableCell>
+      <TableCell>
+        <Badge variant="outline" className={`bg-${statusColors[event.status]}-100 text-${statusColors[event.status]}-500`}>
+          {event.status}
+        </Badge>
+      </TableCell>
+      <TableCell>{event.timestamp}</TableCell>
+      <TableCell className="text-right">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => {
+                toast({
+                  title: "Not implemented",
+                  description: "This feature is not implemented yet.",
+                })
+              }}
+            >
+              View Details
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem>View Payload</DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[625px]">
+                  <DialogHeader>
+                    <DialogTitle>Webhook Payload</DialogTitle>
+                    <DialogDescription>
+                      Here is the payload that was sent to the webhook.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="payload" className="text-right">
+                        Payload
+                      </Label>
+                      <Textarea
+                        id="payload"
+                        className="col-span-3"
+                        value={JSON.stringify(event.payload, null, 2)}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <CopyButton text={JSON.stringify(event.payload, null, 2)} />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
+  )
+}
+
+export function WebhookHistoryContent({
+  events,
+  totalCount,
+  page,
+  pageSize,
+  onPageChange,
+}: WebhookHistoryContentProps) {
+  const pageCount = Math.ceil(totalCount / pageSize)
+  return (
+    <div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">ID</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Target URL</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Timestamp</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {events.map(event => {
+              const normalizedEvent = normalizeWebhookEvent(event);
+              return (
+                <WebhookEventRow 
+                  key={normalizedEvent.id} 
+                  event={normalizedEvent} 
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Pagination>
+          <PaginationContent>
+            <PaginationPrevious
+              href="#"
+              onClick={() => onPageChange(page - 1)}
+              disabled={page === 1}
+            />
+            {page > 2 && (
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  onClick={() => onPageChange(1)}
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Clear
-                </Button>
-              )}
-            </div>
-          </div>
-          
-          {/* Filters row */}
-          {showFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="status-filter" className="text-sm font-medium">
-                  Status
-                </label>
-                <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-                  <SelectTrigger id="status-filter">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="success">Success</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="type-filter" className="text-sm font-medium">
-                  Webhook Type
-                </label>
-                <Select value={typeFilter} onValueChange={handleTypeFilterChange}>
-                  <SelectTrigger id="type-filter">
-                    <SelectValue placeholder="Filter by type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="zapier">Zapier</SelectItem>
-                    <SelectItem value="slack">Slack</SelectItem>
-                    <SelectItem value="github">GitHub</SelectItem>
-                    <SelectItem value="stripe">Stripe</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-          
-          {/* Results count */}
-          <div className="text-sm text-muted-foreground">
-            {filteredEvents.length === 0 ? (
-              'No events found'
-            ) : (
-              `Showing ${(currentPage - 1) * 10 + 1}-${Math.min(currentPage * 10, filteredEvents.length)} of ${filteredEvents.length} event${filteredEvents.length !== 1 ? 's' : ''}`
+                  1
+                </PaginationLink>
+              </PaginationItem>
             )}
-          </div>
-          
-          {/* Events table */}
-          <WebhookEventTable events={paginatedEvents} isLoading={isLoading} />
-          
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationPrevious
+            {page > 3 && <PaginationEllipsis />}
+            {Array.from({ length: Math.min(5, pageCount) })
+              .map((_, i) => {
+                const pageNumber = Math.max(1, page - 2) + i;
+                if (pageNumber > pageCount) {
+                  return null;
+                }
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      isActive={pageNumber === page}
+                      onClick={() => onPageChange(pageNumber)}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+            {pageCount - page > 2 && <PaginationEllipsis />}
+            {pageCount - page > 1 && (
+              <PaginationItem>
+                <PaginationLink
                   href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) setCurrentPage(currentPage - 1);
-                  }}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                />
-                
-                {getPaginationItems()}
-                
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                  }}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationContent>
-            </Pagination>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+                  onClick={() => onPageChange(pageCount)}
+                >
+                  {pageCount}
+                </PaginationLink>
+              </PaginationItem>
+            )}
+            <PaginationNext
+              href="#"
+              onClick={() => onPageChange(page + 1)}
+              disabled={page === pageCount}
+            />
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </div>
+  )
 }

@@ -11,6 +11,7 @@ import { Message as FixedMessage } from './fixed/Message';
 import { WebhookEvent as FixedWebhookEvent, WebhookType as FixedWebhookType } from './fixed/Webhook';
 import { AuthContextProps as FixedAuthContextProps } from './fixed/Auth';
 import { AccessibilityContextType as FixedAccessibilityContextType } from './fixed/Accessibility';
+import { ComplianceContextType as FixedComplianceContextType } from './fixed/Compliance';
 
 // Type aliases for common types with backward compatibility
 export type UserRole = 'admin' | 'user';
@@ -20,6 +21,7 @@ export type ChecklistItemStatus = 'pending' | 'error' | 'completed' | 'warning' 
 // Compatibility layer for webhook-related types
 export interface WebhookEvent extends FixedWebhookEvent {
   eventType: string; // Ensure eventType is always available
+  event_type?: string; // For backward compatibility
 }
 
 export type WebhookType = FixedWebhookType;
@@ -47,9 +49,10 @@ export interface User extends FixedUser {
   };
 }
 
-// AuthContextProps with isLoading
+// AuthContextProps with isLoading and loading
 export interface AuthContextProps extends FixedAuthContextProps {
   isLoading: boolean;
+  loading: boolean;
 }
 
 // Extend AccessibilityContextType
@@ -60,6 +63,23 @@ export interface AccessibilityContextType extends FixedAccessibilityContextType 
   setAutoUpdate: (value: boolean) => void;
   isCheckingUpdates: boolean;
   lastChecked: string | null;
+}
+
+// Extend ComplianceContextType
+export interface ComplianceContextType extends FixedComplianceContextType {
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+}
+
+// ExecutiveMessage compatibility
+export interface ExecutiveMessage {
+  id: string;
+  content: string;
+  created_at: string;
+  from_executive: boolean;
+  [key: string]: any;
 }
 
 // Add any additional compatibility exports here

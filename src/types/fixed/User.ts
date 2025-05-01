@@ -19,6 +19,7 @@ export interface User {
     lastName: string;
     avatar?: string;
     role?: string;
+    name?: string;
   };
   [key: string]: any; // Fallback to prevent build breaks for legacy properties
 }

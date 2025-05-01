@@ -73,14 +73,14 @@ export default function BotDetail() {
 
   // Create a fallback bot object with required fields if any are missing
   const enhancedBot: Bot = {
-    id: bot.id,
-    name: bot.name,
-    title: bot.title || role || 'Executive Advisor',
-    role: bot.role || role || 'Executive Advisor',
-    description: bot.description,
-    avatar: bot.avatar,
-    expertise: bot.expertise || 'Business Strategy',
-    isActive: bot.isActive
+    id: bot?.id,
+    name: bot?.name || '',
+    title: bot?.title || role || 'Executive Advisor',
+    role: bot?.role || role || 'Executive Advisor',
+    description: bot?.description,
+    avatar: bot?.avatar,
+    expertise: bot?.expertise || 'Business Strategy',
+    isActive: bot?.isActive
   };
 
   return (

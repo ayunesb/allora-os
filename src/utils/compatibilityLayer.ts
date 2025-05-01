@@ -6,6 +6,7 @@
 
 import { Campaign } from '@/types/fixed/Campaign';
 import { User } from '@/types/fixed/User';
+import { WebhookEvent } from '@/types/fixed/Webhook';
 
 export function normalizeCampaign(campaign: Campaign): Campaign {
   return {
@@ -30,6 +31,14 @@ export function normalizeUser(user: any): User | null {
     company_id: user.company_id || null,
     company: user.company || null,
     industry: user.industry || null
+  };
+}
+
+export function normalizeWebhookEvent(event: any): WebhookEvent {
+  return {
+    ...event,
+    eventType: event.eventType || event.event_type || 'unknown',
+    event_type: event.event_type || event.eventType || 'unknown'
   };
 }
 

@@ -1,9 +1,10 @@
 
 export interface ComplianceContextType {
-  pendingUpdates: string[];
+  isLoaded: boolean;
+  error: string | null;
+  updatePreference?: (key: string, value: any) => void;
   checkForUpdates: () => void;
-  applyUpdate: (documentId: string) => Promise<void>;
-  setAutoUpdate: (documentId: string, enabled: boolean) => Promise<void>;
+  setAutoUpdate: (value: boolean) => void;
   isCheckingUpdates: boolean;
   lastChecked: string | null;
 }
