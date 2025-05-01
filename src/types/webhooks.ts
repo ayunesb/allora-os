@@ -44,8 +44,12 @@ export interface WebhookResult {
 export interface WebhookEvent {
   id: string;
   webhookType: WebhookType;
+  webhook_type?: WebhookType; // For backward compatibility
   eventType: string;
+  event_type?: string; // For backward compatibility
+  type?: string; // For backward compatibility
   targetUrl: string;
+  url?: string; // For backward compatibility
   status: 'success' | 'failed' | 'pending';
   timestamp: string;
   payload: any;

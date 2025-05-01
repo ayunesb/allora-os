@@ -61,10 +61,35 @@ export interface UnifiedWebhookEvent {
   webhookType: WebhookType;
   webhook_type?: WebhookType;
   timestamp: string;
+  type?: string; // Added for backward compatibility
 }
 
 // We export these explicitly to match what components are expecting
 export type WebhookEvent = UnifiedWebhookEvent;
+
+// Business event types
+export type BusinessEventType = 
+  | 'campaign_created' 
+  | 'strategy_approved' 
+  | 'lead_converted'
+  | 'revenue_milestone'
+  | 'user_onboarded'
+  | 'campaign_launched'
+  | 'lead_added'
+  | 'test_event';
+
+export interface BusinessEventPayload {
+  eventType: BusinessEventType | string;
+  data: Record<string, any>;
+}
+
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+  statusCode?: number;
+  responseData?: any;
+}
 
 // Executive message type
 export interface UnifiedExecutiveMessage {
@@ -143,11 +168,11 @@ export interface SocialMediaPost {
   content: string;
   content_type: ContentType;
   status: PostStatus;
-  is_approved: boolean; // Make is_approved required
-  company_id?: string; // Add company_id for backward compatibility
+  is_approved: boolean; 
+  company_id?: string; 
   scheduled_at?: string;
-  scheduled_date?: string; // For form compatibility
-  publish_time?: string; // For form compatibility
+  scheduled_date?: string; 
+  publish_time?: string; 
   published_at?: string;
   media_urls?: string[];
   link_url?: string;
@@ -158,8 +183,8 @@ export interface SocialMediaPost {
     views?: number;
   };
   tags?: string[];
-  title?: string; // For form compatibility
-  campaign_id?: string; // For form compatibility
+  title?: string; 
+  campaign_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -176,7 +201,7 @@ export interface SocialMediaCalendarFilters {
 // Database interfaces for verification
 export interface DatabaseTableStatus {
   name: string;
-  status: string;
+  status: string; // Added to match usage in components
   count: number;
 }
 
@@ -184,7 +209,8 @@ export interface DatabaseTableStatus {
 export interface CompanyProfile {
   id: string;
   tenant_id: string;
-  company_name: string; // Changed from companyName to company_name
+  company_name: string;
+  companyName?: string; // For backward compatibility
   industry?: string;
   target_customer?: string;
   sales_channels?: string[];

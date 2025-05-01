@@ -11,11 +11,21 @@ export * from './fixed/Compliance';
 export * from './fixed/Message';
 export * from './fixed/Bot';
 
+// Export all from unified types
+export * from './unified-types';
+
 // Export compatibility types
 export * from './compatibility';
 
 // Re-export the WebhookType for compatibility
-export { WebhookType } from '@/utils/webhookValidation';
+export { WebhookType, validateWebhookUrlFormat, testWebhook, sanitizeWebhookUrl } from '@/utils/webhookValidation';
+
+// Re-export social media types for compatibility
+export { type SocialPlatform, type ContentType, type PostStatus, type PostContentType, type SocialMediaPost, type SocialMediaCalendarFilters } from './unified-types';
+
+// Re-export business event types
+export { type BusinessEventType, type BusinessEventPayload, type WebhookResult } from './unified-types';
 
 // Re-export any other types needed
 export * from './Checklist';
+export * from './webhooks';

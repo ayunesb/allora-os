@@ -58,7 +58,8 @@ export function normalizeWebhookEvent(event: any): WebhookEvent {
     webhook_type: event.webhook_type || event.webhookType || 'custom' as WebhookType,
     url: event.url || event.targetUrl,
     targetUrl: event.targetUrl || event.url,
-    timestamp: event.timestamp || event.created_at || new Date().toISOString()
+    timestamp: event.timestamp || event.created_at || new Date().toISOString(),
+    type: event.type || event.webhookType || event.webhook_type || 'custom' // Add type field for components that expect it
   };
 }
 

@@ -1,130 +1,176 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { toast } from 'sonner';
 import { ExtendedComplianceContextType } from '@/types/unified-types';
 
-// Create the context with a default undefined value
-export const ComplianceContext = createContext<ExtendedComplianceContextType | undefined>(undefined);
+// Create context with default values
+export const ComplianceContext = createContext<ExtendedComplianceContextType>({
+  isLoaded: false,
+  error: null,
+  checkForUpdates: () => {},
+  setAutoUpdate: () => {},
+  isCheckingUpdates: false,
+  lastChecked: null,
+  pendingUpdates: [],
+  isApplyingUpdate: false,
+  applyUpdate: async () => null,
+  applyAllUpdates: async () => null,
+  scheduleComplianceCheck: async () => {},
+  enableAutoUpdates: async () => false
+});
 
-// Provider props interface
-interface ComplianceProviderProps {
+export interface ComplianceProviderProps {
   children: ReactNode;
-  initialPendingUpdates?: string[];
 }
 
-export const ComplianceProvider: React.FC<ComplianceProviderProps> = ({ 
-  children,
-  initialPendingUpdates = []
-}) => {
-  const [isLoaded, setIsLoaded] = useState(true);
-  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
-  const [lastChecked, setLastChecked] = useState<string | null>(null);
+export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [pendingUpdates, setPendingUpdates] = useState<string[]>(initialPendingUpdates);
-  const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
-  const [autoUpdate, setAutoUpdate] = useState(false);
-
-  // Check for compliance updates
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState<boolean>(false);
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
+  const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
+  const [isApplyingUpdate, setIsApplyingUpdate] = useState<boolean>(false);
+  const [autoUpdate, setAutoUpdateState] = useState<boolean>(false);
+  
+  // Check for updates
   const checkForUpdates = () => {
     setIsCheckingUpdates(true);
     
-    // Simulate API call with timeout
+    // Simulate API call
     setTimeout(() => {
-      // Simulated response
       setLastChecked(new Date().toISOString());
+      setPendingUpdates(['gdpr-update', 'ccpa-update']);
       setIsCheckingUpdates(false);
+      toast.info('Compliance updates found');
     }, 1500);
   };
-
+  
+  // Set auto-update preference
+  const setAutoUpdate = (value: boolean) => {
+    setAutoUpdateState(value);
+    
+    // Simulate API call
+    toast.success(value ? 'Auto-updates enabled' : 'Auto-updates disabled');
+  };
+  
   // Apply a specific update
-  const applyUpdate = async (documentId: string): Promise<boolean> => {
+  const applyUpdate = async (documentId: string) => {
     setIsApplyingUpdate(true);
     
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Remove the applied update from pending
-      setPendingUpdates(current => current.filter(id => id !== documentId));
-      return true;
+      // Remove from pending updates
+      setPendingUpdates(pendingUpdates.filter(id => id !== documentId));
+      toast.success(`Update ${documentId} applied successfully`);
+      
+      return { success: true };
     } catch (err) {
-      setError('Failed to apply update');
-      return false;
+      setError(`Failed to apply update ${documentId}`);
+      toast.error(`Failed to apply update ${documentId}`);
+      return { success: false, error: err };
     } finally {
       setIsApplyingUpdate(false);
     }
   };
-
-  // Apply all pending updates
-  const applyAllUpdates = async (): Promise<boolean> => {
-    if (pendingUpdates.length === 0) return true;
-    
+  
+  // Apply all updates
+  const applyAllUpdates = async () => {
     setIsApplyingUpdate(true);
     
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Clear all pending updates
+      // Clear pending updates
       setPendingUpdates([]);
-      return true;
+      toast.success('All updates applied successfully');
+      
+      return { success: true };
     } catch (err) {
       setError('Failed to apply updates');
-      return false;
+      toast.error('Failed to apply updates');
+      return { success: false, error: err };
     } finally {
       setIsApplyingUpdate(false);
     }
   };
-
-  // Schedule regular compliance checks
-  const scheduleComplianceCheck = async (intervalDays: number = 30): Promise<void> => {
-    // Implementation would depend on your app's infrastructure
-    console.log(`Scheduled compliance check every ${intervalDays} days`);
+  
+  // Schedule compliance check
+  const scheduleComplianceCheck = async (intervalDays = 30) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success(`Compliance check scheduled every ${intervalDays} days`);
+    } catch (err) {
+      setError('Failed to schedule compliance check');
+      toast.error('Failed to schedule compliance check');
+    }
   };
-
+  
   // Enable auto-updates for a document
-  const enableAutoUpdates = async (documentId: string, enabled: boolean): Promise<boolean> => {
-    // Implementation for enabling auto updates
-    console.log(`${enabled ? 'Enabled' : 'Disabled'} auto-updates for document ${documentId}`);
-    return true;
+  const enableAutoUpdates = async (documentId: string, enabled: boolean) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success(`Auto-updates ${enabled ? 'enabled' : 'disabled'} for ${documentId}`);
+      return true;
+    } catch (err) {
+      toast.error(`Failed to ${enabled ? 'enable' : 'disable'} auto-updates for ${documentId}`);
+      return false;
+    }
   };
-
-  // Update user preferences
+  
+  // Update preference wrapper
   const updatePreference = (key: string, value: any) => {
-    console.log(`Updated preference: ${key} = ${value}`);
-    // Implementation would depend on your app's state management
+    if (key === 'autoUpdate') {
+      setAutoUpdate(value);
+    }
   };
-
-  const value: ExtendedComplianceContextType = {
-    isLoaded,
-    error,
-    checkForUpdates,
-    setAutoUpdate,
-    isCheckingUpdates,
-    lastChecked,
-    autoUpdate,
-    updatePreference,
-    pendingUpdates,
-    isApplyingUpdate,
-    applyUpdate,
-    applyAllUpdates,
-    scheduleComplianceCheck,
-    enableAutoUpdates
-  };
-
+  
+  // On mount, simulate loading data
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsLoaded(true);
+      } catch (err) {
+        setError('Failed to load compliance data');
+      }
+    };
+    
+    loadData();
+  }, []);
+  
   return (
-    <ComplianceContext.Provider value={value}>
+    <ComplianceContext.Provider
+      value={{
+        isLoaded,
+        error,
+        checkForUpdates,
+        setAutoUpdate,
+        isCheckingUpdates,
+        lastChecked,
+        pendingUpdates,
+        isApplyingUpdate,
+        applyUpdate,
+        applyAllUpdates,
+        scheduleComplianceCheck,
+        enableAutoUpdates,
+        autoUpdate,
+        updatePreference
+      }}
+    >
       {children}
     </ComplianceContext.Provider>
   );
 };
 
-// Custom hook to use the compliance context
-export const useCompliance = (): ExtendedComplianceContextType => {
-  const context = useContext(ComplianceContext);
-  
-  if (!context) {
-    throw new Error('useCompliance must be used within a ComplianceProvider');
-  }
-  
-  return context;
+// Create a hook for easy access to the compliance context
+export const useCompliance = () => {
+  return useContext(ComplianceContext);
 };
