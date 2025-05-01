@@ -2,13 +2,11 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import { VerificationContent, VerificationActions } from './launch-verification';
 import { useVerification } from '@/hooks/admin/useVerification';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function LaunchVerification() {
-  const { profile } = useAuth();
   const {
     isChecking,
     results,
@@ -24,7 +22,7 @@ export default function LaunchVerification() {
     checkDatabaseIndexes,
     verifyRLSPolicies,
     verifyDatabaseFunctions
-  } = useVerification(profile?.company_id);
+  } = useVerification();
   
   return (
     <ErrorBoundary>

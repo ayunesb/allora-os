@@ -1,43 +1,42 @@
 
 import React from 'react';
+import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 import { DatabaseTableStatus } from './types';
-import { CheckCircle, XCircle, Database, Shield, Lock } from 'lucide-react';
 
 interface DatabaseTablesSectionProps {
-  tables: Record<string, DatabaseTableStatus>;
+  tables: DatabaseTableStatus[];
 }
 
 export function DatabaseTablesSection({ tables }: DatabaseTablesSectionProps) {
-  if (!tables) return null;
-  
   return (
-    <div className="p-3 rounded-md bg-[#1E293B]/80 border border-white/10">
-      <h3 className="font-medium mb-2 text-white flex items-center gap-1.5">
-        <Database className="h-4 w-4 text-blue-400" />
-        Database Tables Check
-      </h3>
-      <div className="space-y-1.5">
-        {Object.entries(tables).map(([table, result]) => (
-          <div key={table} className="flex items-center justify-between text-sm">
-            <span className="font-medium text-gray-300 flex items-center gap-1">
-              {table}
-              {/* Show a lock icon for tables with RLS enabled */}
-              {result.exists && result.rls && <Lock className="h-3 w-3 text-green-400" />}
-            </span>
-            <div className="flex items-center gap-1">
-              {result.exists ? (
-                <CheckCircle className="h-3.5 w-3.5 text-green-500" />
-              ) : (
-                <XCircle className="h-3.5 w-3.5 text-red-500" />
-              )}
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                result.exists ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'
-              }`}>
-                {result.exists ? 'Exists' : 'Missing'}
+    <div className="bg-muted/50 rounded-md p-4">
+      <h3 className="font-medium mb-3">Database Tables Check</h3>
+      
+      <div className="space-y-2">
+        {tables.map((table, index) => (
+          <div key={index} className="flex items-center justify-between p-2 bg-background rounded-md">
+            <div className="flex items-center gap-2">
+              {table.status === 'success' && <CheckCircle className="h-4 w-4 text-green-500" />}
+              {table.status === 'warning' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
+              {table.status === 'error' && <XCircle className="h-4 w-4 text-red-500" />}
+              <span>{table.name}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">
+                {table.exists ? 'Exists' : 'Missing'}
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200">
+                {table.hasRLS ? 'RLS Enabled' : 'No RLS'}
               </span>
             </div>
           </div>
         ))}
+        
+        {tables.length === 0 && (
+          <div className="text-center py-2 text-muted-foreground">
+            No table checks available
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle, AlertTriangle, XCircle, Clock, Info } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Clock, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChecklistItem as ChecklistItemType } from './types';
 
@@ -13,7 +13,7 @@ export function ChecklistItem({ item }: ChecklistItemProps) {
   const renderStatusIcon = () => {
     switch (item.status) {
       case 'completed':
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
+        return <CheckCircle2 className="h-5 w-5 text-green-600" />;
       case 'warning':
         return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
       case 'error':

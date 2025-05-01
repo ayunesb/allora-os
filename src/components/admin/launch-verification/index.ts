@@ -1,11 +1,14 @@
 
-export * from './VerificationContent';
-export * from './VerificationActions';
-export * from './ValidationResultItem';
-export * from './DatabaseTablesSection';
-export * from './DatabaseChecksSection';
-export * from './types';
-export * from './LaunchButton';
-export * from './LaunchInfoBox';
-export * from './LaunchProgress';
-export * from './useLaunchProcess';
+export { ChecklistCategory } from './ChecklistCategory';
+export { ChecklistItem } from './ChecklistItem'; 
+export { ChecklistProgress } from './ChecklistProgress';
+export { DatabaseChecksSection } from './DatabaseChecksSection';
+export { DatabaseTablesSection } from './DatabaseTablesSection';
+export { EnhancedVerificationChecklist } from './EnhancedVerificationChecklist';
+export { LaunchButton } from './LaunchButton';
+export { LaunchInfoBox } from './LaunchInfoBox';
+export { LaunchProgress } from './LaunchProgress';
+export { SeverityCounts } from './SeverityCounts';
+export { ValidationResultItem } from './ValidationResultItem';
+export { VerificationActions } from './VerificationActions';
+export { VerificationContent } from './VerificationContent';

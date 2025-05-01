@@ -1,9 +1,6 @@
 
-import { useState } from 'react';
-import { DatabaseVerificationResult } from '@/types/databaseVerification';
-import { validateDatabaseSecurity } from '@/utils/validators/databaseValidator';
-import { validateRLSPolicies } from '@/utils/validators/rlsValidator';
-import { toast } from 'sonner';
+import { useState, useCallback } from 'react';
+import { DatabaseVerificationResult } from '@/components/admin/database-verification/types';
 
 export function useDatabaseVerification() {
   const [verificationResult, setVerificationResult] = useState<DatabaseVerificationResult>({
@@ -12,93 +9,40 @@ export function useDatabaseVerification() {
     functions: [],
     isVerifying: false
   });
-  
-  const verifyDatabaseConfiguration = async () => {
+
+  const verifyDatabaseConfiguration = useCallback(async () => {
     setVerificationResult(prev => ({ ...prev, isVerifying: true }));
     
     try {
-      // Simulate database verification - in a real application, you'd call 
-      // your backend or run checks directly against the database
-      const rlsResult = await validateRLSPolicies();
-      const dbResult = await validateDatabaseSecurity();
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Create tables, policies, and functions arrays from results
-      const mockTables = [
-        {
-          name: 'strategies',
-          exists: true,
-          hasRLS: true,
-          status: 'success' as const,
-          message: 'Table is properly configured with RLS.'
-        },
-        {
-          name: 'profiles',
-          exists: true,
-          hasRLS: true,
-          status: 'success' as const,
-          message: 'Table is properly configured with RLS.'
-        },
-        {
-          name: 'agent_logs',
-          exists: true,
-          hasRLS: true,
-          status: 'success' as const,
-          message: 'Table is properly configured with RLS.'
-        }
-      ];
-      
-      const mockPolicies = [
-        {
-          table: 'strategies',
-          name: 'Users can view own strategies',
-          exists: true,
-          isSecure: true,
-          status: 'success' as const,
-          message: 'Policy is secure and properly configured.'
-        },
-        {
-          table: 'profiles',
-          name: 'Users can update own profiles',
-          exists: true,
-          isSecure: true,
-          status: 'success' as const,
-          message: 'Policy is secure and properly configured.'
-        }
-      ];
-      
-      const mockFunctions = [
-        {
-          name: 'handle_new_user',
-          exists: true,
-          isSecure: true,
-          status: 'success' as const,
-          message: 'Function is properly secured with SECURITY DEFINER.'
-        },
-        {
-          name: 'get_user_role',
-          exists: true,
-          isSecure: true,
-          status: 'success' as const,
-          message: 'Function is properly secured with SECURITY DEFINER.'
-        }
-      ];
-      
-      // Update verification result
+      // Mock verification results
       setVerificationResult({
-        tables: mockTables,
-        policies: mockPolicies,
-        functions: mockFunctions,
+        tables: [
+          { name: 'users', exists: true, hasRLS: true, status: 'success', message: 'Table configured correctly' },
+          { name: 'profiles', exists: true, hasRLS: true, status: 'success', message: 'Table configured correctly' },
+          { name: 'strategies', exists: true, hasRLS: true, status: 'success', message: 'Table configured correctly' }
+        ],
+        policies: [
+          { table: 'users', name: 'Users RLS', exists: true, isSecure: true, status: 'success', message: 'Policy is secure' },
+          { table: 'profiles', name: 'Profiles RLS', exists: true, isSecure: true, status: 'success', message: 'Policy is secure' }
+        ],
+        functions: [
+          { name: 'get_user_role', exists: true, isSecure: true, status: 'success', message: 'Function exists and is secure' },
+          { name: 'handle_new_user', exists: true, isSecure: true, status: 'success', message: 'Function exists and is secure' }
+        ],
         isVerifying: false
       });
-      
-      toast.success("Database verification complete");
     } catch (error) {
-      console.error('Error verifying database:', error);
-      toast.error("Failed to verify database configuration");
-      setVerificationResult(prev => ({ ...prev, isVerifying: false }));
+      console.error("Database verification error:", error);
+      setVerificationResult(prev => ({ 
+        ...prev, 
+        isVerifying: false 
+      }));
     }
-  };
-  
+  }, []);
+
   return {
     verificationResult,
     verifyDatabaseConfiguration
