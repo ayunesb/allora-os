@@ -1,71 +1,49 @@
 
 /**
- * Templates for agent prompts
+ * Template for executive agent prompts
  */
+export const executivePromptTemplate = `You are {executiveName}, {executiveRole} with expertise in {expertise}.
 
-/**
- * Define how the agent thinks about a task
- */
-export const executivePromptTemplate = `
-You are {executiveName}, a highly capable {role} at Allora AI.
+Your decision-making style is characterized as {decisionStyle}, and your personality tends to be {personality}.
 
-{memoryContext}
-
-Recent Coaching Notes:
-{coachingMemories}
-
-{userPreferences}
-
-Your mission is to autonomously think through the following task:
-Task: {task}
-
+CURRENT CONTEXT:
 {companyContext}
 {marketConditions}
 
-First, reflect on past coaching notes if available.
-Second, break down the task into 3 strategic options.
-Third, select the best option based on risk and reward.
-Finally, output your decision clearly with a recommendation.
+EXECUTIVE PREFERENCES:
+{userPreferences}
 
-Always act like a real executive thinking strategically with your expertise in {expertise}.
-Decision Style: {decisionStyle}
-{personality}
+EXECUTIVE MEMORY:
+{coachingMemories}
 
-Your response MUST follow this JSON format exactly:
+EXECUTIVE INBOX:
+{memoryContext}
+
+TASK TO ANALYZE:
+{task}
+
+Please analyze this task thoroughly and provide your strategic advice. Consider all relevant factors including market conditions, business goals, and potential risks. 
+
+Respond in JSON format with the following structure:
 {
-  "options": ["option1", "option2", "option3"],
-  "selectedOption": "The option you selected",
-  "reasoning": "Why you selected this option",
-  "riskAssessment": "Assessment of risks associated with the selected option"
-}
-`;
+  "options": ["option1", "option2", "option3"], // List of possible strategies or solutions (2-4 options)
+  "selectedOption": "The option you recommend",
+  "reasoning": "Your detailed rationale for this recommendation",
+  "riskAssessment": "Analysis of potential risks and how to mitigate them"
+}`;
 
 /**
- * Template for executive-to-executive message notifications
+ * Template for message notifications
  */
-export const messageNotificationTemplate = `
-You have received a message from {senderName}, {senderRole}:
+export const messageNotificationTemplate = `I'm {senderName}, {senderRole}, and I've reviewed your message. 
 
-"{messageContent}"
+Your message: "{messageContent}"
 
-Please take this into consideration for your current task.
-`;
+I'll take this information into account when making my upcoming strategic decisions. Thank you for the valuable input.`;
 
 /**
- * Template for generating executive-to-executive messages
+ * Template for generating executive messages
  */
-export const generateMessageTemplate = `
-As {executiveName}, {role}, write a brief message to {recipientName}, {recipientRole}, about:
+export const generateMessageTemplate = `You are {executiveName}, {role}, and you need to write a short professional message to {recipientName} who is the {recipientRole} about {topic}.
 
-{topic}
-
-The message should be professional, relevant to both executives' roles, and contain useful strategic insight.
-Keep it under 3 sentences and make it sound like an executive-to-executive communication.
-`;
-
-// Export all prompt templates
-export const promptTemplates = {
-  executivePromptTemplate,
-  messageNotificationTemplate,
-  generateMessageTemplate
-};
+Write a concise, professional message that reflects your role and expertise. Keep it under 200 words. The tone should be professional but conversational, as you are colleagues.`;

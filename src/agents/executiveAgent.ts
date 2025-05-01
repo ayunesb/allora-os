@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -5,16 +6,22 @@ import {
   ExecutiveDecision,
   AgentRunOptions,
 } from "@/types/agents";
-import {
-  executivePromptTemplate,
-  messageNotificationTemplate,
-  generateMessageTemplate,
-} from "@/agents/promptTemplates";
+import { executivePromptTemplate } from "@/agents/promptTemplates";
 import { generateStrategy } from "@/backend/strategy";
 import { getDecisionStyle, getPersonality } from "@/utils/agentUtils";
-import { sendExecutiveMessage } from "@/agents/meshNetwork";
-import { formatInboxForPrompt } from "./meshNetwork";
 import { executiveProfiles } from "./agentProfiles";
+import { 
+  fetchExecutiveInbox, 
+  formatInboxForPrompt, 
+  markMessagesAsRead, 
+  notifyOtherExecutives, 
+  sendExecutiveMessage 
+} from "./executiveMessaging";
+import { 
+  fetchCoachingMemories, 
+  saveExecutiveDecision, 
+  getExecutiveDecisions 
+} from "./executiveMemory";
 
 export { executiveProfiles };
 
@@ -117,175 +124,6 @@ export async function runExecutiveAgent(
       priority: "medium",
     };
   }
-}
-
-/**
- * Fetches coaching memories for an executive
- */
-async function fetchCoachingMemories(executiveName: string): Promise<string> {
-  try {
-    const { data, error } = await supabase
-      .from("executive_memory")
-      .select("*")
-      .eq("executive_name", executiveName)
-      .ilike("task", "Self-Coaching on:%")
-      .order("created_at", { ascending: false })
-      .limit(5);
-
-    if (error) {
-      console.error("Failed to fetch coaching memories:", error);
-      return "No previous coaching memories available.";
-    }
-
-    if (!data || data.length === 0) {
-      return "No previous coaching notes.";
-    }
-
-    return data
-      .map((memory) => `Coaching Note on ${memory.task.replace('Self-Coaching on: ', '')}: ${memory.decision}`)
-      .join("\n\n");
-  } catch (error) {
-    console.error("Error fetching coaching memories:", error);
-    return "Error retrieving coaching memories.";
-  }
-}
-
-/**
- * Saves an executive decision to the database
- */
-export async function saveExecutiveDecision(
-  decision: ExecutiveDecision,
-  userId: string
-) {
-  const { data, error } = await supabase
-    .from("executive_decisions")
-    .insert([
-      {
-        ...decision,
-        user_id: userId,
-      },
-    ]);
-
-  if (error) {
-    console.error("Failed to save executive decision:", error);
-    throw new Error(`Failed to save executive decision: ${error.message}`);
-  }
-
-  return data;
-}
-
-/**
- * Fetches executive decisions from the database
- */
-export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
-  try {
-    const { data, error } = await supabase
-      .from("executive_decisions")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Failed to fetch executive decisions:", error);
-      throw new Error(`Failed to fetch executive decisions: ${error.message}`);
-    }
-
-    return data || [];
-  } catch (error: any) {
-    console.error("Error fetching executive decisions:", error);
-    return [];
-  }
-}
-
-/**
- * Fetches unread messages for a specific executive
- */
-export async function fetchExecutiveInbox(executiveName: string) {
-  const { data, error } = await supabase
-    .from("executive_messages")
-    .select("*")
-    .eq("to_executive", executiveName)
-    .eq("status", "unread")
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("Failed to fetch messages:", error);
-    return [];
-  }
-
-  return data || [];
-}
-
-/**
- * Sends a message to other executives notifying them of recent messages
- */
-async function notifyOtherExecutives(
-  executiveName: string,
-  executiveRole: string,
-  messages: any[]
-) {
-  for (const msg of messages) {
-    const notification = messageNotificationTemplate
-      .replace("{senderName}", executiveName)
-      .replace("{senderRole}", executiveRole)
-      .replace("{messageContent}", msg.message_content);
-
-    // Send the notification to the executive who sent the message
-    await sendExecutiveMessage(
-      executiveName,
-      msg.from_executive,
-      notification
-    );
-  }
-
-  // Mark messages as read
-  await markMessagesAsRead(executiveName);
-}
-
-/**
- * Marks messages as read for a specific executive
- */
-async function markMessagesAsRead(executiveName: string) {
-  const { error } = await supabase
-    .from("executive_messages")
-    .update({ status: "read" })
-    .eq("to_executive", executiveName)
-    .eq("status", "unread");
-
-  if (error) {
-    console.error("Failed to mark messages as read:", error);
-  }
-}
-
-/**
- * Generates a message from one executive to another
- */
-export async function generateExecutiveMessage(
-  executiveName: string,
-  role: string,
-  recipientName: string,
-  recipientRole: string,
-  topic: string
-) {
-  const prompt = generateMessageTemplate
-    .replace("{executiveName}", executiveName)
-    .replace("{role}", role)
-    .replace("{recipientName}", recipientName)
-    .replace("{recipientRole}", recipientRole)
-    .replace("{topic}", topic);
-
-  // Call our Supabase edge function to process the prompt
-  const { data, error } = await supabase.functions.invoke("generate-text", {
-    body: {
-      prompt: prompt,
-    },
-  });
-
-  if (error) {
-    console.error("Failed to generate executive message:", error);
-    throw new Error(`Failed to generate executive message: ${error.message}`);
-  }
-
-  return data.content;
 }
 
 /**

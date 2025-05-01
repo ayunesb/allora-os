@@ -1203,6 +1203,51 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_actions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error: string | null
+          executive_name: string | null
+          executive_role: string | null
+          id: string
+          outcome: string | null
+          performance_notes: string | null
+          result: string | null
+          status: string | null
+          task: string
+          triggered_by: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error?: string | null
+          executive_name?: string | null
+          executive_role?: string | null
+          id?: string
+          outcome?: string | null
+          performance_notes?: string | null
+          result?: string | null
+          status?: string | null
+          task: string
+          triggered_by?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error?: string | null
+          executive_name?: string | null
+          executive_role?: string | null
+          id?: string
+          outcome?: string | null
+          performance_notes?: string | null
+          result?: string | null
+          status?: string | null
+          task?: string
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       executive_decisions: {
         Row: {
           created_at: string | null
