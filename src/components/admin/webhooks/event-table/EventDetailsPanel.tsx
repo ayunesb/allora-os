@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { WebhookEvent, WebhookType } from '@/types/unified-types';
+import { UnifiedWebhookEvent as WebhookEvent } from '@/types/unified-types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

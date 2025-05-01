@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { SocialMediaPost } from '@/types/socialMedia';
 import { 
@@ -53,14 +52,12 @@ export function CalendarView({
     addDays(monthStart, -(startDay - i))
   );
 
-  // Function to get posts for a specific day
+  // Fix the getPostsForDay function:
   const getPostsForDay = (day: Date) => {
     return posts.filter(post => {
-      const postDate = post.scheduled_at 
-        ? new Date(post.scheduled_at) 
-        : post.scheduled_date 
-          ? new Date(`${post.scheduled_date}T${post.publish_time || '00:00'}:00`) 
-          : null;
+      const postDate = post.scheduled_date 
+        ? new Date(`${post.scheduled_date}T${post.publish_time || '00:00'}:00`) 
+        : null;
       
       return postDate && isSameDay(postDate, day);
     });

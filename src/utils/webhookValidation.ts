@@ -1,4 +1,3 @@
-
 import { WebhookType } from '@/types/fixed/Webhook';
 
 /**
@@ -62,3 +61,7 @@ export function sanitizeWebhookUrl(url: string): string {
     return '';
   }
 }
+
+// Re-export the WebhookType from types/fixed/Webhook for consistency
+export type { WebhookType };
+export { testWebhook, sanitizeWebhookUrl };

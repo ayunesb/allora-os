@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import SocialMediaPostForm from '../SocialMediaPostForm';
-import { SocialPlatform, PostContentType, SocialMediaPost, PostStatus } from '@/types/socialMedia';
+import { SocialPlatform, ContentType, SocialMediaPost, PostStatus } from '@/types/fixed/SocialMedia';
 
 // Mock the useCampaigns hook
 jest.mock('@/hooks/campaigns/useCampaigns', () => ({
@@ -34,11 +34,14 @@ describe('SocialMediaPostForm', () => {
       title: 'Test Post',
       content: 'This is test content',
       platform: 'Facebook' as SocialPlatform,
-      content_type: 'text' as PostContentType,
+      content_type: 'text' as ContentType,
       scheduled_date: '2023-10-15',
       publish_time: '14:30',
-      status: 'Draft' as PostStatus,
+      status: 'draft' as PostStatus,
       is_approved: false,
+      media_urls: [],
+      link_url: '',
+      tags: [],
       created_at: '2023-10-01',
       updated_at: '2023-10-01',
       company_id: 'company123'
@@ -94,11 +97,14 @@ describe('SocialMediaPostForm', () => {
       title: 'Original Post',
       content: 'Original Content',
       platform: 'Twitter' as SocialPlatform,
-      content_type: 'link' as PostContentType,
+      content_type: 'link' as ContentType,
       scheduled_date: '2023-11-01',
       publish_time: '08:00',
-      status: 'Approved' as PostStatus,
+      status: 'approved' as PostStatus,
       is_approved: true,
+      media_urls: [],
+      link_url: '',
+      tags: [],
       created_at: '2023-10-25',
       updated_at: '2023-10-25',
       company_id: 'company123'

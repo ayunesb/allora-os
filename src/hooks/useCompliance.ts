@@ -24,7 +24,7 @@ export const useCompliance = (): ExtendedComplianceContextType => {
     updatePreference: context.updatePreference || ((key: string, value: any) => console.warn('updatePreference not implemented', key, value)),
     pendingUpdates: context.pendingUpdates || [],
     isApplyingUpdate: context.isApplyingUpdate || false,
-    applyUpdate: context.applyUpdate || (async () => {}),
+    applyUpdate: context.applyUpdate || (async (id: string) => {}),
     applyAllUpdates: context.applyAllUpdates || (async () => {}),
     scheduleComplianceCheck: context.scheduleComplianceCheck || (async () => {}),
     enableAutoUpdates: context.enableAutoUpdates || (async () => false)

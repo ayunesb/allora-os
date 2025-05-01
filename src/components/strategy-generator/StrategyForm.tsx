@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -365,10 +364,13 @@ function StrategyResults({ strategies }: { strategies: Strategy[] }) {
   );
 }
 
+// Fix the supabase client reference
+import { supabase } from '@/integrations/supabase/client';
+
 // Function to call the Supabase Edge Function
 async function generateStrategies(params: any) {
   try {
-    const { data, error } = await window.supabase.functions.invoke('generate-strategies', {
+    const { data, error } = await supabase.functions.invoke('generate-strategies', {
       body: params
     });
 

@@ -62,3 +62,14 @@ export interface ExtendedComplianceContextType {
   scheduleComplianceCheck: () => Promise<void>;
   enableAutoUpdates: () => Promise<boolean>;
 }
+
+// Add UnifiedExecutiveMessage interface
+export interface UnifiedExecutiveMessage {
+  id: string;
+  content: string;
+  from_executive: boolean;
+  created_at: string;
+  to_executive?: boolean;
+  message_content?: string;
+  status?: string;
+}

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,7 +44,7 @@ export function PostCard({
     }
   };
 
-  // Format date for display
+  // Fix date formatting
   const formatDate = (date?: string) => {
     if (!date) return 'Not scheduled';
     try {
@@ -117,8 +116,8 @@ export function PostCard({
         </p>
         
         <div className="text-xs text-muted-foreground mt-2">
-          {post.scheduled_at || post.scheduled_date ? (
-            <p>Scheduled: {formatDate(post.scheduled_at || `${post.scheduled_date}T${post.publish_time}:00`)}</p>
+          {post.scheduled_date ? (
+            <p>Scheduled: {formatDate(`${post.scheduled_date}T${post.publish_time}:00`)}</p>
           ) : (
             <p>Not scheduled</p>
           )}

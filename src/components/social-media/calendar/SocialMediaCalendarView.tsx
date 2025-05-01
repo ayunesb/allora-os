@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { SocialMediaPost } from '@/types/unified-types';
 import { 
@@ -57,8 +56,7 @@ export function SocialMediaCalendarView({
   // Find posts for a specific day
   const getPostsForDay = (day: Date) => {
     return posts.filter(post => {
-      const postDate = post.scheduled_date ? parseISO(post.scheduled_date) : 
-                      post.scheduled_at ? parseISO(post.scheduled_at) : null;
+      const postDate = post.scheduled_date ? parseISO(post.scheduled_date) : null;
       return postDate && isSameDay(postDate, day);
     });
   };

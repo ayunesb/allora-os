@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -21,7 +20,7 @@ export function AccessibilityPanel() {
     invertColors,
     fontSize = 16,
     setFontSize = () => {},
-    toggleScreenReader = () => {},
+    toggleScreenReaderFriendly, // This was the issue - using toggleScreenReader
     toggleHighContrast = () => {},
     toggleReducedMotion = () => {},
     toggleLargeText = () => {},
@@ -37,7 +36,7 @@ export function AccessibilityPanel() {
       id: 'screen-reader',
       label: 'Screen Reader Mode',
       checked: screenReaderFriendly,
-      onChange: toggleScreenReader,
+      onChange: toggleScreenReaderFriendly,
       description: 'Optimizes content for screen readers'
     },
     {

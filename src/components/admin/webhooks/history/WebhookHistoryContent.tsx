@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useWebhookHistory } from '@/hooks/useWebhookHistory';
 import { Loading } from '@/components/ui/loading';
@@ -8,7 +7,7 @@ import { RefreshCw, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { EventDetailsModal } from './EventDetailsModal';
-import { WebhookEvent } from '@/types/unified-types';
+import { UnifiedWebhookEvent as WebhookEvent } from '@/types/unified-types';
 
 export default function WebhookHistoryContent() {
   const { events, isLoading, refetch } = useWebhookHistory();

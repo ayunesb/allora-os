@@ -1,5 +1,5 @@
-
 import { User } from "@/types/fixed/User";
+import { UnifiedExecutiveMessage } from "@/types/unified-types";
 
 /**
  * Normalizes user data from different auth sources into a consistent User object
@@ -62,5 +62,19 @@ export function normalizeWebhookEvent(webhookEvent: any): any {
     webhook_type: webhookEvent.webhookType || webhookEvent.webhook_type || '',
     targetUrl: webhookEvent.targetUrl || webhookEvent.url || '',
     url: webhookEvent.targetUrl || webhookEvent.url || '',
+  };
+}
+
+/**
+ * Normalizes executive message for consistent usage across components
+ */
+export function normalizeExecutiveMessage(msg: any): UnifiedExecutiveMessage {
+  return {
+    id: msg.id || '',
+    content: msg.message_content || msg.content || '',
+    created_at: msg.created_at || new Date().toISOString(),
+    from_executive: msg.from_executive ?? true,
+    to_executive: msg.to_executive ?? false,
+    status: msg.status ?? 'unread',
   };
 }
