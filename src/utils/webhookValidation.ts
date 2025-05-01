@@ -1,41 +1,68 @@
 
-import { WebhookType } from '@/types';
+import { WebhookType, BusinessEventType, BusinessEventPayload, WebhookResult } from '@/types';
 
-export function validateWebhookUrlFormat(url: string, type: WebhookType): boolean {
-  if (!url) return false;
+// Validate and sanitize webhook URLs
+export const sanitizeWebhookUrl = (url: string): string => {
+  if (!url) return '';
+  
+  // Ensure URL has protocol
+  if (!/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+  }
   
   try {
-    // First check if it's a valid URL
-    new URL(url);
-    
-    // Then check type-specific patterns
-    switch (type) {
-      case 'zapier':
-        return url.startsWith('https://hooks.zapier.com/');
-      case 'slack':
-        return url.startsWith('https://hooks.slack.com/');
-      case 'github':
-        return url.includes('github.com') || url.includes('githubusercontent.com');
-      case 'stripe':
-        return url.startsWith('https://');
-      case 'notion':
-        return url.includes('notion.so') || url.includes('notion.site');
-      case 'custom':
-        return url.startsWith('https://') || url.startsWith('http://');
-      default:
-        return url.startsWith('https://');
-    }
+    const parsedUrl = new URL(url);
+    return parsedUrl.toString();
   } catch (e) {
-    return false;
+    return '';
   }
-}
+};
 
-export function validateWebhookPayload(payload: any): boolean {
-  // Basic validation for webhook payloads
-  if (!payload || typeof payload !== 'object') {
-    return false;
+// Test a webhook by sending a test event
+export const testWebhook = async (url: string, type: WebhookType): Promise<WebhookResult> => {
+  if (!url) {
+    return { success: false, message: 'Invalid webhook URL' };
   }
   
-  // Must have at least some properties
-  return Object.keys(payload).length > 0;
-}
+  const testPayload: BusinessEventPayload = {
+    eventType: 'test_webhook',
+    data: {
+      message: 'This is a test webhook from Allora AI',
+      timestamp: new Date().toISOString(),
+      webhookType: type
+    }
+  };
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Webhook-Source': 'Allora-AI'
+      },
+      body: JSON.stringify(testPayload)
+    });
+    
+    if (response.ok) {
+      return { 
+        success: true, 
+        message: `Test webhook sent successfully (${response.status})` 
+      };
+    } else {
+      return { 
+        success: false, 
+        message: `Failed to send test webhook (${response.status})`,
+        error: `HTTP error: ${response.status}`
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Failed to send test webhook due to network error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+
+// Export the types for backward compatibility
+export type { WebhookType, BusinessEventType, BusinessEventPayload, WebhookResult };

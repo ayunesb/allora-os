@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { adminRoutes } from "./admin-routes";
@@ -89,6 +88,10 @@ const createLazyRoutes = () => {
     {
       path: "/home",
       element: withSuspense(Home),
+    },
+    {
+      path: "/launch",
+      element: withSuspense(() => import("@/pages/launch").then(m => m.default)),
     },
     {
       path: "/diagnostics",

@@ -1,94 +1,54 @@
 
-import { toast } from 'sonner';
-import { CampaignPayload, LeadPayload, WebhookResult, BusinessEventPayload, BusinessEventType } from '@/types';
+import { BusinessEventType, BusinessEventPayload, WebhookResult } from '@/types';
 
-export const useZapier = () => {
-  const triggerWebhook = async (url: string, payload: any): Promise<WebhookResult> => {
-    if (!url) {
-      toast.error("No webhook URL provided");
-      return { success: false, message: "No webhook URL provided" };
-    }
-
-    try {
-      await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors',
-        body: JSON.stringify({
-          ...payload,
-          timestamp: new Date().toISOString(),
-        }),
-      });
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Error triggering webhook:', error);
-      return { 
-        success: false, 
-        message: error instanceof Error ? error.message : "Unknown error",
-        error 
-      };
-    }
-  };
-
-  const triggerBusinessEvent = async (
-    webhookUrl: string,
-    eventType: BusinessEventType,
-    data: Record<string, any>
-  ): Promise<WebhookResult> => {
-    return triggerWebhook(webhookUrl, {
-      eventType,
-      data,
-    });
-  };
-
-  const triggerCampaignCreated = async (webhookUrl: string, campaign: CampaignPayload): Promise<WebhookResult> => {
-    return triggerBusinessEvent(webhookUrl, 'campaign_created', campaign);
-  };
-
-  const triggerLeadConverted = async (webhookUrl: string, lead: LeadPayload): Promise<WebhookResult> => {
-    return triggerBusinessEvent(webhookUrl, 'lead_converted', lead);
-  };
-  
-  const triggerWorkflow = async (
-    webhookUrl: string,
-    eventType: BusinessEventType,
-    data: Record<string, any>
-  ): Promise<WebhookResult> => {
-    return triggerWebhook(webhookUrl, {
-      eventType,
-      data,
-    });
-  };
-
-  return {
-    triggerWebhook,
-    triggerBusinessEvent,
-    triggerCampaignCreated,
-    triggerLeadConverted,
-    triggerWorkflow,
-  };
-};
-
-// Export triggerBusinessEvent for tests
-export const triggerBusinessEvent = async (
-  webhookUrl: string,
-  eventType: BusinessEventType,
-  data: Record<string, any>
-): Promise<WebhookResult> => {
-  // This is a simplified version for test mocking purposes
-  console.log(`Simulating business event: ${eventType}`, data);
-  return { success: true };
-};
-
-// Export triggerWorkflow for compatibility
+// Function to trigger a workflow through a webhook
 export const triggerWorkflow = async (
   webhookUrl: string,
   eventType: BusinessEventType,
-  data: Record<string, any>
+  payload: Record<string, any>
 ): Promise<WebhookResult> => {
-  console.log(`Simulating workflow trigger: ${eventType}`, data);
-  return { success: true };
+  if (!webhookUrl) {
+    console.error('No webhook URL provided');
+    return { success: false, message: 'No webhook URL provided' };
+  }
+
+  const eventPayload: BusinessEventPayload = {
+    eventType,
+    data: payload
+  };
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Source': 'Allora-AI',
+        'X-Event-Type': eventType
+      },
+      body: JSON.stringify(eventPayload)
+    });
+
+    if (response.ok) {
+      return { 
+        success: true, 
+        message: `Successfully triggered ${eventType} event`
+      };
+    } else {
+      return { 
+        success: false, 
+        message: `Failed to trigger webhook (${response.status})`,
+        error: `HTTP error: ${response.status}`
+      };
+    }
+  } catch (error) {
+    console.error('Error triggering Zapier webhook:', error);
+    return {
+      success: false,
+      message: 'Network error when triggering webhook',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
 };
+
+// Re-export types
+export type { BusinessEventType, BusinessEventPayload };

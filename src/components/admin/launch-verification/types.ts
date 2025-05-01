@@ -1,51 +1,40 @@
 
-import { ReactNode } from 'react';
-
-export interface LaunchInfoProps {
-  title: string;
-  description?: string;
-  icon?: ReactNode;
-  status?: 'initial' | 'in-progress' | 'completed' | 'error';
-  children?: ReactNode;
-}
-
-export interface LaunchInfoBoxProps {
-  title: string;
-  description?: string;
-  icon?: ReactNode;
-  status?: 'initial' | 'in-progress' | 'completed' | 'error';
-  children?: ReactNode;
-}
-
-export interface LaunchProgressProps {
-  totalItems: number;
-  completedItems: number;
-  status: string;
-  isComplete?: boolean;
-  launchStep?: string;
-}
+import { ChecklistItem, ChecklistCategory, ValidationResultsUI, EnhancedVerificationState, DatabaseTableStatus } from '@/types';
 
 export interface ValidationResultItemProps {
   id: string;
   title: string;
-  result: { valid: boolean; message: string };
+  result: {
+    valid: boolean;
+    message: string;
+    details?: Record<string, any>;
+  };
 }
 
-export interface DatabaseTableStatus {
-  name: string;
-  description?: string;
-  exists: boolean;
-  hasData?: boolean;
-  columnsValid?: boolean;
+export interface LaunchInfoProps {
+  title: string;
+  description: string;
+  status?: 'success' | 'warning' | 'error' | 'info';
+  children?: React.ReactNode;
 }
 
-export interface ChecklistItemProps {
-  id: string;
-  name: string;
-  description?: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
-  isRequired?: boolean;
-  onAction?: () => void;
-  actionLabel?: string;
-  disableAction?: boolean;
+export interface LaunchProgressProps {
+  progress: number;
+  isComplete: boolean;
+  launchStep: string;
 }
+
+export interface VerificationActionsProps {
+  onRefresh: () => void;
+  onLaunch: () => void;
+  isLoading: boolean;
+  canLaunch: boolean;
+}
+
+export type {
+  ChecklistItem,
+  ChecklistCategory,
+  ValidationResultsUI,
+  EnhancedVerificationState,
+  DatabaseTableStatus
+};

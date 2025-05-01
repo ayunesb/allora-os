@@ -18,13 +18,9 @@ export interface AuthContextProps {
   isLoading: boolean;
   login: () => void;
   logout: () => void;
-  profile?: User;
-  refreshProfile?: () => Promise<void>;
-  refreshSession?: () => Promise<boolean>;
-  isEmailVerified?: boolean;
-  authError?: Error | string;
-  isSessionExpired?: boolean;
-  hasInitialized?: boolean;
+  refreshSession?: () => Promise<void>;
+  signOut?: () => Promise<void>;
+  profile?: any;
 }
 
 // Executive agent
@@ -41,15 +37,32 @@ export interface ExecutiveAgentProfile {
 export interface AgentOptions {
   saveToDatabase?: boolean;
   includeRiskAssessment?: boolean;
+  marketConditions?: string;
 }
 
 export interface AgentRunOptions {
   includeRiskAssessment?: boolean;
   marketConditions?: string;
-  [key: string]: any;
 }
 
 // Campaign / lead
+export interface Campaign {
+  id: string;
+  name: string;
+  description?: string;
+  status: string;
+  startDate?: string;
+  endDate?: string;
+  budget?: number;
+  platform?: string;
+  metrics?: {
+    impressions?: number;
+    clicks?: number;
+    conversions?: number;
+  };
+  createdAt: string;
+}
+
 export interface CampaignPayload {
   campaignId: string;
   campaignTitle: string;
@@ -68,59 +81,37 @@ export interface LeadPayload {
 }
 
 // Webhook logic
-export type WebhookType = 'zapier' | 'custom' | 'slack' | 'github' | 'stripe' | 'notion';
-
-export type BusinessEventType = 
-  | 'campaign_created' 
-  | 'strategy_approved' 
-  | 'lead_converted'
-  | 'revenue_milestone'
-  | 'user_onboarded'
-  | 'campaign_launched'
-  | 'lead_added'
-  | 'test_event';
+export type WebhookType = 'zapier' | 'custom' | 'stripe';
+export type BusinessEventType = 'new_lead' | 'campaign_created' | 'strategy_approved' | 'test_webhook';
 
 export interface BusinessEventPayload {
-  eventType: BusinessEventType | string;
+  eventType: string;
   data: Record<string, any>;
 }
 
 export interface WebhookResult {
   success: boolean;
   message?: string;
-  error?: any;
-  statusCode?: number;
-  responseData?: any;
+  error?: string;
 }
 
 export interface WebhookEvent {
   id: string;
-  webhookType: WebhookType;
-  eventType: string;
-  targetUrl: string;
+  webhook_id: string;
+  event_type: string;
   status: 'success' | 'failed' | 'pending';
-  timestamp: string;
+  created_at: string;
   payload: any;
   response?: any;
-  duration?: number;
-  errorMessage?: string;
-  responseCode?: number;
-  source?: string;
 }
 
 // Validation and checklist
 export interface ValidationResultsUI {
-  databaseTables?: Record<string, any>[];
-  databaseIndexes?: Record<string, any>[];
-  databaseFunctions?: Record<string, any>[];
-  rlsPolicies?: Record<string, any>[];
-  policies?: Record<string, any>[];
-}
-
-export interface ValidationResultItemProps {
-  id: string;
-  title: string;
-  result: { valid: boolean; message: string };
+  databaseTables?: any[];
+  databaseIndexes?: any[];
+  databaseFunctions?: any[];
+  policies?: any[];
+  rlsPolicies?: any[];
 }
 
 export interface ChecklistItem {
@@ -139,29 +130,29 @@ export interface ChecklistCategory {
   items: ChecklistItem[];
 }
 
-export interface LaunchInfoBoxProps {
-  title: string;
-  description?: string;
-  icon?: React.ReactNode;
-  status?: 'initial' | 'in-progress' | 'completed' | 'error';
-  children?: React.ReactNode;
+export interface EnhancedVerificationState {
+  categories: ChecklistCategory[];
+  isComplete: boolean;
+  progress: number;
 }
 
-export interface LaunchProgressProps {
-  totalItems: number;
-  completedItems: number;
-  status: string;
-  isComplete?: boolean;
-  launchStep?: string;
+export interface DatabaseTableStatus {
+  name: string;
+  exists: boolean;
+  rls: boolean;
+  message?: string;
 }
 
 // Accessibility
 export interface AccessibilityContextType {
-  highContrast?: boolean;
-  reducedMotion?: boolean;
   fontSize: number;
-  textToSpeech?: boolean;
-  screenReaderFriendly?: boolean;
   setFontSize: (v: number) => void;
   updatePreference?: (key: string, value: any) => void;
+}
+
+// Compliance
+export interface ComplianceContextType {
+  hasUpdates: boolean;
+  checkForUpdates: () => void;
+  markAsReviewed: () => void;
 }
