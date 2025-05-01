@@ -50,6 +50,17 @@ const withSuspense = (Component: React.ComponentType<any>) => (
   </Suspense>
 );
 
+// Accessibility wrapper for the entire application
+const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <AccessibilityProvider>
+      <AuthProviderWrapper>
+        {children}
+      </AuthProviderWrapper>
+    </AccessibilityProvider>
+  );
+};
+
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
   
@@ -61,17 +72,6 @@ const NavigationLayout = () => {
       <HelpModal />
       <Outlet />
     </ErrorBoundary>
-  );
-};
-
-// Accessibility wrapper for the entire application
-const AccessibleLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <AccessibilityProvider>
-      <AuthProviderWrapper>
-        {children}
-      </AuthProviderWrapper>
-    </AccessibilityProvider>
   );
 };
 

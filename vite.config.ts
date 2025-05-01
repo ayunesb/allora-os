@@ -6,7 +6,13 @@ import { componentTagger } from 'lovable-tagger';
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [
+          // Add any additional babel plugins here
+        ],
+      },
+    }),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
@@ -18,5 +24,32 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     host: '::',
     allowedHosts: ['.lovableproject.com'], // This allows all .lovableproject.com subdomains
+    hmr: {
+      clientPort: 443, // For HTTPS environments
+      overlay: true,
+    },
+  },
+  preview: {
+    port: 8080,
+    host: '::',
+  },
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['lucide-react', '@radix-ui/react-icons'],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'lucide-react',
+    ],
   },
 }));

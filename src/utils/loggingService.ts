@@ -1,94 +1,133 @@
 
-/**
- * Centralized logging service for the application
- */
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-interface LogContext {
-  component?: string;
-  user?: string;
-  [key: string]: any;
+interface LogEntry {
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  data?: any;
 }
 
-class Logger {
-  /**
-   * Log an informational message
-   */
-  info(message: string, context: LogContext = {}) {
-    this.log('INFO', message, context);
+class LoggingService {
+  private logs: LogEntry[] = [];
+  private maxLogs: number = 1000;
+  private loggingEnabled: boolean;
+  private remoteLoggingEnabled: boolean;
+  private remoteLoggingEndpoint?: string;
+
+  constructor() {
+    this.loggingEnabled = import.meta.env.DEV || import.meta.env.VITE_ENABLE_LOGGING === 'true';
+    this.remoteLoggingEnabled = import.meta.env.VITE_ENABLE_REMOTE_LOGGING === 'true';
+    this.remoteLoggingEndpoint = import.meta.env.VITE_LOGGING_ENDPOINT;
   }
 
-  /**
-   * Log a warning message
-   */
-  warn(message: string, context: LogContext = {}) {
-    this.log('WARN', message, context);
-  }
+  private log(level: LogLevel, message: string, data?: any) {
+    if (!this.loggingEnabled && level !== 'error') return;
 
-  /**
-   * Log an error message
-   */
-  error(message: string, error: any = null, context: LogContext = {}) {
-    const errorContext = {
-      ...context,
-      errorMessage: error?.message || String(error),
-      stack: error?.stack,
-    };
-    
-    this.log('ERROR', message, errorContext);
-  }
-
-  /**
-   * Log a debug message
-   */
-  debug(message: string, context: LogContext = {}) {
-    // Only log in development environment
-    if (process.env.NODE_ENV !== 'production') {
-      this.log('DEBUG', message, context);
-    }
-  }
-
-  /**
-   * Start a timer to measure performance
-   * Returns a function that, when called, stops the timer and logs the result
-   */
-  time(label: string, context: LogContext = {}): () => void {
-    const startTime = performance.now();
-    
-    return () => {
-      const endTime = performance.now();
-      const duration = endTime - startTime;
-      this.info(`Timer [${label}] completed in ${duration.toFixed(2)}ms`, {
-        ...context,
-        duration,
-        timerLabel: label
-      });
-    };
-  }
-
-  /**
-   * Internal logging method
-   */
-  private log(level: string, message: string, context: LogContext = {}) {
     const timestamp = new Date().toISOString();
-    const contextString = Object.keys(context).length ? JSON.stringify(context) : '';
-    
-    // For now, just use console, but this could be extended to use a logging service
-    switch (level) {
-      case 'ERROR':
-        console.error(`[${timestamp}] ${level}: ${message}`, contextString);
-        break;
-      case 'WARN':
-        console.warn(`[${timestamp}] ${level}: ${message}`, contextString);
-        break;
-      case 'DEBUG':
-        console.debug(`[${timestamp}] ${level}: ${message}`, contextString);
-        break;
-      default:
-        console.log(`[${timestamp}] ${level}: ${message}`, contextString);
+    const logEntry: LogEntry = {
+      timestamp,
+      level,
+      message,
+      data
+    };
+
+    // Add to in-memory logs
+    this.logs.push(logEntry);
+    if (this.logs.length > this.maxLogs) {
+      this.logs.shift(); // Remove oldest log if we exceed max
     }
+
+    // Console output
+    const consoleMethod = level === 'debug' ? 'log' : level;
+    if (data) {
+      console[consoleMethod as keyof Console](`[${timestamp}] [${level.toUpperCase()}] ${message}`, data);
+    } else {
+      console[consoleMethod as keyof Console](`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+    }
+
+    // Send to remote logging service if enabled
+    if (this.remoteLoggingEnabled && this.remoteLoggingEndpoint) {
+      this.sendLogToRemote(logEntry);
+    }
+  }
+
+  private async sendLogToRemote(logEntry: LogEntry) {
+    if (!this.remoteLoggingEndpoint) return;
+
+    try {
+      await fetch(this.remoteLoggingEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(logEntry),
+        keepalive: true // Ensure logs are sent even when page is unloading
+      });
+    } catch (err) {
+      // Silent fail for logging errors to avoid infinite loops
+      console.error('Failed to send log to remote endpoint', err);
+    }
+  }
+
+  public debug(message: string, data?: any) {
+    this.log('debug', message, data);
+  }
+
+  public info(message: string, data?: any) {
+    this.log('info', message, data);
+  }
+
+  public warn(message: string, data?: any) {
+    this.log('warn', message, data);
+  }
+
+  public error(message: string, error?: any) {
+    this.log('error', message, error);
     
-    // In the future, we could send logs to a service like Logtail, DataDog, etc.
+    // Additional error handling like reporting to monitoring service
+    if (import.meta.env.PROD && error instanceof Error) {
+      // Report to error monitoring in production
+      this.reportErrorToMonitoring(message, error);
+    }
+  }
+
+  private reportErrorToMonitoring(message: string, error: Error) {
+    // This would integrate with services like Sentry, LogRocket, etc.
+    // Implementation depends on which service is being used
+    const monitoringEndpoint = import.meta.env.VITE_ERROR_MONITORING_ENDPOINT;
+    if (!monitoringEndpoint) return;
+
+    try {
+      fetch(monitoringEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message,
+          name: error.name,
+          stack: error.stack,
+          timestamp: new Date().toISOString()
+        }),
+        keepalive: true
+      });
+    } catch (err) {
+      // Silent fail to avoid loops
+      console.error('Failed to report error to monitoring', err);
+    }
+  }
+
+  public getLogs(level?: LogLevel): LogEntry[] {
+    if (level) {
+      return this.logs.filter(log => log.level === level);
+    }
+    return [...this.logs];
+  }
+
+  public clearLogs() {
+    this.logs = [];
   }
 }
 
-export const logger = new Logger();
+export const logger = new LoggingService();
