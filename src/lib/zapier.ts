@@ -1,45 +1,65 @@
 
-import { logger } from '@/utils/loggingService';
+import { toast } from 'sonner';
+import { CampaignPayload, LeadPayload } from '@/components/admin/launch-verification/types';
+import { BusinessEventType } from '@/utils/webhookTypes';
 
-/**
- * Trigger a business event in Zapier
- * @param eventType The type of event to trigger
- * @param payload The payload to send to Zapier
- * @returns Success status and any errors
- */
-export async function triggerBusinessEvent(
-  eventType: string,
-  payload: Record<string, any>
-): Promise<{ success: boolean; error?: Error }> {
-  try {
-    const webhookUrl = process.env.VITE_ZAPIER_WEBHOOK_URL || '';
-    
-    if (!webhookUrl) {
-      logger.warn('No Zapier webhook URL configured, skipping event trigger');
-      return { success: false, error: new Error('No Zapier webhook URL configured') };
-    }
-    
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        event_type: eventType,
-        ...payload,
-        timestamp: new Date().toISOString(),
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Zapier webhook error: ${response.status} ${response.statusText}`);
-    }
-    
-    logger.info(`Successfully triggered Zapier event: ${eventType}`);
-    return { success: true };
-    
-  } catch (error) {
-    logger.error('Error triggering Zapier webhook:', error);
-    return { success: false, error: error as Error };
-  }
+export type { BusinessEventType };
+
+export interface BusinessEventPayload {
+  eventType: BusinessEventType;
+  data: Record<string, any>;
 }
+
+export const useZapier = () => {
+  const triggerWebhook = async (url: string, payload: any) => {
+    if (!url) {
+      toast.error("No webhook URL provided");
+      return false;
+    }
+
+    try {
+      await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
+          ...payload,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error triggering webhook:', error);
+      return false;
+    }
+  };
+
+  const triggerBusinessEvent = async (
+    webhookUrl: string,
+    eventType: BusinessEventType,
+    data: Record<string, any>
+  ) => {
+    return triggerWebhook(webhookUrl, {
+      eventType,
+      data,
+    });
+  };
+
+  const triggerCampaignCreated = async (webhookUrl: string, campaign: CampaignPayload) => {
+    return triggerBusinessEvent(webhookUrl, 'campaign_created', campaign);
+  };
+
+  const triggerLeadConverted = async (webhookUrl: string, lead: LeadPayload) => {
+    return triggerBusinessEvent(webhookUrl, 'lead_converted', lead);
+  };
+
+  return {
+    triggerWebhook,
+    triggerBusinessEvent,
+    triggerCampaignCreated,
+    triggerLeadConverted,
+  };
+};

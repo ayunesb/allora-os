@@ -53,12 +53,17 @@ export interface LeadPayload {
 export interface ChecklistItem {
   id: string;
   name: string;
-  status: 'pending' | 'completed' | 'error';
+  status: 'pending' | 'completed' | 'error' | 'warning' | 'in-progress';
   description?: string;
+  statusMessage?: string;
+  details?: string;
+  isRequired?: boolean;
 }
 
 export interface ChecklistCategory {
-  title: string;
+  id: string;
+  name: string;
+  description?: string;
   items: ChecklistItem[];
 }
 
@@ -75,6 +80,8 @@ export interface DatabaseTableStatus {
     type: string;
     exists: boolean;
   }[];
+  rls?: boolean;
+  hasRLS?: boolean;
 }
 
 export interface LaunchProgressProps {

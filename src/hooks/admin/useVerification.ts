@@ -1,9 +1,8 @@
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ValidationResults, VerificationResponse } from '@/components/admin/launch-verification/types';
+import { ValidationResults } from '@/components/admin/launch-verification/types';
 import { toast } from 'sonner';
-import { logSecurityEvent } from '@/utils/auditLogger';
 
 export function useVerification(companyId?: string) {
   const [isChecking, setIsChecking] = useState(false);
@@ -15,153 +14,126 @@ export function useVerification(companyId?: string) {
   const [isVerifyingRLS, setIsVerifyingRLS] = useState(false);
   const [isVerifyingFunctions, setIsVerifyingFunctions] = useState(false);
 
-  const runChecks = useCallback(async () => {
+  const runChecks = async () => {
     setIsChecking(true);
+    
     try {
-      // In a real implementation, this would call a backend API
-      // For now, simulate a verification response
+      // Simulate API call for verification checks
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const mockResults: ValidationResults = {
         tables: [
-          { 
-            name: 'profiles', 
-            status: 'success', 
-            message: 'Table exists with correct schema' 
-          },
-          { 
-            name: 'strategies', 
-            status: 'success', 
-            message: 'Table exists with correct schema' 
-          }
+          { name: 'users', status: 'success', message: 'Table exists with all required columns' },
+          { name: 'profiles', status: 'success', message: 'Table exists with all required columns' },
+          { name: 'strategies', status: 'success', message: 'Table exists with all required columns' },
+          { name: 'campaigns', status: 'success', message: 'Table exists with all required columns' },
         ],
         functions: [
-          { 
-            name: 'verify_admin_status', 
-            status: 'success', 
-            message: 'Function exists and is properly defined' 
-          }
+          { name: 'handle_new_user', status: 'success', message: 'Function exists and is properly secured' },
+          { name: 'get_user_role', status: 'success', message: 'Function exists and is properly secured' },
         ],
         policies: [
-          { 
-            name: 'profiles_auth_select', 
-            status: 'success', 
-            message: 'RLS policy correctly configured' 
-          }
+          { name: 'users:select (auth.uid() = id)', status: 'success', message: 'Policy exists and restricts access properly' },
+          { name: 'profiles:select (auth.uid() = id)', status: 'success', message: 'Policy exists and restricts access properly' },
+        ],
+        indexes: [
+          { name: 'profiles_user_id_idx', status: 'success', message: 'Index exists on profiles.user_id' },
+          { name: 'strategies_tenant_id_idx', status: 'success', message: 'Index exists on strategies.tenant_id' },
         ]
       };
       
       setResults(mockResults);
-      setIsReady(true);
       
-      await logSecurityEvent({
-        user: 'system',
-        action: 'VERIFICATION_CHECK',
-        resource: 'database',
-        details: { results: mockResults },
-        severity: 'low'
-      });
+      // Determine if the system is ready based on the results
+      const hasErrors = Object.values(mockResults).some(category => 
+        category?.some(item => item.status === 'error')
+      );
       
-      return {
-        success: true,
-        results: mockResults,
-        isReady: true
-      } as VerificationResponse;
+      setIsReady(!hasErrors);
+      
     } catch (error) {
       console.error('Error running verification checks:', error);
       toast.error('Failed to run verification checks');
       setIsReady(false);
-      return {
-        success: false,
-        results: {},
-        isReady: false,
-        message: 'Failed to verify database setup'
-      } as VerificationResponse;
     } finally {
       setIsChecking(false);
     }
-  }, []);
+  };
 
-  const handleAddDemoData = useCallback(async () => {
+  const handleAddDemoData = async () => {
     setIsAddingDemo(true);
+    
     try {
-      // Simulate adding demo data
+      // Simulate API call for adding demo data
       await new Promise(resolve => setTimeout(resolve, 2000));
       toast.success('Demo data added successfully');
-      // Refresh the verification results
-      return await runChecks();
     } catch (error) {
       console.error('Error adding demo data:', error);
       toast.error('Failed to add demo data');
-      return { success: false, results: {} };
     } finally {
       setIsAddingDemo(false);
     }
-  }, [runChecks]);
+  };
 
-  const verifyRequiredTables = useCallback(async () => {
+  const verifyRequiredTables = async () => {
     setIsVerifyingTables(true);
+    
     try {
-      // Simulate verifying tables
+      // Simulate API call for verifying required tables
       await new Promise(resolve => setTimeout(resolve, 1500));
-      toast.success('Tables verified successfully');
-      return true;
+      toast.success('Tables verification completed');
     } catch (error) {
       console.error('Error verifying tables:', error);
       toast.error('Failed to verify tables');
-      return false;
     } finally {
       setIsVerifyingTables(false);
     }
-  }, []);
+  };
 
-  const checkDatabaseIndexes = useCallback(async () => {
+  const checkDatabaseIndexes = async () => {
     setIsCheckingIndexes(true);
+    
     try {
-      // Simulate checking indexes
+      // Simulate API call for checking database indexes
       await new Promise(resolve => setTimeout(resolve, 1200));
-      toast.success('Indexes checked successfully');
-      return true;
+      toast.success('Index check completed');
     } catch (error) {
       console.error('Error checking indexes:', error);
       toast.error('Failed to check indexes');
-      return false;
     } finally {
       setIsCheckingIndexes(false);
     }
-  }, []);
+  };
 
-  const verifyRLSPolicies = useCallback(async () => {
+  const verifyRLSPolicies = async () => {
     setIsVerifyingRLS(true);
+    
     try {
-      // Simulate verifying RLS policies
-      await new Promise(resolve => setTimeout(resolve, 1300));
-      toast.success('RLS policies verified successfully');
-      return true;
+      // Simulate API call for verifying RLS policies
+      await new Promise(resolve => setTimeout(resolve, 1700));
+      toast.success('RLS policies verification completed');
     } catch (error) {
       console.error('Error verifying RLS policies:', error);
       toast.error('Failed to verify RLS policies');
-      return false;
     } finally {
       setIsVerifyingRLS(false);
     }
-  }, []);
+  };
 
-  const verifyDatabaseFunctions = useCallback(async () => {
+  const verifyDatabaseFunctions = async () => {
     setIsVerifyingFunctions(true);
+    
     try {
-      // Simulate verifying database functions
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Database functions verified successfully');
-      return true;
+      // Simulate API call for verifying database functions
+      await new Promise(resolve => setTimeout(resolve, 1300));
+      toast.success('Database functions verification completed');
     } catch (error) {
-      console.error('Error verifying database functions:', error);
-      toast.error('Failed to verify database functions');
-      return false;
+      console.error('Error verifying functions:', error);
+      toast.error('Failed to verify functions');
     } finally {
       setIsVerifyingFunctions(false);
     }
-  }, []);
+  };
 
   return {
     isChecking,
