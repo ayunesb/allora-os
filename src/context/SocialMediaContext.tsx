@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { SocialMediaPost, SocialPlatform, ContentType, PostStatus, SocialMediaCalendarFilters } from '@/types/unified-types';
 import { toast } from 'sonner';
@@ -6,6 +5,7 @@ import { toast } from 'sonner';
 export interface SocialMediaContextType {
   posts: SocialMediaPost[];
   loading: boolean;
+  isLoading: boolean;
   error: string | null;
   view: 'calendar' | 'list';
   setView: (view: 'calendar' | 'list') => void;
@@ -25,9 +25,10 @@ export interface SocialMediaContextType {
   createPost: (post: Partial<SocialMediaPost>) => Promise<void>;
   updatePost: (postId: string, post: Partial<SocialMediaPost>) => Promise<void>;
   deletePost: (postId: string) => Promise<void>;
-  schedule: (postId: string, scheduledDate?: string) => Promise<void>;
   approve: (postId: string) => Promise<void>;
+  schedule: (postId: string, scheduledDate?: string) => Promise<void>;
   fetchPosts: (filters?: SocialMediaCalendarFilters) => Promise<void>;
+  refreshPosts?: () => Promise<void>;
 }
 
 const SocialMediaContext = createContext<SocialMediaContextType | undefined>(undefined);
@@ -209,9 +210,18 @@ export function SocialMediaProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Add an alias to ensure isLoading is available
+  const isLoading = loading;
+
+  // Define refreshPosts
+  const refreshPosts = async () => {
+    return fetchPosts();
+  };
+
   const value = {
     posts,
     loading,
+    isLoading,
     error,
     view,
     setView,
@@ -233,7 +243,8 @@ export function SocialMediaProvider({ children }: { children: ReactNode }) {
     deletePost,
     schedule,
     approve,
-    fetchPosts
+    fetchPosts,
+    refreshPosts
   };
 
   return (

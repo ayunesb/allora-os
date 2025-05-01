@@ -1,122 +1,98 @@
 
-export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
+import { WebhookType, WebhookResult } from '@/types/unified-types';
 
 /**
- * Tests a webhook by sending a test payload to the provided URL
- * @param url The webhook URL to test
- * @param type The type of webhook
- * @returns Promise resolving to success/failure status and details
+ * Validates if a URL string is a valid webhook URL format
  */
-export const testWebhook = async (url: string, type: string) => {
-  try {
-    // Create a simple test payload
-    const testPayload = {
-      event: "webhook_test",
-      timestamp: new Date().toISOString(),
-      details: {
-        message: "This is a test webhook from Allora AI",
-        type
-      }
-    };
-
-    // Make the request
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(testPayload),
-    });
-
-    // Get status and response text
-    const status = response.status;
-    const text = await response.text();
-
-    return {
-      success: status >= 200 && status < 300,
-      status,
-      response: text,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || 'Unknown error occurred',
-    };
-  }
-};
-
-/**
- * Sanitizes a webhook URL by checking for valid protocol and format
- * @param url The webhook URL to sanitize
- * @param type The webhook type for validation logic
- * @returns Sanitized URL or null if invalid
- */
-export const sanitizeWebhookUrl = (url: string, type: WebhookType = 'custom'): string | null => {
-  if (!url) return null;
-
-  try {
-    // Try to create a URL object to validate
-    const urlObj = new URL(url);
-    
-    // Check for required protocols
-    if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
-      return null;
-    }
-
-    // Apply type-specific validation
-    if (type === 'stripe' && !urlObj.hostname.includes('stripe.com')) {
-      return null;
-    } else if (type === 'zapier' && !urlObj.hostname.includes('hooks.zapier.com')) {
-      return null;
-    } else if (type === 'github' && !urlObj.hostname.includes('github.com')) {
-      return null;
-    } else if (type === 'slack' && !urlObj.hostname.includes('hooks.slack.com')) {
-      return null;
-    }
-    
-    // Reconstruct the URL to avoid injection attacks
-    return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
-  } catch (error) {
-    // Invalid URL format
-    return null;
-  }
-};
-
-/**
- * Validates a webhook URL format
- * @param url The webhook URL to validate
- * @param type The webhook type for validation
- * @returns Boolean indicating if the URL is valid for the given type
- */
-export const validateWebhookUrlFormat = (url: string, type: WebhookType = 'custom'): boolean => {
+export function validateWebhookUrlFormat(url: string): boolean {
   if (!url) return false;
-
+  
   try {
-    const urlObj = new URL(url);
-
-    // Check protocol
-    if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
-      return false;
-    }
-
-    // Type-specific validations
-    switch (type) {
-      case 'stripe':
-        return urlObj.hostname.includes('stripe.com');
-      case 'zapier':
-        return urlObj.hostname.includes('hooks.zapier.com');
-      case 'github':
-        return urlObj.hostname.includes('github.com');
-      case 'slack':
-        return urlObj.hostname.includes('hooks.slack.com');
-      case 'notion':
-        return urlObj.hostname.includes('notion.so');
-      case 'custom':
-        return true; // Custom webhooks just need to be valid URLs
-      default:
-        return true;
-    }
-  } catch (error) {
+    const parsedUrl = new URL(url);
+    return ['http:', 'https:'].includes(parsedUrl.protocol);
+  } catch (e) {
     return false;
   }
-};
+}
+
+/**
+ * Sanitizes a webhook URL to ensure it's valid
+ */
+export function sanitizeWebhookUrl(url: string): string {
+  if (!url) return '';
+  
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.toString();
+  } catch (e) {
+    // Try adding https if missing
+    if (!/^https?:\/\//i.test(url)) {
+      return sanitizeWebhookUrl(`https://${url}`);
+    }
+    return '';
+  }
+}
+
+/**
+ * Test a webhook by sending a simple test payload
+ */
+export async function testWebhook(
+  url: string, 
+  type: WebhookType = 'custom',
+  eventType: string = 'test_event'
+): Promise<WebhookResult> {
+  if (!validateWebhookUrlFormat(url)) {
+    return { 
+      success: false, 
+      message: 'Invalid webhook URL format',
+      error: 'URL validation failed' 
+    };
+  }
+  
+  try {
+    const testPayload = {
+      event_type: eventType,
+      webhook_type: type,
+      timestamp: new Date().toISOString(),
+      data: { message: 'This is a test webhook event' }
+    };
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(testPayload)
+    });
+    
+    if (response.ok) {
+      return { 
+        success: true, 
+        message: `Webhook test sent successfully with status ${response.status}`,
+        statusCode: response.status,
+        responseData: await response.text()
+      };
+    } else {
+      return { 
+        success: false,
+        message: `Webhook test failed with status ${response.status}`,
+        statusCode: response.status,
+        error: await response.text()
+      };
+    }
+  } catch (error) {
+    return { 
+      success: false, 
+      message: `Error sending test webhook: ${error instanceof Error ? error.message : String(error)}`,
+      error
+    };
+  }
+}
+
+// Export webhook types for convenience
+export { WebhookType } from '@/types/unified-types';
+
+// Function to check if event contains expected structure
+export function validateWebhookEvent(event: any): boolean {
+  return !!(event && 
+    (event.eventType || event.event_type) && 
+    (event.webhookType || event.webhook_type));
+}
