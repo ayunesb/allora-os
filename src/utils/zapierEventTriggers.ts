@@ -1,105 +1,139 @@
 
-import { CampaignPayload, LeadPayload, WebhookResult } from '@/types/Webhooks';
-import { useZapier, triggerBusinessEvent as triggerEvent } from '@/lib/zapier';
-import { logAuditEvent } from '@/utils/auditLogger';
+import { toast } from 'sonner';
 
-export const onCampaignCreated = async (webhookUrl: string, campaign: CampaignPayload): Promise<WebhookResult> => {
-  const { triggerCampaignCreated } = useZapier();
-  return triggerCampaignCreated(webhookUrl, campaign);
-};
+// Type definitions for strategy events
+interface StrategyApprovalData {
+  strategyId: string;
+  strategyTitle: string;
+  companyId?: string;
+  approvedBy?: string;
+}
 
-export const onLeadConverted = async (webhookUrl: string, lead: LeadPayload): Promise<WebhookResult> => {
-  const { triggerLeadConverted } = useZapier();
-  return triggerLeadConverted(webhookUrl, lead);
-};
+interface CampaignCreationData {
+  campaignId: string;
+  campaignTitle: string;
+  platform?: string;
+  budget?: number;
+}
 
-export const onRevenueMilestoneReached = async (webhookUrl: string, data: Record<string, any>): Promise<WebhookResult> => {
-  const { triggerBusinessEvent } = useZapier();
-  return triggerBusinessEvent(webhookUrl, 'revenue_milestone', data);
-};
+interface LeadConversionData {
+  leadId: string;
+  leadName?: string;
+  email?: string;
+  company?: string;
+  value?: number;
+}
 
-export const onUserOnboarded = async (webhookUrl: string, userId: string, userData: Record<string, any>): Promise<WebhookResult> => {
-  const { triggerBusinessEvent } = useZapier();
-  return triggerBusinessEvent(webhookUrl, 'user_onboarded', {
-    userId,
-    ...userData
-  });
-};
-
-export const onCampaignLaunched = async (webhookUrl: string, campaign: CampaignPayload): Promise<WebhookResult> => {
+/**
+ * Trigger webhook for strategy approval
+ */
+export async function onStrategyApproved(data: StrategyApprovalData): Promise<boolean> {
   try {
-    const result = await triggerEvent(webhookUrl, 'campaign_launched', {
-      entityId: campaign.campaignId,
-      entityType: 'campaign',
-      campaignTitle: campaign.campaignTitle,
-      companyId: campaign.companyId
-    });
-    
-    await logAuditEvent('SYSTEM_CHANGE', 'Triggered campaign_launched Zapier webhook', undefined, {
-      campaignId: campaign.campaignId,
-      success: true
-    });
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Error triggering campaign_launched webhook:', error);
-    
-    await logAuditEvent('SYSTEM_ERROR', 'Failed to trigger campaign_launched Zapier webhook', undefined, {
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-    
-    return { success: false, error };
-  }
-};
+    // Get the webhook URL from localStorage (set in the ZapierWebhookSection component)
+    const zapierWebhookUrl = localStorage.getItem('zapier_webhook_url');
+    if (!zapierWebhookUrl) {
+      console.warn('No Zapier webhook URL configured');
+      return false;
+    }
 
-export const onNewLeadAdded = async (webhookUrl: string, lead: LeadPayload): Promise<WebhookResult> => {
-  try {
-    const result = await triggerEvent(webhookUrl, 'lead_added', {
-      entityId: lead.leadId,
-      entityType: 'lead',
-      leadName: lead.leadName,
-      company: lead.company
+    // Send the webhook to Zapier
+    await fetch(zapierWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'no-cors', // Required for cross-origin requests to Zapier
+      body: JSON.stringify({
+        event_type: 'strategy_approved',
+        timestamp: new Date().toISOString(),
+        data: {
+          strategy_id: data.strategyId,
+          strategy_title: data.strategyTitle,
+          company_id: data.companyId,
+          approved_by: data.approvedBy,
+        }
+      }),
     });
     
-    await logAuditEvent('SYSTEM_CHANGE', 'Triggered lead_added Zapier webhook', undefined, {
-      leadId: lead.leadId,
-      success: true
-    });
-    
-    return { success: true };
+    console.log('Strategy approval event sent to Zapier');
+    return true;
   } catch (error) {
-    console.error('Error triggering lead_added webhook:', error);
-    
-    await logAuditEvent('SYSTEM_ERROR', 'Failed to trigger lead_added Zapier webhook', undefined, {
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-    
-    return { success: false, error };
+    console.error('Failed to trigger strategy approval webhook:', error);
+    return false;
   }
-};
+}
 
-export const onStrategyApproved = async (webhookUrl: string, strategy: Record<string, any>): Promise<WebhookResult> => {
+/**
+ * Trigger webhook for campaign creation
+ */
+export async function onCampaignCreated(data: CampaignCreationData): Promise<boolean> {
   try {
-    const result = await triggerEvent(webhookUrl, 'strategy_approved', {
-      entityId: strategy.strategyId,
-      entityType: 'strategy',
-      strategyTitle: strategy.strategyTitle,
-      companyId: strategy.companyId
+    const zapierWebhookUrl = localStorage.getItem('zapier_webhook_url');
+    if (!zapierWebhookUrl) {
+      console.warn('No Zapier webhook URL configured');
+      return false;
+    }
+
+    await fetch(zapierWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'no-cors',
+      body: JSON.stringify({
+        event_type: 'campaign_created',
+        timestamp: new Date().toISOString(),
+        data: {
+          campaign_id: data.campaignId,
+          campaign_title: data.campaignTitle,
+          platform: data.platform,
+          budget: data.budget,
+        }
+      }),
     });
     
-    await logAuditEvent('SYSTEM_CHANGE', 'Triggered strategy_approved Zapier webhook', undefined, {
-      strategyId: strategy.strategyId,
-      success: true
-    });
-    
-    return { success: true };
+    console.log('Campaign creation event sent to Zapier');
+    return true;
   } catch (error) {
-    console.error('Error triggering strategy_approved webhook:', error);
-    
-    await logAuditEvent('SYSTEM_ERROR', 'Failed to trigger strategy_approved Zapier webhook', undefined, {
-      error: error instanceof Error ? error.message : 'Unknown error'
+    console.error('Failed to trigger campaign creation webhook:', error);
+    return false;
+  }
+}
+
+/**
+ * Trigger webhook for lead conversion
+ */
+export async function onLeadConverted(data: LeadConversionData): Promise<boolean> {
+  try {
+    const zapierWebhookUrl = localStorage.getItem('zapier_webhook_url');
+    if (!zapierWebhookUrl) {
+      console.warn('No Zapier webhook URL configured');
+      return false;
+    }
+
+    await fetch(zapierWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'no-cors',
+      body: JSON.stringify({
+        event_type: 'lead_converted',
+        timestamp: new Date().toISOString(),
+        data: {
+          lead_id: data.leadId,
+          lead_name: data.leadName,
+          email: data.email,
+          company: data.company,
+          value: data.value,
+        }
+      }),
     });
     
-    return { success: false, error };
+    console.log('Lead conversion event sent to Zapier');
+    return true;
+  } catch (error) {
+    console.error('Failed to trigger lead conversion webhook:', error);
+    return false;
   }
-};
+}

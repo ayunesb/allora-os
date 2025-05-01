@@ -54,8 +54,8 @@ export function useStrategyTracking() {
 
       // Trigger Zapier workflow for strategy approval
       await onStrategyApproved({
-        strategyTitle,
         strategyId,
+        strategyTitle,
         companyId: profile.company_id,
         approvedBy: user.email || user.id
       });

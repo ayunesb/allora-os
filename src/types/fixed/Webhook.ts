@@ -16,8 +16,7 @@ export type BusinessEventType =
   | 'campaign_launched'
   | 'lead_added'
   | 'test_event'
-  | 'test_webhook'
-  | 'new_lead';
+  | 'test_webhook';
 
 // Webhook event status
 export type WebhookStatus = 'success' | 'failed' | 'pending';
@@ -25,21 +24,19 @@ export type WebhookStatus = 'success' | 'failed' | 'pending';
 // Standard webhook event interface
 export interface WebhookEvent {
   id: string;
-  webhook_id?: string;
+  webhook_id: string;
   event_type: string;
   status: WebhookStatus;
   created_at: string;
-  targetUrl?: string;
-  url?: string;
-  response?: any;
-  duration?: number;
-  webhook_type?: WebhookType;
-  webhookType?: WebhookType;
+  targetUrl: string;
+  webhook_type: WebhookType;
+  response: any;
   payload?: any;
   timestamp?: string;
-  type?: WebhookType;
   source?: string;
+  webhookType?: WebhookType;
   eventType?: string;
+  url?: string;
 }
 
 // Payload interface for business events

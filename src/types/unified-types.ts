@@ -1,8 +1,6 @@
 
 import { User } from './fixed/User';
 import { WebhookType, BusinessEventType, WebhookEvent, WebhookConfig, WebhookResult, BusinessEventPayload, WebhookStatus } from './fixed/Webhook';
-import { ExtendedComplianceContextType } from './fixed/Compliance';
-import { ExtendedAccessibilityContextType } from './fixed/Accessibility';
 
 // Social Media Types
 export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok' | 'YouTube';
@@ -65,12 +63,12 @@ export interface UnifiedExecutiveMessage {
 // Unified webhook event that harmonizes all the different property names
 export interface UnifiedWebhookEvent extends Partial<WebhookEvent> {
   id: string;
-  webhook_id?: string;
+  webhook_id: string;
   event_type: string; 
   eventType?: string;
   status: WebhookStatus;
   created_at: string;
-  targetUrl?: string;
+  targetUrl: string;
   url?: string;
   webhook_type?: WebhookType;
   webhookType?: WebhookType;
@@ -92,6 +90,39 @@ export interface CompanyProfile {
   pricing_model?: string;
 }
 
+// Extended Compliance Context Type
+export interface ExtendedComplianceContextType {
+  isLoaded: boolean;
+  error: Error | null;
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+  autoUpdate: boolean;
+  updatePreference: (key: string, value: any) => void;
+  pendingUpdates: string[];
+  isApplyingUpdate: boolean;
+  applyUpdate: (id: string) => Promise<void>;
+  applyAllUpdates: () => Promise<void>;
+  scheduleComplianceCheck: (intervalDays?: number) => Promise<void>;
+  enableAutoUpdates: () => Promise<boolean>;
+}
+
+// Extended Accessibility Context Type
+export interface ExtendedAccessibilityContextType {
+  fontSize: number;
+  setFontSize: (size: number) => void;
+  highContrast: boolean;
+  setHighContrast: (enabled: boolean) => void;
+  reducedMotion: boolean;
+  setReducedMotion: (enabled: boolean) => void;
+  textToSpeech: boolean;
+  setTextToSpeech: (enabled: boolean) => void;
+  updatePreference?: (key: string, value: any) => void;
+  screenReaderFriendly: boolean;
+  setScreenReaderFriendly: (enabled: boolean) => void;
+}
+
 // Re-export key types
 export type {
   User,
@@ -101,7 +132,5 @@ export type {
   WebhookConfig,
   WebhookResult,
   BusinessEventPayload,
-  WebhookStatus,
-  ExtendedComplianceContextType,
-  ExtendedAccessibilityContextType
+  WebhookStatus
 };

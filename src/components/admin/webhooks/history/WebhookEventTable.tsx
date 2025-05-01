@@ -1,48 +1,46 @@
 
-import React from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import React, { useState } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
+import { UnifiedWebhookEvent } from "@/types/unified-types";
+import { EventDetailsModal } from "../history/EventDetailsModal";
 import { formatDistanceToNow } from "date-fns";
-import { CheckCircle, AlertTriangle, Clock, Eye } from "lucide-react";
 
-interface WebhookEventTableProps {
+export interface WebhookEventTableProps {
   events: UnifiedWebhookEvent[];
   onViewEvent: (event: UnifiedWebhookEvent) => void;
 }
 
 export function WebhookEventTable({ events, onViewEvent }: WebhookEventTableProps) {
-  const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'success':
-        return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Success
-          </Badge>
-        );
-      case 'failed':
-        return (
-          <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200 hover:bg-red-200">
-            <AlertTriangle className="h-3 w-3 mr-1" />
-            Failed
-          </Badge>
-        );
+  const [selectedEvent, setSelectedEvent] = useState<UnifiedWebhookEvent | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewEvent = (event: UnifiedWebhookEvent) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+    onViewEvent(event);
+  };
+
+  const getStatusBadgeVariant = (status: string): "default" | "destructive" | "outline" | "secondary" => {
+    switch (status) {
+      case "success":
+        return "default";
+      case "failed":
+        return "destructive";
+      case "pending":
+        return "secondary";
       default:
-        return (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200 hover:bg-yellow-100">
-            <Clock className="h-3 w-3 mr-1" />
-            Pending
-          </Badge>
-        );
+        return "outline";
+    }
+  };
+
+  const formatTime = (dateStr: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateStr), { addSuffix: true });
+    } catch (e) {
+      return "Unknown time";
     }
   };
 
@@ -51,9 +49,9 @@ export function WebhookEventTable({ events, onViewEvent }: WebhookEventTableProp
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Status</TableHead>
             <TableHead>Event Type</TableHead>
-            <TableHead>Target URL</TableHead>
+            <TableHead>Service</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Time</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -61,29 +59,36 @@ export function WebhookEventTable({ events, onViewEvent }: WebhookEventTableProp
         <TableBody>
           {events.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                 No webhook events found
               </TableCell>
             </TableRow>
           ) : (
             events.map((event) => (
               <TableRow key={event.id}>
-                <TableCell>{getStatusBadge(event.status)}</TableCell>
-                <TableCell>{event.eventType}</TableCell>
-                <TableCell className="truncate max-w-[200px]">
-                  <span className="truncate">{event.targetUrl}</span>
+                <TableCell className="font-medium">
+                  {event.event_type || event.eventType || "Unknown"}
                 </TableCell>
                 <TableCell>
-                  {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
+                  <Badge variant="outline" className="capitalize">
+                    {event.webhook_type || event.webhookType || "custom"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={getStatusBadgeVariant(event.status)}>
+                    {event.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {formatTime(event.created_at || event.timestamp || "")}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => onViewEvent(event)}
+                    size="icon"
+                    onClick={() => handleViewEvent(event)}
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View
+                    <Eye className="h-4 w-4" />
                   </Button>
                 </TableCell>
               </TableRow>
@@ -91,6 +96,14 @@ export function WebhookEventTable({ events, onViewEvent }: WebhookEventTableProp
           )}
         </TableBody>
       </Table>
+      
+      {selectedEvent && (
+        <EventDetailsModal
+          event={selectedEvent}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
+      )}
     </div>
   );
 }

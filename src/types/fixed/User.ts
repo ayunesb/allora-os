@@ -9,7 +9,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   name?: string;
-  role?: 'admin' | 'user';
+  role: 'admin' | 'user';
   avatar?: string;
   avatar_url?: string;
   company_id?: string;

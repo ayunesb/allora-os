@@ -14,23 +14,27 @@ export function normalizeUserObject(userInput: any): User | null {
   const normalizedUser: User = {
     id: userInput.id || '',
     email: userInput.email || '',
+    role: 'user', // Default role
   };
 
   // Handle user metadata which could be in different locations
   if (userInput.user_metadata) {
-    normalizedUser.firstName = userInput.user_metadata.firstName || userInput.user_metadata.first_name;
-    normalizedUser.lastName = userInput.user_metadata.lastName || userInput.user_metadata.last_name;
-    normalizedUser.name = userInput.user_metadata.name || userInput.name;
-    normalizedUser.avatar = userInput.user_metadata.avatar;
-    normalizedUser.company = userInput.user_metadata.company;
-    normalizedUser.company_id = userInput.user_metadata.company_id;
-    normalizedUser.industry = userInput.user_metadata.industry;
-    normalizedUser.role = userInput.user_metadata.role;
+    normalizedUser.firstName = userInput.user_metadata.firstName || userInput.user_metadata.first_name || '';
+    normalizedUser.lastName = userInput.user_metadata.lastName || userInput.user_metadata.last_name || '';
+    normalizedUser.name = userInput.user_metadata.name || userInput.name || '';
+    normalizedUser.avatar = userInput.user_metadata.avatar || '';
+    normalizedUser.company = userInput.user_metadata.company || '';
+    normalizedUser.company_id = userInput.user_metadata.company_id || '';
+    normalizedUser.industry = userInput.user_metadata.industry || '';
+    normalizedUser.role = userInput.user_metadata.role || normalizedUser.role;
   }
 
   // Handle app metadata
   if (userInput.app_metadata) {
     normalizedUser.app_metadata = userInput.app_metadata;
+    if (userInput.app_metadata.is_admin) {
+      normalizedUser.role = 'admin';
+    }
   }
 
   // Handle direct properties
@@ -82,4 +86,54 @@ export function isUserAdmin(user?: User | null): boolean {
     user.role === 'admin' ||
     user.app_metadata?.is_admin === true
   );
+}
+
+/**
+ * Creates a compatibility layer for auth contexts with different structures
+ */
+export function createAuthCompatibilityLayer(authContext: any) {
+  if (!authContext) return null;
+  
+  const normalizedUser = normalizeUserObject(authContext.user || authContext.profile);
+  const profile = normalizeUserObject(authContext.profile || authContext.user);
+  
+  return {
+    ...authContext,
+    user: normalizedUser,
+    profile: profile,
+    isLoading: authContext.loading || authContext.isLoading || false,
+    isAuthenticated: !!normalizedUser,
+  };
+}
+
+/**
+ * Normalizes webhook events
+ */
+export function normalizeWebhookEvent(event: any) {
+  if (!event) return null;
+  
+  return {
+    ...event,
+    eventType: event.event_type || event.eventType,
+    event_type: event.event_type || event.eventType,
+    webhookType: event.webhook_type || event.webhookType || 'custom',
+    webhook_type: event.webhook_type || event.webhookType || 'custom',
+    status: event.status || 'pending',
+    created_at: event.created_at || event.timestamp || new Date().toISOString(),
+    timestamp: event.timestamp || event.created_at || new Date().toISOString(),
+  };
+}
+
+/**
+ * Normalize executive message
+ */
+export function normalizeExecutiveMessage(message: any) {
+  if (!message) return null;
+  
+  return {
+    ...message,
+    content: message.content || message.message_content,
+    message_content: message.message_content || message.content,
+    created_at: message.created_at || new Date().toISOString()
+  };
 }

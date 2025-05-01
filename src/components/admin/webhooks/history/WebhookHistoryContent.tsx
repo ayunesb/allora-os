@@ -12,9 +12,14 @@ interface WebhookHistoryContentProps {
 
 const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({ events }) => {
   const [filteredEvents, setFilteredEvents] = useState<UnifiedWebhookEvent[]>(events);
+  const [selectedEvent, setSelectedEvent] = useState<UnifiedWebhookEvent | null>(null);
   
   const handleFilterChange = (filtered: UnifiedWebhookEvent[]) => {
     setFilteredEvents(filtered);
+  };
+  
+  const handleViewEvent = (event: UnifiedWebhookEvent) => {
+    setSelectedEvent(event);
   };
   
   return (
@@ -30,8 +35,14 @@ const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({ events })
         </div>
       </CardHeader>
       <CardContent>
-        <WebhookHistoryFilters events={events} onFilterChange={handleFilterChange} />
-        <WebhookEventTable events={filteredEvents} />
+        <WebhookHistoryFilters 
+          events={events} 
+          onFilterChange={handleFilterChange} 
+        />
+        <WebhookEventTable 
+          events={filteredEvents} 
+          onViewEvent={handleViewEvent} 
+        />
       </CardContent>
     </Card>
   );

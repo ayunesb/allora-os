@@ -8,10 +8,9 @@ import { useSignupForm, SignupValues } from "@/hooks/useSignupForm";
 import PasswordInput from "./PasswordInput";
 import CompanyInfoFields from "./CompanyInfoFields";
 import { useState } from "react";
-import { User } from "@supabase/supabase-js";
 
 interface SignupFormProps {
-  onSubmitSuccess: (user: User) => void;
+  onSubmitSuccess: (user: any) => void;
 }
 
 export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
