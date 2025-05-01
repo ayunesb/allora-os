@@ -57,21 +57,6 @@ export function normalizeWebhookEvent(event: any) {
 }
 
 /**
- * Ensures executive message objects have all required properties
- */
-export function normalizeExecutiveMessage(message: any) {
-  if (!message) return null;
-  
-  return {
-    ...message,
-    from_executive: message.from_executive !== undefined ? message.from_executive : false,
-    to_executive: message.to_executive !== undefined ? message.to_executive : false,
-    message_content: message.message_content || message.content,
-    content: message.content || message.message_content
-  };
-}
-
-/**
  * Ensures bot objects have all required properties
  */
 export function normalizeBot(bot: any) {

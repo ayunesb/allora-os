@@ -1,130 +1,147 @@
 
-import React, { Suspense, useEffect, useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import Navbar from "@/components/Navbar";
-import SkipToContent from '@/components/accessibility/SkipToContent';
-import AccessibilityAnnouncer from '@/components/accessibility/AccessibilityAnnouncer';
-import { useAccessibility } from '@/context/AccessibilityContext';
-import { useTheme } from '@/context/ThemeContext';
-import { useBreakpoint, useIsMobile } from '@/hooks/use-mobile';
-import { LayoutDashboard, FileText, GraduationCap, ShoppingBag, Settings, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { ReactNode, useState } from 'react';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  LayoutDashboard,
+  Settings,
+  Users,
+  Rocket,
+  Menu,
+  X
+} from "lucide-react";
+import { NavLink, Outlet } from "react-router-dom";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/context/AuthContext";
 
-// Loading spinner for lazy-loaded dashboard components
-const DashboardLoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-[50vh]">
-    <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-    <span className="sr-only">Loading dashboard content...</span>
-  </div>
-);
+interface NavItemProps {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+  isActive?: boolean;
+  onClick?: () => void;
+}
 
-// Sidebar navigation items
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: FileText, label: "Strategies", path: "/dashboard/strategies" },
-  { icon: GraduationCap, label: "Academy", path: "/academy" },
-  { icon: ShoppingBag, label: "Shop", path: "/shop" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
+const NavItem = ({ to, icon, label, isActive, onClick }: NavItemProps) => {
+  return (
+    <NavLink
+      to={to}
+      onClick={onClick}
+      className={({ isActive: routeIsActive }) =>
+        cn(
+          "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+          "hover:bg-accent hover:text-accent-foreground",
+          (isActive || routeIsActive) ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+        )
+      }
+    >
+      {icon}
+      {label}
+    </NavLink>
+  );
+};
+
+const Sidebar = ({ onNavItemClick }: { onNavItemClick?: () => void }) => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.app_metadata?.is_admin;
+  
+  return (
+    <div className="flex h-full flex-col gap-2">
+      <div className="px-3 py-2">
+        <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+          Allora OS
+        </h2>
+        <div className="space-y-1">
+          <NavItem
+            to="/dashboard"
+            icon={<LayoutDashboard className="h-5 w-5" />}
+            label="Dashboard"
+            onClick={onNavItemClick}
+          />
+          <NavItem
+            to="/dashboard/strategies"
+            icon={<Rocket className="h-5 w-5" />}
+            label="Strategies"
+            onClick={onNavItemClick}
+          />
+          <NavItem
+            to="/dashboard/team"
+            icon={<Users className="h-5 w-5" />}
+            label="Team"
+            onClick={onNavItemClick}
+          />
+        </div>
+      </div>
+      <Separator />
+      <div className="px-3 py-2">
+        <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+          Settings
+        </h2>
+        <div className="space-y-1">
+          <NavItem
+            to="/dashboard/settings"
+            icon={<Settings className="h-5 w-5" />}
+            label="Settings"
+            onClick={onNavItemClick}
+          />
+          {isAdmin && (
+            <NavItem
+              to="/admin"
+              icon={<Settings className="h-5 w-5" />}
+              label="Admin"
+              onClick={onNavItemClick}
+            />
+          )}
+        </div>
+      </div>
+      <ScrollArea className="flex-1">
+        {/* Scrollable content as needed */}
+      </ScrollArea>
+    </div>
+  );
+};
+
+interface DashboardLayoutProps {
+  children?: ReactNode;
+}
 
 export default function DashboardLayout() {
-  const { preferences } = useAccessibility();
-  const location = useLocation();
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Close mobile sidebar when route changes
-  useEffect(() => {
-    if (isMobileSidebarOpen) {
-      setIsMobileSidebarOpen(false);
-    }
-  }, [location.pathname]);
-  
-  // Apply accessibility classes when the layout mounts
-  useEffect(() => {
-    if (preferences) {
-      document.documentElement.classList.toggle('high-contrast', !!preferences.highContrast);
-      document.documentElement.classList.toggle('large-text', !!preferences.largeText);
-      document.documentElement.classList.toggle('reduced-motion', !!preferences.reducedMotion);
-      document.documentElement.classList.toggle('enhanced-focus', !!preferences.enhancedFocus);
-      document.documentElement.classList.toggle('screen-reader-friendly', !!preferences.screenReaderFriendly);
-      document.documentElement.classList.toggle('improved-spacing', !!preferences.improvedTextSpacing);
-    }
-    
-    // Add a "main-content" id to the main element if it doesn't have one
-    const mainElement = document.querySelector('main');
-    if (mainElement && !mainElement.id) {
-      mainElement.id = 'main-content';
-    }
-  }, [preferences]);
-
-  const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen(!isMobileSidebarOpen);
-  };
-
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Skip to content link for keyboard users */}
-      <SkipToContent />
-      
-      {/* Screen reader announcements */}
-      <AccessibilityAnnouncer />
-      
-      {/* Navigation bar */}
-      <Navbar>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={toggleMobileSidebar}
-          aria-label={isMobileSidebarOpen ? "Close menu" : "Open menu"}
-        >
-          {isMobileSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
-      </Navbar>
-      
-      {/* Main content area with sidebar */}
-      <div className="flex-1 flex flex-col md:grid md:grid-cols-[auto_1fr] min-h-[calc(100vh-4rem)]">
-        {/* Sidebar - Mobile overlay version */}
-        {isMobile && isMobileSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setIsMobileSidebarOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-        
-        {/* Sidebar - Mobile drawer or desktop fixed */}
-        <nav 
-          className={`${
-            isMobile 
-              ? `fixed z-50 top-16 left-0 bottom-0 w-64 transform transition-transform duration-200 ease-in-out ${
-                  isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                }`
-              : 'hidden md:block w-64'
-          } bg-white/5 p-4 border-r border-white/10 overflow-y-auto`}
-        >
-          <div className="space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/10 ${
-                  location.pathname === item.path ? 'bg-white/15' : ''
-                }`}
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle Menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+            <div className="flex h-5 items-center">
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="absolute right-4 top-4">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </div>
+            <Sidebar onNavItemClick={() => setSidebarOpen(false)} />
+          </SheetContent>
+        </Sheet>
+        <div className="flex-1">
+          <h1 className="text-xl font-semibold">Allora OS</h1>
+        </div>
+      </header>
+      <div className="flex-1 flex">
+        <aside className="hidden border-r bg-background md:block md:w-[240px] lg:w-[300px]">
+          <div className="sticky top-14 h-[calc(100vh-3.5rem)]">
+            <Sidebar />
           </div>
-        </nav>
-        
-        {/* Main content */}
-        <main id="main-content" className="flex-1 p-4 sm:p-6" role="main">
-          <Suspense fallback={<DashboardLoadingSpinner />}>
-            <Outlet />
-          </Suspense>
+        </aside>
+        <main className="flex-1 p-4 sm:p-6">
+          <Outlet />
         </main>
       </div>
     </div>

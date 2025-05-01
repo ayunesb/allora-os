@@ -1,125 +1,105 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Send, Mic, MicOff, RefreshCw } from "lucide-react";
-import { ChatMessageList } from "@/components/chat/ChatMessageList";
-import { useBotConsultation } from '@/components/bot-detail/useBotConsultation';
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useState } from 'react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader, Send } from 'lucide-react';
 
-interface BotChatPanelProps {
+export interface BotChatPanelProps {
   botId: string;
-  title?: string;
-  description?: string;
-  className?: string;
 }
 
-export function BotChatPanel({ 
-  botId, 
-  title = "AI Assistant", 
-  description,
-  className = ""
-}: BotChatPanelProps) {
-  const [inputValue, setInputValue] = useState("");
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
+export function BotChatPanel({ botId }: BotChatPanelProps) {
+  const [messages, setMessages] = useState<Array<{role: string, content: string}>>([
+    { role: 'assistant', content: 'Hello! How can I help you today?' }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Use the hook with just the botId parameter
-  const {
-    messages,
-    handleSendMessage,
-    isLoading,
-    isTyping,
-    error,
-    clearConversation: clearMessages,
-    isVoiceEnabled,
-    isListening,
-    toggleVoiceInterface,
-    startVoiceRecognition
-  } = useBotConsultation(botId);
-  
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isInputDisabled) return;
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
     
-    setIsInputDisabled(true);
-    await handleSendMessage(inputValue);
-    setInputValue("");
-    setIsInputDisabled(false);
+    // Add user message to chat
+    const userMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    
+    try {
+      // In a real implementation, this would call an API
+      setTimeout(() => {
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: `I'm your AI assistant with ID ${botId}. This is a placeholder response. In production, I would connect to an AI backend.` 
+        }]);
+        setIsLoading(false);
+      }, 1000);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error processing your request.' 
+      }]);
+      setIsLoading(false);
+    }
   };
   
-  // Handle voice button click
-  const handleVoiceClick = () => {
-    if (isListening) {
-      // Stop listening
-      toggleVoiceInterface?.();
-    } else {
-      // Start listening
-      startVoiceRecognition?.();
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
   
   return (
-    <Card className={`flex flex-col h-[500px] ${className}`}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">{title}</CardTitle>
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
-      </CardHeader>
-      
-      <CardContent className="flex-grow overflow-y-auto pb-0">
-        {isLoading && messages.length === 0 ? (
-          <div className="space-y-4">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-3/4" />
-            <Skeleton className="h-12 w-5/6" />
-          </div>
-        ) : (
-          <ChatMessageList 
-            messages={messages} 
-            isTyping={isTyping}
-            onClearChat={clearMessages}
-          />
-        )}
-      </CardContent>
-      
-      <CardFooter className="pt-4 border-t">
-        <form onSubmit={handleSubmit} className="flex w-full gap-2">
-          <Input
-            placeholder="Type your message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            disabled={isInputDisabled}
-            className="flex-grow"
-          />
-          
-          {isVoiceEnabled && (
-            <Button 
-              type="button" 
-              size="icon" 
-              variant={isListening ? "destructive" : "outline"}
-              onClick={handleVoiceClick}
-              disabled={isInputDisabled}
-            >
-              {isListening ? <MicOff size={18} /> : <Mic size={18} />}
-            </Button>
-          )}
-          
-          <Button 
-            type="submit" 
-            size="icon" 
-            disabled={!inputValue.trim() || isInputDisabled}
+    <div className="flex flex-col h-[600px] max-h-[70vh]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message, index) => (
+          <div 
+            key={index}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {isInputDisabled ? (
-              <RefreshCw size={18} className="animate-spin" />
-            ) : (
-              <Send size={18} />
-            )}
+            <div 
+              className={`max-w-[80%] rounded-lg p-3 ${
+                message.role === 'user' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted'
+              }`}
+            >
+              {message.content}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-muted rounded-lg p-3">
+              <Loader className="h-4 w-4 animate-spin" />
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <CardFooter className="border-t pt-4">
+        <div className="flex w-full items-center space-x-2">
+          <Textarea 
+            value={input} 
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message..."
+            className="flex-1"
+            rows={2}
+          />
+          <Button 
+            onClick={handleSendMessage}
+            disabled={isLoading || !input.trim()}
+            size="icon"
+          >
+            <Send className="h-4 w-4" />
           </Button>
-        </form>
+        </div>
       </CardFooter>
-    </Card>
+    </div>
   );
 }
+
+export default BotChatPanel;

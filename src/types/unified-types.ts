@@ -7,25 +7,37 @@
 export interface UnifiedUser {
   id: string;
   email: string;
-  name?: string;
-  role?: 'admin' | 'user';
-  company_id?: string;
-  company?: string;
-  industry?: string;
-  created_at?: string;
-  updated_at?: string;
-  avatar_url?: string;
-  user_metadata?: {
-    firstName?: string;
-    lastName?: string;
+  name: string;
+  role: 'admin' | 'user';
+  company_id: string;
+  company: string;
+  industry: string;
+  created_at: string;
+  updated_at: string;
+  avatar_url: string;
+  user_metadata: {
+    firstName: string;
+    lastName: string;
     avatar?: string;
     name?: string;
     role?: string;
   };
-  app_metadata?: {
+  app_metadata: {
     is_admin?: boolean;
     [key: string]: any;
   };
+}
+
+// Bot type with all required properties
+export interface UnifiedBot {
+  id: string;
+  name: string;
+  title: string;
+  expertise: string;
+  avatar?: string;
+  description?: string;
+  industry?: string;
+  specialties?: string[];
 }
 
 // Extended webhook event type
@@ -42,82 +54,37 @@ export interface UnifiedWebhookEvent {
   url?: string;
   webhookType?: string;
   webhook_type?: string;
-  type?: string;
-  timestamp?: string;
-  duration?: number;
-  errorMessage?: string;
-  responseCode?: number;
-  source?: string;
 }
 
-// Executive message with all possible properties
-export interface UnifiedExecutiveMessage {
-  id: string;
-  content?: string;
-  created_at: string;
-  from_executive?: string | boolean;
-  to_executive?: string | boolean;
-  message_content?: string;
-  status?: string;
-}
-
-// Bot type with all properties
-export interface UnifiedBot {
-  id: string;
-  name: string;
-  title: string;
-  expertise: string;
-  avatar?: string;
-  description?: string;
-  industry?: string;
-  specialties?: string[];
-  created_at?: string;
-  updated_at?: string;
-  [key: string]: any;
-}
-
-// Extended context types
+// Types for accessibility context with all needed properties
 export interface ExtendedAccessibilityContextType {
   screenReaderFriendly: boolean;
   highContrast: boolean;
   reducedMotion: boolean;
   largeText: boolean;
   invertColors: boolean;
+  fontSize: number;
+  setFontSize: (v: number) => void;
   toggleScreenReader: () => void;
   toggleHighContrast: () => void;
   toggleReducedMotion: () => void;
   toggleLargeText: () => void;
   toggleInvertColors: () => void;
-  fontSize?: number;
-  setFontSize?: (v: number) => void;
-  checkForUpdates?: () => void;
-  setAutoUpdate?: (value: boolean) => void;
-  isCheckingUpdates?: boolean;
-  lastChecked?: string | null;
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+  updatePreference?: (key: string, value: any) => void;
 }
 
+// Extended compliance context types
 export interface ExtendedComplianceContextType {
   isLoaded: boolean;
   error: string | null;
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+  autoUpdate?: boolean;
   updatePreference?: (key: string, value: any) => void;
-  checkForUpdates?: () => void;
-  setAutoUpdate?: (value: boolean) => void;
-  isCheckingUpdates?: boolean;
-  lastChecked?: string | null;
-}
-
-// Auth context with loading
-export interface ExtendedAuthContextProps {
-  user: UnifiedUser | null;
-  profile?: UnifiedUser;
-  isLoading: boolean;
-  loading: boolean;
-  refreshProfile?: () => Promise<void>;
-  refreshSession?: () => Promise<boolean>;
-  isEmailVerified?: boolean;
-  authError?: Error | string;
-  isSessionExpired?: boolean;
-  hasInitialized?: boolean;
-  login: () => void;
-  logout: () => void;
 }

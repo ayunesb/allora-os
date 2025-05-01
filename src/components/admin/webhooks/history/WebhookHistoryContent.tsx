@@ -1,211 +1,176 @@
-import React, { useState, useEffect } from 'react';
-import { buttonVariants } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  DropdownMenu, 
-  DropdownMenuTrigger, 
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Filter, MoreHorizontal, RefreshCw } from 'lucide-react';
-import WebhookEventTable from '../WebhookEventTable';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
-import WebhookEventDetailModal from './WebhookEventDetailModal';
-import { cn } from '@/lib/utils';
-import useWebhookHistoryFilters from './useWebhookHistoryFilters';
-import { Badge } from '@/components/ui/badge';
-import CopyButton from '@/components/CopyButton';
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Check, Clock, Search, AlertCircle, RefreshCcw } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { normalizeWebhookEvent } from "@/utils/authCompatibility";
+import { UnifiedWebhookEvent } from "@/types/unified-types";
 
 interface WebhookHistoryContentProps {
-  webhookId: string;
   events: UnifiedWebhookEvent[];
   isLoading: boolean;
   onRefresh: () => void;
+  onShowDetails: (event: UnifiedWebhookEvent) => void;
 }
 
-const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({ 
-  webhookId, 
-  events, 
-  isLoading,
-  onRefresh
-}) => {
-  const {
-    searchQuery,
-    setSearchQuery,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    currentPage,
-    setCurrentPage,
-    eventTypes,
-    paginatedEvents,
-    totalPages,
-    hasMorePages,
-    eventsPerPage
-  } = useWebhookHistoryFilters(events);
+export function WebhookHistoryContent({
+  events = [],
+  isLoading = false,
+  onRefresh,
+  onShowDetails
+}: WebhookHistoryContentProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredEvents, setFilteredEvents] = useState<UnifiedWebhookEvent[]>(events);
 
-  const [selectedEvent, setSelectedEvent] = useState<UnifiedWebhookEvent | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  React.useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredEvents(events);
+      return;
+    }
 
-  const handleViewDetail = (event: UnifiedWebhookEvent) => {
-    setSelectedEvent(event);
-    setIsDetailModalOpen(true);
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    const filtered = events.filter((event) => {
+      const normalizedEvent = normalizeWebhookEvent(event);
+      return (
+        normalizedEvent.event_type.toLowerCase().includes(lowerCaseQuery) ||
+        normalizedEvent.status.toLowerCase().includes(lowerCaseQuery) ||
+        (normalizedEvent.url && normalizedEvent.url.toLowerCase().includes(lowerCaseQuery))
+      );
+    });
+    setFilteredEvents(filtered);
+  }, [events, searchQuery]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Search already handled via the useEffect
   };
 
-  const handleCloseDetailModal = () => {
-    setIsDetailModalOpen(false);
-    setSelectedEvent(null);
-  };
-
-  const handlePrevPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage(prev => prev + 1);
+  const getStatusBadge = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "success":
+        return (
+          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+            <Check className="mr-1 h-3 w-3" />
+            Success
+          </Badge>
+        );
+      case "failed":
+        return (
+          <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
+            <AlertCircle className="mr-1 h-3 w-3" />
+            Failed
+          </Badge>
+        );
+      case "pending":
+      default:
+        return (
+          <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
+            <Clock className="mr-1 h-3 w-3" />
+            Pending
+          </Badge>
+        );
+    }
   };
 
   return (
-    <Card className="space-y-4">
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle>Webhook History</CardTitle>
-        <div className="flex items-center space-x-2">
-          <CopyButton text={webhookId} className="ml-2" />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-                <MoreHorizontal className="h-4 w-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <div className="grid gap-2">
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Search</h4>
-                    <Input
-                      type="search"
-                      placeholder="Search events..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <DropdownMenuSeparator />
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Status</h4>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="All statuses" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All statuses</SelectItem>
-                        <SelectItem value="success">Success</SelectItem>
-                        <SelectItem value="failed">Failed</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Event Type</h4>
-                    <Select value={typeFilter} onValueChange={setTypeFilter}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="All types" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All types</SelectItem>
-                        {eventTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Refreshing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </>
-            )}
-          </Button>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="flex items-center space-x-4">
+          <form onSubmit={handleSearch} className="flex w-full max-w-sm items-center space-x-2">
+            <Input
+              type="search"
+              placeholder="Search webhooks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-xs"
+            />
+            <Button type="submit" size="sm">
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+          </form>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRefresh}
+          disabled={isLoading}
+        >
+          <RefreshCcw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
       </CardHeader>
       <CardContent>
-        <WebhookEventTable
-          events={paginatedEvents}
-          isLoading={isLoading}
-          onViewDetail={handleViewDetail}
-        />
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between p-2">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-8 w-16" />
+              </div>
+            ))}
+          </div>
+        ) : filteredEvents.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-muted-foreground">No webhook events found.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={onRefresh}
+            >
+              <RefreshCcw className="h-4 w-4 mr-2" />
+              Refresh Data
+            </Button>
+          </div>
+        ) : (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Event Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredEvents.map((event) => {
+                  const normalizedEvent = normalizeWebhookEvent(event);
+                  return (
+                    <TableRow key={normalizedEvent.id}>
+                      <TableCell className="font-medium">
+                        {normalizedEvent.event_type}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(normalizedEvent.status)}</TableCell>
+                      <TableCell>
+                        {new Date(normalizedEvent.created_at).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onShowDetails(normalizedEvent)}
+                        >
+                          Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </CardContent>
-      <div className="flex items-center justify-between px-4 pb-4">
-        <div className="text-sm text-muted-foreground">
-          Showing {paginatedEvents.length} of {events.length} events
-        </div>
-        <div className="flex items-center space-x-2">
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              if (currentPage > 1) handlePrevPage();
-            }}
-            className={cn(
-              buttonVariants({ size: "sm", variant: "outline" }),
-              currentPage === 1 ? "pointer-events-none opacity-50" : ""
-            )}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </a>
-          <Button variant="outline" size="sm" disabled>
-            Page {currentPage} of {totalPages}
-          </Button>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              if (hasMorePages) handleNextPage();
-            }}
-            className={cn(
-              buttonVariants({ size: "sm", variant: "outline" }),
-              !hasMorePages ? "pointer-events-none opacity-50" : ""
-            )}
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </a>
-        </div>
-      </div>
-
-      <WebhookEventDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={handleCloseDetailModal}
-        event={selectedEvent}
-      />
     </Card>
   );
-};
+}
 
 export default WebhookHistoryContent;

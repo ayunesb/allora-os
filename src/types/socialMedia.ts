@@ -1,38 +1,34 @@
 
-export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn';
-
-export type PostContentType = 'text' | 'image' | 'video' | 'link';
-
-export type PostStatus = 'Draft' | 'Scheduled' | 'Published' | 'Failed' | 'Approved';
+export type SocialPlatform = 'facebook' | 'twitter' | 'instagram' | 'linkedin' | 'tiktok' | 'youtube';
+export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel';
+export type PostStatus = 'draft' | 'scheduled' | 'published' | 'failed' | 'archived';
 
 export interface SocialMediaPost {
   id: string;
-  title: string;
-  content: string;
   platform: SocialPlatform;
-  content_type: PostContentType;
-  scheduled_date: string;
-  publish_time?: string;
+  content: string;
+  content_type: ContentType;
   status: PostStatus;
-  is_approved: boolean;
+  scheduled_at?: string;
+  published_at?: string;
   media_urls?: string[];
   link_url?: string;
-  campaign_id?: string;
+  engagement?: {
+    likes?: number;
+    comments?: number;
+    shares?: number;
+    views?: number;
+  };
   tags?: string[];
   created_at: string;
   updated_at: string;
-  company_id: string;
 }
 
-export interface NewSocialMediaPost {
-  title: string;
-  content: string;
-  platform: SocialPlatform;
-  content_type: PostContentType;
-  scheduled_date: string;
-  publish_time?: string;
-  media_urls?: string[];
-  link_url?: string;
-  campaign_id?: string;
+export interface PostFilter {
+  platform?: SocialPlatform;
+  status?: PostStatus;
+  search?: string;
+  startDate?: string;
+  endDate?: string;
   tags?: string[];
 }
