@@ -45,8 +45,39 @@ export interface VerificationActionsProps {
   isVerifyingFunctions: boolean;
   onRunChecks: () => Promise<void>;
   onAddDemoData: () => Promise<void>;
-  onFixPermissions: () => Promise<void>;
-  onGenerateSQL: () => Promise<void>;
-  onCreateMissingTables: () => Promise<void>;
+  onFixPermissions?: () => Promise<void>;
+  onGenerateSQL?: () => Promise<void>;
+  onCreateMissingTables?: () => Promise<void>;
   hasResults: boolean;
+}
+
+export interface LaunchProgressProps {
+  percentComplete: number;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  totalItems?: number;
+  completedItems?: number;
+  isComplete?: boolean;
+  launchStep?: number;
+}
+
+export interface ValidationResultsUI {
+  databaseTables?: any[];
+  databaseIndexes?: any[];
+  databaseFunctions?: any[];
+  rlsPolicies?: any[];
+  policies?: any[];
+}
+
+export interface ValidationResultItemProps {
+  result: any;
+  valid: boolean;
+  message: string;
+}
+
+export interface LaunchInfoBoxProps {
+  title: string;
+  description?: string;
+  icon?: React.ReactNode;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  children?: React.ReactNode;
 }

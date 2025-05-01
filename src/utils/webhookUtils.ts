@@ -5,7 +5,7 @@ import { WebhookEvent } from '@/types/fixed/Webhook';
  * Normalizes webhook event objects to handle different property names
  * across the application
  */
-export function normalizeWebhookEvent(event: WebhookEvent): WebhookEvent & { eventType: string } {
+export function normalizeWebhookEvent(event: WebhookEvent): WebhookEvent {
   return {
     ...event,
     // Add eventType as an alias to event_type for backward compatibility
@@ -17,11 +17,11 @@ export function normalizeWebhookEvent(event: WebhookEvent): WebhookEvent & { eve
  * Creates webhook events with both event_type and eventType properties
  * to maintain compatibility with different components
  */
-export function createWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent & { eventType: string } {
+export function createWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
   const event = {
     id: data.id || '',
     webhook_id: data.webhook_id || '',
-    event_type: data.event_type || '',
+    event_type: data.event_type || data.eventType || '',
     status: data.status || 'pending' as const,
     created_at: data.created_at || new Date().toISOString(),
     payload: data.payload || {},

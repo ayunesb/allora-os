@@ -33,6 +33,7 @@ export interface WebhookEvent {
   errorMessage?: string;
   responseCode?: number;
   source?: string;
+  eventType?: string; // Added for backward compatibility
 }
 
 export interface WebhookResult {
