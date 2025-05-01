@@ -9,12 +9,12 @@ export interface User {
   company: string;
   industry: string;
   updated_at: string;
-  created_at?: string;
+  created_at: string;
   app_metadata: {
     is_admin?: boolean;
     [key: string]: any;
   };
-  user_metadata?: {
+  user_metadata: {
     firstName: string;
     lastName: string;
     avatar?: string;

@@ -36,7 +36,10 @@ export interface WebhookEvent {
   payload: any;
   response?: any;
   targetUrl: string;
+  url?: string; // Backward compatibility
   webhookType: WebhookType;
+  webhook_type?: WebhookType; // Backward compatibility
+  type?: string; // Backward compatibility
   timestamp: string;
   duration?: number;
   errorMessage?: string;

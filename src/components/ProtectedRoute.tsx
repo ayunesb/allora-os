@@ -109,7 +109,10 @@ export default function ProtectedRoute({
 
   // Handle auth errors - Fix: Change authError type to string
   if (authError) {
-    const errorMessage = authError instanceof Error ? authError.message : String(authError);
+    const errorMessage = typeof authError === 'string' ? authError : 
+                         authError instanceof Error ? authError.message : 
+                         'Unknown authentication error';
+    
     return <AuthErrorState 
       error={errorMessage} 
       onRetry={async () => {

@@ -38,7 +38,9 @@ export function normalizeWebhookEvent(event: any): WebhookEvent {
   return {
     ...event,
     eventType: event.eventType || event.event_type || 'unknown',
-    event_type: event.event_type || event.eventType || 'unknown'
+    event_type: event.event_type || event.eventType || 'unknown',
+    webhookType: event.webhookType || event.webhook_type || 'custom',
+    webhook_type: event.webhook_type || event.webhookType || 'custom'
   };
 }
 
