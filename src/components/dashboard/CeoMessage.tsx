@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CeoMessageProps {
   riskAppetite: string;
@@ -13,6 +14,27 @@ interface CeoMessageProps {
 export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  
+  // Loading state
+  if (!profile) {
+    return (
+      <Card className="border-primary/20">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+          <div className="space-y-1">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-8 w-8 rounded-full" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-20 w-full" />
+        </CardContent>
+        <CardFooter>
+          <Skeleton className="h-8 w-36 ml-auto" />
+        </CardFooter>
+      </Card>
+    );
+  }
   
   // Get company name from profile or use default
   const companyName = profile?.company || "your company";
@@ -59,10 +81,10 @@ export default function CeoMessage({ riskAppetite }: CeoMessageProps) {
 
   return (
     <Card className={content.cardClass}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <div className="space-y-1">
+      <CardHeader className="flex flex-col sm:flex-row items-center sm:items-start sm:justify-between pb-2 space-y-2 sm:space-y-0">
+        <div className="space-y-1 text-center sm:text-left">
           <CardTitle className={`text-lg ${content.titleClass}`}>{content.title}</CardTitle>
-          <CardDescription className={content.textClass}>
+          <CardDescription className={`${content.textClass}`}>
             AI-generated strategy based on your business profile
           </CardDescription>
         </div>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ExecutiveInteractionProps {
   riskAppetite: 'low' | 'medium' | 'high';
@@ -14,6 +15,30 @@ interface ExecutiveInteractionProps {
 export function ExecutiveInteraction({ riskAppetite }: ExecutiveInteractionProps) {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  
+  // Loading state
+  if (!profile) {
+    return (
+      <Card className="bg-primary/5 border-primary/20">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">
+            <Skeleton className="h-4 w-32" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="space-y-2 w-full">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-8 w-40 mt-2" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   const companyName = profile?.company || "your company";
 
   // Get appropriate executive and message based on risk appetite
@@ -49,18 +74,18 @@ export function ExecutiveInteraction({ riskAppetite }: ExecutiveInteractionProps
         <CardTitle className="text-lg">Executive Insight</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
           <Avatar className="h-12 w-12 border-2 border-primary/20">
             <AvatarImage src={executiveInfo.image} alt={executiveInfo.name} />
             <AvatarFallback>{executiveInfo.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <div className="space-y-2">
+          <div className="space-y-2 text-center sm:text-left">
             <h3 className="font-semibold">{executiveInfo.name}</h3>
             <p className="text-sm text-muted-foreground">{executiveInfo.message}</p>
             <Button 
               variant="outline" 
               size="sm" 
-              className="mt-2"
+              className="mt-2 w-full sm:w-auto"
               onClick={() => navigate("/dashboard/debate")}
             >
               Start Strategy Session

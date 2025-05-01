@@ -1,23 +1,57 @@
 
-import { Skeleton } from "@/components/ui/skeleton";
+import React from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function DashboardLoadingState() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-1 container mx-auto px-4 py-8 sm:py-12 lg:py-24">
-        <div className="flex justify-between items-center mb-6">
-          <Skeleton className="h-8 sm:h-12 w-[200px] sm:w-[250px]" />
-          <Skeleton className="h-8 sm:h-10 w-24 sm:w-32" />
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <Skeleton className="h-8 w-64 mb-2" />
+          <Skeleton className="h-4 w-40" />
         </div>
-        <Skeleton className="h-4 w-full max-w-md mb-8" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {Array(6).fill(0).map((_, i) => (
-            <Skeleton key={i} className="h-[160px] sm:h-[200px] rounded-lg" />
-          ))}
+        <Skeleton className="h-10 w-32" />
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {Array(4).fill(0).map((_, i) => (
+          <Skeleton key={i} className="h-32 rounded-md" />
+        ))}
+      </div>
+      
+      <div className="space-y-4">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-32 w-full rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+export function ProfileLoadingState() {
+  return (
+    <div className="container max-w-4xl mx-auto px-4 py-10">
+      <div className="space-y-6">
+        <Skeleton className="h-12 w-1/3" />
+        <Skeleton className="h-4 w-2/3" />
+        <div className="grid gap-6">
+          <Skeleton className="h-36 w-full" />
+          <Skeleton className="h-36 w-full" />
         </div>
       </div>
     </div>
   );
 }
 
-export default DashboardLoadingState;
+export function FormLoadingState() {
+  return (
+    <div className="space-y-4">
+      {Array(4).fill(0).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ))}
+      <Skeleton className="h-10 w-32 mt-6" />
+    </div>
+  );
+}
