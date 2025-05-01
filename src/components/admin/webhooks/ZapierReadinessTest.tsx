@@ -1,288 +1,249 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Check, AlertCircle, Loader2, Info } from "lucide-react";
-import { useZapier } from "@/lib/zapier";
-import { 
-  onCampaignLaunched, 
-  onNewLeadAdded, 
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  onCampaignLaunched,
+  onNewLeadAdded,
   onStrategyApproved,
-  onLeadConverted,
-  onRevenueMilestoneReached
-} from "@/utils/zapierEventTriggers";
-import { toast } from "sonner";
-import ZapierTriggerButton from "@/components/integrations/ZapierTriggerButton";
+  BusinessEventType
+} from '@/utils/zapierEventTriggers';
 
 const ZapierReadinessTest = () => {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<Record<string, boolean>>({});
-  const { triggerWorkflow } = useZapier();
-  const [webhookUrl, setWebhookUrl] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastTriggered, setLastTriggered] = useState<string | null>(null);
+  const [testStatus, setTestStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [activeTest, setActiveTest] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
-  useEffect(() => {
-    const savedWebhookUrl = localStorage.getItem('zapier_webhook_url');
-    if (savedWebhookUrl) {
-      setWebhookUrl(savedWebhookUrl);
+  const triggerWebhook = async (eventType: BusinessEventType, data: Record<string, any>) => {
+    const webhookUrl = localStorage.getItem('zapier_webhook_url');
+    
+    if (!webhookUrl) {
+      toast.error("Please configure your Zapier webhook URL first", {
+        description: "Go to the Configure tab to set up your webhook URL"
+      });
+      return false;
     }
-  }, []);
-  
-  const testEvents = [
-    {
-      name: "Campaign Launch",
-      handler: async () => {
-        const result = await onCampaignLaunched({
-          campaignTitle: "Test Launch Campaign",
-          platform: "Facebook",
-          owner: "QA Tester",
-          campaignId: "test-123",
-          companyId: "qa-company-123"
-        });
-        return result.success;
-      }
-    },
-    {
-      name: "Lead Added",
-      handler: async () => {
-        const result = await onNewLeadAdded({
-          company: "Test Company Inc",
-          leadName: "John Tester",
-          source: "Website Form",
-          leadId: "lead-test-123"
-        });
-        return result.success;
-      }
-    },
-    {
-      name: "Strategy Approved",
-      handler: async () => {
-        const result = await onStrategyApproved({
-          strategyTitle: "Market Expansion Strategy",
-          strategyId: "strat-test-123",
-          companyId: "qa-company-123",
-          approvedBy: "QA Administrator"
-        });
-        return result.success;
-      }
-    },
-    {
-      name: "Lead Converted",
-      handler: async () => {
-        const result = await onLeadConverted({
-          leadId: "lead-test-123",
-          leadName: "John Tester",
-          conversionValue: 5000,
-          companyId: "qa-company-123",
-          convertedBy: "QA Sales Rep"
-        });
-        return result.success;
-      }
-    },
-    {
-      name: "Revenue Milestone",
-      handler: async () => {
-        const result = await onRevenueMilestoneReached({
-          milestoneName: "First $10k",
-          revenueAmount: 10000,
-          companyId: "qa-company-123",
-          milestoneId: "milestone-test-123"
-        });
-        return result.success;
-      }
-    },
-    {
-      name: "Custom Webhook",
-      handler: async () => {
-        if (!webhookUrl) {
-          toast.error("No webhook URL configured. Please set up a Zapier webhook first.");
-          return false;
-        }
-        
-        try {
-          const result = await triggerWorkflow(
-            webhookUrl,
-            "qa_test_event",
-            { 
-              test: true, 
-              source: "QA Readiness Test",
-              timestamp: new Date().toISOString()
-            }
-          );
-          return result.success;
-        } catch (error) {
-          console.error("Custom webhook test error:", error);
-          return false;
-        }
-      }
-    }
-  ];
-  
-  const runSingleTest = async (testName: string, handler: () => Promise<boolean>) => {
-    setIsLoading(testName);
+    
+    setIsLoading(true);
+    setTestStatus('idle');
+    setActiveTest(eventType);
+    setError(null);
+    
     try {
-      const success = await handler();
+      let result = false;
       
-      const updatedResults = { ...testResults, [testName]: success };
-      setTestResults(updatedResults);
-      localStorage.setItem('zapier_test_results', JSON.stringify(updatedResults));
+      if (eventType === 'strategy_approved') {
+        result = await onStrategyApproved({
+          companyId: 'test-company-123',
+          entityId: 'test-strategy-123',
+          entityType: 'business_strategy',
+          strategyName: 'Test Strategy',
+          botName: 'CEO Bot',
+          suggestedBy: 'Marketing Director',
+          riskLevel: 'medium',
+          timestamp: new Date().toISOString()
+        });
+      } else if (eventType === 'new_lead_added') {
+        result = await onNewLeadAdded({
+          leadId: 'test-lead-123',
+          leadName: 'John Smith',
+          company: 'Acme Corp',
+          email: 'john.smith@example.com',
+          source: 'Website Contact Form'
+        });
+      } else if (eventType === 'campaign_launched') {
+        result = await onCampaignLaunched({
+          campaignId: 'test-campaign-123',
+          name: 'Summer Promotion',
+          type: 'email',
+          budget: 5000,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          targetAudience: 'Small Business Owners'
+        });
+      } else if (eventType === 'lead_converted') {
+        // This is a generic test - use the triggerWebhook directly
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          body: JSON.stringify({
+            eventType: 'lead_converted',
+            data: {
+              leadId: 'test-lead-123',
+              leadName: 'Jane Smith',
+              dealValue: 10000,
+              dealType: 'annual subscription',
+              conversionDate: new Date().toISOString()
+            },
+            timestamp: new Date().toISOString()
+          })
+        });
+        result = true; // Assume success with no-cors mode
+      } else if (eventType === 'revenue_milestone') {
+        // This is a generic test - use the triggerWebhook directly
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          body: JSON.stringify({
+            eventType: 'revenue_milestone',
+            data: {
+              companyId: 'test-company-123',
+              milestone: 'first_10k_mrr',
+              amount: 10000,
+              currency: 'USD'
+            },
+            timestamp: new Date().toISOString()
+          })
+        });
+        result = true; // Assume success with no-cors mode
+      }
       
-      if (success) {
-        toast.success(`${testName} webhook test passed`);
+      if (result) {
+        setTestStatus('success');
+        setLastTriggered(new Date().toISOString());
+        toast.success(`Test event sent to Zapier!`, {
+          description: "Check your Zap to confirm it processed correctly."
+        });
       } else {
-        toast.error(`${testName} webhook test failed`);
+        throw new Error("Failed to trigger webhook");
       }
+      
+      return result;
     } catch (error) {
-      console.error(`Error testing ${testName}:`, error);
-      
-      const updatedResults = { ...testResults, [testName]: false };
-      setTestResults(updatedResults);
-      localStorage.setItem('zapier_test_results', JSON.stringify(updatedResults));
-      
-      toast.error(`${testName} webhook test failed with error`);
+      setTestStatus('error');
+      setError(error instanceof Error ? error.message : String(error));
+      toast.error("Failed to trigger webhook", {
+        description: "There was an error sending the test event. Please check your configuration."
+      });
+      return false;
     } finally {
-      setIsLoading(null);
+      setIsLoading(false);
     }
   };
-  
-  const runAllTests = async () => {
-    toast.info("Running all Zapier webhook tests");
-    setIsLoading("all");
-    
-    for (const test of testEvents) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      await runSingleTest(test.name, test.handler);
-    }
-    
-    setIsLoading(null);
-    toast.info("All Zapier webhook tests completed");
-  };
-  
-  useEffect(() => {
-    try {
-      const savedResults = localStorage.getItem('zapier_test_results');
-      if (savedResults) {
-        setTestResults(JSON.parse(savedResults));
-      }
-    } catch (e) {
-      console.error("Error loading saved test results:", e);
-    }
-  }, []);
   
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Zapier Integration Readiness
-          <Badge variant={Object.values(testResults).every(Boolean) && Object.keys(testResults).length > 0 ? "success" : "outline"}>
-            {Object.values(testResults).every(Boolean) && Object.keys(testResults).length > 0 ? "PASSING" : "UNTESTED"}
-          </Badge>
-        </CardTitle>
-        <CardDescription>
-          Test all Zapier webhook integrations to ensure they fire correctly when business events occur
-        </CardDescription>
+        <CardTitle>Test Your Zapier Integration</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Alert>
-          <Info className="h-4 w-4" />
-          <AlertTitle>Testing Instructions</AlertTitle>
-          <AlertDescription>
-            These tests will fire real Zapier webhooks. Ensure your Zaps are set to catch these test events or are in draft mode.
-          </AlertDescription>
-        </Alert>
-        
-        {!webhookUrl && (
-          <Alert variant="destructive" className="mb-4">
+      <CardContent className="space-y-6">
+        {!localStorage.getItem('zapier_webhook_url') && (
+          <Alert variant="warning" className="mb-4">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>No Webhook URL Found</AlertTitle>
             <AlertDescription>
-              Please configure your Zapier webhook URL in the Admin Settings before running tests.
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-white underline"
-                onClick={() => window.location.href = "/admin/webhooks"}
-              >
-                Go to Webhook Settings
-              </Button>
+              You need to configure your Zapier webhook URL in the Configure tab before testing.
             </AlertDescription>
           </Alert>
         )}
         
-        <div className="grid gap-3">
-          {testEvents.map(test => (
-            <div key={test.name} className="flex items-center justify-between border p-3 rounded-md">
-              <div className="flex items-center gap-3">
-                {testResults[test.name] === true && <Check className="h-5 w-5 text-green-500" />}
-                {testResults[test.name] === false && <AlertCircle className="h-5 w-5 text-red-500" />}
-                {testResults[test.name] === undefined && <div className="h-5 w-5" />}
-                <span>{test.name} Event</span>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="border rounded-md p-4 relative">
+            <h3 className="font-medium mb-2">Strategy Approved</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tests the webhook when a business strategy is approved.
+            </p>
+            <Button 
+              onClick={() => triggerWebhook('strategy_approved', {})} 
+              disabled={isLoading}
+              size="sm"
+              className="mt-2"
+            >
+              {isLoading && activeTest === 'strategy_approved' ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Testing...
+                </>
+              ) : 'Trigger Test'}
+            </Button>
+            {activeTest === 'strategy_approved' && testStatus === 'success' && (
+              <div className="absolute top-2 right-2">
+                <Check className="h-5 w-5 text-green-500" />
               </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                disabled={isLoading !== null || (test.name === "Custom Webhook" && !webhookUrl)}
-                onClick={() => runSingleTest(test.name, test.handler)}
-              >
-                {isLoading === test.name ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Testing...
-                  </>
-                ) : (
-                  "Test"
-                )}
-              </Button>
-            </div>
-          ))}
+            )}
+          </div>
+          
+          <div className="border rounded-md p-4 relative">
+            <h3 className="font-medium mb-2">New Lead Added</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tests the webhook when a new lead is created.
+            </p>
+            <Button 
+              onClick={() => triggerWebhook('new_lead_added', {})} 
+              disabled={isLoading}
+              size="sm"
+              className="mt-2"
+            >
+              {isLoading && activeTest === 'new_lead_added' ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Testing...
+                </>
+              ) : 'Trigger Test'}
+            </Button>
+            {activeTest === 'new_lead_added' && testStatus === 'success' && (
+              <div className="absolute top-2 right-2">
+                <Check className="h-5 w-5 text-green-500" />
+              </div>
+            )}
+          </div>
+          
+          <div className="border rounded-md p-4 relative">
+            <h3 className="font-medium mb-2">Campaign Launched</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tests the webhook when a marketing campaign is launched.
+            </p>
+            <Button 
+              onClick={() => triggerWebhook('campaign_launched', {})} 
+              disabled={isLoading}
+              size="sm"
+              className="mt-2"
+            >
+              {isLoading && activeTest === 'campaign_launched' ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Testing...
+                </>
+              ) : 'Trigger Test'}
+            </Button>
+            {activeTest === 'campaign_launched' && testStatus === 'success' && (
+              <div className="absolute top-2 right-2">
+                <Check className="h-5 w-5 text-green-500" />
+              </div>
+            )}
+          </div>
         </div>
         
-        <div className="hidden">
-          <ZapierTriggerButton 
-            webhookType="newLead"
-            payload={{
-              test_id: "zapier_readiness",
-              timestamp: new Date().toISOString()
-            }}
-            autoTrigger={true}
-            label={null}
-          />
+        {lastTriggered && (
+          <div className="text-sm text-muted-foreground mt-4">
+            Last test sent: {new Date(lastTriggered).toLocaleString()}
+          </div>
+        )}
+        
+        {error && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Error: {error}
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        <div className="bg-muted rounded-md p-4 mt-4">
+          <h3 className="font-medium mb-2 text-sm">How to verify your tests</h3>
+          <p className="text-sm text-muted-foreground">
+            After triggering these tests, you should check your Zap's task history in Zapier to confirm
+            the webhook was received and processed correctly. If your Zap is properly configured, you
+            should see the test event trigger the corresponding action.
+          </p>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <div>
-          {Object.keys(testResults).length > 0 && (
-            <div className="text-sm">
-              {Object.values(testResults).filter(Boolean).length}/{Object.keys(testResults).length} tests passing
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setTestResults({});
-              localStorage.removeItem('zapier_test_results');
-              toast.info("Test results cleared");
-            }}
-            disabled={isLoading !== null || Object.keys(testResults).length === 0}
-          >
-            Reset Tests
-          </Button>
-          <Button 
-            onClick={runAllTests} 
-            disabled={isLoading !== null || !webhookUrl}
-          >
-            {isLoading === "all" ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Testing All...
-              </>
-            ) : (
-              "Test All Webhooks"
-            )}
-          </Button>
-        </div>
-      </CardFooter>
     </Card>
   );
 };

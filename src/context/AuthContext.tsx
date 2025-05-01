@@ -5,15 +5,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User as AppUser } from '@/models/user';
 
-interface AuthContextProps {
+export interface AuthContextProps {
   user: AppUser | null;
   profile: AppUser | null;
   session: Session | null;
   isLoading: boolean;
+  isEmailVerified: boolean;
+  authError: string | null;
+  isSessionExpired: boolean;
+  hasInitialized: boolean;
+  refreshSession: () => Promise<boolean>;
+  refreshProfile: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, userData?: object) => Promise<void>;
   signOut: () => Promise<void>;
-  refreshSession: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -23,6 +28,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AppUser | null>(null);
   const [profile, setProfile] = useState<AppUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -32,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentSession?.user) {
           const mappedUser = mapUserToAppUser(currentSession.user);
           setUser(mappedUser);
+          setIsEmailVerified(!!currentSession.user.email_confirmed_at);
           
           // Fetch user profile in a separate process to avoid Supabase deadlocks
           setTimeout(() => {
@@ -40,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setUser(null);
           setProfile(null);
+          setIsEmailVerified(false);
         }
       }
     );
@@ -50,9 +61,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentSession?.user) {
         const mappedUser = mapUserToAppUser(currentSession.user);
         setUser(mappedUser);
+        setIsEmailVerified(!!currentSession.user.email_confirmed_at);
         fetchUserProfile(currentSession.user.id);
       }
       setIsLoading(false);
+      setHasInitialized(true);
     });
 
     return () => {
@@ -78,6 +91,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Exception fetching user profile:', error);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user?.id) {
+      await fetchUserProfile(user.id);
     }
   };
 
@@ -140,24 +159,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error("Error refreshing session:", error);
+        setIsSessionExpired(true);
         return false;
       }
       
+      setIsSessionExpired(false);
       return !!data.session;
     } catch (error) {
       console.error("Session refresh error:", error);
+      setIsSessionExpired(true);
       return false;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, session, isLoading, signIn, signUp, signOut, refreshSession }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      profile, 
+      session, 
+      isLoading, 
+      isEmailVerified,
+      authError,
+      isSessionExpired,
+      hasInitialized,
+      signIn, 
+      signUp, 
+      signOut, 
+      refreshSession,
+      refreshProfile
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextProps => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');

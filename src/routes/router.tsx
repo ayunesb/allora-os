@@ -19,6 +19,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
 import { ComplianceProvider } from "@/context/ComplianceContext";
 import { Outlet, Navigate } from 'react-router-dom';
+import { AuthProviderWrapper } from "@/components/auth/AuthProviderWrapper";
 
 // Lazy-loaded components
 const RootLayout = lazy(() => import("@/components/layouts/RootLayout"));
@@ -50,17 +51,19 @@ const withSuspense = (Component: React.ComponentType<any>) => (
   </Suspense>
 );
 
-// Navigation layout with error boundary
+// Navigation layout with error boundary and auth provider
 const NavigationLayout = () => {
   logger.info('NavigationLayout rendering');
   
   return (
     <ErrorBoundary>
-      <NavigationManager />
-      <NavigationTracker />
-      <NavigationFixer />
-      <HelpModal />
-      <Outlet />
+      <AuthProviderWrapper>
+        <NavigationManager />
+        <NavigationTracker />
+        <NavigationFixer />
+        <HelpModal />
+        <Outlet />
+      </AuthProviderWrapper>
     </ErrorBoundary>
   );
 };

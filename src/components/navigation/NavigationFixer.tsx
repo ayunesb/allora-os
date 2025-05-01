@@ -5,17 +5,27 @@ import { normalizeRoute, trackRouteVisit } from '@/utils/navigation';
 import { trackRouteAccess, isValidLegalRoute, getSuggestedLegalRoutes, validLegalRoutes } from '@/utils/routeTracker';
 import { toast } from 'sonner';
 import { logger } from '@/utils/loggingService';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function NavigationFixer() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  
+  let user;
+  let isAuthenticated = false;
+  
+  try {
+    // Try to get auth info, but don't crash if not available
+    const auth = useAuth();
+    user = auth?.user;
+    isAuthenticated = !!user;
+  } catch (error) {
+    // Auth context not available, continue without it
+    logger.warn('Auth context not available in NavigationFixer');
+  }
+  
   const [attemptedFix, setAttemptedFix] = useState(false);
   const [suspiciousRouteAttempts, setSuspiciousRouteAttempts] = useState<Record<string, number>>({});
-  
-  // Calculate isAuthenticated based on user presence
-  const isAuthenticated = !!user;
   
   useEffect(() => {
     // Reset the fix attempt flag when the location changes
@@ -53,6 +63,7 @@ export default function NavigationFixer() {
       '/about',
       '/faq',
       '/legal',
+      '/settings',
     ];
     
     // Add all legal routes to known valid paths
