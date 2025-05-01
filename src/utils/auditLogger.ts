@@ -80,3 +80,39 @@ export async function logAuditEvent(
     return false;
   }
 }
+
+/**
+ * Log a compliance change for audit purposes
+ * 
+ * @param userId User who made the change
+ * @param details Details about the compliance change
+ * @param metadata Any additional metadata to log
+ * @returns Success status
+ */
+export async function logComplianceChange(
+  userId: string,
+  details: string,
+  metadata?: Record<string, any>
+): Promise<boolean> {
+  try {
+    // Log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      logger.info(`COMPLIANCE CHANGE: ${details} ${userId ? `(User: ${userId})` : ''}`);
+    }
+    
+    // Log to audit_logs table in Supabase
+    await supabase.from('agent_logs').insert({
+      type: 'compliance',
+      event: 'compliance_change',
+      details,
+      user_id: userId || null,
+      metadata: metadata || {},
+      tenant_id: 'development'
+    });
+    
+    return true;
+  } catch (error) {
+    logger.error('Failed to log compliance change', error);
+    return false;
+  }
+}
