@@ -12,7 +12,7 @@ interface ForecastCardProps {
   description: string;
 }
 
-export function ForecastCards({ title, current, forecast, description }: ForecastCardProps) {
+const ForecastCard = ({ title, current, forecast, description }: ForecastCardProps) => {
   const ratio = forecast / current;
 
   const getVariant = useCallback((ratio: number) => {
@@ -49,4 +49,39 @@ export function ForecastCards({ title, current, forecast, description }: Forecas
       </CardContent>
     </Card>
   );
+};
+
+interface ForecastCardsProps {
+  forecasts: any;
+  kpiData: any;
+  anomalies: any;
+  kpiNames: Record<string, string>;
 }
+
+const ForecastCards = ({ forecasts, kpiData, anomalies, kpiNames }: ForecastCardsProps) => {
+  if (!forecasts || !kpiData) {
+    return <div className="grid gap-4">Loading forecast data...</div>;
+  }
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {Object.keys(forecasts).map((key) => {
+        const current = kpiData[key]?.value || 1;
+        const forecast = forecasts[key]?.value || 0;
+        const hasAnomaly = anomalies.some((a: any) => a.kpi === key);
+
+        return (
+          <ForecastCard
+            key={key}
+            title={kpiNames[key] || key}
+            current={current}
+            forecast={forecast}
+            description={hasAnomaly ? "Anomaly detected" : "Forecast on track"}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+export default ForecastCards;

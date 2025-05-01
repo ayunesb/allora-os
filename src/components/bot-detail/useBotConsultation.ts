@@ -1,20 +1,29 @@
 
 import { useState, useCallback } from 'react';
-import { Bot, Message } from './MessageType';
+import { Bot } from '@/types/fixed/Bot';
+import { Message } from '@/types/fixed/Message';
 
 export interface UseBotConsultationResult {
-  bot: Bot;
+  bot: Bot | null;
   messages: Message[];
   isLoading: boolean;
   isTyping: boolean;
   error: string;
   retryCount: number;
+  isVoiceEnabled?: boolean;
+  isListening?: boolean;
   handleSendMessage: (text: string) => Promise<void>;
   retryLastMessage: () => void;
   clearConversation: () => void;
+  toggleVoiceInterface?: () => void;
+  startVoiceRecognition?: () => void;
 }
 
-export function useBotConsultation(initialBot: Bot): UseBotConsultationResult {
+export function useBotConsultation(botName: string, role?: string): UseBotConsultationResult {
+  const [bot, setBot] = useState<Bot | null>({
+    name: botName || 'Assistant',
+    role: role || 'Executive Advisor'
+  });
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -73,7 +82,7 @@ export function useBotConsultation(initialBot: Bot): UseBotConsultationResult {
   }, []);
   
   return {
-    bot: initialBot,
+    bot,
     messages,
     isLoading,
     isTyping,

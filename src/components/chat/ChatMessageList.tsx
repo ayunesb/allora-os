@@ -1,5 +1,6 @@
-import React from 'react';
-import { Message } from '@/components/bot-detail/MessageType';
+
+import React, { useRef, useEffect } from 'react';
+import { Message } from '@/types/fixed/Message';
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -66,15 +67,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   : "bg-muted"
               }`}
             >
-              {message.isTyping ? (
-                <div className="flex gap-1 items-center h-6">
-                  <Skeleton className="h-2 w-2 rounded-full animate-pulse" />
-                  <Skeleton className="h-2 w-2 rounded-full animate-pulse delay-75" />
-                  <Skeleton className="h-2 w-2 rounded-full animate-pulse delay-150" />
-                </div>
-              ) : (
-                <div>{message.content}</div>
-              )}
+              {message.text}
               
               <div
                 className={`text-xs mt-1 ${
@@ -92,7 +85,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
           </div>
         ))}
         
-        {isTyping && !messages.some(m => m.isTyping) && (
+        {isTyping && (
           <div className="flex justify-start">
             <div className="max-w-[80%] px-4 py-2 rounded-lg bg-muted">
               <div className="flex gap-1 items-center h-6">
