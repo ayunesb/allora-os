@@ -1,3 +1,4 @@
+
 import { createBrowserRouter, Outlet, Navigate, RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { adminRoutes } from "./admin-routes";
@@ -19,6 +20,7 @@ import { logger } from "@/utils/loggingService";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { AuthProviderWrapper } from "@/components/auth/AuthProviderWrapper";
+import { ComplianceProvider } from "@/context/ComplianceContext";
 
 // Lazy-loaded components
 const RootLayout = lazy(() => import("@/components/layouts/RootLayout"));
@@ -75,6 +77,15 @@ const NavigationLayout = () => {
   );
 };
 
+// Wrap compliance routes with the ComplianceProvider
+const ComplianceRoutes = () => {
+  return (
+    <ComplianceProvider>
+      <Outlet />
+    </ComplianceProvider>
+  );
+};
+
 // Create dynamic routes with lazy loading
 const createLazyRoutes = () => {
   // Root route must be added first
@@ -111,10 +122,20 @@ const createLazyRoutes = () => {
       path: "/plugins/impact",
       element: withSuspense(PluginImpact),
     },
-    // Root compliance page that handles setup and redirects to the compliance dashboard
+    // Compliance routes inside a provider
     {
       path: "/compliance",
-      element: withSuspense(Compliance),
+      element: <ComplianceRoutes />,
+      children: [
+        {
+          index: true,
+          element: withSuspense(Compliance),
+        },
+        {
+          path: "*",
+          element: withSuspense(() => <ComplianceRoutesWrapper />)
+        }
+      ]
     },
     // Common redirects for legacy/mistyped URLs
     {
@@ -152,11 +173,6 @@ const createLazyRoutes = () => {
     ...galaxyRoutes,
     ...academyRoutes,
     ...vaultRoutes,
-    // Add the compliance routes wrapper
-    {
-      path: "compliance/*",
-      element: withSuspense(() => <ComplianceRoutesWrapper />)
-    },
     // Global routes should be last (except for the catch-all 404)
     ...globalRoutes.filter(route => route.path !== "*"),
     // The 404 catch-all route must be the very last one

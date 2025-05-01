@@ -1,110 +1,70 @@
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
   checkForDocumentUpdates, 
   applyDocumentUpdate, 
-  setupAutomaticUpdates, 
-  enableAutoUpdatesForDocument,
-  scheduleRegularComplianceCheck
+  scheduleRegularComplianceCheck,
+  enableAutoUpdatesForDocument
 } from '@/services/complianceService';
 import { toast } from 'sonner';
+import { logComplianceChange } from '@/utils/auditLogger';
 
 interface ComplianceContextType {
   pendingUpdates: string[];
-  isCheckingUpdates: boolean;
   isApplyingUpdate: boolean;
-  lastChecked: Date | null;
-  checkForUpdates: () => Promise<void>;
   applyUpdate: (documentId: string) => Promise<void>;
   applyAllUpdates: () => Promise<void>;
-  setAutoUpdate: (documentId: string, enabled: boolean) => Promise<void>;
-  scheduleComplianceCheck: (intervalDays: number) => Promise<void>;
+  scheduleComplianceCheck: (intervalDays?: number) => Promise<void>;
+  enableAutoUpdates: (documentId: string, enabled: boolean) => Promise<boolean>;
 }
 
 const ComplianceContext = createContext<ComplianceContextType | undefined>(undefined);
 
-export const useCompliance = () => {
-  const context = useContext(ComplianceContext);
-  if (!context) {
-    throw new Error('useCompliance must be used within a ComplianceProvider');
-  }
-  return context;
-};
-
-interface ComplianceProviderProps {
-  children: ReactNode;
-}
-
-export const ComplianceProvider: React.FC<ComplianceProviderProps> = ({ children }) => {
+export function ComplianceProvider({ children }: { children: React.ReactNode }) {
   const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
-  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
   const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
-  const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
-  // Check for updates when the component mounts
-  useEffect(() => {
-    const cleanup = setupAutomaticUpdates((documents) => {
-      if (documents.length > 0) {
-        setPendingUpdates(documents);
-        toast.info(`Updates available for ${documents.length} document(s)`, {
-          description: "New regulatory updates are available for some compliance documents."
-        });
-      }
+  const handleUpdateAvailable = useCallback((documents: string[]) => {
+    setPendingUpdates(prev => {
+      // Combine previous and new updates, removing duplicates
+      const allUpdates = [...prev, ...documents];
+      return [...new Set(allUpdates)];
     });
-    
-    // Schedule initial compliance check (every 5 days)
-    scheduleRegularComplianceCheck(5, (updatedDocs) => {
-      if (updatedDocs.length > 0) {
-        setPendingUpdates(prev => [...new Set([...prev, ...updatedDocs])]);
-        toast.info(`Updates available for ${updatedDocs.length} document(s)`, {
-          description: "New regulatory updates are available for some compliance documents."
-        });
-      }
-    });
-    
-    return cleanup;
   }, []);
 
-  const checkForUpdates = async () => {
-    setIsCheckingUpdates(true);
-    try {
-      const result = await checkForDocumentUpdates();
-      setPendingUpdates(result.documentsNeedingUpdate);
-      setLastChecked(new Date());
-      
-      if (result.documentsNeedingUpdate.length > 0) {
-        toast.info(`Updates available for ${result.documentsNeedingUpdate.length} document(s)`, {
-          description: "New regulatory updates are available for some compliance documents."
-        });
-      } else {
-        toast.success("All documents are up-to-date", {
-          description: "Your compliance documents meet the latest regulatory requirements."
-        });
-      }
-    } catch (error) {
-      console.error("Error checking for updates:", error);
-      toast.error("Failed to check for updates", {
-        description: "There was an error checking for document updates. Please try again."
+  useEffect(() => {
+    // Initial check for updates when the provider loads
+    checkForDocumentUpdates()
+      .then(result => {
+        if (result.documentsNeedingUpdate.length > 0) {
+          setPendingUpdates(result.documentsNeedingUpdate);
+        }
+      })
+      .catch(error => {
+        console.error("Error checking for document updates:", error);
       });
-    } finally {
-      setIsCheckingUpdates(false);
-    }
-  };
+  }, []);
 
   const applyUpdate = async (documentId: string) => {
-    setIsApplyingUpdate(true);
     try {
+      setIsApplyingUpdate(true);
       const success = await applyDocumentUpdate(documentId);
+      
       if (success) {
+        // Remove the document from pending updates
         setPendingUpdates(prev => prev.filter(id => id !== documentId));
-        toast.success("Document updated successfully", {
-          description: "The document has been updated to the latest version."
-        });
+        
+        // Log the compliance change
+        logComplianceChange(
+          'user', // Would be actual user ID in real implementation
+          `Applied update to document: ${documentId}`,
+          { documentId, updateType: 'manual' }
+        );
       }
     } catch (error) {
-      console.error("Error applying update:", error);
-      toast.error("Failed to update document", {
-        description: "There was an error updating the document. Please try again."
+      console.error(`Error applying update to ${documentId}:`, error);
+      toast.error("Failed to apply update", {
+        description: `Could not update ${documentId}. Please try again.`
       });
     } finally {
       setIsApplyingUpdate(false);
@@ -112,73 +72,73 @@ export const ComplianceProvider: React.FC<ComplianceProviderProps> = ({ children
   };
 
   const applyAllUpdates = async () => {
-    setIsApplyingUpdate(true);
+    if (pendingUpdates.length === 0) return;
+    
     try {
-      const promises = pendingUpdates.map(docId => applyDocumentUpdate(docId));
-      await Promise.all(promises);
+      setIsApplyingUpdate(true);
       
+      for (const documentId of pendingUpdates) {
+        await applyDocumentUpdate(documentId);
+      }
+      
+      // Log the bulk update
+      logComplianceChange(
+        'user',
+        `Applied updates to ${pendingUpdates.length} documents`,
+        { documentCount: pendingUpdates.length, documentIds: pendingUpdates }
+      );
+      
+      // Clear all pending updates
       setPendingUpdates([]);
-      toast.success("All documents updated successfully", {
-        description: "All compliance documents have been updated to their latest versions."
-      });
+      
+      toast.success(`Updated ${pendingUpdates.length} documents successfully`);
     } catch (error) {
       console.error("Error applying all updates:", error);
-      toast.error("Failed to update all documents", {
-        description: "There was an error updating some documents. Please try again."
+      toast.error("Failed to apply all updates", {
+        description: "Some documents could not be updated. Please try again."
       });
     } finally {
       setIsApplyingUpdate(false);
     }
   };
 
-  const setAutoUpdate = async (documentId: string, enabled: boolean) => {
+  const scheduleComplianceCheck = async (intervalDays = 5) => {
     try {
-      await enableAutoUpdatesForDocument(documentId, enabled);
-      return;
-    } catch (error) {
-      console.error("Error setting auto-update:", error);
-      toast.error("Failed to update setting", {
-        description: `Could not ${enabled ? 'enable' : 'disable'} auto-updates for this document.`
-      });
-    }
-  };
-  
-  const scheduleComplianceCheck = async (intervalDays: number) => {
-    try {
-      await scheduleRegularComplianceCheck(intervalDays, (updatedDocs) => {
-        if (updatedDocs.length > 0) {
-          setPendingUpdates(prev => [...new Set([...prev, ...updatedDocs])]);
-          toast.info(`Updates available for ${updatedDocs.length} document(s)`, {
-            description: "New regulatory updates are available for some compliance documents."
-          });
-        }
-      });
-      toast.success("Compliance check scheduled", {
-        description: `Automatic checks will run every ${intervalDays} days.`
-      });
+      await scheduleRegularComplianceCheck(intervalDays, handleUpdateAvailable);
     } catch (error) {
       console.error("Error scheduling compliance check:", error);
-      toast.error("Failed to schedule compliance check", {
-        description: "There was an error scheduling automatic compliance checks."
-      });
+      // We don't show a toast here as it's a background operation
     }
   };
 
-  const value = {
-    pendingUpdates,
-    isCheckingUpdates,
-    isApplyingUpdate,
-    lastChecked,
-    checkForUpdates,
-    applyUpdate,
-    applyAllUpdates,
-    setAutoUpdate,
-    scheduleComplianceCheck
+  const enableAutoUpdates = async (documentId: string, enabled: boolean) => {
+    try {
+      return await enableAutoUpdatesForDocument(documentId, enabled);
+    } catch (error) {
+      console.error("Error enabling auto updates:", error);
+      toast.error("Failed to update auto-update settings");
+      return false;
+    }
   };
 
   return (
-    <ComplianceContext.Provider value={value}>
+    <ComplianceContext.Provider value={{
+      pendingUpdates,
+      isApplyingUpdate,
+      applyUpdate,
+      applyAllUpdates,
+      scheduleComplianceCheck,
+      enableAutoUpdates,
+    }}>
       {children}
     </ComplianceContext.Provider>
   );
-};
+}
+
+export function useCompliance() {
+  const context = useContext(ComplianceContext);
+  if (context === undefined) {
+    throw new Error('useCompliance must be used within a ComplianceProvider');
+  }
+  return context;
+}
