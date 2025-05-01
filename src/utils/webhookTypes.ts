@@ -9,9 +9,9 @@ export type BusinessEventType =
   | 'strategy_approved'
   | 'lead_added'
   | 'campaign_launched'
-  | 'shopify_order_placed'
-  | 'new_client_signed'
   | 'revenue_milestone_reached'
+  | 'new_client_signed'
+  | 'shopify_order_placed'
   | 'test_webhook';
 
 export interface BusinessEventPayload {
@@ -30,7 +30,7 @@ export interface WebhookResult {
   statusCode?: number;
   responseData?: any;
   duration?: number;
-  error?: Error;
+  error?: Error | string;
 }
 
 // Retry options for webhook execution
@@ -58,4 +58,32 @@ export interface WebhookEvent {
   errorMessage?: string;
   responseCode?: number;
   retryCount?: number;
+}
+
+// Add these additional types for the components that need them
+export interface StrategyApprovalPayload {
+  entityId: string;
+  entityType: string;
+  strategyName: string;
+  companyId: string;
+  botName: string;
+  suggestedBy: string;
+  riskLevel: string;
+  timestamp: string;
+}
+
+export interface LeadPayload {
+  company: string;
+  leadName: string;
+  source: string;
+  leadId: string;
+  email: string;
+}
+
+export interface CampaignPayload {
+  name: string;
+  type: string;
+  campaignId: string;
+  startDate: string;
+  budget: number;
 }

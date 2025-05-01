@@ -1,38 +1,52 @@
 
-export type SocialPlatform = 'Facebook' | 'Twitter' | 'Instagram' | 'LinkedIn';
+// Social media post types
 
-export type PostContentType = 'text' | 'image' | 'video' | 'link';
+export type SocialPlatform = 'LinkedIn' | 'Facebook' | 'Instagram' | 'TikTok' | 'Twitter';
 
-export type PostStatus = 'Draft' | 'Scheduled' | 'Published' | 'Failed' | 'Approved';
+export type PostStatus = 'Draft' | 'Scheduled' | 'Pending Approval' | 'Published' | 'Failed';
+
+export type ContentType = 'text' | 'image' | 'video' | 'link' | 'carousel' | 'poll';
 
 export interface SocialMediaPost {
-  id: string;
+  id?: string;
   title: string;
   content: string;
   platform: SocialPlatform;
-  content_type: PostContentType;
   scheduled_date: string;
-  publish_time?: string;
-  status: PostStatus;
-  is_approved: boolean;
+  publish_time: string;
+  content_type: ContentType;
   media_urls?: string[];
   link_url?: string;
   campaign_id?: string;
   tags?: string[];
-  created_at: string;
-  updated_at: string;
-  company_id: string;
+  status?: PostStatus;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export interface NewSocialMediaPost {
-  title: string;
-  content: string;
-  platform: SocialPlatform;
-  content_type: PostContentType;
-  scheduled_date: string;
-  publish_time?: string;
-  media_urls?: string[];
-  link_url?: string;
-  campaign_id?: string;
-  tags?: string[];
+export interface EngagementMetrics {
+  likes: number;
+  comments: number;
+  shares: number;
+  clicks?: number;
+  impressions?: number;
+}
+
+export interface CalendarViewProps {
+  posts: SocialMediaPost[];
+  currentMonth: Date;
+  onEditPost: (post: SocialMediaPost) => void;
+  onDeletePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
+  onSchedulePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
+  onApprovePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
+  onCreatePost: () => void;
+}
+
+export interface ListViewProps {
+  posts: SocialMediaPost[];
+  onEditPost: (post: SocialMediaPost) => void;
+  onDeletePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
+  onSchedulePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
+  onApprovePost: (postId: string) => Promise<{ success: boolean, error?: string }>;
+  onCreatePost: () => void;
 }

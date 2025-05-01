@@ -5,13 +5,7 @@
  */
 
 import { useState } from 'react';
-
-export type BusinessEventType = 
-  | 'strategy_approved' 
-  | 'lead_added'
-  | 'campaign_launched'
-  | 'revenue_milestone'
-  | 'test_webhook';
+import { BusinessEventType, WebhookResult } from '@/utils/webhookTypes';
 
 export interface BusinessEventPayload {
   eventType: BusinessEventType;
@@ -24,11 +18,6 @@ interface ZapierState {
   isLoading: boolean;
   lastTriggered: Date | null;
   error: string | null;
-}
-
-export interface ZapierResult {
-  success: boolean;
-  message?: string;
 }
 
 /**
@@ -53,7 +42,7 @@ export function useZapier() {
   /**
    * Trigger a webhook with the specified event type and data
    */
-  const triggerWebhook = async (eventType: BusinessEventType, data: Record<string, any>): Promise<ZapierResult> => {
+  const triggerWebhook = async (eventType: BusinessEventType, data: Record<string, any>): Promise<WebhookResult> => {
     if (!state.webhookUrl) {
       setState(prev => ({ ...prev, error: 'No webhook URL configured' }));
       return { success: false, message: 'No webhook URL configured' };
@@ -94,19 +83,14 @@ export function useZapier() {
         error: errorMessage
       }));
       
-      return { success: false, message: errorMessage };
+      return { success: false, message: errorMessage, error };
     }
   };
-
-  /**
-   * Legacy function alias for triggerWebhook for backward compatibility
-   */
-  const triggerWorkflow = triggerWebhook;
   
   /**
    * For compatibility with external modules
    */
-  const triggerBusinessEvent = async (eventType: BusinessEventType, data: Record<string, any>): Promise<ZapierResult> => {
+  const triggerBusinessEvent = async (eventType: BusinessEventType, data: Record<string, any>): Promise<WebhookResult> => {
     return triggerWebhook(eventType, data);
   };
 
@@ -117,7 +101,6 @@ export function useZapier() {
     error: state.error,
     updateWebhookUrl,
     triggerWebhook,
-    triggerWorkflow,
     triggerBusinessEvent
   };
 }
@@ -128,7 +111,7 @@ export function useZapier() {
 export const triggerBusinessEvent = async (
   eventType: BusinessEventType,
   data: Record<string, any>
-): Promise<ZapierResult> => {
+): Promise<WebhookResult> => {
   try {
     const webhookUrl = localStorage.getItem('zapier_webhook_url');
     if (!webhookUrl) {
@@ -155,7 +138,8 @@ export const triggerBusinessEvent = async (
     console.error('Error triggering business event:', error);
     return { 
       success: false, 
-      message: error instanceof Error ? error.message : 'Unknown error' 
+      message: error instanceof Error ? error.message : 'Unknown error',
+      error
     };
   }
 };

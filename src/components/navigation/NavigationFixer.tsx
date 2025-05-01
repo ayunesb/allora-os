@@ -10,14 +10,15 @@ import { useAuth } from '@/hooks/useAuth';
  */
 const NavigationFixer: React.FC = () => {
   const location = useLocation();
-  const auth = useAuth(); // This now uses the hook from hooks/useAuth.tsx which has fallback values
+  // Use optional chaining to prevent errors if auth context is not available
+  const auth = useAuth();
 
   useEffect(() => {
     try {
       // Check if we need to redirect the user based on their authentication state
       const currentPath = location.pathname;
       
-      if (auth.user) {
+      if (auth?.user) {
         // User is authenticated, handle any redirects if needed
         console.log('User is authenticated, current path:', currentPath);
       } else {
@@ -27,7 +28,7 @@ const NavigationFixer: React.FC = () => {
     } catch (error) {
       console.error('Error in NavigationFixer:', error);
     }
-  }, [location.pathname, auth.user]);
+  }, [location.pathname, auth?.user]);
 
   // This component doesn't render anything
   return null;

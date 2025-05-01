@@ -1,14 +1,14 @@
 
 import React, { Suspense, lazy } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, AlertCircle, RefreshCw } from "lucide-react";
 import { SocialMediaPost, PostStatus } from '@/types/socialMedia';
 
 // Lazy load the calendar and list views for better performance
-const CalendarView = lazy(() => import('./calendar/CalendarView'));
-const ListView = lazy(() => import('./list/ListView'));
+const CalendarView = lazy(() => import('./calendar'));
+const ListView = lazy(() => import('./list'));
 
 // Create a utility function to ensure a post has a status
 function ensurePostStatus(post: SocialMediaPost): SocialMediaPost & { status: PostStatus } {

@@ -13,9 +13,10 @@ export interface ValidationResultItemProps {
   name: string;
   result: ValidationResult;
   icon?: React.ReactNode;
+  status?: 'success' | 'warning' | 'error'; // Add status property
 }
 
-export function ValidationResultItem({ name, result, icon }: ValidationResultItemProps) {
+export function ValidationResultItem({ name, result, icon, status }: ValidationResultItemProps) {
   const { valid, message } = result;
   
   const StatusIcon = () => {
@@ -24,6 +25,11 @@ export function ValidationResultItem({ name, result, icon }: ValidationResultIte
     }
     return <XCircle className="h-5 w-5 text-red-500" />;
   };
+
+  // Determine badge variant based on status or valid state
+  const badgeVariant = status === 'warning' ? 'outline' : 
+                      status === 'error' || !valid ? 'destructive' : 
+                      'success';
 
   return (
     <Card className={valid ? "border-green-200 bg-green-50/30" : "border-red-200 bg-red-50/30"}>
@@ -37,7 +43,7 @@ export function ValidationResultItem({ name, result, icon }: ValidationResultIte
             <p className="text-xs text-muted-foreground">{message}</p>
           </div>
         </div>
-        <Badge variant={valid ? "success" : "destructive"}>
+        <Badge variant={badgeVariant as any}>
           {valid ? "Passed" : "Failed"}
         </Badge>
       </CardContent>

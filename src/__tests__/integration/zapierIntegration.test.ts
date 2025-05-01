@@ -1,8 +1,17 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { onStrategyApproved, onNewLeadAdded, onCampaignLaunched, StrategyApprovalPayload, LeadPayload, CampaignPayload } from '@/utils/zapierEventTriggers';
+import { 
+  onStrategyApproved, 
+  onNewLeadAdded, 
+  onCampaignLaunched 
+} from '@/utils/zapierEventTriggers';
 import { triggerBusinessEvent } from '@/lib/zapier';
 import { logAuditEvent } from '@/utils/auditLogger';
+import { 
+  StrategyApprovalPayload, 
+  LeadPayload, 
+  CampaignPayload 
+} from '@/utils/webhookTypes';
 
 // Mock dependencies
 vi.mock('@/lib/zapier', () => ({

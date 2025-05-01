@@ -6,7 +6,16 @@ import { MessageSquare, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
-import { type ExecutiveMessage } from '@/agents/meshNetwork';
+
+// Define the ExecutiveMessage type since it's not exported from meshNetwork
+interface ExecutiveMessage {
+  id: string;
+  from_executive: string;
+  to_executive: string;
+  message_content: string;
+  status: string;
+  created_at?: string;
+}
 
 export function RecentExecutiveMessages() {
   const [messages, setMessages] = useState<ExecutiveMessage[]>([]);
