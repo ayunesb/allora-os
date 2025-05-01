@@ -33,6 +33,7 @@ export interface DatabaseTableStatus {
     update: boolean;
     delete: boolean;
   };
+  rls?: boolean;
 }
 
 export interface VerificationActionsProps {

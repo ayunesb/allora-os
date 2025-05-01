@@ -3,6 +3,7 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { User } from '@/types/fixed/User';
 
 type AdminOnlyProps = {
   children: React.ReactNode;

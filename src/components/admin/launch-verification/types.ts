@@ -1,52 +1,24 @@
 
-export interface LaunchInfoProps {
-  title: string;
-  description: string;
-  status?: 'info' | 'success' | 'warning' | 'error';
-  children?: React.ReactNode;
+import { ChecklistItem, ChecklistCategory, DatabaseTableStatus } from '@/types/fixed/LaunchChecklist';
+
+// Re-export for local use
+export type { ChecklistItem, ChecklistCategory, DatabaseTableStatus };
+
+export interface LaunchProgressProps {
+  percentComplete: number;
+  status: 'pending' | 'in-progress' | 'completed' | 'error';
+}
+
+export interface EnhancedVerificationState {
+  databaseChecked: boolean;
+  tablesStatus: Record<string, boolean>;
+  functionsStatus: Record<string, boolean>;
+  policiesStatus: Record<string, boolean>;
+  indexesStatus: Record<string, boolean>;
 }
 
 export interface ValidationResultItemProps {
-  id: string;
-  title: string;
-  result: {
-    valid: boolean;
-    message: string;
-    details?: Record<string, any>;
-  };
-}
-
-export interface DatabaseTableStatus {
-  name: string;
-  exists: boolean;
-  columns?: string[];
-  permissions?: {
-    select: boolean;
-    insert: boolean;
-    update: boolean;
-    delete: boolean;
-  };
-}
-
-export interface VerificationActionsProps {
-  isChecking: boolean;
-  isAddingDemo: boolean;
-  isVerifyingTables: boolean;
-  isCheckingIndexes: boolean;
-  isVerifyingRLS: boolean;
-  isVerifyingFunctions: boolean;
-  onRunChecks: () => Promise<void>;
-  onAddDemoData: () => Promise<void>;
-  onFixPermissions: () => Promise<void>;
-  onGenerateSQL: () => Promise<void>;
-  onCreateMissingTables: () => Promise<void>;
-  hasResults: boolean;
-}
-
-export interface ValidationResultsUI {
-  databaseTables: Record<string, DatabaseTableStatus>;
-  databaseIndexes?: any[];
-  databaseFunctions?: any[];
-  rlsPolicies?: any[];
-  policies?: any[];
+  result: any;
+  valid: boolean;
+  message: string;
 }

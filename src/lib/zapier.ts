@@ -1,11 +1,11 @@
 
-import { WebhookType, BusinessEventType } from '@/types/fixed/Webhook';
+import { WebhookType, BusinessEventType, WebhookResult } from '@/types/fixed/Webhook';
 
 export const triggerBusinessEvent = (
   webhookUrl: string,
   eventType: BusinessEventType,
   data: Record<string, any>
-): Promise<boolean> => {
+): Promise<WebhookResult> => {
   return new Promise((resolve, reject) => {
     fetch(webhookUrl, {
       method: 'POST',
@@ -21,17 +21,25 @@ export const triggerBusinessEvent = (
     })
       .then(() => {
         // With no-cors, we don't get a useful response, so we assume success
-        resolve(true);
+        resolve({ 
+          success: true,
+          message: "Webhook triggered successfully"
+        });
       })
       .catch((error) => {
         console.error('Error triggering webhook:', error);
-        reject(error);
+        resolve({ 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Unknown error',
+          error
+        });
       });
   });
 };
 
 export const useZapier = () => {
   return {
+    triggerBusinessEvent,
     triggerWorkflow: (webhookUrl: string, data: Record<string, any>) => {
       return triggerBusinessEvent(webhookUrl, 'test_webhook', data);
     },
