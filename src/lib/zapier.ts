@@ -50,6 +50,26 @@ export const triggerWorkflow = async (
   }
 };
 
+// Function to trigger a business event
+export const triggerBusinessEvent = async (
+  webhookUrl: string,
+  eventType: BusinessEventType | string,
+  data: Record<string, any>
+): Promise<WebhookResult> => {
+  return triggerWorkflow(webhookUrl as string, eventType as BusinessEventType, data);
+};
+
+// Hook for using Zapier within components
+export const useZapier = () => {
+  return {
+    triggerWorkflow,
+    triggerBusinessEvent,
+    triggerCampaignCreated: (webhookUrl: string, data: Record<string, any>) => 
+      triggerBusinessEvent(webhookUrl, 'campaign_created', data),
+    triggerLeadConverted: (webhookUrl: string, data: Record<string, any>) => 
+      triggerBusinessEvent(webhookUrl, 'lead_converted', data)
+  };
+};
+
 // Re-export types
 export type { BusinessEventType, BusinessEventPayload };
-

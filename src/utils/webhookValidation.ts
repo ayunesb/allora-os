@@ -2,7 +2,7 @@
 import { WebhookType, BusinessEventType, BusinessEventPayload, WebhookResult } from '@/types';
 
 // Validate and sanitize webhook URLs
-export const sanitizeWebhookUrl = (url: string): string => {
+export const sanitizeWebhookUrl = (url: string, type: WebhookType = 'custom'): string => {
   if (!url) return '';
   
   // Ensure URL has protocol
@@ -15,6 +15,33 @@ export const sanitizeWebhookUrl = (url: string): string => {
     return parsedUrl.toString();
   } catch (e) {
     return '';
+  }
+};
+
+// Validate webhook URL format
+export const validateWebhookUrlFormat = (url: string, type: WebhookType): boolean => {
+  if (!url) return false;
+  
+  try {
+    const parsedUrl = new URL(url);
+    
+    // Type-specific validation
+    switch (type) {
+      case 'zapier':
+        return parsedUrl.hostname.includes('hooks.zapier.com');
+      case 'stripe':
+        return true; // No specific format requirements for Stripe
+      case 'slack':
+        return parsedUrl.hostname.includes('hooks.slack.com');
+      case 'github':
+        return parsedUrl.hostname.includes('api.github.com');
+      case 'custom':
+        return true; // Custom URLs can be any valid URL
+      default:
+        return true;
+    }
+  } catch (e) {
+    return false;
   }
 };
 

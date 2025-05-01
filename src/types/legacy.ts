@@ -13,7 +13,11 @@ import {
   AgentOptions,
   AgentRunOptions,
   AccessibilityContextType,
-  ValidationResultsUI
+  ValidationResultsUI,
+  ChecklistItem,
+  ChecklistCategory,
+  EnhancedVerificationState,
+  DatabaseTableStatus,
 } from './index';
 
 export type {
@@ -28,5 +32,9 @@ export type {
   AgentOptions,
   AgentRunOptions,
   AccessibilityContextType,
-  ValidationResultsUI
+  ValidationResultsUI,
+  ChecklistItem,
+  ChecklistCategory,
+  EnhancedVerificationState,
+  DatabaseTableStatus,
 };

@@ -11,6 +11,7 @@ export interface ExecutiveAgentProfile {
 export interface AgentOptions {
   saveToDatabase?: boolean;
   includeRiskAssessment?: boolean;
+  marketConditions?: string;
 }
 
 export interface AgentRunOptions {

@@ -4,7 +4,7 @@
  */
 import { runExecutiveAgent } from './executiveAgent';
 import { executiveProfiles } from './agentProfiles';
-import { ExecutiveAgentProfile, AgentRunOptions } from '@/types';
+import { ExecutiveAgentProfile, AgentOptions } from '@/types';
 
 /**
  * Run a test of the executive agent system
@@ -33,7 +33,7 @@ export async function testExecutiveAgent() {
       {
         includeRiskAssessment: true,
         marketConditions: "The market is increasingly competitive with several AI solutions emerging in the SMB space."
-      } as AgentRunOptions
+      } as AgentOptions
     );
     
     console.log('EXECUTIVE DECISION:');
