@@ -147,3 +147,27 @@ function checkNavigation(): boolean {
   // Check for proper routing and navigation
   return true;
 }
+
+/**
+ * Main export for production readiness validation
+ */
+export async function validateProductionReadiness() {
+  const launchStatus = await validateLaunchReadiness();
+  
+  // Convert the validation result into the expected format for the pre-launch hook
+  const result = {
+    ready: launchStatus.valid,
+    issues: launchStatus.issues.map(issue => ({
+      type: 'error',
+      message: issue
+    })),
+    passedChecks: Object.entries(launchStatus.results)
+      .filter(([_, isValid]) => isValid === true)
+      .map(([key]) => ({
+        type: key,
+        message: `${key.charAt(0).toUpperCase() + key.slice(1)} check passed successfully`
+      }))
+  };
+  
+  return result;
+}

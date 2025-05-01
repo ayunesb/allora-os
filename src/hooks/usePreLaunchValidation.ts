@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { validateProductionReadiness } from '@/utils/productionReadiness';
+import { validateProductionReadiness } from '@/utils/launchValidator';
 
 type ValidationResult = {
   valid: boolean;

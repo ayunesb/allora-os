@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RunAuditStatus } from '@/components/admin/audit/RunAuditStatus';
 import { useNavigate } from 'react-router-dom';
 import { logAuditEvent } from '@/utils/auditLogger';
-import { validateProductionReadiness } from '@/utils/productionReadiness';
+import { validateProductionReadiness } from '@/utils/launchValidator';
 import { toast } from 'sonner';
 
 export default function RunAudit() {

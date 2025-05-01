@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { validateProductionReadiness } from '@/utils/productionReadiness';
+import { validateProductionReadiness } from '@/utils/launchValidator';
 import { toast } from 'sonner';
 
 export default function PreLaunchValidator() {
