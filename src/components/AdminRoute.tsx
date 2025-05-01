@@ -15,7 +15,7 @@ export interface AdminRouteProps {
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const auth = useAuth();
   const { profile, user } = auth;
-  const isLoading = auth.isLoading || false;
+  const isLoading = auth.loading || false;
   const location = useLocation();
   const [isVerifyingAdmin, setIsVerifyingAdmin] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);

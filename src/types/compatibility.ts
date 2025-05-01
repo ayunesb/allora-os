@@ -21,7 +21,7 @@ export type ChecklistItemStatus = 'pending' | 'error' | 'completed' | 'warning' 
 // Compatibility layer for webhook-related types
 export interface WebhookEvent extends FixedWebhookEvent {
   eventType: string; // Ensure eventType is always available
-  event_type?: string; // For backward compatibility
+  event_type: string; // For backward compatibility
 }
 
 export type WebhookType = FixedWebhookType;
@@ -79,6 +79,9 @@ export interface ExecutiveMessage {
   content: string;
   created_at: string;
   from_executive: boolean;
+  to_executive?: boolean;
+  message_content?: string;
+  status?: string;
   [key: string]: any;
 }
 

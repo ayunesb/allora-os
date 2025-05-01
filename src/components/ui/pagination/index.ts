@@ -1,11 +1,13 @@
 
-import Pagination from "./Pagination";
-import PaginationContent from "./PaginationContent";
-import PaginationEllipsis from "./PaginationEllipsis";
-import PaginationItem from "./PaginationItem";
-import PaginationLink from "./PaginationLink";
-import PaginationNext from "./PaginationNext";
-import PaginationPrevious from "./PaginationPrevious";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export {
   Pagination,
@@ -14,7 +16,8 @@ export {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious
+  PaginationPrevious,
 };
 
+// Export default for components that import Pagination directly
 export default Pagination;

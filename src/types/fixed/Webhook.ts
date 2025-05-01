@@ -30,7 +30,7 @@ export interface WebhookEvent {
   id: string;
   webhook_id: string;
   eventType: string;  // Primary event type identifier
-  event_type?: string; // Backward compatibility
+  event_type: string; // Backward compatibility
   status: 'success' | 'failed' | 'pending';
   created_at: string;
   payload: any;
