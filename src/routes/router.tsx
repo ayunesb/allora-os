@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, Outlet, Navigate, RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { adminRoutes } from "./admin-routes";

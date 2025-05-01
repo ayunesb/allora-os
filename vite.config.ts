@@ -17,6 +17,6 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 8080,
     host: '::',
-    allowedHosts: ['.lovableproject.com'], // ✅ ADD THIS LINE
+    allowedHosts: ['.lovableproject.com'], // This allows all .lovableproject.com subdomains
   },
 }));

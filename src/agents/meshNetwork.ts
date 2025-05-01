@@ -1,86 +1,52 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { ExecutiveMessage } from "@/types/agents";
 
-export interface ExecutiveMessage {
-  id: string;
-  from_executive: string;
-  to_executive: string;
-  message_content: string;
-  task_link?: string;
-  status: string;
-  created_at: string;
+// Format inbox messages for prompt
+export function formatInboxForPrompt(messages: ExecutiveMessage[]): string {
+  if (!messages || messages.length === 0) return "No unread messages in your inbox.";
+
+  return messages.map(msg => 
+    `Message from ${msg.from_executive}: ${msg.message_content}`
+  ).join('\n\n');
 }
 
-/**
- * Sends a message from one executive to another
- */
+// Send a message between executives
 export async function sendExecutiveMessage(
   fromExecutive: string,
   toExecutive: string,
-  messageContent: string,
-  taskLink: string = ""
-) {
-  const { data, error } = await supabase.from("executive_messages").insert([
-    {
-      from_executive: fromExecutive,
-      to_executive: toExecutive,
-      message_content: messageContent,
-      task_link: taskLink,
-      status: "unread",
-    },
-  ]);
-
-  if (error) {
-    console.error("Failed to send executive message:", error);
-    throw new Error(`Failed to send executive message: ${error.message}`);
+  message: string
+): Promise<void> {
+  try {
+    await supabase.from('executive_messages').insert([
+      {
+        from_executive: fromExecutive,
+        to_executive: toExecutive,
+        message_content: message,
+        status: 'unread'
+      }
+    ]);
+  } catch (error) {
+    console.error("Error sending executive message:", error);
+    throw error;
   }
-  
-  return data;
 }
 
-/**
- * Fetches unread messages for a specific executive
- */
-export async function fetchMessagesForExecutive(executiveName: string): Promise<ExecutiveMessage[]> {
-  const { data, error } = await supabase
-    .from("executive_messages")
-    .select("*")
-    .eq("to_executive", executiveName)
-    .eq("status", "unread")
-    .order("created_at", { ascending: true });
+// Fetch messages for an executive
+export async function fetchMessagesForExecutive(
+  executiveName: string
+): Promise<ExecutiveMessage[]> {
+  try {
+    const { data, error } = await supabase
+      .from('executive_messages')
+      .select('*')
+      .or(`from_executive.eq.${executiveName},to_executive.eq.${executiveName}`)
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error("Failed to fetch messages:", error);
+    if (error) throw error;
+    return data as ExecutiveMessage[];
+  } catch (error) {
+    console.error("Error fetching executive messages:", error);
     return [];
   }
-
-  return data || [];
-}
-
-/**
- * Mark messages as read for a specific executive
- */
-export async function markMessagesAsRead(executiveName: string) {
-  const { error } = await supabase
-    .from("executive_messages")
-    .update({ status: "read" })
-    .eq("to_executive", executiveName)
-    .eq("status", "unread");
-
-  if (error) {
-    console.error("Failed to mark messages as read:", error);
-  }
-}
-
-/**
- * Formats inbox messages for insertion into an AI prompt
- */
-export function formatInboxForPrompt(messages: ExecutiveMessage[]): string {
-  if (messages.length === 0) {
-    return "";
-  }
-
-  return messages
-    .map((msg) => `From ${msg.from_executive}: "${msg.message_content}"`)
-    .join("\n");
 }
