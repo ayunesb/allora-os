@@ -81,7 +81,7 @@ export interface LeadPayload {
 }
 
 // Webhook logic
-export type WebhookType = 'zapier' | 'custom' | 'stripe';
+export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack';
 export type BusinessEventType = 'new_lead' | 'campaign_created' | 'strategy_approved' | 'test_webhook';
 
 export interface BusinessEventPayload {
@@ -119,12 +119,13 @@ export interface ChecklistItem {
   name: string;
   description?: string;
   details?: string;
-  status: 'pending' | 'error' | 'completed';
+  status: 'pending' | 'error' | 'completed' | 'warning' | 'in-progress';
   statusMessage?: string;
   isRequired?: boolean;
 }
 
 export interface ChecklistCategory {
+  id: string;
   name: string;
   description?: string;
   items: ChecklistItem[];
