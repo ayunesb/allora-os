@@ -32,7 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <GlobalErrorBoundary>
       <HelmetProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="allora-ui-theme">
+        <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
           <AccessibilityProvider>
             <QueryClientProvider client={queryClient}>
               <RouterProvider router={router} />

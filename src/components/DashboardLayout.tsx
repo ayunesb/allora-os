@@ -1,11 +1,12 @@
 
 import React, { Suspense, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import SkipToContent from '@/components/accessibility/SkipToContent';
 import AccessibilityAnnouncer from '@/components/accessibility/AccessibilityAnnouncer';
 import { useAccessibility } from '@/context/AccessibilityContext';
-import { applyAccessibilityClasses } from '@/utils/accessibilityHelpers';
+import { useTheme } from '@/context/ThemeContext';
+import { LayoutDashboard, FileText, Graduation, ShoppingBag, Settings } from 'lucide-react';
 
 // Loading spinner for lazy-loaded dashboard components
 const DashboardLoadingSpinner = () => (
@@ -15,19 +16,28 @@ const DashboardLoadingSpinner = () => (
   </div>
 );
 
+// Sidebar navigation items
+const navItems = [
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { icon: FileText, label: "Strategies", path: "/dashboard/strategies" },
+  { icon: Graduation, label: "Academy", path: "/academy" },
+  { icon: ShoppingBag, label: "Shop", path: "/shop" },
+  { icon: Settings, label: "Settings", path: "/settings" },
+];
+
 export default function DashboardLayout() {
-  const { preferences } = useAccessibility();
+  const { preferences, applyAccessibilityClasses } = useAccessibility();
   
   // Apply accessibility classes when the layout mounts
   useEffect(() => {
-    applyAccessibilityClasses(preferences);
+    applyAccessibilityClasses();
     
     // Add a "main-content" id to the main element if it doesn't have one
     const mainElement = document.querySelector('main');
     if (mainElement && !mainElement.id) {
       mainElement.id = 'main-content';
     }
-  }, [preferences]);
+  }, [preferences, applyAccessibilityClasses]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -37,15 +47,34 @@ export default function DashboardLayout() {
       {/* Screen reader announcements */}
       <AccessibilityAnnouncer />
       
-      {/* Navigation bar */}
+      {/* Navigation bar (could be kept minimal since we have sidebar) */}
       <Navbar />
       
-      {/* Main content area */}
-      <main id="main-content" className="flex-1" role="main">
-        <Suspense fallback={<DashboardLoadingSpinner />}>
-          <Outlet />
-        </Suspense>
-      </main>
+      {/* Main content area with sidebar */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-[16rem_1fr] min-h-[calc(100vh-4rem)]">
+        {/* Sidebar */}
+        <nav className="hidden md:block w-64 bg-white/5 p-4 border-r border-white/10">
+          <div className="space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/10"
+              >
+                <item.icon className="h-5 w-5" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </nav>
+        
+        {/* Main content */}
+        <main id="main-content" className="p-6" role="main">
+          <Suspense fallback={<DashboardLoadingSpinner />}>
+            <Outlet />
+          </Suspense>
+        </main>
+      </div>
     </div>
   );
 }
