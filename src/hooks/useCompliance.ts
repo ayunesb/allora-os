@@ -1,6 +1,6 @@
 
 import { useContext } from 'react';
-import { ComplianceContext, ComplianceContextType } from '@/context/ComplianceContext';
+import { ComplianceContext } from '@/context/ComplianceContext';
 import { ExtendedComplianceContextType } from '@/types/unified-types';
 
 export const useCompliance = (): ExtendedComplianceContextType => {
@@ -21,7 +21,13 @@ export const useCompliance = (): ExtendedComplianceContextType => {
     isCheckingUpdates: context.isCheckingUpdates || false,
     lastChecked: context.lastChecked || null,
     autoUpdate: context.autoUpdate || false,
-    updatePreference: context.updatePreference || ((key: string, value: any) => console.warn('updatePreference not implemented', key, value))
+    updatePreference: context.updatePreference || ((key: string, value: any) => console.warn('updatePreference not implemented', key, value)),
+    pendingUpdates: [],
+    isApplyingUpdate: false,
+    applyUpdate: async () => {},
+    applyAllUpdates: async () => {},
+    scheduleComplianceCheck: async () => {},
+    enableAutoUpdates: async () => false
   };
 
   return extendedContext;

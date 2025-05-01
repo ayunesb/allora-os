@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { SocialMediaPost } from '@/types/socialMedia';
+import { SocialMediaPost } from '@/types/unified-types';
 import { Card, CardContent } from '@/components/ui/card';
 import { MoreHorizontal, Calendar, CheckCircle } from 'lucide-react';
 import {
@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useAccessibility } from '@/context/AccessibilityContext';
+import { useAccessibility } from '@/hooks/useAccessibility';
 
 interface SocialMediaPostListProps {
   posts: SocialMediaPost[];
@@ -49,10 +49,9 @@ export default function SocialMediaPostList({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Draft': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'Scheduled': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Published': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Approved': return 'bg-green-100 text-green-800 border-green-200';
+      case 'draft': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'scheduled': return 'bg-green-100 text-green-800 border-green-200';
+      case 'published': return 'bg-blue-100 text-blue-800 border-blue-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -76,8 +75,8 @@ export default function SocialMediaPostList({
                   <Badge className={cn("font-normal", getPlatformColor(post.platform))}>
                     {post.platform}
                   </Badge>
-                  <Badge variant="outline" className={getStatusColor(post.status || 'Draft')}>
-                    {post.status || 'Draft'}
+                  <Badge variant="outline" className={getStatusColor(post.status)}>
+                    {post.status}
                   </Badge>
                   {post.is_approved && (
                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
@@ -98,13 +97,13 @@ export default function SocialMediaPostList({
                 <div className="flex items-center text-xs text-muted-foreground gap-2">
                   <Calendar className="h-3 w-3" />
                   <time dateTime={post.scheduled_date}>
-                    {format(parseISO(post.scheduled_date), 'MMM d, yyyy')} at {post.publish_time}
+                    {format(parseISO(post.scheduled_date!), 'MMM d, yyyy')}{post.publish_time ? ` at ${post.publish_time}` : ''}
                   </time>
                 </div>
               </div>
               
               <div className="flex items-center gap-2 self-end sm:self-auto mt-2 sm:mt-0">
-                {post.status === 'Draft' && !post.is_approved && (
+                {post.status === 'draft' && !post.is_approved && (
                   <Button 
                     size="sm" 
                     variant="outline"
@@ -115,7 +114,7 @@ export default function SocialMediaPostList({
                   </Button>
                 )}
                 
-                {post.status === 'Draft' && post.is_approved && (
+                {post.status === 'draft' && post.is_approved && (
                   <Button 
                     size="sm" 
                     onClick={() => onSchedulePost(post.id)}

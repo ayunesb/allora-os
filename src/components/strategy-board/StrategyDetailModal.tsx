@@ -106,7 +106,7 @@ const StrategyDetailModal: React.FC<StrategyDetailModalProps> = ({
           <TabsContent value="implementation">
             <StrategyImplementationTools 
               strategyId={strategy.id} 
-              strategyTitle={strategy.title} 
+              strategyName={strategy.title} 
             />
           </TabsContent>
         </Tabs>

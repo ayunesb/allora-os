@@ -39,8 +39,8 @@ export function StrategyImplementationTools({
           onTabChange={handleTabChange}
         />
         <ImplementationTabContent 
-          tab={activeTab} 
           strategyId={strategyId} 
+          activeTab={activeTab} 
         />
       </CardContent>
     </Card>
