@@ -2,7 +2,7 @@
 import { ArrowLeft, RefreshCcw, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Campaign } from '@/models/campaign';
+import { Campaign } from '@/types/fixed/Campaign';
 import { Facebook } from 'lucide-react';
 import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
@@ -29,12 +29,12 @@ export function CampaignDetailHeader({
     }
     
     if (campaign.deployment_status === 'ready') {
-      return <Badge variant="warning">Ready to Deploy</Badge>;
+      return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">Ready to Deploy</Badge>;
     }
     
     if (campaign.deployment_status === 'deployed') {
       if (campaign.platform_status === 'ACTIVE' || campaign.platform_status === 'CAMPAIGN_STATUS_ENABLE') {
-        return <Badge variant="success">Live</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">Live</Badge>;
       } else {
         return <Badge variant="secondary">{campaign.platform_status}</Badge>;
       }

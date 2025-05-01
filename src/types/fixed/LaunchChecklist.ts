@@ -1,19 +1,26 @@
 
+export interface ChecklistItem {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'pending' | 'error' | 'completed' | 'warning' | 'in-progress';
+  details?: string;
+  statusMessage?: string;
+  isRequired?: boolean;
+}
+
+export interface ChecklistCategory {
+  id: string;
+  name: string;
+  description?: string;
+  items: ChecklistItem[];
+}
+
 export interface LaunchInfoProps {
   title: string;
   description: string;
   status?: 'info' | 'success' | 'warning' | 'error';
   children?: React.ReactNode;
-}
-
-export interface ValidationResultItemProps {
-  id: string;
-  title: string;
-  result: {
-    valid: boolean;
-    message: string;
-    details?: Record<string, any>;
-  };
 }
 
 export interface DatabaseTableStatus {
@@ -41,12 +48,4 @@ export interface VerificationActionsProps {
   onGenerateSQL: () => Promise<void>;
   onCreateMissingTables: () => Promise<void>;
   hasResults: boolean;
-}
-
-export interface ValidationResultsUI {
-  databaseTables: Record<string, DatabaseTableStatus>;
-  databaseIndexes?: any[];
-  databaseFunctions?: any[];
-  rlsPolicies?: any[];
-  policies?: any[];
 }

@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Campaign } from '@/types/Campaign';
+import { Campaign } from '@/types/fixed/Campaign';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -55,4 +56,4 @@ export const CampaignList: React.FC<CampaignListProps> = ({ campaigns, isLoading
       ))}
     </div>
   );
-};
+}
