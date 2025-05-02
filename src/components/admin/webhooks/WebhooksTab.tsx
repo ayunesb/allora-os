@@ -154,9 +154,9 @@ export const WebhooksTab: React.FC<WebhooksTabProps> = ({ defaultTab = "config" 
       <TabsContent value="history" className="space-y-4 py-4">
         {webhookHistory && (
           <WebhookHistoryTab 
-            isLoading={webhookHistory.isLoading} 
             events={webhookHistory.events} 
             onRefresh={handleRefreshEvents} 
+            isLoading={webhookHistory.isLoading}
           />
         )}
       </TabsContent>

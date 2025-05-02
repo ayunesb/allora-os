@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TypographyH1, TypographyP } from "@/components/ui/typography";
@@ -8,8 +9,8 @@ export default function ComplianceIndex() {
   const compliance = useCompliance();
   
   const handleToggle = (policy: keyof DataPoliciesState) => {
-    if (compliance && typeof compliance.togglePolicy === 'function') {
-      compliance.togglePolicy(policy);
+    if (compliance && compliance.updatePreference) {
+      compliance.updatePreference(`policies.${policy}`, !compliance.policies?.[policy]);
     }
   };
   
@@ -33,7 +34,7 @@ export default function ComplianceIndex() {
           
           <div className="mt-4">
             <PolicyToggles 
-              policies={compliance?.policies}
+              policies={compliance?.policies || {}}
               onPolicyToggle={handleToggle}
             />
           </div>

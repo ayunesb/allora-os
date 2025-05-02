@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import { WebhookTestResult } from '@/types/fixed/Webhook';
+import { WebhookTestResult, BusinessEventType } from '@/types/fixed/Webhook';
 
 export const testZapierWebhook = async (webhookUrl: string): Promise<WebhookTestResult> => {
   try {
@@ -80,4 +80,11 @@ export const triggerZapierWebhook = async (webhookUrl: string, data: any = {}): 
       statusCode: 500
     };
   }
+};
+
+export const triggerBusinessEvent = async (webhookUrl: string, eventType: BusinessEventType, data: Record<string, any>): Promise<WebhookTestResult> => {
+  return triggerZapierWebhook(webhookUrl, {
+    eventType,
+    ...data,
+  });
 };

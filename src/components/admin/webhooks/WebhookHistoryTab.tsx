@@ -1,69 +1,53 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { useWebhookHistory } from './useWebhookHistory';
-import { Spinner } from '@/components/ui/spinner';
+import { WebhookEvent } from '@/types/fixed/Webhook';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
-const WebhookHistoryTab: React.FC = () => {
-  const {
-    events,
-    filteredEvents,
-    isLoading,
-    error,
-    searchTerm,
-    setSearchTerm,
-    statusFilter,
-    setStatusFilter,
-    typeFilter,
-    setTypeFilter,
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedEvents
-  } = useWebhookHistory();
+interface WebhookHistoryTabProps {
+  events: WebhookEvent[];
+  onRefresh: () => void;
+  isLoading: boolean;
+}
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-destructive p-4">
-        Error loading webhook history
-      </div>
-    );
-  }
-
+const WebhookHistoryTab: React.FC<WebhookHistoryTabProps> = ({ 
+  events, 
+  onRefresh,
+  isLoading
+}) => {
   return (
-    <CardContent>
-      <div className="mb-4">
-        <h3 className="text-lg font-medium">Webhook History</h3>
-        <p className="text-sm text-muted-foreground">
-          View and manage your webhook event history
-        </p>
-      </div>
-      
-      {events.length === 0 ? (
-        <div className="text-center p-8 border rounded-md bg-muted/30">
-          <p>No webhook events found</p>
-        </div>
-      ) : (
-        <div>
-          <div className="mb-4">
-            <p>Total events: {events.length}</p>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Webhook Event History</CardTitle>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={onRefresh}
+          disabled={isLoading}
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="text-center py-8">Loading webhook events...</div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No webhook events have been recorded yet.</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Events will appear here once webhooks are triggered.
+            </p>
           </div>
-          
-          {/* Event list would go here */}
-          <pre className="p-4 bg-muted rounded-md overflow-auto max-h-64">
-            {JSON.stringify(paginatedEvents, null, 2)}
-          </pre>
-        </div>
-      )}
-    </CardContent>
+        ) : (
+          <div className="space-y-4">
+            {/* Event list would go here */}
+            <p>Found {events.length} webhook events</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
