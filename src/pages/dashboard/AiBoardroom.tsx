@@ -1,42 +1,31 @@
 
-import React from "react";
-import { Helmet } from "react-helmet-async";
-import { PageTitle } from "@/components/ui/typography";
-import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
-import { Card, CardContent } from "@/components/ui/card";
+import React from 'react';
+import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
+import { Users } from 'lucide-react';
+import ExecutiveBoard from '@/components/ai/ExecutiveBoard';
+import { PageTitle } from '@/components/ui/page-title';
 
 export default function AiBoardroom() {
   return (
-    <>
-      <Helmet>
-        <title>AI Boardroom - Allora AI</title>
-      </Helmet>
+    <div>
+      <DashboardBreadcrumb
+        rootPath="/dashboard/ai-boardroom"
+        rootLabel="AI Boardroom"
+        rootIcon={<Users className="h-4 w-4" />}
+      />
       
-      <div className="container mx-auto px-4 py-6">
-        <DashboardBreadcrumb />
+      <PageTitle>AI Executive Board</PageTitle>
+      
+      <div className="space-y-6">
+        <div className="pb-3">
+          <p>
+            Meet your AI executive team. They will debate and make decisions about your
+            marketing strategies, budgets, and campaigns.
+          </p>
+        </div>
         
-        <PageTitle 
-          title="AI Executive Boardroom"
-          description="Strategic discussions and insights from your AI executive team"
-        />
-        
-        <Card className="shadow-md">
-          <CardContent className="p-6">
-            <div className="flex flex-col space-y-4">
-              <h2 className="text-xl font-semibold">Executive Discussions</h2>
-              <p className="text-muted-foreground">
-                Your AI executive team discusses business strategies and provides actionable insights based on your company data.
-              </p>
-              
-              <div className="bg-muted/50 p-4 rounded-md">
-                <p className="italic text-muted-foreground">
-                  Connect with your executive team to start receiving strategic insights and recommendations.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ExecutiveBoard />
       </div>
-    </>
+    </div>
   );
 }

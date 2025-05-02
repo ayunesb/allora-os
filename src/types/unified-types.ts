@@ -73,15 +73,18 @@ export interface UnifiedWebhookEvent {
   webhook_type?: WebhookType;
   webhookType?: WebhookType;
   type?: WebhookType;
-  timestamp?: string;
+  timestamp: string;
   source?: string;
   payload?: any;
   response?: any;
   duration?: number;
+  errorMessage?: string;
+  responseCode?: number;
 }
 
 // Company Profile Type
 export interface CompanyProfile {
+  company_name: string; // Changed from companyName to match server-side field
   company: string;
   industry: string;
   target_customer?: string;
@@ -123,33 +126,42 @@ export interface ExtendedAccessibilityContextType {
 
 // Add this for compliance context
 export interface ExtendedComplianceContextType {
-  isCompliantMode: boolean;
-  toggleCompliantMode: () => void;
-  hasAcknowledgedTerms: boolean;
-  acknowledgeTerms: () => void;
-  privacyLevel: string;
-  setPrivacyLevel: (level: string) => void;
-  dataRetentionDays: number;
-  setDataRetentionDays: (days: number) => void;
-  loadCompliance: () => void;
-  saveCompliance: () => void;
-  resetCompliance: () => void;
-  
-  // Properties used in ComplianceContext implementation
+  // Core Compliance Properties
   isLoaded: boolean;
   error: Error | null;
+  
+  // Auto-update functionality
   checkForUpdates: () => void;
   setAutoUpdate: (value: boolean) => void;
   isCheckingUpdates: boolean;
   lastChecked: string | null;
   autoUpdate: boolean;
   updatePreference: (key: string, value: any) => void;
+  
+  // Pending updates management
   pendingUpdates: string[];
   isApplyingUpdate: boolean;
   applyUpdate: (id: string) => Promise<void>;
   applyAllUpdates: () => Promise<void>;
   scheduleComplianceCheck: () => Promise<void>;
   enableAutoUpdates: () => Promise<boolean>;
+  
+  // Mode toggles and settings (for UI)
+  isCompliantMode: boolean;
+  toggleCompliantMode: () => void;
+  hasAcknowledgedTerms: boolean;
+  acknowledgeTerms: () => void;
+  
+  // Data retention settings
+  privacyLevel: string;
+  setPrivacyLevel: (level: string) => void;
+  dataRetentionDays: number;
+  setDataRetentionDays: (days: number) => void;
+  
+  // Document management
+  loadCompliance: () => void;
+  saveCompliance: () => void;
+  resetCompliance: () => void;
 }
 
 // Re-export key types

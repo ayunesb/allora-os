@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import WebhookEventTable from './WebhookEventTable';
 import WebhookEventFilters from './WebhookEventFilters';
 import EventDetailsModal from './EventDetailsModal';
-import { useWebhookHistoryFilters, FilterOptions } from './useWebhookHistoryFilters';
+import { useWebhookHistoryFilters } from '@/components/admin/webhooks/history/useWebhookHistoryFilters';
 import { UnifiedWebhookEvent } from '@/types/unified-types';
 
 interface WebhookEventHistoryData {
@@ -26,7 +26,7 @@ const WebhookHistoryContent: React.FC<WebhookEventHistoryData> = ({ events: init
   }, [filterEvents, initialEvents]);
   
   // Handle filter changes
-  const handleFilterChange = (newFilters: FilterOptions) => {
+  const handleFilterChange = (newFilters: any) => {
     setFilters(newFilters);
   };
   
@@ -56,11 +56,13 @@ const WebhookHistoryContent: React.FC<WebhookEventHistoryData> = ({ events: init
       />
       
       {/* Event Details Modal */}
-      <EventDetailsModal 
-        event={selectedEvent} 
-        isOpen={selectedEvent !== null} 
-        onClose={handleCloseEventDetail}
-      />
+      {selectedEvent && (
+        <EventDetailsModal 
+          event={selectedEvent} 
+          isOpen={selectedEvent !== null} 
+          onClose={handleCloseEventDetail}
+        />
+      )}
     </div>
   );
 };

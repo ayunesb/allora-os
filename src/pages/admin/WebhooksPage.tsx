@@ -3,11 +3,10 @@ import React from "react";
 import WebhookHistoryContent from '@/components/admin/webhooks/history/WebhookHistoryContent';
 import { WebhookEvent } from "@/types/fixed/Webhook";
 
-// Mock data for the webhook events
+// Mock data for the webhook events with complete type structure
 const mockEvents: WebhookEvent[] = [
   {
     id: "1",
-    webhook_type: "stripe",
     webhook_id: "wh_1",
     event_type: "payment.success",
     targetUrl: "https://api.example.com/webhooks/stripe",
@@ -16,10 +15,12 @@ const mockEvents: WebhookEvent[] = [
     created_at: new Date().toISOString(),
     payload: { data: "Sample payload" },
     response: { status: "200 OK" },
+    webhookType: "stripe",
+    webhook_type: "stripe",
+    timestamp: new Date().toISOString()
   },
   {
     id: "2",
-    webhook_type: "zapier",
     webhook_id: "wh_2",
     event_type: "lead.created",
     targetUrl: "https://hooks.zapier.com/123/abc",
@@ -27,11 +28,13 @@ const mockEvents: WebhookEvent[] = [
     status: "success",
     created_at: new Date().toISOString(),
     payload: { data: "Sample payload" },
-    response: { status: "200 OK" }, 
+    response: { status: "200 OK" },
+    webhookType: "zapier",
+    webhook_type: "zapier",
+    timestamp: new Date().toISOString()
   },
   {
     id: "3", 
-    webhook_type: "github",
     webhook_id: "wh_3",
     event_type: "push",
     targetUrl: "https://api.github.com/webhooks",
@@ -40,6 +43,9 @@ const mockEvents: WebhookEvent[] = [
     created_at: new Date().toISOString(),
     payload: { data: "Sample payload" },
     response: { status: "500 Error", error: "Server error" },
+    webhookType: "github",
+    webhook_type: "github",
+    timestamp: new Date().toISOString()
   }
 ];
 

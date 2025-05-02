@@ -5,20 +5,42 @@ import { ExtendedComplianceContextType } from '@/types/unified-types';
 
 // Create context with default values
 export const ComplianceContext = createContext<ExtendedComplianceContextType>({
+  // Core properties
   isLoaded: false,
   error: null,
+  
+  // Auto-update functionality
   checkForUpdates: () => {},
   setAutoUpdate: () => {},
   isCheckingUpdates: false,
   lastChecked: null,
   autoUpdate: false,
   updatePreference: () => {},
+  
+  // Pending updates management
   pendingUpdates: [],
   isApplyingUpdate: false,
   applyUpdate: async () => {},
   applyAllUpdates: async () => {},
   scheduleComplianceCheck: async () => {},
-  enableAutoUpdates: async () => false
+  enableAutoUpdates: async () => false,
+  
+  // Mode toggles and settings
+  isCompliantMode: false,
+  toggleCompliantMode: () => {},
+  hasAcknowledgedTerms: false,
+  acknowledgeTerms: () => {},
+  
+  // Data retention settings
+  privacyLevel: 'standard',
+  setPrivacyLevel: () => {},
+  dataRetentionDays: 90,
+  setDataRetentionDays: () => {},
+  
+  // Document management
+  loadCompliance: () => {},
+  saveCompliance: () => {},
+  resetCompliance: () => {}
 });
 
 export interface ComplianceProviderProps {
@@ -33,6 +55,12 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
   const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
   const [isApplyingUpdate, setIsApplyingUpdate] = useState<boolean>(false);
   const [autoUpdate, setAutoUpdateState] = useState<boolean>(false);
+  
+  // Mode toggles and settings
+  const [isCompliantMode, setIsCompliantMode] = useState<boolean>(false);
+  const [hasAcknowledgedTerms, setHasAcknowledgedTerms] = useState<boolean>(false);
+  const [privacyLevel, setPrivacyLevel] = useState<string>('standard');
+  const [dataRetentionDays, setDataRetentionDays] = useState<number>(90);
   
   // Check for updates
   const checkForUpdates = () => {
@@ -127,6 +155,37 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
     }
   };
   
+  // Toggle compliant mode
+  const toggleCompliantMode = () => {
+    setIsCompliantMode(prev => !prev);
+  };
+  
+  // Acknowledge terms
+  const acknowledgeTerms = () => {
+    setHasAcknowledgedTerms(true);
+  };
+  
+  // Load compliance data
+  const loadCompliance = () => {
+    // Implementation would load compliance settings from storage/API
+    toast.info('Compliance settings loaded');
+  };
+  
+  // Save compliance settings
+  const saveCompliance = () => {
+    // Implementation would save to storage/API
+    toast.success('Compliance settings saved');
+  };
+  
+  // Reset compliance settings
+  const resetCompliance = () => {
+    setIsCompliantMode(false);
+    setHasAcknowledgedTerms(false);
+    setPrivacyLevel('standard');
+    setDataRetentionDays(90);
+    toast.info('Compliance settings reset to defaults');
+  };
+  
   // On mount, simulate loading data
   React.useEffect(() => {
     const loadData = async () => {
@@ -145,20 +204,42 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
   return (
     <ComplianceContext.Provider
       value={{
+        // Core properties
         isLoaded,
         error,
+        
+        // Auto-update functionality
         checkForUpdates,
         setAutoUpdate,
         isCheckingUpdates,
         lastChecked,
         autoUpdate,
         updatePreference,
+        
+        // Pending updates management
         pendingUpdates,
         isApplyingUpdate,
         applyUpdate,
         applyAllUpdates,
         scheduleComplianceCheck,
-        enableAutoUpdates
+        enableAutoUpdates,
+        
+        // Mode toggles
+        isCompliantMode,
+        toggleCompliantMode,
+        hasAcknowledgedTerms,
+        acknowledgeTerms,
+        
+        // Data retention
+        privacyLevel,
+        setPrivacyLevel,
+        dataRetentionDays,
+        setDataRetentionDays,
+        
+        // Document management
+        loadCompliance,
+        saveCompliance,
+        resetCompliance
       }}
     >
       {children}

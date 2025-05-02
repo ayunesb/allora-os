@@ -26,7 +26,10 @@ export function validateWebhookUrlFormat(url: string, type?: WebhookType): boole
           return url.includes('api.github.com');
         case 'stripe':
           return url.includes('api.stripe.com');
-        // For other types, just validate it's a proper URL
+        case 'notion':
+          return url.includes('api.notion.com');
+        case 'custom':
+          return true; // For custom webhooks, we just ensure it's a valid URL with HTTPS
       }
     }
     

@@ -8,14 +8,15 @@ import { useSignupForm, SignupValues } from "@/hooks/useSignupForm";
 import PasswordInput from "./PasswordInput";
 import CompanyInfoFields from "./CompanyInfoFields";
 import { useState } from "react";
+import { User } from "@/types/fixed/User";
 
 interface SignupFormProps {
-  onSubmitSuccess: (user: any) => void;
+  onSubmitSuccess?: (user: User) => void;
 }
 
 export default function SignupForm({ onSubmitSuccess }: SignupFormProps) {
   const { form, isLoading, onSubmit, navigate, formError } = useSignupForm({ 
-    onSubmitSuccess
+    onSubmitSuccess 
   });
   const [showPasswordTips, setShowPasswordTips] = useState(false);
 

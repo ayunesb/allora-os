@@ -106,12 +106,9 @@ export default function ProtectedRoute({
     
     if (typeof auth.authError === 'string') {
       errorMessage = auth.authError;
-    } else if (auth.authError && typeof auth.authError === 'object') {
-      // Safely check for message property on object
-      const errorObj = auth.authError as {message?: string};
-      if (errorObj.message) {
-        errorMessage = errorObj.message;
-      }
+    } else if (auth.authError && typeof auth.authError === 'object' && 'message' in auth.authError) {
+      // Safely access message property on object
+      errorMessage = (auth.authError as {message: string}).message;
     }
     
     return <AuthErrorState 
@@ -142,7 +139,7 @@ export default function ProtectedRoute({
   // Handle admin access check
   if ((adminOnly || roleRequired === 'admin') && auth.hasInitialized) {
     const isAdmin = auth.profile?.role === 'admin' || 
-                  auth.user?.app_metadata?.is_admin;
+                  (auth.user?.app_metadata && auth.user.app_metadata.is_admin);
     
     if (!isAdmin) {
       logger.warn("Non-admin attempted to access admin area", { 

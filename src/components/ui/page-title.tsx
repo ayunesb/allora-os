@@ -6,7 +6,7 @@ export interface PageTitleProps {
   children: React.ReactNode;
   title?: string;
   className?: string;
-  description?: string; // Add support for description prop
+  description?: string; 
 }
 
 export function PageTitle({ 
