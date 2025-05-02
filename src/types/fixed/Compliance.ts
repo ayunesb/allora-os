@@ -26,4 +26,13 @@ export interface ExtendedComplianceContextType {
   loadCompliance?: () => void;
   saveCompliance?: () => void;
   resetCompliance?: () => void;
+  policies?: {
+    dataDeletion?: boolean;
+    dataMinimization?: boolean;
+    dataEncryption?: boolean;
+    dataRetention?: boolean;
+    ccpa?: boolean;
+    gdpr?: boolean;
+    [key: string]: boolean | undefined;
+  }
 }

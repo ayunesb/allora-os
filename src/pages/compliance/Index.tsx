@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TypographyH1, TypographyP } from "@/components/ui/typography";
 import PolicyToggles, { DataPoliciesState } from "@/components/compliance/data-policies/PolicyToggles";
 import { useCompliance } from "@/hooks/useCompliance";
+import { ExtendedComplianceContextType } from "@/types";
 
 export default function ComplianceIndex() {
-  const compliance = useCompliance();
+  const compliance = useCompliance() as ExtendedComplianceContextType;
   
   const handleToggle = (policy: keyof DataPoliciesState) => {
     if (compliance && compliance.updatePreference) {

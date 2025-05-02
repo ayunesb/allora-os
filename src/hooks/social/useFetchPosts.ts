@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { SocialMediaPost, SocialMediaCalendarFilters } from '@/types/socialMedia';
+import { SocialMediaPost, SocialMediaCalendarFilters } from '@/types';
 import { toast } from 'sonner';
 
 interface UseFetchPostsOptions {
@@ -46,13 +46,15 @@ const useFetchPosts = (options: UseFetchPostsOptions = {}) => {
         query = query.eq('campaign_id', activeFilters.campaign_id);
       }
 
-      if (activeFilters.search_query) {
-        query = query.or(`title.ilike.%${activeFilters.search_query}%,content.ilike.%${activeFilters.search_query}%`);
+      if (activeFilters.search_query || activeFilters.search) {
+        const searchTerm = activeFilters.search_query || activeFilters.search;
+        query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
       }
 
-      if (activeFilters.date_range && activeFilters.date_range[0] && activeFilters.date_range[1]) {
-        query = query.gte('scheduled_date', activeFilters.date_range[0].toISOString());
-        query = query.lte('scheduled_date', activeFilters.date_range[1].toISOString());
+      const dateRange = activeFilters.dateRange || activeFilters.date_range;
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        query = query.gte('scheduled_date', dateRange[0].toISOString());
+        query = query.lte('scheduled_date', dateRange[1].toISOString());
       }
 
       const { data, error } = await query.order('scheduled_date', { ascending: true });

@@ -7,7 +7,7 @@ import { Settings, Accessibility } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAccessibility } from '@/hooks/useAccessibility';
-import { ExtendedAccessibilityContextType } from '@/types/unified-types';
+import { ExtendedAccessibilityContextType } from '@/types';
 
 export function AccessibilityPanel() {
   const [open, setOpen] = useState(false);
@@ -21,12 +21,12 @@ export function AccessibilityPanel() {
     invertColors,
     fontSize = 16,
     setFontSize = () => {},
-    toggleScreenReaderFriendly = () => {}, // This was the issue - using toggleScreenReader
+    toggleScreenReaderFriendly = () => {}, 
     toggleHighContrast = () => {},
     toggleReducedMotion = () => {},
     toggleLargeText = () => {},
     toggleInvertColors = () => {},
-  } = useAccessibility();
+  } = useAccessibility() as ExtendedAccessibilityContextType;
 
   const handleFontSizeChange = (value: number[]) => {
     setFontSize(value[0]);

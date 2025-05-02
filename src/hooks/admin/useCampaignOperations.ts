@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
-import { Campaign, Platform, CampaignStatus } from '@/types/unified-types';
+import { Campaign, Platform, CampaignStatus } from '@/types';
 import { toast } from 'sonner';
 
 // Define the shape of campaign create/edit data
-export type CampaignCreate = {
+export interface CampaignFormData {
   name: string;
   platform: Platform;
   status: CampaignStatus;
@@ -15,7 +15,10 @@ export type CampaignCreate = {
   adCopy?: string;
   justification?: string;
   goal?: string;
-};
+  company_id?: string;
+}
+
+export type CampaignCreate = CampaignFormData;
 
 export function useCampaignOperations() {
   const [isCreating, setIsCreating] = useState(false);
@@ -31,8 +34,8 @@ export function useCampaignOperations() {
       const newCampaign: Campaign = {
         id: Date.now().toString(), // Generate a temporary id
         name: campaignData.name,
-        platform: campaignData.platform,
-        status: campaignData.status,
+        platform: campaignData.platform as Platform,
+        status: campaignData.status as CampaignStatus,
         budget: campaignData.budget,
         description: campaignData.description,
         audience: campaignData.audience,

@@ -1,56 +1,90 @@
 
-import React from 'react';
-import { PageTitle } from '@/components/ui/page-title';
-import ExecutiveBoard, { ExecutiveBoardMember } from '@/components/ExecutiveBoard';
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { AIExecutiveBoardroom } from '@/components/ai-boardroom/AIExecutiveBoardroom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Helmet } from 'react-helmet-async';
+import { CircleDollarSign, Users } from 'lucide-react';
+import { PageTitle } from '@/components/PageTitle';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-export default function AIBoardroom() {
-  const executives: ExecutiveBoardMember[] = [
-    {
-      id: "1",
-      name: "AI CEO",
-      role: "Chief Executive Officer",
-      avatar: "/assets/avatars/ai-ceo.png",
-      status: "active",
-      specialties: ["Strategy", "Leadership"],
-      lastActivity: "Today at 10:30 AM"
-    },
-    {
-      id: "2",
-      name: "AI CMO",
-      role: "Chief Marketing Officer",
-      avatar: "/assets/avatars/ai-cmo.png",
-      status: "active",
-      specialties: ["Marketing", "Brand Strategy"],
-      lastActivity: "Today at 9:45 AM"
-    },
-    {
-      id: "3",
-      name: "AI CFO",
-      role: "Chief Financial Officer",
-      avatar: "/assets/avatars/ai-cfo.png",
-      status: "learning",
-      specialties: ["Finance", "Budgeting"],
-      lastActivity: "Yesterday at 4:15 PM"
-    }
-  ];
-
-  const handleSelectExecutive = (executiveId: string) => {
-    console.log(`Selected executive: ${executiveId}`);
-  };
-
+export default function AIBoardroomPage() {
+  const [boardroomTopic, setBoardroomTopic] = useState("");
+  const [riskLevel, setRiskLevel] = useState("medium");
+  
   return (
-    <div className="container mx-auto px-4 py-6">
-      <PageTitle>AI Executive Boardroom</PageTitle>
-      <p className="text-muted-foreground mb-6">
-        Interact with AI executives to get strategic advice for your business
-      </p>
+    <div className="container mx-auto py-6 space-y-6">
+      <Helmet>
+        <title>AI Executive Boardroom | Allora AI</title>
+      </Helmet>
       
-      <div className="my-8">
-        <h2 className="text-xl font-semibold mb-4">Your AI Executive Team</h2>
-        <ExecutiveBoard 
-          executives={executives} 
-          onSelectExecutive={handleSelectExecutive}
-        />
+      <PageTitle 
+        title="AI Executive Boardroom"
+        description="Witness your AI executive team debate and make strategic decisions for your business"
+      >
+        <div className="flex items-center space-x-2">
+          <Users className="h-5 w-5 text-primary" />
+          <span className="font-medium">Executive Strategy Debate</span>
+        </div>
+      </PageTitle>
+      
+      <div className="grid grid-cols-1 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <Tabs defaultValue="debate" className="space-y-6">
+              <TabsList className="grid grid-cols-2">
+                <TabsTrigger value="debate">Executive Debate</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="debate" className="space-y-6">
+                <AIExecutiveBoardroom
+                  discussionTopic={boardroomTopic || "revenue growth strategy"}
+                  riskLevel={riskLevel}
+                />
+              </TabsContent>
+              
+              <TabsContent value="settings" className="space-y-6">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="topic">Discussion Topic</Label>
+                    <Input
+                      id="topic"
+                      placeholder="Enter a business topic for executive debate..."
+                      value={boardroomTopic}
+                      onChange={(e) => setBoardroomTopic(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="risk">Risk Appetite</Label>
+                    <Select
+                      value={riskLevel}
+                      onValueChange={setRiskLevel}
+                    >
+                      <SelectTrigger id="risk">
+                        <SelectValue placeholder="Select risk level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Conservative (Low Risk)</SelectItem>
+                        <SelectItem value="medium">Balanced (Medium Risk)</SelectItem>
+                        <SelectItem value="high">Aggressive (High Risk)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <Button className="mt-4">
+                    <CircleDollarSign className="mr-2 h-4 w-4" />
+                    Set Risk Strategy
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

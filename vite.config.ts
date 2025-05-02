@@ -16,6 +16,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // Force all types through unified-types
+      '@/types': path.resolve(__dirname, './src/types/unified-types'),
       // Add explicit alias for three to ensure consistent versioning
       'three': path.resolve(__dirname, './node_modules/three'),
     },

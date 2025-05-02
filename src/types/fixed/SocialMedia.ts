@@ -15,6 +15,9 @@ export interface SocialMediaPost {
   published_at?: string;
   content_type?: ContentType;
   tags?: string[];
+  media_urls?: string[];
+  link_url?: string;
+  created_at?: string;
 }
 
 export interface CreatePostInput {
@@ -34,4 +37,8 @@ export interface SocialMediaCalendarFilters {
   status?: PostStatus | 'all';
   dateRange?: [Date | null, Date | null];
   search?: string;
+  content_type?: ContentType | 'all';
+  campaign_id?: string;
+  search_query?: string;
+  date_range?: [Date | null, Date | null]; // Added for backward compatibility
 }

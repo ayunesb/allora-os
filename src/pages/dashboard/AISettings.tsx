@@ -1,45 +1,89 @@
 
 import React from 'react';
-import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
-import { Settings, Cpu } from 'lucide-react';
-import { PageTitle } from '@/components/ui/page-title';
-import AiBehaviorSettings from '@/components/ai/AiBehaviorSettings';
-import AiPreferencesForm from '@/components/ai/AiPreferencesForm';
-import SettingsSection from '@/components/ui/settings-section';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Helmet } from 'react-helmet-async';
+import { AIPreferencesForm } from '@/components/ai/AiPreferencesForm';
+import { AiBehaviorSettings } from '@/components/ai/AiBehaviorSettings';
+import { ModelPreferences } from '@/components/ai-settings/ModelPreferences';
+import { LearningSettings } from '@/components/ai-settings/LearningSettings';
+import { Settings, BookOpen } from 'lucide-react';
+import { PageTitle } from '@/components/PageTitle';
 
 export default function AISettings() {
   return (
-    <div>
-      <DashboardBreadcrumb
-        rootPath="/dashboard/ai-settings"
-        rootLabel="AI Settings"
-        rootIcon={<Cpu className="h-4 w-4" />}
-      />
+    <div className="container mx-auto py-6 space-y-6">
+      <Helmet>
+        <title>AI Settings | Allora AI</title>
+      </Helmet>
       
-      <PageTitle>
-        AI Settings
-        <span className="text-muted-foreground block text-base font-normal">
-          Customize how the executive AI team helps your business
-        </span>
+      <PageTitle 
+        title="AI Settings & Preferences"
+        description="Customize how the AI executive team behaves and makes decisions"
+      >
+        <div className="flex items-center space-x-2">
+          <Settings className="h-5 w-5 text-primary" />
+          <span>AI Control Center</span>
+        </div>
       </PageTitle>
       
-      <div className="space-y-10">
-        <SettingsSection 
-          title="AI Behavior Preferences"
-          description="Configure how the AI executives make decisions and interact with you"
-          icon={<Settings className="h-5 w-5" />}
-        >
-          <AiBehaviorSettings />
-        </SettingsSection>
-        
-        <SettingsSection
-          title="AI Strategy Preferences"
-          description="Set your preferences for marketing strategy creation"
-          icon={<Cpu className="h-5 w-5" />}
-        >
-          <AiPreferencesForm />
-        </SettingsSection>
-      </div>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>AI Executive Settings</CardTitle>
+          <CardDescription>
+            Configure how your AI executives analyze and generate business strategies
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="behavior" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+              <TabsTrigger value="behavior">Behavior</TabsTrigger>
+              <TabsTrigger value="preferences">Preferences</TabsTrigger>
+              <TabsTrigger value="models">AI Models</TabsTrigger>
+              <TabsTrigger value="learning">Learning</TabsTrigger>
+            </TabsList>
+            <TabsContent value="behavior" className="py-4">
+              <AiBehaviorSettings />
+            </TabsContent>
+            <TabsContent value="preferences" className="py-4">
+              <AIPreferencesForm />
+            </TabsContent>
+            <TabsContent value="models" className="py-4">
+              <ModelPreferences />
+            </TabsContent>
+            <TabsContent value="learning" className="py-4">
+              <LearningSettings />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            AI Learning Documentation
+          </CardTitle>
+          <CardDescription>
+            Learn more about how the AI executives learn and adapt to your business needs
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="prose">
+            <p>
+              Our AI executives continually learn from your feedback and interactions. The more you engage with them,
+              the better they'll understand your business needs and goals.
+            </p>
+            <h4>Key learning mechanisms:</h4>
+            <ul>
+              <li>Direct feedback on recommendations</li>
+              <li>Strategy implementation tracking</li>
+              <li>Business outcome correlation</li>
+              <li>Industry pattern recognition</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

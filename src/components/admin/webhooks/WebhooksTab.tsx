@@ -1,11 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import WebhookHeader from './webhooks/WebhookHeader';
-import { useWebhookHistory } from './webhooks/useWebhookHistory';
-import WebhookHistoryTab from './webhooks/WebhookHistoryTab';
-import WebhookConfigTab from './webhooks/config/WebhookConfigTab';
-import { WebhookType } from '@/types/unified-types';
+import WebhookHeader from '@/components/admin/webhooks/WebhookHeader';
+import { useWebhookHistory } from '@/hooks/useWebhookHistory';
+import WebhookHistoryTab from '@/components/admin/webhooks/WebhookHistoryTab';
+import WebhookConfigTab from '@/components/admin/webhooks/config/WebhookConfigTab';
+import { WebhookType } from '@/types';
 
 /**
  * Main component for managing webhooks in the admin section
@@ -93,30 +93,30 @@ export default function WebhooksTab() {
       <CardContent className="px-0 pb-0">
         {activeTab === 'config' ? (
           <WebhookConfigTab
-            stripeWebhook="whsec_1234567890"
-            stripeSecret="••••••••••••••••"
-            zapierWebhook="https://hooks.zapier.com/hooks/catch/123456/abcdef/"
-            githubWebhook="https://api.github.com/repos/username/repo/hooks"
+            stripeWebhookId="whsec_1234567890"
+            stripeEndpointSecret="••••••••••••••••"
+            zapierWebhookUrl="https://hooks.zapier.com/hooks/catch/123456/abcdef/"
+            githubWebhookUrl="https://api.github.com/repos/username/repo/hooks"
             githubSecret="••••••••••••••••"
-            slackWebhook="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
-            customWebhook=""
+            slackWebhookUrl="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+            customWebhookUrl=""
             stripeValid={webhookConfig.stripeConfigValid}
             zapierValid={webhookConfig.zapierConfigValid}
             githubValid={webhookConfig.githubConfigValid}
             slackValid={webhookConfig.slackConfigValid}
             customValid={webhookConfig.customConfigValid}
-            onSave={(type, data) => {
-              console.log(`Saved webhook config for ${type}`, data);
+            onSave={() => {
+              console.log(`Saved webhook config`);
               handleConfigUpdate();
             }}
-            onDelete={(type) => {
-              console.log(`Deleted webhook config for ${type}`);
+            onDelete={() => {
+              console.log(`Deleted webhook config`);
             }}
-            onTest={(type) => {
-              console.log(`Testing webhook for ${type}`);
+            onTest={() => {
+              console.log(`Testing webhook`);
             }}
-            onTypeChange={(type) => {
-              console.log(`Changed webhook type to ${type}`);
+            onTypeChange={() => {
+              // Handle type change
             }}
           />
         ) : (
