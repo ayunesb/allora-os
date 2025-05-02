@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 
-export default function AiPreferencesForm() {
+export function AiPreferencesForm() {
   const [usesIndustryData, setUsesIndustryData] = useState(true);
   const [includesCompetitorAnalysis, setIncludesCompetitorAnalysis] = useState(true);
   const [strategiesPerWeek, setStrategiesPerWeek] = useState<'1-2' | '3-5' | '5+'>('1-2');
@@ -99,3 +98,9 @@ export default function AiPreferencesForm() {
     </form>
   );
 }
+
+export function AIPreferencesForm() {
+  return <div>AI Preferences Form coming soon.</div>;
+}
+
+export default AiPreferencesForm;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -6,7 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 
-export default function AiBehaviorSettings() {
+export function AiBehaviorSettings() {
   const [creativeThinking, setCreativeThinking] = useState(70);
   const [riskTolerance, setRiskTolerance] = useState(50);
   const [autonomyLevel, setAutonomyLevel] = useState(60);

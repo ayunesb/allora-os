@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PageTitle } from "@/components/ui/page-title";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw } from "lucide-react";
 import RiskHeatmapChart from "@/components/risk/RiskHeatmapChart";
-import RiskFactorsList from "@/components/risk/RiskFactorsList";
+// import RiskFactorsList from "@/components/risk/RiskFactorsList";
 import RiskMitigationTable from "@/components/risk/RiskMitigationTable";
 import { useRiskData } from "@/hooks/useRiskData";
 
@@ -83,7 +82,7 @@ export default function RiskHeatmap() {
           </TabsContent>
           
           <TabsContent value="factors" className="mt-0">
-            <RiskFactorsList factors={riskData?.factors || []} isLoading={isLoading} />
+            {/* <RiskFactorsList factors={riskData?.factors || []} isLoading={isLoading} /> */}
           </TabsContent>
           
           <TabsContent value="mitigation" className="mt-0">
