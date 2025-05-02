@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
@@ -23,7 +24,7 @@ export default function RunAudit() {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Simulate some audit results
-      const mockResults = [
+      const mockResults: AuditResult[] = [
         { type: 'security', message: 'Two-factor authentication is not enabled', valid: false, severity: 'warning' },
         { type: 'performance', message: 'All API endpoints are responding within acceptable time limits', valid: true },
         { type: 'compliance', message: 'Privacy policy is up to date', valid: true },
@@ -31,19 +32,14 @@ export default function RunAudit() {
       
       setAuditResults(mockResults);
       
-      // Fix toast call to include a title and message
-      toast({
-        title: "Audit Complete",
+      toast.success("Audit Complete", {
         description: "System audit has been completed successfully."
       });
     } catch (error) {
       console.error('Audit error:', error);
       
-      // Fix toast call to include a title and description
-      toast({
-        title: "Audit Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive"
+      toast.error("Audit Failed", {
+        description: error instanceof Error ? error.message : "An unknown error occurred"
       });
     } finally {
       setIsRunning(false);

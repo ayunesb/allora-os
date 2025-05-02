@@ -42,8 +42,27 @@ const WebhookHistoryTab: React.FC<WebhookHistoryTabProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Event list would go here */}
-            <p>Found {events.length} webhook events</p>
+            {events.map((event) => (
+              <div 
+                key={event.id} 
+                className="p-4 border rounded-lg"
+              >
+                <div className="flex justify-between mb-2">
+                  <span className="font-medium">{event.event_type}</span>
+                  <span className={`text-sm ${
+                    event.status === 'success' ? 'text-green-500' :
+                    event.status === 'failed' ? 'text-red-500' :
+                    'text-amber-500'
+                  }`}>
+                    {event.status}
+                  </span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <p>Target: {event.targetUrl || event.url}</p>
+                  <p>Time: {new Date(event.timestamp).toLocaleString()}</p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>

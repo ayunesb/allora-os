@@ -1,11 +1,12 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { testZapierWebhook } from '@/lib/zapier';
+import { testZapierWebhook, triggerBusinessEvent } from '@/lib/zapier';
 import { logAuditEvent } from '@/utils/auditLogger';
 
 // Mock dependencies
 vi.mock('@/lib/zapier', () => ({
-  testZapierWebhook: vi.fn().mockResolvedValue({ success: true })
+  testZapierWebhook: vi.fn().mockResolvedValue({ success: true }),
+  triggerBusinessEvent: vi.fn().mockResolvedValue({ success: true })
 }));
 
 vi.mock('@/utils/auditLogger', () => ({

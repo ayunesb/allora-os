@@ -7,6 +7,7 @@ import { useAdPlatformConnections } from '@/hooks/campaigns/useAdPlatformConnect
 import { refreshCampaignData } from '@/components/campaigns/dashboard/CampaignRefresh';
 import { toast } from 'sonner';
 import { refreshData } from '@/utils/shared/dataRefresh';
+import { Campaign } from '@/types/fixed/Campaign';
 
 // Component imports
 import { CampaignHeader } from '@/components/campaigns/dashboard/CampaignHeader';
@@ -29,7 +30,7 @@ export default function CampaignDashboard() {
   const { hasAdPlatformConnections } = useAdPlatformConnections();
   
   // Get filtered campaigns based on active tab
-  const filteredCampaigns = useFilteredCampaigns(campaigns, activeTab);
+  const filteredCampaigns = useFilteredCampaigns(campaigns as any[], activeTab);
   
   /**
    * Navigates to campaign creation or ad account connection page
@@ -54,7 +55,7 @@ export default function CampaignDashboard() {
         fetchFn: async () => {
           // Call the specific campaign refresh function
           await refreshCampaignData({
-            campaigns,
+            campaigns: campaigns as any[],
             onComplete: async () => { await refetch(); },
             setIsRefreshing
           });
@@ -88,15 +89,15 @@ export default function CampaignDashboard() {
       />
       
       {/* Stats cards */}
-      <CampaignStats campaigns={campaigns} />
+      <CampaignStats campaigns={campaigns as any[]} />
       
       {/* Filter tabs */}
       <CampaignTabs activeTab={activeTab} onTabChange={setActiveTab} />
       
       {/* Campaign list or empty state */}
       <CampaignList 
-        campaigns={campaigns}
-        filteredCampaigns={filteredCampaigns}
+        campaigns={campaigns as any[]}
+        filteredCampaigns={filteredCampaigns as any[]}
         onCreateCampaign={handleCreateCampaign}
       />
     </div>

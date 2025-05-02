@@ -33,6 +33,7 @@ const CalendlyIntegration = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [apiKeyError, setApiKeyError] = useState('');
+  const [apiKeyValue, setApiKeyValue] = useState('');
   
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -82,6 +83,12 @@ const CalendlyIntegration = () => {
     });
   };
 
+  const handleApiKeyChange = (value: string) => {
+    setApiKeyValue(value);
+    const field = register('apiKey');
+    field.onChange({ target: { name: field.name, value } });
+  };
+
   return (
     <div className="container py-6">
       <h1 className="text-3xl font-bold mb-6">Calendly Integration</h1>
@@ -105,8 +112,8 @@ const CalendlyIntegration = () => {
                   Calendly API Key
                 </label>
                 <APIKeyInput
-                  value={register('apiKey').value || ''}
-                  onChange={(value) => register('apiKey').onChange({ target: { value } })}
+                  value={apiKeyValue}
+                  onChange={handleApiKeyChange}
                   placeholder="cal_..."
                   error={apiKeyError || errors.apiKey?.message}
                 />

@@ -14,6 +14,22 @@ export default function ComplianceIndex() {
     }
   };
   
+  // Create a safe policies object that meets the DataPoliciesState requirements
+  const defaultPolicies: DataPoliciesState = {
+    dataDeletion: false,
+    dataMinimization: false,
+    dataEncryption: false,
+    dataRetention: false,
+    ccpa: false,
+    gdpr: false
+  };
+  
+  // Merge the compliance policies with our default structure
+  const policies: DataPoliciesState = {
+    ...defaultPolicies,
+    ...(compliance?.policies || {})
+  };
+  
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -34,7 +50,7 @@ export default function ComplianceIndex() {
           
           <div className="mt-4">
             <PolicyToggles 
-              policies={compliance?.policies || {}}
+              policies={policies}
               onPolicyToggle={handleToggle}
             />
           </div>

@@ -1,5 +1,5 @@
 
-export type Platform = 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Twitter' | 'Email' | 'Other';
+export type Platform = 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Twitter' | 'Email' | 'Other' | 'meta' | 'tiktok' | 'whatsapp';
 
 // Define an ExecutiveBot type that can be either a string or an object
 export type ExecutiveBot = string | {
@@ -8,7 +8,7 @@ export type ExecutiveBot = string | {
   avatar?: string;
 };
 
-export type CampaignStatus = 'Draft' | 'Active' | 'Paused' | 'Completed' | 'Approved';
+export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
 
 export type Campaign = {
   id: string;
