@@ -21,7 +21,7 @@ export function AccessibilityPanel() {
     invertColors,
     fontSize = 16,
     setFontSize = () => {},
-    toggleScreenReaderFriendly, // This was the issue - using toggleScreenReader
+    toggleScreenReaderFriendly = () => {}, // This was the issue - using toggleScreenReader
     toggleHighContrast = () => {},
     toggleReducedMotion = () => {},
     toggleLargeText = () => {},

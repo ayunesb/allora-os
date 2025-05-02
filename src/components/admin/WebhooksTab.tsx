@@ -1,10 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import WebhookHeader from './webhooks/WebhookHeader';
-import { useWebhookHistory } from './webhooks/useWebhookHistory';
-import WebhookHistoryTab from './webhooks/WebhookHistoryTab';
-import WebhookConfigTab from './webhooks/config/WebhookConfigTab';
+import WebhookHeader from '@/components/admin/webhooks/WebhookHeader';
+import { useWebhookHistory } from '@/components/admin/webhooks/useWebhookHistory';
+import WebhookHistoryTab from '@/components/admin/webhooks/WebhookHistoryTab';
+import WebhookConfigTab from '@/components/admin/webhooks/config/WebhookConfigTab';
 import { WebhookType } from '@/types/unified-types';
 
 /**

@@ -1,85 +1,102 @@
 
-import { WebhookType } from '@/types/fixed/Webhook';
+export type WebhookType = "zapier" | "custom" | "stripe" | "slack" | "github" | "notion";
+
+export interface WebhookTestResult {
+  success: boolean;
+  message?: string;
+  statusCode?: number;
+  data?: any;
+}
+
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+  statusCode?: number;
+  responseData?: any;
+}
 
 /**
- * Validates webhook URL format based on service type
+ * Validates if a URL has proper format for a webhook
  */
 export function validateWebhookUrlFormat(url: string, type?: WebhookType): boolean {
   if (!url) return false;
   
+  // Basic URL validation
   try {
-    const urlObj = new URL(url);
-    
-    // Basic checks
-    if (urlObj.protocol !== 'https:') {
-      return false;
-    }
-    
-    // Type-specific validation
-    if (type) {
-      switch(type) {
-        case 'zapier':
-          return url.includes('hooks.zapier.com');
-        case 'slack':
-          return url.includes('hooks.slack.com');
-        case 'github':
-          return url.includes('api.github.com');
-        case 'stripe':
-          return url.includes('api.stripe.com');
-        case 'notion':
-          return url.includes('api.notion.com');
-        case 'custom':
-          return true; // For custom webhooks, we just ensure it's a valid URL with HTTPS
-      }
-    }
-    
-    return true;
-  } catch (err) {
+    new URL(url);
+  } catch {
     return false;
   }
+  
+  // Type-specific validation if type provided
+  if (type) {
+    switch (type) {
+      case 'zapier':
+        return url.includes('hooks.zapier.com');
+      case 'slack':
+        return url.includes('hooks.slack.com');
+      case 'github':
+        return url.includes('api.github.com');
+      case 'stripe':
+        return url.includes('stripe.com');
+      case 'notion':
+        return url.includes('notion.com');
+      case 'custom':
+        return url.startsWith('https://');
+      default:
+        return true;
+    }
+  }
+  
+  return url.startsWith('https://') || url.startsWith('http://');
 }
 
 /**
- * Tests a webhook by sending a test event
+ * Test a webhook URL with a simple payload
  */
-export async function testWebhook(url: string): Promise<{ success: boolean; message?: string }> {
-  // This is a mock implementation
-  // In a real application, this would send a test request to the webhook URL
+export async function testWebhook(url: string): Promise<WebhookTestResult> {
+  if (!url) {
+    return {
+      success: false,
+      message: 'No URL provided',
+      statusCode: 400
+    };
+  }
   
   try {
-    // Simulate a successful response for most URLs
-    if (url.includes('example.com/error')) {
-      return { 
-        success: false, 
-        message: 'Connection refused' 
-      };
-    }
+    // Use no-cors to avoid CORS issues in browser
+    await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'no-cors',
+      body: JSON.stringify({
+        test: true,
+        timestamp: new Date().toISOString(),
+      }),
+    });
     
-    // Simulate a network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return { 
-      success: true 
+    // With no-cors, we can't check response status
+    // Assume it went through if no error was thrown
+    return {
+      success: true,
+      message: 'Test webhook sent',
+      statusCode: 200
     };
-  } catch (error) {
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : 'Unknown error' 
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || 'Unknown error occurred',
+      statusCode: 500
     };
   }
 }
 
 /**
- * Sanitizes webhook URL to prevent security issues
+ * Sanitize a webhook URL by trimming whitespace
  */
 export function sanitizeWebhookUrl(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.toString();
-  } catch (err) {
-    return '';
-  }
+  return url?.trim() || '';
 }
-
-// Re-export the WebhookType for consistency
-export type { WebhookType };

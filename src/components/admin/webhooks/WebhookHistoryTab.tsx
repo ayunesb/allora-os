@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { WebhookEvent } from '@/types/fixed/Webhook';
+import { WebhookEvent } from '@/types/unified-types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
@@ -59,7 +59,7 @@ const WebhookHistoryTab: React.FC<WebhookHistoryTabProps> = ({
                 </div>
                 <div className="text-sm text-muted-foreground">
                   <p>Target: {event.targetUrl || event.url}</p>
-                  <p>Time: {new Date(event.timestamp).toLocaleString()}</p>
+                  <p>Time: {new Date(event.timestamp || event.created_at).toLocaleString()}</p>
                 </div>
               </div>
             ))}

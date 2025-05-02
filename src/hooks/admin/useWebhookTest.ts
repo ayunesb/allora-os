@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { WebhookType, WebhookTestResult } from '@/types/fixed/Webhook';
+import { WebhookType, WebhookTestResult } from '@/types/unified-types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -40,7 +40,7 @@ export function useWebhookTest() {
       
       setLastResult(result);
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error testing webhook:', error);
       const result = { 
         success: false, 

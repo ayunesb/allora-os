@@ -22,3 +22,33 @@ export interface WebhookEvent {
   eventType?: string;
   webhook_type?: WebhookType;
 }
+
+// Add missing types referenced in hooks and components
+export interface WebhookTestResult {
+  success: boolean;
+  message?: string;
+  statusCode?: number;
+  data?: any;
+}
+
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+  statusCode?: number;
+  responseData?: any;
+}
+
+export type BusinessEventType = 
+  | 'campaign_created' 
+  | 'strategy_approved' 
+  | 'lead_converted'
+  | 'revenue_milestone'
+  | 'user_onboarded'
+  | 'test_webhook'
+  | 'test_event';
+
+export interface BusinessEventPayload {
+  eventType: BusinessEventType;
+  data: Record<string, any>;
+}

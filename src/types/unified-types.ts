@@ -4,6 +4,7 @@ export * from "./fixed/Webhook";
 export * from "./fixed/Layout";
 export * from "./fixed/Accessibility";
 export * from "./fixed/Compliance";
+export * from "./fixed/SocialMedia";
 
 // Add back these types needed for compatibility with components
 import { WebhookEvent } from "./fixed/Webhook";
@@ -29,6 +30,9 @@ export interface SocialMediaPost {
   scheduled_date?: string;
   publish_time?: string;
   is_approved?: boolean;
+  published_at?: string;
+  content_type?: string;
+  tags?: string[];
 }
 
 export type SocialPlatform = "Facebook" | "Twitter" | "Instagram" | "LinkedIn";

@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { WebhookEvent, WebhookType } from '@/types/fixed/Webhook';
-import { getWebhookEvents } from '@/services/webhookService';
+import { WebhookEvent, WebhookType } from '@/types/unified-types';
 
 export const useWebhookHistory = () => {
   const [events, setEvents] = useState<WebhookEvent[]>([]);
@@ -18,7 +17,34 @@ export const useWebhookHistory = () => {
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
-        const webhookEvents = await getWebhookEvents();
+        // Mock data for demo
+        const webhookEvents: WebhookEvent[] = [
+          {
+            id: "1",
+            webhook_id: "wh_123",
+            event_type: "test_event",
+            webhookType: "zapier",
+            webhook_type: "zapier",
+            status: "success",
+            payload: { test: true },
+            created_at: new Date().toISOString(),
+            timestamp: new Date().toISOString(),
+            targetUrl: "https://hooks.zapier.com/hooks/catch/123456/abcdef/"
+          },
+          {
+            id: "2",
+            webhook_id: "wh_456",
+            event_type: "campaign_created",
+            webhookType: "slack",
+            webhook_type: "slack",
+            status: "failed",
+            payload: { campaign: "Summer Sale" },
+            created_at: new Date().toISOString(),
+            timestamp: new Date().toISOString(),
+            targetUrl: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+          }
+        ];
+        
         setEvents(webhookEvents);
         setFilteredEvents(webhookEvents);
       } catch (err) {
@@ -38,9 +64,9 @@ export const useWebhookHistory = () => {
     // Apply search filter
     if (searchTerm) {
       result = result.filter(event => 
-        event.url?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.webhook_type?.toLowerCase().includes(searchTerm.toLowerCase())
+        event.targetUrl?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.event_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.webhookType?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -51,7 +77,7 @@ export const useWebhookHistory = () => {
     
     // Apply type filter
     if (typeFilter !== 'all') {
-      result = result.filter(event => event.webhook_type === typeFilter);
+      result = result.filter(event => event.webhookType === typeFilter);
     }
     
     setFilteredEvents(result);

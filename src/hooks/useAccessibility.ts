@@ -32,42 +32,12 @@ export function useAccessibility(): ExtendedAccessibilityContextType {
     setInvertColors(prev => !prev);
   }, []);
 
-  // Update preference generic function
-  const updatePreference = useCallback((key: string, value: any) => {
-    switch(key) {
-      case 'fontSize':
-        setFontSize(value);
-        break;
-      case 'highContrast':
-        setHighContrast(value);
-        break;
-      case 'largeText':
-        setLargeText(value);
-        break;
-      case 'reducedMotion':
-        setReducedMotion(value);
-        break;
-      case 'screenReaderFriendly':
-        setScreenReaderFriendly(value);
-        break;
-      case 'invertColors':
-        setInvertColors(value);
-        break;
-      default:
-        console.warn(`Unknown preference key: ${key}`);
-    }
-  }, []);
-
   return {
     fontSize,
     setFontSize,
     highContrast,
-    setHighContrast,
     reducedMotion,
-    setReducedMotion,
     screenReaderFriendly,
-    setScreenReaderFriendly,
-    updatePreference,
     largeText,
     invertColors,
     toggleHighContrast,
