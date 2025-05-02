@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PageTitle } from "@/components/ui/page-title";
 import { DecisionFilters } from "@/components/executive-decisions/DecisionFilters";
@@ -26,7 +25,9 @@ export default function ExecutiveDecisions() {
       <PageTitle 
         title="Executive Decision Log" 
         description="Review decisions made by your AI executive team"
-      />
+      >
+        Executive Decision Log
+      </PageTitle>
 
       <DecisionFilters
         executiveFilter={executiveFilter}

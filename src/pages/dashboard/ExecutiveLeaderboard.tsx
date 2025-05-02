@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { PageTitle } from "@/components/ui/page-title";
@@ -154,12 +153,11 @@ export default function ExecutiveLeaderboard() {
   const byPriority = [...leaderboard].sort((a, b) => b.priorityScore - a.priorityScore);
 
   return (
-    <div className="container mx-auto py-6">
-      <PageTitle 
-        title="Executive Leaderboard" 
-        description="Top performing AI executives by decisions, risk, and priorities"
-      />
-
+    <div className="container mx-auto p-4">
+      <PageTitle title="Executive Leaderboard" description="Performance metrics for your AI executive team">
+        Executive Leaderboard
+      </PageTitle>
+      
       <Tabs defaultValue="decisions" className="w-full mb-8">
         <TabsList className="mb-6">
           <TabsTrigger value="decisions">

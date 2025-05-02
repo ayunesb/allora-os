@@ -1,103 +1,57 @@
-
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react';
 import { PageTitle } from "@/components/ui/page-title";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw } from "lucide-react";
+import { ForecastChart } from "@/components/forecasting/ForecastChart";
+import { ForecastMetrics } from "@/components/forecasting/ForecastMetrics";
+import { ForecastScenarios } from "@/components/forecasting/ForecastScenarios";
 import { useForecastData } from "@/hooks/useForecastData";
-import ForecastAnomalies from "@/components/forecast/ForecastAnomalies";
-import ForecastCards from "@/components/forecast/ForecastCards";
-import ForecastCharts from "@/components/forecast/ForecastCharts";
 
-// KPI display names
-const KPI_NAMES: Record<string, string> = {
-  revenue: "Revenue",
-  churn: "Churn Rate",
-  user_growth: "User Growth",
-  retention: "Retention Rate",
-  conversion_rate: "Conversion Rate",
-  executive_resources: "Executive Resources"
-};
-
-export default function ForecastDashboard() {
-  const {
-    kpiData,
-    forecasts,
-    anomalies,
-    recommendations,
-    loading,
-    refreshing,
-    handleRefresh
-  } = useForecastData();
-
+export default function Forecast() {
+  const { data, isLoading, error } = useForecastData();
+  
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <PageTitle 
-          title="KPI Forecasts & Anomaly Detection" 
-          description="Predictive analytics and early warning system for key performance indicators"
-        />
-        <Button 
-          onClick={handleRefresh} 
-          disabled={loading || refreshing}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-          <span>Refresh Forecasts</span>
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[300px]">
-          <div className="flex flex-col items-center">
-            <RefreshCw className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Training forecast models...</p>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Anomalies Section */}
-          <ForecastAnomalies 
-            anomalies={anomalies} 
-            recommendations={recommendations} 
-            kpiNames={KPI_NAMES} 
-          />
-
-          {/* KPI Forecasts Section */}
+    <div className="container mx-auto p-4">
+      <PageTitle title="Financial Forecast" description="Projected financial performance">
+        Financial Forecast
+      </PageTitle>
+      
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="scenarios">Scenarios</TabsTrigger>
+          <TabsTrigger value="metrics">Key Metrics</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>KPI Forecasts</CardTitle>
+              <CardTitle>Revenue Forecast</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="cards">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="cards">Cards</TabsTrigger>
-                  <TabsTrigger value="charts">Charts</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="cards">
-                  <ForecastCards 
-                    forecasts={forecasts} 
-                    kpiData={kpiData} 
-                    anomalies={anomalies}
-                    kpiNames={KPI_NAMES}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="charts">
-                  <ForecastCharts 
-                    forecasts={forecasts} 
-                    kpiData={kpiData}
-                    kpiNames={KPI_NAMES}
-                  />
-                </TabsContent>
-              </Tabs>
+              <ForecastChart 
+                data={data?.revenue} 
+                isLoading={isLoading}
+                error={error}
+              />
             </CardContent>
           </Card>
-        </>
-      )}
+        </TabsContent>
+        
+        <TabsContent value="scenarios" className="space-y-4">
+          <ForecastScenarios 
+            scenarios={data?.scenarios}
+            isLoading={isLoading}
+          />
+        </TabsContent>
+        
+        <TabsContent value="metrics" className="space-y-4">
+          <ForecastMetrics 
+            metrics={data?.metrics}
+            isLoading={isLoading}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
