@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PageTitle } from "@/components/ui/page-title";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,6 +32,12 @@ export default function ExecutiveAgents() {
       <Card>
         <CardContent className="py-8 text-center">
           <p>Executive agent functionality is being implemented.</p>
+          <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden mt-2">
+            <div
+              className="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-700 ease-in-out"
+              style={{ width: `${(agent.xp / agent.maxXp) * 100}%` }}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>
