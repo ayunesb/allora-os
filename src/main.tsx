@@ -31,11 +31,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <GlobalErrorBoundary>
         <HelmetProvider>
-          <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
-            <QueryClientProvider client={queryClient}>
+            <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
+              <QueryClientProvider client={queryClient}>
               <App />
-            </QueryClientProvider>
-          </ThemeProvider>
+              </QueryClientProvider>
+            </ThemeProvider>
         </HelmetProvider>
       </GlobalErrorBoundary>
     </BrowserRouter>
