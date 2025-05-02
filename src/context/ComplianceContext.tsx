@@ -3,6 +3,9 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { ExtendedComplianceContextType } from '@/types/unified-types';
 
+// Define the allowed privacy levels as a type
+type PrivacyLevel = 'standard' | 'strict' | 'custom';
+
 // Create context with default values
 export const ComplianceContext = createContext<ExtendedComplianceContextType>({
   // Core properties
@@ -59,7 +62,7 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
   // Mode toggles and settings
   const [isCompliantMode, setIsCompliantMode] = useState<boolean>(false);
   const [hasAcknowledgedTerms, setHasAcknowledgedTerms] = useState<boolean>(false);
-  const [privacyLevel, setPrivacyLevel] = useState<string>('standard');
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>('standard');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(90);
   
   // Check for updates
@@ -148,10 +151,15 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
     }
   };
   
-  // Update preference wrapper
+  // Update preference wrapper - ensures type safety for privacy level
   const updatePreference = (key: string, value: any) => {
     if (key === 'autoUpdate') {
       setAutoUpdate(value);
+    } else if (key === 'privacyLevel') {
+      // Ensure privacy level is one of the allowed values
+      if (value === 'standard' || value === 'strict' || value === 'custom') {
+        setPrivacyLevel(value);
+      }
     }
   };
   

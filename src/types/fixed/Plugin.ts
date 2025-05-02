@@ -43,3 +43,17 @@ export interface PluginImpactData {
   average_value: number;
   total_value: number;
 }
+
+/**
+ * Plugin log entry
+ */
+export interface PluginLog {
+  id: string;
+  plugin_id: string;
+  tenant_id: string;
+  user_id?: string;
+  event_type: 'installed' | 'executed' | 'error' | 'uninstalled';
+  metadata?: Record<string, any>;
+  timestamp: string;
+  success?: boolean;
+}

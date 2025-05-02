@@ -1,151 +1,85 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-import { sendSlackAlert } from "./slack.ts"
+import { createClient } from '@supabase/supabase-js';
+import { sendSlackAlert } from './slack.ts';
 
-// Define CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+// Get Supabase client
+const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
+const demoTenantId = Deno.env.get('DEMO_TENANT_ID');
 
-// Helper to log actions to the audit_logs table
-async function logAction(supabase, tenantId, action, result, details = {}) {
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+Deno.serve(async (req) => {
   try {
-    await supabase.from('audit_logs').insert({
-      tenant_id: tenantId,
-      action,
-      result,
-      details
-    });
-  } catch (error) {
-    console.error('Error logging action:', error);
-  }
-}
-
-serve(async (req) => {
-  // Handle CORS preflight request
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    // Create a Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Check for scheduled cron job header
+    const isCronRequest = req.headers.get('Authorization') === `Bearer ${Deno.env.get('CRON_SECRET')}`;
     
-    // Get the demo tenant ID from environment or request
-    let demoTenantId;
-    
-    try {
-      const body = await req.json();
-      demoTenantId = body.tenant_id;
-    } catch {
-      demoTenantId = Deno.env.get('DEMO_TENANT_ID');
+    if (!req.method === 'POST' && !isCronRequest) {
+      return new Response('Method not allowed', { status: 405 });
     }
-    
+
     if (!demoTenantId) {
-      throw new Error('Demo tenant ID not provided');
+      await sendSlackAlert('No demo tenant ID set in environment variables', 'warning');
+      return new Response(
+        JSON.stringify({ error: 'No demo tenant ID configured' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Start a log of reset operations
-    const startTime = new Date();
-    let resetLog = {
-      timestamp: startTime.toISOString(),
-      tables_reset: [],
-      errors: []
-    };
-
-    // Define tables to reset for demo tenant, in order of dependency
+    // Begin reset process
+    await sendSlackAlert(`Starting reset of demo tenant: ${demoTenantId}`, 'info');
+    
+    // Reset all user-generated content
     const tables = [
-      'plugin_logs',
-      'kpi_metrics',
-      'executive_messages',
       'campaigns',
       'strategies',
-      'tenant_activity_logs',
-      'tenant_alerts'
+      'leads',
+      'plugin_logs',
+      'kpi_metrics',
+      'messages',
+      'social_media_posts',
+      'executive_messages',
+      'webhook_events'
     ];
     
-    // Reset each table
+    // Process each table
     for (const table of tables) {
-      try {
-        const { error } = await supabase
-          .from(table)
-          .delete()
-          .eq('tenant_id', demoTenantId);
-          
-        if (error) throw error;
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq('tenant_id', demoTenantId);
         
-        resetLog.tables_reset.push(table);
-      } catch (error) {
-        console.error(`Error resetting ${table}:`, error);
-        resetLog.errors.push({
-          table,
-          error: error.message
-        });
+      if (error) {
+        await sendSlackAlert(`Failed to reset table ${table}: ${error.message}`, 'error');
+        throw error;
       }
     }
-
-    // Log the reset event
-    await logAction(
-      supabase,
-      demoTenantId,
-      'reset_demo_tenant',
-      resetLog.errors.length === 0 ? 'success' : 'partial',
-      resetLog
-    );
     
-    // Send alert if there were errors
-    if (resetLog.errors.length > 0) {
-      await sendSlackAlert(
-        `Demo tenant reset completed with ${resetLog.errors.length} errors`,
-        'warning'
-      );
+    // Reset tenant-specific settings back to defaults
+    const { error: updateError } = await supabase
+      .from('tenant_profiles')
+      .update({ 
+        settings: { demo_reset_count: Deno.env.get('demo_reset_count') || 0 + 1 },
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', demoTenantId);
+    
+    if (updateError) {
+      await sendSlackAlert(`Failed to update tenant profile: ${updateError.message}`, 'error');
     }
-
-    // Return success
+    
+    await sendSlackAlert(`Demo tenant ${demoTenantId} reset complete`, 'info');
+    
     return new Response(
-      JSON.stringify({
-        success: true,
-        reset_time: startTime.toISOString(),
-        tables_reset: resetLog.tables_reset,
-        errors: resetLog.errors
-      }),
-      { 
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        } 
-      }
+      JSON.stringify({ success: true, message: 'Demo tenant reset complete' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    // Log and return error
-    console.error('Error in reset-demo-tenant:', error);
-    
-    try {
-      // Try to send alert
-      await sendSlackAlert(
-        `Demo tenant reset failed: ${error.message}`,
-        'error'
-      );
-    } catch (slackError) {
-      console.error('Error sending Slack alert:', slackError);
-    }
+    await sendSlackAlert(`Demo tenant reset failed: ${error.message}`, 'error');
     
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message 
-      }),
-      { 
-        status: 500, 
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        } 
-      }
+      JSON.stringify({ success: false, error: error.message }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-})
+});
