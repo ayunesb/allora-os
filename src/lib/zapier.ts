@@ -1,94 +1,83 @@
 
-import { WebhookResult, BusinessEventType } from '@/types/fixed/Webhook';
 import { toast } from 'sonner';
+import { WebhookTestResult } from '@/types/fixed/Webhook';
 
-/**
- * Trigger a business event to a webhook URL
- */
-export async function triggerBusinessEvent(
-  webhookUrl: string,
-  eventType: BusinessEventType,
-  payload: Record<string, any>
-): Promise<WebhookResult> {
+export const testZapierWebhook = async (webhookUrl: string): Promise<WebhookTestResult> => {
   try {
-    console.log(`Triggering business event ${eventType} to ${webhookUrl}`, payload);
-    
-    // Format the payload
-    const body = {
-      eventType,
-      timestamp: new Date().toISOString(),
-      data: {
-        ...payload,
-        appSource: 'Allora AI',
-      }
+    if (!webhookUrl || !webhookUrl.startsWith('https://hooks.zapier.com/')) {
+      return {
+        success: false,
+        message: 'Invalid Zapier webhook URL',
+        statusCode: 400
+      };
+    }
+
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'no-cors', // Required for CORS issues with Zapier
+      body: JSON.stringify({
+        test: true,
+        timestamp: new Date().toISOString(),
+        source: 'Allora AI Platform',
+      }),
+    });
+
+    // Due to no-cors mode, we can't actually check the response status
+    // So we'll assume it went through if no error was thrown
+    return {
+      success: true,
+      message: 'Webhook test sent to Zapier',
+      statusCode: 200
     };
-    
-    // Send the webhook request - using no-cors mode to handle CORS issues in browser environment
+  } catch (error) {
+    console.error('Error testing Zapier webhook:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+      statusCode: 500
+    };
+  }
+};
+
+export const triggerZapierWebhook = async (webhookUrl: string, data: any = {}): Promise<WebhookTestResult> => {
+  try {
+    if (!webhookUrl) {
+      toast.error('No Zapier webhook URL provided');
+      return {
+        success: false,
+        message: 'No webhook URL provided',
+        statusCode: 400
+      };
+    }
+
     await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       mode: 'no-cors',
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        ...data,
+        timestamp: new Date().toISOString(),
+      }),
     });
-    
-    // No actual response with no-cors, so we assume success
+
+    toast.success('Event sent to Zapier');
     return {
       success: true,
-      message: 'Webhook triggered successfully'
+      message: 'Webhook triggered successfully',
+      statusCode: 200
     };
   } catch (error) {
-    console.error('Error triggering business event:', error);
+    console.error('Error triggering Zapier webhook:', error);
+    toast.error('Failed to trigger Zapier webhook');
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      error
+      message: error instanceof Error ? error.message : 'Failed to trigger webhook',
+      statusCode: 500
     };
   }
-}
-
-/**
- * Test a webhook URL with a simple ping event
- */
-export async function testWebhook(webhookUrl: string): Promise<WebhookResult> {
-  try {
-    return await triggerBusinessEvent(
-      webhookUrl,
-      'test_event' as BusinessEventType,
-      {
-        message: 'This is a test event from Allora AI',
-        testId: Date.now(),
-      }
-    );
-  } catch (error) {
-    console.error('Error testing webhook:', error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      error
-    };
-  }
-}
-
-/**
- * Trigger a lead added webhook
- */
-export async function triggerLeadAddedEvent(webhookUrl: string, leadData: any): Promise<WebhookResult> {
-  try {
-    return await triggerBusinessEvent(
-      webhookUrl,
-      'lead_added' as BusinessEventType,
-      {
-        lead: leadData,
-      }
-    );
-  } catch (error) {
-    console.error('Error triggering lead added webhook:', error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      error
-    };
-  }
-}
+};

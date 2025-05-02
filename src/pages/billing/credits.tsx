@@ -1,124 +1,98 @@
 
-import { useEffect, useState } from 'react';
-import { getCurrentCreditBalance } from '@/utils/stripePayments';
-import { useUser } from '@/hooks/useUser';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Coins, CreditCard, RefreshCw } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
-interface CreditLog {
-  id: string;
-  tenant_id: string;
-  credits_added: number;
-  amount: number;
-  email: string | null;
-  source: string | null;
-  session_id: string | null;
-  created_at: string;
-}
+// Initialize supabase client
+const supabaseUrl = 'https://tnfqzklfdwknmplrygag.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuZnF6a2xmZHdrbm1wbHJ5Z2FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2OTUwNTksImV4cCI6MjA2MDI3MTA1OX0.8s7ol8jfz_6anK4l2aGBXaICDf3lLHmHSPovcXXGQ1A';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const CreditLogPage = () => {
-  const { user } = useUser();
-  const [logs, setLogs] = useState<CreditLog[]>([]);
-  const [currentBalance, setCurrentBalance] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function CreditsPage() {
+  const [credits, setCredits] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    fetchCredits();
+  }, []);
 
-    const loadCredits = async () => {
-      try {
-        // Get current balance
-        const balance = await getCurrentCreditBalance();
-        setCurrentBalance(balance);
-        
-        // Get credit logs from Supabase
-        const { data: creditLogs, error } = await supabase
-          .from('credit_logs')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        setLogs(creditLogs || []);
-      } catch (err) {
-        console.error('Failed to load credit logs', err);
-        toast.error('Failed to load credit history');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchCredits = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate fetching credits from Supabase
+      const { data, error } = await supabase
+        .from('billing_profiles')
+        .select('credits')
+        .single();
 
-    loadCredits();
-  }, [user]);
+      if (error) throw error;
+      setCredits(data?.credits || 0);
+    } catch (error) {
+      console.error('Error fetching credits:', error);
+      setCredits(100); // Fallback to default credits
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const handlePurchaseCredits = () => {
+    // Implement credit purchase flow
+    console.log('Purchase credits clicked');
   };
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-2xl font-bold mb-2 sm:mb-0">Credit History</h1>
-        {currentBalance !== null && (
-          <Card className="w-full sm:w-auto">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">Current Balance</p>
-                <p className="text-3xl font-bold text-primary">{currentBalance} credits</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center p-8">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : logs.length === 0 ? (
+      <h1 className="text-3xl font-bold mb-6">Credits & Billing</h1>
+      
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">No credit transactions found.</p>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Coins className="h-5 w-5 text-primary" />
+              Your Credits
+            </CardTitle>
+            <CardDescription>
+              Credits are used for AI operations and strategy generation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-4xl font-bold">{isLoading ? '...' : credits}</p>
+                <p className="text-sm text-muted-foreground mt-1">Available Credits</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={fetchCredits} disabled={isLoading}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-4">
-          {logs.map((log) => (
-            <Card key={log.id}>
-              <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row justify-between gap-2">
-                  <div>
-                    <p className="text-lg font-medium">
-                      {log.credits_added > 0 ? `+${log.credits_added}` : log.credits_added} credits
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Source: {log.source || 'Manual adjustment'}
-                    </p>
-                    {log.email && (
-                      <p className="text-sm text-muted-foreground">Email: {log.email}</p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">{formatDate(log.created_at)}</p>
-                    {log.amount > 0 && (
-                      <p className="text-sm font-medium">
-                        ${(log.amount / 100).toFixed(2)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-primary" />
+              Purchase Credits
+            </CardTitle>
+            <CardDescription>
+              Add more credits to your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-sm">
+                Purchase additional credits to continue using AI features and generating strategies.
+              </p>
+              <Button onClick={handlePurchaseCredits}>
+                Buy More Credits
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-};
-
-export default CreditLogPage;
+}

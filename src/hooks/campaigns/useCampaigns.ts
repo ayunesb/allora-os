@@ -42,6 +42,9 @@ export interface CampaignUpdateParams extends Partial<CampaignCreateParams> {
 export function useCampaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { execute } = useApiClient();
 
@@ -78,7 +81,7 @@ export function useCampaigns() {
   }, [execute]);
 
   const createCampaign = useCallback(async (params: CampaignCreateParams) => {
-    setIsLoading(true);
+    setIsCreating(true);
     setError(null);
     
     try {
@@ -91,12 +94,12 @@ export function useCampaigns() {
       toast.error(err.message || 'Failed to create campaign');
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsCreating(false);
     }
   }, [execute]);
 
   const updateCampaign = useCallback(async (params: CampaignUpdateParams) => {
-    setIsLoading(true);
+    setIsUpdating(true);
     setError(null);
     
     try {
@@ -116,12 +119,12 @@ export function useCampaigns() {
       toast.error(err.message || 'Failed to update campaign');
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsUpdating(false);
     }
   }, [execute]);
 
   const deleteCampaign = useCallback(async (campaignId: string) => {
-    setIsLoading(true);
+    setIsDeleting(true);
     setError(null);
     
     try {
@@ -133,18 +136,25 @@ export function useCampaigns() {
       toast.error(err.message || 'Failed to delete campaign');
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsDeleting(false);
     }
   }, [execute]);
+
+  // Add refetch as an alias for fetchCampaigns for compatibility
+  const refetch = fetchCampaigns;
 
   return {
     campaigns,
     isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting,
     error,
     fetchCampaigns,
     fetchCampaignById,
     createCampaign,
     updateCampaign,
-    deleteCampaign
+    deleteCampaign,
+    refetch
   };
 }

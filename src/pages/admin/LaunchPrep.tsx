@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, CheckCircle, Rocket } from "lucide-react";
 
 export default function LaunchPrep() {
-  const { isValidating, validationResult, error, runValidation } = usePreLaunchValidation();
+  const { isValidating, validationResult, runValidation } = usePreLaunchValidation();
+  const error = null; // Add an error placeholder to match the expected structure
   
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

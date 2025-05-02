@@ -1,288 +1,333 @@
-
-import { useState } from 'react';
+import React from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useExecutiveWorkflow } from "@/context/ExecutiveWorkflowContext";
-import { toast } from "sonner";
-import { CompanyProfile } from "@/services/executiveWorkflowService";
-import { Loader2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import { PopoverClose } from "@radix-ui/react-popover";
+import { CompanyProfile } from '@/types/unified-types';
 
-// Define the form schema
+const salesChannels = [
+  {
+    label: "Online Advertising",
+    value: "online_advertising",
+  },
+  {
+    label: "Social Media Marketing",
+    value: "social_media_marketing",
+  },
+  {
+    label: "Email Marketing",
+    value: "email_marketing",
+  },
+  {
+    label: "Content Marketing",
+    value: "content_marketing",
+  },
+  {
+    label: "Affiliate Marketing",
+    value: "affiliate_marketing",
+  },
+  {
+    label: "Search Engine Optimization (SEO)",
+    value: "search_engine_optimization",
+  },
+  {
+    label: "Direct Sales",
+    value: "direct_sales",
+  },
+  {
+    label: "Partnerships",
+    value: "partnerships",
+  },
+  {
+    label: "Events and Trade Shows",
+    value: "events_and_trade_shows",
+  },
+  {
+    label: "Referral Programs",
+    value: "referral_programs",
+  },
+];
+
+const pricingModels = [
+  {
+    label: "Freemium",
+    value: "freemium",
+  },
+  {
+    label: "Subscription",
+    value: "subscription",
+  },
+  {
+    label: "One-time Purchase",
+    value: "one_time_purchase",
+  },
+  {
+    label: "Usage-based",
+    value: "usage_based",
+  },
+  {
+    label: "Tiered Pricing",
+    value: "tiered_pricing",
+  },
+  {
+    label: "Value-based Pricing",
+    value: "value_based_pricing",
+  },
+  {
+    label: "Cost-plus Pricing",
+    value: "cost_plus_pricing",
+  },
+  {
+    label: "Competitive Pricing",
+    value: "competitive_pricing",
+  },
+  {
+    label: "Dynamic Pricing",
+    value: "dynamic_pricing",
+  },
+  {
+    label: "Fixed Pricing",
+    value: "fixed_pricing",
+  },
+];
+
 const formSchema = z.object({
-  companyName: z.string().min(2, "Company name is required"),
-  industry: z.string().min(1, "Industry is required"),
-  companySize: z.string().min(1, "Company size is required"),
-  targetMarkets: z.string().optional(),
-  riskAppetite: z.string().min(1, "Risk appetite is required"),
-  goals: z.string().optional(),
-  marketingBudget: z.string().optional(),
-  description: z.string().optional(),
+  companyName: z.string().min(2, {
+    message: "Company name must be at least 2 characters.",
+  }),
+  industry: z.string().min(2, {
+    message: "Industry must be at least 2 characters.",
+  }),
+  targetCustomer: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  salesChannels: z.array(z.string()).optional(),
+  pricingModel: z.string().optional(),
 });
 
-export default function CompanyProfileForm() {
-  const { generateWorkflow, isLoading, hasGeneratedContent } = useExecutiveWorkflow();
-  const { profile } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+interface CompanyProfileFormProps {
+  onSubmit: (data: CompanyProfile) => void;
+  initialValues?: CompanyProfile;
+  loading?: boolean;
+}
 
-  const form = useForm<z.infer<typeof formSchema>>({
+type CompanyProfileFormValues = z.infer<typeof formSchema>;
+
+export function CompanyProfileForm({ onSubmit, initialValues, loading }: CompanyProfileFormProps) {
+  const form = useForm<CompanyProfileFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      companyName: profile?.company || "",
-      industry: profile?.industry || "",
-      companySize: "",
-      targetMarkets: "",
-      riskAppetite: "medium",
-      goals: "",
-      marketingBudget: "",
-      description: ""
+      companyName: initialValues?.company || "",
+      industry: initialValues?.industry || "",
+      targetCustomer: initialValues?.target_customer || "",
+      websiteUrl: initialValues?.website_url || "",
+      salesChannels: initialValues?.sales_channels || [],
+      pricingModel: initialValues?.pricing_model || "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!profile?.company_id) {
-      toast.error("Company profile not found. Please complete the initial onboarding first.");
-      return;
-    }
+  const handleSubmit = async (values: CompanyProfileFormValues) => {
+    // Create a properly formatted CompanyProfile object
+    const companyProfile: CompanyProfile = {
+      name: values.companyName, // Map companyName to name to match CompanyProfile type
+      company: values.companyName, // For backwards compatibility
+      industry: values.industry,
+      target_customer: values.targetCustomer,
+      website_url: values.websiteUrl,
+      sales_channels: values.salesChannels,
+      pricing_model: values.pricingModel
+    };
 
-    setIsSubmitting(true);
-
-    try {
-      // Convert form values to CompanyProfile format
-      const companyProfile: CompanyProfile = {
-        companyName: values.companyName,
-        industry: values.industry,
-        companySize: values.companySize,
-        targetMarkets: values.targetMarkets ? values.targetMarkets.split(',').map(item => item.trim()) : [],
-        riskAppetite: values.riskAppetite,
-        topGoals: values.goals ? values.goals.split(',').map(item => item.trim()) : [],
-        marketingBudget: values.marketingBudget,
-      };
-
-      // Call the AI workflow generation
-      await generateWorkflow(companyProfile);
-      
-      // Navigate to dashboard after successful generation
-      toast.success("AI executive workflow successfully generated!");
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Error generating AI workflow:", error);
-      toast.error("Failed to generate AI executive workflow");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  // If content has already been generated, show a different UI
-  if (hasGeneratedContent) {
-    return (
-      <div className="text-center">
-        <h3 className="text-lg font-medium">Your AI executive workflow has already been generated!</h3>
-        <p className="text-muted-foreground mt-2 mb-4">
-          You can view and manage your AI-generated content from the dashboard.
-        </p>
-        <Button onClick={() => navigate("/dashboard")}>
-          Go to Dashboard
-        </Button>
-      </div>
-    );
-  }
+    // Call the onSubmit prop with the formatted profile
+    onSubmit(companyProfile);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="companyName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company Name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="industry"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Industry</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an industry" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="technology">Technology</SelectItem>
-                    <SelectItem value="healthcare">Healthcare</SelectItem>
-                    <SelectItem value="finance">Finance</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                    <SelectItem value="retail">Retail</SelectItem>
-                    <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                    <SelectItem value="services">Services</SelectItem>
-                    <SelectItem value="real_estate">Real Estate</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="companySize"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company Size</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select company size" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="1-10">1-10 employees</SelectItem>
-                    <SelectItem value="11-50">11-50 employees</SelectItem>
-                    <SelectItem value="51-200">51-200 employees</SelectItem>
-                    <SelectItem value="201-500">201-500 employees</SelectItem>
-                    <SelectItem value="501-1000">501-1000 employees</SelectItem>
-                    <SelectItem value="1000+">1000+ employees</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="targetMarkets"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Target Markets (comma separated)</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g. North America, Europe, Asia" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="riskAppetite"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Risk Appetite</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select risk level" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="low">Low risk (conservative)</SelectItem>
-                    <SelectItem value="medium">Medium risk (balanced)</SelectItem>
-                    <SelectItem value="high">High risk (aggressive)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="marketingBudget"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Marketing Budget</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select budget range" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="under $5,000">Under $5,000</SelectItem>
-                    <SelectItem value="$5,000-$10,000">$5,000-$10,000</SelectItem>
-                    <SelectItem value="$10,000-$50,000">$10,000-$50,000</SelectItem>
-                    <SelectItem value="$50,000-$100,000">$50,000-$100,000</SelectItem>
-                    <SelectItem value="$100,000+">$100,000+</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="goals"
+          name="companyName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Business Goals (comma separated)</FormLabel>
+              <FormLabel>Company Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g. Increase sales, Expand market reach, Improve customer retention" />
+                <Input placeholder="Acme Corp" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
         <FormField
           control={form.control}
-          name="description"
+          name="industry"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Description</FormLabel>
+              <FormLabel>Industry</FormLabel>
               <FormControl>
-                <Textarea 
-                  {...field} 
-                  placeholder="Briefly describe your company, products/services, and target audience"
-                  className="resize-none h-20"
+                <Input placeholder="Technology" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="targetCustomer"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Target Customer</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Small to medium-sized businesses"
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
-        <Button type="submit" className="w-full" disabled={isSubmitting || isLoading}>
-          {(isSubmitting || isLoading) ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating AI Executive Workflow...
-            </>
-          ) : "Generate AI Executive Workflow"}
+        <FormField
+          control={form.control}
+          name="websiteUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Website URL</FormLabel>
+              <FormControl>
+                <Input placeholder="https://acme.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="salesChannels"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sales Channels</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={field.value ? true : undefined}
+                    >
+                      {field.value?.length > 0
+                        ? field.value.map((value) => {
+                            const channel = salesChannels.find(
+                              (channel) => channel.value === value
+                            );
+                            return channel?.label;
+                          }).join(', ')
+                        : "Select sales channels..."}
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                  <Command>
+                    <CommandList>
+                      <CommandEmpty>No channels found.</CommandEmpty>
+                      <CommandGroup>
+                        {salesChannels.map((channel) => (
+                          <CommandItem
+                            key={channel.value}
+                            onSelect={() => {
+                              if (field.value?.includes(channel.value)) {
+                                field.onChange(
+                                  field.value?.filter(
+                                    (value) => value !== channel.value
+                                  )
+                                );
+                              } else {
+                                field.onChange([
+                                  ...(field.value || []),
+                                  channel.value,
+                                ]);
+                              }
+                            }}
+                          >
+                            <Checkbox
+                              checked={field.value?.includes(channel.value)}
+                              className="mr-2 h-4 w-4"
+                            />
+                            {channel.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="pricingModel"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pricing Model</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a pricing model" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {pricingModels.map((model) => (
+                    <SelectItem key={model.value} value={model.value}>
+                      {model.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={loading}>
+          {loading ? "Loading" : "Submit"}
         </Button>
       </form>
     </Form>

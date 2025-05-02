@@ -1,24 +1,26 @@
 
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import AdminLayout from '@/components/AdminLayout';
-import { registerNavigate } from '@/utils/navigation';
+import { Outlet } from 'react-router-dom';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Navbar } from '@/components/Navbar';
+import { Sidebar } from '@/components/Sidebar';
 
-// This is a wrapper component to maintain the import structure
-// but use our existing AdminLayout component and register navigation
-export default function AdminLayoutWrapper() {
-  const navigate = useNavigate();
-  
-  // Register the navigate function for use outside of components
-  React.useEffect(() => {
-    registerNavigate(navigate);
-    return () => {
-      // Unregister on unmount
-      registerNavigate(() => {
-        console.warn('Navigation function was unregistered');
-      });
-    };
-  }, [navigate]);
-  
-  return <AdminLayout><Outlet /></AdminLayout>;
+interface AdminLayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+      <div className="flex flex-1">
+        <Sidebar />
+        <ScrollArea className="h-screen w-full">
+          <main className="flex-1 p-4 md:p-6">
+            {children ?? <Outlet />}
+          </main>
+        </ScrollArea>
+      </div>
+    </div>
+  );
 }

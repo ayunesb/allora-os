@@ -5,6 +5,7 @@ interface ProductionDataReturn {
   isProductionMode: boolean;
   isProductionReady: boolean;
   isProduction: boolean;
+  isValidating?: boolean;
   forceProductionMode: (value: boolean) => void;
   validateProductionData: () => Promise<boolean>;
 }
@@ -12,11 +13,19 @@ interface ProductionDataReturn {
 export function useProductionData(): ProductionDataReturn {
   const [isProductionMode, setIsProductionMode] = useState<boolean>(false);
   const [isProductionReady, setIsProductionReady] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
   
   // Function to validate production data
   const validateProductionData = async (): Promise<boolean> => {
-    // Implementation would go here
-    return true;
+    setIsValidating(true);
+    try {
+      // Implementation would go here
+      // Simulate an async validation
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return true;
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   // Force production mode
@@ -38,6 +47,7 @@ export function useProductionData(): ProductionDataReturn {
     isProductionMode,
     isProductionReady,
     isProduction: isProductionMode,
+    isValidating,
     forceProductionMode,
     validateProductionData
   };

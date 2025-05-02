@@ -11,9 +11,11 @@ const INITIAL_STATE: ReadinessResult = {
 export const usePreLaunchValidation = () => {
   const [validationResult, setValidationResult] = useState<ReadinessResult>(INITIAL_STATE);
   const [isValidating, setIsValidating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const runValidation = async () => {
     setIsValidating(true);
+    setError(null);
     
     try {
       // Simulate validation process
@@ -45,8 +47,9 @@ export const usePreLaunchValidation = () => {
         issues,
         passedChecks
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Validation failed:', error);
+      setError(error?.message || 'Validation failed');
     } finally {
       setIsValidating(false);
     }
@@ -60,6 +63,7 @@ export const usePreLaunchValidation = () => {
   return {
     isValidating,
     validationResult,
+    error,
     runValidation
   };
 };
