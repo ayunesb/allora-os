@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { WebhookEvent } from '@/types/unified-types';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import JsonViewer from '@/components/JsonViewer';
 
 interface WebhookEventDetailModalProps {
-  event: UnifiedWebhookEvent;
+  event: WebhookEvent;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -30,8 +30,8 @@ const WebhookEventDetailModal: React.FC<WebhookEventDetailModalProps> = ({
     }
   };
   
-  const formattedDate = event.created_at ? 
-    format(new Date(event.created_at), 'PPP p') : 
+  const formattedDate = event.created_at || event.timestamp ? 
+    format(new Date(event.created_at || event.timestamp), 'PPP p') : 
     'Unknown date';
   
   return (
@@ -51,7 +51,7 @@ const WebhookEventDetailModal: React.FC<WebhookEventDetailModalProps> = ({
             <div className="bg-muted/50 rounded-lg p-3 grid grid-cols-2 gap-2 text-sm">
               <div>
                 <p className="text-muted-foreground">Event Type</p>
-                <p className="font-mono">{event.event_type || event.eventType}</p>
+                <p className="font-mono">{event.event_type || event.eventType || event.type}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Source</p>
@@ -59,7 +59,7 @@ const WebhookEventDetailModal: React.FC<WebhookEventDetailModalProps> = ({
               </div>
               <div>
                 <p className="text-muted-foreground">Target URL</p>
-                <p className="font-mono truncate">{event.targetUrl || event.url}</p>
+                <p className="font-mono truncate">{event.targetUrl || event.url || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Duration</p>

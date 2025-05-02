@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Campaign } from '@/models/campaign';
+import { Campaign } from '@/types/unified-types';
 import { 
   Table,
   TableBody,
@@ -19,6 +19,14 @@ interface CampaignTableProps {
   isLoading: boolean;
   error?: string | null;
   onRetry?: () => void;
+}
+
+// Add a type that includes companies for backward compatibility
+interface CampaignWithCompany extends Campaign {
+  companies?: {
+    name: string;
+    id: string;
+  };
 }
 
 const CampaignTable = ({ 
@@ -96,20 +104,24 @@ const CampaignTable = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {campaigns.map((campaign) => (
-          <TableRow key={campaign.id}>
-            <TableCell className="font-medium">{campaign.name}</TableCell>
-            <TableCell>
-              {campaign.companies?.name || '-'}
-            </TableCell>
-            <TableCell>
-              <Badge variant="outline" className="bg-primary/10 text-primary">
-                {campaign.platform}
-              </Badge>
-            </TableCell>
-            <TableCell>{formatCurrency(campaign.budget || 0)}</TableCell>
-          </TableRow>
-        ))}
+        {campaigns.map((campaign) => {
+          // Type cast to handle potential companies property
+          const campaignWithCompany = campaign as CampaignWithCompany;
+          return (
+            <TableRow key={campaign.id}>
+              <TableCell className="font-medium">{campaign.name}</TableCell>
+              <TableCell>
+                {campaignWithCompany.companies?.name || '-'}
+              </TableCell>
+              <TableCell>
+                <Badge variant="outline" className="bg-primary/10 text-primary">
+                  {campaign.platform}
+                </Badge>
+              </TableCell>
+              <TableCell>{formatCurrency(campaign.budget || 0)}</TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

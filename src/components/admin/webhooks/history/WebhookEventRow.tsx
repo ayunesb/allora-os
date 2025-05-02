@@ -4,12 +4,12 @@ import { TableRow, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { WebhookEvent } from '@/types/unified-types';
 import { truncateUrl } from '@/utils/formatting';
 import { formatRelativeTime } from '@/utils/dateUtils';
 
 interface WebhookEventRowProps {
-  event: UnifiedWebhookEvent;
+  event: WebhookEvent;
   onViewDetail: () => void;
 }
 
@@ -48,7 +48,7 @@ const WebhookEventRow: React.FC<WebhookEventRowProps> = ({ event, onViewDetail }
   const statusConfig = getStatusVariant(event.status);
   
   // Either use eventType or event_type property based on which one exists
-  const eventType = event.eventType || event.event_type || 'unknown';
+  const eventType = event.eventType || event.event_type || event.type || 'unknown';
   
   // Use the URL from either targetUrl or url property
   const url = event.targetUrl || event.url || '';

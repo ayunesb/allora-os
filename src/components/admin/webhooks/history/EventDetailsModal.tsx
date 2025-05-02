@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { WebhookEvent } from '@/types/unified-types';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
@@ -26,7 +26,7 @@ const formatDateTimeString = (dateString: string): string => {
 };
 
 interface EventDetailsModalProps {
-  event: UnifiedWebhookEvent;
+  event: WebhookEvent;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -59,7 +59,7 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium">Event Type</p>
-              <p className="text-sm">{event.event_type || event.eventType || 'Unknown'}</p>
+              <p className="text-sm">{event.event_type || event.eventType || event.type || 'Unknown'}</p>
             </div>
             <div>
               <p className="text-sm font-medium">Status</p>
@@ -72,17 +72,17 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium">Created At</p>
-              <p className="text-sm">{formatDateTimeString(event.created_at || event.timestamp)}</p>
+              <p className="text-sm">{formatDateTimeString(event.created_at || event.timestamp || '')}</p>
             </div>
             <div>
               <p className="text-sm font-medium">Webhook Type</p>
-              <p className="text-sm capitalize">{event.webhookType || event.webhook_type || event.type || 'custom'}</p>
+              <p className="text-sm capitalize">{event.webhookType || event.type || 'custom'}</p>
             </div>
           </div>
 
           <div>
             <p className="text-sm font-medium">Target URL</p>
-            <p className="text-sm break-all">{event.targetUrl || event.url}</p>
+            <p className="text-sm break-all">{event.targetUrl || event.url || 'N/A'}</p>
           </div>
 
           <Separator />
@@ -105,10 +105,10 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
           </div>
           
           {/* Error details if any */}
-          {event.errorMessage && (
+          {event.responseCode && event.responseCode >= 400 && (
             <div className="mt-4 p-4 border border-red-300 rounded-md bg-red-50 dark:bg-red-900/20">
-              <h3 className="text-sm font-medium text-red-700 dark:text-red-400">Error Message</h3>
-              <p className="text-sm text-red-600 dark:text-red-400">{event.errorMessage}</p>
+              <h3 className="text-sm font-medium text-red-700 dark:text-red-400">Error Code</h3>
+              <p className="text-sm text-red-600 dark:text-red-400">Response code: {event.responseCode}</p>
             </div>
           )}
         </div>

@@ -5,6 +5,7 @@ export type Platform = "meta" | "tiktok" | "email" | "whatsapp";
 export interface Campaign {
   id: string;
   name: string;
+  description?: string;
   platform: Platform;
   status: CampaignStatus;
   budget: number;
@@ -13,9 +14,18 @@ export interface Campaign {
   justification?: string;
   adCopy?: string;
   audience?: string;
-  startDate?: string;
-  endDate?: string;
+  healthScore?: string;
+  impressions?: number;
+  clicks?: number;
+  leads?: number;
+  roi?: number;
+  aiGenerated?: boolean;
   platform_specific_id?: string;
   management_fee?: number;
   total_amount?: number;
+  deployment_status?: string;
+  payment_status?: string;
+  last_synced_at?: string;
+  startDate?: string;
+  endDate?: string;
 }
