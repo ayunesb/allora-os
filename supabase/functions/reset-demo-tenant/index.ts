@@ -14,7 +14,7 @@ const getSupabaseClient = () => {
 
 Deno.serve(async (req) => {
   try {
-    // Check for scheduled cron job header
+    // Check for scheduled cron job header or proper authorization
     const isCronRequest = req.headers.get('Authorization') === `Bearer ${Deno.env.get('CRON_SECRET')}`;
     
     if (!req.method === 'POST' && !isCronRequest) {
@@ -65,7 +65,10 @@ Deno.serve(async (req) => {
     const { error: updateError } = await supabase
       .from('tenant_profiles')
       .update({ 
-        settings: { demo_reset_count: Number(Deno.env.get('demo_reset_count') || 0) + 1 },
+        settings: { 
+          demo_reset_count: Number(Deno.env.get('demo_reset_count') || 0) + 1,
+          last_reset: new Date().toISOString()
+        },
         updated_at: new Date().toISOString()
       })
       .eq('id', demoTenantId);

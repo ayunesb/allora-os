@@ -60,3 +60,14 @@ export interface PluginLog {
   plugin_name?: string;
   created_at?: string;
 }
+
+/**
+ * Plugin analytics data
+ */
+export interface PluginAnalytics {
+  total_executions: number;
+  success_rate: number;
+  average_value: number;
+  total_value: number;
+  execution_history: PluginLog[];
+}

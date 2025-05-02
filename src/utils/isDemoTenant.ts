@@ -2,64 +2,59 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Check if the current tenant is in demo mode
+ * Check if the current tenant is the demo tenant
  * @param tenantId The tenant ID to check
- * @returns Boolean indicating if this is a demo tenant
  */
-export async function isDemoTenant(tenantId?: string): Promise<boolean> {
+export async function isDemoTenant(tenantId?: string | null): Promise<boolean> {
   if (!tenantId) return false;
   
+  const demoTenantId = import.meta.env.VITE_DEMO_TENANT_ID;
+  if (demoTenantId && tenantId === demoTenantId) {
+    return true;
+  }
+  
   try {
-    // First check in tenants table
+    // Additional check against database if needed
     const { data, error } = await supabase
-      .from('tenants')
-      .select('is_demo')
+      .from('tenant_profiles')
+      .select('settings')
       .eq('id', tenantId)
-      .maybeSingle();
-    
+      .single();
+      
     if (error) throw error;
     
-    // If we explicitly found is_demo flag, return it
-    if (data && 'is_demo' in data) {
-      return !!data.is_demo;
-    }
-    
-    // If no is_demo flag found but we have an environment variable, check that
-    const demoTenantId = process.env.DEMO_TENANT_ID || '';
-    if (demoTenantId) {
-      return tenantId === demoTenantId;
-    }
-    
-    // Default to false
-    return false;
+    return data?.settings?.is_demo === true;
   } catch (error) {
-    console.error('Error checking if demo tenant:', error);
+    console.error('Error checking demo tenant status:', error);
     return false;
   }
 }
 
 /**
- * Check if a given user is associated with a demo tenant
- * @param userId The user ID to check
- * @returns Boolean indicating if this user is in a demo tenant
+ * Reset the demo tenant to its initial state
+ * @param tenantId The tenant ID to reset
  */
-export async function isUserInDemoTenant(userId?: string): Promise<boolean> {
-  if (!userId) return false;
+export async function resetDemoTenant(tenantId?: string | null): Promise<boolean> {
+  if (!tenantId) return false;
   
   try {
-    // Get user's tenant
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('id', userId)
-      .maybeSingle();
-      
-    if (profileError || !profile?.tenant_id) return false;
+    // Check if this is actually a demo tenant first
+    const isDemo = await isDemoTenant(tenantId);
+    if (!isDemo) {
+      console.error('Cannot reset non-demo tenant');
+      return false;
+    }
     
-    // Check if the tenant is in demo mode
-    return await isDemoTenant(profile.tenant_id);
+    // Call the edge function to reset the demo tenant
+    const { data, error } = await supabase.functions.invoke('reset-demo-tenant', {
+      body: { tenant_id: tenantId }
+    });
+    
+    if (error) throw error;
+    
+    return data?.success === true;
   } catch (error) {
-    console.error('Error checking if user is in demo tenant:', error);
+    console.error('Error resetting demo tenant:', error);
     return false;
   }
 }
