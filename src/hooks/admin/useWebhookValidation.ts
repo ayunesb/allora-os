@@ -28,7 +28,7 @@ export function useWebhookValidation(type: WebhookType) {
 
     try {
       // Use the imported validateWebhookUrlFormat function
-      const isValidFormat = validateWebhookUrlFormat(url);
+      const isValidFormat = validateWebhookUrlFormat(url, type);
       setIsValid(isValidFormat);
       
       if (!isValidFormat) {

@@ -122,6 +122,21 @@ export interface ExtendedAccessibilityContextType {
   autoUpdate?: boolean;
 }
 
+// Add this for compliance context
+export interface ExtendedComplianceContextType {
+  isCompliantMode: boolean;
+  toggleCompliantMode: () => void;
+  hasAcknowledgedTerms: boolean;
+  acknowledgeTerms: () => void;
+  privacyLevel: string;
+  setPrivacyLevel: (level: string) => void;
+  dataRetentionDays: number;
+  setDataRetentionDays: (days: number) => void;
+  loadCompliance: () => void;
+  saveCompliance: () => void;
+  resetCompliance: () => void;
+}
+
 // Re-export key types
 export type {
   User,

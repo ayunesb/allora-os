@@ -1,71 +1,65 @@
 
 /**
- * Standard webhook type definitions used across the application
+ * Fixed types for webhooks to ensure consistency across the app
  */
 
-// Supported webhook integration types
 export type WebhookType = 'zapier' | 'custom' | 'slack' | 'github' | 'stripe' | 'notion';
 
-// Webhook event types for business events
-export type BusinessEventType = 
-  | 'campaign_created' 
-  | 'strategy_approved' 
-  | 'lead_converted'
-  | 'revenue_milestone'
-  | 'user_onboarded'
-  | 'campaign_launched'
-  | 'lead_added'
-  | 'test_event'
-  | 'test_webhook';
-
-// Webhook event status
 export type WebhookStatus = 'success' | 'failed' | 'pending';
 
-// Standard webhook event interface
 export interface WebhookEvent {
   id: string;
   webhook_id: string;
   event_type: string;
   status: WebhookStatus;
   created_at: string;
+  payload: any;
+  response?: any;
   targetUrl: string;
-  webhook_type: WebhookType;
-  response: any;
-  payload?: any;
-  timestamp?: string;
-  source?: string;
-  webhookType?: WebhookType;
-  eventType?: string;
-  url?: string;
-  duration?: number;
+  webhookType: WebhookType;
+  webhook_type?: WebhookType;
   type?: WebhookType;
+  timestamp: string;
+  duration?: number;
+  errorMessage?: string;
+  responseCode?: number;
+  source?: string;
+  url?: string;
+  eventType?: string;
 }
 
-// Payload interface for business events
-export interface BusinessEventPayload {
-  eventType: BusinessEventType;
-  data: Record<string, any>;
-}
-
-// Result of webhook operations
-export interface WebhookResult {
+export interface WebhookTestResult {
   success: boolean;
   message?: string;
   statusCode?: number;
   data?: any;
-  error?: any;
 }
 
-// Webhook configuration
-export interface WebhookConfig {
-  id?: string;
-  type: WebhookType;
-  url: string;
-  name?: string;
-  description?: string;
-  events?: string[];
-  headers?: Record<string, string>;
-  enabled?: boolean;
-  created_at?: string;
-  tenant_id?: string;
+export interface WebhookFilter {
+  types?: WebhookType[];
+  status?: WebhookStatus | '';
+  dateRange?: [Date | null, Date | null];
+  search?: string;
+}
+
+export type BusinessEventType = 
+  | 'campaign_created' 
+  | 'strategy_approved' 
+  | 'lead_converted'
+  | 'revenue_milestone'
+  | 'user_onboarded'
+  | 'test_webhook'
+  | 'test_event';
+
+export interface BusinessEventPayload {
+  eventType: string;
+  data: Record<string, any>;
+}
+
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+  statusCode?: number;
+  responseData?: any;
 }

@@ -11,7 +11,7 @@ import { UnifiedWebhookEvent } from '@/types/unified-types';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import  JsonViewer  from '@/components/JsonViewer';
+import JsonViewer from '@/components/JsonViewer';
 
 interface EventDetailsModalProps {
   event: UnifiedWebhookEvent;
