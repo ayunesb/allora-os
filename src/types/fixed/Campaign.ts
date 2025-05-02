@@ -1,3 +1,4 @@
+
 export type CampaignStatus = "draft" | "active" | "paused" | "completed";
 export type Platform = "meta" | "tiktok" | "email" | "whatsapp";
 
@@ -16,7 +17,7 @@ export interface Campaign {
   adCopy?: string;
   goal?: string;
   audience?: string;
-  executiveBot?: string;
+  executiveBot?: ExecutiveBot;
   justification?: string;
   status: CampaignStatus;
   startDate?: string;
@@ -38,6 +39,9 @@ export interface Campaign {
   payment_status?: string;
   platform_status?: string;
   ad_platform?: string;
+  platform_specific_id?: string;
+  management_fee?: number;
+  total_amount?: number;
   targeting?: {
     audience?: string;
     location?: string;

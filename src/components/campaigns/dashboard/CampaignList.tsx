@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Campaign } from '@/types/fixed/Campaign';
+import { Campaign } from '@/types/unified-types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -66,7 +66,7 @@ export const CampaignList: React.FC<CampaignListProps> = ({
               )}
             </div>
             <Button asChild variant="link">
-              <Link to={`/campaigns/${campaign.id}`}>View Details</Link>
+              <Link to={`/dashboard/campaigns/${campaign.id}`}>View Details</Link>
             </Button>
           </CardFooter>
         </Card>
