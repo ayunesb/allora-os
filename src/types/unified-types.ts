@@ -1,3 +1,4 @@
+
 import { User } from './fixed/User';
 import { WebhookType, BusinessEventType, WebhookResult, BusinessEventPayload, WebhookStatus, WebhookEvent } from './fixed/Webhook';
 import { ExtendedComplianceContextType } from './fixed/Compliance';
@@ -118,7 +119,7 @@ export interface ExtendedAccessibilityContextType {
   toggleInvertColors: () => void;
 }
 
-// Export the ExtendedComplianceContextType
+// Export the ExtendedComplianceContextType and AuthContextProps
 export { ExtendedComplianceContextType, AuthContextProps }
 
 // Re-export key types

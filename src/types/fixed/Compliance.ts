@@ -34,20 +34,20 @@ export interface ExtendedComplianceContextType extends ComplianceContextType {
   scheduleComplianceCheck: () => Promise<void>;
   enableAutoUpdates: () => Promise<boolean>;
   
-  // Mode toggles and settings (optional)
-  isCompliantMode?: boolean;
-  toggleCompliantMode?: () => void;
-  hasAcknowledgedTerms?: boolean;
-  acknowledgeTerms?: () => void;
+  // Mode toggles and settings
+  isCompliantMode: boolean;
+  toggleCompliantMode: () => void;
+  hasAcknowledgedTerms: boolean;
+  acknowledgeTerms: () => void;
   
-  // Data retention settings (optional)
-  privacyLevel?: string;
-  setPrivacyLevel?: (level: string) => void;
-  dataRetentionDays?: number;
-  setDataRetentionDays?: (days: number) => void;
+  // Data retention settings
+  privacyLevel: 'standard' | 'strict' | 'custom';
+  setPrivacyLevel: (level: 'standard' | 'strict' | 'custom') => void;
+  dataRetentionDays: number;
+  setDataRetentionDays: (days: number) => void;
   
-  // Document management (optional)
-  loadCompliance?: () => void;
-  saveCompliance?: () => void;
-  resetCompliance?: () => void;
+  // Document management
+  loadCompliance: () => void;
+  saveCompliance: () => void;
+  resetCompliance: () => void;
 }

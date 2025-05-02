@@ -1,71 +1,118 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 
-export function AiBehaviorSettings() {
+export default function AiBehaviorSettings() {
+  const [creativeThinking, setCreativeThinking] = useState(70);
+  const [riskTolerance, setRiskTolerance] = useState(50);
+  const [autonomyLevel, setAutonomyLevel] = useState(60);
+  const [proactiveAssistance, setProactiveAssistance] = useState(true);
+  const [executiveModel, setExecutiveModel] = useState('balanced');
+  const [decisionSpeed, setDecisionSpeed] = useState('normal');
+
   return (
-    <Card>
-      <CardContent className="pt-6 space-y-6">
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-medium mb-2">Decision Making</h3>
-            <RadioGroup defaultValue="balanced">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="cautious" id="cautious" />
-                <Label htmlFor="cautious">Cautious</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="balanced" id="balanced" />
-                <Label htmlFor="balanced">Balanced</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="aggressive" id="aggressive" />
-                <Label htmlFor="aggressive">Aggressive</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-2">Communication Style</h3>
-            <RadioGroup defaultValue="direct">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="formal" id="formal" />
-                <Label htmlFor="formal">Formal</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="direct" id="direct" />
-                <Label htmlFor="direct">Direct</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="casual" id="casual" />
-                <Label htmlFor="casual">Casual</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium mb-2">Market Response</h3>
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-6">
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">How should AI executives respond to market changes?</p>
-              <Slider 
-                defaultValue={[50]} 
-                max={100} 
-                step={10}
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Conservative</span>
-                <span>Balanced</span>
-                <span>Reactive</span>
+              <Label htmlFor="executive-model">Executive AI Model</Label>
+              <Select value={executiveModel} onValueChange={setExecutiveModel}>
+                <SelectTrigger id="executive-model">
+                  <SelectValue placeholder="Select model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cautious">Cautious</SelectItem>
+                  <SelectItem value="balanced">Balanced</SelectItem>
+                  <SelectItem value="aggressive">Growth-focused</SelectItem>
+                  <SelectItem value="innovative">Innovative</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">Determines overall approach to business decisions</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="decision-speed">Decision Speed</Label>
+              <Select value={decisionSpeed} onValueChange={setDecisionSpeed}>
+                <SelectTrigger id="decision-speed">
+                  <SelectValue placeholder="Select speed" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="deliberate">Deliberate</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="fast">Fast</SelectItem>
+                  <SelectItem value="immediate">Immediate</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">How quickly the AI executive team makes decisions</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="creative-thinking">Creative Thinking</Label>
+                <span className="text-sm text-muted-foreground">{creativeThinking}%</span>
               </div>
+              <Slider 
+                id="creative-thinking" 
+                min={0} 
+                max={100} 
+                step={10} 
+                value={[creativeThinking]} 
+                onValueChange={(values) => setCreativeThinking(values[0])} 
+              />
+              <p className="text-sm text-muted-foreground">Higher values prioritize novel and innovative solutions</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="risk-tolerance">Risk Tolerance</Label>
+                <span className="text-sm text-muted-foreground">{riskTolerance}%</span>
+              </div>
+              <Slider 
+                id="risk-tolerance" 
+                min={0} 
+                max={100} 
+                step={10} 
+                value={[riskTolerance]} 
+                onValueChange={(values) => setRiskTolerance(values[0])}
+              />
+              <p className="text-sm text-muted-foreground">Higher values mean more aggressive strategies</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="autonomy-level">Autonomy Level</Label>
+                <span className="text-sm text-muted-foreground">{autonomyLevel}%</span>
+              </div>
+              <Slider 
+                id="autonomy-level" 
+                min={0} 
+                max={100} 
+                step={10} 
+                value={[autonomyLevel]} 
+                onValueChange={(values) => setAutonomyLevel(values[0])}
+              />
+              <p className="text-sm text-muted-foreground">How independently the AI can make decisions without confirmation</p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="proactive" className="mb-1 block">Proactive Assistance</Label>
+                <p className="text-sm text-muted-foreground">Allow AI to suggest actions without being asked</p>
+              </div>
+              <Switch 
+                id="proactive" 
+                checked={proactiveAssistance} 
+                onCheckedChange={setProactiveAssistance} 
+              />
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
-
-export default AiBehaviorSettings;

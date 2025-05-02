@@ -1,85 +1,73 @@
 
 /**
- * Date utility functions for formatting and manipulating dates
+ * Date formatting and calculation utilities
  */
 
 /**
- * Format a date string to a localized date-time string
+ * Format a date in relative time (e.g. "2 days ago", "just now")
+ * @param dateString ISO date string or Date object
+ * @returns Formatted relative time string
  */
-export function formatDateTimeString(dateString: string): string {
-  if (!dateString) return 'Unknown';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  } catch (error) {
-    return 'Invalid Date';
-  }
-}
-
-/**
- * Format a date string to a localized date string
- */
-export function formatDateString(dateString: string): string {
-  if (!dateString) return 'Unknown';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  } catch (error) {
-    return 'Invalid Date';
-  }
-}
-
-/**
- * Format a date string to a localized time string
- */
-export function formatTimeString(dateString: string): string {
-  if (!dateString) return 'Unknown';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString();
-  } catch (error) {
-    return 'Invalid Date';
-  }
-}
-
-/**
- * Get the relative time from now (e.g. "5 minutes ago")
- */
-export function getRelativeTime(dateString: string): string {
-  if (!dateString) return 'Unknown';
+export const formatRelativeTime = (dateString: string | Date): string => {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
   
-  try {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) {
-      return `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`;
-    }
-    
-    const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
-    }
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
-    }
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 30) {
-      return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
-    }
-    
-    const diffInMonths = Math.floor(diffInDays / 30);
-    if (diffInMonths < 12) {
-      return `${diffInMonths} month${diffInMonths !== 1 ? 's' : ''} ago`;
-    }
-    
-    const diffInYears = Math.floor(diffInMonths / 12);
-    return `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
-  } catch (error) {
-    return 'Unknown';
+  if (diffSecs < 60) {
+    return 'just now';
+  } else if (diffMins < 60) {
+    return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  } else if (diffDays < 30) {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  } else {
+    // Format as a standard date for older dates
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   }
-}
+};
+
+/**
+ * Get relative time (for backward compatibility)
+ * @param dateString ISO date string or Date object
+ * @returns Formatted relative time string
+ */
+export const getRelativeTime = formatRelativeTime;
+
+/**
+ * Format a date as a standard date string
+ * @param date ISO date string or Date object
+ * @returns Formatted date string (e.g. "Jan 1, 2023")
+ */
+export const formatDate = (date: string | Date): string => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+/**
+ * Format a date as a standard date and time string
+ * @param date ISO date string or Date object
+ * @returns Formatted date and time string (e.g. "Jan 1, 2023, 12:00 PM")
+ */
+export const formatDateTime = (date: string | Date): string => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  });
+};

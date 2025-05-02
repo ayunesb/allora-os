@@ -1,96 +1,75 @@
 
-import { useState, useCallback, useMemo } from 'react';
-import { WebhookStatus, WebhookType } from '@/types/fixed/Webhook';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { useState, useCallback } from 'react';
+import { WebhookStatus, WebhookType } from '@/types/unified-types';
 
-export type FilterOptions = {
+export interface WebhookFilterState {
   types: WebhookType[];
   status: WebhookStatus | '';
   dateRange: [Date | null, Date | null];
   search: string;
-};
+}
 
-export function useWebhookHistoryFilters(initialEvents: UnifiedWebhookEvent[]) {
-  const [filters, setFilters] = useState<FilterOptions>({
+export default function useWebhookHistoryFilters() {
+  const [filter, setFilter] = useState<WebhookFilterState>({
     types: [],
     status: '',
     dateRange: [null, null],
-    search: ''
+    search: '',
   });
 
-  // Extract unique webhook types for filter options
-  const availableTypes = useMemo(() => {
-    const types = new Set<WebhookType>();
-    initialEvents.forEach(event => {
-      const type = event.webhookType || event.webhook_type || event.type;
-      if (type && typeof type === 'string') {
-        types.add(type as WebhookType);
-      }
+  const updateFilter = useCallback((newFilter: Partial<WebhookFilterState>) => {
+    setFilter(prev => ({
+      ...prev,
+      ...newFilter
+    }));
+  }, []);
+
+  const resetFilter = useCallback(() => {
+    setFilter({
+      types: [],
+      status: '',
+      dateRange: [null, null],
+      search: '',
     });
-    return Array.from(types);
-  }, [initialEvents]);
+  }, []);
 
-  // Filter events based on current filters
-  const filteredEvents = useMemo(() => {
-    return initialEvents.filter(event => {
-      // Type filter
-      if (filters.types.length > 0) {
-        const eventType = event.webhookType || event.webhook_type || event.type;
-        if (!eventType || !filters.types.includes(eventType as WebhookType)) {
-          return false;
-        }
-      }
+  const setTypeFilter = useCallback((types: WebhookType[]) => {
+    setFilter(prev => ({
+      ...prev,
+      types
+    }));
+  }, []);
 
-      // Status filter - only apply if a status is selected
-      if (filters.status !== '') {
-        const eventStatus = event.status as WebhookStatus;
-        if (eventStatus !== filters.status) {
-          return false;
-        }
-      }
+  const setStatusFilter = useCallback((status: WebhookStatus | '') => {
+    setFilter(prev => ({
+      ...prev,
+      status
+    }));
+  }, []);
 
-      // Date range filter
-      const eventDate = new Date(event.created_at || event.timestamp || '');
-      if (filters.dateRange[0] && eventDate < filters.dateRange[0]) {
-        return false;
-      }
-      if (filters.dateRange[1]) {
-        // Add one day to include events from the end date
-        const endDate = new Date(filters.dateRange[1]);
-        endDate.setDate(endDate.getDate() + 1);
-        if (eventDate > endDate) {
-          return false;
-        }
-      }
+  const setDateRangeFilter = useCallback((dateRange: [Date | null, Date | null]) => {
+    setFilter(prev => ({
+      ...prev,
+      dateRange
+    }));
+  }, []);
 
-      // Search filter
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        const eventType = event.eventType || event.event_type || '';
-        const url = event.targetUrl || event.url || '';
-        const source = event.source || '';
-        
-        const matchesSearch = 
-          eventType.toLowerCase().includes(searchLower) ||
-          url.toLowerCase().includes(searchLower) ||
-          source.toLowerCase().includes(searchLower) ||
-          (event.id ? event.id.toLowerCase().includes(searchLower) : false);
-        
-        if (!matchesSearch) {
-          return false;
-        }
-      }
+  const setSearchFilter = useCallback((search: string) => {
+    setFilter(prev => ({
+      ...prev,
+      search
+    }));
+  }, []);
 
-      return true;
-    });
-  }, [initialEvents, filters]);
-
-  return { 
-    filters, 
-    setFilters, 
-    filteredEvents, 
-    availableTypes 
+  return {
+    filter,
+    updateFilter,
+    resetFilter,
+    setTypeFilter,
+    setStatusFilter,
+    setDateRangeFilter,
+    setSearchFilter
   };
 }
 
-export default useWebhookHistoryFilters;
+export { WebhookFilterState };

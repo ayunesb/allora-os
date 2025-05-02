@@ -1,156 +1,101 @@
 
-import React from 'react';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { toast } from 'sonner';
 
-// Define the form schema
-const formSchema = z.object({
-  focusIndustries: z.string(),
-  competitorAnalysis: z.boolean(),
-  marketTrends: z.boolean(),
-  customerFeedback: z.boolean(),
-  additionalContext: z.string().optional(),
-  riskTolerance: z.enum(['low', 'medium', 'high']),
-});
+export default function AiPreferencesForm() {
+  const [usesIndustryData, setUsesIndustryData] = useState(true);
+  const [includesCompetitorAnalysis, setIncludesCompetitorAnalysis] = useState(true);
+  const [strategiesPerWeek, setStrategiesPerWeek] = useState<'1-2' | '3-5' | '5+'>('1-2');
+  const [allowsAutonomy, setAllowsAutonomy] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-type FormValues = z.infer<typeof formSchema>;
-
-export function AiPreferencesForm() {
-  // Initialize form
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      focusIndustries: '',
-      competitorAnalysis: true,
-      marketTrends: true,
-      customerFeedback: false,
-      additionalContext: '',
-      riskTolerance: 'medium',
-    },
-  });
-
-  // Form submission
-  const onSubmit = (data: FormValues) => {
-    console.log('Form submitted:', data);
-    // In a real app, you would save these preferences
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    setIsSaving(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success('AI preferences saved successfully');
+    } catch (error) {
+      toast.error('Failed to save AI preferences');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="focusIndustries"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Focus Industries</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. SaaS, E-commerce, Healthcare" {...field} />
-              </FormControl>
-              <FormDescription>
-                Industries the AI should focus on for strategy development
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <form onSubmit={handleSubmit}>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <Label className="text-base">Strategy Generation Frequency</Label>
+              <RadioGroup value={strategiesPerWeek} onValueChange={(value) => setStrategiesPerWeek(value as '1-2' | '3-5' | '5+')}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="1-2" id="weekly-1-2" />
+                  <Label htmlFor="weekly-1-2" className="font-normal">1-2 strategies per week</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="3-5" id="weekly-3-5" />
+                  <Label htmlFor="weekly-3-5" className="font-normal">3-5 strategies per week</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="5+" id="weekly-5-plus" />
+                  <Label htmlFor="weekly-5-plus" className="font-normal">5+ strategies per week</Label>
+                </div>
+              </RadioGroup>
+            </div>
 
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Strategy Components</h3>
-          <div className="space-y-2">
-            <FormField
-              control={form.control}
-              name="competitorAnalysis"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox 
-                      checked={field.value} 
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Competitor Analysis</FormLabel>
-                    <FormDescription>
-                      Include competitor analysis in strategies
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="marketTrends"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox 
-                      checked={field.value} 
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Market Trends</FormLabel>
-                    <FormDescription>
-                      Include market trend analysis in strategies
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="customerFeedback"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox 
-                      checked={field.value} 
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Customer Feedback</FormLabel>
-                    <FormDescription>
-                      Integrate customer feedback into strategy development
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="industry-data" className="mb-1 block">Use Industry Data</Label>
+                <p className="text-sm text-muted-foreground">Include market research in strategy creation</p>
+              </div>
+              <Switch 
+                id="industry-data" 
+                checked={usesIndustryData} 
+                onCheckedChange={setUsesIndustryData}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="competitor-analysis" className="mb-1 block">Competitor Analysis</Label>
+                <p className="text-sm text-muted-foreground">Include competitor benchmarking in strategies</p>
+              </div>
+              <Switch 
+                id="competitor-analysis" 
+                checked={includesCompetitorAnalysis} 
+                onCheckedChange={setIncludesCompetitorAnalysis}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="autonomy" className="mb-1 block">Allow Autonomous Implementation</Label>
+                <p className="text-sm text-muted-foreground">Let AI execute approved strategies without confirmation</p>
+              </div>
+              <Switch 
+                id="autonomy" 
+                checked={allowsAutonomy} 
+                onCheckedChange={setAllowsAutonomy}
+              />
+            </div>
+
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save Preferences'}
+            </Button>
           </div>
-        </div>
-
-        <FormField
-          control={form.control}
-          name="additionalContext"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Additional Context</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Add any additional context for the AI executives..." 
-                  {...field} 
-                  rows={4}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit">Save Preferences</Button>
-      </form>
-    </Form>
+        </CardContent>
+      </Card>
+    </form>
   );
 }
-
-export default AiPreferencesForm;
