@@ -3,6 +3,7 @@ import { User } from './fixed/User';
 import { WebhookType, BusinessEventType, WebhookStatus, WebhookEvent, WebhookTestResult, WebhookFilter } from './fixed/Webhook';
 import { ExtendedComplianceContextType } from './fixed/Compliance';
 import { AuthContextProps } from './fixed/Auth';
+import { Campaign, CampaignStatus, Platform } from './fixed/Campaign';
 
 // Social Media Types
 export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok' | 'YouTube';
@@ -129,6 +130,9 @@ export interface KPIMetric {
 
 // Export the ExtendedComplianceContextType and AuthContextProps
 export { ExtendedComplianceContextType, AuthContextProps }
+
+// Export Campaign types
+export { Campaign, CampaignStatus, Platform };
 
 // Re-export key types
 export type {

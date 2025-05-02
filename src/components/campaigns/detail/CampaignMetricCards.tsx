@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, Users, BarChart3 } from 'lucide-react';
-import { Campaign } from '@/models/campaign';
+import { Campaign } from '@/types/unified-types';
 
 interface CampaignMetricCardsProps {
   campaign: Campaign;

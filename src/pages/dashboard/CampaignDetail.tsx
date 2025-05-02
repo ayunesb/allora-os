@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { getCampaign, syncCampaignData, deployCampaign } from '@/services/campaignService';
-import { Campaign } from '@/models/campaign';
+import { Campaign } from '@/types/unified-types';
 import CampaignMetrics from '@/components/campaigns/CampaignMetrics';
 
 // Import refactored components
@@ -30,7 +30,7 @@ export default function CampaignDetail() {
       
       try {
         const campaignData = await getCampaign(id);
-        setCampaign(campaignData);
+        setCampaign(campaignData as Campaign);
       } catch (error) {
         console.error('Error fetching campaign:', error);
         toast.error('Failed to load campaign details');
@@ -53,7 +53,7 @@ export default function CampaignDetail() {
       if (result.success) {
         // Refresh campaign data
         const updatedCampaign = await getCampaign(campaign.id);
-        setCampaign(updatedCampaign);
+        setCampaign(updatedCampaign as Campaign);
         toast.success('Campaign data refreshed');
       } else {
         throw new Error(result.error);
@@ -77,7 +77,7 @@ export default function CampaignDetail() {
       if (result.success) {
         // Refresh campaign data
         const updatedCampaign = await getCampaign(campaign.id);
-        setCampaign(updatedCampaign);
+        setCampaign(updatedCampaign as Campaign);
         toast.success('Campaign deployed successfully!');
       } else {
         throw new Error(result.error);

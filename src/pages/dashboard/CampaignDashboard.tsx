@@ -7,7 +7,7 @@ import { useAdPlatformConnections } from '@/hooks/campaigns/useAdPlatformConnect
 import { refreshCampaignData } from '@/components/campaigns/dashboard/CampaignRefresh';
 import { toast } from 'sonner';
 import { refreshData } from '@/utils/shared/dataRefresh';
-import { Campaign } from '@/types/fixed/Campaign';
+import { Campaign } from '@/types/unified-types';
 
 // Component imports
 import { CampaignHeader } from '@/components/campaigns/dashboard/CampaignHeader';
@@ -30,7 +30,7 @@ export default function CampaignDashboard() {
   const { hasAdPlatformConnections } = useAdPlatformConnections();
   
   // Get filtered campaigns based on active tab
-  const filteredCampaigns = useFilteredCampaigns(campaigns as any[], activeTab);
+  const filteredCampaigns = useFilteredCampaigns(campaigns as Campaign[], activeTab);
   
   /**
    * Navigates to campaign creation or ad account connection page

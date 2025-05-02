@@ -1,7 +1,13 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { PageTitleProps } from '@/types/fixed/Layout';
+
+export interface PageTitleProps {
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+  className?: string;
+}
 
 export function PageTitle({ 
   children, 

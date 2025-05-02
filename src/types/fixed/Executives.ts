@@ -1,3 +1,4 @@
+
 export interface ExecutivePersona {
   id: string;
   name: string;
@@ -25,4 +26,9 @@ export interface ExecutiveMessagesProps {
   executiveName: string;
   executiveRole?: string;
   avatarUrl?: string;
+  executive?: {
+    name: string;
+    role: string;
+    avatarUrl: string;
+  };
 }

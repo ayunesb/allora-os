@@ -1,14 +1,12 @@
+
 import React from 'react';
 import { PageTitle } from "@/components/ui/page-title";
-import { AgentList } from "@/components/executives/AgentList";
-import { AgentFilters } from "@/components/executives/AgentFilters";
-import { useExecutiveAgents } from "@/hooks/useExecutiveAgents";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function ExecutiveAgents() {
-  const { agents, isLoading, error } = useExecutiveAgents();
   const navigate = useNavigate();
   
   const handleCreateAgent = () => {
@@ -22,18 +20,21 @@ export default function ExecutiveAgents() {
       </PageTitle>
       
       <div className="flex justify-between items-center mb-6">
-        <AgentFilters />
+        <div>
+          {/* Placeholder for agent filters */}
+          <Button variant="outline">All Agents</Button>
+        </div>
         <Button onClick={handleCreateAgent}>
           <Plus className="mr-2 h-4 w-4" />
           Create Agent
         </Button>
       </div>
       
-      <AgentList 
-        agents={agents} 
-        isLoading={isLoading} 
-        error={error} 
-      />
+      <Card>
+        <CardContent className="py-8 text-center">
+          <p>Executive agent functionality is being implemented.</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

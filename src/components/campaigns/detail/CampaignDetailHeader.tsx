@@ -2,7 +2,7 @@
 import { ArrowLeft, RefreshCcw, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Campaign } from '@/types/fixed/Campaign';
+import { Campaign } from '@/types/unified-types';
 import { Facebook } from 'lucide-react';
 import { TikTokIcon } from "@/components/icons/TikTokIcon";
 

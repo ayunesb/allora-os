@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Campaign } from '@/models/campaign';
+import { Campaign } from '@/types/unified-types';
 
 interface CampaignDetailsProps {
   campaign: Campaign;

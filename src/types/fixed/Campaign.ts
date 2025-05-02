@@ -1,7 +1,5 @@
-
-export type Platform = "meta" | "tiktok" | "email" | "whatsapp";
-
 export type CampaignStatus = "draft" | "active" | "paused" | "completed";
+export type Platform = "meta" | "tiktok" | "email" | "whatsapp";
 
 export type ExecutiveBot = string | {
   name: string;
@@ -12,20 +10,21 @@ export type ExecutiveBot = string | {
 export interface Campaign {
   id: string;
   name: string;
-  description?: string;
   platform: Platform;
-  ad_platform?: string;
+  budget: number;
+  description?: string;
+  adCopy?: string;
+  goal?: string;
+  audience?: string;
+  executiveBot?: string;
+  justification?: string;
   status: CampaignStatus;
-  start_date?: string;
   startDate?: string;
   endDate?: string;
-  budget?: number;
-  deployment_status?: string;
-  payment_status?: string;
-  platform_status?: string;
-  channel?: string;
-  summary?: string;
-  tags?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
   metrics?: {
     impressions?: number;
     clicks?: number;
@@ -35,13 +34,22 @@ export interface Campaign {
     cpc?: number;
     conversionRate?: number;
   };
-  createdAt?: string;
-  updatedAt?: string;
-  created_at?: string;
-  updated_at?: string;
-  executiveBot?: ExecutiveBot;
-  justification?: string;
-  roi?: string;
-  target_audience?: string;
-  title?: string;
+  deployment_status?: string;
+  payment_status?: string;
+  platform_status?: string;
+  ad_platform?: string;
+  targeting?: {
+    audience?: string;
+    location?: string;
+    interests?: string[];
+    age_range?: string;
+    gender?: string;
+  };
+  creatives?: Array<{
+    title?: string;
+    description?: string;
+    image_url?: string;
+    video_url?: string;
+    call_to_action?: string;
+  }>;
 }
