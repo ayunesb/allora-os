@@ -6,6 +6,7 @@ import { PageLoader } from '@/components/ui/page-loader';
 import RootLayout from "@/components/layout/RootLayout";
 import SidebarLayout from "@/components/layouts/SidebarLayout';
 import RequireAuth from '@/components/RequireAuth';
+import ExploreGalaxy from '@/pages/explore';
 
 // Lazy-loaded components
 const Dashboard = lazy(() => import('@/pages/dashboard/Index'));
@@ -38,6 +39,7 @@ export const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/gdpr-compliance" element={<GDPRCompliance />} />
         <Route path="/cookie-settings" element={<CookieSettings />} />
+        <Route path="/explore" element={<ExploreGalaxy />} />
 
         {/* Protected routes */}
         <Route path="/dashboard/*" element={
@@ -60,26 +62,26 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         } />
         <Route path="/onboarding" element={
-        } />rotectedRoute>
+          <ProtectedRoute>
             <Onboarding />
+          </ProtectedRoute>
+        } />
+
         {/* Admin routes */}
         <Route path="/admin/*" element={
           <ProtectedRoute adminOnly>
-            <AdminRoute> */}
-              <AdminDashboard />lement={
-            </AdminRoute> adminOnly>
-          </ProtectedRoute>
-        } />  <AdminDashboard />
+            <AdminRoute>
+              <AdminDashboard />
             </AdminRoute>
+          </ProtectedRoute>
+        } />
+
         {/* Development helper */}
         <Route path="/dev-admin-helper" element={<DevAdminHelper />} />
 
-        {/* Catch-all route */}*/}
-        <Route path="*" element={<NotFound />} /><DevAdminHelper />} />
+        {/* Catch-all route */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
-    </Suspense>ch-all route */}
-  );    <Route path="*" element={<NotFound />} />
-};    </Routes>
     </Suspense>
   );
 };
