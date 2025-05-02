@@ -117,6 +117,16 @@ export interface BusinessEventPayload {
   data: Record<string, any>;
 }
 
+// KPI Metrics Type
+export interface KPIMetric {
+  id: string;
+  tenant_id: string;
+  type: string;
+  value: number;
+  recorded_at: string;
+  strategy_id?: string;
+}
+
 // Export the ExtendedComplianceContextType and AuthContextProps
 export { ExtendedComplianceContextType, AuthContextProps }
 

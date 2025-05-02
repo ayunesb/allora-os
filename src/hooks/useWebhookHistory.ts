@@ -1,80 +1,116 @@
 
-import { useState, useEffect } from 'react';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { normalizeWebhookEvent } from '@/utils/authCompatibility';
-import { toast } from 'sonner';
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/backend/supabase';
+import { WebhookEvent, BusinessEventType } from '@/types/unified-types';
 
-export function useWebhookHistory() {
-  const [events, setEvents] = useState<UnifiedWebhookEvent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const auth = useAuth();
-  const user = auth.user;
-
-  const fetchWebhookEvents = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      if (!user?.id) {
-        throw new Error('User not authenticated');
-      }
-
-      // For demonstration, we're using mock data
-      // In a real implementation, this would query Supabase
-      const mockWebhookEvents: UnifiedWebhookEvent[] = [
-        {
-          id: '1',
-          webhook_id: 'webhook-1',
-          eventType: 'lead_created',
-          event_type: 'lead_created',
-          status: 'success',
-          created_at: new Date().toISOString(),
-          payload: { email: 'test@example.com', name: 'Test User' },
-          response: { success: true },
-          targetUrl: 'https://example.com/webhook',
-          url: 'https://example.com/webhook',
-          webhookType: 'custom',
-          webhook_type: 'custom',
-          timestamp: new Date().toISOString()
-        },
-        {
-          id: '2',
-          webhook_id: 'webhook-2',
-          eventType: 'strategy_approved',
-          event_type: 'strategy_approved',
-          status: 'failed',
-          created_at: new Date().toISOString(),
-          payload: { strategy_id: '123', name: 'Growth Strategy' },
-          response: { error: 'Connection refused' },
-          targetUrl: 'https://api.service.com/webhook',
-          url: 'https://api.service.com/webhook',
-          webhookType: 'zapier',
-          webhook_type: 'zapier',
-          timestamp: new Date().toISOString()
-        }
-      ];
-
-      setEvents(mockWebhookEvents);
-    } catch (err) {
-      console.error('Error fetching webhook events:', err);
-      setError(err instanceof Error ? err : new Error('Failed to fetch webhook events'));
-      toast.error('Failed to load webhook event history');
-    } finally {
-      setIsLoading(false);
-    }
+interface UseWebhookHistoryOptions {
+  limit?: number;
+  initialFilter?: {
+    eventType?: BusinessEventType;
+    status?: string;
+    fromDate?: Date | null;
+    toDate?: Date | null;
   };
+}
 
+export function useWebhookHistory({
+  limit = 50,
+  initialFilter
+}: UseWebhookHistoryOptions = {}) {
+  const [events, setEvents] = useState<WebhookEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [total, setTotal] = useState(0);
+
+  const fetchHistory = useCallback(
+    async ({
+      eventType,
+      status,
+      fromDate,
+      toDate
+    }: {
+      eventType?: BusinessEventType;
+      status?: string;
+      fromDate?: Date | null;
+      toDate?: Date | null;
+    } = {}) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        let query = supabase
+          .from('webhook_logs')
+          .select('*', { count: 'exact' });
+
+        // Apply filters if provided
+        if (eventType) {
+          // Handle conversion from Zapier's "lead_created" format to our "lead.created" format
+          let mappedEventType: BusinessEventType = eventType;
+          if (eventType === 'lead.created' as BusinessEventType) {
+            mappedEventType = 'lead.created' as BusinessEventType;
+          }
+          query = query.eq('message_type', mappedEventType);
+        }
+
+        if (status) {
+          query = query.eq('status', status);
+        }
+
+        if (fromDate) {
+          query = query.gte('created_at', fromDate.toISOString());
+        }
+
+        if (toDate) {
+          query = query.lte('created_at', toDate.toISOString());
+        }
+
+        // Order by created_at desc and limit results
+        query = query.order('created_at', { ascending: false }).limit(limit);
+
+        const { data, error, count } = await query;
+
+        if (error) throw error;
+
+        // Transform to WebhookEvent format
+        const transformedEvents: WebhookEvent[] = (data || []).map((event) => ({
+          id: event.id,
+          webhook_id: event.webhook_id || '',
+          event_type: event.message_type as BusinessEventType,
+          status: event.status as 'success' | 'failed' | 'pending',
+          created_at: event.created_at,
+          payload: event.payload || {},
+          targetUrl: event.url,
+          webhookType: 'custom', // Default value, should be updated based on URL or other logic
+          timestamp: event.created_at,
+          response: event.response,
+          // Legacy field aliases for backward compatibility
+          url: event.url,
+        }));
+
+        setEvents(transformedEvents);
+        setTotal(count || 0);
+      } catch (err) {
+        console.error('Error fetching webhook history:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [limit]
+  );
+
+  // Initial fetch with any provided filters
   useEffect(() => {
-    fetchWebhookEvents();
-  }, [user?.id]);
+    fetchHistory(initialFilter || {});
+  }, [fetchHistory, initialFilter]);
 
   return {
     events,
     isLoading,
     error,
-    refetch: fetchWebhookEvents
+    total,
+    fetchHistory,
   };
 }
+
+export default useWebhookHistory;
