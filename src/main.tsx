@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -27,14 +28,16 @@ logger.info('Application initializing with latest Lovable template');
 // Render the app with proper providers
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
-      <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <GlobalErrorBoundary>
         <HelmetProvider>
-          <GlobalErrorBoundary>
-            <App />
-          </GlobalErrorBoundary>
+          <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
+            <QueryClientProvider client={queryClient}>
+              <App />
+            </QueryClientProvider>
+          </ThemeProvider>
         </HelmetProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+      </GlobalErrorBoundary>
+    </BrowserRouter>
   </React.StrictMode>
 );
