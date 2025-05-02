@@ -179,3 +179,25 @@ export const getProducts = async () => {
     return [];
   }
 };
+
+// Create a customer in Stripe
+export const createCustomer = async (email: string, name?: string): Promise<{ customerId?: string; error?: string }> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('stripe', {
+      body: { 
+        action: 'create-customer',
+        email,
+        name
+      }
+    });
+    
+    if (error) throw error;
+    
+    return { customerId: data.customerId };
+  } catch (error) {
+    console.error('Error creating customer:', error);
+    return {
+      error: error instanceof Error ? error.message : 'Failed to create customer'
+    };
+  }
+};

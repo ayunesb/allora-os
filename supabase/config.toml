@@ -38,3 +38,8 @@ verify_jwt = false
 [functions.stripe]
 verify_jwt = true
 
+[functions.plugin-logs]
+verify_jwt = true
+
+[functions.plugin-impact]
+verify_jwt = true

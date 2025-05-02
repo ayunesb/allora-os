@@ -1,167 +1,99 @@
 
 import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KPITracker } from '@/components/kpi/KPITracker';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RefreshCw, Download, BarChart3 } from 'lucide-react';
-import { KPIMetric } from '@/types/unified-types';
+import { Button } from "@/components/ui/button";
 import { fetchKPIMetrics } from '@/utils/kpiService';
-import { useToast } from '@/components/ui/use-toast';
+import { KPIMetric } from '@/types/unified-types';
+import { toast } from 'sonner';
+import { RefreshCw, Download } from 'lucide-react';
 import { exportToCSV } from '@/utils/exportUtils';
 
 export default function KPIMetricsPage() {
   const [metrics, setMetrics] = useState<KPIMetric[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedTab, setSelectedTab] = useState<string>('all');
-  const { toast } = useToast();
-
-  useEffect(() => {
-    loadMetrics();
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
 
   const loadMetrics = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const data = await fetchKPIMetrics();
       setMetrics(data);
     } catch (error) {
-      toast({
-        title: "Failed to load KPI metrics",
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive"
-      });
+      toast.error('Failed to load KPI metrics');
+      console.error('Error loading metrics:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleExportCSV = () => {
+  useEffect(() => {
+    loadMetrics();
+  }, []);
+
+  const handleExport = () => {
     const formattedData = metrics.map(metric => ({
       Type: metric.type,
       Value: metric.value,
-      Date: new Date(metric.recorded_at).toLocaleDateString(),
-      "Strategy ID": metric.strategy_id || "N/A"
+      'Recorded At': new Date(metric.recorded_at).toLocaleString(),
+      'Strategy ID': metric.strategy_id || 'N/A'
     }));
-    
-    exportToCSV(formattedData, `kpi-metrics-${new Date().toISOString().split('T')[0]}`);
-    
-    toast({
-      title: "Export successful",
-      description: "KPI metrics have been exported to CSV"
-    });
+
+    exportToCSV(formattedData, 'kpi-metrics');
+    toast.success('KPI metrics exported successfully');
   };
 
-  const filterMetricsByTab = (metrics: KPIMetric[], tab: string) => {
-    if (tab === 'all') return metrics;
-    
-    const categoryMap: Record<string, string[]> = {
-      'revenue': ['mrr', 'revenue', 'roi', 'ltv', 'arpu'],
-      'acquisition': ['leads', 'conversion_rate', 'cac'],
-      'engagement': ['active_users', 'session_duration', 'churn_rate'],
-      'campaigns': ['campaigns', 'click_rate', 'open_rate']
-    };
-    
-    return metrics.filter(metric => 
-      categoryMap[tab]?.includes(metric.type.toLowerCase())
-    );
-  };
+  const timeframeOptions = [
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+    { value: 'quarter', label: 'Quarter' },
+    { value: 'year', label: 'Year' }
+  ];
+
+  // This would filter metrics based on the selected timeframe
+  // For now, we'll just show all metrics
+  const filteredMetrics = metrics;
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-2 md:space-y-0">
         <div>
           <h1 className="text-2xl font-bold">KPI Metrics Dashboard</h1>
-          <p className="text-muted-foreground">
-            Track your key performance indicators and growth metrics
-          </p>
+          <p className="text-muted-foreground">Track your key performance indicators over time</p>
         </div>
         
-        <div className="flex gap-2 mt-4 md:mt-0">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={loadMetrics} 
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+        <div className="flex flex-wrap gap-2">
+          <div className="flex bg-muted rounded-md overflow-hidden">
+            {timeframeOptions.map((option) => (
+              <Button
+                key={option.value}
+                variant={selectedTimeframe === option.value ? "secondary" : "ghost"}
+                className="h-9 rounded-none"
+                onClick={() => setSelectedTimeframe(option.value as any)}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+          
+          <Button variant="outline" size="sm" onClick={loadMetrics}>
+            <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleExportCSV}
-          >
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            Export
           </Button>
         </div>
       </div>
-      
-      <Tabs 
-        defaultValue="all" 
-        className="w-full" 
-        onValueChange={setSelectedTab}
-      >
-        <TabsList className="mb-4">
-          <TabsTrigger value="all">All Metrics</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="acquisition">Acquisition</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all" className="mt-0">
-          <KPITracker metrics={metrics} isLoading={isLoading} />
-        </TabsContent>
-        
-        <TabsContent value="revenue" className="mt-0">
-          <KPITracker 
-            metrics={filterMetricsByTab(metrics, 'revenue')} 
-            isLoading={isLoading} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="acquisition" className="mt-0">
-          <KPITracker 
-            metrics={filterMetricsByTab(metrics, 'acquisition')} 
-            isLoading={isLoading} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="engagement" className="mt-0">
-          <KPITracker 
-            metrics={filterMetricsByTab(metrics, 'engagement')} 
-            isLoading={isLoading} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="campaigns" className="mt-0">
-          <KPITracker 
-            metrics={filterMetricsByTab(metrics, 'campaigns')} 
-            isLoading={isLoading} 
-          />
-        </TabsContent>
-      </Tabs>
-      
-      <Card className="mt-8">
+
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <BarChart3 className="h-5 w-5 mr-2" />
-            KPI Insights
-          </CardTitle>
+          <CardTitle>Key Performance Metrics</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>
-            {isLoading ? (
-              "Analyzing metrics..."
-            ) : metrics.length > 0 ? (
-              "Your KPIs are showing healthy growth trends. Consider focusing on reducing customer acquisition costs to improve overall ROI."
-            ) : (
-              "No KPI data available for analysis. Start tracking your metrics to receive insights."
-            )}
-          </p>
+          <KPITracker metrics={filteredMetrics} isLoading={isLoading} />
         </CardContent>
       </Card>
     </div>
