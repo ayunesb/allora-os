@@ -1,105 +1,111 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-// Environment variables
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-
-interface PluginImpactRow {
-  tenant_id: string;
-  plugin_name: string;
-  total_value: number;
-  usage_count: number;
-  average_value: number;
-  tenant_name?: string;
+// Define CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-Deno.serve(async (req) => {
-  // Create Supabase client with service role key for higher privileges
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-  
+serve(async (req) => {
+  // Handle CORS preflight request
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   try {
-    // Retrieve authorization from request
-    const authHeader = req.headers.get('Authorization');
-    
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
+    // Create a Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get tenant ID from request body or query param
+    const { tenantId, tenant_id } = await req.json().catch(() => ({}));
+    const finalTenantId = tenantId || tenant_id;
+
+    // Query for plugin impact data
+    let query = supabase.from('plugin_logs')
+      .select(`
+        plugin_name,
+        event,
+        value,
+        created_at
+      `)
+      .order('created_at', { ascending: false });
+
+    // Apply tenant filter if provided
+    if (finalTenantId) {
+      query = query.eq('tenant_id', finalTenantId);
     }
     
-    // Analyze plugin impact data
-    const { data: pluginLogs, error: pluginError } = await supabase
-      .from('plugin_logs')
-      .select('tenant_id, plugin_name, value, created_at');
+    const { data, error } = await query;
     
-    if (pluginError) {
-      console.error('Error fetching plugin logs:', pluginError);
-      return new Response(JSON.stringify({ error: 'Failed to retrieve plugin logs' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+    if (error) {
+      throw error;
     }
+
+    // Process the data to calculate impact metrics
+    const pluginsMap = new Map();
     
-    if (!pluginLogs || pluginLogs.length === 0) {
-      return new Response(JSON.stringify([]), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-    
-    // Aggregate data by tenant and plugin
-    const impactMap = new Map();
-    
-    for (const log of pluginLogs) {
-      const key = `${log.tenant_id}-${log.plugin_name}`;
+    data.forEach((log) => {
+      const { plugin_name, event, value } = log;
       
-      if (!impactMap.has(key)) {
-        impactMap.set(key, {
-          tenant_id: log.tenant_id,
-          plugin_name: log.plugin_name,
-          total_value: 0,
+      if (!pluginsMap.has(plugin_name)) {
+        pluginsMap.set(plugin_name, {
+          plugin_name,
           usage_count: 0,
-          average_value: 0
+          total_value: 0,
+          values: []
         });
       }
       
-      const entry = impactMap.get(key);
-      entry.total_value += log.value || 0;
-      entry.usage_count += 1;
-      entry.average_value = entry.total_value / entry.usage_count;
-    }
-    
-    // Get tenant names
-    const tenantIds = [...new Set(pluginLogs.map(log => log.tenant_id))];
-    
-    const { data: tenants, error: tenantError } = await supabase
-      .from('tenants')
-      .select('id, name')
-      .in('id', tenantIds);
-    
-    if (!tenantError && tenants) {
-      const tenantMap = new Map(tenants.map(t => [t.id, t.name]));
+      const plugin = pluginsMap.get(plugin_name);
       
-      // Add tenant names to results
-      for (const [_, impact] of impactMap.entries()) {
-        impact.tenant_name = tenantMap.get(impact.tenant_id) || undefined;
+      if (event === 'execution') {
+        plugin.usage_count++;
+        plugin.total_value += value;
+        plugin.values.push(value);
       }
-    }
-    
-    const results: PluginImpactRow[] = Array.from(impactMap.values());
-    
-    return new Response(JSON.stringify(results), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
     });
+    
+    // Convert map to array and calculate averages
+    const pluginImpact = Array.from(pluginsMap.values())
+      .map(plugin => {
+        return {
+          plugin_name: plugin.plugin_name,
+          usage_count: plugin.usage_count,
+          total_value: plugin.total_value,
+          average_value: plugin.values.length > 0 
+            ? plugin.total_value / plugin.values.length 
+            : 0
+        };
+      })
+      // Sort by total value descending
+      .sort((a, b) => b.total_value - a.total_value);
+
+    // Return the data with CORS headers
+    return new Response(
+      JSON.stringify(pluginImpact),
+      { 
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
   } catch (error) {
-    console.error('Error in plugin-impact function:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Handle errors
+    console.error('Error:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 400, 
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
   }
-});
+})

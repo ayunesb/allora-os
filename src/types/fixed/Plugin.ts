@@ -1,8 +1,7 @@
 
 /**
- * Plugin type definitions for Allora AI
+ * Plugin type definition
  */
-
 export interface Plugin {
   id: string;
   name: string;
@@ -13,24 +12,9 @@ export interface Plugin {
   created_at?: string;
 }
 
-export interface PluginLog {
-  id: string;
-  tenant_id: string;
-  plugin_name: string;
-  event: string;
-  value: number;
-  created_at: string;
-}
-
-export interface PluginImpactData {
-  tenant_id: string;
-  plugin_name: string;
-  total_value: number;
-  usage_count: number;
-  average_value: number;
-  tenant_name?: string;
-}
-
+/**
+ * Plugin configuration type
+ */
 export interface PluginConfig {
   id: string;
   tenant_id: string;
@@ -38,4 +22,24 @@ export interface PluginConfig {
   config: Record<string, any>;
   created_at?: string;
   updated_at?: string;
+}
+
+/**
+ * Plugin execution result
+ */
+export interface PluginExecutionResult {
+  success: boolean;
+  value: number;
+  message: string;
+  error?: any;
+}
+
+/**
+ * Plugin impact data
+ */
+export interface PluginImpactData {
+  plugin_name: string;
+  usage_count: number;
+  average_value: number;
+  total_value: number;
 }
