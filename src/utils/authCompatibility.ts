@@ -6,7 +6,19 @@ import { User } from '@/types/fixed/User';
  * This ensures backwards compatibility with different auth implementations
  */
 export function createAuthCompatibilityLayer(authContext: any) {
-  if (!authContext) return { user: null, isLoading: false };
+  if (!authContext) return { 
+    user: null, 
+    isLoading: false,
+    loading: false,
+    hasInitialized: false,
+    isEmailVerified: false,
+    isSessionExpired: false,
+    authError: null,
+    profile: null,
+    refreshProfile: async () => {},
+    refreshSession: async () => Promise.resolve(true),
+    signOut: async () => {}
+  };
   
   // Extract user from different possible auth context structures
   const user = authContext.user || authContext.profile || null;
@@ -14,9 +26,15 @@ export function createAuthCompatibilityLayer(authContext: any) {
   return {
     user: normalizeUserObject(user),
     isLoading: authContext.loading || authContext.isLoading || false,
+    loading: authContext.loading || authContext.isLoading || false, // Include both loading properties
     profile: normalizeUserObject(authContext.profile || user),
-    refreshProfile: authContext.refreshProfile || (() => Promise.resolve()),
-    signOut: authContext.signOut || (() => Promise.resolve()),
+    hasInitialized: authContext.hasInitialized || true,
+    isEmailVerified: authContext.isEmailVerified || true,
+    isSessionExpired: authContext.isSessionExpired || false,
+    authError: authContext.authError || null,
+    refreshProfile: authContext.refreshProfile || (async () => Promise.resolve()),
+    refreshSession: authContext.refreshSession || (async () => Promise.resolve(true)),
+    signOut: authContext.signOut || authContext.logout || (async () => Promise.resolve()),
   };
 }
 
