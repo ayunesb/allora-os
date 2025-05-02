@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -29,8 +28,6 @@ export default defineConfig(({ mode }) => ({
       'react-router-dom',
       'lucide-react',
       'three',
-      '@react-three/fiber',
-      '@react-three/drei',
     ],
     // Exclude problematic packages from optimization
     exclude: ['@react-three/drei/node_modules/three-mesh-bvh'],
@@ -42,7 +39,6 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['lucide-react'],
-          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
         },
       },
       // Explicitly tell Rollup to ignore the BatchedMesh import issue
