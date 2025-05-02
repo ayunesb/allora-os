@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background-start: 230 35% 8%;
+    --background-end: 230 20% 15%;
+    --foreground: 0 0% 98%;
+    --primary: 239 84% 67%;
+    --primary-light: 239 70% 80%;
+    --primary-dark: 239 90% 50%;
+    --accent: 195 83% 60%;
+    --success: 142 70% 45%;
+    --warning: 45 100% 51%;
+    --error: 0 72% 60%;
+    --card-bg: 230 35% 12%;
+    --input-bg: 230 25% 20%;
+    --border: 239 84% 67%;
+  }
+
+  html {
+    background-color: hsl(var(--background-start));
+    color: hsl(var(--foreground));
+  }
+
+  body {
+    @apply bg-gradient-to-br from-[hsl(var(--background-start))] to-[hsl(var(--background-end))] text-[hsl(var(--foreground))] font-sans;
+  }
+}
+
+@layer utilities {
+  .bg-card {
+    @apply bg-[var(--card-bg)];
+  }
+
+  .text-foreground {
+    @apply text-[var(--foreground)];
+  }
+
+  .bg-primary {
+    @apply bg-[var(--primary)];
+  }
+}
+
+/* Add your custom styles below */

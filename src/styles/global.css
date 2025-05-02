@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-futuristic {
+    @apply bg-[#0f172a];
+  }
+}
+
 html {
   background-color: #0d0d0d;
   color: #f4f4f5;

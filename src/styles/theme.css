@@ -155,3 +155,21 @@ input, select, textarea {
     box-shadow: 0 0 15px rgba(99, 179, 237, 0.7);
   }
 }
+
+@layer utilities {
+  .bg-primary {
+    background-color: theme('colors.primary');
+  }
+
+  .bg-card {
+    background-color: theme('colors.card');
+  }
+
+  .text-foreground {
+    color: theme('colors.foreground');
+  }
+
+  .bg-gradient-futuristic {
+    background: linear-gradient(135deg, #0A0A23, #1A1A40);
+  }
+}
