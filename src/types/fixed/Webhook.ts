@@ -37,6 +37,8 @@ export interface WebhookEvent {
   webhookType?: WebhookType;
   eventType?: string;
   url?: string;
+  duration?: number;
+  type?: WebhookType;
 }
 
 // Payload interface for business events

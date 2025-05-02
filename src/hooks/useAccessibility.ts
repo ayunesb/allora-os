@@ -1,6 +1,6 @@
 
 import { useContext } from 'react';
-import { AccessibilityContext, AccessibilityContextType } from '@/context/AccessibilityContext';
+import { AccessibilityContext } from '@/context/AccessibilityContext';
 import { ExtendedAccessibilityContextType } from '@/types/unified-types';
 
 export const useAccessibility = (): ExtendedAccessibilityContextType => {

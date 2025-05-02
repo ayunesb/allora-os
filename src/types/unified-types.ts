@@ -1,6 +1,6 @@
 
 import { User } from './fixed/User';
-import { WebhookType, BusinessEventType, WebhookEvent, WebhookConfig, WebhookResult, BusinessEventPayload, WebhookStatus } from './fixed/Webhook';
+import { WebhookType, BusinessEventType, WebhookResult, BusinessEventPayload, WebhookStatus } from './fixed/Webhook';
 
 // Social Media Types
 export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok' | 'YouTube';
@@ -61,7 +61,7 @@ export interface UnifiedExecutiveMessage {
 }
 
 // Unified webhook event that harmonizes all the different property names
-export interface UnifiedWebhookEvent extends Partial<WebhookEvent> {
+export interface UnifiedWebhookEvent {
   id: string;
   webhook_id: string;
   event_type: string; 
@@ -77,6 +77,7 @@ export interface UnifiedWebhookEvent extends Partial<WebhookEvent> {
   source?: string;
   payload?: any;
   response?: any;
+  duration?: number;
 }
 
 // Company Profile Type
@@ -113,14 +114,30 @@ export interface ExtendedAccessibilityContextType {
   fontSize: number;
   setFontSize: (size: number) => void;
   highContrast: boolean;
-  setHighContrast: (enabled: boolean) => void;
+  setHighContrast?: (enabled: boolean) => void;
   reducedMotion: boolean;
-  setReducedMotion: (enabled: boolean) => void;
-  textToSpeech: boolean;
-  setTextToSpeech: (enabled: boolean) => void;
+  setReducedMotion?: (enabled: boolean) => void;
+  textToSpeech?: boolean;
+  setTextToSpeech?: (enabled: boolean) => void;
   updatePreference?: (key: string, value: any) => void;
   screenReaderFriendly: boolean;
-  setScreenReaderFriendly: (enabled: boolean) => void;
+  setScreenReaderFriendly?: (enabled: boolean) => void;
+  
+  // Required toggles for AccessibilityPanel
+  largeText: boolean;
+  invertColors: boolean;
+  toggleHighContrast: () => void;
+  toggleLargeText: () => void;
+  toggleReducedMotion: () => void;
+  toggleScreenReaderFriendly: () => void;
+  toggleInvertColors: () => void;
+  
+  // Optional properties for backward compatibility
+  checkForUpdates?: () => void;
+  setAutoUpdate?: (value: boolean) => void;
+  isCheckingUpdates?: boolean;
+  lastChecked?: string | null;
+  autoUpdate?: boolean;
 }
 
 // Re-export key types
@@ -128,8 +145,6 @@ export type {
   User,
   WebhookType,
   BusinessEventType,
-  WebhookEvent,
-  WebhookConfig,
   WebhookResult,
   BusinessEventPayload,
   WebhookStatus

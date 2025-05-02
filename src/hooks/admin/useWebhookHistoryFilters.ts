@@ -53,7 +53,7 @@ export function useWebhookHistoryFilters(events: UnifiedWebhookEvent[]) {
       }
 
       // Filter by status if selected
-      if (filters.status && filters.status !== '') {
+      if (filters.status && filters.status !== '' as any) {
         if (event.status !== filters.status) {
           return false;
         }
