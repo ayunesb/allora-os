@@ -1,13 +1,13 @@
 
-import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
 import { normalizeUserObject } from '@/utils/authCompatibility';
 import { User } from '@/types/fixed/User';
-import { AuthContextProps } from '@/types/fixed/Auth';
+import { AuthContextProps as AuthContextType } from '@/types/fixed/Auth';
 
 // Define the auth context with proper types
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -91,35 +91,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, metadata?: any) => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: metadata,
-        },
-      });
-
-      if (error) {
-        setLoading(false);
-        return { success: false, error: error.message };
-      }
-
-      if (data.user) {
-        const normalizedUser = normalizeUserObject(data.user);
-        setUser(normalizedUser);
-      }
-
-      setLoading(false);
-      return { success: true };
-    } catch (err: any) {
-      setLoading(false);
-      return { success: false, error: err.message || 'Unexpected signup error' };
-    }
-  };
-
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -128,33 +99,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error: any) {
       console.error('Sign-out error:', error.message);
       return Promise.resolve();
-    }
-  };
-
-  const updateUser = async (updates: any) => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', session?.user?.id)
-        .select()
-        .single();
-
-      if (error) {
-        setLoading(false);
-        return { data: null, error };
-      }
-
-      if (session?.user?.id) {
-        await refreshUserData(session.user.id);
-      }
-
-      setLoading(false);
-      return { data: normalizeUserObject(data) as User, error: null };
-    } catch (err: any) {
-      setLoading(false);
-      return { data: null, error: err.message || 'Unexpected update error' };
     }
   };
 
@@ -224,7 +168,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const value: AuthContextProps = {
+  const value: AuthContextType = {
     user,
     profile: user,
     loading,
@@ -246,25 +190,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = (): AuthContextProps => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
-
-export interface AuthContextProps {
-  user: User | null;
-  session?: any;
-  authError?: string;
-  hasInitialized?: boolean;
-  isEmailVerified?: boolean;
-  isSessionExpired?: boolean;
-  refreshSession?: () => Promise<boolean>;
-  refreshProfile?: () => Promise<void>;
-  signOut?: () => Promise<void>;
-  login?: (email: string, password: string) => Promise<{ success: boolean; user?: User; error?: string }>;
-  signIn?: (email: string, password: string) => Promise<{ success: boolean; user?: User; error?: string }>;
-  logout?: () => Promise<void>;
-  isAuthenticated?: boolean;
-  isLoading: boolean;
-}

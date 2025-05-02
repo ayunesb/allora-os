@@ -1,9 +1,8 @@
 
 import React from 'react';
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 interface WebhookInputProps {
   id: string;
@@ -12,66 +11,61 @@ interface WebhookInputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isValid: boolean | null;
-  errorMessage: string;
-  validMessage: string;
+  errorMessage?: string;
+  validMessage?: string;
   validationMessage?: string | null;
   description?: string;
-  className?: string;
 }
 
-const WebhookInput = ({
+const WebhookInput: React.FC<WebhookInputProps> = ({ 
   id,
   label,
   placeholder,
   value,
   onChange,
   isValid,
-  errorMessage,
-  validMessage,
+  errorMessage = "Invalid URL",
+  validMessage = "Valid URL",
   validationMessage,
   description,
-  className
-}: WebhookInputProps) => {
+}) => {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={id} className="flex items-center gap-2">
-        {label}
-        {isValid === false && 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <AlertTriangle className="h-4 w-4 text-destructive" />
-              </TooltipTrigger>
-              <TooltipContent>{validationMessage || errorMessage}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        }
-        {isValid === true && 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <CheckCircle2 className="h-4 w-4 text-green-500" />
-              </TooltipTrigger>
-              <TooltipContent>{validMessage}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        }
-      </Label>
-      <Input 
-        id={id} 
-        placeholder={placeholder} 
-        value={value}
-        onChange={onChange}
-        className={isValid === false ? "border-destructive" : ""}
-      />
-      {validationMessage && isValid === false && (
-        <p className="text-xs text-destructive">
-          {validationMessage}
-        </p>
-      )}
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <div className="relative">
+        <Input
+          id={id}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          className={`pr-10 ${
+            isValid === true
+              ? "border-green-500 focus-visible:ring-green-500"
+              : isValid === false
+              ? "border-red-500 focus-visible:ring-red-500"
+              : ""
+          }`}
+        />
+        {isValid !== null && (
+          <div className="absolute right-3 top-2.5">
+            {isValid ? (
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-500" />
+            )}
+          </div>
+        )}
+      </div>
+      
       {description && (
-        <p className="text-xs text-muted-foreground">
-          {description}
+        <p className="text-xs text-muted-foreground">{description}</p>
+      )}
+      
+      {validationMessage && (
+        <p className={`text-xs ${
+          isValid ? "text-green-500" : "text-red-500"
+        }`}>
+          {validationMessage}
         </p>
       )}
     </div>

@@ -1,65 +1,67 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import React, { useState, useEffect } from 'react';
 import WebhookEventTable from './WebhookEventTable';
-import WebhookEventDetailModal from './WebhookEventDetailModal';
+import WebhookEventFilters from './WebhookEventFilters';
+import EventDetailsModal from './EventDetailsModal';
 import { useWebhookHistoryFilters, FilterOptions } from './useWebhookHistoryFilters';
+import { UnifiedWebhookEvent } from '@/types/unified-types';
 
-interface WebhookHistoryContentProps {
+interface WebhookEventHistoryData {
   events: UnifiedWebhookEvent[];
 }
 
-const WebhookHistoryContent: React.FC<WebhookHistoryContentProps> = ({ events }) => {
+const WebhookHistoryContent: React.FC<WebhookEventHistoryData> = ({ events: initialEvents }) => {
+  // State for event detail modal
   const [selectedEvent, setSelectedEvent] = useState<UnifiedWebhookEvent | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { filters, setFilters, filterEvents, availableTypes } = useWebhookHistoryFilters(events);
-  const [filteredEvents, setFilteredEvents] = useState<UnifiedWebhookEvent[]>(events);
   
-  // Update filtered events when filters change
-  React.useEffect(() => {
-    const filtered = filterEvents();
-    setFilteredEvents(filtered as UnifiedWebhookEvent[]);
-  }, [filters, events, filterEvents]);
+  // Setup filters
+  const { filters, setFilters, filterEvents, availableTypes } = useWebhookHistoryFilters(initialEvents);
   
-  // Function to open event detail modal
-  const openEventDetailModal = (event: UnifiedWebhookEvent) => {
-    setSelectedEvent(event);
-    setIsModalOpen(true);
-  };
+  // Filtered events
+  const [filteredEvents, setFilteredEvents] = useState<UnifiedWebhookEvent[]>([]);
   
-  // Function to close event detail modal
-  const closeEventDetailModal = () => {
-    setSelectedEvent(null);
-    setIsModalOpen(false);
-  };
+  // Filter events when filters change
+  useEffect(() => {
+    setFilteredEvents(filterEvents() as UnifiedWebhookEvent[]);
+  }, [filterEvents, initialEvents]);
   
-  // Function to handle filter changes
+  // Handle filter changes
   const handleFilterChange = (newFilters: FilterOptions) => {
     setFilters(newFilters);
   };
   
+  // Open event details modal
+  const handleViewEventDetail = (event: UnifiedWebhookEvent) => {
+    setSelectedEvent(event);
+  };
+  
+  // Close event details modal
+  const handleCloseEventDetail = () => {
+    setSelectedEvent(null);
+  };
+  
   return (
-    <Card>
-      <CardContent className="p-0">
-        <WebhookEventTable 
-          events={filteredEvents} 
-          onViewDetail={openEventDetailModal}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          availableTypes={availableTypes}
-        />
-        
-        {/* Event detail modal */}
-        {selectedEvent && (
-          <WebhookEventDetailModal 
-            event={selectedEvent}
-            isOpen={isModalOpen}
-            onClose={closeEventDetailModal}
-          />
-        )}
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      {/* Filters */}
+      <WebhookEventFilters 
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        availableTypes={availableTypes}
+      />
+      
+      {/* Event Table */}
+      <WebhookEventTable 
+        events={filteredEvents}
+        onViewDetail={handleViewEventDetail}
+      />
+      
+      {/* Event Details Modal */}
+      <EventDetailsModal 
+        event={selectedEvent} 
+        isOpen={selectedEvent !== null} 
+        onClose={handleCloseEventDetail}
+      />
+    </div>
   );
 };
 

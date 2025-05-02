@@ -1,119 +1,94 @@
 
-import React, { useState } from 'react';
-import { format } from 'date-fns';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Eye, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UnifiedWebhookEvent } from '@/types/unified-types';
-import { EventDetailsModal } from './EventDetailsModal';
 import { Badge } from '@/components/ui/badge';
+import { formatDistanceToNow } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Eye, FileJson } from 'lucide-react';
 
-interface WebhookEventTableProps {
+export interface WebhookEventTableProps {
   events: UnifiedWebhookEvent[];
-  onViewEvent?: (event: UnifiedWebhookEvent) => void;
+  onViewDetail: (event: UnifiedWebhookEvent) => void;
 }
 
-export const WebhookEventTable: React.FC<WebhookEventTableProps> = ({ 
+const WebhookEventTable: React.FC<WebhookEventTableProps> = ({ 
   events,
-  onViewEvent
+  onViewDetail
 }) => {
-  const [selectedEvent, setSelectedEvent] = useState<UnifiedWebhookEvent | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  
-  const handleViewDetails = (event: UnifiedWebhookEvent) => {
-    setSelectedEvent(event);
-    setDetailsOpen(true);
-    if (onViewEvent) {
-      onViewEvent(event);
+  const getStatusColor = (status: string): string => {
+    switch(status) {
+      case 'success': return 'bg-green-500';
+      case 'failed': return 'bg-red-500';
+      case 'pending': return 'bg-amber-500';
+      default: return 'bg-gray-500';
     }
   };
-  
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'success':
-        return 'success';
-      case 'failed':
-        return 'destructive';
-      case 'pending':
-        return 'secondary';
-      default:
-        return 'outline';
-    }
+
+  const getWebhookTypeLabel = (type?: string): string => {
+    if (!type) return 'Unknown';
+    return type.charAt(0).toUpperCase() + type.slice(1);
   };
-  
-  if (events.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center border rounded-md bg-muted/20">
-        <h3 className="mb-2 text-lg font-semibold">No webhook events found</h3>
-        <p className="text-sm text-muted-foreground">
-          When webhook events are triggered, they will appear here
-        </p>
-      </div>
-    );
-  }
   
   return (
-    <>
-      <div className="border rounded-md overflow-hidden">
-        <Table className="w-full">
-          <TableHeader>
+    <div className="rounded-md border overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Status</TableHead>
+            <TableHead>Event Type</TableHead>
+            <TableHead>Webhook Type</TableHead>
+            <TableHead className="hidden md:table-cell">Target URL</TableHead>
+            <TableHead className="hidden md:table-cell">Created</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {events.length === 0 ? (
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                No webhook events found
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {events.map((event) => (
+          ) : (
+            events.map((event) => (
               <TableRow key={event.id}>
-                <TableCell className="whitespace-nowrap">
-                  {format(new Date(event.created_at || event.timestamp || ''), 'MMM d, yyyy HH:mm')}
-                </TableCell>
-                <TableCell className="max-w-[200px] truncate">
-                  {event.event_type || event.eventType || 'Unknown'}
-                </TableCell>
-                <TableCell className="max-w-[200px] truncate">
-                  {event.source || (event.webhookType || event.webhook_type || 'unknown')}
+                <TableCell>
+                  <div className="flex items-center">
+                    <span className={`h-2.5 w-2.5 rounded-full mr-2 ${getStatusColor(event.status)}`}></span>
+                    <span className="capitalize">{event.status}</span>
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getStatusBadgeVariant(event.status)} className="capitalize">
-                    {event.status}
+                  <Badge variant="outline">
+                    {event.event_type || event.eventType || 'unknown'}
                   </Badge>
                 </TableCell>
+                <TableCell>
+                  {getWebhookTypeLabel(event.webhookType || event.webhook_type || event.type)}
+                </TableCell>
+                <TableCell className="hidden md:table-cell truncate max-w-[200px]" title={event.targetUrl || event.url}>
+                  {event.targetUrl || event.url}
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">
+                  {formatDistanceToNow(new Date(event.created_at || event.timestamp || ''), { addSuffix: true })}
+                </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    onClick={() => handleViewDetails(event)}
-                    variant="ghost"
-                    size="sm"
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => onViewDetail(event)}
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Details
-                    <ChevronRight className="h-4 w-4 ml-1" />
+                    <Eye className="h-4 w-4 mr-1" />
+                    <span className="sr-only md:not-sr-only">View</span>
                   </Button>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      
-      {selectedEvent && (
-        <EventDetailsModal 
-          event={selectedEvent} 
-          open={detailsOpen} 
-          onOpenChange={setDetailsOpen} 
-        />
-      )}
-    </>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

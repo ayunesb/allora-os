@@ -42,7 +42,8 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[] | Unified
 
       // Status filter - only apply if a status is selected
       if (filters.status && filters.status !== '') {
-        if (event.status !== filters.status) {
+        const eventStatus = event.status as WebhookStatus;
+        if (eventStatus !== filters.status) {
           return false;
         }
       }

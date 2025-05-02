@@ -83,7 +83,6 @@ export interface UnifiedWebhookEvent {
 // Company Profile Type
 export interface CompanyProfile {
   company: string;
-  companyName?: string; // For backward compatibility
   industry: string;
   target_customer?: string;
   website_url?: string;
@@ -135,6 +134,22 @@ export interface ExtendedComplianceContextType {
   loadCompliance: () => void;
   saveCompliance: () => void;
   resetCompliance: () => void;
+  
+  // Properties used in ComplianceContext implementation
+  isLoaded: boolean;
+  error: Error | null;
+  checkForUpdates: () => void;
+  setAutoUpdate: (value: boolean) => void;
+  isCheckingUpdates: boolean;
+  lastChecked: string | null;
+  autoUpdate: boolean;
+  updatePreference: (key: string, value: any) => void;
+  pendingUpdates: string[];
+  isApplyingUpdate: boolean;
+  applyUpdate: (id: string) => Promise<void>;
+  applyAllUpdates: () => Promise<void>;
+  scheduleComplianceCheck: () => Promise<void>;
+  enableAutoUpdates: () => Promise<boolean>;
 }
 
 // Re-export key types
