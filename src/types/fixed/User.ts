@@ -12,7 +12,7 @@ export interface User {
   role: 'admin' | 'user';
   avatar?: string;
   avatar_url?: string;
-  company_id?: string;
+  company_id: string; // Now required to match the model
   company?: string;
   industry?: string;
   updated_at?: string;

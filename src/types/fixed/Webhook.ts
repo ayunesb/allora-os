@@ -4,7 +4,7 @@
  */
 
 // Supported webhook integration types
-export type WebhookType = 'zapier' | 'custom' | 'slack' | 'notion' | 'github' | 'stripe';
+export type WebhookType = 'zapier' | 'custom' | 'slack' | 'github' | 'stripe' | 'notion';
 
 // Webhook event types for business events
 export type BusinessEventType = 

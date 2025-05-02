@@ -42,7 +42,7 @@ export const WebhookEventTable: React.FC<WebhookEventTableProps> = ({
       case 'failed':
         return 'destructive';
       case 'pending':
-        return 'warning';
+        return 'secondary';
       default:
         return 'outline';
     }
