@@ -1,33 +1,37 @@
 
 import { User } from '@/types/fixed/User';
+import { AuthContextProps } from '@/types/fixed/Auth';
 
 /**
  * Creates a compatibility layer for authentication context
  * This ensures backwards compatibility with different auth implementations
  */
-export function createAuthCompatibilityLayer(authContext: any) {
+export function createAuthCompatibilityLayer(authContext: any): AuthContextProps {
   if (!authContext) return { 
     user: null, 
+    profile: null,
     isLoading: false,
     loading: false,
     hasInitialized: false,
     isEmailVerified: false,
     isSessionExpired: false,
     authError: null,
-    profile: null,
     refreshProfile: async () => {},
     refreshSession: async () => Promise.resolve(true),
-    signOut: async () => {}
+    signOut: async () => {},
+    login: async () => ({ success: false, error: 'Auth context not available' }),
+    signIn: async () => ({ success: false, error: 'Auth context not available' }),
+    logout: async () => Promise.resolve()
   };
   
   // Extract user from different possible auth context structures
-  const user = authContext.user || authContext.profile || null;
+  const user = normalizeUserObject(authContext.user || authContext.profile);
   
   return {
-    user: normalizeUserObject(user),
+    user,
     isLoading: authContext.loading || authContext.isLoading || false,
     loading: authContext.loading || authContext.isLoading || false, // Include both loading properties
-    profile: normalizeUserObject(authContext.profile || user),
+    profile: normalizeUserObject(authContext.profile) || user,
     hasInitialized: authContext.hasInitialized || true,
     isEmailVerified: authContext.isEmailVerified || true,
     isSessionExpired: authContext.isSessionExpired || false,
@@ -35,6 +39,9 @@ export function createAuthCompatibilityLayer(authContext: any) {
     refreshProfile: authContext.refreshProfile || (async () => Promise.resolve()),
     refreshSession: authContext.refreshSession || (async () => Promise.resolve(true)),
     signOut: authContext.signOut || authContext.logout || (async () => Promise.resolve()),
+    login: authContext.login || authContext.signIn || (async () => ({ success: false, error: 'Not implemented' })),
+    signIn: authContext.signIn || authContext.login || (async () => ({ success: false, error: 'Not implemented' })),
+    logout: authContext.logout || authContext.signOut || (async () => Promise.resolve())
   };
 }
 

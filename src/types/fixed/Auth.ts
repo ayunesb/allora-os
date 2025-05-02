@@ -3,15 +3,17 @@ import { User } from './User';
 
 export interface AuthContextProps {
   user: User | null;
+  profile: User | null;
   isLoading: boolean;
-  loading: boolean;
-  login: () => void;
-  logout: () => void;
-  profile?: User;
-  refreshProfile?: () => Promise<void>;
-  refreshSession?: () => Promise<boolean>;
-  isEmailVerified?: boolean;
-  authError?: Error | string;
-  isSessionExpired?: boolean;
-  hasInitialized?: boolean;
+  loading: boolean; // Duplicate of isLoading for compatibility with different components
+  hasInitialized: boolean;
+  isEmailVerified: boolean;
+  isSessionExpired: boolean;
+  authError: string | null;
+  refreshProfile: () => Promise<void>;
+  refreshSession: () => Promise<boolean>; // Return success status
+  signOut: () => Promise<void>;
+  signIn?: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  login?: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  logout?: () => Promise<void>; // Alias for signOut for compatibility
 }
