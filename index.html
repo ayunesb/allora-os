@@ -46,6 +46,10 @@
         clip: rect(0, 0, 0, 0) !important;
       }
     </style>
+    <script>
+      const theme = localStorage.getItem("allora-theme") || "dark";
+      document.documentElement.classList.add(theme);
+    </script>
   </head>
 
   <body>
