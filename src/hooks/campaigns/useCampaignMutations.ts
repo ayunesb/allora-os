@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Campaign } from '@/models/campaign';
+import { Campaign, Platform } from '@/types/unified-types';
 import { toast } from 'sonner';
 import { createCampaign as apiCreateCampaign, updateCampaign as apiUpdateCampaign, deleteCampaign as apiDeleteCampaign } from '@/utils/campaignHelpers';
 
@@ -17,10 +16,15 @@ export function useCampaignMutations(companyId?: string) {
     
     setIsCreating(true);
     try {
+      const platformValue = campaign.platform || 'meta';
+      const normalizedPlatform = typeof platformValue === 'string' 
+        ? platformValue.toLowerCase() as Platform
+        : 'meta' as Platform;
+        
       const newCampaign = await apiCreateCampaign(
         companyId,
         campaign.name || 'Unnamed Campaign',
-        campaign.platform || 'Other',
+        normalizedPlatform,
         campaign.budget || 1000
       );
       

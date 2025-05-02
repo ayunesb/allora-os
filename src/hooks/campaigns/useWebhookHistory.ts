@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { WebhookEvent } from '@/types/unified-types';
 
 export function useWebhookHistory() {
@@ -24,9 +24,9 @@ export function useWebhookHistory() {
   }, []);
   
   // Initial fetch
-  useState(() => {
+  useEffect(() => {
     refreshEvents();
-  });
+  }, [refreshEvents]);
   
   return {
     events,

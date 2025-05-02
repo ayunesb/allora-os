@@ -1,36 +1,33 @@
 
 import React, { useState } from "react";
 import { CampaignHeader, CampaignTable } from "@/components/admin/campaigns";
-import { Campaign, Platform } from "@/models/campaign";
+import { Campaign, Platform, CampaignStatus } from "@/types/unified-types";
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([
     { 
       id: '1', 
       name: 'Summer Sale', 
-      status: 'active', 
+      status: 'active' as CampaignStatus, 
       budget: 5000, 
-      platform: 'Facebook' as Platform, 
-      created_at: '2025-06-01', 
-      company_id: '1'
+      platform: 'meta' as Platform, 
+      created_at: '2025-06-01'
     },
     { 
       id: '2', 
       name: 'Product Launch', 
-      status: 'draft', 
+      status: 'draft' as CampaignStatus, 
       budget: 10000, 
-      platform: 'Instagram' as Platform, 
-      created_at: '2025-07-15', 
-      company_id: '1'
+      platform: 'tiktok' as Platform, 
+      created_at: '2025-07-15'
     },
     { 
       id: '3', 
       name: 'Holiday Special', 
-      status: 'draft', 
+      status: 'draft' as CampaignStatus, 
       budget: 7500, 
-      platform: 'Multiple' as Platform, 
-      created_at: '2025-01-01', 
-      company_id: '1'
+      platform: 'email' as Platform, 
+      created_at: '2025-01-01'
     }
   ]);
   
@@ -39,7 +36,6 @@ export default function CampaignsPage() {
   const handleCreateCampaign = (campaign: any) => {
     setCampaigns(prev => [...prev, { 
       id: `${prev.length + 1}`, 
-      company_id: '1',
       created_at: new Date().toISOString(),
       ...campaign
     }]);

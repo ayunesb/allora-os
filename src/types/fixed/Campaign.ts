@@ -19,6 +19,9 @@ export interface Campaign {
   audience?: string;
   executiveBot?: ExecutiveBot;
   justification?: string;
+  platform_specific_id?: string;
+  management_fee?: number;
+  total_amount?: number;
   status: CampaignStatus;
   startDate?: string;
   endDate?: string;
@@ -39,9 +42,14 @@ export interface Campaign {
   payment_status?: string;
   platform_status?: string;
   ad_platform?: string;
-  platform_specific_id?: string;
-  management_fee?: number;
-  total_amount?: number;
+  healthScore?: string;
+  impressions?: number;
+  clicks?: number;
+  leads?: number;
+  roi?: string;
+  aiGenerated?: boolean;
+  performance_metrics?: any;
+  last_synced_at?: string;
   targeting?: {
     audience?: string;
     location?: string;
@@ -56,4 +64,9 @@ export interface Campaign {
     video_url?: string;
     call_to_action?: string;
   }>;
+  companies?: {
+    name: string;
+    id: string;
+  };
+  company_id?: string;
 }

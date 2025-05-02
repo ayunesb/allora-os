@@ -32,3 +32,13 @@ export interface ExecutiveMessagesProps {
     avatarUrl: string;
   };
 }
+
+export interface ExecutiveBoardMember {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  status: "active" | "learning" | "inactive";
+  specialties: string[];
+  lastActivity: string;
+}

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useCompanyInsights } from "../useCompanyInsights";
 import { InsightType } from "@/components/bot-insights/BotInsightCard";
-import { Campaign, Platform } from "@/models/campaign";
+import { Campaign, Platform, CampaignStatus } from "@/types/unified-types";
 import { fetchCompanyCampaigns } from "@/utils/campaignHelpers";
 import { toast } from "sonner";
 
@@ -43,7 +43,7 @@ export function useCampaignFetch() {
             justification: campaign.justification || getRandomJustification(campaign),
             // Add a status if one doesn't exist
             status: campaign.status || getRandomStatus(),
-          };
+          } as Campaign;
         });
         
         // Get campaigns from AI insights to augment the Supabase data
@@ -64,13 +64,13 @@ export function useCampaignFetch() {
             executiveBot,
             collaborators: insight.collaborators,
             justification: insight.description,
-            status: "draft",
+            status: "draft" as CampaignStatus,
             healthScore: "good",
           } as Campaign;
         });
         
         // Combine all sources
-        setCampaigns([...processedCampaigns, ...aiGeneratedCampaigns]);
+        setCampaigns([...processedCampaigns, ...aiGeneratedCampaigns as Campaign[]]);
         setIsError(false);
         setError(null);
       } catch (err: any) {
@@ -80,7 +80,7 @@ export function useCampaignFetch() {
         setError(err);
         
         // Set mock campaigns for demo purposes
-        setCampaigns(getMockCampaigns());
+        setCampaigns(getMockCampaigns() as Campaign[]);
       } finally {
         setIsLoading(false);
       }
@@ -112,7 +112,7 @@ export function useCampaignFetch() {
 
 // Helper function to get a random platform
 function getRandomPlatform(index: number): Platform {
-  const platforms: Platform[] = ["Google", "LinkedIn", "Facebook", "Instagram", "TikTok", "Email", "Twitter"];
+  const platforms: Platform[] = ["meta", "tiktok", "email", "whatsapp"];
   return platforms[index % platforms.length];
 }
 
@@ -142,8 +142,8 @@ function getRandomJustification(campaign: Campaign): string {
 }
 
 // Helper function to get a random status
-function getRandomStatus(): string {
-  const statuses = ["draft", "active", "paused", "completed"];
+function getRandomStatus(): CampaignStatus {
+  const statuses: CampaignStatus[] = ["draft", "active", "paused", "completed"];
   const weights = [0.2, 0.5, 0.2, 0.1]; // 50% chance of Active
   
   const random = Math.random();
@@ -165,9 +165,9 @@ function getMockCampaigns(): Campaign[] {
     {
       id: "1",
       name: "Summer Product Launch",
-      platform: "Google",
+      platform: "meta" as Platform,
       budget: 5000,
-      status: "active",
+      status: "active" as CampaignStatus,
       executiveBot: "Jeff Bezos",
       justification: "This campaign targets high-intent customers searching for your products. The ad copy focuses on your unique value proposition.",
       roi: "Expected ROI: 320%",
@@ -176,9 +176,9 @@ function getMockCampaigns(): Campaign[] {
     {
       id: "2",
       name: "Brand Awareness Campaign",
-      platform: "Facebook",
+      platform: "meta" as Platform,
       budget: 3000,
-      status: "active",
+      status: "active" as CampaignStatus,
       executiveBot: "Sheryl Sandberg",
       justification: "Facebook's targeting capabilities allow us to reach new audiences that match your ideal customer profile.",
       roi: "Expected ROI: 180%",
@@ -187,9 +187,9 @@ function getMockCampaigns(): Campaign[] {
     {
       id: "3",
       name: "Professional Lead Gen",
-      platform: "LinkedIn",
+      platform: "email" as Platform,
       budget: 4500,
-      status: "paused",
+      status: "paused" as CampaignStatus,
       executiveBot: "Satya Nadella",
       justification: "LinkedIn offers the best B2B targeting options for your industry. Recommend increasing budget for better results.",
       roi: "Expected ROI: 220%",
@@ -198,9 +198,9 @@ function getMockCampaigns(): Campaign[] {
     {
       id: "4",
       name: "Email Nurture Sequence",
-      platform: "Email",
+      platform: "email" as Platform,
       budget: 1200,
-      status: "draft",
+      status: "draft" as CampaignStatus,
       executiveBot: "Seth Godin",
       justification: "Email marketing offers the highest ROI of all channels. This nurture sequence will convert your existing leads.",
       roi: "Expected ROI: 450%",
