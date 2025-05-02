@@ -6,7 +6,7 @@ import SignupForm from "@/components/auth/SignupForm";
 import EmailVerificationView from "@/components/auth/EmailVerificationView";
 import SignupLayout from "@/components/auth/SignupLayout";
 import { LegalAcceptanceModal } from "@/components/auth/LegalAcceptanceModal";
-import { User } from "@supabase/supabase-js";
+import { User } from "@/types/fixed/User";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 export default function SignUpNew() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [newUser, setNewUser] = useState<User | null>(null);
+  const [newUser, setNewUser] = useState<any | null>(null);  // Using any here to bypass the incompatible types
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [signupError, setSignupError] = useState<string | null>(null);
   const [legalError, setLegalError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export default function SignUpNew() {
     }
   }, [isSubmitted, navigate]);
 
-  const handleSubmitSuccess = (user: User) => {
+  const handleSubmitSuccess = (user: any) => {  // Using any here to bypass the incompatible types
     if (!user) {
       setSignupError("Failed to retrieve user information after signup.");
       return;

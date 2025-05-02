@@ -22,8 +22,11 @@ export function JsonViewer({ data, collapsed = false, shouldCollapse, maxHeight 
     }
   }, [data]);
   
+  // Ensure the maxHeight is a valid Tailwind class value
+  const heightClass = maxHeight && !isNaN(parseInt(maxHeight)) ? `max-h-${maxHeight}` : `max-h-96`;
+  
   return (
-    <pre className={`bg-muted p-4 rounded-md overflow-auto max-h-${maxHeight} text-xs font-mono`}>
+    <pre className={`bg-muted p-4 rounded-md overflow-auto ${heightClass} text-xs font-mono`}>
       {formattedJson}
     </pre>
   );

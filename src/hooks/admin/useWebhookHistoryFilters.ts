@@ -1,6 +1,6 @@
 
-import { useState, useCallback } from 'react';
-import { WebhookStatus, WebhookType } from '@/types/fixed/Webhook';
+import { useState } from 'react';
+import { WebhookType, WebhookStatus } from '@/types/fixed/Webhook';
 
 export interface WebhookFilterState {
   types: WebhookType[];
@@ -9,7 +9,7 @@ export interface WebhookFilterState {
   search: string;
 }
 
-export default function useWebhookHistoryFilters() {
+export function useWebhookHistoryFilters() {
   const [filter, setFilter] = useState<WebhookFilterState>({
     types: [],
     status: '',
@@ -17,49 +17,37 @@ export default function useWebhookHistoryFilters() {
     search: '',
   });
 
-  const updateFilter = useCallback((newFilter: Partial<WebhookFilterState>) => {
+  const updateFilter = (newFilter: Partial<WebhookFilterState>) => {
     setFilter(prev => ({
       ...prev,
       ...newFilter
     }));
-  }, []);
+  };
 
-  const resetFilter = useCallback(() => {
+  const resetFilter = () => {
     setFilter({
       types: [],
       status: '',
       dateRange: [null, null],
       search: '',
     });
-  }, []);
+  };
 
-  const setTypeFilter = useCallback((types: WebhookType[]) => {
-    setFilter(prev => ({
-      ...prev,
-      types
-    }));
-  }, []);
+  const setTypeFilter = (types: WebhookType[]) => {
+    updateFilter({ types });
+  };
 
-  const setStatusFilter = useCallback((status: WebhookStatus | '') => {
-    setFilter(prev => ({
-      ...prev,
-      status
-    }));
-  }, []);
+  const setStatusFilter = (status: WebhookStatus | '') => {
+    updateFilter({ status });
+  };
 
-  const setDateRangeFilter = useCallback((dateRange: [Date | null, Date | null]) => {
-    setFilter(prev => ({
-      ...prev,
-      dateRange
-    }));
-  }, []);
+  const setDateRangeFilter = (dateRange: [Date | null, Date | null]) => {
+    updateFilter({ dateRange });
+  };
 
-  const setSearchFilter = useCallback((search: string) => {
-    setFilter(prev => ({
-      ...prev,
-      search
-    }));
-  }, []);
+  const setSearchFilter = (search: string) => {
+    updateFilter({ search });
+  };
 
   return {
     filter,
@@ -68,9 +56,8 @@ export default function useWebhookHistoryFilters() {
     setTypeFilter,
     setStatusFilter,
     setDateRangeFilter,
-    setSearchFilter
+    setSearchFilter,
   };
 }
 
-// Export the interface for use in other files
-export type { WebhookFilterState };
+export default useWebhookHistoryFilters;

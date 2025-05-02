@@ -4,21 +4,21 @@ import WebhookEventTable from './WebhookEventTable';
 import WebhookEventFilters from './WebhookEventFilters';
 import EventDetailsModal from './EventDetailsModal';
 import useWebhookHistoryFilters from '@/hooks/admin/useWebhookHistoryFilters';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { WebhookEvent, WebhookType } from '@/types/fixed/Webhook';
 
 interface WebhookHistoryContentProps {
-  events: UnifiedWebhookEvent[];
+  events: WebhookEvent[];
 }
 
 export function WebhookHistoryContent({ events: initialEvents }: WebhookHistoryContentProps) {
   // State for event detail modal
-  const [selectedEvent, setSelectedEvent] = useState<UnifiedWebhookEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<WebhookEvent | null>(null);
   
   // Setup filters
-  const { filter, updateFilter, resetFilter, setTypeFilter, setStatusFilter, setDateRangeFilter, setSearchFilter } = useWebhookHistoryFilters();
+  const { filter, updateFilter, resetFilter } = useWebhookHistoryFilters();
   
   // State for filtered events
-  const [filteredEvents, setFilteredEvents] = useState<UnifiedWebhookEvent[]>(initialEvents);
+  const [filteredEvents, setFilteredEvents] = useState<WebhookEvent[]>(initialEvents);
   
   // Get unique webhook types from events
   const availableTypes = React.useMemo(() => {
@@ -27,7 +27,7 @@ export function WebhookHistoryContent({ events: initialEvents }: WebhookHistoryC
       const type = event.webhookType || event.webhook_type || event.type;
       if (type) types.add(type);
     });
-    return Array.from(types) as any[];
+    return Array.from(types) as WebhookType[];
   }, [initialEvents]);
   
   // Filter events when filter changes
@@ -36,7 +36,7 @@ export function WebhookHistoryContent({ events: initialEvents }: WebhookHistoryC
       // Type filter
       if (filter.types.length > 0) {
         const eventType = event.webhookType || event.webhook_type || event.type;
-        if (!filter.types.includes(eventType as any)) return false;
+        if (!filter.types.includes(eventType as WebhookType)) return false;
       }
       
       // Status filter
@@ -73,7 +73,7 @@ export function WebhookHistoryContent({ events: initialEvents }: WebhookHistoryC
   };
   
   // Open event details modal
-  const handleViewEventDetail = (event: UnifiedWebhookEvent) => {
+  const handleViewEventDetail = (event: WebhookEvent) => {
     setSelectedEvent(event);
   };
   

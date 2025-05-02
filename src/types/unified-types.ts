@@ -1,6 +1,6 @@
 
 import { User } from './fixed/User';
-import { WebhookType, BusinessEventType, WebhookResult, BusinessEventPayload, WebhookStatus, WebhookEvent } from './fixed/Webhook';
+import { WebhookType, BusinessEventType, WebhookStatus, WebhookEvent, WebhookTestResult, WebhookFilter } from './fixed/Webhook';
 import { ExtendedComplianceContextType } from './fixed/Compliance';
 import { AuthContextProps } from './fixed/Auth';
 
@@ -63,25 +63,8 @@ export interface UnifiedExecutiveMessage {
 }
 
 // Unified webhook event that harmonizes all the different property names
-export interface UnifiedWebhookEvent {
-  id: string;
-  webhook_id: string;
-  event_type: string; 
-  eventType?: string;
-  status: WebhookStatus;
-  created_at: string;
-  targetUrl: string;
-  url?: string;
-  webhook_type?: WebhookType;
-  webhookType?: WebhookType;
-  type?: WebhookType;
-  timestamp: string;
-  source?: string;
-  payload?: any;
-  response?: any;
-  duration?: number;
-  errorMessage?: string;
-  responseCode?: number;
+export interface UnifiedWebhookEvent extends WebhookEvent {
+  // This extends the standardized WebhookEvent and adds any additional legacy fields
 }
 
 // Company Profile Type
@@ -119,6 +102,21 @@ export interface ExtendedAccessibilityContextType {
   toggleInvertColors: () => void;
 }
 
+// Webhook result interface
+export interface WebhookResult {
+  success: boolean;
+  message?: string;
+  error?: any;
+  statusCode?: number;
+  responseData?: any;
+}
+
+// Business event payload
+export interface BusinessEventPayload {
+  eventType: BusinessEventType;
+  data: Record<string, any>;
+}
+
 // Export the ExtendedComplianceContextType and AuthContextProps
 export { ExtendedComplianceContextType, AuthContextProps }
 
@@ -128,5 +126,7 @@ export type {
   WebhookType,
   BusinessEventType,
   WebhookStatus,
-  WebhookEvent
+  WebhookEvent,
+  WebhookTestResult,
+  WebhookFilter
 };

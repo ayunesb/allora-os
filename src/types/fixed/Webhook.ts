@@ -23,7 +23,10 @@ export type BusinessEventType =
   | 'plugin_installed'
   | 'kpi_synced'
   | 'test_webhook'
-  | 'test_event';
+  | 'test_event'
+  | 'payment.success'  // Added for Stripe compatibility
+  | 'lead.created'     // Added for Zapier compatibility
+  | 'push';            // Added for GitHub compatibility
 
 export interface WebhookEvent {
   id: string;

@@ -1,7 +1,7 @@
 
 import { useContext } from 'react';
 import { ComplianceContext } from '@/context/ComplianceContext';
-import { ExtendedComplianceContextType } from '@/types/unified-types';
+import { ExtendedComplianceContextType } from '@/types/fixed/Compliance';
 
 export const useCompliance = (): ExtendedComplianceContextType => {
   const context = useContext(ComplianceContext);
@@ -32,7 +32,7 @@ export const useCompliance = (): ExtendedComplianceContextType => {
     toggleCompliantMode: context.toggleCompliantMode || (() => {}),
     hasAcknowledgedTerms: context.hasAcknowledgedTerms || false,
     acknowledgeTerms: context.acknowledgeTerms || (() => {}),
-    privacyLevel: context.privacyLevel || 'standard',
+    privacyLevel: (context.privacyLevel as 'standard' | 'strict' | 'custom') || 'standard',
     setPrivacyLevel: context.setPrivacyLevel || (() => {}),
     dataRetentionDays: context.dataRetentionDays || 90,
     setDataRetentionDays: context.setDataRetentionDays || (() => {}),
