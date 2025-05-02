@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  background-color: #0d0d0d;
+  color: #f4f4f5;
+}
+
+body {
+  font-family: Inter, sans-serif;
+  line-height: 1.5;
+  @apply bg-futuristic text-white font-sans;
+}
+/* existing code */

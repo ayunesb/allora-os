@@ -1,7 +1,10 @@
-
 /* Allora AI Premium Theme */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Base Colors */
@@ -33,6 +36,8 @@
   /* Typography */
   --font-primary: 'Inter', system-ui, sans-serif;
   --font-secondary: 'Poppins', system-ui, sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
 }
 
 /* Global Styles */
@@ -41,6 +46,15 @@ body {
   background: linear-gradient(135deg, var(--background-start), var(--background-end));
   background-attachment: fixed;
   color: var(--foreground);
+  @apply bg-background text-foreground font-sans;
+}
+
+button {
+  @apply bg-primary text-white hover:bg-accent transition-all rounded-xl px-4 py-2;
+}
+
+input, select, textarea {
+  @apply bg-card text-foreground border border-border rounded-md px-3 py-2;
 }
 
 /* Typography Classes */

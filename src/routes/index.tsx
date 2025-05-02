@@ -1,9 +1,10 @@
-
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 import { PageLoader } from '@/components/ui/page-loader';
+import RootLayout from "@/components/layout/RootLayout";
+import SidebarLayout from "@/components/layouts/SidebarLayout';
 
 // Lazy-loaded components
 const Dashboard = lazy(() => import('@/pages/dashboard/Index'));
@@ -19,6 +20,10 @@ const AdminDashboard = lazy(() => import('@/pages/admin/Dashboard'));
 const DevAdminHelper = lazy(() => import('@/pages/DevAdminHelper'));
 const GDPRCompliance = lazy(() => import('@/pages/GDPRCompliance'));
 const CookieSettings = lazy(() => import('@/pages/CookieSettings'));
+const Overview = lazy(() => import('@/pages/dashboard/Overview'));
+const KPIs = lazy(() => import('@/pages/dashboard/KPIs'));
+const Executives = lazy(() => import('@/pages/dashboard/Executives'));
+const AISettings = lazy(() => import('@/pages/dashboard/AISettings'));
 
 export const AppRoutes = () => {
   return (
@@ -34,9 +39,16 @@ export const AppRoutes = () => {
         <Route path="/cookie-settings" element={<CookieSettings />} />
 
         {/* Protected routes */}
-        <Route path="/dashboard" element={
+        <Route path="/dashboard/*" element={
           <ProtectedRoute>
-            <Dashboard />
+            <SidebarLayout>
+              <Routes>
+                <Route path="" element={<Overview />} />
+                <Route path="kpis" element={<KPIs />} />
+                <Route path="executives" element={<Executives />} />
+                <Route path="ai-settings" element={<AISettings />} />
+              </Routes>
+            </SidebarLayout>
           </ProtectedRoute>
         } />
         <Route path="/dashboard/profile" element={

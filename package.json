@@ -79,6 +79,8 @@
     "vaul": "^0.9.0"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

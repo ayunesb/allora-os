@@ -1,7 +1,6 @@
 import { lazy } from 'react';
-import { Navigate, type RouteObject } from 'react-router-dom';
+import { type RouteObject } from 'react-router-dom';
 
-// Lazy load the components
 const AiBoardroom = lazy(() => import('@/pages/dashboard/AiBoardroom'));
 const AIAgent = lazy(() => import('@/pages/dashboard/AIAgent'));
 const AISettings = lazy(() => import('@/pages/dashboard/AISettings'));
@@ -10,9 +9,7 @@ const AIExecutiveDebate = lazy(() => import('@/pages/dashboard/AIExecutiveDebate
 const Executives = lazy(() => import('@/pages/dashboard/Executives'));
 const LangChainAgentAPI = lazy(() => import('@/pages/dashboard/LangChainAgentAPI'));
 const AIChat = lazy(() => import('@/pages/dashboard/AIChat'));
-
-// 🔥 Fix: wrap Navigate in a lazy-loaded component
-const RedirectToDashboard = () => <Navigate to="/dashboard" />;
+const RedirectToDashboard = lazy(() => import('@/pages/dashboard/RedirectToDashboard'));
 
 export const aiRoutes: RouteObject[] = [
   { path: 'ai-boardroom', element: <AiBoardroom /> },
