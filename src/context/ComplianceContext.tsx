@@ -52,7 +52,7 @@ export interface ComplianceProviderProps {
 
 export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isCheckingUpdates, setIsCheckingUpdates] = useState<boolean>(false);
   const [lastChecked, setLastChecked] = useState<string | null>(null);
   const [pendingUpdates, setPendingUpdates] = useState<string[]>([]);
@@ -98,7 +98,8 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
       setPendingUpdates(pendingUpdates.filter(id => id !== documentId));
       toast.success(`Update ${documentId} applied successfully`);
     } catch (err) {
-      setError(new Error(`Failed to apply update ${documentId}`));
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
       toast.error(`Failed to apply update ${documentId}`);
     } finally {
       setIsApplyingUpdate(false);
@@ -117,7 +118,8 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
       setPendingUpdates([]);
       toast.success('All updates applied successfully');
     } catch (err) {
-      setError(new Error('Failed to apply updates'));
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
       toast.error('Failed to apply updates');
     } finally {
       setIsApplyingUpdate(false);
@@ -132,7 +134,8 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
       
       toast.success(`Compliance check scheduled every ${intervalDays} days`);
     } catch (err) {
-      setError(new Error('Failed to schedule compliance check'));
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
       toast.error('Failed to schedule compliance check');
     }
   };
@@ -146,7 +149,7 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
       toast.success('Auto-updates enabled');
       return true;
     } catch (err) {
-      toast.error('Failed to enable auto-updates');
+      toast.error(`Failed to enable auto-updates: ${err instanceof Error ? err.message : 'Unknown error'}`);
       return false;
     }
   };
@@ -202,7 +205,8 @@ export const ComplianceProvider = ({ children }: ComplianceProviderProps) => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsLoaded(true);
       } catch (err) {
-        setError(new Error('Failed to load compliance data'));
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        setError(errorMessage);
       }
     };
     
