@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useAuthCompat } from "@/hooks/useAuthCompat";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +16,15 @@ export default function Login() {
     const result = await signIn(email, password);
     if (result.success) {
       navigate("/dashboard");
+    }
+  };
+
+  const handleLogin = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.error('Login error:', error.message);
+    } else {
+      console.log('Login successful:', data);
     }
   };
 

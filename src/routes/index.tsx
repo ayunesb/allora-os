@@ -5,6 +5,7 @@ import AdminRoute from '@/components/AdminRoute';
 import { PageLoader } from '@/components/ui/page-loader';
 import RootLayout from "@/components/layout/RootLayout";
 import SidebarLayout from "@/components/layouts/SidebarLayout';
+import RequireAuth from '@/components/RequireAuth';
 
 // Lazy-loaded components
 const Dashboard = lazy(() => import('@/pages/dashboard/Index'));
@@ -40,16 +41,18 @@ export const AppRoutes = () => {
 
         {/* Protected routes */}
         <Route path="/dashboard/*" element={
-          <ProtectedRoute>
-            <SidebarLayout>
-              <Routes>
-                <Route path="" element={<Overview />} />
-                <Route path="kpis" element={<KPIs />} />
-                <Route path="executives" element={<Executives />} />
-                <Route path="ai-settings" element={<AISettings />} />
-              </Routes>
-            </SidebarLayout>
-          </ProtectedRoute>
+          <RequireAuth>
+            <ProtectedRoute>
+              <SidebarLayout>
+                <Routes>
+                  <Route path="" element={<Overview />} />
+                  <Route path="kpis" element={<KPIs />} />
+                  <Route path="executives" element={<Executives />} />
+                  <Route path="ai-settings" element={<AISettings />} />
+                </Routes>
+              </SidebarLayout>
+            </ProtectedRoute>
+          </RequireAuth>
         } />
         <Route path="/dashboard/profile" element={
           <ProtectedRoute>
@@ -57,26 +60,26 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         } />
         <Route path="/onboarding" element={
-          <ProtectedRoute>
+        } />rotectedRoute>
             <Onboarding />
-          </ProtectedRoute>
-        } />
-
         {/* Admin routes */}
         <Route path="/admin/*" element={
           <ProtectedRoute adminOnly>
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
+            <AdminRoute> */}
+              <AdminDashboard />lement={
+            </AdminRoute> adminOnly>
           </ProtectedRoute>
-        } />
-
+        } />  <AdminDashboard />
+            </AdminRoute>
         {/* Development helper */}
         <Route path="/dev-admin-helper" element={<DevAdminHelper />} />
 
-        {/* Catch-all route */}
-        <Route path="*" element={<NotFound />} />
+        {/* Catch-all route */}*/}
+        <Route path="*" element={<NotFound />} /><DevAdminHelper />} />
       </Routes>
+    </Suspense>ch-all route */}
+  );    <Route path="*" element={<NotFound />} />
+};    </Routes>
     </Suspense>
   );
 };

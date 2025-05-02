@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from './context/ThemeContext';
@@ -12,6 +11,7 @@ import { AccessibilityProvider } from './context/AccessibilityContext';
 import CookieConsent from './components/CookieConsent';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './routes/router';
+import { Helmet } from 'react-helmet-async';
 
 const App = () => {
   React.useEffect(() => {
@@ -34,6 +34,14 @@ const App = () => {
         <AuthProvider>
           <AccessibilityProvider>
             <CompanyAPIProvider>
+              <Helmet>
+                <title>Allora OS – AI-Native Business System</title>
+                <meta name="description" content="Allora OS helps startups run 90% autonomously with AI agents and strategy automation." />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta property="og:title" content="Allora OS" />
+                <meta property="og:description" content="Run your startup like a pro—with autonomous AI execution." />
+                <meta property="og:url" content="https://allora-os.vercel.app" />
+              </Helmet>
               <RouterProvider router={router} />
               <Toaster position="top-right" />
               <GlobalErrorModal />

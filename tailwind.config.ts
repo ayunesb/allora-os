@@ -4,6 +4,7 @@ import forms from '@tailwindcss/forms';
 const config: Config = {
   darkMode: 'class',
   content: [
+    './index.html',
     './src/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './layouts/**/*.{ts,tsx}',
@@ -14,10 +15,11 @@ const config: Config = {
       colors: {
         background: 'hsl(var(--background-start))',
         foreground: 'var(--foreground)',
-        primary: 'var(--primary)',
+        primary: '#5A67D8',
+        secondary: '#63B3ED',
         'primary-light': 'var(--primary-light)',
         'primary-dark': 'var(--primary-dark)',
-        card: 'var(--card-bg)',
+        card: 'rgba(15,15,35,0.7)',
         input: 'hsl(var(--input-bg))',
         border: 'hsl(var(--border))',
         muted: 'hsl(var(--muted))',

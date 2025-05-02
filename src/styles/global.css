@@ -8,6 +8,12 @@
   }
 }
 
+html,
+body {
+  @apply min-h-screen text-white bg-gradient-to-br from-[#0A0A23] to-[#1A1A40] bg-fixed;
+  font-family: var(--font-primary);
+}
+
 html {
   background-color: #0d0d0d;
   color: #f4f4f5;
@@ -18,4 +24,3 @@ body {
   line-height: 1.5;
   @apply bg-futuristic text-white font-sans;
 }
-/* existing code */
