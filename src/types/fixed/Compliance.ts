@@ -4,12 +4,12 @@
  */
 export interface ExtendedComplianceContextType {
   isLoaded: boolean;
-  error: Error | string | null;
+  error: string | null;
   policies?: Record<string, boolean>;
   checkForUpdates: () => void;
   setAutoUpdate: (value: boolean) => void;
   isCheckingUpdates: boolean;
-  lastChecked: Date | string | null;
+  lastChecked: string | null;
   autoUpdate: boolean;
   updatePreference: (key: string, value: any) => void;
   pendingUpdates: any[];

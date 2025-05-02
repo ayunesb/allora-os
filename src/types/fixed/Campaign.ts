@@ -1,7 +1,7 @@
 
-export type Platform = 'Google' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'TikTok' | 'Twitter' | 'Email' | 'Other' | 'meta' | 'tiktok' | 'whatsapp' | 'email';
+export type Platform = "meta" | "tiktok" | "email" | "whatsapp";
 
-export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
+export type CampaignStatus = "draft" | "active" | "paused" | "completed";
 
 export type ExecutiveBot = string | {
   name: string;
@@ -11,12 +11,11 @@ export type ExecutiveBot = string | {
 
 export interface Campaign {
   id: string;
-  name?: string;
-  title?: string;
+  name: string;
   description?: string;
-  platform?: Platform;
+  platform: Platform;
   ad_platform?: string;
-  status?: CampaignStatus;
+  status: CampaignStatus;
   start_date?: string;
   startDate?: string;
   endDate?: string;
@@ -44,4 +43,5 @@ export interface Campaign {
   justification?: string;
   roi?: string;
   target_audience?: string;
+  title?: string;
 }
