@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SUPABASE_CONFIG } from '@/config/appConfig';
@@ -251,3 +250,20 @@ export const useAuth = (): AuthContextProps => {
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
+
+export interface AuthContextProps {
+  user: User | null;
+  session?: any;
+  authError?: string;
+  hasInitialized?: boolean;
+  isEmailVerified?: boolean;
+  isSessionExpired?: boolean;
+  refreshSession?: () => Promise<boolean>;
+  refreshProfile?: () => Promise<void>;
+  signOut?: () => Promise<void>;
+  login?: (email: string, password: string) => Promise<{ success: boolean; user?: User; error?: string }>;
+  signIn?: (email: string, password: string) => Promise<{ success: boolean; user?: User; error?: string }>;
+  logout?: () => Promise<void>;
+  isAuthenticated?: boolean;
+  isLoading: boolean;
+}

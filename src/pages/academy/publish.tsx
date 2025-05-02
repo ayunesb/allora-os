@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { PageTitle } from '@/components/ui/page-title';
-import { Graduation, Upload } from 'lucide-react';
+import { GraduationCap, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PublishAcademyContent() {
@@ -33,7 +33,7 @@ export default function PublishAcademyContent() {
       <DashboardBreadcrumb 
         rootPath="/academy"
         rootLabel="Academy"
-        rootIcon={<Graduation className="h-4 w-4" />}
+        rootIcon={<GraduationCap className="h-4 w-4" />}
         currentPath="/academy/publish"
         currentLabel="Publish Content"
       />

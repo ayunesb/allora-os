@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { PageTitle } from '@/components/ui/page-title';
-import { Graduation } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 
 export default function AcademyIndex() {
   const [isReady, setIsReady] = useState(false);
@@ -20,7 +20,7 @@ export default function AcademyIndex() {
       <DashboardBreadcrumb 
         rootPath="/academy" 
         rootLabel="Academy" 
-        rootIcon={<Graduation className="h-4 w-4" />}
+        rootIcon={<GraduationCap className="h-4 w-4" />}
       />
       
       <PageTitle>
