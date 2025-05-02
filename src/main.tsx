@@ -29,7 +29,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <GlobalErrorBoundary>
       <HelmetProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
+        <ThemeProvider
+          defaultTheme="dark"
+          enableSystem={false}
+          storageKey="allora-theme"
+        >
           <QueryClientProvider client={queryClient}>
             <App />
           </QueryClientProvider>
