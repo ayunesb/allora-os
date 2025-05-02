@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UnifiedExecutiveMessage } from '@/types/unified-types';
@@ -5,15 +6,25 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, MessagesSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
-import { normalizeExecutiveMessage } from '@/utils/authCompatibility';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/services/supabaseClient';
 
 interface RecentExecutiveMessagesProps {
   messages: UnifiedExecutiveMessage[];
   isLoading?: boolean;
   onViewMoreMessages: () => void;
 }
+
+// Add a helper function to normalize messages with different property names
+export const normalizeExecutiveMessage = (msg: any): UnifiedExecutiveMessage => {
+  return {
+    id: msg.id || '',
+    created_at: msg.created_at || new Date().toISOString(),
+    from_executive: msg.from_executive || msg.fromExecutive || '',
+    to_executive: msg.to_executive || msg.toExecutive || '',
+    message_content: msg.message_content || msg.content || '',
+    content: msg.content || msg.message_content || '',
+    status: msg.status || 'unread'
+  };
+};
 
 const RecentExecutiveMessages: React.FC<RecentExecutiveMessagesProps> = ({
   messages,

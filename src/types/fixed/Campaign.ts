@@ -28,4 +28,9 @@ export interface Campaign {
   last_synced_at?: string;
   platform_status?: string;
   creatives?: any;
+  // Add back these fields which are referenced in components
+  performance_metrics?: any;
+  ad_platform?: string;
+  startDate?: string;
+  endDate?: string;
 }

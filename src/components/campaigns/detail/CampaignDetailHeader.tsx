@@ -43,6 +43,11 @@ export function CampaignDetailHeader({
     return <Badge>{campaign.deployment_status}</Badge>;
   };
 
+  // Helper function to determine platform safely
+  const getPlatform = () => {
+    return campaign.ad_platform || campaign.platform;
+  };
+
   return (
     <div className="flex items-center mb-8">
       <Button variant="ghost" size="sm" onClick={onBack} className="mr-4">
@@ -55,12 +60,12 @@ export function CampaignDetailHeader({
           {getStatusBadge()}
         </div>
         <div className="flex items-center text-muted-foreground mt-1">
-          {campaign.ad_platform === 'meta' ? (
+          {getPlatform() === 'meta' ? (
             <Facebook className="h-4 w-4 mr-1 text-blue-600" />
           ) : (
             <TikTokIcon className="h-4 w-4 mr-1" />
           )}
-          <span>{campaign.ad_platform === 'meta' ? 'Meta Ads' : 'TikTok Ads'}</span>
+          <span>{getPlatform() === 'meta' ? 'Meta Ads' : 'TikTok Ads'}</span>
         </div>
       </div>
       

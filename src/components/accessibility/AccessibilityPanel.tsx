@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -82,7 +83,7 @@ export function AccessibilityPanel() {
           <div className="space-y-2">
             <Label>Font Size ({fontSize}px)</Label>
             <Slider 
-              value={[fontSize]} 
+              value={[Number(fontSize)]} 
               min={12} 
               max={24} 
               step={1} 

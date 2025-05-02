@@ -18,4 +18,7 @@ export interface WebhookEvent {
   source?: string;
   url?: string;
   type?: string;
+  // Add back these fields which are referenced in components
+  eventType?: string;
+  webhook_type?: WebhookType;
 }

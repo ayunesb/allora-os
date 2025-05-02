@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Facebook } from 'lucide-react';
 import { TikTokIcon } from "@/components/icons/TikTokIcon";
-import { Campaign } from '@/models/campaign';
+import { Campaign } from '@/types/unified-types';
 
 interface CampaignStatsProps {
   campaigns: Campaign[];
@@ -13,21 +13,63 @@ export function CampaignStats({ campaigns }: CampaignStatsProps) {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  // Helper function to safely access nested properties
+  const getMetricValue = (campaign: Campaign, metricPath: string, defaultValue: number = 0): number => {
+    if (!campaign.performance_metrics) return defaultValue;
+    
+    const parts = metricPath.split('.');
+    let current: any = campaign.performance_metrics;
+    
+    for (const part of parts) {
+      if (current === undefined || current === null) return defaultValue;
+      current = current[part];
+    }
+    
+    // Convert string to number if needed
+    if (typeof current === 'string') {
+      const parsed = parseFloat(current);
+      return isNaN(parsed) ? defaultValue : parsed;
+    }
+    
+    return typeof current === 'number' ? current : defaultValue;
+  };
+
   const totalBudget = campaigns.reduce((sum, campaign) => sum + (campaign.budget || 0), 0);
   const totalActiveSpend = campaigns
     .filter(c => c.deployment_status === 'deployed' && c.payment_status === 'paid')
     .reduce((sum, campaign) => {
-      const spend = campaign.performance_metrics?.spend ? parseFloat(campaign.performance_metrics.spend) : 0;
+      const spend = getMetricValue(campaign, 'spend');
       return sum + spend;
     }, 0);
   
   const totalImpressions = campaigns
     .filter(c => c.deployment_status === 'deployed' && c.payment_status === 'paid')
-    .reduce((sum, campaign) => sum + (campaign.performance_metrics?.impressions || 0), 0);
+    .reduce((sum, campaign) => {
+      const impressions = getMetricValue(campaign, 'impressions');
+      return sum + impressions;
+    }, 0);
   
   const totalClicks = campaigns
     .filter(c => c.deployment_status === 'deployed' && c.payment_status === 'paid')
-    .reduce((sum, campaign) => sum + (campaign.performance_metrics?.clicks || 0), 0);
+    .reduce((sum, campaign) => {
+      const clicks = getMetricValue(campaign, 'clicks');
+      return sum + clicks;
+    }, 0);
+
+  // Handle counting platforms safely
+  const countPlatforms = () => {
+    const metaCount = campaigns.filter(c => (c.ad_platform || c.platform) === 'meta').length;
+    const tiktokCount = campaigns.filter(c => (c.ad_platform || c.platform) === 'tiktok').length;
+    
+    return {
+      hasMeta: metaCount > 0,
+      hasTiktok: tiktokCount > 0,
+      metaCount,
+      tiktokCount
+    };
+  };
+
+  const platforms = countPlatforms();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -71,21 +113,21 @@ export function CampaignStats({ campaigns }: CampaignStatsProps) {
         <CardHeader className="pb-2">
           <CardDescription>Platforms</CardDescription>
           <CardTitle className="text-3xl flex gap-2">
-            {campaigns.some(c => c.ad_platform === 'meta') && (
+            {platforms.hasMeta && (
               <Facebook className="h-8 w-8 text-blue-600" />
             )}
-            {campaigns.some(c => c.ad_platform === 'tiktok') && (
+            {platforms.hasTiktok && (
               <TikTokIcon className="h-8 w-8" />
             )}
-            {!campaigns.some(c => c.ad_platform === 'meta') && !campaigns.some(c => c.ad_platform === 'tiktok') && (
+            {!platforms.hasMeta && !platforms.hasTiktok && (
               "None"
             )}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-muted-foreground">
-            {campaigns.filter(c => c.ad_platform === 'meta').length} Meta,&nbsp;
-            {campaigns.filter(c => c.ad_platform === 'tiktok').length} TikTok
+            {platforms.metaCount} Meta,&nbsp;
+            {platforms.tiktokCount} TikTok
           </div>
         </CardContent>
       </Card>

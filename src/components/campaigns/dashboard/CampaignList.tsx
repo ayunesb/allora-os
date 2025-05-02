@@ -5,7 +5,7 @@ import { Campaign } from '@/types/unified-types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 interface CampaignListProps {
   campaigns: Campaign[];
@@ -25,6 +25,16 @@ export const CampaignList: React.FC<CampaignListProps> = ({
 
   const toggleCampaign = (id: string) => {
     setExpandedCampaignId(expandedCampaignId === id ? null : id);
+  };
+
+  // Helper function to safely format dates
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    try {
+      return format(parseISO(dateString), 'MMM dd, yyyy');
+    } catch (e) {
+      return 'Invalid date';
+    }
   };
 
   if (isLoading) {
@@ -61,7 +71,7 @@ export const CampaignList: React.FC<CampaignListProps> = ({
             <div>
               {campaign.startDate && (
                 <p className="text-xs text-muted-foreground">
-                  Starts: {format(new Date(campaign.startDate), 'MMM dd, yyyy')}
+                  Starts: {formatDate(campaign.startDate)}
                 </p>
               )}
             </div>
@@ -73,4 +83,4 @@ export const CampaignList: React.FC<CampaignListProps> = ({
       ))}
     </div>
   );
-}
+};

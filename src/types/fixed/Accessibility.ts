@@ -5,8 +5,8 @@ export interface ExtendedAccessibilityContextType {
   reducedMotion: boolean;
   largeText: boolean;
   invertColors: boolean;
-  fontSize: string;
-  setFontSize: (size: string) => void;
+  fontSize: number; // Changed to number as expected by components
+  setFontSize: (size: number) => void; // Changed to number as expected by components
   toggleScreenReaderFriendly: () => void;
   toggleHighContrast: () => void;
   toggleReducedMotion: () => void;

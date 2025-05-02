@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { WebhookEvent } from '@/types/unified-types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,9 +8,9 @@ import { Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface WebhookEventTableProps {
-  events: UnifiedWebhookEvent[];
+  events: WebhookEvent[];
   isLoading?: boolean;
-  onViewDetail: (event: UnifiedWebhookEvent) => void;
+  onViewDetail: (event: WebhookEvent) => void;
 }
 
 export function WebhookEventTable({ events, isLoading, onViewDetail }: WebhookEventTableProps) {
@@ -93,10 +93,10 @@ export function WebhookEventTable({ events, isLoading, onViewDetail }: WebhookEv
                 </Badge>
               </TableCell>
               <TableCell className="max-w-[200px] truncate" title={event.targetUrl || event.url}>
-                {event.source || new URL(event.targetUrl || event.url || '#').hostname}
+                {event.source || (event.targetUrl || event.url ? new URL(event.targetUrl || event.url || '#').hostname : 'Unknown')}
               </TableCell>
               <TableCell>
-                {formatDate(event.created_at || event.timestamp)}
+                {formatDate(event.created_at || event.timestamp || '')}
               </TableCell>
               <TableCell className="text-right">
                 <Button 
