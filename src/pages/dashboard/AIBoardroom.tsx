@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-import ExecutiveBoard from '@/components/ai/ExecutiveBoard';
+import ExecutiveBoard, { ExecutiveBoardMember } from '@/components/ExecutiveBoard';
 
 export default function AIBoardroom() {
-  const executives = [
+  const executives: ExecutiveBoardMember[] = [
     {
       id: "1",
       name: "AI CEO",

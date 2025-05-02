@@ -31,12 +31,13 @@ export default function CampaignCard({
     : campaign.executiveBot?.name || '';
   
   const getStatusColor = () => {
-    switch (campaign.status) {
-      case 'Active': return 'bg-green-500/10 text-green-500';
-      case 'Paused': return 'bg-yellow-500/10 text-yellow-500';
-      case 'Completed': return 'bg-blue-500/10 text-blue-500';
-      case 'Draft': return 'bg-gray-500/10 text-gray-500';
-      case 'Approved': return 'bg-purple-500/10 text-purple-500';
+    const status = campaign.status?.toLowerCase();
+    switch (status) {
+      case 'active': return 'bg-green-500/10 text-green-500';
+      case 'paused': return 'bg-yellow-500/10 text-yellow-500';
+      case 'completed': return 'bg-blue-500/10 text-blue-500';
+      case 'draft': return 'bg-gray-500/10 text-gray-500';
+      case 'approved': return 'bg-purple-500/10 text-purple-500';
       default: return 'bg-gray-500/10 text-gray-500';
     }
   };

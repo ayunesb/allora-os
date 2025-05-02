@@ -8,7 +8,7 @@ export default function CampaignsPage() {
     { 
       id: '1', 
       name: 'Summer Sale', 
-      status: 'Active', 
+      status: 'active', 
       budget: 5000, 
       platform: 'Facebook' as Platform, 
       created_at: '2025-06-01', 
@@ -17,7 +17,7 @@ export default function CampaignsPage() {
     { 
       id: '2', 
       name: 'Product Launch', 
-      status: 'Draft', 
+      status: 'draft', 
       budget: 10000, 
       platform: 'Instagram' as Platform, 
       created_at: '2025-07-15', 
@@ -26,7 +26,7 @@ export default function CampaignsPage() {
     { 
       id: '3', 
       name: 'Holiday Special', 
-      status: 'Draft', 
+      status: 'draft', 
       budget: 7500, 
       platform: 'Multiple' as Platform, 
       created_at: '2025-01-01', 

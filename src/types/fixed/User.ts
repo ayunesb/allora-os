@@ -25,7 +25,7 @@ export interface User {
   phone?: string;
   location?: string;
   website?: string;
-  goals?: string;
+  goals?: string[];
   risk_appetite?: string;
   personal_api_keys?: Record<string, string>;
   subscription_status?: string;

@@ -3,7 +3,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Navbar } from '@/components/Navbar';
-import { Sidebar } from '@/components/Sidebar';  // Fixed import path
+import { Sidebar } from '@/components/dashboard/Sidebar';  // Updated import path
 
 interface AdminLayoutProps {
   children?: React.ReactNode;

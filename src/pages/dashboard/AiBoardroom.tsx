@@ -7,17 +7,17 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import ExecutiveBoard from '@/components/ExecutiveBoard';
+import ExecutiveBoard, { ExecutiveBoardMember } from '@/components/ExecutiveBoard';
 
 export default function AiBoardroom() {
   // Mock data for the executive board
-  const executives = [
+  const executives: ExecutiveBoardMember[] = [
     {
       id: '1',
       name: 'CEO AI',
       role: 'Chief Executive Officer',
       avatar: '/images/executive-avatars/ceo.png',
-      status: 'active' as const,
+      status: 'active',
       specialties: ['Strategy', 'Leadership', 'Vision'],
       lastActivity: '2 minutes ago'
     },
@@ -26,7 +26,7 @@ export default function AiBoardroom() {
       name: 'CFO AI',
       role: 'Chief Financial Officer',
       avatar: '/images/executive-avatars/cfo.png',
-      status: 'active' as const,
+      status: 'active',
       specialties: ['Financial Analysis', 'Budgeting', 'Risk Management'],
       lastActivity: '15 minutes ago'
     },
@@ -35,7 +35,7 @@ export default function AiBoardroom() {
       name: 'CMO AI',
       role: 'Chief Marketing Officer',
       avatar: '/images/executive-avatars/cmo.png',
-      status: 'active' as const,
+      status: 'active',
       specialties: ['Brand Strategy', 'Digital Marketing', 'Growth'],
       lastActivity: '45 minutes ago'
     },
@@ -44,7 +44,7 @@ export default function AiBoardroom() {
       name: 'CTO AI',
       role: 'Chief Technology Officer',
       avatar: '/images/executive-avatars/cto.png',
-      status: 'learning' as const,
+      status: 'learning',
       specialties: ['Technical Architecture', 'Innovation', 'Development'],
       lastActivity: '1 hour ago'
     },
@@ -53,7 +53,7 @@ export default function AiBoardroom() {
       name: 'COO AI',
       role: 'Chief Operating Officer',
       avatar: '/images/executive-avatars/coo.png',
-      status: 'active' as const,
+      status: 'active',
       specialties: ['Operations', 'Efficiency', 'Process Optimization'],
       lastActivity: '30 minutes ago'
     }
