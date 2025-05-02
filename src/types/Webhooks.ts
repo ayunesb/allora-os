@@ -1,36 +1,51 @@
 
 export type WebhookType = 'zapier' | 'custom' | 'slack' | 'github' | 'stripe' | 'notion';
 
+export type WebhookStatus = 'success' | 'failed' | 'pending';
+
+export interface WebhookEvent {
+  id: string;
+  webhook_id: string;
+  event_type: string;  // Standardized to event_type instead of eventType
+  status: WebhookStatus;
+  created_at: string;
+  payload: any;
+  response?: any;
+  targetUrl: string;
+  webhookType: WebhookType;
+  timestamp: string;
+  duration?: number;
+  errorMessage?: string;
+  responseCode?: number;
+  source?: string;
+}
+
+export interface WebhookTestResult {
+  success: boolean;
+  message?: string;
+  statusCode?: number;
+  data?: any;
+}
+
+export interface WebhookFilter {
+  types?: WebhookType[];
+  status?: WebhookStatus | '';
+  dateRange?: [Date | null, Date | null];
+  search?: string;
+}
+
 export type BusinessEventType = 
   | 'campaign_created' 
   | 'strategy_approved' 
   | 'lead_converted'
   | 'revenue_milestone'
   | 'user_onboarded'
-  | 'campaign_launched'
-  | 'lead_added'
+  | 'test_webhook'
   | 'test_event';
 
 export interface BusinessEventPayload {
-  eventType: BusinessEventType | string;
+  eventType: string;
   data: Record<string, any>;
-}
-
-export interface CampaignPayload {
-  campaignId: string;
-  campaignTitle: string;
-  platform: string;
-  owner: string;
-  budget: number;
-  companyId: string;
-}
-
-export interface LeadPayload {
-  leadId: string;
-  leadName: string;
-  company: string;
-  email: string;
-  source: string;
 }
 
 export interface WebhookResult {
@@ -41,17 +56,14 @@ export interface WebhookResult {
   responseData?: any;
 }
 
-export interface WebhookEvent {
-  id: string;
-  webhookType: WebhookType;
-  eventType: string;
-  targetUrl: string;
-  status: 'success' | 'failed' | 'pending';
-  timestamp: string;
-  payload: any;
-  response?: any;
-  duration?: number;
-  errorMessage?: string;
-  responseCode?: number;
-  source?: string;
+export function validateWebhookUrlFormat(url: string): boolean {
+  return /^https?:\/\/.+/.test(url);
+}
+
+export function testWebhook(url: string): boolean {
+  return validateWebhookUrlFormat(url);
+}
+
+export function sanitizeWebhookUrl(url: string): string {
+  return url.trim().replace(/\s/g, '');
 }
