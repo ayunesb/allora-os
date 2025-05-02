@@ -3,29 +3,49 @@
  * Fixed types for webhooks to ensure consistency across the app
  */
 
-export type WebhookType = 'zapier' | 'custom' | 'slack' | 'github' | 'stripe' | 'notion';
+export type WebhookType =
+  | 'zapier'
+  | 'custom'
+  | 'slack'
+  | 'github'
+  | 'stripe'
+  | 'notion';
 
 export type WebhookStatus = 'success' | 'failed' | 'pending';
+
+export type BusinessEventType =
+  | 'campaign_created'
+  | 'strategy_approved'
+  | 'new_lead'
+  | 'lead_converted'
+  | 'revenue_milestone'
+  | 'user_onboarded'
+  | 'plugin_installed'
+  | 'kpi_synced'
+  | 'test_webhook'
+  | 'test_event';
 
 export interface WebhookEvent {
   id: string;
   webhook_id: string;
-  event_type: string;
+  event_type: BusinessEventType;
   status: WebhookStatus;
   created_at: string;
-  payload: any;
+  payload: Record<string, any>;
   response?: any;
   targetUrl: string;
   webhookType: WebhookType;
-  webhook_type?: WebhookType; // For compatibility
-  type?: WebhookType; // For compatibility
   timestamp: string;
   duration?: number;
   errorMessage?: string;
   responseCode?: number;
   source?: string;
-  url?: string; // Alias for targetUrl for compatibility
-  eventType?: string; // Alias for event_type for compatibility
+  
+  // Legacy fields for backward compatibility
+  url?: string; // Alias for targetUrl
+  webhook_type?: WebhookType; // Alias for webhookType
+  type?: WebhookType; // Another alias sometimes used
+  eventType?: BusinessEventType; // Alias for event_type
 }
 
 export interface WebhookTestResult {
@@ -40,26 +60,4 @@ export interface WebhookFilter {
   status?: WebhookStatus | '';
   dateRange?: [Date | null, Date | null];
   search?: string;
-}
-
-export type BusinessEventType = 
-  | 'campaign_created' 
-  | 'strategy_approved' 
-  | 'lead_converted'
-  | 'revenue_milestone'
-  | 'user_onboarded'
-  | 'test_webhook'
-  | 'test_event';
-
-export interface BusinessEventPayload {
-  eventType: string;
-  data: Record<string, any>;
-}
-
-export interface WebhookResult {
-  success: boolean;
-  message?: string;
-  error?: any;
-  statusCode?: number;
-  responseData?: any;
 }

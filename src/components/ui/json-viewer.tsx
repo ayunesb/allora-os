@@ -12,11 +12,18 @@ interface JsonViewerProps {
  * A simple component to display JSON data in a formatted way
  */
 export function JsonViewer({ data, collapsed = false, shouldCollapse, maxHeight = "96" }: JsonViewerProps) {
-  // Handle different JSON display options
-  const formattedJson = JSON.stringify(data, null, 2);
+  // Format JSON with proper indentation
+  const formattedJson = React.useMemo(() => {
+    try {
+      return JSON.stringify(data, null, 2);
+    } catch (error) {
+      console.error("Error formatting JSON:", error);
+      return String(data);
+    }
+  }, [data]);
   
   return (
-    <pre className={`bg-muted p-4 rounded-md overflow-auto max-h-${maxHeight} text-xs`}>
+    <pre className={`bg-muted p-4 rounded-md overflow-auto max-h-${maxHeight} text-xs font-mono`}>
       {formattedJson}
     </pre>
   );

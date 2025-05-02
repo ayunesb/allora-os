@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { WebhookStatus, WebhookType } from '@/types/unified-types';
+import { WebhookStatus, WebhookType } from '@/types/fixed/Webhook';
 
 export interface WebhookFilterState {
   types: WebhookType[];
@@ -72,4 +72,5 @@ export default function useWebhookHistoryFilters() {
   };
 }
 
-export { WebhookFilterState };
+// Export the interface for use in other files
+export type { WebhookFilterState };

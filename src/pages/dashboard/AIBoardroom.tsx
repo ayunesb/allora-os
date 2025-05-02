@@ -1,31 +1,85 @@
 
 import React from 'react';
-import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
-import { Users } from 'lucide-react';
-import ExecutiveBoard from '@/components/ai/ExecutiveBoard';
-import { PageTitle } from '@/components/ui/page-title';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import ExecutiveBoard from '@/components/ExecutiveBoard';
 
 export default function AIBoardroom() {
+  // Mock data for the executive board
+  const executives = [
+    {
+      id: '1',
+      name: 'CEO AI',
+      role: 'Chief Executive Officer',
+      avatar: '/images/executive-avatars/ceo.png',
+      status: 'active' as const,
+      specialties: ['Strategy', 'Leadership', 'Vision'],
+      lastActivity: '2 minutes ago'
+    },
+    {
+      id: '2',
+      name: 'CFO AI',
+      role: 'Chief Financial Officer',
+      avatar: '/images/executive-avatars/cfo.png',
+      status: 'active' as const,
+      specialties: ['Financial Analysis', 'Budgeting', 'Risk Management'],
+      lastActivity: '15 minutes ago'
+    },
+    {
+      id: '3',
+      name: 'CMO AI',
+      role: 'Chief Marketing Officer',
+      avatar: '/images/executive-avatars/cmo.png',
+      status: 'active' as const,
+      specialties: ['Brand Strategy', 'Digital Marketing', 'Growth'],
+      lastActivity: '45 minutes ago'
+    },
+    {
+      id: '4',
+      name: 'CTO AI',
+      role: 'Chief Technology Officer',
+      avatar: '/images/executive-avatars/cto.png',
+      status: 'learning' as const,
+      specialties: ['Technical Architecture', 'Innovation', 'Development'],
+      lastActivity: '1 hour ago'
+    },
+    {
+      id: '5',
+      name: 'COO AI',
+      role: 'Chief Operating Officer',
+      avatar: '/images/executive-avatars/coo.png',
+      status: 'active' as const,
+      specialties: ['Operations', 'Efficiency', 'Process Optimization'],
+      lastActivity: '30 minutes ago'
+    }
+  ];
+
+  const handleSelectExecutive = (executiveId: string) => {
+    console.log(`Selected executive with ID: ${executiveId}`);
+    // Handle executive selection, e.g., navigate to detailed view
+  };
+
   return (
-    <div>
-      <DashboardBreadcrumb
-        rootPath="/dashboard/ai-boardroom"
-        rootLabel="AI Boardroom"
-        rootIcon={<Users className="h-4 w-4" />}
-      />
-      
-      <PageTitle>AI Executive Board</PageTitle>
-      
-      <div className="space-y-6">
-        <div className="pb-3">
-          <p>
-            Meet your AI executive team. They will debate and make decisions about your
-            marketing strategies, budgets, and campaigns.
-          </p>
-        </div>
-        
-        <ExecutiveBoard />
-      </div>
+    <div className="container mx-auto p-4 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>AI Executive Boardroom</CardTitle>
+          <CardDescription>
+            Collaborate with your AI executive team to generate strategies and insights
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ExecutiveBoard 
+            executives={executives}
+            onSelectExecutive={handleSelectExecutive}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

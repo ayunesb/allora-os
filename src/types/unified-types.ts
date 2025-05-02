@@ -127,8 +127,6 @@ export type {
   User,
   WebhookType,
   BusinessEventType,
-  WebhookResult,
-  BusinessEventPayload,
   WebhookStatus,
   WebhookEvent
 };
