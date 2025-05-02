@@ -1,153 +1,100 @@
-
-import { useEffect, useState } from 'react';
-import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trophy, AlertCircle, Check } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
+import { PageTitle } from '@/components/ui/page-title';
+import { Graduation, Upload } from 'lucide-react';
 import { toast } from 'sonner';
-import AdminOnly from '@/components/AdminOnly';
 
-interface AgentWin {
-  id: string;
-  agent_id: string;
-  description: string;
-  xp: number;
-  created_at: string;
-  is_published: boolean;
-}
-
-export default function PublishingDashboard() {
-  const [wins, setWins] = useState<AgentWin[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPublishing, setIsPublishing] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    fetchUnpublishedWins();
-  }, []);
-
-  const fetchUnpublishedWins = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('admin-unpublished-wins');
-      
-      if (error) {
-        console.error('Error loading unpublished wins:', error);
-        toast.error('Failed to load unpublished wins');
-        setWins([]);
-      } else {
-        setWins(data || []);
-      }
-    } catch (err) {
-      console.error('Failed to fetch unpublished wins:', err);
-      toast.error('An error occurred while loading the data');
-      setWins([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePublish = async (id: string) => {
-    setIsPublishing(prev => ({ ...prev, [id]: true }));
+export default function PublishAcademyContent() {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  
+  const handlePublish = () => {
+    setIsUploading(true);
     
-    try {
-      const { error } = await supabase.functions.invoke('admin-unpublished-wins', {
-        method: 'POST',
-        body: { id }
+    // Simulate upload progress
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        const newProgress = prev + 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          toast.success('Content published successfully!');
+          return 100;
+        }
+        return newProgress;
       });
-      
-      if (error) {
-        toast.error('Failed to publish win');
-        console.error('Error publishing win:', error);
-      } else {
-        toast.success('Win published successfully');
-        // Remove the published win from the list
-        setWins(wins.filter(win => win.id !== id));
-      }
-    } catch (err) {
-      console.error('Error in publish process:', err);
-      toast.error('An unexpected error occurred');
-    } finally {
-      setIsPublishing(prev => ({ ...prev, [id]: false }));
-    }
+    }, 500);
   };
-
+  
   return (
-    <AdminOnly>
-      <div className="container py-8">
-        <DashboardBreadcrumb />
-        
-        <div className="flex items-center gap-2 mb-6">
-          <Trophy className="h-6 w-6 text-yellow-500" />
-          <h1 className="text-3xl font-bold">Publish Agent Wins</h1>
-        </div>
-        
-        <p className="text-muted-foreground mb-8">
-          Review and publish notable agent achievements to be displayed in the Academy.
+    <div className="container px-4 py-6">
+      <DashboardBreadcrumb 
+        rootPath="/academy"
+        rootLabel="Academy"
+        rootIcon={<Graduation className="h-4 w-4" />}
+        currentPath="/academy/publish"
+        currentLabel="Publish Content"
+      />
+      
+      <div className="mb-6">
+        <PageTitle>Publish Academy Content</PageTitle>
+        <p className="text-muted-foreground">
+          Upload and publish new educational content to the academy
         </p>
-
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <Card key={i} className="animate-pulse">
-                <CardContent className="p-4">
-                  <div className="h-6 w-1/3 bg-muted rounded mb-2"></div>
-                  <div className="h-4 w-full bg-muted rounded-sm mb-2"></div>
-                  <div className="h-4 w-2/3 bg-muted rounded-sm"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : wins.length > 0 ? (
-          <ul className="space-y-4">
-            {wins.map((win) => (
-              <Card 
-                key={win.id}
-                className="border border-border hover:border-primary/30 transition-colors"
-              >
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <div>
-                      <p className="text-lg font-semibold">{win.agent_id.replace(/_/g, ' ')}</p>
-                      <p className="text-muted-foreground">{win.description}</p>
-                      <p className="text-xs mt-3 text-green-400 font-semibold flex items-center gap-1">
-                        <Trophy className="h-3 w-3" />
-                        +{win.xp} XP
-                      </p>
-                    </div>
-                    <Button 
-                      onClick={() => handlePublish(win.id)}
-                      disabled={isPublishing[win.id]}
-                      className="ml-4"
-                    >
-                      {isPublishing[win.id] ? (
-                        <span className="flex items-center gap-1">
-                          <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-                          Publishing...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1">
-                          <Check className="h-4 w-4" />
-                          Publish
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </ul>
-        ) : (
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                <AlertCircle className="h-12 w-12 text-muted-foreground" />
-                <p className="text-muted-foreground">No unpublished agent wins to review.</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
-    </AdminOnly>
+      
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Content Details</CardTitle>
+          <CardDescription>
+            Provide information about the content you're publishing
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Form fields would go here */}
+          <p>Content form fields placeholder</p>
+        </CardContent>
+        <CardFooter className="justify-end space-x-2 border-t pt-6">
+          <Button variant="outline">Cancel</Button>
+          <Button 
+            onClick={handlePublish} 
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <>
+                <svg 
+                  className="animate-spin -ml-1 mr-2 h-4 w-4" 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24"
+                >
+                  <circle 
+                    className="opacity-25" 
+                    cx="12" 
+                    cy="12" 
+                    r="10" 
+                    stroke="currentColor" 
+                    strokeWidth="4"
+                  />
+                  <path 
+                    className="opacity-75" 
+                    fill="currentColor" 
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Uploading {uploadProgress}%
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Publish Content
+              </>
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

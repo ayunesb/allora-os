@@ -16,6 +16,7 @@ export function createAuthCompatibilityLayer(authContext: any): AuthContextProps
     isEmailVerified: false,
     isSessionExpired: false,
     authError: null,
+    isAuthenticated: false,
     refreshProfile: async () => {},
     refreshSession: async () => Promise.resolve(true),
     signOut: async () => {},
@@ -29,13 +30,15 @@ export function createAuthCompatibilityLayer(authContext: any): AuthContextProps
   
   return {
     user,
+    profile: normalizeUserObject(authContext.profile) || user,
     isLoading: authContext.loading || authContext.isLoading || false,
     loading: authContext.loading || authContext.isLoading || false, // Include both loading properties
-    profile: normalizeUserObject(authContext.profile) || user,
     hasInitialized: authContext.hasInitialized || true,
     isEmailVerified: authContext.isEmailVerified || true,
     isSessionExpired: authContext.isSessionExpired || false,
     authError: authContext.authError || null,
+    isAuthenticated: !!user,
+    session: authContext.session || null,
     refreshProfile: authContext.refreshProfile || (async () => Promise.resolve()),
     refreshSession: authContext.refreshSession || (async () => Promise.resolve(true)),
     signOut: authContext.signOut || authContext.logout || (async () => Promise.resolve()),

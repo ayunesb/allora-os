@@ -233,6 +233,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isEmailVerified,
     isSessionExpired,
     authError,
+    session,
+    isAuthenticated: !!user,
     refreshProfile,
     refreshSession,
     signOut,

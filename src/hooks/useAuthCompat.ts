@@ -4,5 +4,14 @@ import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
 
 export const useAuthCompat = () => {
   const auth = useAuth();
-  return createAuthCompatibilityLayer(auth);
+  const authCompat = createAuthCompatibilityLayer(auth);
+  
+  // Ensure session is properly passed through
+  return {
+    ...authCompat,
+    session: auth.session,
+    isAuthenticated: !!auth.user
+  };
 };
+
+export default useAuthCompat;

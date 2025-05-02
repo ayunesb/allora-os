@@ -9,7 +9,9 @@ export interface AuthContextProps {
   hasInitialized: boolean;
   isEmailVerified: boolean;
   isSessionExpired: boolean;
+  isAuthenticated?: boolean;
   authError: string | null;
+  session?: any; // For Supabase session
   refreshProfile: () => Promise<void>;
   refreshSession: () => Promise<boolean>; // Return success status
   signOut: () => Promise<void>;

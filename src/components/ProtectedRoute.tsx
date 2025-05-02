@@ -106,8 +106,8 @@ export default function ProtectedRoute({
     
     if (typeof auth.authError === 'string') {
       errorMessage = auth.authError;
-    } else if (auth.authError instanceof Error) {
-      errorMessage = auth.authError.message;
+    } else if (typeof auth.authError === 'object' && auth.authError !== null && 'message' in auth.authError) {
+      errorMessage = auth.authError.message as string;
     }
     
     return <AuthErrorState 

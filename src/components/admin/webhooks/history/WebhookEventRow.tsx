@@ -54,7 +54,8 @@ const WebhookEventRow: React.FC<WebhookEventRowProps> = ({ event, onViewDetail }
   const url = event.targetUrl || event.url || '';
   
   // Format the timestamp
-  const formattedTime = formatRelativeTime(event.timestamp || event.created_at);
+  const timestamp = event.timestamp || event.created_at;
+  const formattedTime = timestamp ? formatRelativeTime(timestamp) : 'Unknown time';
 
   return (
     <TableRow>

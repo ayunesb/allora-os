@@ -9,15 +9,16 @@ import { toast } from "sonner";
 import ProfileDiagnostics from "@/components/settings/ProfileDiagnostics";
 
 export default function Profile() {
-  const { user, profile, isProfileLoading, refreshProfile } = useAuth();
+  const auth = useAuth();
+  const { user, profile, isLoading, refreshProfile } = auth;
   const userEmail = user?.email; // Extract email directly from user object
   
   useEffect(() => {
     // Call refreshProfile to make sure we have the latest data
-    if (user && !isProfileLoading) {
+    if (user && !isLoading && refreshProfile) {
       refreshProfile();
     }
-  }, [user]);
+  }, [user, isLoading, refreshProfile]);
 
   useEffect(() => {
     // Detailed logging for verification
@@ -36,9 +37,9 @@ export default function Profile() {
         duration: 5000
       });
     }
-  }, [user, profile, userEmail, isProfileLoading]);
+  }, [user, profile, userEmail, isLoading]);
 
-  if (isProfileLoading) {
+  if (isLoading) {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-10">
         <div className="space-y-6">

@@ -7,7 +7,7 @@ import { useCompliance } from '@/hooks/useCompliance';
 import { formatRelativeTime } from '@/utils/dateUtils';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface DocumentLegalContentProps {
+export interface DocumentLegalContentProps {
   title: string;
   description: string;
   content: string;

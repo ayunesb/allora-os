@@ -1,45 +1,88 @@
 
 import React from 'react';
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose
-} from "@/components/ui/dialog";
-import { WebhookEvent } from '@/types/fixed/Webhook';
-import { X } from 'lucide-react';
-import EventDetailsPanel from '../event-table/EventDetailsPanel';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import JsonViewer from '@/components/JsonViewer';
 
 interface WebhookEventDetailModalProps {
-  event: WebhookEvent;
+  event: UnifiedWebhookEvent;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const WebhookEventDetailModal: React.FC<WebhookEventDetailModalProps> = ({
-  event,
-  isOpen,
-  onClose
+const WebhookEventDetailModal: React.FC<WebhookEventDetailModalProps> = ({ 
+  event, 
+  isOpen, 
+  onClose 
 }) => {
-  const eventType = event.eventType || event.event_type || 'Unknown';
-
+  const getStatusBadge = (status: string) => {
+    switch(status.toLowerCase()) {
+      case 'success':
+        return <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Success</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Failed</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Pending</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+  
+  const formattedDate = event.created_at ? 
+    format(new Date(event.created_at), 'PPP p') : 
+    'Unknown date';
+  
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>
-              Webhook Event: {eventType}
-            </span>
-            <DialogClose className="w-5 h-5 rounded-sm opacity-70 hover:opacity-100">
-              <X className="h-4 w-4" />
-            </DialogClose>
-          </DialogTitle>
+          <DialogTitle>Webhook Event Details</DialogTitle>
+          <DialogDescription className="flex items-center gap-2">
+            {getStatusBadge(event.status)}
+            <span className="text-muted-foreground">{formattedDate}</span>
+          </DialogDescription>
         </DialogHeader>
         
-        <div className="pt-4">
-          <EventDetailsPanel event={event} expanded={true} />
+        <div className="grid gap-4">
+          <div>
+            <h3 className="text-sm font-medium mb-2">Event Information</h3>
+            <div className="bg-muted/50 rounded-lg p-3 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p className="text-muted-foreground">Event Type</p>
+                <p className="font-mono">{event.event_type || event.eventType}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Source</p>
+                <p>{event.source || 'Unknown'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Target URL</p>
+                <p className="font-mono truncate">{event.targetUrl || event.url}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Duration</p>
+                <p>{event.duration ? `${event.duration}ms` : 'Not available'}</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Payload */}
+          <div>
+            <h3 className="text-sm font-medium mb-2">Payload</h3>
+            <div className="bg-muted/50 rounded-lg p-3 max-h-[200px] overflow-auto">
+              <JsonViewer data={event.payload || {}} />
+            </div>
+          </div>
+          
+          {/* Response */}
+          <div>
+            <h3 className="text-sm font-medium mb-2">Response</h3>
+            <div className="bg-muted/50 rounded-lg p-3 max-h-[200px] overflow-auto">
+              <JsonViewer data={event.response || {}} />
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

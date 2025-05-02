@@ -91,24 +91,6 @@ export interface CompanyProfile {
   pricing_model?: string;
 }
 
-// Extended Compliance Context Type
-export interface ExtendedComplianceContextType {
-  isLoaded: boolean;
-  error: Error | null;
-  checkForUpdates: () => void;
-  setAutoUpdate: (value: boolean) => void;
-  isCheckingUpdates: boolean;
-  lastChecked: string | null;
-  autoUpdate: boolean;
-  updatePreference: (key: string, value: any) => void;
-  pendingUpdates: string[];
-  isApplyingUpdate: boolean;
-  applyUpdate: (id: string) => Promise<void>;
-  applyAllUpdates: () => Promise<void>;
-  scheduleComplianceCheck: (intervalDays?: number) => Promise<void>;
-  enableAutoUpdates: () => Promise<boolean>;
-}
-
 // Extended Accessibility Context Type
 export interface ExtendedAccessibilityContextType {
   fontSize: number;
