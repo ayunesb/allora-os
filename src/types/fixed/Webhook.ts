@@ -17,15 +17,15 @@ export interface WebhookEvent {
   response?: any;
   targetUrl: string;
   webhookType: WebhookType;
-  webhook_type?: WebhookType;
-  type?: WebhookType;
+  webhook_type?: WebhookType; // For compatibility
+  type?: WebhookType; // For compatibility
   timestamp: string;
   duration?: number;
   errorMessage?: string;
   responseCode?: number;
   source?: string;
-  url?: string;
-  eventType?: string;
+  url?: string; // Alias for targetUrl for compatibility
+  eventType?: string; // Alias for event_type for compatibility
 }
 
 export interface WebhookTestResult {

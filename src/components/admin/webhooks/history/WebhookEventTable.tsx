@@ -1,95 +1,119 @@
 
 import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UnifiedWebhookEvent } from '@/types/unified-types';
-import { Badge } from '@/components/ui/badge';
-import { formatDistanceToNow } from 'date-fns';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Eye, FileJson } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Eye } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export interface WebhookEventTableProps {
+interface WebhookEventTableProps {
   events: UnifiedWebhookEvent[];
+  isLoading?: boolean;
   onViewDetail: (event: UnifiedWebhookEvent) => void;
 }
 
-const WebhookEventTable: React.FC<WebhookEventTableProps> = ({ 
-  events,
-  onViewDetail
-}) => {
-  const getStatusColor = (status: string): string => {
-    switch(status) {
-      case 'success': return 'bg-green-500';
-      case 'failed': return 'bg-red-500';
-      case 'pending': return 'bg-amber-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getWebhookTypeLabel = (type?: string): string => {
-    if (!type) return 'Unknown';
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
-  
-  return (
-    <div className="rounded-md border overflow-hidden">
+export function WebhookEventTable({ events, isLoading, onViewDetail }: WebhookEventTableProps) {
+  if (isLoading) {
+    return (
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">Status</TableHead>
             <TableHead>Event Type</TableHead>
-            <TableHead>Webhook Type</TableHead>
-            <TableHead className="hidden md:table-cell">Target URL</TableHead>
-            <TableHead className="hidden md:table-cell">Created</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Source</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <TableRow key={i}>
+              <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+              <TableCell><Skeleton className="h-8 w-16" /></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  }
+  
+  if (events.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">No webhook events found matching the current filters.</p>
+      </div>
+    );
+  }
+
+  // Format date function
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return 'Unknown';
+    try {
+      return new Date(dateString).toLocaleString();
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  };
+  
+  // Get status badge color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'success': return 'bg-green-500 text-white';
+      case 'failed': return 'bg-red-500 text-white';
+      case 'pending': return 'bg-yellow-500 text-white';
+      default: return 'bg-gray-500 text-white';
+    }
+  };
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Event Type</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Source</TableHead>
+            <TableHead>Date</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {events.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                No webhook events found
+          {events.map((event) => (
+            <TableRow key={event.id}>
+              <TableCell className="font-medium">
+                {event.event_type || event.eventType || 'Unknown'}
+              </TableCell>
+              <TableCell>
+                <Badge className={getStatusColor(event.status)}>
+                  {event.status}
+                </Badge>
+              </TableCell>
+              <TableCell className="max-w-[200px] truncate" title={event.targetUrl || event.url}>
+                {event.source || new URL(event.targetUrl || event.url || '#').hostname}
+              </TableCell>
+              <TableCell>
+                {formatDate(event.created_at || event.timestamp)}
+              </TableCell>
+              <TableCell className="text-right">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => onViewDetail(event)}
+                >
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
+                </Button>
               </TableCell>
             </TableRow>
-          ) : (
-            events.map((event) => (
-              <TableRow key={event.id}>
-                <TableCell>
-                  <div className="flex items-center">
-                    <span className={`h-2.5 w-2.5 rounded-full mr-2 ${getStatusColor(event.status)}`}></span>
-                    <span className="capitalize">{event.status}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">
-                    {event.event_type || event.eventType || 'unknown'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {getWebhookTypeLabel(event.webhookType || event.webhook_type || event.type)}
-                </TableCell>
-                <TableCell className="hidden md:table-cell truncate max-w-[200px]" title={event.targetUrl || event.url}>
-                  {event.targetUrl || event.url}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-muted-foreground">
-                  {formatDistanceToNow(new Date(event.created_at || event.timestamp || ''), { addSuffix: true })}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => onViewDetail(event)}
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    <span className="sr-only md:not-sr-only">View</span>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
+          ))}
         </TableBody>
       </Table>
     </div>
   );
-};
+}
 
 export default WebhookEventTable;

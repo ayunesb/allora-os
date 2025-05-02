@@ -1,6 +1,7 @@
 
 import { User } from './fixed/User';
-import { WebhookType, BusinessEventType, WebhookResult, BusinessEventPayload, WebhookStatus } from './fixed/Webhook';
+import { WebhookType, BusinessEventType, WebhookResult, BusinessEventPayload, WebhookStatus, WebhookEvent } from './fixed/Webhook';
+import { ExtendedComplianceContextType } from './fixed/Compliance';
 
 // Social Media Types
 export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok' | 'YouTube';
@@ -84,7 +85,7 @@ export interface UnifiedWebhookEvent {
 
 // Company Profile Type
 export interface CompanyProfile {
-  company_name: string; // Changed from companyName to match server-side field
+  company_name: string;
   company: string;
   industry: string;
   target_customer?: string;
@@ -115,54 +116,10 @@ export interface ExtendedAccessibilityContextType {
   toggleReducedMotion: () => void;
   toggleScreenReaderFriendly: () => void;
   toggleInvertColors: () => void;
-  
-  // Optional properties for backward compatibility
-  checkForUpdates?: () => void;
-  setAutoUpdate?: (value: boolean) => void;
-  isCheckingUpdates?: boolean;
-  lastChecked?: string | null;
-  autoUpdate?: boolean;
 }
 
-// Add this for compliance context
-export interface ExtendedComplianceContextType {
-  // Core Compliance Properties
-  isLoaded: boolean;
-  error: Error | null;
-  
-  // Auto-update functionality
-  checkForUpdates: () => void;
-  setAutoUpdate: (value: boolean) => void;
-  isCheckingUpdates: boolean;
-  lastChecked: string | null;
-  autoUpdate: boolean;
-  updatePreference: (key: string, value: any) => void;
-  
-  // Pending updates management
-  pendingUpdates: string[];
-  isApplyingUpdate: boolean;
-  applyUpdate: (id: string) => Promise<void>;
-  applyAllUpdates: () => Promise<void>;
-  scheduleComplianceCheck: () => Promise<void>;
-  enableAutoUpdates: () => Promise<boolean>;
-  
-  // Mode toggles and settings (for UI)
-  isCompliantMode: boolean;
-  toggleCompliantMode: () => void;
-  hasAcknowledgedTerms: boolean;
-  acknowledgeTerms: () => void;
-  
-  // Data retention settings
-  privacyLevel: string;
-  setPrivacyLevel: (level: string) => void;
-  dataRetentionDays: number;
-  setDataRetentionDays: (days: number) => void;
-  
-  // Document management
-  loadCompliance: () => void;
-  saveCompliance: () => void;
-  resetCompliance: () => void;
-}
+// Export the ExtendedComplianceContextType
+export { ExtendedComplianceContextType }
 
 // Re-export key types
 export type {
@@ -171,5 +128,6 @@ export type {
   BusinessEventType,
   WebhookResult,
   BusinessEventPayload,
-  WebhookStatus
+  WebhookStatus,
+  WebhookEvent
 };

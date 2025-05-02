@@ -1,7 +1,7 @@
 
 import { useContext } from 'react';
 import { ComplianceContext } from '@/context/ComplianceContext';
-import { ExtendedComplianceContextType } from '@/types/unified-types';
+import { ExtendedComplianceContextType } from '@/types/fixed/Compliance';
 
 export const useCompliance = (): ExtendedComplianceContextType => {
   const context = useContext(ComplianceContext);
@@ -32,3 +32,5 @@ export const useCompliance = (): ExtendedComplianceContextType => {
 
   return extendedContext;
 };
+
+export default useCompliance;

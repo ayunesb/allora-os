@@ -3,11 +3,72 @@ import { ReactNode, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { AuthLoadingState } from "./auth/AuthLoadingState";
-import { AuthErrorState } from "./auth/AuthErrorState";
-import { VerificationRequiredState } from "./auth/VerificationRequiredState";
-import { logger } from "@/utils/loggingService";
-import { createAuthCompatibilityLayer } from "@/utils/authCompatibility";
+
+// Loading state component
+const AuthLoadingState = () => (
+  <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+    <p className="text-lg text-center text-muted-foreground">Verifying your access...</p>
+  </div>
+);
+
+// Auth error state component
+const AuthErrorState = ({ 
+  error, 
+  onRetry,
+  isRetrying 
+}: { 
+  error: string; 
+  onRetry: () => void;
+  isRetrying: boolean;
+}) => (
+  <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="p-6 bg-destructive/10 rounded-lg max-w-md">
+      <h2 className="text-xl font-bold mb-4 text-destructive">Authentication Error</h2>
+      <p className="mb-4">{error}</p>
+      <button 
+        onClick={onRetry} 
+        disabled={isRetrying}
+        className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
+      >
+        {isRetrying ? 'Retrying...' : 'Retry'}
+      </button>
+    </div>
+  </div>
+);
+
+// Verification required state component
+const VerificationRequiredState = ({
+  onRefresh,
+  onResendVerification,
+  isResending
+}: {
+  onRefresh: () => void;
+  onResendVerification: () => void;
+  isResending: boolean;
+}) => (
+  <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg max-w-md">
+      <h2 className="text-xl font-bold mb-4 text-yellow-700 dark:text-yellow-400">Email Verification Required</h2>
+      <p className="mb-4">Please verify your email address before continuing.</p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button 
+          onClick={onRefresh} 
+          className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
+        >
+          I've Verified My Email
+        </button>
+        <button 
+          onClick={onResendVerification}
+          disabled={isResending}
+          className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+        >
+          {isResending ? 'Sending...' : 'Resend Verification Email'}
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -22,30 +83,10 @@ export default function ProtectedRoute({
   adminOnly,
   requireVerified = false 
 }: ProtectedRouteProps) {
-  const authContext = useAuth();
-  const auth = createAuthCompatibilityLayer(authContext);
-  
+  const auth = useAuth();
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(true);
   const [lastVerified, setLastVerified] = useState<number>(Date.now());
-
-  // Log authentication status for debugging
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      logger.debug('Protected Route Auth State:', { 
-        user: auth.user?.id, // Use user id instead of the whole user object
-        profile: auth.profile, 
-        roleRequired, 
-        adminOnly,
-        isLoading: auth.isLoading,
-        hasInitialized: auth.hasInitialized,
-        isVerifying,
-        profileRole: auth.profile?.role,
-        isEmailVerified: auth.isEmailVerified,
-        path: location.pathname
-      });
-    }
-  }, [auth.user, auth.profile, roleRequired, adminOnly, auth.isLoading, auth.hasInitialized, auth.isEmailVerified, location.pathname, isVerifying]);
 
   // Force session verification on sensitive routes or after time threshold
   useEffect(() => {
@@ -69,31 +110,20 @@ export default function ProtectedRoute({
     };
     
     verifyAuthentication();
-  }, [location.pathname, auth.user, adminOnly, roleRequired, requireVerified, auth.refreshSession]);
-
-  // Show notification for session expiration
-  useEffect(() => {
-    if (auth.isSessionExpired && auth.user) {
-      toast.error("Your session has expired. Please log in again.", {
-        description: "You'll be redirected to the login page."
-      });
-    }
-  }, [auth.isSessionExpired, auth.user]);
+  }, [location.pathname, auth.user, adminOnly, roleRequired, requireVerified, auth.refreshSession, lastVerified]);
 
   // Handle loading state
-  if (auth.isLoading || isVerifying) {
+  if (auth.isLoading || auth.loading || isVerifying) {
     return <AuthLoadingState />;
   }
 
   // Handle expired session
   if (auth.isSessionExpired) {
-    logger.warn("Session expired, redirecting to login", { path: location.pathname });
     return <Navigate to="/login" state={{ from: location, expired: true }} replace />;
   }
 
   // Handle unauthenticated users
   if (!auth.user && auth.hasInitialized) {
-    logger.warn("Unauthenticated access attempt", { path: location.pathname });
     toast.error("Please log in to access this page", {
       description: "This page requires authentication."
     });
@@ -102,17 +132,8 @@ export default function ProtectedRoute({
 
   // Handle auth errors
   if (auth.authError) {
-    let errorMessage = "Unknown authentication error";
-    
-    if (typeof auth.authError === 'string') {
-      errorMessage = auth.authError;
-    } else if (auth.authError && typeof auth.authError === 'object' && 'message' in auth.authError) {
-      // Safely access message property on object
-      errorMessage = (auth.authError as {message: string}).message;
-    }
-    
     return <AuthErrorState 
-      error={errorMessage} 
+      error={auth.authError} 
       onRetry={async () => {
         if (auth.refreshSession) {
           await auth.refreshSession();
@@ -124,14 +145,15 @@ export default function ProtectedRoute({
 
   // Handle verification requirement
   if (requireVerified && !auth.isEmailVerified && auth.hasInitialized) {
-    logger.warn("Unverified user attempted to access restricted content", { path: location.pathname });
     return <VerificationRequiredState 
       onRefresh={async () => {
         if (auth.refreshSession) {
           await auth.refreshSession();
         }
       }}
-      onResendVerification={async () => {}}
+      onResendVerification={async () => {
+        // Implement resend verification logic here
+      }}
       isResending={false}
     />;
   }
@@ -142,11 +164,6 @@ export default function ProtectedRoute({
                   (auth.user?.app_metadata && auth.user.app_metadata.is_admin);
     
     if (!isAdmin) {
-      logger.warn("Non-admin attempted to access admin area", { 
-        path: location.pathname,
-        userRole: auth.profile?.role 
-      });
-      
       toast.error("You don't have permission to access this page", {
         description: "This area requires administrator privileges."
       });
@@ -159,12 +176,6 @@ export default function ProtectedRoute({
                           (roleRequired === 'user' && userRole === 'admin');
     
     if (!hasRequiredRole) {
-      logger.warn("Insufficient role for route access", { 
-        path: location.pathname,
-        requiredRole: roleRequired,
-        userRole: userRole
-      });
-      
       toast.error("You don't have permission to access this page", {
         description: `You need ${roleRequired} privileges to access this area.`
       });

@@ -1,107 +1,95 @@
 
-import { useState, useEffect, useMemo } from 'react';
-import { WebhookType, WebhookStatus } from '@/types/fixed/Webhook';
+import { useState, useCallback, useMemo } from 'react';
+import { WebhookStatus, WebhookType } from '@/types/fixed/Webhook';
 import { UnifiedWebhookEvent } from '@/types/unified-types';
 
-export interface WebhookFilterState {
+export type FilterOptions = {
   types: WebhookType[];
   status: WebhookStatus | '';
   dateRange: [Date | null, Date | null];
-  searchQuery: string;
-}
+  search: string;
+};
 
-export function useWebhookHistoryFilters(events: UnifiedWebhookEvent[]) {
-  const [filters, setFilters] = useState<WebhookFilterState>({
+export function useWebhookHistoryFilters(initialEvents: UnifiedWebhookEvent[]) {
+  const [filters, setFilters] = useState<FilterOptions>({
     types: [],
     status: '',
     dateRange: [null, null],
-    searchQuery: ''
+    search: ''
   });
 
-  // Generate available webhook types
+  // Extract unique webhook types for filter options
   const availableTypes = useMemo(() => {
     const types = new Set<WebhookType>();
-    events.forEach(event => {
-      const webhookType = event.webhookType || event.webhook_type;
-      if (webhookType) {
-        types.add(webhookType as WebhookType);
+    initialEvents.forEach(event => {
+      const type = event.webhookType || event.webhook_type || event.type;
+      if (type && typeof type === 'string') {
+        types.add(type as WebhookType);
       }
     });
     return Array.from(types);
-  }, [events]);
+  }, [initialEvents]);
 
-  // Generate available webhook statuses
-  const availableStatuses = useMemo(() => {
-    const statuses = new Set<WebhookStatus>();
-    events.forEach(event => {
-      if (event.status) {
-        statuses.add(event.status as WebhookStatus);
-      }
-    });
-    return Array.from(statuses);
-  }, [events]);
-
-  // Filter events based on current filter state
+  // Filter events based on current filters
   const filteredEvents = useMemo(() => {
-    return events.filter(event => {
-      // Filter by webhook type if any types are selected
+    return initialEvents.filter(event => {
+      // Type filter
       if (filters.types.length > 0) {
-        const eventType = event.webhookType || event.webhook_type;
+        const eventType = event.webhookType || event.webhook_type || event.type;
         if (!eventType || !filters.types.includes(eventType as WebhookType)) {
           return false;
         }
       }
 
-      // Filter by status if selected
-      if (filters.status && filters.status !== '' as any) {
-        if (event.status !== filters.status) {
+      // Status filter - only apply if a status is selected
+      if (filters.status !== '') {
+        const eventStatus = event.status as WebhookStatus;
+        if (eventStatus !== filters.status) {
           return false;
         }
       }
 
-      // Filter by date range
-      const [startDate, endDate] = filters.dateRange;
+      // Date range filter
       const eventDate = new Date(event.created_at || event.timestamp || '');
-      
-      if (startDate && eventDate < startDate) {
+      if (filters.dateRange[0] && eventDate < filters.dateRange[0]) {
         return false;
       }
-      
-      if (endDate) {
-        const endOfDay = new Date(endDate);
-        endOfDay.setHours(23, 59, 59, 999);
-        if (eventDate > endOfDay) {
+      if (filters.dateRange[1]) {
+        // Add one day to include events from the end date
+        const endDate = new Date(filters.dateRange[1]);
+        endDate.setDate(endDate.getDate() + 1);
+        if (eventDate > endDate) {
           return false;
         }
       }
 
-      // Filter by search query
-      if (filters.searchQuery) {
-        const searchLower = filters.searchQuery.toLowerCase();
-        const eventTypeLower = (event.event_type || event.eventType || '').toLowerCase();
-        const sourceValue = (event.source || '').toLowerCase();
-        const urlValue = (event.targetUrl || event.url || '').toLowerCase();
+      // Search filter
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        const eventType = event.eventType || event.event_type || '';
+        const url = event.targetUrl || event.url || '';
+        const source = event.source || '';
         
-        const payloadStr = event.payload ? JSON.stringify(event.payload).toLowerCase() : '';
+        const matchesSearch = 
+          eventType.toLowerCase().includes(searchLower) ||
+          url.toLowerCase().includes(searchLower) ||
+          source.toLowerCase().includes(searchLower) ||
+          (event.id ? event.id.toLowerCase().includes(searchLower) : false);
         
-        if (!eventTypeLower.includes(searchLower) && 
-            !sourceValue.includes(searchLower) && 
-            !urlValue.includes(searchLower) &&
-            !payloadStr.includes(searchLower)) {
+        if (!matchesSearch) {
           return false;
         }
       }
 
       return true;
     });
-  }, [events, filters]);
+  }, [initialEvents, filters]);
 
-  return {
-    filters,
-    setFilters,
-    availableTypes,
-    availableStatuses,
-    filteredEvents
+  return { 
+    filters, 
+    setFilters, 
+    filteredEvents, 
+    availableTypes 
   };
 }
 

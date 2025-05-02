@@ -1,11 +1,11 @@
 
 import React from 'react';
-import AiBehaviorSettings from '@/components/ai/AiBehaviorSettings';
-import AiPreferencesForm from '@/components/ai/AiPreferencesForm';
-import SettingsSection from '@/components/ui/settings-section';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
 import { Settings, Cpu } from 'lucide-react';
 import { PageTitle } from '@/components/ui/page-title';
+import AiBehaviorSettings from '@/components/ai/AiBehaviorSettings';
+import AiPreferencesForm from '@/components/ai/AiPreferencesForm';
+import SettingsSection from '@/components/ui/settings-section';
 
 export default function AISettings() {
   return (

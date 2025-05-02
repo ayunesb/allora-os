@@ -6,17 +6,21 @@
 export interface User {
   id: string;
   email: string;
+  name: string;
+  role: 'admin' | 'user';
+  company_id: string;
+  created_at: string;
+  
+  // Optional properties
   firstName?: string;
   lastName?: string;
-  name: string; // Required to match the model
-  role: 'admin' | 'user';
   avatar?: string;
   avatar_url?: string;
-  company_id: string; // Required to match the model
   company?: string;
   industry?: string;
   updated_at?: string;
-  created_at: string; // Required to match the model
+  
+  // Metadata
   app_metadata?: {
     is_admin?: boolean;
     [key: string]: any;
@@ -32,5 +36,4 @@ export interface User {
     industry?: string;
     [key: string]: any;
   };
-  [key: string]: any; // Fallback for legacy properties
 }

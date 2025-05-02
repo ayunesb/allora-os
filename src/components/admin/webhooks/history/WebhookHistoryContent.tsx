@@ -3,27 +3,19 @@ import React, { useState, useEffect } from 'react';
 import WebhookEventTable from './WebhookEventTable';
 import WebhookEventFilters from './WebhookEventFilters';
 import EventDetailsModal from './EventDetailsModal';
-import { useWebhookHistoryFilters } from '@/components/admin/webhooks/history/useWebhookHistoryFilters';
+import { useWebhookHistoryFilters } from '@/hooks/admin/useWebhookHistoryFilters';
 import { UnifiedWebhookEvent } from '@/types/unified-types';
 
-interface WebhookEventHistoryData {
+interface WebhookHistoryContentProps {
   events: UnifiedWebhookEvent[];
 }
 
-const WebhookHistoryContent: React.FC<WebhookEventHistoryData> = ({ events: initialEvents }) => {
+export function WebhookHistoryContent({ events: initialEvents }: WebhookHistoryContentProps) {
   // State for event detail modal
   const [selectedEvent, setSelectedEvent] = useState<UnifiedWebhookEvent | null>(null);
   
   // Setup filters
-  const { filters, setFilters, filterEvents, availableTypes } = useWebhookHistoryFilters(initialEvents);
-  
-  // Filtered events
-  const [filteredEvents, setFilteredEvents] = useState<UnifiedWebhookEvent[]>([]);
-  
-  // Filter events when filters change
-  useEffect(() => {
-    setFilteredEvents(filterEvents() as UnifiedWebhookEvent[]);
-  }, [filterEvents, initialEvents]);
+  const { filters, setFilters, availableTypes, filteredEvents } = useWebhookHistoryFilters(initialEvents);
   
   // Handle filter changes
   const handleFilterChange = (newFilters: any) => {
@@ -65,6 +57,6 @@ const WebhookHistoryContent: React.FC<WebhookEventHistoryData> = ({ events: init
       )}
     </div>
   );
-};
+}
 
 export default WebhookHistoryContent;

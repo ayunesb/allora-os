@@ -1,65 +1,85 @@
 
-import { formatDistanceToNow, formatDistance, parseISO } from 'date-fns';
+/**
+ * Date utility functions for formatting and manipulating dates
+ */
 
 /**
- * Formats a date as relative time (e.g., "5 minutes ago")
- * @param dateInput Date string or Date object
- * @returns Formatted relative time string
+ * Format a date string to a localized date-time string
  */
-export function formatRelativeTime(dateInput: string | Date | null): string {
-  if (!dateInput) return 'Unknown time';
-  
+export function formatDateTimeString(dateString: string): string {
+  if (!dateString) return 'Unknown';
   try {
-    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
-    return formatDistanceToNow(date, { addSuffix: true });
+    const date = new Date(dateString);
+    return date.toLocaleString();
   } catch (error) {
-    console.error('Error formatting relative time:', error);
-    return 'Invalid date';
+    return 'Invalid Date';
   }
 }
 
 /**
- * Formats the duration between two dates
- * @param startDate Start date
- * @param endDate End date (defaults to now)
- * @returns Formatted duration string
+ * Format a date string to a localized date string
  */
-export function formatDuration(startDate: Date | string, endDate: Date | string | null = null): string {
+export function formatDateString(dateString: string): string {
+  if (!dateString) return 'Unknown';
   try {
-    const start = typeof startDate === 'string' ? parseISO(startDate) : startDate;
-    const end = endDate 
-      ? (typeof endDate === 'string' ? parseISO(endDate) : endDate)
-      : new Date();
-    
-    return formatDistance(start, end, { includeSeconds: true });
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
   } catch (error) {
-    console.error('Error formatting duration:', error);
-    return 'Invalid duration';
+    return 'Invalid Date';
   }
 }
 
 /**
- * Formats a date in a consistent format
- * @param dateInput Date string or Date object
- * @param includeTime Whether to include time
- * @returns Formatted date string
+ * Format a date string to a localized time string
  */
-export function formatDate(dateInput: Date | string | null, includeTime: boolean = false): string {
-  if (!dateInput) return '';
+export function formatTimeString(dateString: string): string {
+  if (!dateString) return 'Unknown';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString();
+  } catch (error) {
+    return 'Invalid Date';
+  }
+}
+
+/**
+ * Get the relative time from now (e.g. "5 minutes ago")
+ */
+export function getRelativeTime(dateString: string): string {
+  if (!dateString) return 'Unknown';
   
   try {
-    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      ...(includeTime ? { hour: '2-digit', minute: '2-digit' } : {})
-    };
+    if (diffInSeconds < 60) {
+      return `${diffInSeconds} second${diffInSeconds !== 1 ? 's' : ''} ago`;
+    }
     
-    return new Intl.DateTimeFormat('en-US', options).format(date);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+    }
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    }
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) {
+      return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    }
+    
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) {
+      return `${diffInMonths} month${diffInMonths !== 1 ? 's' : ''} ago`;
+    }
+    
+    const diffInYears = Math.floor(diffInMonths / 12);
+    return `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
   } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'Invalid date';
+    return 'Unknown';
   }
 }
