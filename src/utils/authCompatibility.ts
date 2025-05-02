@@ -2,6 +2,25 @@
 import { User } from '@/types/fixed/User';
 
 /**
+ * Creates a compatibility layer for authentication context
+ * This ensures backwards compatibility with different auth implementations
+ */
+export function createAuthCompatibilityLayer(authContext: any) {
+  if (!authContext) return { user: null, isLoading: false };
+  
+  // Extract user from different possible auth context structures
+  const user = authContext.user || authContext.profile || null;
+  
+  return {
+    user: normalizeUserObject(user),
+    isLoading: authContext.loading || authContext.isLoading || false,
+    profile: normalizeUserObject(authContext.profile || user),
+    refreshProfile: authContext.refreshProfile || (() => Promise.resolve()),
+    signOut: authContext.signOut || (() => Promise.resolve()),
+  };
+}
+
+/**
  * Normalizes a user object from various potential sources to ensure it matches
  * the User interface required by the application.
  */
@@ -24,7 +43,6 @@ export function normalizeUserObject(userObject: any): User | null {
     role: userObject.role || 
           (appMetadata?.is_admin ? 'admin' : 'user'),
     created_at: userObject.created_at || new Date().toISOString(),
-    updated_at: userObject.updated_at,
     avatar: userObject.avatar,
     avatar_url: userObject.avatar_url || userObject.avatar,
     company: userObject.company || userMetadata?.company || '',
@@ -57,4 +75,43 @@ export function getUserAvatar(user: User | null): string {
   return user.avatar_url || 
          user.avatar || 
          `https://ui-avatars.com/api/?name=${encodeURIComponent(getUserDisplayName(user))}&background=random`;
+}
+
+/**
+ * Normalizes a webhook event from different potential sources
+ */
+export function normalizeWebhookEvent(event: any): any {
+  if (!event) return null;
+  
+  return {
+    id: event.id || '',
+    webhook_id: event.webhook_id || event.webhookId || '',
+    event_type: event.event_type || event.eventType || '',
+    status: event.status || 'pending',
+    created_at: event.created_at || event.timestamp || new Date().toISOString(),
+    targetUrl: event.targetUrl || event.url || '',
+    webhook_type: event.webhook_type || event.webhookType || event.type || '',
+    response: event.response || {},
+    payload: event.payload || {},
+    timestamp: event.timestamp || event.created_at || new Date().toISOString(),
+    source: event.source || '',
+    duration: event.duration || 0,
+  };
+}
+
+/**
+ * Normalizes an executive message from different potential sources
+ */
+export function normalizeExecutiveMessage(message: any): any {
+  if (!message) return null;
+  
+  return {
+    id: message.id || '',
+    content: message.content || message.message_content || '',
+    message_content: message.message_content || message.content || '',
+    created_at: message.created_at || message.timestamp || new Date().toISOString(),
+    from_executive: message.from_executive || false,
+    to_executive: message.to_executive || false,
+    status: message.status || 'pending',
+  };
 }

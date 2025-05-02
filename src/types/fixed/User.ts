@@ -8,15 +8,15 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  name: string; // Now required to match the model
+  name: string; // Required to match the model
   role: 'admin' | 'user';
   avatar?: string;
   avatar_url?: string;
-  company_id: string; // Now required to match the model
+  company_id: string; // Required to match the model
   company?: string;
   industry?: string;
   updated_at?: string;
-  created_at: string; // Now required to match the model
+  created_at: string; // Required to match the model
   app_metadata?: {
     is_admin?: boolean;
     [key: string]: any;
