@@ -6,18 +6,16 @@ export interface WebhookEvent {
   id: string;
   webhook_id: string;
   event_type: string;
-  eventType?: string;
   webhookType: WebhookType;
-  webhook_type?: string;
   status: WebhookStatus;
   payload: Record<string, any>;
   created_at: string;
   timestamp?: string;
+  duration?: number;
   response?: any;
   responseCode?: number;
   targetUrl?: string;
   source?: string;
   url?: string;
   type?: string;
-  duration?: number;
 }
