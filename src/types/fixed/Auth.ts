@@ -18,19 +18,21 @@ export interface AuthContextProps {
   // Authentication status
   isEmailVerified: boolean;
   isSessionExpired: boolean;
-  isAuthenticated?: boolean;
+  isAuthenticated: boolean;
   
   // Error handling
   authError: string | null;
   
   // Session management
-  session?: any; // For Supabase session
+  session: any; // Supabase session
   
-  // Methods
+  // Authentication methods
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  signOut: () => Promise<void>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  logout: () => Promise<void>;
+  
+  // Profile management
   refreshProfile: () => Promise<void>;
   refreshSession: () => Promise<boolean>; // Return success status
-  signOut: () => Promise<void>;
-  signIn?: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  login?: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  logout?: () => Promise<void>; // Alias for signOut for compatibility
 }

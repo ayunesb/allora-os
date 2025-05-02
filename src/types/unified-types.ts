@@ -1,7 +1,7 @@
-
 import { User } from './fixed/User';
 import { WebhookType, BusinessEventType, WebhookResult, BusinessEventPayload, WebhookStatus, WebhookEvent } from './fixed/Webhook';
 import { ExtendedComplianceContextType } from './fixed/Compliance';
+import { AuthContextProps } from './fixed/Auth';
 
 // Social Media Types
 export type SocialPlatform = 'Facebook' | 'Twitter' | 'LinkedIn' | 'Instagram' | 'TikTok' | 'YouTube';
@@ -119,7 +119,7 @@ export interface ExtendedAccessibilityContextType {
 }
 
 // Export the ExtendedComplianceContextType
-export { ExtendedComplianceContextType }
+export { ExtendedComplianceContextType, AuthContextProps }
 
 // Re-export key types
 export type {
