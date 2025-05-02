@@ -16,7 +16,7 @@ export default function WebhooksTab() {
     events,
     isLoading,
     error,
-    onRefresh
+    fetchEvents
   } = useWebhookHistory();
 
   // Handle tab changes
@@ -24,8 +24,8 @@ export default function WebhooksTab() {
     setActiveTab(value);
 
     // Refresh events when switching to history tab
-    if (value === 'history' && onRefresh) {
-      onRefresh();
+    if (value === 'history' && fetchEvents) {
+      fetchEvents();
     }
   };
 
@@ -105,12 +105,13 @@ export default function WebhooksTab() {
               // Handle testing
               console.log(`Testing ${type as WebhookType} webhook`);
             }}
+            onTypeChange={() => {}}
           />
         ) : (
           <WebhookHistoryTab 
             isLoading={isLoading} 
             events={events}
-            onRefresh={onRefresh}
+            onRefresh={fetchEvents}
           />
         )}
       </CardContent>
