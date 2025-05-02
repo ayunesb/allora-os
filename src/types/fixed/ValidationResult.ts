@@ -4,6 +4,8 @@ export interface ValidationResult {
   message: string;
   valid: boolean;
   severity?: 'error' | 'warning' | 'info';
+  details?: string;
+  error?: string;
 }
 
 export interface ReadinessResult {

@@ -9,11 +9,19 @@ import { format } from 'date-fns';
 
 interface CampaignListProps {
   campaigns: Campaign[];
+  filteredCampaigns?: Campaign[];
+  onCreateCampaign?: () => void;
   isLoading?: boolean;
 }
 
-export const CampaignList: React.FC<CampaignListProps> = ({ campaigns, isLoading = false }) => {
+export const CampaignList: React.FC<CampaignListProps> = ({ 
+  campaigns, 
+  filteredCampaigns,
+  onCreateCampaign,
+  isLoading = false 
+}) => {
   const [expandedCampaignId, setExpandedCampaignId] = useState<string | null>(null);
+  const campaignsToDisplay = filteredCampaigns || campaigns;
 
   const toggleCampaign = (id: string) => {
     setExpandedCampaignId(expandedCampaignId === id ? null : id);
@@ -23,13 +31,22 @@ export const CampaignList: React.FC<CampaignListProps> = ({ campaigns, isLoading
     return <p>Loading campaigns...</p>;
   }
 
-  if (!campaigns || campaigns.length === 0) {
-    return <p>No campaigns found.</p>;
+  if (!campaignsToDisplay || campaignsToDisplay.length === 0) {
+    return (
+      <div className="text-center p-8">
+        <p>No campaigns found.</p>
+        {onCreateCampaign && (
+          <Button onClick={onCreateCampaign} className="mt-4">
+            Create Campaign
+          </Button>
+        )}
+      </div>
+    );
   }
 
   return (
     <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-      {campaigns.map((campaign) => (
+      {campaignsToDisplay.map((campaign) => (
         <Card key={campaign.id}>
           <CardHeader>
             <CardTitle>{campaign.name}</CardTitle>

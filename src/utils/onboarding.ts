@@ -121,3 +121,29 @@ export async function completeOnboarding(userId: string, data: any): Promise<boo
     return false;
   }
 }
+
+// Recreate the function that was missing and caused the build errors
+export async function saveOnboardingInfo(userId: string, data: any): Promise<boolean> {
+  try {
+    if (!userId) {
+      console.error('No user ID provided for saving onboarding info');
+      return false;
+    }
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        onboarding_step: data.step,
+        industry: data.industry,
+        ...data
+      })
+      .eq('id', userId);
+      
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving onboarding info:', error);
+    return false;
+  }
+}

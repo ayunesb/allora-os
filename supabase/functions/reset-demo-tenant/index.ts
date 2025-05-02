@@ -2,12 +2,15 @@
 import { createClient } from '@supabase/supabase-js';
 import { sendSlackAlert } from './slack.ts';
 
-// Get Supabase client
+// Get environment variables
 const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
 const demoTenantId = Deno.env.get('DEMO_TENANT_ID');
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Only create Supabase client when needed
+const getSupabaseClient = () => {
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
 
 Deno.serve(async (req) => {
   try {
@@ -26,6 +29,9 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Initialize the Supabase client inside the handler
+    const supabase = getSupabaseClient();
+    
     // Begin reset process
     await sendSlackAlert(`Starting reset of demo tenant: ${demoTenantId}`, 'info');
     
@@ -59,7 +65,7 @@ Deno.serve(async (req) => {
     const { error: updateError } = await supabase
       .from('tenant_profiles')
       .update({ 
-        settings: { demo_reset_count: Deno.env.get('demo_reset_count') || 0 + 1 },
+        settings: { demo_reset_count: Number(Deno.env.get('demo_reset_count') || 0) + 1 },
         updated_at: new Date().toISOString()
       })
       .eq('id', demoTenantId);

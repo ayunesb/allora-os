@@ -56,4 +56,7 @@ export interface PluginLog {
   metadata?: Record<string, any>;
   timestamp: string;
   success?: boolean;
+  value?: number;
+  plugin_name?: string;
+  created_at?: string;
 }
