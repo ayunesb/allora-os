@@ -1,6 +1,4 @@
 
-import React from 'react';
-
 export interface PageTitleProps {
   title: string;
   description?: string;

@@ -21,12 +21,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Campaign } from "@/models/campaign";
+import { Campaign, Platform } from "@/types/unified-types";
 
 // Define the campaign form schema
 const campaignSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
-  platform: z.enum(["Google", "Facebook", "Instagram", "LinkedIn", "TikTok"]),
+  platform: z.enum(["meta", "tiktok", "email", "whatsapp"]),
   budget: z.coerce.number().min(1, "Budget must be at least 1"),
 });
 
@@ -47,7 +47,7 @@ export default function CampaignFormDialog({
   onSubmit,
   defaultValues = {
     name: "",
-    platform: "Google",
+    platform: "meta" as Platform,
     budget: 100,
   },
   isSubmitting,
@@ -97,11 +97,10 @@ export default function CampaignFormDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Google">Google</SelectItem>
-                      <SelectItem value="Facebook">Facebook</SelectItem>
-                      <SelectItem value="Instagram">Instagram</SelectItem>
-                      <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                      <SelectItem value="TikTok">TikTok</SelectItem>
+                      <SelectItem value="meta">Meta</SelectItem>
+                      <SelectItem value="tiktok">TikTok</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

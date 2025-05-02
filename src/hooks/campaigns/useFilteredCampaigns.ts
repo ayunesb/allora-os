@@ -11,7 +11,7 @@ export function useFilteredCampaigns(campaigns: Campaign[], activeTab: string) {
     if (activeTab === 'active') {
       return campaigns.filter(c => 
         (c.deployment_status === 'deployed' && c.payment_status === 'paid') || 
-        (c.status && c.status.toLowerCase() === 'active' as CampaignStatus)
+        (c.status && c.status === 'active')
       );
     }
     
@@ -20,7 +20,7 @@ export function useFilteredCampaigns(campaigns: Campaign[], activeTab: string) {
         c.deployment_status === 'pending' || 
         c.deployment_status === 'ready' || 
         c.payment_status !== 'paid' ||
-        (c.status && c.status.toLowerCase() === 'draft' as CampaignStatus)
+        (c.status && c.status === 'draft')
       );
     }
     
@@ -40,7 +40,7 @@ export function useFilteredCampaigns(campaigns: Campaign[], activeTab: string) {
     
     // Filter by status (ensuring case insensitivity)
     const normalizedTab = activeTab.toLowerCase() as CampaignStatus;
-    return campaigns.filter(c => c.status && c.status.toLowerCase() === normalizedTab);
+    return campaigns.filter(c => c.status && c.status === normalizedTab);
     
   }, [campaigns, activeTab]);
 }

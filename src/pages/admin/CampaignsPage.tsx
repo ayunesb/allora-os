@@ -11,7 +11,7 @@ export default function CampaignsPage() {
       status: 'active' as CampaignStatus, 
       budget: 5000, 
       platform: 'meta' as Platform, 
-      created_at: '2025-06-01'
+      startDate: '2025-06-01'
     },
     { 
       id: '2', 
@@ -19,7 +19,7 @@ export default function CampaignsPage() {
       status: 'draft' as CampaignStatus, 
       budget: 10000, 
       platform: 'tiktok' as Platform, 
-      created_at: '2025-07-15'
+      startDate: '2025-07-15'
     },
     { 
       id: '3', 
@@ -27,7 +27,7 @@ export default function CampaignsPage() {
       status: 'draft' as CampaignStatus, 
       budget: 7500, 
       platform: 'email' as Platform, 
-      created_at: '2025-01-01'
+      startDate: '2025-01-01'
     }
   ]);
   
@@ -36,7 +36,7 @@ export default function CampaignsPage() {
   const handleCreateCampaign = (campaign: any) => {
     setCampaigns(prev => [...prev, { 
       id: `${prev.length + 1}`, 
-      created_at: new Date().toISOString(),
+      startDate: new Date().toISOString(),
       ...campaign
     }]);
   };

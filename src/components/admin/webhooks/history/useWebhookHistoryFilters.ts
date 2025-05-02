@@ -1,7 +1,6 @@
 
 import { useState, useCallback, useMemo } from 'react';
-import { WebhookStatus, WebhookType, WebhookEvent } from '@/types/fixed/Webhook';
-import { UnifiedWebhookEvent } from '@/types/unified-types';
+import { WebhookStatus, WebhookType, WebhookEvent } from '@/types/unified-types';
 
 export type FilterOptions = {
   types: WebhookType[];
@@ -10,7 +9,7 @@ export type FilterOptions = {
   search: string;
 };
 
-export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[] | UnifiedWebhookEvent[]) => {
+export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[]) => {
   const [filters, setFilters] = useState<FilterOptions>({
     types: [],
     status: '',
@@ -22,7 +21,7 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[] | Unified
   const availableTypes = useMemo(() => {
     const types = new Set<WebhookType>();
     initialEvents.forEach(event => {
-      const type = event.webhookType || event.webhook_type || event.type;
+      const type = event.webhookType;
       if (type && typeof type === 'string') {
         types.add(type as WebhookType);
       }
@@ -34,7 +33,7 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[] | Unified
     return initialEvents.filter(event => {
       // Type filter
       if (filters.types.length > 0) {
-        const eventType = event.webhookType || event.webhook_type || event.type;
+        const eventType = event.webhookType;
         if (!eventType || !filters.types.includes(eventType as WebhookType)) {
           return false;
         }
@@ -49,7 +48,7 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[] | Unified
       }
 
       // Date range filter
-      const eventDate = new Date(event.created_at || event.timestamp || '');
+      const eventDate = new Date(event.created_at || '');
       if (filters.dateRange[0] && eventDate < filters.dateRange[0]) {
         return false;
       }
@@ -65,14 +64,10 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[] | Unified
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        const eventType = event.eventType || event.event_type || '';
-        const url = event.targetUrl || event.url || '';
-        const source = event.source || '';
+        const eventType = event.event_type || '';
         
         const matchesSearch = 
           eventType.toLowerCase().includes(searchLower) ||
-          url.toLowerCase().includes(searchLower) ||
-          source.toLowerCase().includes(searchLower) ||
           event.id.toLowerCase().includes(searchLower);
         
         if (!matchesSearch) {

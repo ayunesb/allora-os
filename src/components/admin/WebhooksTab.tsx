@@ -5,7 +5,7 @@ import WebhookHeader from './webhooks/WebhookHeader';
 import { useWebhookHistory } from './webhooks/useWebhookHistory';
 import WebhookHistoryTab from './webhooks/WebhookHistoryTab';
 import WebhookConfigTab from './webhooks/config/WebhookConfigTab';
-import { WebhookType } from '@/types/fixed/Webhook';
+import { WebhookType } from '@/types/unified-types';
 
 /**
  * Main component for managing webhooks in the admin section
@@ -92,18 +92,18 @@ export default function WebhooksTab() {
               slackValid: webhookConfig.slackConfigValid,
               customValid: webhookConfig.customConfigValid
             }}
-            onSave={(type: string) => {
+            onSave={() => {
               // Update validation state
-              console.log(`Saved ${type} webhook config`);
+              console.log(`Saved webhook config`);
               handleConfigUpdate();
             }}
-            onDelete={(type: string) => {
+            onDelete={() => {
               // Handle deletion
-              console.log(`Deleted ${type as WebhookType} webhook config`);
+              console.log(`Deleted webhook config`);
             }}
-            onTest={(type: string) => {
+            onTest={() => {
               // Handle testing
-              console.log(`Testing ${type as WebhookType} webhook`);
+              console.log(`Testing webhook`);
             }}
             onTypeChange={() => {
               // Handle type change

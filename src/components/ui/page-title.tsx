@@ -6,13 +6,12 @@ import { PageTitleProps } from '@/types/unified-types';
 export function PageTitle({ 
   children, 
   title,
-  className,
   description
 }: PageTitleProps) {
   return (
     <div className="space-y-1.5 mb-6">
       <h1 
-        className={cn("text-2xl font-bold tracking-tight md:text-3xl", className)}
+        className="text-2xl font-bold tracking-tight md:text-3xl"
         title={title}
       >
         {children}
