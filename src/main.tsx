@@ -27,18 +27,14 @@ logger.info('Application initializing with latest Lovable template');
 // Render the app with proper providers
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GlobalErrorBoundary>
-      <HelmetProvider>
-        <ThemeProvider
-          defaultTheme="dark"
-          enableSystem={false}
-          storageKey="allora-theme"
-        >
-          <QueryClientProvider client={queryClient}>
+    <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
+      <QueryClientProvider client={queryClient}>
+        <HelmetProvider>
+          <GlobalErrorBoundary>
             <App />
-          </QueryClientProvider>
-        </ThemeProvider>
-      </HelmetProvider>
-    </GlobalErrorBoundary>
+          </GlobalErrorBoundary>
+        </HelmetProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
