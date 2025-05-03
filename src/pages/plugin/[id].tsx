@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/utils/supabaseClient';
 
 export default function PluginDetailPage() {
   const { id } = useParams();

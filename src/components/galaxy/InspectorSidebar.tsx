@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Panel } from '@/components/ui/GlassPanel';
+import { supabase } from '@/utils/supabaseClient';
 
 interface InspectorSidebarProps {
   data: any;
