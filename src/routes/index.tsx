@@ -7,6 +7,8 @@ import RootLayout from "@/components/layout/RootLayout";
 import SidebarLayout from "@/components/layouts/SidebarLayout';
 import RequireAuth from '@/components/RequireAuth';
 import ExploreGalaxy from '@/pages/explore';
+import ExploreRoutes from '@/routes/explore-routes';
+import { exploreRoutes } from '@/routes/explore-routes';
 
 // Lazy-loaded components
 const Dashboard = lazy(() => import('@/pages/dashboard/Index'));
@@ -39,7 +41,7 @@ export const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/gdpr-compliance" element={<GDPRCompliance />} />
         <Route path="/cookie-settings" element={<CookieSettings />} />
-        <Route path="/explore" element={<ExploreGalaxy />} />
+        <Route path="/explore/*" element={<Routes>{exploreRoutes.map(route => <Route key={route.path} {...route} />)}</Routes>} />
 
         {/* Protected routes */}
         <Route path="/dashboard/*" element={

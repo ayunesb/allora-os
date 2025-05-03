@@ -5,6 +5,10 @@ import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GlobalErrorBoundary } from '@/components/errorHandling/GlobalErrorBoundary';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton'; // if using shadcn
+import GalaxyGraph from '@/components/galaxy/GalaxyGraph';
+import GalaxyPage from '@/pages/Galaxy';
 
 const queryClient = new QueryClient();
 
@@ -29,7 +33,9 @@ export default function RootLayout() {
                         transition={{ duration: 0.25, ease: 'easeOut' }}
                         className="min-h-screen"
                       >
-                        <Outlet />
+                        <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
+                          {location.pathname === '/galaxy' ? <GalaxyPage /> : <Outlet />}
+                        </Suspense>
                       </motion.div>
                     </AnimatePresence>
                     <Toaster />

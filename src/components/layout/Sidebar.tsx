@@ -8,6 +8,25 @@ const navItems = [
   { name: "KPI Dashboard", path: "/dashboard/kpis" },
 ];
 
+const navigation = [
+  {
+    title: 'Main',
+    links: [
+      { label: 'Dashboard', href: '/dashboard', icon: '🏠' },
+    ],
+  },
+  {
+    title: 'Explore',
+    links: [
+      {
+        label: 'Galaxy',
+        href: '/explore/galaxy',
+        icon: '🌌',
+      },
+    ],
+  },
+];
+
 export function Sidebar() {
   return (
     <aside className="w-64 border-r bg-card shadow-md dark:bg-muted/20">

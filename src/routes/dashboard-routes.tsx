@@ -36,6 +36,7 @@ import PlaidIntegration from "@/pages/admin/PlaidIntegration";
 import KPIMetricsPage from "@/pages/insights/kpis";
 import AgentPerformancePage from "@/pages/agents/performance";
 import StrategyGenerator from "@/pages/dashboard/StrategyGenerator";
+import GalaxyPage from "@/pages/dashboard/GalaxyPage";
 
 export const dashboardRoutes: RouteObject[] = [
   {
@@ -199,6 +200,10 @@ export const dashboardRoutes: RouteObject[] = [
           const { default: StrategyGenerator } = await import("@/pages/dashboard/StrategyGenerator");
           return { Component: StrategyGenerator };
         },
+      },
+      {
+        path: "galaxy",
+        element: <GalaxyPage />
       },
       {
         path: "*",

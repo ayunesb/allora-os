@@ -9,9 +9,11 @@ import { CompanyAPIProvider } from './context/CompanyAPIContext';
 import { initializeAnalytics } from './utils/analytics';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import CookieConsent from './components/CookieConsent';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider, Route, Routes } from 'react-router-dom';
 import { router } from './routes/router';
 import { Helmet } from 'react-helmet-async';
+import PluginDetailPage from '@/pages/plugin/[id]';
+import StrategyDetailPage from '@/pages/strategy/[id]';
 
 const App = () => {
   React.useEffect(() => {
@@ -43,6 +45,10 @@ const App = () => {
                 <meta property="og:url" content="https://allora-os.vercel.app" />
               </Helmet>
               <RouterProvider router={router} />
+              <Routes>
+                <Route path="/plugin/:id" element={<PluginDetailPage />} />
+                <Route path="/strategy/:id" element={<StrategyDetailPage />} />
+              </Routes>
               <Toaster position="top-right" />
               <GlobalErrorModal />
               <CookieConsent />

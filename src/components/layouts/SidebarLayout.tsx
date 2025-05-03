@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, NavLink } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme-toggle";
 import clsx from "clsx";
 
@@ -8,6 +8,7 @@ const navLinks = [
   { label: "Campaigns", path: "/dashboard/campaigns" },
   { label: "Executives", path: "/dashboard/executives" },
   { label: "AI Settings", path: "/dashboard/ai-settings" },
+  { label: "Galaxy Explorer", path: "/explore/galaxy" },
 ];
 
 export default function SidebarLayout() {

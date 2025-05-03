@@ -1,7 +1,14 @@
+import { supabase } from '@/supabaseClient';
 
 /**
  * Utilities for formatting and standardizing agent personalities and decision styles
  */
+
+export const XP_THRESHOLDS = {
+  v1: 100,
+  v2: 250,
+  v3: 500,
+};
 
 /**
  * Get a formatted decision style string based on the executive's style
@@ -44,5 +51,31 @@ export function getPersonality(personality?: string): string {
       return 'You are detail-oriented and thorough. You prefer working with data and facts rather than emotions or intuition.';
     default:
       return 'You have a balanced personality that adapts to different situations appropriately.';
+  }
+}
+
+export async function applyAgentVote(agentId: string, vote: 'up' | 'down') {
+  const delta = vote === 'up' ? 10 : -5;
+  const { data: agent, error } = await supabase.from('agents').select('*').eq('id', agentId).single();
+
+  if (error || !agent) {
+    console.error('Error fetching agent:', error);
+    return;
+  }
+
+  const updatedXP = Math.max(0, agent.xp + delta);
+  let newVersion = agent.version;
+
+  for (const [version, threshold] of Object.entries(XP_THRESHOLDS)) {
+    if (updatedXP >= threshold) newVersion = version;
+  }
+
+  const { error: updateError } = await supabase
+    .from('agents')
+    .update({ xp: updatedXP, version: newVersion })
+    .eq('id', agentId);
+
+  if (updateError) {
+    console.error('Error updating agent:', updateError);
   }
 }

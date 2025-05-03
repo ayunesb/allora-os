@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompanyId } from '@/hooks/useCompanyId';
@@ -69,10 +68,26 @@ export function usePlugins() {
     }
   }, [tenantId]);
 
+  const fetchPlugins = useCallback(async () => {
+    try {
+      const { data: plugins, error } = await supabase
+        .from('plugins')
+        .select('id, name, impact_score, xp');
+      
+      if (error) throw error;
+      return plugins;
+    } catch (error) {
+      console.error('Error fetching plugins:', error);
+      toast.error('Failed to load plugins');
+      return [];
+    }
+  }, []);
+
   return {
     isLoading,
     pluginImpact,
     recordPluginEvent,
-    fetchPluginImpact
+    fetchPluginImpact,
+    fetchPlugins
   };
 }
