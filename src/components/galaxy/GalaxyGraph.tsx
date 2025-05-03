@@ -38,6 +38,34 @@ const GalaxyGraph = ({ nodes, links, onNodeClick }: GraphProps) => {
         linkDirectionalParticles={2}
         linkDirectionalParticleSpeed={(d) => d.value * 0.001 || 0.01}
         onNodeClick={onNodeClick} // Pass onNodeClick to ForceGraph3D
+        nodeCanvasObject={(node, ctx, globalScale) => {
+          const label = node.name;
+          const fontSize = 12 / globalScale;
+          ctx.font = `${fontSize}px Inter`;
+          ctx.fillStyle = node.color || 'white';
+          ctx.beginPath();
+          ctx.arc(node.x!, node.y!, 6, 0, 2 * Math.PI, false);
+          ctx.fill();
+
+          // Draw badge (XP or impact score)
+          if (node.type === 'plugin') {
+            ctx.fillStyle = '#5A67D8'; // XP badge background
+            ctx.fillRect(node.x! + 8, node.y! - 8, 24, 14);
+            ctx.fillStyle = 'white';
+            ctx.font = `${10 / globalScale}px Inter`;
+            ctx.fillText(`${node.xp || 0} XP`, node.x! + 10, node.y! + 2);
+          }
+
+          ctx.fillStyle = 'white';
+          ctx.fillText(label, node.x! + 10, node.y!);
+        }}
+        onNodeClick={(node) => {
+          if (node.type === 'plugin') {
+            router.push(`/plugin/${node.id}`);
+          } else if (node.type === 'strategy') {
+            router.push(`/strategy/${node.id}`);
+          }
+        }}
       />
     </div>
   );
