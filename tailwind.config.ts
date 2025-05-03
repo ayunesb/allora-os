@@ -1,5 +1,6 @@
-import type { Config } from 'tailwindcss';
+import { type Config } from 'tailwindcss';
 import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
 
 const config: Config = {
   darkMode: 'class',
@@ -13,13 +14,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: 'hsl(var(--background-start))',
+        primary: 'var(--primary)',
+        card: 'var(--card-bg)',
+        background: 'var(--background-start)',
         foreground: 'var(--foreground)',
-        primary: '#5A67D8',
         secondary: '#63B3ED',
         'primary-light': 'var(--primary-light)',
         'primary-dark': 'var(--primary-dark)',
-        card: 'rgba(15,15,35,0.7)',
         input: 'hsl(var(--input-bg))',
         border: 'hsl(var(--border))',
         muted: 'hsl(var(--muted))',
@@ -30,7 +31,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [forms],
+  plugins: [forms, typography],
 };
 
 export default config;

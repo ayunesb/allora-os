@@ -7,11 +7,13 @@ export default function PluginDetailPage() {
   const [plugin, setPlugin] = useState<any>(null);
 
   useEffect(() => {
-    async function fetchPlugin() {
-      const { data } = await supabase.from('plugins').select('*').eq('id', id).single();
-      setPlugin(data);
+    if (id) {
+      async function fetchPlugin() {
+        const { data } = await supabase.from('plugins').select('*').eq('id', id).single();
+        setPlugin(data);
+      }
+      fetchPlugin();
     }
-    fetchPlugin();
   }, [id]);
 
   if (!plugin) return <div className="p-4 text-white">Loading...</div>;

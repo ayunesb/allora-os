@@ -6,9 +6,9 @@ const GalaxyExplorer = lazy(() => import('@/pages/explore/GalaxyExplorer'));
 
 export const exploreRoutes: RouteObject[] = [
   {
-    path: 'galaxy',
-    element: <GalaxyExplorer />
-  }
+    path: 'explore',
+    element: <GalaxyExplorer />,
+  },
 ];
 
 const ExploreRoutes = () => {

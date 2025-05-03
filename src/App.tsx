@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
@@ -45,10 +45,12 @@ const App = () => {
                 <meta property="og:url" content="https://allora-os.vercel.app" />
               </Helmet>
               <RouterProvider router={router} />
-              <Routes>
-                <Route path="/plugin/:id" element={<PluginDetailPage />} />
-                <Route path="/strategy/:id" element={<StrategyDetailPage />} />
-              </Routes>
+              <Suspense fallback={<div className="p-8 text-white">Loading Galaxy...</div>}>
+                <Routes>
+                  <Route path="/plugin/:id" element={<PluginDetailPage />} />
+                  <Route path="/strategy/:id" element={<StrategyDetailPage />} />
+                </Routes>
+              </Suspense>
               <Toaster position="top-right" />
               <GlobalErrorModal />
               <CookieConsent />
