@@ -27,5 +27,5 @@ export { type SocialPlatform, type ContentType, type PostStatus, type SocialMedi
 export { type BusinessEventType, type BusinessEventPayload, type WebhookResult } from './unified-types';
 
 // Re-export any other types needed
-export * from './Checklist';
-export * from './webhooks';
+export { ChecklistCategory, ChecklistItem } from './Checklist';
+export { WebhookEvent, WebhookType } from './webhooks';

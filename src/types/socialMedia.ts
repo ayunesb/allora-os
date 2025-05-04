@@ -1,4 +1,3 @@
-
 export type SocialPlatform = "Facebook" | "Twitter" | "Instagram" | "LinkedIn";
 export type ContentType = "text" | "image" | "video" | "link";
 export type PostStatus = "draft" | "scheduled" | "published";
@@ -28,6 +27,12 @@ export interface CreatePostInput {
   media_urls?: string[];
   link_url?: string;
   tags?: string[];
+  hashtags?: string[];
+  mentions?: string[];
+  location?: string;
+  campaign_id?: string;
+  is_approved?: boolean;
+  author_id?: string;
 }
 
 export interface SocialMediaCalendarFilters {
@@ -35,4 +40,10 @@ export interface SocialMediaCalendarFilters {
   status?: PostStatus | 'all';
   dateRange?: [Date | null, Date | null];
   search?: string;
+  content_type?: string;
+  campaign_id?: string;
+  author_id?: string;
+  startDate?: string;
+  endDate?: string;
+  tags?: string[];
 }

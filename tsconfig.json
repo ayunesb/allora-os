@@ -3,7 +3,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Node",
-    "lib": ["DOM", "ESNext"], // Ensure DOM and ESNext support
+    "lib": ["ESNext", "DOM"], // Ensure DOM and ESNext support
     "allowJs": false,
     "jsx": "react-jsx", // Ensure JSX support
     "resolveJsonModule": true,

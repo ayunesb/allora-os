@@ -4,6 +4,8 @@ import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
 import { AgentTask } from '@/types/fixed/AgentTask';
 import { toast } from 'sonner';
 import { usePlugins } from '@/hooks/usePlugins';
+import { fetchApi } from '@/utils/api/fetchApi';
+import { fetchApi } from '@/services/api/fetchApi';
 
 interface PluginExecutionResult {
   success: boolean;
