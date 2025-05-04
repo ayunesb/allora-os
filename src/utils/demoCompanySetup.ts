@@ -1,7 +1,9 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { onNewLeadAdded } from './zapierEventTriggers';
+import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
+import { Campaign } from '@/types/fixed/Campaign';
+import { Plugin } from '@/types/fixed/Plugin';
 
 export interface DemoCompanyOptions {
   name?: string;

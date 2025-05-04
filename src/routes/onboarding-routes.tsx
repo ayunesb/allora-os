@@ -1,62 +1,66 @@
-
 import { RouteObject } from "react-router-dom";
-import Onboarding from "@/pages/Onboarding";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import NotFound from "@/pages/NotFound";
 
 export const onboardingRoutes: RouteObject[] = [
   {
     path: "onboarding",
-    element: (
-      <ProtectedRoute>
-        <Onboarding />
-      </ProtectedRoute>
-    ),
+    async lazy() {
+      const OnboardingLayout = (await import('@/layouts/onboarding/OnboardingLayout')).default;
+      return {
+        element: <OnboardingLayout />
+      };
+    },
     children: [
       {
-        path: "company-info",
-        element: <Onboarding />
+        index: true,
+        async lazy() {
+          const { default: OnboardingWelcome } = await import("@/pages/onboarding/OnboardingWelcome");
+          return { Component: OnboardingWelcome };
+        },
       },
       {
-        path: "industry",
-        element: <Onboarding />
+        path: "profile",
+        async lazy() {
+          const { default: OnboardingProfile } = await import("@/pages/onboarding/OnboardingProfile");
+          return { Component: OnboardingProfile };
+        },
       },
       {
-        path: "goals",
-        element: <Onboarding />
+        path: "company",
+        async lazy() {
+          const { default: OnboardingCompany } = await import("@/pages/onboarding/OnboardingCompany");
+          return { Component: OnboardingCompany };
+        },
       },
       {
-        path: "risk-profile",
-        element: <Onboarding />
+        path: "team",
+        async lazy() {
+          const { default: OnboardingTeam } = await import("@/pages/onboarding/OnboardingTeam");
+          return { Component: OnboardingTeam };
+        },
       },
       {
-        path: "brand-identity",
-        element: <Onboarding />
+        path: "integrations",
+        async lazy() {
+          const { default: OnboardingIntegrations } = await import("@/pages/onboarding/OnboardingIntegrations");
+          return { Component: OnboardingIntegrations };
+        },
       },
       {
-        path: "executive-team",
-        element: <Onboarding />
+        path: "ai-workflow",
+        async lazy() {
+          const { default: OnboardingAIWorkflow } = await import("@/pages/onboarding/OnboardingAIWorkflow");
+          return { Component: OnboardingAIWorkflow };
+        },
       },
       {
-        path: "communication-preferences",
-        element: <Onboarding />
+        path: "complete",
+        async lazy() {
+          const { default: OnboardingComplete } = await import("@/pages/onboarding/OnboardingComplete");
+          return { Component: OnboardingComplete };
+        },
       },
-      {
-        path: "crm-integrations",
-        element: <Onboarding />
-      },
-      {
-        path: "company-details",
-        element: <Onboarding />
-      }
     ]
-  },
-  {
-    path: "onboarding/*",
-    element: (
-      <ProtectedRoute>
-        <NotFound />
-      </ProtectedRoute>
-    ),
   }
 ];
+
+export default onboardingRoutes;

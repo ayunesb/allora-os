@@ -1,16 +1,13 @@
-
 /**
  * Plugin type definition
  */
-export interface Plugin {
+export type Plugin = {
   id: string;
   name: string;
-  slug: string;
-  description?: string;
-  tags?: string[];
-  integration_url?: string;
-  created_at?: string;
-}
+  description: string;
+  version: string;
+  tags: string[];
+};
 
 /**
  * Plugin configuration type

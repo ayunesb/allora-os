@@ -1,4 +1,3 @@
-
 /**
  * Social Media Service
  * 
@@ -16,6 +15,7 @@ import {
   BatchPostResponse,
   PostStatus
 } from '@/types/socialMedia';
+import { Campaign } from '@/types/fixed/Campaign';
 import { 
   validateCreatePost, 
   validateUpdatePost, 

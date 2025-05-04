@@ -31,6 +31,7 @@ const ComplianceRoutesWrapper = lazy(() => import('./ComplianceRoutesWrapper'));
 const ShopAssistant = lazy(() => import("@/pages/shop/index"));
 const CampaignBuilder = lazy(() => import("@/pages/campaigns/create"));
 const PluginImpact = lazy(() => import("@/pages/plugins/impact"));
+const LaunchPage = lazy(() => import("@/pages/launch"));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -91,7 +92,11 @@ const createLazyRoutes = () => {
     },
     {
       path: "/launch",
-      element: withSuspense(() => import("@/pages/launch").then(m => m.default)),
+      element: (
+        <Suspense fallback={<LoadingFallback />}>
+          <LaunchPage />
+        </Suspense>
+      ),
     },
     {
       path: "/diagnostics",

@@ -1,6 +1,7 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Plugin } from '@/types/fixed/Plugin';
+import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
+import { AgentTask } from '@/types/fixed/AgentTask';
 import { toast } from 'sonner';
 import { usePlugins } from '@/hooks/usePlugins';
 
@@ -61,11 +62,14 @@ export const installPlugin = async (pluginSlug: string, tenantId: string): Promi
     if (insertError) throw insertError;
     
     // Log the plugin installation
-    const { recordPluginEvent } = usePlugins();
-    await recordPluginEvent({
-      plugin_name: plugin.name,
-      event: 'install',
-      value: 0
+    await fetchApi('/api/plugin-event', { 
+      method: 'POST', 
+      body: JSON.stringify({
+        plugin_name: plugin.name,
+        event: 'install',
+        value: 0
+      }),
+      headers: { 'Content-Type': 'application/json' }
     });
     
     return { success: true };
@@ -118,10 +122,14 @@ export const executePlugin = async (
     
     // Log the execution
     const { recordPluginEvent } = usePlugins();
-    await recordPluginEvent({
-      plugin_name: pluginDetails.name,
-      event: 'execution',
-      value: impactValue
+    await fetchApi('/api/plugin-event', { 
+      method: 'POST', 
+      body: JSON.stringify({
+        plugin_name: pluginDetails.name,
+        event: 'execution',
+        value: impactValue
+      }),
+      headers: { 'Content-Type': 'application/json' }
     });
     
     return {

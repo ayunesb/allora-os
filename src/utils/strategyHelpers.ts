@@ -1,10 +1,12 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { Strategy } from '@/models/strategy';
 import { assessRiskLevel, RiskAssessmentInput } from '@/utils/riskEngine';
 // Fixed import since generateStrategy doesn't exist
 import { customizeTitle, customizeDescription } from '@/utils/strategy';
+import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
+import { Campaign } from '@/types/fixed/Campaign';
+import { Plugin } from '@/types/fixed/Plugin';
 
 export async function fetchCompanyStrategies(companyId: string): Promise<Strategy[]> {
   try {

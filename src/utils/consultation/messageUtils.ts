@@ -1,9 +1,10 @@
-
 import { toast } from 'sonner';
 import { ConsultationMessage } from './types';
 import { botResponses } from './mockResponses';
 import { supabase } from '@/integrations/supabase/client';
 import { UserPreferences } from '@/hooks/useUserPreferences';
+import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
+import { AgentTask } from '@/types/fixed/AgentTask';
 
 export async function saveConsultationMessage(
   consultationId: string,

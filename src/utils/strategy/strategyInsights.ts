@@ -1,9 +1,9 @@
-import type {
+import {
   ImplementationStep,
   StrategyStrength,
   StrategyWeakness,
 } from "@/utils/strategy/strategyAnalysis";
-import { Strategy, GeneratedStrategy } from "@/utils/strategy/strategyTypes";
+import { Strategy, GeneratedStrategy } from "./strategyTypes";
 
 export const analyzeStrategyFactors = (
   strategy: Strategy | GeneratedStrategy
@@ -12,7 +12,12 @@ export const analyzeStrategyFactors = (
   strengths: StrategyStrength[];
   weaknesses: StrategyWeakness[];
 } => {
-  // ...existing code...
+  // Your logic
+  return {
+    steps: [],
+    strengths: [],
+    weaknesses: [],
+  };
 };
 
 export function getStrategyInsights(
@@ -22,5 +27,9 @@ export function getStrategyInsights(
   strengths: StrategyStrength[];
   weaknesses: StrategyWeakness[];
 } {
-  // ...existing code...
+  return {
+    steps: [],
+    strengths: [],
+    weaknesses: [],
+  };
 }

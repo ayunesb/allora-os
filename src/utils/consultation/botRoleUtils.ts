@@ -1,9 +1,9 @@
-
 import { 
   botSpecialSkills, 
   botOutputLocations, 
   botExampleActions 
 } from '@/backend/executiveBots';
+import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
 
 export const formatRoleTitle = (role: string): string => {
   switch (role) {

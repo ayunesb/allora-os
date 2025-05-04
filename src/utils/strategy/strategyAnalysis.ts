@@ -1,19 +1,18 @@
-
 import { 
   GeneratedStrategy
 } from "./types";
 
-interface StrategyStrength {
+export interface StrategyStrength {
   description: string;
   impact: "high" | "medium" | "low";
 }
 
-interface StrategyWeakness {
+export interface StrategyWeakness {
   description: string;
   risk: "high" | "medium" | "low";
 }
 
-interface ImplementationStep {
+export interface ImplementationStep {
   description: string;
   timeframe: string;
   complexity: "high" | "medium" | "low";
