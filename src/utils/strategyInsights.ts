@@ -1,6 +1,10 @@
-
 import { Strategy } from '@/models/strategy';
 import { GeneratedStrategy } from './strategy/types';
+import type {
+  ImplementationStep,
+  StrategyStrength,
+  StrategyWeakness,
+} from "@/utils/strategy/strategyAnalysis";
 
 // Import from strategy with individual imports to avoid naming conflicts
 import { 
@@ -62,7 +66,9 @@ export const calculateCompetitiveAdvantage = (strategy: Strategy | GeneratedStra
   }
 };
 
-export const analyzeStrategyFactors = (strategy: Strategy | GeneratedStrategy) => {
+export const analyzeStrategyFactors = (
+  strategy: Strategy | GeneratedStrategy
+): any => {
   // For Strategy objects, we need to convert to a format compatible with analyzeStrategy function
   if (!('riskLevel' in strategy) || ('risk_level' in strategy)) {
     // Get the risk level, prioritizing riskLevel over risk_level
@@ -95,7 +101,13 @@ export const analyzeStrategyFactors = (strategy: Strategy | GeneratedStrategy) =
 export { analyzeStrategy };
 
 // Export insight functions with structured return data
-export function getStrategyInsights(strategy: Strategy | GeneratedStrategy) {
+export function getStrategyInsights(
+  strategy: Strategy | GeneratedStrategy
+): {
+  steps: ImplementationStep[];
+  strengths: StrategyStrength[];
+  weaknesses: StrategyWeakness[];
+} {
   return {
     implementationComplexity: calculateImplementationComplexity(strategy),
     competitiveAdvantage: calculateCompetitiveAdvantage(strategy),

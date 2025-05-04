@@ -1,6 +1,6 @@
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -249,3 +249,17 @@ export {
   SidebarMenuItem,
   SidebarMenuButton,
 };
+
+import Link from "next/link";
+
+export function SidebarLink() {
+  return (
+    <Link
+      href="/agents/performance"
+      className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-muted"
+    >
+      <Sparkles className="w-4 h-4" />
+      <span>Agent Performance</span>
+    </Link>
+  );
+}

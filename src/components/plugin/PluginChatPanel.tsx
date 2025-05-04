@@ -4,6 +4,9 @@ import InspectorSidebar from '@/components/galaxy/InspectorSidebar';
 import PluginInspector from '@/components/galaxy/PluginInspector';
 import PluginSkeleton from '@/components/galaxy/PluginSkeleton';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { toast } from "react-toastify";
+import confetti from "canvas-confetti";
+import { useRouter } from "next/router";
 
 interface ChatMessage {
   id: string;
@@ -14,6 +17,7 @@ interface ChatMessage {
 }
 
 export default function GalaxyExplorer() {
+  const router = useRouter();
   const [selectedPlugin, setSelectedPlugin] = useState(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
@@ -22,7 +26,59 @@ export default function GalaxyExplorer() {
   const chatEndRef = React.useRef(null);
 
   const handleNodeClick = (pluginNode) => {
+    if (pluginNode.type === "plugin") {
+      router.push(`/agents/performance?plugin=${pluginNode.name}`);
+    }
     setSelectedPlugin(pluginNode);
+    handleXpThreshold(pluginNode); // Check XP threshold on node click
+  };
+
+  const handleXpThreshold = async (pluginNode) => {
+    const supabase = createClientComponentClient();
+    try {
+      const { data: pluginData, error: fetchError } = await supabase
+        .from("plugin_card_with_xp")
+        .select("total_xp, agent_version_id")
+        .eq("id", pluginNode.id)
+        .single();
+
+      if (fetchError) {
+        console.error("Error fetching plugin data:", fetchError);
+        return;
+      }
+
+      if (pluginData.total_xp >= 100) {
+        const newVersion = `v${parseInt(pluginData.agent_version_id?.slice(1) || "1") + 1}`;
+
+        const { error: logError } = await supabase
+          .from("agent_evolution_logs")
+          .insert({
+            agent_type: "plugin_assistant",
+            from_version: pluginData.agent_version_id || "v1",
+            to_version: newVersion,
+          });
+
+        if (logError) {
+          console.error("Error logging evolution:", logError);
+          return;
+        }
+
+        const { error: updateError } = await supabase
+          .from("plugin_card_with_xp")
+          .update({ agent_version_id: newVersion, total_xp: 0 }) // Reset XP
+          .eq("id", pluginNode.id);
+
+        if (updateError) {
+          console.error("Error updating plugin version:", updateError);
+        } else {
+          console.log(`Plugin ${pluginNode.id} evolved to ${newVersion}`);
+          confetti(); // Trigger confetti animation
+          toast.success("🎉 Plugin assistant evolved to a new version!");
+        }
+      }
+    } catch (err) {
+      console.error("Error handling XP threshold:", err);
+    }
   };
 
   useEffect(() => {
@@ -30,10 +86,8 @@ export default function GalaxyExplorer() {
 
     const fetchChatLogs = async () => {
       const { data, error } = await supabase
-        .from("plugin_chat_logs")
-        .select("*")
-        .eq("plugin_id", pluginId)
-        .order("created_at", { ascending: true });
+        .from("plugin_card_with_xp")
+        .select("*");
 
       if (error) {
         console.error("Error fetching chat logs:", error);
@@ -43,7 +97,7 @@ export default function GalaxyExplorer() {
     };
 
     fetchChatLogs();
-  }, [pluginId]);
+  }, []);
 
   const sendMessage = () => {
     // Implement send message logic

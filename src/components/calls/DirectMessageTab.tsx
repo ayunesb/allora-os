@@ -10,7 +10,7 @@ import { sendWhatsApp } from "@/utils/twilioHelpers";
 interface DirectMessageTabProps {
   phoneNumber: string;
   selectedLeadId: string;
-  onMessageSent: (leadId: string, communicationData: CommunicationData) => Promise<any>;
+  onMessageSent: (communicationData: CommunicationData) => Promise<any>;
   isLoadingMutation: boolean;
 }
 
@@ -54,7 +54,11 @@ export default function DirectMessageTab({
             metadata: { initial_message: message, sent_via: "web_link" }
           };
           
-          await onMessageSent(selectedLeadId, communicationData);
+          const { error } = await onMessageSent(communicationData);
+          if (error) {
+            console.error("Error saving communication data:", error.message);
+            toast.error("Failed to save communication data");
+          }
         }
       }
       

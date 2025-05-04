@@ -1,0 +1,6 @@
+export const analyzeStrategyFactors = (strategy) => {
+    // ...existing code...
+};
+export function getStrategyInsights(strategy) {
+    // ...existing code...
+}

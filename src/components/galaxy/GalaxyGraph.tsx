@@ -33,7 +33,7 @@ const GalaxyGraph = ({ nodes, links, onNodeClick }: GraphProps) => {
         ref={fgRef}
         graphData={{ nodes, links }}
         backgroundColor="#0A0A23"
-        nodeLabel="id"
+        nodeLabel={(node) => `${node.id} (${node.total_xp} XP)`}
         nodeAutoColorBy="group"
         linkDirectionalParticles={2}
         linkDirectionalParticleSpeed={(d) => d.value * 0.001 || 0.01}

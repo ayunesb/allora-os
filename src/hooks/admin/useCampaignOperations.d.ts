@@ -1,0 +1,52 @@
+import { Campaign, Platform, CampaignStatus } from '@/types';
+export interface CampaignFormData {
+    name: string;
+    platform: Platform;
+    status: CampaignStatus;
+    budget: number;
+    description?: string;
+    audience?: string;
+    adCopy?: string;
+    justification?: string;
+    goal?: string;
+    company_id?: string;
+}
+export type CampaignCreate = CampaignFormData;
+export declare function useCampaignOperations(): {
+    createCampaign: (campaignData: CampaignCreate) => Promise<Campaign>;
+    updateCampaign: (id: string, updates: Partial<Campaign>) => Promise<{
+        id: string;
+        name?: string;
+        description?: string;
+        platform?: Platform;
+        status?: CampaignStatus;
+        budget?: number;
+        goal?: string;
+        executiveBot?: string;
+        justification?: string;
+        adCopy?: string;
+        audience?: string;
+        healthScore?: string;
+        impressions?: number;
+        clicks?: number;
+        leads?: number;
+        roi?: number;
+        aiGenerated?: boolean;
+        platform_specific_id?: string;
+        management_fee?: number;
+        total_amount?: number;
+        deployment_status?: string;
+        payment_status?: string;
+        last_synced_at?: string;
+        platform_status?: string;
+        creatives?: any;
+        performance_metrics?: any;
+        ad_platform?: string;
+        startDate?: string;
+        endDate?: string;
+    }>;
+    deleteCampaign: (id: string) => Promise<boolean>;
+    isCreating: boolean;
+    isUpdating: boolean;
+    isDeleting: boolean;
+};

@@ -1,0 +1,4 @@
+/**
+ * AI Settings Types
+ */
+export {};

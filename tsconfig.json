@@ -1,22 +1,25 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
   "compilerOptions": {
-    "baseUrl": "./",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "lib": ["DOM", "ESNext"], // Ensure DOM and ESNext support
+    "allowJs": false,
+    "jsx": "react-jsx", // Ensure JSX support
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "jsx": "react-jsx"
-  }
+    "allowSyntheticDefaultImports": true,
+    "types": ["vite/client", "node", "vitest/globals", "jest"] // Ensure import.meta.env and testing types
+  },
+  "include": ["src", "types", "vite.config.ts", "vitest.config.ts"], // Ensure relevant files are included
+  "exclude": ["node_modules", "dist", "supabase/functions/**/*"] // Exclude unnecessary files
 }

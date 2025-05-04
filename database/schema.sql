@@ -1,0 +1,3 @@
+ALTER TABLE public.agent_versions
+ADD COLUMN IF NOT EXISTS prompt TEXT,
+ADD COLUMN IF NOT EXISTS changelog TEXT;

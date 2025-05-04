@@ -1,9 +1,8 @@
-
 // Export all types from the fixed directory
 export * from './fixed/User';
 export * from './fixed/Auth';
 export * from './fixed/Agent';
-export * from './fixed/Webhook';
+export type { WebhookEvent, WebhookStatus } from './fixed/Webhook';
 export * from './fixed/Accessibility';
 export * from './fixed/Compliance';
 export * from './fixed/LaunchChecklist';

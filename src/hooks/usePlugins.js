@@ -1,0 +1,77 @@
+import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useCompanyId } from '@/hooks/useCompanyId';
+import { toast } from 'sonner';
+export function usePlugins() {
+    const [isLoading, setIsLoading] = useState(false);
+    const [pluginImpact, setPluginImpact] = useState([]);
+    const tenantId = useCompanyId();
+    const recordPluginEvent = useCallback(async (event) => {
+        if (!tenantId) {
+            console.error('No tenant ID available');
+            return;
+        }
+        try {
+            const { error } = await supabase
+                .from('plugin_logs')
+                .insert({
+                tenant_id: tenantId,
+                plugin_name: event.plugin_name,
+                event: event.event,
+                value: event.value
+            });
+            if (error)
+                throw error;
+        }
+        catch (error) {
+            console.error('Error recording plugin event:', error);
+            toast.error('Failed to record plugin event');
+        }
+    }, [tenantId]);
+    const fetchPluginImpact = useCallback(async () => {
+        if (!tenantId) {
+            return [];
+        }
+        setIsLoading(true);
+        try {
+            // Call the plugin-impact edge function
+            const { data, error } = await supabase.functions.invoke('plugin-impact', {
+                body: { tenant_id: tenantId }
+            });
+            if (error)
+                throw error;
+            setPluginImpact(data || []);
+            return data || [];
+        }
+        catch (error) {
+            console.error('Error fetching plugin impact data:', error);
+            toast.error('Failed to load plugin impact data');
+            return [];
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }, [tenantId]);
+    const fetchPlugins = useCallback(async () => {
+        try {
+            const { data: plugins, error } = await supabase
+                .from('plugins')
+                .select('id, name, impact_score, xp');
+            if (error)
+                throw error;
+            return plugins;
+        }
+        catch (error) {
+            console.error('Error fetching plugins:', error);
+            toast.error('Failed to load plugins');
+            return [];
+        }
+    }, []);
+    return {
+        isLoading,
+        pluginImpact,
+        recordPluginEvent,
+        fetchPluginImpact,
+        fetchPlugins
+    };
+}
