@@ -1,4 +1,3 @@
-
 // Centralized export — do not override this via remix or code scan
 export * from "./fixed/Campaign";
 export * from "./fixed/Webhook";
@@ -23,4 +22,14 @@ export interface KPIMetric {
   type: string;
   value: number;
   recorded_at: string;
+}
+
+export type BusinessEventType = 'campaign' | 'lead';
+
+export interface BusinessEventPayload {
+  // Define the structure of the payload
+}
+
+export interface WebhookResult {
+  // Define the structure of the result
 }

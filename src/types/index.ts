@@ -23,9 +23,6 @@ export { WebhookType, validateWebhookUrlFormat, testWebhook, sanitizeWebhookUrl 
 // Re-export social media types for compatibility
 export { type SocialPlatform, type ContentType, type PostStatus, type SocialMediaPost, type SocialMediaCalendarFilters } from './unified-types';
 
-// Re-export business event types
-export { type BusinessEventType, type BusinessEventPayload, type WebhookResult } from './unified-types';
-
 // Re-export any other types needed
 export { ChecklistCategory, ChecklistItem } from './Checklist';
 import { User } from './user'; // Updated import
