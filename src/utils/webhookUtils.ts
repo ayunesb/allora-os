@@ -8,7 +8,9 @@ export function normalizeWebhookEvent(event: WebhookEvent): WebhookEvent {
   return {
     ...event,
     // Add eventType as an alias to event_type for backward compatibility
-    eventType: event.event_type
+    eventType: event.event_type,
+    // Normalize resource property
+    resource: event.resource || 'unknown',
   };
 }
 
