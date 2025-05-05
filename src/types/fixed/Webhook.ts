@@ -1,4 +1,3 @@
-
 export type WebhookType = "zapier" | "custom" | "stripe" | "slack" | "github" | "notion";
 export type WebhookStatus = "pending" | "success" | "failed";
 
@@ -51,4 +50,15 @@ export type BusinessEventType =
 export interface BusinessEventPayload {
   eventType: BusinessEventType;
   data: Record<string, any>;
+}
+
+export type WebhookEvent = 'USER_CREATED' | 'ORDER_PLACED' | 'PAYMENT_RECEIVED';
+
+export type WebhookStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
+
+export interface Webhook {
+  id: string;
+  event: WebhookEvent;
+  status: WebhookStatus;
+  // ...existing code...
 }

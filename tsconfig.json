@@ -2,24 +2,23 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["ESNext", "DOM"], // Ensure DOM and ESNext support
-    "allowJs": false,
-    "jsx": "react-jsx", // Ensure JSX support
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "lib": ["DOM", "ESNext"],
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["vite/client", "node", "vitest/globals", "jest"] // Ensure import.meta.env and testing types
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noEmit": true,
+    "allowJs": true
   },
-  "include": ["src", "types", "vite.config.ts", "vitest.config.ts"], // Ensure relevant files are included
-  "exclude": ["node_modules", "dist", "supabase/functions/**/*"] // Exclude unnecessary files
+  "include": [
+    "src",
+    "**/*.js"
+  ]
 }

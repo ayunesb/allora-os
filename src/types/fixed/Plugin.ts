@@ -3,6 +3,7 @@
  */
 export type Plugin = {
   id: string;
+  slug: string;
   name: string;
   description: string;
   version: string;

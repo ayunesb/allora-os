@@ -1,14 +1,14 @@
-
 /**
  * Unified User type that all application code should reference
  * This ensures consistency across the app and prevents type errors
  */
 export interface User {
   id: string;
+  tenant_id: string;
+  company_id: string;
   email: string;
   name: string;
   role: 'admin' | 'user';
-  company_id: string;
   created_at: string;
   
   // Optional properties

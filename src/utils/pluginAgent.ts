@@ -4,8 +4,16 @@ import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
 import { AgentTask } from '@/types/fixed/AgentTask';
 import { toast } from 'sonner';
 import { usePlugins } from '@/hooks/usePlugins';
-import { fetchApi } from '@/utils/api/fetchApi';
-import { fetchApi } from '@/services/api/fetchApi';
+
+const fetchApi = async (url: string, options: RequestInit) => {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`API error: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const pluginAgent = new ExecutiveBot(fetchApi);
 
 interface PluginExecutionResult {
   success: boolean;

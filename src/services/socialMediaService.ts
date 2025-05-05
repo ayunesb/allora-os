@@ -10,7 +10,6 @@ import { toast } from 'sonner';
 import { 
   SocialMediaPost, 
   CreatePostInput, 
-  UpdatePostInput, 
   SocialMediaCalendarFilters,
   BatchPostResponse,
   PostStatus
@@ -24,6 +23,7 @@ import {
 import { apiRequest, clearApiCache } from '@/utils/api/apiClient';
 import { wrapSupabaseQuery } from '@/utils/api/supabaseWrapper';
 import { logger } from '@/utils/loggingService';
+import { CreatePostInput } from '@/types/fixed/SocialMediaPost';
 
 /**
  * Cache key for social media posts
@@ -150,7 +150,7 @@ export async function createSocialMediaPost(
     
     // Additional validation for media URLs
     if (validatedData.media_urls?.length) {
-      const invalidUrls = validatedData.media_urls.filter(url => !validateMediaUrl(url));
+      const invalidUrls = validatedData.media_urls.filter((url: string) => !validateMediaUrl(url));
       if (invalidUrls.length > 0) {
         return {
           success: false,
@@ -253,7 +253,7 @@ export async function updateSocialMediaPost(
     
     // Additional validation for media URLs if provided
     if (validatedData.media_urls?.length) {
-      const invalidUrls = validatedData.media_urls.filter(url => !validateMediaUrl(url));
+      const invalidUrls = validatedData.media_urls.filter((url: string) => !validateMediaUrl(url));
       if (invalidUrls.length > 0) {
         return {
           success: false,
@@ -598,4 +598,15 @@ export async function batchSchedulePosts(
     failed,
     error_details: errors.length ? errors : undefined
   };
+}
+
+export async function postToSocialMedia(platform: string, content: string) {
+	// Mock implementation: Replace with actual API calls
+	if (platform === 'twitter') {
+		console.log(`Posting to Twitter: ${content}`);
+	} else if (platform === 'facebook') {
+		console.log(`Posting to Facebook: ${content}`);
+	} else {
+		throw new Error(`Unsupported platform: ${platform}`);
+	}
 }

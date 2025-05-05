@@ -1,66 +1,64 @@
-import { RouteObject } from "react-router-dom";
+import * as React from 'react';
+import { lazy } from 'react';
+import { RouteObject } from 'react-router-dom';
+import { Route, Routes, Outlet } from 'react-router-dom';
+import withSuspense from '../utils/withSuspense';
+
+const OnboardingPage = lazy(() => import('../pages/OnboardingPage'));
+const OnboardingLayout = lazy(() => import('@/layouts/onboarding/OnboardingLayout'));
+const OnboardingWelcome = lazy(() => import('@/pages/onboarding/OnboardingWelcome'));
+const OnboardingProfile = lazy(() => import('@/pages/onboarding/OnboardingProfile'));
+const OnboardingCompany = lazy(() => import('@/pages/onboarding/OnboardingCompany'));
+const OnboardingTeam = lazy(() => import('@/pages/onboarding/OnboardingTeam'));
+const OnboardingIntegrations = lazy(() => import('@/pages/onboarding/OnboardingIntegrations'));
+const OnboardingAIWorkflow = lazy(() => import('@/pages/onboarding/OnboardingAIWorkflow'));
+const OnboardingComplete = lazy(() => import('@/pages/onboarding/OnboardingComplete'));
 
 export const onboardingRoutes: RouteObject[] = [
   {
     path: "onboarding",
-    async lazy() {
-      const OnboardingLayout = (await import('@/layouts/onboarding/OnboardingLayout')).default;
-      return {
-        element: <OnboardingLayout />
-      };
-    },
+    element: withSuspense(
+      <OnboardingLayout>
+        <Outlet />
+      </OnboardingLayout>
+    ),
     children: [
       {
         index: true,
-        async lazy() {
-          const { default: OnboardingWelcome } = await import("@/pages/onboarding/OnboardingWelcome");
-          return { Component: OnboardingWelcome };
-        },
+        element: withSuspense(<OnboardingWelcome />),
       },
       {
         path: "profile",
-        async lazy() {
-          const { default: OnboardingProfile } = await import("@/pages/onboarding/OnboardingProfile");
-          return { Component: OnboardingProfile };
-        },
+        element: withSuspense(<OnboardingProfile />),
       },
       {
         path: "company",
-        async lazy() {
-          const { default: OnboardingCompany } = await import("@/pages/onboarding/OnboardingCompany");
-          return { Component: OnboardingCompany };
-        },
+        element: withSuspense(<OnboardingCompany />),
       },
       {
         path: "team",
-        async lazy() {
-          const { default: OnboardingTeam } = await import("@/pages/onboarding/OnboardingTeam");
-          return { Component: OnboardingTeam };
-        },
+        element: withSuspense(<OnboardingTeam />),
       },
       {
         path: "integrations",
-        async lazy() {
-          const { default: OnboardingIntegrations } = await import("@/pages/onboarding/OnboardingIntegrations");
-          return { Component: OnboardingIntegrations };
-        },
+        element: withSuspense(<OnboardingIntegrations />),
       },
       {
         path: "ai-workflow",
-        async lazy() {
-          const { default: OnboardingAIWorkflow } = await import("@/pages/onboarding/OnboardingAIWorkflow");
-          return { Component: OnboardingAIWorkflow };
-        },
+        element: withSuspense(<OnboardingAIWorkflow />),
       },
       {
         path: "complete",
-        async lazy() {
-          const { default: OnboardingComplete } = await import("@/pages/onboarding/OnboardingComplete");
-          return { Component: OnboardingComplete };
-        },
+        element: withSuspense(<OnboardingComplete />),
       },
     ]
   }
 ];
 
-export default onboardingRoutes;
+export default function OnboardingRoutes() {
+	return (
+		<Routes>
+			<Route path="/onboarding" element={withSuspense(<OnboardingPage />)} />
+		</Routes>
+	);
+}

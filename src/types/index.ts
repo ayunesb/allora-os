@@ -28,4 +28,5 @@ export { type BusinessEventType, type BusinessEventPayload, type WebhookResult }
 
 // Re-export any other types needed
 export { ChecklistCategory, ChecklistItem } from './Checklist';
-export { WebhookEvent, WebhookType } from './webhooks';
+export { WebhookType } from './webhooks';
+import { User } from './user'; // Updated import

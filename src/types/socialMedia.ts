@@ -4,6 +4,7 @@ export type PostStatus = "draft" | "scheduled" | "published";
 export type PostContentType = "text" | "image" | "video" | "link";
 
 export interface SocialMediaPost {
+  [x: string]: any;
   id: string;
   title: string;
   content: string;

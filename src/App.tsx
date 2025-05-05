@@ -14,44 +14,40 @@ import { router } from './routes/router';
 import { Helmet } from 'react-helmet-async';
 import PluginDetailPage from '@/pages/plugin/[id]';
 import StrategyDetailPage from '@/pages/strategy/[id]';
-
 const App = () => {
-  React.useEffect(() => {
-    // Initialize error logging
-    setupErrorLogging();
-
-    // Initialize analytics (only if consent is given)
-    const cookieConsent = localStorage.getItem('cookie-consent');
-    if (cookieConsent) {
-      const settings = JSON.parse(cookieConsent);
-      if (settings?.analytics) {
-        initializeAnalytics();
-      }
-    }
-  }, []);
-
-  return (
-    <GlobalErrorBoundary>
+    React.useEffect(() => {
+        // Initialize error logging
+        setupErrorLogging();
+        // Initialize analytics (only if consent is given)
+        const cookieConsent = localStorage.getItem('cookie-consent');
+        if (cookieConsent) {
+            const settings = JSON.parse(cookieConsent);
+            if (settings?.analytics) {
+                initializeAnalytics();
+            }
+        }
+    }, []);
+    return (<GlobalErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
           <AccessibilityProvider>
             <CompanyAPIProvider>
               <Helmet>
                 <title>Allora OS – AI-Native Business System</title>
-                <meta name="description" content="Allora OS helps startups run 90% autonomously with AI agents and strategy automation." />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta property="og:title" content="Allora OS" />
-                <meta property="og:description" content="Run your startup like a pro—with autonomous AI execution." />
-                <meta property="og:url" content="https://allora-os.vercel.app" />
+                <meta name="description" content="Allora OS helps startups run 90% autonomously with AI agents and strategy automation."/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta property="og:title" content="Allora OS"/>
+                <meta property="og:description" content="Run your startup like a pro—with autonomous AI execution."/>
+                <meta property="og:url" content="https://allora-os.vercel.app"/>
               </Helmet>
-              <RouterProvider router={router} />
+              <RouterProvider router={router}/>
               <Suspense fallback={<div className="p-8 text-white">Loading Galaxy...</div>}>
                 <Routes>
-                  <Route path="/plugin/:id" element={<PluginDetailPage />} />
-                  <Route path="/strategy/:id" element={<StrategyDetailPage />} />
+                  <Route path="/plugin/:id" element={<PluginDetailPage />}/>
+                  <Route path="/strategy/:id" element={<StrategyDetailPage />}/>
                 </Routes>
               </Suspense>
-              <Toaster position="top-right" />
+              <Toaster position="top-right"/>
               <GlobalErrorModal />
               <CookieConsent />
 
@@ -62,8 +58,6 @@ const App = () => {
           </AccessibilityProvider>
         </AuthProvider>
       </ThemeProvider>
-    </GlobalErrorBoundary>
-  );
+    </GlobalErrorBoundary>);
 };
-
 export default App;
