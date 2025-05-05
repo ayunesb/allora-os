@@ -1,21 +1,7 @@
-
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
-
-interface SeverityCount {
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-}
-
-interface SeverityCountsProps {
-  counts: SeverityCount;
-}
-
-export function SeverityCounts({ counts }: SeverityCountsProps) {
-  return (
-    <div className="flex flex-wrap gap-2 my-3">
+export function SeverityCounts({ counts }) {
+    return (<div className="flex flex-wrap gap-2 my-3">
       <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
         Critical: {counts.critical}
       </Badge>
@@ -28,6 +14,5 @@ export function SeverityCounts({ counts }: SeverityCountsProps) {
       <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
         Low: {counts.low}
       </Badge>
-    </div>
-  );
+    </div>);
 }

@@ -1,18 +1,7 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
-
-interface StatsCardProps {
-  title: string;
-  value: string;
-  description: string;
-  icon: LucideIcon;
-}
-
-const StatsCard: React.FC<StatsCardProps> = ({ title, value, description, icon: Icon }) => {
-  return (
-    <Card>
+const StatsCard = ({ title, value, description, icon: Icon }) => {
+    return (<Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between space-x-4">
           <div className="flex-1">
@@ -23,12 +12,10 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, description, icon: 
             <p className="text-xs text-muted-foreground mt-1">{description}</p>
           </div>
           <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <Icon className="h-6 w-6 text-primary" />
+            <Icon className="h-6 w-6 text-primary"/>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
 };
-
 export default StatsCard;

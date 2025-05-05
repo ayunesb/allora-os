@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-
 export default function FeatureOverview() {
-  return (
-    <div className="container mx-auto py-10">
+    return (<div className="container mx-auto py-10">
       <PageTitle title="Feature Overview" description="Explore what Allora AI can do for your business">
         Feature Overview
       </PageTitle>
@@ -31,6 +28,5 @@ export default function FeatureOverview() {
           </p>
         </section>
       </div>
-    </div>
-  );
+    </div>);
 }

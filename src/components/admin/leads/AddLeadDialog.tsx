@@ -1,79 +1,45 @@
-
 import React, { useState } from 'react';
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Lead } from '@/models/lead';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { useLeads } from '@/hooks/admin/useLeads';
-
-type AddLeadDialogProps = {
-  onLeadAdded: () => void;
-  campaigns: Array<{ id: string; name: string }>;
-  isMobileView: boolean;
-};
-
-export const AddLeadDialog: React.FC<AddLeadDialogProps> = ({
-  onLeadAdded,
-  campaigns,
-  isMobileView
-}) => {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [campaignId, setCampaignId] = useState('');
-  const [status, setStatus] = useState<Lead['status']>('new');
-  
-  const { addLead, isAddingLead } = useLeads();
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const lead = await addLead({
-      name,
-      email,
-      phone,
-      campaign_id: campaignId,
-      status
-    });
-    
-    if (lead) {
-      resetForm();
-      setOpen(false);
-      onLeadAdded();
-    }
-  };
-  
-  const resetForm = () => {
-    setName('');
-    setEmail('');
-    setPhone('');
-    setCampaignId('');
-    setStatus('new');
-  };
-  
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
+export const AddLeadDialog = ({ onLeadAdded, campaigns, isMobileView }) => {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [campaignId, setCampaignId] = useState('');
+    const [status, setStatus] = useState('new');
+    const { addLead, isAddingLead } = useLeads();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const lead = await addLead({
+            name,
+            email,
+            phone,
+            campaign_id: campaignId,
+            status
+        });
+        if (lead) {
+            resetForm();
+            setOpen(false);
+            onLeadAdded();
+        }
+    };
+    const resetForm = () => {
+        setName('');
+        setEmail('');
+        setPhone('');
+        setCampaignId('');
+        setStatus('new');
+    };
+    return (<Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
-          <PlusCircle className="h-4 w-4 mr-2" />
+          <PlusCircle className="h-4 w-4 mr-2"/>
           {isMobileView ? 'Add' : 'Add Lead'}
         </Button>
       </DialogTrigger>
@@ -90,57 +56,32 @@ export const AddLeadDialog: React.FC<AddLeadDialogProps> = ({
               <Label htmlFor="name" className="text-right">
                 Name
               </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-                required
-              />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">
                 Email
               </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="col-span-3"
-                required
-              />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="col-span-3" required/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">
                 Phone
               </Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="col-span-3"
-              />
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="col-span-3"/>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="campaign" className="text-right">
                 Campaign
               </Label>
-              <Select 
-                value={campaignId} 
-                onValueChange={setCampaignId}
-                required
-              >
+              <Select value={campaignId} onValueChange={setCampaignId} required>
                 <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a campaign" />
+                  <SelectValue placeholder="Select a campaign"/>
                 </SelectTrigger>
                 <SelectContent>
-                  {campaigns.map(campaign => (
-                    <SelectItem key={campaign.id} value={campaign.id}>
+                  {campaigns.map(campaign => (<SelectItem key={campaign.id} value={campaign.id}>
                       {campaign.name}
-                    </SelectItem>
-                  ))}
+                    </SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
@@ -148,13 +89,9 @@ export const AddLeadDialog: React.FC<AddLeadDialogProps> = ({
               <Label htmlFor="status" className="text-right">
                 Status
               </Label>
-              <Select 
-                value={status} 
-                onValueChange={(value) => setStatus(value as Lead['status'])}
-                required
-              >
+              <Select value={status} onValueChange={(value) => setStatus(value)} required>
                 <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a status" />
+                  <SelectValue placeholder="Select a status"/>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="new">New</SelectItem>
@@ -176,6 +113,5 @@ export const AddLeadDialog: React.FC<AddLeadDialogProps> = ({
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
 };

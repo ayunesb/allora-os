@@ -1,24 +1,10 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, MessageSquare, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-interface IntroductionStateProps {
-  sampleDebate: {
-    topic: string;
-    summary: string;
-  };
-  onStartNewDebate: () => void;
-}
-
-export const IntroductionState: React.FC<IntroductionStateProps> = ({ 
-  sampleDebate,
-  onStartNewDebate
-}) => {
-  return (
-    <Card className="shadow-md">
+export const IntroductionState = ({ sampleDebate, onStartNewDebate }) => {
+    return (<Card className="shadow-md">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">AI Executive Boardroom</CardTitle>
         <CardDescription>Preview of an executive debate - start your own to get personalized insights</CardDescription>
@@ -39,7 +25,7 @@ export const IntroductionState: React.FC<IntroductionStateProps> = ({
           <div className="mt-4 space-y-4">
             <div className="flex items-start gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <PlusCircle className="h-5 w-5 text-primary" />
+                <PlusCircle className="h-5 w-5 text-primary"/>
               </div>
               <div>
                 <h4 className="text-sm font-medium">Start a Debate</h4>
@@ -49,7 +35,7 @@ export const IntroductionState: React.FC<IntroductionStateProps> = ({
             
             <div className="flex items-start gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <MessageSquare className="h-5 w-5 text-primary" />
+                <MessageSquare className="h-5 w-5 text-primary"/>
               </div>
               <div>
                 <h4 className="text-sm font-medium">Watch the Discussion</h4>
@@ -59,7 +45,7 @@ export const IntroductionState: React.FC<IntroductionStateProps> = ({
             
             <div className="flex items-start gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <AlertTriangle className="h-5 w-5 text-primary" />
+                <AlertTriangle className="h-5 w-5 text-primary"/>
               </div>
               <div>
                 <h4 className="text-sm font-medium">Get Strategic Insights</h4>
@@ -70,12 +56,8 @@ export const IntroductionState: React.FC<IntroductionStateProps> = ({
         </div>
 
         <div className="mt-6 flex justify-center">
-          <Button 
-            variant="default" 
-            onClick={onStartNewDebate}
-            className="px-8"
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
+          <Button variant="default" onClick={onStartNewDebate} className="px-8">
+            <PlusCircle className="mr-2 h-4 w-4"/>
             Start Your First Debate
           </Button>
         </div>
@@ -86,6 +68,5 @@ export const IntroductionState: React.FC<IntroductionStateProps> = ({
           </p>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
 };

@@ -1,15 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { LogOut, RefreshCw } from "lucide-react";
-
-interface AuthIssueProps {
-  onSignOut: () => void;
-  onRefresh: () => void;
-}
-
-export function AuthIssue({ onSignOut, onRefresh }: AuthIssueProps) {
-  return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+export function AuthIssue({ onSignOut, onRefresh }) {
+    return (<div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="bg-card border rounded-lg shadow-lg p-6 max-w-md w-full">
         <h2 className="text-xl font-semibold mb-4">Authentication Issue</h2>
         <p className="text-muted-foreground mb-6">
@@ -17,15 +9,14 @@ export function AuthIssue({ onSignOut, onRefresh }: AuthIssueProps) {
         </p>
         <div className="flex gap-4 justify-end">
           <Button variant="outline" onClick={onSignOut}>
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-2 h-4 w-4"/>
             Sign out
           </Button>
           <Button onClick={onRefresh}>
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <RefreshCw className="mr-2 h-4 w-4"/>
             Refresh page
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

@@ -1,12 +1,9 @@
-
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import AIExecutiveBoardroom from "@/components/ai-boardroom/AIExecutiveBoardroom";
 import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
-
 export default function AiBoardroom() {
-  return (
-    <>
+    return (<>
       <Helmet>
         <title>AI Executive Boardroom - Allora AI</title>
       </Helmet>
@@ -18,10 +15,9 @@ export default function AiBoardroom() {
               <p className="text-muted-foreground">Strategic discussions and insights from your AI executive team</p>
             </div>
             
-            <AIExecutiveBoardroom companyId={null} />
+            <AIExecutiveBoardroom companyId={null}/>
           </div>
         </div>
       </PageErrorBoundary>
-    </>
-  );
+    </>);
 }

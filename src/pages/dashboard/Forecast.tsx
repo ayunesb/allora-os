@@ -1,12 +1,9 @@
-
 import React from 'react';
 import { PageTitle } from "@/components/ui/page-title";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 export default function Forecast() {
-  return (
-    <div className="container mx-auto p-4">
+    return (<div className="container mx-auto p-4">
       <PageTitle title="Financial Forecast" description="Projected financial performance">
         Financial Forecast
       </PageTitle>
@@ -40,6 +37,5 @@ export default function Forecast() {
           <p>Key performance metrics will appear here.</p>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

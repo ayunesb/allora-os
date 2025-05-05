@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
@@ -9,35 +8,29 @@ import AdminCompanies from "./AdminCompanies";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { HelpButton } from "@/components/ui/help-button";
 import { getHelpContent } from "@/utils/help/helpContent";
-
 export default function EntitiesPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tabFromUrl = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState<string>(tabFromUrl === "companies" ? "companies" : "users");
-
-  // Update the URL when the tab changes
-  useEffect(() => {
-    if (tabFromUrl !== activeTab) {
-      setSearchParams({ tab: activeTab });
-    }
-  }, [activeTab, setSearchParams, tabFromUrl]);
-
-  // Handle URL parameter changes
-  useEffect(() => {
-    if (tabFromUrl === "companies" || tabFromUrl === "users") {
-      setActiveTab(tabFromUrl);
-    }
-  }, [tabFromUrl]);
-
-  // Get help content for the entities page
-  const entitiesHelp = getHelpContent("admin.entities") || {
-    id: "admin.entities",
-    title: "Entities Management",
-    description: "Manage users and companies within the Allora AI platform"
-  };
-
-  return (
-    <PageErrorBoundary pageName="Entities Management">
+    const [searchParams, setSearchParams] = useSearchParams();
+    const tabFromUrl = searchParams.get("tab");
+    const [activeTab, setActiveTab] = useState(tabFromUrl === "companies" ? "companies" : "users");
+    // Update the URL when the tab changes
+    useEffect(() => {
+        if (tabFromUrl !== activeTab) {
+            setSearchParams({ tab: activeTab });
+        }
+    }, [activeTab, setSearchParams, tabFromUrl]);
+    // Handle URL parameter changes
+    useEffect(() => {
+        if (tabFromUrl === "companies" || tabFromUrl === "users") {
+            setActiveTab(tabFromUrl);
+        }
+    }, [tabFromUrl]);
+    // Get help content for the entities page
+    const entitiesHelp = getHelpContent("admin.entities") || {
+        id: "admin.entities",
+        title: "Entities Management",
+        description: "Manage users and companies within the Allora AI platform"
+    };
+    return (<PageErrorBoundary pageName="Entities Management">
       <Helmet>
         <title>Entities Management | Allora AI</title>
       </Helmet>
@@ -53,19 +46,10 @@ export default function EntitiesPage() {
             </p>
           </div>
           
-          <HelpButton 
-            helpContent={entitiesHelp}
-            variant="outline"
-            size="sm"
-          />
+          <HelpButton helpContent={entitiesHelp} variant="outline" size="sm"/>
         </div>
         
-        <Tabs 
-          defaultValue="users" 
-          value={activeTab} 
-          onValueChange={setActiveTab} 
-          className="space-y-4"
-        >
+        <Tabs defaultValue="users" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="companies">Companies</TabsTrigger>
@@ -80,6 +64,5 @@ export default function EntitiesPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </PageErrorBoundary>
-  );
+    </PageErrorBoundary>);
 }

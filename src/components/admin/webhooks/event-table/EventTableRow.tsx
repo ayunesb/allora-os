@@ -1,42 +1,26 @@
-
 import React, { useState } from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Repeat, Eye } from "lucide-react";
-import { WebhookEvent } from "@/types/fixed/Webhook";
 import StatusBadge from './StatusBadge';
 import { format } from 'date-fns';
-
-interface EventTableRowProps {
-  event: WebhookEvent;
-  onViewDetails?: (event: WebhookEvent) => void;
-  onRetry?: (event: WebhookEvent) => void;
-}
-
-export const EventTableRow: React.FC<EventTableRowProps> = ({ 
-  event,
-  onViewDetails,
-  onRetry
-}) => {
-  const [expanded, setExpanded] = useState(false);
-  
-  const formatTimestamp = (timestamp: string) => {
-    try {
-      return format(new Date(timestamp), 'MMM dd, yyyy HH:mm:ss');
-    } catch (e) {
-      return 'Invalid date';
-    }
-  };
-  
-  const toggleExpand = () => {
-    setExpanded(!expanded);
-  };
-  
-  return (
-    <>
+export const EventTableRow = ({ event, onViewDetails, onRetry }) => {
+    const [expanded, setExpanded] = useState(false);
+    const formatTimestamp = (timestamp) => {
+        try {
+            return format(new Date(timestamp), 'MMM dd, yyyy HH:mm:ss');
+        }
+        catch (e) {
+            return 'Invalid date';
+        }
+    };
+    const toggleExpand = () => {
+        setExpanded(!expanded);
+    };
+    return (<>
       <TableRow className="group hover:bg-muted/50">
         <TableCell>
-          <StatusBadge status={event.status} />
+          <StatusBadge status={event.status}/>
         </TableCell>
         <TableCell>
           <div className="font-medium">{event.type || 'Unknown'}</div>
@@ -52,48 +36,26 @@ export const EventTableRow: React.FC<EventTableRowProps> = ({
         </TableCell>
         <TableCell className="text-right">
           <div className="flex justify-end items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleExpand}
-              className="h-8 w-8"
-            >
-              {expanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
+            <Button variant="ghost" size="icon" onClick={toggleExpand} className="h-8 w-8">
+              {expanded ? (<ChevronUp className="h-4 w-4"/>) : (<ChevronDown className="h-4 w-4"/>)}
               <span className="sr-only">Toggle details</span>
             </Button>
             
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onViewDetails && onViewDetails(event)}
-              className="h-8 w-8"
-            >
-              <Eye className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={() => onViewDetails && onViewDetails(event)} className="h-8 w-8">
+              <Eye className="h-4 w-4"/>
               <span className="sr-only">View details</span>
             </Button>
             
-            {event.status === 'failed' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onRetry && onRetry(event)}
-                className="h-8 w-8 text-yellow-500 hover:text-yellow-600"
-              >
-                <Repeat className="h-4 w-4" />
+            {event.status === 'failed' && (<Button variant="ghost" size="icon" onClick={() => onRetry && onRetry(event)} className="h-8 w-8 text-yellow-500 hover:text-yellow-600">
+                <Repeat className="h-4 w-4"/>
                 <span className="sr-only">Retry webhook</span>
-              </Button>
-            )}
+              </Button>)}
           </div>
         </TableCell>
       </TableRow>
       
       {/* Expanded content */}
-      {expanded && (
-        <TableRow>
+      {expanded && (<TableRow>
           <TableCell colSpan={5} className="p-0">
             <div className="p-4 bg-muted/30 border-t border-b">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -118,10 +80,7 @@ export const EventTableRow: React.FC<EventTableRowProps> = ({
               </div>
             </div>
           </TableCell>
-        </TableRow>
-      )}
-    </>
-  );
+        </TableRow>)}
+    </>);
 };
-
 export default EventTableRow;

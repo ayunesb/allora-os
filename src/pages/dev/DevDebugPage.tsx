@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-
 export default function DevDebugPage() {
-  return (
-    <div className="container mx-auto py-6">
+    return (<div className="container mx-auto py-6">
       <PageTitle title="Debug Page" description="For development and testing">
         Debug Page
       </PageTitle>
@@ -15,6 +12,5 @@ export default function DevDebugPage() {
           <p className="text-muted-foreground">Development tools and settings</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

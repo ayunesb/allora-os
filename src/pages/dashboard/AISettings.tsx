@@ -8,20 +8,15 @@ import { ModelPreferences } from '@/components/ai-settings/ModelPreferences';
 import { LearningSettings } from '@/components/ai-settings/LearningSettings';
 import { Settings, BookOpen } from 'lucide-react';
 import { PageTitle } from '@/components/PageTitle';
-
 export default function AISettings() {
-  return (
-    <div className="container mx-auto py-6 space-y-6">
+    return (<div className="container mx-auto py-6 space-y-6">
       <Helmet>
         <title>AI Settings | Allora AI</title>
       </Helmet>
       
-      <PageTitle 
-        title="AI Settings & Preferences"
-        description="Customize how the AI executive team behaves and makes decisions"
-      >
+      <PageTitle title="AI Settings & Preferences" description="Customize how the AI executive team behaves and makes decisions">
         <div className="flex items-center space-x-2">
-          <Settings className="h-5 w-5 text-primary" />
+          <Settings className="h-5 w-5 text-primary"/>
           <span>AI Control Center</span>
         </div>
       </PageTitle>
@@ -60,7 +55,7 @@ export default function AISettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
+            <BookOpen className="h-5 w-5"/>
             AI Learning Documentation
           </CardTitle>
           <CardDescription>
@@ -83,6 +78,5 @@ export default function AISettings() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
 }

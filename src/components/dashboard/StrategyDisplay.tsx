@@ -1,14 +1,11 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GitBranch } from "lucide-react";
-
 export default function StrategyDisplay() {
-  return (
-    <Card>
+    return (<Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-xl flex items-center">
-          <GitBranch className="mr-2 h-5 w-5 text-primary" />
+          <GitBranch className="mr-2 h-5 w-5 text-primary"/>
           Strategy Overview
         </CardTitle>
       </CardHeader>
@@ -32,9 +29,7 @@ export default function StrategyDisplay() {
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
 }
-
 // Export the component as a named export as well for backward compatibility
 export { StrategyDisplay };

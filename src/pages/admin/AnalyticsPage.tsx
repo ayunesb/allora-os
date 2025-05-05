@@ -1,10 +1,7 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 export default function AnalyticsPage() {
-  return (
-    <div className="space-y-6">
+    return (<div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
       <p className="text-muted-foreground">
         View and analyze platform usage and performance metrics.
@@ -38,6 +35,5 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
 }

@@ -1,48 +1,34 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Database, ServerCrash, Shield, RefreshCw, ArrowRightLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
 export default function ProductionDataPage() {
-  const navigate = useNavigate();
-  const [isProductionMode, setIsProductionMode] = React.useState(false);
-  
-  const toggleProductionMode = () => {
-    if (!isProductionMode) {
-      if (window.confirm('Are you sure you want to switch to production mode? This will affect live data.')) {
-        setIsProductionMode(true);
-      }
-    } else {
-      setIsProductionMode(false);
-    }
-  };
-  
-  return (
-    <div className="space-y-6">
+    const navigate = useNavigate();
+    const [isProductionMode, setIsProductionMode] = React.useState(false);
+    const toggleProductionMode = () => {
+        if (!isProductionMode) {
+            if (window.confirm('Are you sure you want to switch to production mode? This will affect live data.')) {
+                setIsProductionMode(true);
+            }
+        }
+        else {
+            setIsProductionMode(false);
+        }
+    };
+    return (<div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-3xl font-bold tracking-tight">Production Data Management</h2>
         
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={() => window.location.reload()}
-          >
-            <RefreshCw className="h-4 w-4" />
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => window.location.reload()}>
+            <RefreshCw className="h-4 w-4"/>
             Refresh
           </Button>
           
-          <Button
-            variant={isProductionMode ? "destructive" : "default"}
-            size="sm"
-            className="gap-2"
-            onClick={toggleProductionMode}
-          >
-            <ArrowRightLeft className="h-4 w-4" />
+          <Button variant={isProductionMode ? "destructive" : "default"} size="sm" className="gap-2" onClick={toggleProductionMode}>
+            <ArrowRightLeft className="h-4 w-4"/>
             {isProductionMode ? "Switch to Development" : "Switch to Production"}
           </Button>
         </div>
@@ -55,8 +41,8 @@ export default function ProductionDataPage() {
           </Badge>
         </div>
         <div className="text-sm">
-          {isProductionMode 
-            ? "You are currently modifying production data. All changes will affect the live system." 
+          {isProductionMode
+            ? "You are currently modifying production data. All changes will affect the live system."
             : "You are in development mode. Changes won't affect the production system."}
         </div>
       </div>
@@ -65,7 +51,7 @@ export default function ProductionDataPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-base">
-              <Database className="mr-2 h-5 w-5 text-primary" />
+              <Database className="mr-2 h-5 w-5 text-primary"/>
               Database Status
             </CardTitle>
           </CardHeader>
@@ -88,12 +74,7 @@ export default function ProductionDataPage() {
                 <span className="font-medium">8</span>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full mt-4"
-              onClick={() => navigate('/admin/entities')}
-            >
+            <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate('/admin/entities')}>
               Manage Database
             </Button>
           </CardContent>
@@ -102,7 +83,7 @@ export default function ProductionDataPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-base">
-              <ServerCrash className="mr-2 h-5 w-5 text-primary" />
+              <ServerCrash className="mr-2 h-5 w-5 text-primary"/>
               API Services
             </CardTitle>
           </CardHeader>
@@ -125,12 +106,7 @@ export default function ProductionDataPage() {
                 <span className="font-medium">124ms</span>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full mt-4"
-              onClick={() => navigate('/admin/webhooks')}
-            >
+            <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate('/admin/webhooks')}>
               Manage Services
             </Button>
           </CardContent>
@@ -139,7 +115,7 @@ export default function ProductionDataPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center text-base">
-              <Shield className="mr-2 h-5 w-5 text-primary" />
+              <Shield className="mr-2 h-5 w-5 text-primary"/>
               Security Status
             </CardTitle>
           </CardHeader>
@@ -162,17 +138,11 @@ export default function ProductionDataPage() {
                 <span className="font-medium">2 days ago</span>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full mt-4"
-              onClick={() => navigate('/admin/audit')}
-            >
+            <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate('/admin/audit')}>
               Run Security Audit
             </Button>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
 }

@@ -1,21 +1,16 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 import SystemHealthPage from '@/pages/admin/system-health/SystemHealthPage';
 import ProductionDataPage from './ProductionDataPage';
-
 export default function SystemPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const currentTab = location.hash ? location.hash.substring(1) : 'health';
-
-  const handleTabChange = (value: string) => {
-    navigate({ hash: value });
-  };
-
-  return (
-    <div className="container py-6 max-w-7xl mx-auto">
+    const navigate = useNavigate();
+    const location = useLocation();
+    const currentTab = location.hash ? location.hash.substring(1) : 'health';
+    const handleTabChange = (value) => {
+        navigate({ hash: value });
+    };
+    return (<div className="container py-6 max-w-7xl mx-auto">
       <Tabs defaultValue={currentTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="health">System Health</TabsTrigger>
@@ -46,6 +41,5 @@ export default function SystemPage() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

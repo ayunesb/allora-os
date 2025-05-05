@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TypographyH1, TypographyP, TypographySmall } from "@/components/ui/typography";
@@ -7,14 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Activity, Server, Database, RefreshCw, Clock, Cpu } from "lucide-react";
-
 export default function AdminSystemHealth() {
-  return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    return (<div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <TypographyH1>System Health</TypographyH1>
         <Button variant="outline" className="w-full sm:w-auto">
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="h-4 w-4 mr-2"/>
           Refresh Status
         </Button>
       </div>
@@ -23,7 +20,7 @@ export default function AdminSystemHealth() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium flex items-center">
-              <Server className="h-4 w-4 mr-2 text-primary" />
+              <Server className="h-4 w-4 mr-2 text-primary"/>
               API Status
             </CardTitle>
           </CardHeader>
@@ -40,7 +37,7 @@ export default function AdminSystemHealth() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium flex items-center">
-              <Database className="h-4 w-4 mr-2 text-primary" />
+              <Database className="h-4 w-4 mr-2 text-primary"/>
               Database
             </CardTitle>
           </CardHeader>
@@ -57,7 +54,7 @@ export default function AdminSystemHealth() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium flex items-center">
-              <Activity className="h-4 w-4 mr-2 text-primary" />
+              <Activity className="h-4 w-4 mr-2 text-primary"/>
               AI Services
             </CardTitle>
           </CardHeader>
@@ -74,7 +71,7 @@ export default function AdminSystemHealth() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium flex items-center">
-              <Clock className="h-4 w-4 mr-2 text-primary" />
+              <Clock className="h-4 w-4 mr-2 text-primary"/>
               Response Time
             </CardTitle>
           </CardHeader>
@@ -108,45 +105,45 @@ export default function AdminSystemHealth() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center">
-                    <Server className="h-4 w-4 mr-2" />
+                    <Server className="h-4 w-4 mr-2"/>
                     API Services
                   </span>
                   <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Healthy</Badge>
                 </div>
-                <Progress value={100} className="h-2" />
+                <Progress value={100} className="h-2"/>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center">
-                    <Database className="h-4 w-4 mr-2" />
+                    <Database className="h-4 w-4 mr-2"/>
                     Database Connectivity
                   </span>
                   <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Healthy</Badge>
                 </div>
-                <Progress value={100} className="h-2" />
+                <Progress value={100} className="h-2"/>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center">
-                    <Activity className="h-4 w-4 mr-2" />
+                    <Activity className="h-4 w-4 mr-2"/>
                     AI Processing
                   </span>
                   <Badge variant="outline" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Degraded</Badge>
                 </div>
-                <Progress value={70} className="h-2" />
+                <Progress value={70} className="h-2"/>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="flex items-center">
-                    <Cpu className="h-4 w-4 mr-2" />
+                    <Cpu className="h-4 w-4 mr-2"/>
                     Server Resources
                   </span>
                   <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Healthy</Badge>
                 </div>
-                <Progress value={85} className="h-2" />
+                <Progress value={85} className="h-2"/>
               </div>
             </CardContent>
           </Card>
@@ -221,6 +218,5 @@ export default function AdminSystemHealth() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

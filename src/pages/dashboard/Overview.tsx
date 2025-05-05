@@ -1,8 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 export default function Overview() {
-  return (
-    <div className="grid gap-6 lg:grid-cols-3">
+    return (<div className="grid gap-6 lg:grid-cols-3">
       {/* KPI Cards */}
       <Card className="col-span-1">
         <CardHeader>
@@ -45,6 +43,5 @@ export default function Overview() {
           </ul>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
 }

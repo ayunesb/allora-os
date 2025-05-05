@@ -1,9 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
 const Sidebar = () => {
-  return (
-    <nav>
+    return (<nav>
       <ul>
         {/* ...existing code... */}
         <li>
@@ -11,8 +9,6 @@ const Sidebar = () => {
         </li>
         {/* ...existing code... */}
       </ul>
-    </nav>
-  );
+    </nav>);
 };
-
 export default Sidebar;

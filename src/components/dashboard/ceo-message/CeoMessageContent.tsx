@@ -1,38 +1,23 @@
-
 import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { useCeoSelection } from "@/hooks/useCeoSelection";
 import { useCeoMessage } from "@/hooks/useCeoMessage";
 import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
-
-interface CeoMessageContentProps {
-  riskAppetite: 'low' | 'medium' | 'high';
-}
-
-export function CeoMessageContent({ riskAppetite }: CeoMessageContentProps) {
-  const authContext = useAuth();
-  const auth = createAuthCompatibilityLayer(authContext);
-  const { selectedCeo } = useCeoSelection();
-  const { message, isLoading } = useCeoMessage(
-    riskAppetite, 
-    auth.profile?.industry || undefined, 
-    auth.profile?.company || undefined
-  );
-  const companyName = auth.profile?.company || "Your Company";
-  
-  if (isLoading) {
-    return (
-      <div className="animate-pulse space-y-4">
+export function CeoMessageContent({ riskAppetite }) {
+    const authContext = useAuth();
+    const auth = createAuthCompatibilityLayer(authContext);
+    const { selectedCeo } = useCeoSelection();
+    const { message, isLoading } = useCeoMessage(riskAppetite, auth.profile?.industry || undefined, auth.profile?.company || undefined);
+    const companyName = auth.profile?.company || "Your Company";
+    if (isLoading) {
+        return (<div className="animate-pulse space-y-4">
         <div className="h-4 bg-muted rounded w-3/4"></div>
         <div className="h-4 bg-muted rounded w-full"></div>
         <div className="h-4 bg-muted rounded w-5/6"></div>
         <div className="h-4 bg-muted rounded w-3/4"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
+      </div>);
+    }
+    return (<div className="space-y-4">
       <div className="prose prose-sm dark:prose-invert max-w-none">
         <p className="text-base">
           {message.greeting} 
@@ -43,11 +28,9 @@ export function CeoMessageContent({ riskAppetite }: CeoMessageContentProps) {
         </p>
         
         <div className="my-4 flex flex-wrap gap-2">
-          {message.tags.map((tag, index) => (
-            <Badge key={index} variant="outline" className="bg-background/50">
+          {message.tags.map((tag, index) => (<Badge key={index} variant="outline" className="bg-background/50">
               {tag}
-            </Badge>
-          ))}
+            </Badge>))}
         </div>
         
         <p>
@@ -70,6 +53,5 @@ export function CeoMessageContent({ riskAppetite }: CeoMessageContentProps) {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

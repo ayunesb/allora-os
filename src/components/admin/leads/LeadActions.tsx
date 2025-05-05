@@ -1,54 +1,35 @@
-
 import React from 'react';
 import { MoreHorizontal } from "lucide-react";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Lead } from '@/models/lead';
 import { toast } from 'sonner';
-
-type LeadActionsProps = {
-  leadId: string;
-  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<void | boolean>;
-  onDelete: (leadId: string) => Promise<void | boolean>;
-};
-
-export const LeadActions: React.FC<LeadActionsProps> = ({ 
-  leadId, 
-  onStatusUpdate, 
-  onDelete 
-}) => {
-  const handleStatusUpdate = async (status: Lead['status']) => {
-    try {
-      await onStatusUpdate(leadId, status);
-      toast.success(`Lead status updated to ${status}`);
-    } catch (error) {
-      console.error('Failed to update lead status:', error);
-      toast.error('Failed to update lead status');
-    }
-  };
-
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      try {
-        await onDelete(leadId);
-        toast.success('Lead deleted successfully');
-      } catch (error) {
-        console.error('Failed to delete lead:', error);
-        toast.error('Failed to delete lead');
-      }
-    }
-  };
-
-  return (
-    <DropdownMenu>
+export const LeadActions = ({ leadId, onStatusUpdate, onDelete }) => {
+    const handleStatusUpdate = async (status) => {
+        try {
+            await onStatusUpdate(leadId, status);
+            toast.success(`Lead status updated to ${status}`);
+        }
+        catch (error) {
+            console.error('Failed to update lead status:', error);
+            toast.error('Failed to update lead status');
+        }
+    };
+    const handleDelete = async () => {
+        if (window.confirm('Are you sure you want to delete this lead?')) {
+            try {
+                await onDelete(leadId);
+                toast.success('Lead deleted successfully');
+            }
+            catch (error) {
+                console.error('Failed to delete lead:', error);
+                toast.error('Failed to delete lead');
+            }
+        }
+    };
+    return (<DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal className="h-4 w-4"/>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -71,6 +52,5 @@ export const LeadActions: React.FC<LeadActionsProps> = ({
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
-  );
+    </DropdownMenu>);
 };

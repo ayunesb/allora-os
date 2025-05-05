@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,35 +9,32 @@ import { HelpProvider } from "@/context/HelpContext";
 import { HelpModal } from "@/components/help/HelpModal";
 import AccessibilityAnnouncer from "@/components/accessibility/AccessibilityAnnouncer";
 import { Link } from "react-router-dom";
-
 export default function RootLayout() {
-  // Apply any global effects or settings when the root layout mounts
-  React.useEffect(() => {
+    // Apply any global effects or settings when the root layout mounts
+    React.useEffect(() => {
+        try {
+            logger.info('RootLayout mounted');
+            document.documentElement.classList.add('antialiased');
+            setupAccessibleErrorHandling();
+            return () => {
+                logger.info('RootLayout unmounted');
+                document.documentElement.classList.remove('antialiased');
+            };
+        }
+        catch (error) {
+            logger.error('Error in RootLayout useEffect:', error);
+        }
+    }, []);
+    // Check if we're inside a Router context to safely render AccessibilityAnnouncer
+    let isRouterContextAvailable = true;
     try {
-      logger.info('RootLayout mounted');
-      document.documentElement.classList.add('antialiased');
-      setupAccessibleErrorHandling();
-      
-      return () => {
-        logger.info('RootLayout unmounted');
-        document.documentElement.classList.remove('antialiased');
-      };
-    } catch (error) {
-      logger.error('Error in RootLayout useEffect:', error);
+        // This will throw if not in Router context
+        useLocation();
     }
-  }, []);
-
-  // Check if we're inside a Router context to safely render AccessibilityAnnouncer
-  let isRouterContextAvailable = true;
-  try {
-    // This will throw if not in Router context
-    useLocation();
-  } catch (e) {
-    isRouterContextAvailable = false;
-  }
-
-  return (
-    <ErrorBoundary>
+    catch (e) {
+        isRouterContextAvailable = false;
+    }
+    return (<ErrorBoundary>
       <HelpProvider>
         <div className="min-h-screen bg-background text-foreground font-sans">
           <header className="border-b px-6 py-4 bg-white/10 sticky top-0 z-50 backdrop-blur">
@@ -64,6 +60,5 @@ export default function RootLayout() {
           {isRouterContextAvailable && <AccessibilityAnnouncer />}
         </div>
       </HelpProvider>
-    </ErrorBoundary>
-  );
+    </ErrorBoundary>);
 }

@@ -1,58 +1,20 @@
-
 import React from 'react';
 import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
-import { Lead } from '@/models/lead';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LeadStatusBadge } from '@/components/admin/leads/LeadStatusBadge';
 import { LeadScoreBadge } from './LeadScoreBadge';
-
-interface LeadsTableProps {
-  leads: Lead[];
-  sortBy: 'name' | 'created_at';
-  sortOrder: 'asc' | 'desc';
-  onSort: (column: 'name' | 'created_at') => void;
-  onViewLead: (lead: Lead) => void;
-  onStatusUpdate: (leadId: string, status: Lead['status']) => Promise<void>;
-  onDelete: (leadId: string) => Promise<void>;
-  selectedLeads: string[];
-  onLeadSelect: (leadId: string, isSelected: boolean) => void;
-  onSelectAll: (isSelected: boolean) => void;
-  getLeadScore: (lead: Lead) => 'hot' | 'warm' | 'cold';
-  getNextBestAction: (lead: Lead) => string;
-}
-
-export const LeadsTable: React.FC<LeadsTableProps> = ({
-  leads,
-  sortBy,
-  sortOrder,
-  onSort,
-  onViewLead,
-  onStatusUpdate,
-  onDelete,
-  selectedLeads,
-  onLeadSelect,
-  onSelectAll,
-  getLeadScore,
-  getNextBestAction
-}) => {
-  const sortIcon = sortOrder === 'asc' ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />;
-  
-  const allLeadsSelected = leads.length > 0 && selectedLeads.length === leads.length;
-  
-  return (
-    <div className="rounded-md border">
+export const LeadsTable = ({ leads, sortBy, sortOrder, onSort, onViewLead, onStatusUpdate, onDelete, selectedLeads, onLeadSelect, onSelectAll, getLeadScore, getNextBestAction }) => {
+    const sortIcon = sortOrder === 'asc' ? <ChevronUp className="ml-2 h-4 w-4"/> : <ChevronDown className="ml-2 h-4 w-4"/>;
+    const allLeadsSelected = leads.length > 0 && selectedLeads.length === leads.length;
+    return (<div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-12">
-              <Checkbox 
-                checked={allLeadsSelected} 
-                onCheckedChange={onSelectAll}
-                aria-label="Select all leads"
-              />
+              <Checkbox checked={allLeadsSelected} onCheckedChange={onSelectAll} aria-label="Select all leads"/>
             </TableHead>
             <TableHead className="cursor-pointer" onClick={() => onSort('name')}>
               <div className="flex items-center">
@@ -75,14 +37,9 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
           {leads.map((lead) => {
             const leadScore = getLeadScore(lead);
             const nextAction = getNextBestAction(lead);
-            return (
-              <TableRow key={lead.id}>
+            return (<TableRow key={lead.id}>
                 <TableCell>
-                  <Checkbox 
-                    checked={selectedLeads.includes(lead.id)} 
-                    onCheckedChange={(checked) => onLeadSelect(lead.id, !!checked)}
-                    aria-label={`Select ${lead.name}`}
-                  />
+                  <Checkbox checked={selectedLeads.includes(lead.id)} onCheckedChange={(checked) => onLeadSelect(lead.id, !!checked)} aria-label={`Select ${lead.name}`}/>
                 </TableCell>
                 <TableCell className="font-medium hover:underline cursor-pointer" onClick={() => onViewLead(lead)}>
                   {lead.name}
@@ -92,10 +49,10 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
                   {lead.phone && <div>{lead.phone}</div>}
                 </TableCell>
                 <TableCell>
-                  <LeadStatusBadge status={lead.status} />
+                  <LeadStatusBadge status={lead.status}/>
                 </TableCell>
                 <TableCell>
-                  <LeadScoreBadge score={leadScore} />
+                  <LeadScoreBadge score={leadScore}/>
                 </TableCell>
                 <TableCell className="max-w-xs truncate" title={nextAction}>
                   {nextAction}
@@ -108,7 +65,7 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
                         <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
+                        <MoreHorizontal className="h-4 w-4"/>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -127,11 +84,9 @@ export const LeadsTable: React.FC<LeadsTableProps> = ({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-              </TableRow>
-            );
-          })}
+              </TableRow>);
+        })}
         </TableBody>
       </Table>
-    </div>
-  );
+    </div>);
 };

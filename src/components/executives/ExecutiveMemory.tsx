@@ -1,55 +1,42 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from '@/context/AuthContext';
-import { type ExecutiveMemory, fetchRecentMemories } from '@/services/memoryService';
+import { fetchRecentMemories } from '@/services/memoryService';
 import { formatDistanceToNow } from 'date-fns';
-import { Scroll, Brain } from 'lucide-react';
-
-export function ExecutiveMemory({ executiveName }: { executiveName?: string }) {
-  const [memories, setMemories] = useState<ExecutiveMemory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
-
-  useEffect(() => {
-    async function loadMemories() {
-      if (!user?.id) return;
-      
-      setLoading(true);
-      const recentMemories = await fetchRecentMemories(
-        user.id,
-        executiveName,
-        10
-      );
-      setMemories(recentMemories);
-      setLoading(false);
-    }
-
-    loadMemories();
-  }, [user?.id, executiveName]);
-
-  if (loading) {
-    return (
-      <Card>
+import { Brain } from 'lucide-react';
+export function ExecutiveMemory({ executiveName }) {
+    const [memories, setMemories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
+    useEffect(() => {
+        async function loadMemories() {
+            if (!user?.id)
+                return;
+            setLoading(true);
+            const recentMemories = await fetchRecentMemories(user.id, executiveName, 10);
+            setMemories(recentMemories);
+            setLoading(false);
+        }
+        loadMemories();
+    }, [user?.id, executiveName]);
+    if (loading) {
+        return (<Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Brain className="mr-2 h-5 w-5" />
+            <Brain className="mr-2 h-5 w-5"/>
             Executive Memory
           </CardTitle>
           <CardDescription>
             Loading executive memories...
           </CardDescription>
         </CardHeader>
-      </Card>
-    );
-  }
-
-  if (!memories.length) {
-    return (
-      <Card>
+      </Card>);
+    }
+    if (!memories.length) {
+        return (<Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Brain className="mr-2 h-5 w-5" />
+            <Brain className="mr-2 h-5 w-5"/>
             Executive Memory
           </CardTitle>
           <CardDescription>
@@ -61,15 +48,12 @@ export function ExecutiveMemory({ executiveName }: { executiveName?: string }) {
             As your AI executives make decisions, they will remember them for future reference.
           </p>
         </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
+      </Card>);
+    }
+    return (<Card>
       <CardHeader>
         <CardTitle className="flex items-center">
-          <Brain className="mr-2 h-5 w-5" />
+          <Brain className="mr-2 h-5 w-5"/>
           Executive Memory
         </CardTitle>
         <CardDescription>
@@ -78,8 +62,7 @@ export function ExecutiveMemory({ executiveName }: { executiveName?: string }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {memories.map((memory) => (
-            <div key={memory.id} className="border-b pb-3 last:border-0">
+          {memories.map((memory) => (<div key={memory.id} className="border-b pb-3 last:border-0">
               <div className="flex justify-between mb-1">
                 <span className="font-medium">{memory.executive_name}</span>
                 <span className="text-xs text-muted-foreground">
@@ -92,12 +75,8 @@ export function ExecutiveMemory({ executiveName }: { executiveName?: string }) {
               <p className="text-sm">
                 <span className="text-muted-foreground">Decision:</span> {memory.decision}
               </p>
-            </div>
-          ))}
+            </div>))}
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
 }
-
-export default ExecutiveMemory;

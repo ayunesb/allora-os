@@ -1,18 +1,13 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-
 export default function ExecutiveDetailPage() {
-  const { name } = useParams<{ name: string }>();
-  const navigate = useNavigate();
-
-  const goBack = () => {
-    navigate('/dashboard/executives');
-  };
-
-  return (
-    <>
+    const { name } = useParams();
+    const navigate = useNavigate();
+    const goBack = () => {
+        navigate('/dashboard/executives');
+    };
+    return (<>
       <Helmet>
         <title>{name} | Executive Detail | Allora AI</title>
       </Helmet>
@@ -23,6 +18,5 @@ export default function ExecutiveDetailPage() {
         <h1 className="text-3xl font-bold mb-6">{name} Executive Profile</h1>
         <p>This page is under development. Executive profiles will be available soon.</p>
       </div>
-    </>
-  );
+    </>);
 }

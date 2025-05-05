@@ -1,23 +1,14 @@
-
 import React from 'react';
 import { Webhook } from "lucide-react";
 import { CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useBreakpoint } from "@/hooks/use-mobile";
-
-interface WebhookHeaderProps {
-  activeTab: string;
-  onTabChange: (value: string) => void;
-}
-
-const WebhookHeader: React.FC<WebhookHeaderProps> = ({ activeTab, onTabChange }) => {
-  const breakpoint = useBreakpoint();
-  const isMobileView = ['xs', 'sm', 'mobile'].includes(breakpoint);
-  
-  return (
-    <>
+const WebhookHeader = ({ activeTab, onTabChange }) => {
+    const breakpoint = useBreakpoint();
+    const isMobileView = ['xs', 'sm', 'mobile'].includes(breakpoint);
+    return (<>
       <CardTitle className="flex items-center gap-2">
-        <Webhook className="h-5 w-5" />
+        <Webhook className="h-5 w-5"/>
         Webhooks
       </CardTitle>
       <CardDescription>
@@ -34,8 +25,6 @@ const WebhookHeader: React.FC<WebhookHeaderProps> = ({ activeTab, onTabChange })
           </TabsTrigger>
         </TabsList>
       </Tabs>
-    </>
-  );
+    </>);
 };
-
 export default WebhookHeader;

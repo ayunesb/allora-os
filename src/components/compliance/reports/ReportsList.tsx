@@ -1,17 +1,8 @@
-
 import { Badge } from "@/components/ui/badge";
-import { type Report } from "./mockData";
-
-interface ReportsListProps {
-  reports: Report[];
-}
-
-export default function ReportsList({ reports }: ReportsListProps) {
-  return (
-    <div className="rounded-md border">
+export default function ReportsList({ reports }) {
+    return (<div className="rounded-md border">
       <div className="divide-y">
-        {reports.map((report) => (
-          <div key={report.id} className="flex flex-col md:flex-row justify-between p-4 gap-4">
+        {reports.map((report) => (<div key={report.id} className="flex flex-col md:flex-row justify-between p-4 gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">{report.title}</h3>
@@ -27,9 +18,7 @@ export default function ReportsList({ reports }: ReportsListProps) {
                 {report.status === "completed" ? "Download" : "View details"}
               </button>
             </div>
-          </div>
-        ))}
+          </div>))}
       </div>
-    </div>
-  );
+    </div>);
 }

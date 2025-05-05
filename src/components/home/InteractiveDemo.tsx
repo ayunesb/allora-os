@@ -1,26 +1,20 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, BarChart, MessageSquare, Users, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
-
 const InteractiveDemo = () => {
-  const [step, setStep] = useState(1);
-  const totalSteps = 3;
-
-  const nextStep = () => {
-    setStep((prev) => (prev >= totalSteps ? 1 : prev + 1));
-  };
-
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
-
-  return (
-    <div className="container mx-auto px-4 py-12 md:py-16">
+    const [step, setStep] = useState(1);
+    const totalSteps = 3;
+    const nextStep = () => {
+        setStep((prev) => (prev >= totalSteps ? 1 : prev + 1));
+    };
+    const fadeIn = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    };
+    return (<div className="container mx-auto px-4 py-12 md:py-16">
       <div className="text-center mb-10">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">See Allora AI in Action</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -31,19 +25,19 @@ const InteractiveDemo = () => {
       <Tabs defaultValue="strategy" className="w-full max-w-5xl mx-auto">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="strategy">
-            <BarChart className="h-4 w-4 mr-2" />
+            <BarChart className="h-4 w-4 mr-2"/>
             <span className="hidden sm:inline">Strategy</span>
           </TabsTrigger>
           <TabsTrigger value="debate">
-            <Users className="h-4 w-4 mr-2" />
+            <Users className="h-4 w-4 mr-2"/>
             <span className="hidden sm:inline">AI Boardroom</span>
           </TabsTrigger>
           <TabsTrigger value="campaigns">
-            <MessageSquare className="h-4 w-4 mr-2" />
+            <MessageSquare className="h-4 w-4 mr-2"/>
             <span className="hidden sm:inline">Campaigns</span>
           </TabsTrigger>
           <TabsTrigger value="insights">
-            <Brain className="h-4 w-4 mr-2" />
+            <Brain className="h-4 w-4 mr-2"/>
             <span className="hidden sm:inline">Insights</span>
           </TabsTrigger>
         </TabsList>
@@ -52,26 +46,17 @@ const InteractiveDemo = () => {
           <TabsContent value="strategy" className="mt-0">
             <Card className="border-none shadow-none">
               <CardContent className="p-0">
-                <motion.div 
-                  key={`strategy-${step}`}
-                  initial="hidden"
-                  animate="visible"
-                  variants={fadeIn}
-                  className="p-4"
-                >
-                  {step === 1 && (
-                    <div className="space-y-4">
+                <motion.div key={`strategy-${step}`} initial="hidden" animate="visible" variants={fadeIn} className="p-4">
+                  {step === 1 && (<div className="space-y-4">
                       <h3 className="text-xl font-bold">Sample Strategy: Market Expansion</h3>
                       <p>Our AI has analyzed your industry positioning and identified 3 high-growth market segments that align with your current capabilities.</p>
                       <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
                         <h4 className="font-medium">Executive Insight:</h4>
                         <p className="text-sm italic">"With your current cash flow, targeting the enterprise segment would yield 25% higher ROI than consumer markets." - AI Finance Advisor</p>
                       </div>
-                    </div>
-                  )}
+                    </div>)}
                   
-                  {step === 2 && (
-                    <div className="space-y-4">
+                  {step === 2 && (<div className="space-y-4">
                       <h3 className="text-xl font-bold">Implementation Roadmap</h3>
                       <p>Your AI executive team has developed a 90-day roadmap for successful implementation:</p>
                       <ul className="list-disc pl-5 space-y-2">
@@ -80,11 +65,9 @@ const InteractiveDemo = () => {
                         <li>Week 5-8: Initial outreach & lead generation</li>
                         <li>Week 9-12: Sales enablement & account management</li>
                       </ul>
-                    </div>
-                  )}
+                    </div>)}
                   
-                  {step === 3 && (
-                    <div className="space-y-4">
+                  {step === 3 && (<div className="space-y-4">
                       <h3 className="text-xl font-bold">Projected Outcomes</h3>
                       <p>Based on industry benchmarks and your company profile, our AI projects:</p>
                       <div className="grid grid-cols-2 gap-4">
@@ -105,12 +88,11 @@ const InteractiveDemo = () => {
                           <p className="text-2xl font-bold text-primary">+18%</p>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    </div>)}
                   
                   <div className="flex justify-end mt-6">
                     <Button onClick={nextStep} className="group">
-                      Next <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      Next <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"/>
                     </Button>
                   </div>
                 </motion.div>
@@ -247,8 +229,6 @@ const InteractiveDemo = () => {
           </TabsContent>
         </div>
       </Tabs>
-    </div>
-  );
+    </div>);
 };
-
 export default InteractiveDemo;

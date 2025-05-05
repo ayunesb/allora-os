@@ -1,10 +1,7 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 export default function DashboardModulesPage() {
-  return (
-    <div className="space-y-6">
+    return (<div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Dashboard Modules</h1>
       <p className="text-muted-foreground">
         Configure and manage dashboard modules and components.
@@ -29,6 +26,5 @@ export default function DashboardModulesPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
 }

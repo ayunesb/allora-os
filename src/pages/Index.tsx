@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar"; // Changed from { Navbar } to default import
 import Footer from "@/components/Footer";
@@ -12,15 +11,12 @@ import OutcomeShowcase from "@/components/home/OutcomeShowcase";
 import CookieConsent from "@/components/CookieConsent";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { logger } from "@/utils/loggingService";
-
 export default function Index() {
-  useEffect(() => {
-    logger.info('Index component mounted');
-    return () => logger.info('Index component unmounted');
-  }, []);
-
-  return (
-    <ErrorBoundary>
+    useEffect(() => {
+        logger.info('Index component mounted');
+        return () => logger.info('Index component unmounted');
+    }, []);
+    return (<ErrorBoundary>
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
         
@@ -52,6 +48,5 @@ export default function Index() {
         {/* GDPR Cookie Consent Banner */}
         <CookieConsent />
       </div>
-    </ErrorBoundary>
-  );
+    </ErrorBoundary>);
 }

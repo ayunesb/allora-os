@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
@@ -10,39 +9,33 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, CreditCard, Receipt, ChevronRight } from "lucide-react";
 import PricingTier from "@/components/pricing/PricingTier";
 import { getProducts } from "@/utils/stripeHelpers";
-import { Separator } from "@/components/ui/separator";
-import { StripeProduct } from "@/types/stripe";
 import { toast } from "sonner";
-
 export default function Billing() {
-  const [activeTab, setActiveTab] = useState("subscription");
-  const [products, setProducts] = useState<StripeProduct[]>([]);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-  const { subscription } = useSubscription();
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setIsLoadingProducts(true);
-        const productsData = await getProducts();
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-        toast.error("Failed to load pricing plans");
-      } finally {
-        setIsLoadingProducts(false);
-      }
+    const [activeTab, setActiveTab] = useState("subscription");
+    const [products, setProducts] = useState([]);
+    const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+    const { subscription } = useSubscription();
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setIsLoadingProducts(true);
+                const productsData = await getProducts();
+                setProducts(productsData);
+            }
+            catch (error) {
+                console.error("Failed to fetch products:", error);
+                toast.error("Failed to load pricing plans");
+            }
+            finally {
+                setIsLoadingProducts(false);
+            }
+        };
+        fetchProducts();
+    }, []);
+    const handleUpgradePlan = () => {
+        setActiveTab("plans");
     };
-
-    fetchProducts();
-  }, []);
-
-  const handleUpgradePlan = () => {
-    setActiveTab("plans");
-  };
-
-  return (
-    <>
+    return (<>
       <Helmet>
         <title>Billing & Subscription - Allora AI</title>
       </Helmet>
@@ -54,14 +47,9 @@ export default function Billing() {
               <p className="text-muted-foreground mt-1">Manage your subscription plan and billing information</p>
             </div>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="mt-2 sm:mt-0 gap-1"
-              onClick={() => window.open("mailto:support@allora-ai.com", "_blank")}
-            >
+            <Button variant="ghost" size="sm" className="mt-2 sm:mt-0 gap-1" onClick={() => window.open("mailto:support@allora-ai.com", "_blank")}>
               Need help? Contact Support
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4"/>
             </Button>
           </div>
           
@@ -73,12 +61,12 @@ export default function Billing() {
             </TabsList>
             
             <TabsContent value="subscription" className="space-y-4">
-              <SubscriptionManagement onUpgradePlan={handleUpgradePlan} />
+              <SubscriptionManagement onUpgradePlan={handleUpgradePlan}/>
               
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
+                    <CreditCard className="h-5 w-5"/>
                     Payment Methods
                   </CardTitle>
                   <CardDescription>
@@ -89,12 +77,9 @@ export default function Billing() {
                   <p className="text-sm text-muted-foreground mb-4">
                     Payment methods can be managed through the Stripe Customer Portal.
                   </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => subscription?.isActive && handleUpgradePlan()}
-                  >
+                  <Button variant="outline" onClick={() => subscription?.isActive && handleUpgradePlan()}>
                     View Payment Methods
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-4 w-4"/>
                   </Button>
                 </CardContent>
               </Card>
@@ -107,68 +92,37 @@ export default function Billing() {
                   Choose the plan that best fits your business needs
                 </p>
                 
-                {isLoadingProducts ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[1, 2, 3].map((i) => (
-                      <Card key={i} className="animate-pulse">
+                {isLoadingProducts ? (<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[1, 2, 3].map((i) => (<Card key={i} className="animate-pulse">
                         <CardHeader>
                           <div className="h-7 bg-muted rounded-md w-1/2 mb-2"></div>
                           <div className="h-4 bg-muted rounded-md w-3/4"></div>
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-3">
-                            {[1, 2, 3, 4].map((j) => (
-                              <div key={j} className="h-4 bg-muted rounded-md w-full"></div>
-                            ))}
+                            {[1, 2, 3, 4].map((j) => (<div key={j} className="h-4 bg-muted rounded-md w-full"></div>))}
                           </div>
                         </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {products.length > 0 ? (
-                      products
-                        .filter(product => product.active)
-                        .map((product) => {
-                          const price = typeof product.default_price === 'object' 
-                            ? product.default_price 
-                            : null;
-                          
-                          const priceAmount = price?.unit_amount 
-                            ? `$${(price.unit_amount / 100).toFixed(2)}` 
-                            : 'Custom';
-                          
-                          const features = product.metadata?.features
-                            ? JSON.parse(product.metadata.features)
-                            : product.description?.split(', ') || [];
-                          
-                          const isCurrentPlan = subscription?.planId === product.id;
-                          
-                          return (
-                            <PricingTier
-                              key={product.id}
-                              title={product.name}
-                              price={priceAmount}
-                              description={product.description || ''}
-                              features={features}
-                              buttonText={isCurrentPlan ? "Current Plan" : "Subscribe"}
-                              priceId={typeof price === 'object' ? price?.id : product.default_price as string}
-                              buttonVariant={isCurrentPlan ? "outline" : "default"}
-                              currentPlan={isCurrentPlan}
-                              isRecommended={product.metadata?.recommended === 'true'}
-                              popular={product.metadata?.popular === 'true'}
-                              isEnterprise={product.metadata?.enterprise === 'true'}
-                            />
-                          );
-                        })
-                    ) : (
-                      <div className="col-span-3 text-center py-8">
+                      </Card>))}
+                  </div>) : (<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {products.length > 0 ? (products
+                .filter(product => product.active)
+                .map((product) => {
+                const price = typeof product.default_price === 'object'
+                    ? product.default_price
+                    : null;
+                const priceAmount = price?.unit_amount
+                    ? `$${(price.unit_amount / 100).toFixed(2)}`
+                    : 'Custom';
+                const features = product.metadata?.features
+                    ? JSON.parse(product.metadata.features)
+                    : product.description?.split(', ') || [];
+                const isCurrentPlan = subscription?.planId === product.id;
+                return (<PricingTier key={product.id} title={product.name} price={priceAmount} description={product.description || ''} features={features} buttonText={isCurrentPlan ? "Current Plan" : "Subscribe"} priceId={typeof price === 'object' ? price?.id : product.default_price} buttonVariant={isCurrentPlan ? "outline" : "default"} currentPlan={isCurrentPlan} isRecommended={product.metadata?.recommended === 'true'} popular={product.metadata?.popular === 'true'} isEnterprise={product.metadata?.enterprise === 'true'}/>);
+            })) : (<div className="col-span-3 text-center py-8">
                         <p className="text-muted-foreground">No pricing plans available</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      </div>)}
+                  </div>)}
               </div>
             </TabsContent>
             
@@ -176,7 +130,7 @@ export default function Billing() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Receipt className="h-5 w-5" />
+                    <Receipt className="h-5 w-5"/>
                     Billing History
                   </CardTitle>
                   <CardDescription>
@@ -187,15 +141,12 @@ export default function Billing() {
                   <p className="text-sm text-muted-foreground mb-4">
                     Access to your complete billing history is available through the Stripe Customer Portal.
                   </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={async () => {
-                      const { openCustomerPortal } = useSubscription();
-                      await openCustomerPortal();
-                    }}
-                  >
+                  <Button variant="outline" onClick={async () => {
+            const { openCustomerPortal } = useSubscription();
+            await openCustomerPortal();
+        }}>
                     View Billing History
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-4 w-4"/>
                   </Button>
                 </CardContent>
               </Card>
@@ -203,6 +154,5 @@ export default function Billing() {
           </Tabs>
         </div>
       </PageErrorBoundary>
-    </>
-  );
+    </>);
 }

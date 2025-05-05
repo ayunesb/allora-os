@@ -1,14 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Campaign } from '@/types/unified-types';
-
-interface CampaignDetailsProps {
-  campaign: Campaign;
-}
-
-export function CampaignDetails({ campaign }: CampaignDetailsProps) {
-  return (
-    <Card>
+export function CampaignDetails({ campaign }) {
+    return (<Card>
       <CardHeader>
         <CardTitle>Campaign Details</CardTitle>
       </CardHeader>
@@ -23,8 +15,7 @@ export function CampaignDetails({ campaign }: CampaignDetailsProps) {
           </div>
         </div>
         
-        {campaign.platform_specific_id && (
-          <div>
+        {campaign.platform_specific_id && (<div>
             <h3 className="font-medium mb-2">Platform Details</h3>
             <div className="bg-muted p-4 rounded-md">
               <div className="grid grid-cols-2 gap-2">
@@ -35,9 +26,7 @@ export function CampaignDetails({ campaign }: CampaignDetailsProps) {
                 <span>{campaign.platform_status}</span>
               </div>
             </div>
-          </div>
-        )}
+          </div>)}
       </CardContent>
-    </Card>
-  );
+    </Card>);
 }

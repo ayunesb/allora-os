@@ -1,27 +1,10 @@
-
-import { 
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from "@/components/ui/accordion";
+import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, X, ArrowRight } from "lucide-react";
-import { SectionProps } from "../types";
-
-export function TeamLeadership({
-  companyDetails,
-  handleTextChange,
-  newItem,
-  setNewItem,
-  addToArray,
-  removeFromArray,
-  handleNumberChange,
-  onNext
-}: SectionProps) {
-  return (
-    <AccordionItem value="team">
+export function TeamLeadership({ companyDetails, handleTextChange, newItem, setNewItem, addToArray, removeFromArray, handleNumberChange, onNext }) {
+    return (<AccordionItem value="team">
       <AccordionTrigger className="text-base font-medium">
         Team & Leadership
       </AccordionTrigger>
@@ -30,23 +13,14 @@ export function TeamLeadership({
           <label className="text-sm font-medium">
             Founders and Key Team
           </label>
-          <Textarea 
-            placeholder="Backgrounds, experience, notable wins?"
-            value={companyDetails.founders || ''}
-            onChange={(e) => handleTextChange('founders', e.target.value)}
-          />
+          <Textarea placeholder="Backgrounds, experience, notable wins?" value={companyDetails.founders || ''} onChange={(e) => handleTextChange('founders', e.target.value)}/>
         </div>
         
         <div className="space-y-2">
           <label className="text-sm font-medium">
             Team Size
           </label>
-          <Input 
-            type="number"
-            placeholder="Number of employees"
-            value={companyDetails.teamSize || ''}
-            onChange={(e) => handleNumberChange && handleNumberChange('teamSize', e.target.value)}
-          />
+          <Input type="number" placeholder="Number of employees" value={companyDetails.teamSize || ''} onChange={(e) => handleNumberChange && handleNumberChange('teamSize', e.target.value)}/>
         </div>
         
         <div className="space-y-2">
@@ -54,44 +28,27 @@ export function TeamLeadership({
             Culture & Values
           </label>
           <div className="flex gap-2">
-            <Input
-              placeholder="Add a culture value"
-              value={newItem.cultureValues || ''}
-              onChange={(e) => setNewItem({...newItem, cultureValues: e.target.value})}
-            />
-            <Button 
-              type="button" 
-              size="icon"
-              onClick={() => addToArray('cultureValues')}
-            >
-              <Plus className="h-4 w-4" />
+            <Input placeholder="Add a culture value" value={newItem.cultureValues || ''} onChange={(e) => setNewItem({ ...newItem, cultureValues: e.target.value })}/>
+            <Button type="button" size="icon" onClick={() => addToArray('cultureValues')}>
+              <Plus className="h-4 w-4"/>
             </Button>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
-            {(companyDetails.cultureValues || []).map((value, index) => (
-              <div key={index} className="flex items-center bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
+            {(companyDetails.cultureValues || []).map((value, index) => (<div key={index} className="flex items-center bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
                 {value}
-                <button 
-                  onClick={() => removeFromArray('cultureValues', index)}
-                  className="ml-2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-3 w-3" />
+                <button onClick={() => removeFromArray('cultureValues', index)} className="ml-2 text-muted-foreground hover:text-foreground">
+                  <X className="h-3 w-3"/>
                 </button>
-              </div>
-            ))}
+              </div>))}
           </div>
         </div>
 
         <div className="flex justify-end mt-4">
-          <Button 
-            onClick={(e) => onNext && onNext('team')} 
-            className="gap-2"
-          >
+          <Button onClick={(e) => onNext && onNext('team')} className="gap-2">
             Continue to Marketing & Sales
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4"/>
           </Button>
         </div>
       </AccordionContent>
-    </AccordionItem>
-  );
+    </AccordionItem>);
 }

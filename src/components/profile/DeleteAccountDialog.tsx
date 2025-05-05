@@ -1,84 +1,60 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { deleteUserAccount } from '@/utils/accountDeletion';
 import { toast } from 'sonner';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-
 const DeleteAccountDialog = () => {
-  const [isInitialDialogOpen, setIsInitialDialogOpen] = useState(false);
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [confirmText, setConfirmText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-  const navigate = useNavigate();
-  const { signOut } = useAuth();
-
-  const handleDeleteAccount = async () => {
-    setIsDeleting(true);
-
-    try {
-      const result = await deleteUserAccount();
-      
-      if (result.success) {
-        await signOut();
-        toast.success('Your account has been deleted');
-        
-        // If there was a partial deletion warning, show it
-        if (result.error) {
-          toast.warning(result.error);
+    const [isInitialDialogOpen, setIsInitialDialogOpen] = useState(false);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+    const [confirmText, setConfirmText] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+    const navigate = useNavigate();
+    const { signOut } = useAuth();
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            const result = await deleteUserAccount();
+            if (result.success) {
+                await signOut();
+                toast.success('Your account has been deleted');
+                // If there was a partial deletion warning, show it
+                if (result.error) {
+                    toast.warning(result.error);
+                }
+                // Redirect to home page after account deletion
+                navigate('/');
+            }
+            else {
+                toast.error(`Failed to delete account: ${result.error}`);
+                setIsConfirmDialogOpen(false);
+                setIsInitialDialogOpen(false);
+            }
         }
-        
-        // Redirect to home page after account deletion
-        navigate('/');
-      } else {
-        toast.error(`Failed to delete account: ${result.error}`);
-        setIsConfirmDialogOpen(false);
+        catch (error) {
+            toast.error(`An error occurred: ${error.message}`);
+        }
+        finally {
+            setIsDeleting(false);
+        }
+    };
+    const handleFirstStep = () => {
         setIsInitialDialogOpen(false);
-      }
-    } catch (error: any) {
-      toast.error(`An error occurred: ${error.message}`);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const handleFirstStep = () => {
-    setIsInitialDialogOpen(false);
-    setIsConfirmDialogOpen(true);
-  };
-
-  return (
-    <>
+        setIsConfirmDialogOpen(true);
+    };
+    return (<>
       {/* Initial Delete Account Dialog */}
       <AlertDialog open={isInitialDialogOpen} onOpenChange={setIsInitialDialogOpen}>
         <AlertDialogTrigger asChild>
           <Button variant="destructive" className="mt-8">
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4 mr-2"/>
             Delete Account
           </Button>
         </AlertDialogTrigger>
@@ -91,10 +67,7 @@ const DeleteAccountDialog = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              className={cn(buttonVariants({ variant: "destructive" }))}
-              onClick={handleFirstStep}
-            >
+            <AlertDialogAction className={cn(buttonVariants({ variant: "destructive" }))} onClick={handleFirstStep}>
               Continue to Deletion
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -114,30 +87,19 @@ const DeleteAccountDialog = () => {
           
           <div className="space-y-2 py-4">
             <Label htmlFor="confirmText" className="text-destructive">Type DELETE to confirm:</Label>
-            <Input
-              id="confirmText"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="DELETE"
-            />
+            <Input id="confirmText" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="DELETE"/>
           </div>
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={confirmText !== 'DELETE' || isDeleting}
-            >
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={confirmText !== 'DELETE' || isDeleting}>
               {isDeleting ? 'Deleting...' : 'Permanently Delete Account'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>);
 };
-
 export default DeleteAccountDialog;

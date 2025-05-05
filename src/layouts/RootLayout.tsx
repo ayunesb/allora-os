@@ -7,16 +7,11 @@ import { GlobalErrorBoundary } from '@/components/errorHandling/GlobalErrorBound
 import { AnimatePresence, motion } from 'framer-motion';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton'; // if using shadcn
-import GalaxyGraph from '@/components/galaxy/GalaxyGraph';
 import GalaxyPage from '@/pages/Galaxy';
-
 const queryClient = new QueryClient();
-
 export default function RootLayout() {
-  const location = useLocation();
-
-  return (
-    <GlobalErrorBoundary>
+    const location = useLocation();
+    return (<GlobalErrorBoundary>
       <HelmetProvider>
         <ThemeProvider defaultTheme="dark" storageKey="allora-theme">
           <QueryClientProvider client={queryClient}>
@@ -25,15 +20,8 @@ export default function RootLayout() {
                 <div id="root">
                   <div className="min-h-screen bg-background text-foreground antialiased">
                     <AnimatePresence mode="wait">
-                      <motion.div
-                        key={location.pathname}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.25, ease: 'easeOut' }}
-                        className="min-h-screen"
-                      >
-                        <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
+                      <motion.div key={location.pathname} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="min-h-screen">
+                        <Suspense fallback={<Skeleton className="h-[500px] w-full"/>}>
                           {location.pathname === '/galaxy' ? <GalaxyPage /> : <Outlet />}
                         </Suspense>
                       </motion.div>
@@ -46,6 +34,5 @@ export default function RootLayout() {
           </QueryClientProvider>
         </ThemeProvider>
       </HelmetProvider>
-    </GlobalErrorBoundary>
-  );
+    </GlobalErrorBoundary>);
 }

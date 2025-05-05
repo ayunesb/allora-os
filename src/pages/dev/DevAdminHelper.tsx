@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-
 export default function DevAdminHelper() {
-  return (
-    <div className="container mx-auto py-6">
+    return (<div className="container mx-auto py-6">
       <PageTitle title="Developer Admin Helper" description="Tools for development and debugging">
         Developer Admin Helper
       </PageTitle>
@@ -15,6 +12,5 @@ export default function DevAdminHelper() {
           <p className="text-muted-foreground">Various tools to assist with development and debugging</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

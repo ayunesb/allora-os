@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,20 +5,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield, UserCheck, FileText, Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageErrorBoundary } from '@/components/errorHandling/PageErrorBoundary';
-
-const GDPRCompliancePage: React.FC = () => {
-  const navigate = useNavigate();
-
-  return (
-    <PageErrorBoundary pageName="GDPR Compliance">
+const GDPRCompliancePage = () => {
+    const navigate = useNavigate();
+    return (<PageErrorBoundary pageName="GDPR Compliance">
       <div className="container max-w-4xl py-8">
         <div className="mb-6 flex items-center">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(-1)} 
-            className="mr-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mr-4">
+            <ArrowLeft className="h-4 w-4 mr-2"/>
             Back
           </Button>
           <PageTitle title="GDPR Compliance">GDPR Compliance</PageTitle>
@@ -28,7 +20,7 @@ const GDPRCompliancePage: React.FC = () => {
         <Card className="mb-8">
           <CardHeader className="border-b border-border pb-4">
             <div className="flex items-center">
-              <Shield className="mr-2 h-6 w-6 text-primary" />
+              <Shield className="mr-2 h-6 w-6 text-primary"/>
               <CardTitle>Our Commitment to GDPR</CardTitle>
             </div>
             <CardDescription>
@@ -43,7 +35,7 @@ const GDPRCompliancePage: React.FC = () => {
 
               <div className="rounded-lg bg-muted p-4">
                 <h3 className="text-lg font-medium mb-2 flex items-center">
-                  <UserCheck className="mr-2 h-5 w-5 text-primary" />
+                  <UserCheck className="mr-2 h-5 w-5 text-primary"/>
                   Your Rights Under GDPR
                 </h3>
                 <ul className="list-disc pl-5 space-y-2">
@@ -59,7 +51,7 @@ const GDPRCompliancePage: React.FC = () => {
 
               <div>
                 <h3 className="text-lg font-medium mb-3 flex items-center">
-                  <Lock className="mr-2 h-5 w-5 text-primary" />
+                  <Lock className="mr-2 h-5 w-5 text-primary"/>
                   How We Ensure GDPR Compliance
                 </h3>
                 <div className="space-y-4">
@@ -92,7 +84,7 @@ const GDPRCompliancePage: React.FC = () => {
         <Card className="mb-8">
           <CardHeader>
             <div className="flex items-center">
-              <FileText className="mr-2 h-6 w-6 text-primary" />
+              <FileText className="mr-2 h-6 w-6 text-primary"/>
               <CardTitle>Data Processing Agreement</CardTitle>
             </div>
           </CardHeader>
@@ -136,8 +128,6 @@ const GDPRCompliancePage: React.FC = () => {
           </p>
         </div>
       </div>
-    </PageErrorBoundary>
-  );
+    </PageErrorBoundary>);
 };
-
 export default GDPRCompliancePage;

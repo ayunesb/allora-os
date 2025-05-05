@@ -5,29 +5,22 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Brain, Info, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-
-interface LearningSettingsProps {
-  learningEnabled: boolean;
-  onToggleLearning: (enabled: boolean) => void;
-}
-
-export function LearningSettings({ learningEnabled, onToggleLearning }: LearningSettingsProps) {
-  const handleResetLearning = async () => {
-    try {
-      toast.success("Learning data has been reset", {
-        description: "Your AI executives will start learning from scratch."
-      });
-    } catch (error) {
-      console.error("Error resetting learning data:", error);
-      toast.error("Failed to reset learning data");
-    }
-  };
-  
-  return (
-    <Card className="w-full">
+export function LearningSettings({ learningEnabled, onToggleLearning }) {
+    const handleResetLearning = async () => {
+        try {
+            toast.success("Learning data has been reset", {
+                description: "Your AI executives will start learning from scratch."
+            });
+        }
+        catch (error) {
+            console.error("Error resetting learning data:", error);
+            toast.error("Failed to reset learning data");
+        }
+    };
+    return (<Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
+          <Brain className="h-5 w-5"/>
           Self-Learning Settings
         </CardTitle>
         <CardDescription>
@@ -43,15 +36,12 @@ export function LearningSettings({ learningEnabled, onToggleLearning }: Learning
               Allow AI executives to adapt based on your feedback and choices
             </p>
           </div>
-          <Switch 
-            checked={learningEnabled}
-            onCheckedChange={onToggleLearning}
-          />
+          <Switch checked={learningEnabled} onCheckedChange={onToggleLearning}/>
         </div>
         
         <div className="bg-accent/50 rounded-lg p-4">
           <h3 className="text-sm font-medium mb-2 flex items-center">
-            <Info className="h-4 w-4 mr-2" />
+            <Info className="h-4 w-4 mr-2"/>
             What does self-learning do?
           </h3>
           <ul className="text-sm space-y-2">
@@ -83,10 +73,9 @@ export function LearningSettings({ learningEnabled, onToggleLearning }: Learning
       
       <CardFooter className="flex justify-between border-t px-6 py-4">
         <Button variant="outline" className="text-destructive" onClick={handleResetLearning}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="h-4 w-4 mr-2"/>
           Reset Learning Data
         </Button>
       </CardFooter>
-    </Card>
-  );
+    </Card>);
 }

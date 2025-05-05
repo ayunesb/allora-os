@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-
 export default function AdminDashboard() {
-  return (
-    <div className="container mx-auto py-6">
+    return (<div className="container mx-auto py-6">
       <PageTitle title="Admin Dashboard" description="Manage your platform settings">
         Admin Dashboard
       </PageTitle>
@@ -25,6 +22,5 @@ export default function AdminDashboard() {
           <p className="text-muted-foreground">View platform analytics</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

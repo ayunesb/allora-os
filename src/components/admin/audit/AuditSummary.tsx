@@ -1,20 +1,7 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { CategoryStatus } from './types';
-
-interface AuditSummaryProps {
-  summary: {
-    total: number;
-    passed: number;
-    failed: number;
-    pending: number;
-  };
-}
-
-export function AuditSummary({ summary }: AuditSummaryProps) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+export function AuditSummary({ summary }) {
+    return (<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <Card className="bg-muted/50">
         <CardContent className="p-4 flex flex-col items-center justify-center text-center">
           <div className="text-4xl font-bold mb-2">{summary.total}</div>
@@ -37,6 +24,5 @@ export function AuditSummary({ summary }: AuditSummaryProps) {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
 }

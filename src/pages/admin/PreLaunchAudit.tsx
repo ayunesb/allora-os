@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-
 export default function PreLaunchAudit() {
-  return (
-    <div className="container mx-auto py-6">
+    return (<div className="container mx-auto py-6">
       <PageTitle title="Pre-Launch Audit" description="Verify your application before launch">
         Pre-Launch Audit
       </PageTitle>
@@ -25,6 +22,5 @@ export default function PreLaunchAudit() {
           <p className="text-muted-foreground">Verify compliance with relevant regulations</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

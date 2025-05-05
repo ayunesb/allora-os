@@ -1,12 +1,9 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Code } from "lucide-react";
-
 export function ApiDocumentationPage() {
-  return (
-    <Tabs defaultValue="overview" className="w-full">
+    return (<Tabs defaultValue="overview" className="w-full">
       <TabsList className="mb-4">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="authentication">Authentication</TabsTrigger>
@@ -142,7 +139,7 @@ export function ApiDocumentationPage() {
           <CardContent className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Code size={18} />
+                <Code size={18}/>
                 JavaScript Example
               </h3>
               <div className="bg-muted/50 p-4 rounded-md mt-2 overflow-x-auto">
@@ -173,7 +170,7 @@ async function getStrategies() {
 
             <div>
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Code size={18} />
+                <Code size={18}/>
                 Python Example
               </h3>
               <div className="bg-muted/50 p-4 rounded-md mt-2 overflow-x-auto">
@@ -205,6 +202,5 @@ if strategies:
           </CardContent>
         </Card>
       </TabsContent>
-    </Tabs>
-  );
+    </Tabs>);
 }

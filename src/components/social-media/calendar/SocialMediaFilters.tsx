@@ -1,63 +1,22 @@
-
 import React from 'react';
 import { Filter, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from '@/components/ui/select';
 import { format, addMonths, subMonths } from 'date-fns';
-
-interface SocialMediaFiltersProps {
-  currentMonth: Date;
-  onMonthChange: (date: Date) => void;
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-  selectedPlatform: string;
-  onPlatformChange: (value: string) => void;
-  selectedStatus: string;
-  onStatusChange: (value: string) => void;
-  onApplyFilters: (e: React.FormEvent) => void;
-  onClearFilters: () => void;
-}
-
-export function SocialMediaFilters({
-  currentMonth,
-  onMonthChange,
-  searchQuery,
-  onSearchChange,
-  selectedPlatform,
-  onPlatformChange,
-  selectedStatus,
-  onStatusChange,
-  onApplyFilters,
-  onClearFilters,
-}: SocialMediaFiltersProps) {
-  return (
-    <Card>
+export function SocialMediaFilters({ currentMonth, onMonthChange, searchQuery, onSearchChange, selectedPlatform, onPlatformChange, selectedStatus, onStatusChange, onApplyFilters, onClearFilters, }) {
+    return (<Card>
       <CardContent className="p-4">
         <form onSubmit={onApplyFilters} className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search posts..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-            />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
+            <Input placeholder="Search posts..." className="pl-8" value={searchQuery} onChange={(e) => onSearchChange(e.target.value)}/>
           </div>
           
-          <Select
-            value={selectedPlatform}
-            onValueChange={onPlatformChange}
-          >
+          <Select value={selectedPlatform} onValueChange={onPlatformChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Platform" />
+              <SelectValue placeholder="Platform"/>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">All Platforms</SelectItem>
@@ -69,12 +28,9 @@ export function SocialMediaFilters({
             </SelectContent>
           </Select>
           
-          <Select
-            value={selectedStatus}
-            onValueChange={onStatusChange}
-          >
+          <Select value={selectedStatus} onValueChange={onStatusChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Status"/>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">All Statuses</SelectItem>
@@ -87,31 +43,21 @@ export function SocialMediaFilters({
           
           <div>
             <div className="flex items-center space-x-2">
-              <Button 
-                variant="outline" 
-                type="button" 
-                onClick={() => onMonthChange(subMonths(currentMonth, 1))}
-                size="icon"
-              >
-                <ChevronLeft className="h-4 w-4" />
+              <Button variant="outline" type="button" onClick={() => onMonthChange(subMonths(currentMonth, 1))} size="icon">
+                <ChevronLeft className="h-4 w-4"/>
               </Button>
               <span className="font-medium">
                 {format(currentMonth, 'MMMM yyyy')}
               </span>
-              <Button 
-                variant="outline" 
-                type="button" 
-                onClick={() => onMonthChange(addMonths(currentMonth, 1))}
-                size="icon"
-              >
-                <ChevronRight className="h-4 w-4" />
+              <Button variant="outline" type="button" onClick={() => onMonthChange(addMonths(currentMonth, 1))} size="icon">
+                <ChevronRight className="h-4 w-4"/>
               </Button>
             </div>
           </div>
           
           <div className="flex space-x-2">
             <Button type="submit" variant="default" className="w-full">
-              <Filter className="mr-2 h-4 w-4" />
+              <Filter className="mr-2 h-4 w-4"/>
               Apply Filters
             </Button>
             <Button type="button" variant="outline" onClick={onClearFilters}>
@@ -120,6 +66,5 @@ export function SocialMediaFilters({
           </div>
         </form>
       </CardContent>
-    </Card>
-  );
+    </Card>);
 }

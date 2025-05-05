@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-
 export default function Settings() {
-  return (
-    <div className="container mx-auto py-6">
+    return (<div className="container mx-auto py-6">
       <PageTitle title="Settings" description="Manage your account and application settings">
         Settings
       </PageTitle>
@@ -25,6 +22,5 @@ export default function Settings() {
           <p className="text-muted-foreground">Manage your privacy preferences</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

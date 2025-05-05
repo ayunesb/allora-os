@@ -1,11 +1,8 @@
-
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { PageErrorBoundary } from "@/components/errorHandling/PageErrorBoundary";
-
 export default function Security() {
-  return (
-    <>
+    return (<>
       <Helmet>
         <title>Security Settings - Allora AI</title>
       </Helmet>
@@ -20,6 +17,5 @@ export default function Security() {
           </div>
         </div>
       </PageErrorBoundary>
-    </>
-  );
+    </>);
 }

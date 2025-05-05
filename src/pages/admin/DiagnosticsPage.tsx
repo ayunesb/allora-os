@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,62 +7,48 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { performDeepScan } from "@/utils/admin/database-verification/displayResults";
 import { logDiagnosticInfo } from "@/utils/logger";
 import { checkSupabaseConnection } from "@/integrations/supabase/client";
-import { Shield, Database, Router, RefreshCw, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-
+import { Shield, RefreshCw, CheckCircle, AlertTriangle } from "lucide-react";
 export default function DiagnosticsPage() {
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanResults, setScanResults] = useState<null | {
-    success: boolean;
-    timestamp: string;
-    details: {
-      authentication: boolean;
-      database: boolean;
-      permissions: boolean;
-      routing: boolean;
-    }
-  }>(null);
-  
-  const runDeepScan = async () => {
-    setIsScanning(true);
-    logDiagnosticInfo("Starting deep scan", { timestamp: new Date().toISOString() });
-    
-    try {
-      // Check database connection
-      const dbCheck = await checkSupabaseConnection();
-      
-      // Run the full deep scan
-      const scanSuccess = await performDeepScan();
-      
-      // Store results
-      setScanResults({
-        success: scanSuccess,
-        timestamp: new Date().toISOString(),
-        details: {
-          authentication: true, // We assume these are set by the deep scan
-          database: dbCheck.connected,
-          permissions: true, 
-          routing: true
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanResults, setScanResults] = useState(null);
+    const runDeepScan = async () => {
+        setIsScanning(true);
+        logDiagnosticInfo("Starting deep scan", { timestamp: new Date().toISOString() });
+        try {
+            // Check database connection
+            const dbCheck = await checkSupabaseConnection();
+            // Run the full deep scan
+            const scanSuccess = await performDeepScan();
+            // Store results
+            setScanResults({
+                success: scanSuccess,
+                timestamp: new Date().toISOString(),
+                details: {
+                    authentication: true, // We assume these are set by the deep scan
+                    database: dbCheck.connected,
+                    permissions: true,
+                    routing: true
+                }
+            });
         }
-      });
-    } catch (error) {
-      console.error("Error during deep scan:", error);
-      setScanResults({
-        success: false,
-        timestamp: new Date().toISOString(),
-        details: {
-          authentication: false,
-          database: false,
-          permissions: false,
-          routing: false
+        catch (error) {
+            console.error("Error during deep scan:", error);
+            setScanResults({
+                success: false,
+                timestamp: new Date().toISOString(),
+                details: {
+                    authentication: false,
+                    database: false,
+                    permissions: false,
+                    routing: false
+                }
+            });
         }
-      });
-    } finally {
-      setIsScanning(false);
-    }
-  };
-  
-  return (
-    <div className="container mx-auto py-8">
+        finally {
+            setIsScanning(false);
+        }
+    };
+    return (<div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">System Diagnostics</h1>
       <p className="text-muted-foreground mb-8">Run diagnostics to identify and resolve system issues.</p>
       
@@ -71,7 +56,7 @@ export default function DiagnosticsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
+              <Shield className="h-5 w-5 text-primary"/>
               System Deep Scan
             </CardTitle>
             <CardDescription>
@@ -79,14 +64,9 @@ export default function DiagnosticsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {scanResults && (
-              <div className="mb-6">
+            {scanResults && (<div className="mb-6">
                 <Alert variant={scanResults.success ? "default" : "destructive"}>
-                  {scanResults.success ? (
-                    <CheckCircle className="h-4 w-4" />
-                  ) : (
-                    <AlertTriangle className="h-4 w-4" />
-                  )}
+                  {scanResults.success ? (<CheckCircle className="h-4 w-4"/>) : (<AlertTriangle className="h-4 w-4"/>)}
                   <AlertTitle>
                     {scanResults.success ? "Scan Completed Successfully" : "Issues Detected"}
                   </AlertTitle>
@@ -121,8 +101,7 @@ export default function DiagnosticsPage() {
                     <span>Routing</span>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>)}
             
             <Tabs defaultValue="instructions">
               <TabsList className="mb-4">
@@ -185,22 +164,14 @@ export default function DiagnosticsPage() {
             </Tabs>
           </CardContent>
           <CardFooter>
-            <Button 
-              onClick={runDeepScan} 
-              disabled={isScanning}
-              className="w-full"
-            >
-              {isScanning ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            <Button onClick={runDeepScan} disabled={isScanning} className="w-full">
+              {isScanning ? (<>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin"/>
                   Running Deep Scan...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
+                </>) : (<>
+                  <RefreshCw className="mr-2 h-4 w-4"/>
                   Run Deep Scan
-                </>
-              )}
+                </>)}
             </Button>
           </CardFooter>
         </Card>
@@ -239,6 +210,5 @@ export default function DiagnosticsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
 }

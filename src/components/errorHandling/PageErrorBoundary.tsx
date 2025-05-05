@@ -1,72 +1,48 @@
-
-import React, { ReactNode, Component, ErrorInfo } from "react";
+import React, { Component } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-interface ErrorBoundaryProps {
-  children: ReactNode;
-  pageName: string;
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
-
-class ErrorBoundaryFallback extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null
-    };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return {
-      hasError: true,
-      error
-    };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error(`Error in ${this.props.pageName}:`, error);
-    console.error("Component stack:", errorInfo.componentStack);
-    // Here you could also send the error to a monitoring service like Sentry
-  }
-
-  resetErrorBoundary = (): void => {
-    this.setState({
-      hasError: false,
-      error: null
-    });
-  };
-
-  render() {
-    if (this.state.hasError) {
-      return <ErrorFallbackUI error={this.state.error!} pageName={this.props.pageName} resetErrorBoundary={this.resetErrorBoundary} />;
+class ErrorBoundaryFallback extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            hasError: false,
+            error: null
+        };
     }
-
-    return this.props.children;
-  }
+    static getDerivedStateFromError(error) {
+        return {
+            hasError: true,
+            error
+        };
+    }
+    componentDidCatch(error, errorInfo) {
+        console.error(`Error in ${this.props.pageName}:`, error);
+        console.error("Component stack:", errorInfo.componentStack);
+        // Here you could also send the error to a monitoring service like Sentry
+    }
+    resetErrorBoundary = () => {
+        this.setState({
+            hasError: false,
+            error: null
+        });
+    };
+    render() {
+        if (this.state.hasError) {
+            return <ErrorFallbackUI error={this.state.error} pageName={this.props.pageName} resetErrorBoundary={this.resetErrorBoundary}/>;
+        }
+        return this.props.children;
+    }
 }
-
 // Separate the UI component to use hooks
-function ErrorFallbackUI({ error, pageName, resetErrorBoundary }: { 
-  error: Error, 
-  pageName: string,
-  resetErrorBoundary: () => void 
-}) {
-  const navigate = useNavigate();
-
-  return (
-    <div className="container mx-auto px-4 py-12 flex justify-center">
+function ErrorFallbackUI({ error, pageName, resetErrorBoundary }) {
+    const navigate = useNavigate();
+    return (<div className="container mx-auto px-4 py-12 flex justify-center">
       <Card className="w-full max-w-lg">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-6 w-6 text-destructive" />
+            <AlertTriangle className="h-6 w-6 text-destructive"/>
             <CardTitle>Error in {pageName}</CardTitle>
           </div>
         </CardHeader>
@@ -79,32 +55,21 @@ function ErrorFallbackUI({ error, pageName, resetErrorBoundary }: {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-1"
-          >
-            <Home className="h-4 w-4" />
+          <Button variant="outline" onClick={() => navigate('/')} className="flex items-center gap-1">
+            <Home className="h-4 w-4"/>
             Home
           </Button>
-          <Button
-            onClick={resetErrorBoundary}
-            className="flex items-center gap-1"
-          >
-            <RefreshCw className="h-4 w-4" />
+          <Button onClick={resetErrorBoundary} className="flex items-center gap-1">
+            <RefreshCw className="h-4 w-4"/>
             Try Again
           </Button>
         </CardFooter>
       </Card>
-    </div>
-  );
+    </div>);
 }
-
 // Wrapper component with hooks
-export function PageErrorBoundary({ children, pageName }: ErrorBoundaryProps) {
-  return (
-    <ErrorBoundaryFallback pageName={pageName}>
+export function PageErrorBoundary({ children, pageName }) {
+    return (<ErrorBoundaryFallback pageName={pageName}>
       {children}
-    </ErrorBoundaryFallback>
-  );
+    </ErrorBoundaryFallback>);
 }

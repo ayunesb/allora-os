@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,67 +8,59 @@ import { ArrowLeft, Store, RefreshCw, Link } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyOptimizationDashboard from '@/components/shopify/ShopifyOptimizationDashboard';
 import { listShopifyProducts } from '@/utils/shopifyHelpers';
-
 export default function ShopifyOptimization() {
-  const navigate = useNavigate();
-  const [storeId, setStoreId] = useState<string>('');
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [isConnecting, setIsConnecting] = useState<boolean>(false);
-  const [storeUrl, setStoreUrl] = useState<string>('');
-
-  // For demo purposes, attempt to fetch products to see if already connected
-  useEffect(() => {
-    const checkConnection = async () => {
-      const products = await listShopifyProducts();
-      if (products && products.length > 0) {
-        setIsConnected(true);
-        // For demo purposes, just use the first product's vendor as the store ID
-        setStoreId(products[0].vendor || 'demo-store');
-      }
+    const navigate = useNavigate();
+    const [storeId, setStoreId] = useState('');
+    const [isConnected, setIsConnected] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(false);
+    const [storeUrl, setStoreUrl] = useState('');
+    // For demo purposes, attempt to fetch products to see if already connected
+    useEffect(() => {
+        const checkConnection = async () => {
+            const products = await listShopifyProducts();
+            if (products && products.length > 0) {
+                setIsConnected(true);
+                // For demo purposes, just use the first product's vendor as the store ID
+                setStoreId(products[0].vendor || 'demo-store');
+            }
+        };
+        checkConnection();
+    }, []);
+    const handleConnect = async () => {
+        if (!storeUrl) {
+            toast.error('Please enter your Shopify store URL');
+            return;
+        }
+        setIsConnecting(true);
+        // In a real app, this would actually connect to the store via OAuth
+        // For this demo, we'll simulate a successful connection
+        try {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            setIsConnected(true);
+            setStoreId('demo-store');
+            toast.success('Shopify store connected successfully');
+        }
+        catch (error) {
+            toast.error('Failed to connect to Shopify store');
+        }
+        finally {
+            setIsConnecting(false);
+        }
     };
-
-    checkConnection();
-  }, []);
-
-  const handleConnect = async () => {
-    if (!storeUrl) {
-      toast.error('Please enter your Shopify store URL');
-      return;
-    }
-
-    setIsConnecting(true);
-    
-    // In a real app, this would actually connect to the store via OAuth
-    // For this demo, we'll simulate a successful connection
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setIsConnected(true);
-      setStoreId('demo-store');
-      toast.success('Shopify store connected successfully');
-    } catch (error) {
-      toast.error('Failed to connect to Shopify store');
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  return (
-    <div className="container mx-auto px-4 py-8">
+    return (<div className="container mx-auto px-4 py-8">
       <div className="flex items-center mb-8">
         <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="mr-4">
-          <ArrowLeft className="h-4 w-4 mr-1" />
+          <ArrowLeft className="h-4 w-4 mr-1"/>
           Back
         </Button>
         <h1 className="text-2xl font-bold">Shopify Store Optimization</h1>
       </div>
 
-      {!isConnected ? (
-        <Card className="max-w-2xl mx-auto">
+      {!isConnected ? (<Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Store className="h-5 w-5 mr-2" />
+              <Store className="h-5 w-5 mr-2"/>
               Connect Your Shopify Store
             </CardTitle>
           </CardHeader>
@@ -83,24 +74,15 @@ export default function ShopifyOptimization() {
               <div className="space-y-2">
                 <Label htmlFor="store-url">Shopify Store URL</Label>
                 <div className="flex items-center space-x-2">
-                  <Input 
-                    id="store-url" 
-                    placeholder="yourstore.myshopify.com" 
-                    value={storeUrl}
-                    onChange={(e) => setStoreUrl(e.target.value)}
-                  />
+                  <Input id="store-url" placeholder="yourstore.myshopify.com" value={storeUrl} onChange={(e) => setStoreUrl(e.target.value)}/>
                   <Button onClick={handleConnect} disabled={isConnecting}>
-                    {isConnecting ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    {isConnecting ? (<>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
                         Connecting...
-                      </>
-                    ) : (
-                      <>
-                        <Link className="h-4 w-4 mr-2" />
+                      </>) : (<>
+                        <Link className="h-4 w-4 mr-2"/>
                         Connect
-                      </>
-                    )}
+                      </>)}
                   </Button>
                 </div>
               </div>
@@ -111,10 +93,6 @@ export default function ShopifyOptimization() {
               </p>
             </div>
           </CardContent>
-        </Card>
-      ) : (
-        <ShopifyOptimizationDashboard storeId={storeId} />
-      )}
-    </div>
-  );
+        </Card>) : (<ShopifyOptimizationDashboard storeId={storeId}/>)}
+    </div>);
 }

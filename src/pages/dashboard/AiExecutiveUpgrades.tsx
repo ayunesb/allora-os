@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,42 +5,33 @@ import { UpgradeExecutiveBot } from "@/components/ai-executives/UpgradeExecutive
 import { UpgradeAllExecutives } from "@/components/ai-executives/UpgradeAllExecutives";
 import { executiveBots } from '@/backend/executiveBots';
 import { formatRoleTitle } from '@/utils/consultation/botRoleUtils';
-import { UpgradedExecutiveBot } from '@/utils/executive-os/integrationService';
-
 export default function AiExecutiveUpgrades() {
-  const [activeTab, setActiveTab] = useState("ceo");
-  const [upgradedBots, setUpgradedBots] = useState<UpgradedExecutiveBot[]>([]);
-  
-  const handleUpgradeComplete = (upgradedBot: UpgradedExecutiveBot) => {
-    setUpgradedBots(prev => {
-      // Remove any existing entry for this bot
-      const filtered = prev.filter(bot => bot.name !== upgradedBot.name);
-      // Add the new upgraded bot
-      return [...filtered, upgradedBot];
-    });
-  };
-  
-  const handleBulkUpgradeComplete = (newUpgradedBots: UpgradedExecutiveBot[]) => {
-    setUpgradedBots(prev => {
-      // Create a map of existing bots for easy lookup
-      const existingBots = new Map(prev.map(bot => [bot.name, bot]));
-      
-      // Merge with new bots, overwriting any existing entries
-      for (const bot of newUpgradedBots) {
-        existingBots.set(bot.name, bot);
-      }
-      
-      return Array.from(existingBots.values());
-    });
-  };
-  
-  // Check if a bot is upgraded
-  const isBotUpgraded = (botName: string) => {
-    return upgradedBots.some(bot => bot.name === botName);
-  };
-  
-  return (
-    <>
+    const [activeTab, setActiveTab] = useState("ceo");
+    const [upgradedBots, setUpgradedBots] = useState([]);
+    const handleUpgradeComplete = (upgradedBot) => {
+        setUpgradedBots(prev => {
+            // Remove any existing entry for this bot
+            const filtered = prev.filter(bot => bot.name !== upgradedBot.name);
+            // Add the new upgraded bot
+            return [...filtered, upgradedBot];
+        });
+    };
+    const handleBulkUpgradeComplete = (newUpgradedBots) => {
+        setUpgradedBots(prev => {
+            // Create a map of existing bots for easy lookup
+            const existingBots = new Map(prev.map(bot => [bot.name, bot]));
+            // Merge with new bots, overwriting any existing entries
+            for (const bot of newUpgradedBots) {
+                existingBots.set(bot.name, bot);
+            }
+            return Array.from(existingBots.values());
+        });
+    };
+    // Check if a bot is upgraded
+    const isBotUpgraded = (botName) => {
+        return upgradedBots.some(bot => bot.name === botName);
+    };
+    return (<>
       <Helmet>
         <title>AI Executive Upgrades - Allora AI</title>
       </Helmet>
@@ -60,33 +50,22 @@ export default function AiExecutiveUpgrades() {
               <Tabs defaultValue="ceo" onValueChange={setActiveTab} className="w-full">
                 <div className="flex justify-between items-center mb-4">
                   <TabsList>
-                    {Object.keys(executiveBots).map(role => (
-                      <TabsTrigger key={role} value={role} className="capitalize">
+                    {Object.keys(executiveBots).map(role => (<TabsTrigger key={role} value={role} className="capitalize">
                         {role}
-                      </TabsTrigger>
-                    ))}
+                      </TabsTrigger>))}
                   </TabsList>
                 </div>
                 
-                {Object.entries(executiveBots).map(([role, bots]) => (
-                  <TabsContent key={role} value={role} className="mt-0">
+                {Object.entries(executiveBots).map(([role, bots]) => (<TabsContent key={role} value={role} className="mt-0">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {bots.map((botName) => (
-                        <UpgradeExecutiveBot
-                          key={`${role}-${botName}`}
-                          botName={botName}
-                          botRole={formatRoleTitle(role)}
-                          onUpgradeComplete={handleUpgradeComplete}
-                        />
-                      ))}
+                      {bots.map((botName) => (<UpgradeExecutiveBot key={`${role}-${botName}`} botName={botName} botRole={formatRoleTitle(role)} onUpgradeComplete={handleUpgradeComplete}/>))}
                     </div>
-                  </TabsContent>
-                ))}
+                  </TabsContent>))}
               </Tabs>
             </div>
             
             <div className="space-y-6">
-              <UpgradeAllExecutives onUpgradeComplete={handleBulkUpgradeComplete} />
+              <UpgradeAllExecutives onUpgradeComplete={handleBulkUpgradeComplete}/>
               
               <div className="border border-border rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-2">Executive OS Features</h3>
@@ -117,6 +96,5 @@ export default function AiExecutiveUpgrades() {
           </div>
         </div>
       </div>
-    </>
-  );
+    </>);
 }

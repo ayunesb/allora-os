@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +5,6 @@ import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,95 +12,74 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { AlertCircle, BarChart2, CheckCircle, ChevronRight, Clock, DollarSign, Lightbulb, TrendingUp } from "lucide-react";
+import { AlertCircle, BarChart2, CheckCircle, ChevronRight, Clock, DollarSign, TrendingUp } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { supabase } from "@/integrations/supabase/client";
-
 // Define the schema for the form
 const formSchema = z.object({
-  companyName: z.string().min(1, "Company name is required"),
-  industry: z.string().min(1, "Industry is required"),
-  companySize: z.string().min(1, "Company size is required"),
-  revenue: z.string().min(1, "Annual revenue is required"),
-  goals: z.string().min(10, "Business goals must be at least 10 characters"),
-  riskTolerance: z.string().min(1, "Risk tolerance is required"),
-  timeHorizon: z.string().min(1, "Time horizon is required"),
-  challenges: z.string().optional(),
+    companyName: z.string().min(1, "Company name is required"),
+    industry: z.string().min(1, "Industry is required"),
+    companySize: z.string().min(1, "Company size is required"),
+    revenue: z.string().min(1, "Annual revenue is required"),
+    goals: z.string().min(10, "Business goals must be at least 10 characters"),
+    riskTolerance: z.string().min(1, "Risk tolerance is required"),
+    timeHorizon: z.string().min(1, "Time horizon is required"),
+    challenges: z.string().optional(),
 });
-
-type FormValues = z.infer<typeof formSchema>;
-
-interface Strategy {
-  title: string;
-  description: string;
-  pros: string[];
-  cons: string[];
-  estimatedROI: string;
-  riskLevel: "Low" | "Medium" | "High";
-  timeline: string;
-  implementationSteps: string[];
-}
-
 export function StrategyGenerator() {
-  const { user } = useUser();
-  const [strategies, setStrategies] = useState<Strategy[] | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedTab, setSelectedTab] = useState("strategy-1");
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      companyName: user?.company || "",
-      industry: user?.industry || "",
-      companySize: "",
-      revenue: "",
-      goals: "",
-      riskTolerance: "5",
-      timeHorizon: "Medium term (6-12 months)",
-      challenges: "",
-    },
-  });
-
-  const onSubmit = async (data: FormValues) => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const { data: strategiesData, error: strategiesError } = await supabase.functions.invoke("generate-strategies", {
-        body: {
-          ...data,
-          userId: user?.id,
-          companyId: user?.company_id,
+    const { user } = useUser();
+    const [strategies, setStrategies] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [selectedTab, setSelectedTab] = useState("strategy-1");
+    const form = useForm({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            companyName: user?.company || "",
+            industry: user?.industry || "",
+            companySize: "",
+            revenue: "",
+            goals: "",
+            riskTolerance: "5",
+            timeHorizon: "Medium term (6-12 months)",
+            challenges: "",
         },
-      });
-      
-      if (strategiesError) {
-        throw new Error(strategiesError.message);
-      }
-      
-      setStrategies(strategiesData);
-      toast.success("Strategies generated successfully!");
-      setSelectedTab("strategy-1");
-    } catch (err: any) {
-      setError(err.message || "Failed to generate strategies");
-      toast.error("Strategy generation failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getRiskColor = (risk: string) => {
-    switch (risk) {
-      case "Low": return "bg-green-100 text-green-800";
-      case "Medium": return "bg-yellow-100 text-yellow-800";
-      case "High": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  return (
-    <div className="space-y-6 p-4 md:p-6">
+    });
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const { data: strategiesData, error: strategiesError } = await supabase.functions.invoke("generate-strategies", {
+                body: {
+                    ...data,
+                    userId: user?.id,
+                    companyId: user?.company_id,
+                },
+            });
+            if (strategiesError) {
+                throw new Error(strategiesError.message);
+            }
+            setStrategies(strategiesData);
+            toast.success("Strategies generated successfully!");
+            setSelectedTab("strategy-1");
+        }
+        catch (err) {
+            setError(err.message || "Failed to generate strategies");
+            toast.error("Strategy generation failed. Please try again.");
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+    const getRiskColor = (risk) => {
+        switch (risk) {
+            case "Low": return "bg-green-100 text-green-800";
+            case "Medium": return "bg-yellow-100 text-yellow-800";
+            case "High": return "bg-red-100 text-red-800";
+            default: return "bg-gray-100 text-gray-800";
+        }
+    };
+    return (<div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold tracking-tight">Executive Strategy Generator</h1>
         <p className="text-muted-foreground">
@@ -110,8 +87,7 @@ export function StrategyGenerator() {
         </p>
       </div>
 
-      {!strategies ? (
-        <Card>
+      {!strategies ? (<Card>
           <CardHeader>
             <CardTitle>Business Strategy Input</CardTitle>
             <CardDescription>
@@ -122,30 +98,20 @@ export function StrategyGenerator() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="companyName"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="companyName" render={({ field }) => (<FormItem>
                         <FormLabel>Company Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Your Company" {...field} />
+                          <Input placeholder="Your Company" {...field}/>
                         </FormControl>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>)}/>
 
-                  <FormField
-                    control={form.control}
-                    name="industry"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="industry" render={({ field }) => (<FormItem>
                         <FormLabel>Industry</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select your industry" />
+                              <SelectValue placeholder="Select your industry"/>
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -167,20 +133,14 @@ export function StrategyGenerator() {
                           </SelectContent>
                         </Select>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>)}/>
 
-                  <FormField
-                    control={form.control}
-                    name="companySize"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="companySize" render={({ field }) => (<FormItem>
                         <FormLabel>Company Size</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Number of employees" />
+                              <SelectValue placeholder="Number of employees"/>
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -193,20 +153,14 @@ export function StrategyGenerator() {
                           </SelectContent>
                         </Select>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>)}/>
 
-                  <FormField
-                    control={form.control}
-                    name="revenue"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="revenue" render={({ field }) => (<FormItem>
                         <FormLabel>Annual Revenue</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select your annual revenue" />
+                              <SelectValue placeholder="Select your annual revenue"/>
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -221,20 +175,14 @@ export function StrategyGenerator() {
                           </SelectContent>
                         </Select>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>)}/>
 
-                  <FormField
-                    control={form.control}
-                    name="timeHorizon"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="timeHorizon" render={({ field }) => (<FormItem>
                         <FormLabel>Time Horizon</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select time horizon" />
+                              <SelectValue placeholder="Select time horizon"/>
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -244,25 +192,16 @@ export function StrategyGenerator() {
                           </SelectContent>
                         </Select>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>)}/>
 
-                  <FormField
-                    control={form.control}
-                    name="riskTolerance"
-                    render={({ field }) => (
-                      <FormItem>
+                  <FormField control={form.control} name="riskTolerance" render={({ field }) => (<FormItem>
                         <FormLabel>Risk Tolerance (1-10)</FormLabel>
                         <div className="flex items-center gap-4">
                           <span className="text-sm">Low</span>
                           <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select risk level" />
+                                <SelectValue placeholder="Select risk level"/>
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="1">1 - Very Conservative</SelectItem>
@@ -281,46 +220,24 @@ export function StrategyGenerator() {
                           <span className="text-sm">High</span>
                         </div>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      </FormItem>)}/>
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="goals"
-                  render={({ field }) => (
-                    <FormItem>
+                <FormField control={form.control} name="goals" render={({ field }) => (<FormItem>
                       <FormLabel>Business Goals</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Describe your primary business goals and what you want to achieve..."
-                          className="min-h-[80px]"
-                          {...field}
-                        />
+                        <Textarea placeholder="Describe your primary business goals and what you want to achieve..." className="min-h-[80px]" {...field}/>
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </FormItem>)}/>
 
-                <FormField
-                  control={form.control}
-                  name="challenges"
-                  render={({ field }) => (
-                    <FormItem>
+                <FormField control={form.control} name="challenges" render={({ field }) => (<FormItem>
                       <FormLabel>Current Challenges (Optional)</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Describe any obstacles or challenges you're facing..."
-                          className="min-h-[80px]"
-                          {...field}
-                        />
+                        <Textarea placeholder="Describe any obstacles or challenges you're facing..." className="min-h-[80px]" {...field}/>
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </FormItem>)}/>
 
                 <div className="flex justify-end">
                   <Button type="submit" disabled={isLoading}>
@@ -328,18 +245,14 @@ export function StrategyGenerator() {
                   </Button>
                 </div>
                 
-                {error && (
-                  <div className="p-4 bg-red-50 text-red-700 rounded-md flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5" />
+                {error && (<div className="p-4 bg-red-50 text-red-700 rounded-md flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5"/>
                     <span>{error}</span>
-                  </div>
-                )}
+                  </div>)}
               </form>
             </Form>
           </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-6">
+        </Card>) : (<div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Generated Strategies</h2>
             <Button variant="outline" onClick={() => setStrategies(null)}>
@@ -353,8 +266,7 @@ export function StrategyGenerator() {
               <TabsTrigger value="strategy-2">Strategy 2</TabsTrigger>
               <TabsTrigger value="strategy-3">Strategy 3</TabsTrigger>
             </TabsList>
-            {strategies.map((strategy, index) => (
-              <TabsContent key={index} value={`strategy-${index + 1}`} className="space-y-6">
+            {strategies.map((strategy, index) => (<TabsContent key={index} value={`strategy-${index + 1}`} className="space-y-6">
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -371,24 +283,20 @@ export function StrategyGenerator() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <h3 className="font-semibold flex items-center gap-2">
-                          <CheckCircle className="h-5 w-5 text-green-500" />
+                          <CheckCircle className="h-5 w-5 text-green-500"/>
                           Advantages
                         </h3>
                         <ul className="list-disc list-inside text-sm space-y-1">
-                          {strategy.pros.map((pro, idx) => (
-                            <li key={idx}>{pro}</li>
-                          ))}
+                          {strategy.pros.map((pro, idx) => (<li key={idx}>{pro}</li>))}
                         </ul>
                       </div>
                       <div className="space-y-2">
                         <h3 className="font-semibold flex items-center gap-2">
-                          <AlertCircle className="h-5 w-5 text-amber-500" />
+                          <AlertCircle className="h-5 w-5 text-amber-500"/>
                           Challenges
                         </h3>
                         <ul className="list-disc list-inside text-sm space-y-1">
-                          {strategy.cons.map((con, idx) => (
-                            <li key={idx}>{con}</li>
-                          ))}
+                          {strategy.cons.map((con, idx) => (<li key={idx}>{con}</li>))}
                         </ul>
                       </div>
                     </div>
@@ -397,7 +305,7 @@ export function StrategyGenerator() {
                       <Card>
                         <CardHeader className="p-4">
                           <CardTitle className="text-sm font-medium flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-green-500" />
+                            <DollarSign className="h-4 w-4 text-green-500"/>
                             Estimated ROI
                           </CardTitle>
                         </CardHeader>
@@ -409,7 +317,7 @@ export function StrategyGenerator() {
                       <Card>
                         <CardHeader className="p-4">
                           <CardTitle className="text-sm font-medium flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-blue-500" />
+                            <Clock className="h-4 w-4 text-blue-500"/>
                             Timeline
                           </CardTitle>
                         </CardHeader>
@@ -421,7 +329,7 @@ export function StrategyGenerator() {
                       <Card>
                         <CardHeader className="p-4">
                           <CardTitle className="text-sm font-medium flex items-center gap-2">
-                            <BarChart2 className="h-4 w-4 text-purple-500" />
+                            <BarChart2 className="h-4 w-4 text-purple-500"/>
                             Implementation Complexity
                           </CardTitle>
                         </CardHeader>
@@ -433,13 +341,11 @@ export function StrategyGenerator() {
                     
                     <div className="space-y-3">
                       <h3 className="font-semibold flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-blue-500" />
+                        <TrendingUp className="h-5 w-5 text-blue-500"/>
                         Implementation Plan
                       </h3>
                       <ol className="list-decimal list-inside text-sm space-y-2">
-                        {strategy.implementationSteps.map((step, idx) => (
-                          <li key={idx} className="pl-2">{step}</li>
-                        ))}
+                        {strategy.implementationSteps.map((step, idx) => (<li key={idx} className="pl-2">{step}</li>))}
                       </ol>
                     </div>
                   </CardContent>
@@ -450,57 +356,52 @@ export function StrategyGenerator() {
                       </Button>
                       <Button variant="default" size="sm">
                         Implement Now
-                        <ChevronRight className="ml-1 h-4 w-4" />
+                        <ChevronRight className="ml-1 h-4 w-4"/>
                       </Button>
                     </div>
                   </CardFooter>
                 </Card>
-              </TabsContent>
-            ))}
+              </TabsContent>))}
           </Tabs>
-        </div>
-      )}
+        </div>)}
       
-      {isLoading && (
-        <div className="space-y-6">
+      {isLoading && (<div className="space-y-6">
           <div className="flex justify-between items-center">
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-8 w-36" />
+            <Skeleton className="h-8 w-48"/>
+            <Skeleton className="h-8 w-36"/>
           </div>
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full"/>
             <Card>
               <CardHeader>
-                <Skeleton className="h-8 w-3/4" />
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-6 w-5/6" />
+                <Skeleton className="h-8 w-3/4"/>
+                <Skeleton className="h-6 w-full"/>
+                <Skeleton className="h-6 w-5/6"/>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Skeleton className="h-6 w-24" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-6 w-24"/>
+                    <Skeleton className="h-4 w-full"/>
+                    <Skeleton className="h-4 w-5/6"/>
+                    <Skeleton className="h-4 w-4/5"/>
                   </div>
                   <div className="space-y-2">
-                    <Skeleton className="h-6 w-24" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-6 w-24"/>
+                    <Skeleton className="h-4 w-full"/>
+                    <Skeleton className="h-4 w-5/6"/>
+                    <Skeleton className="h-4 w-4/5"/>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Skeleton className="h-6 w-40" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
-                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-6 w-40"/>
+                  <Skeleton className="h-4 w-full"/>
+                  <Skeleton className="h-4 w-5/6"/>
+                  <Skeleton className="h-4 w-4/5"/>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>)}
+    </div>);
 }

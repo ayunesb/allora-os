@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TypographyH1, TypographyP } from "@/components/ui/typography";
@@ -7,14 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, ArrowRight, Webhook, Link } from "lucide-react";
-
 export default function AdminWebhooks() {
-  return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    return (<div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <TypographyH1>Webhook Management</TypographyH1>
         <Button className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2"/>
           Add Webhook
         </Button>
       </div>
@@ -31,7 +28,7 @@ export default function AdminWebhooks() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center">
-                  <Webhook className="h-5 w-5 mr-2 text-primary" />
+                  <Webhook className="h-5 w-5 mr-2 text-primary"/>
                   System Events
                 </CardTitle>
                 <CardDescription>
@@ -43,7 +40,7 @@ export default function AdminWebhooks() {
                   <div className="space-y-2">
                     <Label htmlFor="user-events">User Events</Label>
                     <div className="flex items-center space-x-2">
-                      <Input id="user-events" placeholder="https://your-server.com/webhooks/users" />
+                      <Input id="user-events" placeholder="https://your-server.com/webhooks/users"/>
                       <Button variant="outline" size="sm">Test</Button>
                     </div>
                   </div>
@@ -51,7 +48,7 @@ export default function AdminWebhooks() {
                   <div className="space-y-2">
                     <Label htmlFor="system-events">System Events</Label>
                     <div className="flex items-center space-x-2">
-                      <Input id="system-events" placeholder="https://your-server.com/webhooks/system" />
+                      <Input id="system-events" placeholder="https://your-server.com/webhooks/system"/>
                       <Button variant="outline" size="sm">Test</Button>
                     </div>
                   </div>
@@ -62,7 +59,7 @@ export default function AdminWebhooks() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center">
-                  <Link className="h-5 w-5 mr-2 text-primary" />
+                  <Link className="h-5 w-5 mr-2 text-primary"/>
                   Integration Webhooks
                 </CardTitle>
                 <CardDescription>
@@ -73,12 +70,12 @@ export default function AdminWebhooks() {
                 <div className="space-y-4">
                   <Button variant="outline" className="w-full justify-between">
                     Connect to Zapier
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ArrowRight className="h-4 w-4 ml-2"/>
                   </Button>
                   
                   <Button variant="outline" className="w-full justify-between">
                     Connect to Slack
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ArrowRight className="h-4 w-4 ml-2"/>
                   </Button>
                 </div>
               </CardContent>
@@ -115,24 +112,14 @@ export default function AdminWebhooks() {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="retry-attempts">Retry Attempts</Label>
                   <div className="flex items-center space-x-2">
-                    <Input 
-                      id="retry-attempts" 
-                      type="number" 
-                      defaultValue={3} 
-                      className="w-20" 
-                    />
+                    <Input id="retry-attempts" type="number" defaultValue={3} className="w-20"/>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="timeout">Request Timeout (ms)</Label>
                   <div className="flex items-center space-x-2">
-                    <Input 
-                      id="timeout" 
-                      type="number" 
-                      defaultValue={3000}
-                      className="w-20" 
-                    />
+                    <Input id="timeout" type="number" defaultValue={3000} className="w-20"/>
                   </div>
                 </div>
                 
@@ -142,6 +129,5 @@ export default function AdminWebhooks() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

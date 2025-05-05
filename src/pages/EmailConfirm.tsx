@@ -1,17 +1,7 @@
-
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card";
 export default function EmailConfirm() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-muted/40">
+    return (<div className="flex items-center justify-center min-h-screen bg-muted/40">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Check your email</CardTitle>
@@ -28,6 +18,5 @@ export default function EmailConfirm() {
           <Button variant="outline">Resend email</Button>
         </CardFooter>
       </Card>
-    </div>
-  );
+    </div>);
 }

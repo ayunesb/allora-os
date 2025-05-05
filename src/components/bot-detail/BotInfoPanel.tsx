@@ -1,17 +1,7 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-
-export interface BotInfoPanelProps {
-  description: string;
-  specialties: string[];
-  expertise: string;
-}
-
-export function BotInfoPanel({ description, specialties, expertise }: BotInfoPanelProps) {
-  return (
-    <div className="space-y-6">
+export function BotInfoPanel({ description, specialties, expertise }) {
+    return (<div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium mb-2">About</h3>
         <p className="text-muted-foreground">{description}</p>
@@ -24,20 +14,14 @@ export function BotInfoPanel({ description, specialties, expertise }: BotInfoPan
         </Badge>
       </div>
 
-      {specialties && specialties.length > 0 && (
-        <div>
+      {specialties && specialties.length > 0 && (<div>
           <h3 className="text-lg font-medium mb-2">Specialties</h3>
           <div className="flex flex-wrap gap-2">
-            {specialties.map((specialty, index) => (
-              <Badge key={index} variant="outline" className="bg-secondary/10">
+            {specialties.map((specialty, index) => (<Badge key={index} variant="outline" className="bg-secondary/10">
                 {specialty}
-              </Badge>
-            ))}
+              </Badge>))}
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>)}
+    </div>);
 }
-
 export default BotInfoPanel;

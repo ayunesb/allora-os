@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { PageTitle } from '@/components/ui/page-title';
-
 export default function ApiDocumentation() {
-  return (
-    <div className="container mx-auto py-6">
+    return (<div className="container mx-auto py-6">
       <PageTitle title="API Documentation" description="Documentation for the Allora AI API">
         API Documentation
       </PageTitle>
@@ -25,6 +22,5 @@ export default function ApiDocumentation() {
           <p className="text-muted-foreground">Code examples for common API operations</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

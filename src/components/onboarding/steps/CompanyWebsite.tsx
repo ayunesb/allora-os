@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useCompanyWebsite } from "@/hooks/useCompanyWebsite";
 import { Button } from "@/components/ui/button";
@@ -7,35 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Search, Globe, Loader2 } from "lucide-react";
-
-interface CompanyWebsiteProps {
-  onCompanyDataFetched: (success: boolean) => void;
-}
-
-export function CompanyWebsite({ onCompanyDataFetched }: CompanyWebsiteProps) {
-  const {
-    companyWebsite,
-    setCompanyWebsite,
-    isScrapingData,
-    scrapeCompanyData
-  } = useCompanyWebsite();
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    
-    if (!companyWebsite.trim()) {
-      setError("Please enter your company website");
-      return;
-    }
-    
-    const success = await scrapeCompanyData();
-    onCompanyDataFetched(success);
-  };
-
-  return (
-    <div className="space-y-6">
+export function CompanyWebsite({ onCompanyDataFetched }) {
+    const { companyWebsite, setCompanyWebsite, isScrapingData, scrapeCompanyData } = useCompanyWebsite();
+    const [error, setError] = useState(null);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
+        if (!companyWebsite.trim()) {
+            setError("Please enter your company website");
+            return;
+        }
+        const success = await scrapeCompanyData();
+        onCompanyDataFetched(success);
+    };
+    return (<div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium">Company Website</h3>
         <p className="text-sm text-muted-foreground mt-1">
@@ -48,36 +32,20 @@ export function CompanyWebsite({ onCompanyDataFetched }: CompanyWebsiteProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="company-website" className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
+                <Globe className="h-4 w-4"/>
                 Company Website (Optional)
               </Label>
               <div className="flex gap-2">
-                <Input
-                  id="company-website"
-                  placeholder="www.yourcompany.com"
-                  value={companyWebsite}
-                  onChange={(e) => setCompanyWebsite(e.target.value)}
-                  className={error ? "border-destructive" : ""}
-                  disabled={isScrapingData}
-                />
-                <Button 
-                  type="submit" 
-                  disabled={isScrapingData || !companyWebsite.trim()}
-                >
-                  {isScrapingData ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Search className="h-4 w-4 mr-2" />
-                  )}
+                <Input id="company-website" placeholder="www.yourcompany.com" value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} className={error ? "border-destructive" : ""} disabled={isScrapingData}/>
+                <Button type="submit" disabled={isScrapingData || !companyWebsite.trim()}>
+                  {isScrapingData ? (<Loader2 className="h-4 w-4 animate-spin mr-2"/>) : (<Search className="h-4 w-4 mr-2"/>)}
                   {isScrapingData ? "Fetching..." : "Fetch"}
                 </Button>
               </div>
-              {error && (
-                <Alert variant="destructive" className="py-2 mt-2">
-                  <AlertCircle className="h-4 w-4" />
+              {error && (<Alert variant="destructive" className="py-2 mt-2">
+                  <AlertCircle className="h-4 w-4"/>
                   <AlertDescription className="ml-2 text-xs">{error}</AlertDescription>
-                </Alert>
-              )}
+                </Alert>)}
             </div>
 
             <div className="text-sm text-muted-foreground">
@@ -92,18 +60,12 @@ export function CompanyWebsite({ onCompanyDataFetched }: CompanyWebsiteProps) {
             </div>
 
             <div className="flex justify-between pt-2">
-              <Button 
-                type="button" 
-                variant="ghost" 
-                onClick={() => onCompanyDataFetched(false)}
-                disabled={isScrapingData}
-              >
+              <Button type="button" variant="ghost" onClick={() => onCompanyDataFetched(false)} disabled={isScrapingData}>
                 Skip this step
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
 }

@@ -1,13 +1,9 @@
-
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ExecutiveDebate from './ExecutiveDebate';
-import { Button } from '@/components/ui/button';
 import { Brain, Users, Lightbulb } from 'lucide-react';
-
 export default function DebateStarterPage() {
-  return (
-    <div className="space-y-8">
+    return (<div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Executive Debate</h1>
         <p className="text-muted-foreground mt-2">
@@ -24,14 +20,14 @@ export default function DebateStarterPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Brain className="h-5 w-5 text-primary" />
+                <Brain className="h-5 w-5 text-primary"/>
                 <span>How It Works</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full">
-                  <Users className="h-4 w-4 text-primary" />
+                  <Users className="h-4 w-4 text-primary"/>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Select Executives</h4>
@@ -41,7 +37,7 @@ export default function DebateStarterPage() {
               
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full">
-                  <Lightbulb className="h-4 w-4 text-primary" />
+                  <Lightbulb className="h-4 w-4 text-primary"/>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Define Your Topic</h4>
@@ -51,7 +47,7 @@ export default function DebateStarterPage() {
               
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full">
-                  <Brain className="h-4 w-4 text-primary" />
+                  <Brain className="h-4 w-4 text-primary"/>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Review & Apply</h4>
@@ -62,6 +58,5 @@ export default function DebateStarterPage() {
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

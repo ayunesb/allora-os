@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,10 +5,8 @@ import PolicyDocuments from '@/components/compliance/data-policies/PolicyDocumen
 import PolicyToggles from '@/components/compliance/data-policies/PolicyToggles';
 import RegulatoryFrameworks from '@/components/compliance/data-policies/RegulatoryFrameworks';
 import ComplianceContact from '@/components/compliance/data-policies/ComplianceContact';
-
 export default function DataPolicies() {
-  return (
-    <div className="space-y-6">
+    return (<div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Data Policies</CardTitle>
@@ -38,6 +35,5 @@ export default function DataPolicies() {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
 }

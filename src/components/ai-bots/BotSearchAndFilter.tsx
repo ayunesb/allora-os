@@ -1,49 +1,19 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Search } from "lucide-react";
-
-interface BotSearchAndFilterProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  roleFilter: string;
-  setRoleFilter: (role: string) => void;
-}
-
-export const BotSearchAndFilter: React.FC<BotSearchAndFilterProps> = ({
-  searchQuery,
-  setSearchQuery,
-  roleFilter,
-  setRoleFilter,
-}) => {
-  return (
-    <Card className="p-4 mb-6">
+export const BotSearchAndFilter = ({ searchQuery, setSearchQuery, roleFilter, setRoleFilter, }) => {
+    return (<Card className="p-4 mb-6">
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <Label htmlFor="search-bots" className="mb-2 block">
             Search Executives
           </Label>
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="search-bots"
-              type="search"
-              placeholder="Search by name, role or specialty..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>
+            <Input id="search-bots" type="search" placeholder="Search by name, role or specialty..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
           </div>
         </div>
 
@@ -51,12 +21,9 @@ export const BotSearchAndFilter: React.FC<BotSearchAndFilterProps> = ({
           <Label htmlFor="role-filter" className="mb-2 block">
             Filter by Role
           </Label>
-          <Select
-            value={roleFilter}
-            onValueChange={setRoleFilter}
-          >
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
             <SelectTrigger id="role-filter">
-              <SelectValue placeholder="Select a role" />
+              <SelectValue placeholder="Select a role"/>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Roles</SelectItem>
@@ -140,6 +107,5 @@ export const BotSearchAndFilter: React.FC<BotSearchAndFilterProps> = ({
           </Select>
         </div>
       </div>
-    </Card>
-  );
+    </Card>);
 };

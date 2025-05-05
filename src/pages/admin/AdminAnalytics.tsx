@@ -1,28 +1,25 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { TypographyH1 } from "@/components/ui/typography";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calendar, Download, RefreshCw } from "lucide-react";
-
 export default function AdminAnalytics() {
-  return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    return (<div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <TypographyH1>Analytics Dashboard</TypographyH1>
         
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button variant="outline" className="w-full sm:w-auto">
-            <Calendar className="h-4 w-4 mr-2" />
+            <Calendar className="h-4 w-4 mr-2"/>
             Date Range
           </Button>
           <Button variant="outline" className="w-full sm:w-auto">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2"/>
             Export
           </Button>
           <Button variant="outline" className="w-full sm:w-auto">
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="h-4 w-4 mr-2"/>
             Refresh
           </Button>
         </div>
@@ -160,6 +157,5 @@ export default function AdminAnalytics() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

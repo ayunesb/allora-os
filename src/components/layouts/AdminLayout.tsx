@@ -1,17 +1,10 @@
-
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/dashboard/Sidebar';
-
-interface AdminLayoutProps {
-  children?: React.ReactNode;
-}
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
-  return (
-    <div className="flex min-h-screen flex-col">
+export default function AdminLayout({ children }) {
+    return (<div className="flex min-h-screen flex-col">
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
@@ -21,6 +14,5 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </main>
         </ScrollArea>
       </div>
-    </div>
-  );
+    </div>);
 }

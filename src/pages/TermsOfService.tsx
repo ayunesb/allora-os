@@ -1,17 +1,14 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-
 export default function TermsOfService() {
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+    return (<div className="min-h-screen flex flex-col bg-background">
       <Helmet>
         <title>Terms of Service | Allora AI</title>
-        <meta name="description" content="Terms and conditions for using Allora AI's services" />
+        <meta name="description" content="Terms and conditions for using Allora AI's services"/>
       </Helmet>
       
       <Navbar />
@@ -96,6 +93,5 @@ export default function TermsOfService() {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>);
 }

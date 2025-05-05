@@ -1,11 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-
 export default function Home() {
-  return (
-    <div className="min-h-screen">
+    return (<div className="min-h-screen">
       <div className="container mx-auto px-4 py-24 flex flex-col items-center text-center">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
           Allora AI
@@ -22,6 +19,5 @@ export default function Home() {
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

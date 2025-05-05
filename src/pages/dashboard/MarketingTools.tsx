@@ -1,16 +1,11 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIContentGenerator } from "@/components/content-generation/AIContentGenerator";
 import { MarketingPlatformIntegrations } from "@/components/integrations/MarketingPlatformIntegrations";
 import { CustomerJourneyMapper } from "@/components/customer-journey/CustomerJourneyMapper";
-import { Card, CardContent } from '@/components/ui/card';
-
 export default function MarketingTools() {
-  const [activeTab, setActiveTab] = useState("content-generation");
-
-  return (
-    <div className="container mx-auto px-4 py-8">
+    const [activeTab, setActiveTab] = useState("content-generation");
+    return (<div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2">Marketing Tools</h1>
       <p className="text-muted-foreground mb-6">
         Advanced tools to enhance your marketing capabilities
@@ -35,6 +30,5 @@ export default function MarketingTools() {
           <CustomerJourneyMapper />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

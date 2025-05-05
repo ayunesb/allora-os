@@ -1,58 +1,33 @@
-
 import React from 'react';
 import Navbar from "@/components/Navbar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "react-router-dom";
 import { Shield, AlertCircle } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-
-// Custom DashboardBreadcrumb interface for the component
-interface DashboardBreadcrumbProps {
-  rootPath: string;
-  rootLabel: string;
-  rootIcon: React.ReactNode;
-}
-
 // Import a properly defined DashboardBreadcrumb
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
-
-interface ComplianceLayoutProps {
-  children: React.ReactNode;
-}
-
-export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
-  const location = useLocation();
-  const currentPath = location.pathname;
-  
-  return (
-    <div className="min-h-screen flex flex-col">
+export default function ComplianceLayout({ children }) {
+    const location = useLocation();
+    const currentPath = location.pathname;
+    return (<div className="min-h-screen flex flex-col">
       <Navbar />
       
       <div className="flex-1 container mx-auto px-4 py-16">
-        <ErrorBoundary fallback={
-          <div className="text-center py-8">
-            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+        <ErrorBoundary fallback={<div className="text-center py-8">
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4"/>
             <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
             <p className="text-muted-foreground mb-4">
               There was an error loading this compliance section
             </p>
-            <Link 
-              to="/dashboard" 
-              className="text-primary hover:underline"
-            >
+            <Link to="/dashboard" className="text-primary hover:underline">
               Return to Dashboard
             </Link>
-          </div>
-        }>
-          <DashboardBreadcrumb 
-            rootPath="/compliance" 
-            rootLabel="Compliance"
-            rootIcon={<Shield className="h-3.5 w-3.5" />} 
-          />
+          </div>}>
+          <DashboardBreadcrumb rootPath="/compliance" rootLabel="Compliance" rootIcon={<Shield className="h-3.5 w-3.5"/>}/>
           
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-2">
-              <Shield className="h-6 w-6 text-primary" />
+              <Shield className="h-6 w-6 text-primary"/>
               <h1 className="text-3xl font-bold">Compliance Center</h1>
             </div>
             <p className="text-muted-foreground">
@@ -82,6 +57,5 @@ export default function ComplianceLayout({ children }: ComplianceLayoutProps) {
           </div>
         </ErrorBoundary>
       </div>
-    </div>
-  );
+    </div>);
 }

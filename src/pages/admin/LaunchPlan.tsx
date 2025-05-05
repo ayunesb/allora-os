@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,20 +6,16 @@ import { AlertCircle, CheckCircle, FileText, Rocket } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
 export default function LaunchPlan() {
-  const [launchState, setLaunchState] = React.useState<'preparing' | 'ready' | 'launched'>('preparing');
-  
-  const handleLaunch = () => {
-    // This would actually trigger the launch sequence
-    setLaunchState('launched');
-    toast.success("🚀 Allora AI has been successfully launched!", {
-      description: "The platform is now live for all users.",
-    });
-  };
-  
-  return (
-    <div className="container mx-auto py-8 space-y-8">
+    const [launchState, setLaunchState] = React.useState('preparing');
+    const handleLaunch = () => {
+        // This would actually trigger the launch sequence
+        setLaunchState('launched');
+        toast.success("🚀 Allora AI has been successfully launched!", {
+            description: "The platform is now live for all users.",
+        });
+    };
+    return (<div className="container mx-auto py-8 space-y-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Launch Plan</h1>
@@ -29,11 +24,10 @@ export default function LaunchPlan() {
           </p>
         </div>
         
-        {launchState === 'ready' ? (
-          <AlertDialog>
+        {launchState === 'ready' ? (<AlertDialog>
             <AlertDialogTrigger asChild>
               <Button className="gap-2">
-                <Rocket className="h-4 w-4" />
+                <Rocket className="h-4 w-4"/>
                 Launch Platform
               </Button>
             </AlertDialogTrigger>
@@ -50,23 +44,18 @@ export default function LaunchPlan() {
                 <AlertDialogAction onClick={handleLaunch}>Launch</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog>
-        ) : launchState === 'launched' ? (
-          <Button variant="outline" className="gap-2 text-green-600" disabled>
-            <CheckCircle className="h-4 w-4" />
+          </AlertDialog>) : launchState === 'launched' ? (<Button variant="outline" className="gap-2 text-green-600" disabled>
+            <CheckCircle className="h-4 w-4"/>
             Platform Launched
-          </Button>
-        ) : (
-          <Button variant="outline" className="gap-2" disabled>
-            <AlertCircle className="h-4 w-4" />
+          </Button>) : (<Button variant="outline" className="gap-2" disabled>
+            <AlertCircle className="h-4 w-4"/>
             Not Ready to Launch
-          </Button>
-        )}
+          </Button>)}
       </div>
       
       <Card className="bg-amber-50 border-amber-200 p-4">
         <div className="flex items-start gap-3">
-          <FileText className="h-6 w-6 text-amber-600 mt-0.5 shrink-0" />
+          <FileText className="h-6 w-6 text-amber-600 mt-0.5 shrink-0"/>
           <div>
             <h3 className="font-medium text-amber-800 mb-1">Launch Plan Overview</h3>
             <p className="text-amber-700 text-sm">
@@ -133,6 +122,5 @@ export default function LaunchPlan() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

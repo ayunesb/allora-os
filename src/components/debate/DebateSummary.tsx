@@ -1,24 +1,9 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Download, Save } from 'lucide-react';
-
-interface DebateSummaryProps {
-  debateTitle: string;
-  onReturnToDebate: () => void;
-  onExportSummary: () => void;
-  onSaveToReports: () => void;
-}
-
-const DebateSummary: React.FC<DebateSummaryProps> = ({
-  debateTitle,
-  onReturnToDebate,
-  onExportSummary,
-  onSaveToReports,
-}) => {
-  return (
-    <Card>
+const DebateSummary = ({ debateTitle, onReturnToDebate, onExportSummary, onSaveToReports, }) => {
+    return (<Card>
       <CardHeader>
         <CardTitle>Executive Summary</CardTitle>
         <CardDescription>
@@ -63,17 +48,15 @@ const DebateSummary: React.FC<DebateSummaryProps> = ({
         </Button>
         <div className="flex space-x-2">
           <Button variant="outline" onClick={onExportSummary}>
-            <Download className="h-4 w-4 mr-1" />
+            <Download className="h-4 w-4 mr-1"/>
             Export Summary
           </Button>
           <Button onClick={onSaveToReports}>
-            <Save className="h-4 w-4 mr-1" />
+            <Save className="h-4 w-4 mr-1"/>
             Save to Reports
           </Button>
         </div>
       </CardFooter>
-    </Card>
-  );
+    </Card>);
 };
-
 export default DebateSummary;

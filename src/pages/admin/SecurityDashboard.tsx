@@ -1,14 +1,11 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Lock, Users, Database, AlertTriangle } from 'lucide-react';
+import { Shield, Lock, AlertTriangle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-
 export default function SecurityDashboard() {
-  return (
-    <>
+    return (<>
       <Helmet>
         <title>Security Dashboard | Allora AI</title>
       </Helmet>
@@ -36,7 +33,7 @@ export default function SecurityDashboard() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
-                    <Shield className="h-5 w-5 mr-2" />
+                    <Shield className="h-5 w-5 mr-2"/>
                     Security Status
                   </CardTitle>
                 </CardHeader>
@@ -54,7 +51,7 @@ export default function SecurityDashboard() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
-                    <Lock className="h-5 w-5 mr-2" />
+                    <Lock className="h-5 w-5 mr-2"/>
                     Last Audit
                   </CardTitle>
                 </CardHeader>
@@ -69,7 +66,7 @@ export default function SecurityDashboard() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
-                    <AlertTriangle className="h-5 w-5 mr-2" />
+                    <AlertTriangle className="h-5 w-5 mr-2"/>
                     Threats Detected
                   </CardTitle>
                 </CardHeader>
@@ -139,6 +136,5 @@ export default function SecurityDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </>
-  );
+    </>);
 }

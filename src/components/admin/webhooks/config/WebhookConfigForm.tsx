@@ -1,54 +1,12 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WebhookType } from '@/types/unified-types';
-import { AlertCircle, Check } from 'lucide-react';
-
-interface WebhookConfigFormProps {
-  webhookType: string;
-  onWebhookTypeChange: (type: string) => void;
-  stripeWebhook?: string;
-  stripeSecret?: string;
-  zapierWebhook?: string;
-  githubWebhook?: string;
-  githubSecret?: string;
-  slackWebhook?: string;
-  customWebhook?: string;
-  stripeValid?: boolean;
-  zapierValid?: boolean;
-  githubValid?: boolean;
-  slackValid?: boolean;
-  customValid?: boolean;
-  onSave?: (type: string, data: any) => void;
-  onDelete?: (type: string) => void;
-  onTest?: (type: string) => void;
-}
-
-export const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
-  webhookType,
-  onWebhookTypeChange,
-  stripeWebhook = '',
-  stripeSecret = '',
-  zapierWebhook = '',
-  githubWebhook = '',
-  githubSecret = '',
-  slackWebhook = '',
-  customWebhook = '',
-  stripeValid = false,
-  zapierValid = false,
-  githubValid = false,
-  slackValid = false,
-  customValid = false,
-  onSave,
-  onDelete,
-  onTest
-}) => {
-  return (
-    <Card>
+import { Check } from 'lucide-react';
+export const WebhookConfigForm = ({ webhookType, onWebhookTypeChange, stripeWebhook = '', stripeSecret = '', zapierWebhook = '', githubWebhook = '', githubSecret = '', slackWebhook = '', customWebhook = '', stripeValid = false, zapierValid = false, githubValid = false, slackValid = false, customValid = false, onSave, onDelete, onTest }) => {
+    return (<Card>
       <CardContent className="pt-6">
         <Tabs value={webhookType} onValueChange={onWebhookTypeChange}>
           <TabsList className="grid w-full grid-cols-5">
@@ -64,22 +22,13 @@ export const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="stripe-webhook">Webhook ID</Label>
                 <div className="flex gap-2">
-                  <Input
-                    id="stripe-webhook"
-                    placeholder="whsec_..."
-                    value={stripeWebhook}
-                  />
-                  {stripeValid && <Check className="text-green-500 mt-2" />}
+                  <Input id="stripe-webhook" placeholder="whsec_..." value={stripeWebhook}/>
+                  {stripeValid && <Check className="text-green-500 mt-2"/>}
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="stripe-secret">Secret Key</Label>
-                <Input
-                  id="stripe-secret"
-                  placeholder="sk_..."
-                  type="password"
-                  value={stripeSecret}
-                />
+                <Input id="stripe-secret" placeholder="sk_..." type="password" value={stripeSecret}/>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-4">
@@ -99,12 +48,8 @@ export const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
             <div className="space-y-2">
               <Label htmlFor="zapier-webhook">Webhook URL</Label>
               <div className="flex gap-2">
-                <Input
-                  id="zapier-webhook"
-                  placeholder="https://hooks.zapier.com/..."
-                  value={zapierWebhook}
-                />
-                {zapierValid && <Check className="text-green-500 mt-2" />}
+                <Input id="zapier-webhook" placeholder="https://hooks.zapier.com/..." value={zapierWebhook}/>
+                {zapierValid && <Check className="text-green-500 mt-2"/>}
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-4">
@@ -125,22 +70,13 @@ export const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="github-webhook">Webhook URL</Label>
                 <div className="flex gap-2">
-                  <Input
-                    id="github-webhook"
-                    placeholder="https://api.github.com/repos/..."
-                    value={githubWebhook}
-                  />
-                  {githubValid && <Check className="text-green-500 mt-2" />}
+                  <Input id="github-webhook" placeholder="https://api.github.com/repos/..." value={githubWebhook}/>
+                  {githubValid && <Check className="text-green-500 mt-2"/>}
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="github-secret">Secret Key</Label>
-                <Input
-                  id="github-secret"
-                  placeholder="GitHub webhook secret"
-                  type="password"
-                  value={githubSecret}
-                />
+                <Input id="github-secret" placeholder="GitHub webhook secret" type="password" value={githubSecret}/>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-4">
@@ -160,12 +96,8 @@ export const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
             <div className="space-y-2">
               <Label htmlFor="slack-webhook">Webhook URL</Label>
               <div className="flex gap-2">
-                <Input
-                  id="slack-webhook"
-                  placeholder="https://hooks.slack.com/services/..."
-                  value={slackWebhook}
-                />
-                {slackValid && <Check className="text-green-500 mt-2" />}
+                <Input id="slack-webhook" placeholder="https://hooks.slack.com/services/..." value={slackWebhook}/>
+                {slackValid && <Check className="text-green-500 mt-2"/>}
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-4">
@@ -185,12 +117,8 @@ export const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
             <div className="space-y-2">
               <Label htmlFor="custom-webhook">Webhook URL</Label>
               <div className="flex gap-2">
-                <Input
-                  id="custom-webhook"
-                  placeholder="https://your-api.com/webhook"
-                  value={customWebhook}
-                />
-                {customValid && <Check className="text-green-500 mt-2" />}
+                <Input id="custom-webhook" placeholder="https://your-api.com/webhook" value={customWebhook}/>
+                {customValid && <Check className="text-green-500 mt-2"/>}
               </div>
               <p className="text-sm text-muted-foreground">
                 Custom webhooks can be used to integrate with any service that accepts HTTP requests.
@@ -210,6 +138,5 @@ export const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
-  );
+    </Card>);
 };

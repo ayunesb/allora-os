@@ -1,16 +1,8 @@
-
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
 export default function RegulatoryFrameworks() {
-  return (
-    <Accordion type="single" collapsible className="w-full">
+    return (<Accordion type="single" collapsible className="w-full">
       <AccordionItem value="gdpr">
         <AccordionTrigger>
           <div className="flex items-center">
@@ -79,6 +71,5 @@ export default function RegulatoryFrameworks() {
           </div>
         </AccordionContent>
       </AccordionItem>
-    </Accordion>
-  );
+    </Accordion>);
 }

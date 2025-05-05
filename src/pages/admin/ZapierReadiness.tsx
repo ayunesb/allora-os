@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,60 +8,48 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { validateWebhookUrlFormat } from "@/utils/webhookValidation";
-
 export default function ZapierReadiness() {
-  const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState("test");
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [isValid, setIsValid] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState(false);
-  
-  // Load webhook URL from localStorage on mount
-  useEffect(() => {
-    const savedWebhookUrl = localStorage.getItem('zapier_webhook_url');
-    if (savedWebhookUrl) {
-      setWebhookUrl(savedWebhookUrl);
-      validateUrl(savedWebhookUrl);
-    }
-  }, []);
-  
-  const validateUrl = (url: string) => {
-    if (!url) {
-      setIsValid(false);
-      return;
-    }
-    
-    const validationResult = validateWebhookUrlFormat(url);
-    setIsValid(validationResult);
-  };
-  
-  const handleSave = () => {
-    if (!webhookUrl) {
-      toast.error("Please enter a webhook URL");
-      return;
-    }
-    
-    if (isValid !== true) {
-      toast.error("Please enter a valid Zapier webhook URL");
-      return;
-    }
-    
-    setIsSaving(true);
-    
-    // Sanitize URL before saving
-    const sanitizedUrl = webhookUrl.trim();
-    
-    // Save to localStorage
-    localStorage.setItem('zapier_webhook_url', sanitizedUrl);
-    
-    setTimeout(() => {
-      setIsSaving(false);
-      toast.success("Zapier webhook URL saved successfully");
-    }, 500);
-  };
-  
-  return (
-    <>
+    const { profile } = useAuth();
+    const [activeTab, setActiveTab] = useState("test");
+    const [webhookUrl, setWebhookUrl] = useState("");
+    const [isValid, setIsValid] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    // Load webhook URL from localStorage on mount
+    useEffect(() => {
+        const savedWebhookUrl = localStorage.getItem('zapier_webhook_url');
+        if (savedWebhookUrl) {
+            setWebhookUrl(savedWebhookUrl);
+            validateUrl(savedWebhookUrl);
+        }
+    }, []);
+    const validateUrl = (url) => {
+        if (!url) {
+            setIsValid(false);
+            return;
+        }
+        const validationResult = validateWebhookUrlFormat(url);
+        setIsValid(validationResult);
+    };
+    const handleSave = () => {
+        if (!webhookUrl) {
+            toast.error("Please enter a webhook URL");
+            return;
+        }
+        if (isValid !== true) {
+            toast.error("Please enter a valid Zapier webhook URL");
+            return;
+        }
+        setIsSaving(true);
+        // Sanitize URL before saving
+        const sanitizedUrl = webhookUrl.trim();
+        // Save to localStorage
+        localStorage.setItem('zapier_webhook_url', sanitizedUrl);
+        setTimeout(() => {
+            setIsSaving(false);
+            toast.success("Zapier webhook URL saved successfully");
+        }, 500);
+    };
+    return (<>
       <Helmet>
         <title>Zapier Integration Readiness | Allora AI</title>
       </Helmet>
@@ -84,7 +71,7 @@ export default function ZapierReadiness() {
           </TabsList>
           
           <TabsContent value="test" className="space-y-4 mt-6">
-            <ZapierReadinessTest webhookUrl={webhookUrl} isValid={isValid} />
+            <ZapierReadinessTest webhookUrl={webhookUrl} isValid={isValid}/>
           </TabsContent>
           
           <TabsContent value="config" className="space-y-4 mt-6">
@@ -96,30 +83,16 @@ export default function ZapierReadiness() {
                   <label htmlFor="webhookUrl" className="text-sm font-medium">
                     Zapier Webhook URL
                   </label>
-                  <Input
-                    id="webhookUrl"
-                    placeholder="https://hooks.zapier.com/hooks/catch/123456/abcdef/"
-                    value={webhookUrl}
-                    onChange={(e) => {
-                      setWebhookUrl(e.target.value);
-                      validateUrl(e.target.value);
-                    }}
-                    className={`max-w-xl ${
-                      isValid === false ? "border-red-500" : ""
-                    }`}
-                  />
-                  {isValid === false && webhookUrl && (
-                    <p className="text-red-500 text-sm">
+                  <Input id="webhookUrl" placeholder="https://hooks.zapier.com/hooks/catch/123456/abcdef/" value={webhookUrl} onChange={(e) => {
+            setWebhookUrl(e.target.value);
+            validateUrl(e.target.value);
+        }} className={`max-w-xl ${isValid === false ? "border-red-500" : ""}`}/>
+                  {isValid === false && webhookUrl && (<p className="text-red-500 text-sm">
                       Please enter a valid Zapier webhook URL
-                    </p>
-                  )}
+                    </p>)}
                 </div>
                 
-                <Button 
-                  onClick={handleSave} 
-                  disabled={isSaving || isValid !== true}
-                  className="mt-2"
-                >
+                <Button onClick={handleSave} disabled={isSaving || isValid !== true} className="mt-2">
                   {isSaving ? "Saving..." : "Save Webhook URL"}
                 </Button>
                 
@@ -171,6 +144,5 @@ export default function ZapierReadiness() {
           </TabsContent>
         </Tabs>
       </div>
-    </>
-  );
+    </>);
 }

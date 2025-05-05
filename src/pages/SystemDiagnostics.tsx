@@ -1,111 +1,82 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { 
-  Shield, 
-  Database, 
-  Server, 
-  RefreshCw, 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle,
-  FileWarning,
-  LayoutDashboard
-} from "lucide-react";
+import { Shield, Database, Server, RefreshCw, CheckCircle, XCircle, AlertTriangle, FileWarning, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
-
 export default function SystemDiagnostics() {
-  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<{
-    connected: boolean;
-    error: string | null;
-  }>({ connected: false, error: null });
-
-  const [routeErrors, setRouteErrors] = useState<Array<{
-    path: string;
-    error: string;
-    status: 'error' | 'warning' | 'ok';
-  }>>([]);
-
-  const [componentErrors, setComponentErrors] = useState<Array<{
-    component: string;
-    error: string;
-    status: 'error' | 'warning' | 'ok';
-  }>>([]);
-
-  // Check database connection
-  const checkDatabaseConnection = async () => {
-    setIsCheckingConnection(true);
-    try {
-      const { data, error } = await supabase.from('profiles').select('id').limit(1);
-      
-      if (error) {
-        setConnectionStatus({ connected: false, error: error.message });
-      } else {
-        setConnectionStatus({ connected: true, error: null });
-      }
-    } catch (error) {
-      setConnectionStatus({ 
-        connected: false, 
-        error: error instanceof Error ? error.message : 'Unknown database error' 
-      });
-    } finally {
-      setIsCheckingConnection(false);
-    }
-  };
-
-  // Initial checks
-  useEffect(() => {
-    // Check DB connection on mount
-    checkDatabaseConnection();
-    
-    // Known issues diagnostics
-    setComponentErrors([
-      { 
-        component: 'DocumentLegalContent', 
-        error: 'Component is using useCompliance hook outside of ComplianceProvider',
-        status: 'error'
-      },
-      { 
-        component: 'LegalDocument', 
-        error: 'Not properly wrapped with ComplianceProvider',
-        status: 'error'
-      }
-    ]);
-
-    setRouteErrors([
-      { 
-        path: '/legal/terms-of-service', 
-        error: 'Compliance context missing',
-        status: 'error' 
-      },
-      { 
-        path: '/admin/diagnostics', 
-        error: 'Route may be inaccessible due to other errors',
-        status: 'warning' 
-      }
-    ]);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-background p-6">
+    const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+    const [connectionStatus, setConnectionStatus] = useState({ connected: false, error: null });
+    const [routeErrors, setRouteErrors] = useState([]);
+    const [componentErrors, setComponentErrors] = useState([]);
+    // Check database connection
+    const checkDatabaseConnection = async () => {
+        setIsCheckingConnection(true);
+        try {
+            const { data, error } = await supabase.from('profiles').select('id').limit(1);
+            if (error) {
+                setConnectionStatus({ connected: false, error: error.message });
+            }
+            else {
+                setConnectionStatus({ connected: true, error: null });
+            }
+        }
+        catch (error) {
+            setConnectionStatus({
+                connected: false,
+                error: error instanceof Error ? error.message : 'Unknown database error'
+            });
+        }
+        finally {
+            setIsCheckingConnection(false);
+        }
+    };
+    // Initial checks
+    useEffect(() => {
+        // Check DB connection on mount
+        checkDatabaseConnection();
+        // Known issues diagnostics
+        setComponentErrors([
+            {
+                component: 'DocumentLegalContent',
+                error: 'Component is using useCompliance hook outside of ComplianceProvider',
+                status: 'error'
+            },
+            {
+                component: 'LegalDocument',
+                error: 'Not properly wrapped with ComplianceProvider',
+                status: 'error'
+            }
+        ]);
+        setRouteErrors([
+            {
+                path: '/legal/terms-of-service',
+                error: 'Compliance context missing',
+                status: 'error'
+            },
+            {
+                path: '/admin/diagnostics',
+                error: 'Route may be inaccessible due to other errors',
+                status: 'warning'
+            }
+        ]);
+    }, []);
+    return (<div className="min-h-screen bg-background p-6">
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">System Diagnostics</h1>
           <div className="flex space-x-2">
             <Button variant="outline" asChild>
               <Link to="/">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <LayoutDashboard className="mr-2 h-4 w-4"/>
                 Home
               </Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to="/admin">
-                <Shield className="mr-2 h-4 w-4" />
+                <Shield className="mr-2 h-4 w-4"/>
                 Admin
               </Link>
             </Button>
@@ -117,7 +88,7 @@ export default function SystemDiagnostics() {
           <Card className={connectionStatus.connected ? "border-green-200" : "border-red-200"}>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Database className="mr-2 h-5 w-5 text-primary" />
+                <Database className="mr-2 h-5 w-5 text-primary"/>
                 Database Connection
               </CardTitle>
               <CardDescription>
@@ -127,48 +98,30 @@ export default function SystemDiagnostics() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center">
-                  <Badge 
-                    variant={connectionStatus.connected ? "outline" : "destructive"}
-                    className="mr-2"
-                  >
+                  <Badge variant={connectionStatus.connected ? "outline" : "destructive"} className="mr-2">
                     {connectionStatus.connected ? "Connected" : "Disconnected"}
                   </Badge>
-                  {connectionStatus.connected ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <XCircle className="h-4 w-4 text-red-500" />
-                  )}
+                  {connectionStatus.connected ? (<CheckCircle className="h-4 w-4 text-green-500"/>) : (<XCircle className="h-4 w-4 text-red-500"/>)}
                 </div>
                 
-                {!connectionStatus.connected && connectionStatus.error && (
-                  <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
+                {!connectionStatus.connected && connectionStatus.error && (<Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4"/>
                     <AlertTitle>Connection Error</AlertTitle>
                     <AlertDescription>
                       {connectionStatus.error}
                     </AlertDescription>
-                  </Alert>
-                )}
+                  </Alert>)}
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                onClick={checkDatabaseConnection}
-                disabled={isCheckingConnection}
-                variant="outline"
-                className="w-full"
-              >
-                {isCheckingConnection ? (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              <Button onClick={checkDatabaseConnection} disabled={isCheckingConnection} variant="outline" className="w-full">
+                {isCheckingConnection ? (<>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin"/>
                     Checking Connection...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
+                  </>) : (<>
+                    <RefreshCw className="mr-2 h-4 w-4"/>
                     Check Connection
-                  </>
-                )}
+                  </>)}
               </Button>
             </CardFooter>
           </Card>
@@ -177,7 +130,7 @@ export default function SystemDiagnostics() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Server className="mr-2 h-5 w-5 text-primary" />
+                <Server className="mr-2 h-5 w-5 text-primary"/>
                 Application Status
               </CardTitle>
               <CardDescription>
@@ -189,42 +142,28 @@ export default function SystemDiagnostics() {
                 <div>
                   <h3 className="text-sm font-medium mb-2">Component Errors</h3>
                   <div className="space-y-2">
-                    {componentErrors.map((error, index) => (
-                      <div 
-                        key={index} 
-                        className={`p-2 rounded text-sm ${
-                          error.status === 'error' 
-                            ? 'bg-red-50 text-red-800' 
-                            : error.status === 'warning' 
-                              ? 'bg-amber-50 text-amber-800' 
-                              : 'bg-green-50 text-green-800'
-                        }`}
-                      >
+                    {componentErrors.map((error, index) => (<div key={index} className={`p-2 rounded text-sm ${error.status === 'error'
+                ? 'bg-red-50 text-red-800'
+                : error.status === 'warning'
+                    ? 'bg-amber-50 text-amber-800'
+                    : 'bg-green-50 text-green-800'}`}>
                         <div className="font-medium">{error.component}</div>
                         <div>{error.error}</div>
-                      </div>
-                    ))}
+                      </div>))}
                   </div>
                 </div>
                 
                 <div>
                   <h3 className="text-sm font-medium mb-2">Route Issues</h3>
                   <div className="space-y-2">
-                    {routeErrors.map((error, index) => (
-                      <div 
-                        key={index} 
-                        className={`p-2 rounded text-sm ${
-                          error.status === 'error' 
-                            ? 'bg-red-50 text-red-800' 
-                            : error.status === 'warning' 
-                              ? 'bg-amber-50 text-amber-800' 
-                              : 'bg-green-50 text-green-800'
-                        }`}
-                      >
+                    {routeErrors.map((error, index) => (<div key={index} className={`p-2 rounded text-sm ${error.status === 'error'
+                ? 'bg-red-50 text-red-800'
+                : error.status === 'warning'
+                    ? 'bg-amber-50 text-amber-800'
+                    : 'bg-green-50 text-green-800'}`}>
                         <div className="font-medium">{error.path}</div>
                         <div>{error.error}</div>
-                      </div>
-                    ))}
+                      </div>))}
                   </div>
                 </div>
               </div>
@@ -236,7 +175,7 @@ export default function SystemDiagnostics() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <FileWarning className="mr-2 h-5 w-5 text-primary" />
+              <FileWarning className="mr-2 h-5 w-5 text-primary"/>
               Recommended Fixes
             </CardTitle>
             <CardDescription>
@@ -270,7 +209,7 @@ export default function LegalDocument() {
               </div>
               
               <Alert>
-                <AlertTriangle className="h-4 w-4" />
+                <AlertTriangle className="h-4 w-4"/>
                 <AlertTitle>Route Access Issues</AlertTitle>
                 <AlertDescription>
                   You may be experiencing issues accessing certain routes due to the compliance context error.
@@ -281,6 +220,5 @@ export default function LegalDocument() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
 }

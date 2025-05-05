@@ -1,12 +1,9 @@
-
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DebateContainer from "@/components/debate/DebateContainer";
 import AIChatDashboard from "./AIChat";
-
 export default function Debate() {
-  return (
-    <div className="space-y-8">
+    return (<div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Executive Debate</h1>
         <p className="text-muted-foreground mt-2">
@@ -28,6 +25,5 @@ export default function Debate() {
           <AIChatDashboard />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
 }

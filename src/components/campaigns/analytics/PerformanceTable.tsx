@@ -1,36 +1,14 @@
-
 import React from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatNumber, formatCurrency } from '@/utils/formatters';
-import { ChannelPerformance, AnalyticsData } from '@/types/analytics';
-
-export interface PerformanceTableProps {
-  data: ChannelPerformance[];
-  totalMetrics: {
-    totalImpressions: number;
-    totalClicks: number;
-    totalConversions: number;
-    totalCost: number;
-    totalRevenue: number;
-  } | null;
-}
-
-export function PerformanceTable({ data, totalMetrics }: PerformanceTableProps) {
-  // Calculate percentages of total for each row if totalMetrics is provided
-  const calculatePercentage = (value: number, total: number) => {
-    if (!total) return 0;
-    return (value / total) * 100;
-  };
-  
-  return (
-    <div className="overflow-auto">
+export function PerformanceTable({ data, totalMetrics }) {
+    // Calculate percentages of total for each row if totalMetrics is provided
+    const calculatePercentage = (value, total) => {
+        if (!total)
+            return 0;
+        return (value / total) * 100;
+    };
+    return (<div className="overflow-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -46,8 +24,7 @@ export function PerformanceTable({ data, totalMetrics }: PerformanceTableProps) 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((channel, index) => (
-            <TableRow key={index}>
+          {data.map((channel, index) => (<TableRow key={index}>
               <TableCell className="font-medium">{channel.channelName}</TableCell>
               <TableCell className="text-right">{formatNumber(channel.metrics.impressions)}</TableCell>
               <TableCell className="text-right">{formatNumber(channel.metrics.clicks)}</TableCell>
@@ -57,11 +34,9 @@ export function PerformanceTable({ data, totalMetrics }: PerformanceTableProps) 
               <TableCell className="text-right">{formatCurrency(channel.metrics.cost)}</TableCell>
               <TableCell className="text-right">{formatCurrency(channel.metrics.revenue)}</TableCell>
               <TableCell className="text-right">{(channel.metrics.roi * 100).toFixed(0)}%</TableCell>
-            </TableRow>
-          ))}
+            </TableRow>))}
           
-          {totalMetrics && (
-            <TableRow className="font-bold bg-muted/50">
+          {totalMetrics && (<TableRow className="font-bold bg-muted/50">
               <TableCell>Total</TableCell>
               <TableCell className="text-right">{formatNumber(totalMetrics.totalImpressions)}</TableCell>
               <TableCell className="text-right">{formatNumber(totalMetrics.totalClicks)}</TableCell>
@@ -77,10 +52,8 @@ export function PerformanceTable({ data, totalMetrics }: PerformanceTableProps) 
               <TableCell className="text-right">
                 {((totalMetrics.totalRevenue / totalMetrics.totalCost - 1) * 100).toFixed(0)}%
               </TableCell>
-            </TableRow>
-          )}
+            </TableRow>)}
         </TableBody>
       </Table>
-    </div>
-  );
+    </div>);
 }
