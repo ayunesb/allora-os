@@ -54,6 +54,7 @@
     "embla-carousel-react": "^8.3.0",
     "express": "^5.1.0",
     "framer-motion": "^12.9.4",
+    "glob": "^10.4.5",
     "input-otp": "^1.2.4",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",

@@ -1,0 +1,1595 @@
+{
+  "unusedRoutes": [
+    {
+      "route": "vault",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/vault-routes.ts"
+      ]
+    },
+    {
+      "route": "templates",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/vault-routes.ts"
+      ]
+    },
+    {
+      "route": "/",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/ComplianceRoutesWrapper.tsx"
+      ]
+    },
+    {
+      "route": "/home",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "/launch",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/diagnostics",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/pricing",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "/shop",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/campaigns/create",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/plugins/impact",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/compliance",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/calendar",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/dashboard/account",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/dashboard/dashboard-settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/my-leads",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "/welcome",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx"
+      ]
+    },
+    {
+      "route": "/privacy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/legal",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/refund-policy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/cookie-policy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/messaging-consent",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/faq",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/dev-admin-helper",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dev-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dev-routes.ts"
+      ]
+    },
+    {
+      "route": "/checkout-success",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx"
+      ]
+    },
+    {
+      "route": "/contact",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/legal/terms-of-service",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "onboarding",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx"
+      ]
+    },
+    {
+      "route": "profile",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    },
+    {
+      "route": "company",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx"
+      ]
+    },
+    {
+      "route": "team",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx"
+      ]
+    },
+    {
+      "route": "integrations",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx"
+      ]
+    },
+    {
+      "route": "ai-workflow",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx"
+      ]
+    },
+    {
+      "route": "complete",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx"
+      ]
+    },
+    {
+      "route": "/onboarding",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/terms",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/legal/privacy-policy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/legal/cookies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/legal/compliance",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/legal/refund-policy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/legal/messaging-consent",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/gdpr",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/legal/gdpr",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/compliance/gdpr",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/cookie-settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/legal/cookie-settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/features",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "/login",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/signup",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/forgot-password",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/reset-password",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/gdpr-compliance",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/explore/*",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/dashboard/*",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "kpis",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "executives",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "ai-settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "/dashboard/profile",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/admin/*",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/administrator",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/administration",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admins",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/signin",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/register",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/users",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/companies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/account",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/campaigns",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/strategies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/board",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/board-room",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/leads",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/contacts",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/customers",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admin/dashboard",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admin/platform-stability",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admin/user-onboarding",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admin/ai-bot-logic",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admin/dashboard-modules",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admin/communication-tools",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/compliance-center",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/audit-logs",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/data-policies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/compliance-reports",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/contactus",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/get-in-touch",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/reach-out",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/tos",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/terms-conditions",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/privacy-policy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/cookies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/refund",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/message-consent",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx"
+      ]
+    },
+    {
+      "route": "/404",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/security",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "galaxy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/galaxy-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/explore-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx"
+      ]
+    },
+    {
+      "route": "plugins",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/galaxy-routes.ts"
+      ]
+    },
+    {
+      "route": "leaderboard",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/galaxy-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "explore",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/explore-routes.tsx"
+      ]
+    },
+    {
+      "route": "/admin-check",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dev-routes.tsx"
+      ]
+    },
+    {
+      "route": "/dev/debug",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dev-routes.ts"
+      ]
+    },
+    {
+      "route": "dashboard",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx"
+      ]
+    },
+    {
+      "route": "leads",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "campaigns",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "campaigns/new",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "campaigns/payment-success",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "analytics",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/analytics-routes.ts"
+      ]
+    },
+    {
+      "route": "strategies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.ts"
+      ]
+    },
+    {
+      "route": "strategy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx"
+      ]
+    },
+    {
+      "route": "strategies/new",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx"
+      ]
+    },
+    {
+      "route": "calls",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/integration-routes.ts"
+      ]
+    },
+    {
+      "route": "executive-agents",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "decisions",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "risk-heatmap",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "forecast",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/analytics-routes.ts"
+      ]
+    },
+    {
+      "route": "digital-twin",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx"
+      ]
+    },
+    {
+      "route": "executive-preferences",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "ai-bots",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "debate",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "ai-chat",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "ai-agent",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "calendly",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/integration-routes.ts"
+      ]
+    },
+    {
+      "route": "plaid",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/integration-routes.ts"
+      ]
+    },
+    {
+      "route": "settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    },
+    {
+      "route": "company-setup",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    },
+    {
+      "route": "billing",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    },
+    {
+      "route": "insights/kpis",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/analytics-routes.ts"
+      ]
+    },
+    {
+      "route": "agents/performance",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx"
+      ]
+    },
+    {
+      "route": "strategy-generator",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.ts"
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.ts"
+      ]
+    },
+    {
+      "route": "login",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "auth/login",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "signup",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "reset-password",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "email-confirm",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "verify-otp",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "update-password",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "auth/tiktok/callback",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "admin",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "entities",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "users",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "companies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "webhooks",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "system-health",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "diagnostics",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "launch-prep",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "audit",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx"
+      ]
+    },
+    {
+      "route": "run-audit",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx"
+      ]
+    },
+    {
+      "route": "technical-improvements",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx"
+      ]
+    },
+    {
+      "route": "notion-integration",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "stripe-integration",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "clearbit-integration",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "calendly-integration",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "academy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/academy-routes.ts"
+      ]
+    },
+    {
+      "route": "overview",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/ComplianceRoutesWrapper.tsx"
+      ]
+    },
+    {
+      "route": "audit-logs",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/ComplianceRoutesWrapper.tsx"
+      ]
+    },
+    {
+      "route": "data-policies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/ComplianceRoutesWrapper.tsx"
+      ]
+    },
+    {
+      "route": "reports",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/ComplianceRoutesWrapper.tsx"
+      ]
+    },
+    {
+      "route": "insights",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/analytics-routes.ts"
+      ]
+    },
+    {
+      "route": "ai-boardroom",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "executive-leaderboard",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "langchain-agent",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    }
+  ],
+  "duplicateRoutes": [
+    {
+      "route": "/shop",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx"
+      ]
+    },
+    {
+      "route": "*",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/ComplianceRoutesWrapper.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/AppRoutes.tsx"
+      ]
+    },
+    {
+      "route": "/home",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "/pricing",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "/compliance",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/legal",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/privacy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/cookie-policy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/refund-policy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/messaging-consent",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/faq",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/contact",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "/legal/terms-of-service",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx"
+      ]
+    },
+    {
+      "route": "/",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/router.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/ComplianceRoutesWrapper.tsx"
+      ]
+    },
+    {
+      "route": "/cookie-settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/onboarding",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx"
+      ]
+    },
+    {
+      "route": "/dev-admin-helper",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/public-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dev-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dev-routes.ts"
+      ]
+    },
+    {
+      "route": "/terms",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/marketing-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/global-routes.ts"
+      ]
+    },
+    {
+      "route": "galaxy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/galaxy-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/explore-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx"
+      ]
+    },
+    {
+      "route": "executives",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "leaderboard",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/galaxy-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "ai-settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/index.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "ai-workflow",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx"
+      ]
+    },
+    {
+      "route": "profile",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/onboarding-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    },
+    {
+      "route": "login",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "auth/login",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "signup",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "reset-password",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "email-confirm",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "verify-otp",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "update-password",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "auth/tiktok/callback",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/auth-routes.ts"
+      ]
+    },
+    {
+      "route": "settings",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    },
+    {
+      "route": "campaigns",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "analytics",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/analytics-routes.ts"
+      ]
+    },
+    {
+      "route": "leads",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "admin",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "entities",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "users",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "companies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "webhooks",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "system-health",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "diagnostics",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "launch-prep",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/admin-routes.ts"
+      ]
+    },
+    {
+      "route": "strategies",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.ts"
+      ]
+    },
+    {
+      "route": "strategy",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx"
+      ]
+    },
+    {
+      "route": "strategies/new",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx"
+      ]
+    },
+    {
+      "route": "strategies/:strategyId",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx"
+      ]
+    },
+    {
+      "route": "forecast",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/analytics-routes.ts"
+      ]
+    },
+    {
+      "route": "digital-twin",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.tsx"
+      ]
+    },
+    {
+      "route": "strategy-generator",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/strategy-routes.ts"
+      ]
+    },
+    {
+      "route": "campaigns/new",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "campaigns/:campaignId",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "campaigns/payment-success",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "leads/:leadId",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/marketing-routes.ts"
+      ]
+    },
+    {
+      "route": "calendly",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/integration-routes.ts"
+      ]
+    },
+    {
+      "route": "plaid",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/integration-routes.ts"
+      ]
+    },
+    {
+      "route": "calls",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/integration-routes.ts"
+      ]
+    },
+    {
+      "route": "executive-agents",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "decisions",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "risk-heatmap",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "executives/:name",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "executive-preferences",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/executive-routes.ts"
+      ]
+    },
+    {
+      "route": "insights/kpis",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/analytics-routes.ts"
+      ]
+    },
+    {
+      "route": "ai-agent",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "debate",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "ai-chat",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "ai-bots",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/ai-routes.tsx"
+      ]
+    },
+    {
+      "route": "company-setup",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    },
+    {
+      "route": "billing",
+      "files": [
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard-routes.tsx",
+        "/Users/abrahamyunes/compraventa/allora-ai-final-launched/src/routes/dashboard/account-routes.ts"
+      ]
+    }
+  ]
+}
