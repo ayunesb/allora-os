@@ -2,50 +2,56 @@ import fs from "fs";
 import path from "path";
 import { glob } from "glob";
 
-const args = process.argv.slice(2);
-const outputJson = args.includes("--json");
+const args: string[] = process.argv.slice(2);
+const outputJson: boolean = args.includes("--json");
 
-const routesDir = path.resolve("src/routes");
-const routerFile = path.resolve("src/AppRoutes.tsx");
+const routesDir: string = path.resolve("src/routes");
+const routerFile: string = path.resolve("src/AppRoutes.tsx");
 
-async function scanRoutes() {
-  const files = await glob(`${routesDir}/**/*.{ts,tsx}`);
-  const routerContents = fs.readFileSync(routerFile, "utf-8");
+async function scanRoutes(): Promise<void> {
+  const files: string[] = await glob(`${routesDir}/**/*.{ts,tsx}`);
+  const routerContents: string = fs.readFileSync(routerFile, "utf-8");
 
-  const routerMatches = [
+  const routerMatches: RegExpMatchArray[] = [
     ...routerContents.matchAll(/path:\s*["'`](.*?)["'`]/g),
     ...routerContents.matchAll(/<Route\s+path=["'`](.*?)["'`]/g),
   ];
 
-  const routerPaths = new Set(routerMatches.map(([, route]) => route));
+  const routerPaths: Set<string> = new Set(
+    routerMatches.map(([, route]) => route)
+  );
 
-  const allRoutes = new Map<string, string[]>();
-  const duplicateRoutes = new Set<string>();
+  const allRoutes: Map<string, string[]> = new Map();
+  const duplicateRoutes: Set<string> = new Set();
 
   for (const file of files) {
-    const contents = fs.readFileSync(file, "utf-8");
-    const matches = [
+    const contents: string = fs.readFileSync(file, "utf-8");
+    const matches: RegExpMatchArray[] = [
       ...contents.matchAll(/path:\s*["'`](.*?)["'`]/g),
       ...contents.matchAll(/<Route\s+path=["'`](.*?)["'`]/g),
     ];
 
     matches.forEach(([, routePath]) => {
       if (!routePath || routePath.trim() === "") return;
-      const existing = allRoutes.get(routePath) || [];
+      const existing: string[] = allRoutes.get(routePath) || [];
       existing.push(file);
       allRoutes.set(routePath, existing);
       if (existing.length > 1) duplicateRoutes.add(routePath);
     });
   }
 
-  const isWildcardOrDynamic = (r: string) =>
+  const isWildcardOrDynamic = (r: string): boolean =>
     r === "*" || r.includes(":") || r.startsWith("/:");
 
-  const unusedRoutes = Array.from(allRoutes.entries())
+  const unusedRoutes: { route: string; files: string[] }[] = Array.from(
+    allRoutes.entries()
+  )
     .filter(([route]) => !routerPaths.has(route) && !isWildcardOrDynamic(route))
     .map(([route, files]) => ({ route, files }));
 
-  const duplicateRouteList = Array.from(duplicateRoutes).map((route) => ({
+  const duplicateRouteList: { route: string; files: string[] }[] = Array.from(
+    duplicateRoutes
+  ).map((route) => ({
     route,
     files: allRoutes.get(route) || [],
   }));
