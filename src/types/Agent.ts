@@ -1,4 +1,3 @@
-
 export interface ExecutiveAgentProfile {
   name: string;
   role: string;
@@ -19,3 +18,13 @@ export interface AgentRunOptions {
   marketConditions?: string;
   [key: string]: any;
 }
+
+export interface Agent {
+  id: string;
+  name: string;
+  role: string;
+  version: string;
+  status: "active" | "retired";
+}
+
+export type AgentPersonality = "analytical" | "creative" | "diplomatic" | "aggressive" | "cautious";

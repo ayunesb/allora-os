@@ -1,4 +1,5 @@
 import { RouteObject } from "react-router-dom";
+import type { Strategy } from "@/types/fixed/strategyTypes";
 
 export const onboardingRoutes: RouteObject[] = [
   {

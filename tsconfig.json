@@ -5,9 +5,12 @@
     "lib": ["DOM", "ESNext"],
     "jsx": "react-jsx",
     "moduleResolution": "node",
-    "baseUrl": ".",                // 👈 Required
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]            // 👈 This maps @ to /src
+      "@/*": ["src/*"],
+      "@/api/*": ["src/api/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/types/*": ["src/types/*"]
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -15,12 +18,19 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noEmit": true,
-    "allowJs": true
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "types": ["vite/client"]
   },
   "include": [
     "src",
-    "**/*.tsx",
+    "types",
     "vite.config.ts",
-    "src/types/fixed/strategyTypes.ts" // Ensure this file is included
+    "src/types/fixed/strategyTypes.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".turbo"
   ]
 }

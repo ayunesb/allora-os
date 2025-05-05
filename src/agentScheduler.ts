@@ -18,4 +18,22 @@ const botOutputLocations: Agent = {
   ],
 };
 
+const personalityXpMap: Record<AgentPersonality, number> = {
+  analytical: 10,
+  creative: 8,
+  diplomatic: 7,
+  aggressive: 12,
+  cautious: 6,
+};
+
+// Define the executive object with a valid personality
+const executive: Agent = {
+  id: 'executiveAgent',
+  name: 'Executive Agent',
+  personality: "analytical" as const,
+  actions: [],
+};
+
+const xp = personalityXpMap[executive.personality];
+
 // Repeat this fix for similar objects like botExampleActions, botOutputLocations, etc.
