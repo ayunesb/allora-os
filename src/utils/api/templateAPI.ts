@@ -1,4 +1,3 @@
-
 import { fetchApi } from './apiClient';
 
 /**
@@ -12,7 +11,8 @@ export const fetchTemplateDrafts = async () => {
  * Publishes a strategy template to make it publicly available
  */
 export const publishTemplate = async (templateId: string) => {
-  return await fetchApi(`/api/vault/templates/publish?id=${templateId}`, { 
-    method: 'POST' 
+  return await fetchApi(`/api/vault/templates/publish?id=${templateId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
   });
 };

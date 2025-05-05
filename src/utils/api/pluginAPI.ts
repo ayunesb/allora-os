@@ -1,11 +1,11 @@
-
 import { fetchApi } from './apiClient';
 
 /**
  * Fetches plugin usage logs for admin review
  */
 export const fetchPluginLogs = async () => {
-  return await fetchApi('/api/admin/plugin-logs');
+  const response = await fetchApi('/api/admin/plugin-logs');
+  return response;
 };
 
 /**
@@ -19,7 +19,8 @@ export const recordPluginEvent = async (params: {
 }) => {
   return await fetchApi('/api/plugin-event', {
     method: 'POST',
-    body: JSON.stringify(params)
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
   });
 };
 
@@ -27,5 +28,6 @@ export const recordPluginEvent = async (params: {
  * Fetches aggregated plugin impact data showing ROI per tenant
  */
 export const fetchPluginImpact = async () => {
-  return await fetchApi('/api/plugin/impact');
+  const response = await fetchApi('/api/plugin/impact');
+  return response;
 };

@@ -1,6 +1,6 @@
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
-import { createCustomer } from '@/backend/stripe';
+import { createCustomer as createStripeCustomerUtil } from '@/backend/stripe';
 
 /**
  * Creates integration records for a new company in all master service accounts
@@ -59,15 +59,14 @@ async function createStripeCustomer(
       industry,
       source: 'allora_platform'
     };
-    const response = await createCustomer(customerId, customerData);
-    if (response?.success) {
-      return {
-        success: true,
-        customerId: response.customerId
-      };
-    } else {
-      throw new Error(response.error || 'Failed to create Stripe customer');
+    await createStripeCustomerUtil({ customerId, ...customerData });
+    if (!response.success) {
+      throw new Error(response.message ?? 'Unknown error'); // Ensure `message` is accessed correctly
     }
+    return {
+      success: true,
+      customerId: response.customerId
+    };
   } catch (error: any) {
     console.error('Failed to create Stripe customer:', error);
     return {
@@ -179,4 +178,15 @@ export async function getCompanyIntegrationIds(
     console.error('Failed to get company integration IDs:', error.message);
     return null;
   }
+}
+
+type CustomerData = {
+  customerId: string;
+  email: string;
+  industry: string;
+  source: string;
+};
+
+export async function createLocalCustomer(data: CustomerData) {
+  // ...existing code...
 }

@@ -115,11 +115,19 @@ export function getStrategyInsights(
   timeToResults: string;
   analysisFactors: any;
 } {
+  const implementationComplexity = calculateImplementationComplexity(strategy);
+  const competitiveAdvantage = calculateCompetitiveAdvantage(strategy);
+  const timeToResults = estimateTimeToResults(strategy);
+  const analysisFactors = analyzeStrategyFactors(strategy);
+
   return {
-    implementationComplexity: calculateImplementationComplexity(strategy),
-    competitiveAdvantage: calculateCompetitiveAdvantage(strategy),
-    timeToResults: estimateTimeToResults(strategy),
-    analysisFactors: analyzeStrategyFactors(strategy)
+    steps: [],
+    strengths: [],
+    weaknesses: [],
+    implementationComplexity,
+    competitiveAdvantage,
+    timeToResults,
+    analysisFactors,
   };
 }
 
