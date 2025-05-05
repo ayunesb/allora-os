@@ -1,16 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  esbuild: {
-    loader: 'jsx',
-    include: /\.(js|jsx|ts|tsx)$/, // Include .js and .jsx files
-    exclude: [],
-  },
   resolve: {
     alias: {
-      '@': '/src'
-    }
-  }
+      '@': path.resolve(__dirname, 'src'), // 👈 Alias to src
+    },
+  },
 });

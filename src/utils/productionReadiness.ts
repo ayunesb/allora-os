@@ -1,10 +1,13 @@
-
+/// <reference types="vite/client" />
 /**
  * Comprehensive production readiness validation
  */
 
 import { checkLaunchReadiness } from './launchReadiness';
 import { logger } from './loggingService';
+
+// Ensure tsconfig.json includes:
+// "types": ["vite/client"]
 
 interface ValidationIssue {
   type: 'error' | 'warning';
@@ -153,6 +156,8 @@ export const validateProductionReadiness = async (): Promise<ProductionReadiness
   }
 };
 
+const env = import.meta as ImportMeta & { env: Record<string, string> };
+
 /**
  * Validates that all required environment variables are set
  */
@@ -160,14 +165,16 @@ function validateEnvironmentVariables() {
   const missing: string[] = [];
   
   // Check Supabase variables
-  if (!import.meta.env.VITE_SUPABASE_URL) {
+  if (!env.env.VITE_SUPABASE_URL) {
     missing.push('VITE_SUPABASE_URL');
   }
   
-  if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  if (!env.env.VITE_SUPABASE_ANON_KEY) {
     missing.push('VITE_SUPABASE_ANON_KEY');
   }
   
+  const apiUrl = env.env.VITE_API_URL;
+
   return {
     valid: missing.length === 0,
     missing

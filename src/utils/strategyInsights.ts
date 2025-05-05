@@ -1,5 +1,4 @@
-import { Strategy } from '@/models/strategy';
-import { GeneratedStrategy } from './strategy/types';
+import { Strategy, GeneratedStrategy } from '@/types/fixed/strategyTypes';
 import type {
   ImplementationStep,
   StrategyStrength,
@@ -27,6 +26,10 @@ export interface StrategyAnalysis {
     title: string;
     description: string;
   }[];
+}
+
+interface StrategyAnalysisResult {
+  implementationComplexity: number; // Ensure this property is included
 }
 
 // Define the missing analysis functions that were referenced
@@ -107,6 +110,10 @@ export function getStrategyInsights(
   steps: ImplementationStep[];
   strengths: StrategyStrength[];
   weaknesses: StrategyWeakness[];
+  implementationComplexity: number;
+  competitiveAdvantage: number;
+  timeToResults: string;
+  analysisFactors: any;
 } {
   return {
     implementationComplexity: calculateImplementationComplexity(strategy),
@@ -115,3 +122,10 @@ export function getStrategyInsights(
     analysisFactors: analyzeStrategyFactors(strategy)
   };
 }
+
+const getStrategyDetails = (strategy: Strategy) => {
+  return {
+    id: strategy.id,
+    name: strategy.name,
+  };
+};

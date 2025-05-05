@@ -1,4 +1,3 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { createCustomer } from '@/backend/stripe';
@@ -54,19 +53,21 @@ async function createStripeCustomer(
     console.log('Creating Stripe customer for:', companyName, email);
     
     // Call the createCustomer function from our stripe.ts utility
-    const response = await createCustomer(companyName, email, {
+    const customerId = companyName; // Assuming companyName is used as customerId
+    const customerData = {
+      email,
       industry,
       source: 'allora_platform'
-    });
-
-    if (!response.success) {
+    };
+    const response = await createCustomer(customerId, customerData);
+    if (response?.success) {
+      return {
+        success: true,
+        customerId: response.customerId
+      };
+    } else {
       throw new Error(response.error || 'Failed to create Stripe customer');
     }
-    
-    return {
-      success: true,
-      customerId: response.customerId
-    };
   } catch (error: any) {
     console.error('Failed to create Stripe customer:', error);
     return {

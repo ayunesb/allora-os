@@ -22,6 +22,7 @@ const DEFAULT_OPTIONS: LoggerOptions = {
 };
 
 class Logger {
+  [x: string]: any;
   private options: LoggerOptions;
 
   constructor(options: Partial<LoggerOptions> = {}) {

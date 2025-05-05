@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -65,7 +64,13 @@ export const addDemoDataButton = async (companyId: string | null | undefined) =>
     }
   }
   
+  if (!companyId) throw new Error("companyId is required");
   await createDemoDebate(companyId);
   
   window.location.reload();
+  
+  return {
+    success: true,
+    data: null,
+  };
 };

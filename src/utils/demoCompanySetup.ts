@@ -1,6 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { onNewLeadAdded } from './zapierEventTriggers';
 import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
 import { Campaign } from '@/types/fixed/Campaign';
 import { Plugin } from '@/types/fixed/Plugin';
@@ -91,7 +90,7 @@ export async function createDemoCompany(
     return { success: true, companyId };
   } catch (error) {
     console.error('Error creating demo company:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -230,6 +229,10 @@ export async function convertDemoToPublicCaseStudy(
     return { success: true };
   } catch (error) {
     console.error('Error converting demo to case study:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
+function onNewLeadAdded(arg0: { company: string; leadName: string; source: string; leadId: any; }) {
+  throw new Error('Function not implemented.');
+}
+

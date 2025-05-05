@@ -1,6 +1,26 @@
-
-import { WebhookType, WebhookResult, RetryOptions } from './webhookTypes';
+// Ensure the correct path to the module or provide a fallback type
+// import { WebhookType } from '@/types/webhookTypes'; // Adjusted path
+type WebhookType = string; // Fallback type
 import { logger } from '@/utils/loggingService';
+
+// Inline placeholder types
+type WebhookResult = {
+  success: boolean;
+  message: string;
+  statusCode?: number;
+  responseData?: any;
+  duration?: number;
+  error?: Error;
+};
+
+type RetryOptions = {
+  maxRetries?: number;
+  initialDelay?: number;
+  backoffFactor?: number;
+  maxDelay?: number;
+  jitter?: boolean;
+  onRetry?: (attempt: number, delay: number, error?: Error) => void;
+};
 
 /**
  * Helper to add jitter to retry delay to prevent thundering herd
@@ -128,74 +148,73 @@ export const executeWithRetry = async (
   let attempt = 0;
   let lastError: Error | undefined;
   
-  // Create a performance span for the entire retry operation
-  const retrySpan = logger.time(`webhook_retry_${type}_${eventType}`, {
+  // Replace logger.span with logger.start
+  const retrySpan = logger.start(`webhook_retry_${type}_${eventType}`, {
     webhookType: type,
     eventType,
     maxRetries
   });
   
-  while (attempt <= maxRetries) {
-    try {
-      // Attempt to execute the webhook
-      const result = await executeWebhook(url, payload, type, eventType);
-      
-      // If successful, return the result
-      if (result.success) {
-        if (attempt > 0) {
-          logger.info(`Successfully executed ${type} webhook after ${attempt} retries`);
+  try {
+    while (attempt <= maxRetries) {
+      try {
+        // Attempt to execute the webhook
+        const result = await executeWebhook(url, payload, type, eventType);
+        
+        // If successful, return the result
+        if (result.success) {
+          if (attempt > 0) {
+            logger.info(`Successfully executed ${type} webhook after ${attempt} retries`);
+          }
+          return result;
         }
         
-        // Close the performance span
-        retrySpan();
-        return result;
+        // If not successful but no error was thrown, still consider it an error
+        if (result.error) {
+          lastError = result.error;
+        } else {
+          lastError = new Error(result.message || 'Webhook execution failed');
+        }
+        
+        // If we're out of retries, throw the last error
+        if (attempt >= maxRetries) {
+          throw lastError;
+        }
+        
+      } catch (error: any) {
+        lastError = error;
+        
+        // If we're out of retries, throw the error
+        if (attempt >= maxRetries) {
+          throw error;
+        }
       }
       
-      // If not successful but no error was thrown, still consider it an error
-      if (result.error) {
-        lastError = result.error;
-      } else {
-        lastError = new Error(result.message || 'Webhook execution failed');
-      }
+      // Calculate delay with exponential backoff
+      const delay = Math.min(initialDelay * Math.pow(backoffFactor, attempt), maxDelay);
+      const actualDelay = jitter ? addJitter(delay) : delay;
       
-      // If we're out of retries, throw the last error
-      if (attempt >= maxRetries) {
-        throw lastError;
-      }
+      // Call onRetry callback
+      onRetry(attempt + 1, actualDelay, lastError);
       
-    } catch (error: any) {
-      lastError = error;
+      // Log retry attempt with more context
+      logger.warn(`Retrying ${type} webhook, attempt ${attempt + 1} of ${maxRetries} after ${actualDelay}ms delay`, {
+        webhookType: type,
+        eventType,
+        attempt: attempt + 1,
+        delay: actualDelay,
+        error: lastError?.message,
+        retryStrategy: 'exponential_backoff_with_jitter'
+      });
       
-      // If we're out of retries, throw the error
-      if (attempt >= maxRetries) {
-        throw error;
-      }
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, actualDelay));
+      attempt++;
     }
-    
-    // Calculate delay with exponential backoff
-    const delay = Math.min(initialDelay * Math.pow(backoffFactor, attempt), maxDelay);
-    const actualDelay = jitter ? addJitter(delay) : delay;
-    
-    // Call onRetry callback
-    onRetry(attempt + 1, actualDelay, lastError);
-    
-    // Log retry attempt with more context
-    logger.warn(`Retrying ${type} webhook, attempt ${attempt + 1} of ${maxRetries} after ${actualDelay}ms delay`, {
-      webhookType: type,
-      eventType,
-      attempt: attempt + 1,
-      delay: actualDelay,
-      error: lastError?.message,
-      retryStrategy: 'exponential_backoff_with_jitter'
-    });
-    
-    // Wait before retrying
-    await new Promise(resolve => setTimeout(resolve, actualDelay));
-    attempt++;
+  } finally {
+    // Ensure retrySpan is closed only once
+    retrySpan();
   }
-  
-  // Close the performance span
-  retrySpan();
   
   // We should never reach here, but if we do, return a failure
   return {

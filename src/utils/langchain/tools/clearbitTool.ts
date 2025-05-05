@@ -1,5 +1,8 @@
-
 import { DynamicTool } from "langchain/tools";
+
+type GlobalWithEnv = typeof globalThis & { [key: string]: any };
+
+const g = global as GlobalWithEnv;
 
 /**
  * Initialize the Clearbit client with API key
@@ -10,7 +13,7 @@ export function initClearbitClient(apiKey: string): void {
     return;
   }
   
-  global.CLEARBIT_API_KEY = apiKey;
+  g.CLEARBIT_API_KEY = apiKey;
 }
 
 /**
@@ -22,7 +25,7 @@ export function createClearbitTool() {
     description: "Use this to enrich a lead or company using Clearbit (domain or email).",
     func: async (input: string) => {
       try {
-        const apiKey = global.CLEARBIT_API_KEY;
+        const apiKey = g.CLEARBIT_API_KEY;
         
         if (!apiKey) {
           return "Clearbit client not initialized. Please set CLEARBIT_API_KEY first.";

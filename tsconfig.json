@@ -5,9 +5,9 @@
     "lib": ["DOM", "ESNext"],
     "jsx": "react-jsx",
     "moduleResolution": "node",
-    "baseUrl": ".",
+    "baseUrl": ".",                // 👈 Required
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"]            // 👈 This maps @ to /src
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -19,6 +19,7 @@
   },
   "include": [
     "src",
-    "**/*.tsx"
+    "**/*.tsx",
+    "vite.config.ts"
   ]
 }

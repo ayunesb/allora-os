@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { logger } from "@/utils/loggingService";
 import { ErrorType } from "./errorTypes";
@@ -27,10 +26,11 @@ export function handleError(
 
   // Extract error message
   const errorMessage = error?.message || String(error);
+  const errorType = (error?.type as keyof typeof ErrorType) || 'UNEXPECTED_ERROR';
   const errorDetails = {
     message: errorMessage,
     stack: error?.stack,
-    type: type || (error?.type || ErrorType.UNEXPECTED_ERROR),
+    type: type || errorType,
     ...context
   };
 

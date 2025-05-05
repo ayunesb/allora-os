@@ -1,7 +1,14 @@
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 // Fixed import casing
 import SomeComponent from '../components/SomeComponent';
 
-export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
-  return <div>{children}</div>;
-}
+const OnboardingLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  return (
+    <div>
+      {children || <Outlet />} {/* Provide fallback if children are missing */}
+    </div>
+  );
+};
+
+export default OnboardingLayout;

@@ -1,5 +1,8 @@
-
 import { DynamicTool } from "langchain/tools";
+
+type GlobalWithEnv = typeof globalThis & { [key: string]: any };
+
+const g = global as GlobalWithEnv;
 
 /**
  * Initialize the Plaid client with API credentials
@@ -10,10 +13,10 @@ export function initPlaidClient(clientId: string, secret: string, accessToken: s
     return;
   }
   
-  global.PLAID_CLIENT_ID = clientId;
-  global.PLAID_SECRET = secret;
-  global.PLAID_ACCESS_TOKEN = accessToken;
-  global.PLAID_ENV = env;
+  g.PLAID_CLIENT_ID = clientId;
+  g.PLAID_SECRET = secret;
+  g.PLAID_ACCESS_TOKEN = accessToken;
+  g.PLAID_ENV = env;
 }
 
 /**
@@ -25,9 +28,9 @@ export function createPlaidTool() {
     description: "Use this to retrieve business cashflow, transactions, and account balances via Plaid.",
     func: async (input: string) => {
       try {
-        const clientId = global.PLAID_CLIENT_ID;
-        const secret = global.PLAID_SECRET;
-        const accessToken = global.PLAID_ACCESS_TOKEN;
+        const clientId = g.PLAID_CLIENT_ID;
+        const secret = g.PLAID_SECRET;
+        const accessToken = g.PLAID_ACCESS_TOKEN;
         
         if (!clientId || !secret || !accessToken) {
           return "Plaid client not initialized. Please set PLAID_CLIENT_ID, PLAID_SECRET, and PLAID_ACCESS_TOKEN first.";

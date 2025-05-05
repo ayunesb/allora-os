@@ -2,15 +2,19 @@ import { showToast } from './toast';
 
 export const toastService = {
 	success: (message: string) =>
-		showToast({ title: message, type: 'success' }),
+		showToast(`Success: ${message}`),
 	error: (message: string) =>
-		showToast({ title: message, type: 'error' }),
+		showToast(`Error: ${message}`),
 	info: (message: string) =>
-		showToast({ title: message, type: 'info' }),
+		showToast(`Info: ${message}`),
 	warning: (message: string) =>
-		showToast({ title: message, type: 'warning' }),
+		showToast(`Warning: ${message}`),
 	default: (message: string) =>
-		showToast({ title: message, type: 'default' }),
+		showToast(message),
+};
+
+export const triggerToast = (message: string) => {
+  // ...existing code...
 };
 
 function loadPluginsByStrategy(strategy_id: any): Promise<any[]> {

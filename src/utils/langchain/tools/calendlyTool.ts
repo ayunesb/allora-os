@@ -1,5 +1,8 @@
-
 import { DynamicTool } from "langchain/tools";
+
+type GlobalWithEnv = typeof globalThis & { [key: string]: any };
+
+const g = global as GlobalWithEnv;
 
 /**
  * Initialize the Calendly client with API key and user URI
@@ -10,8 +13,8 @@ export function initCalendlyClient(apiKey: string, userUri: string): void {
     return;
   }
   
-  global.CALENDLY_API_KEY = apiKey;
-  global.CALENDLY_USER_URI = userUri;
+  g.CALENDLY_API_KEY = apiKey;
+  g.CALENDLY_USER_URI = userUri;
 }
 
 /**
@@ -23,8 +26,8 @@ export function createCalendlyTool() {
     description: "Check availability or schedule meetings via Calendly",
     func: async (input: string) => {
       try {
-        const apiKey = global.CALENDLY_API_KEY;
-        const userUri = global.CALENDLY_USER_URI;
+        const apiKey = g.CALENDLY_API_KEY;
+        const userUri = g.CALENDLY_USER_URI;
         
         if (!apiKey || !userUri) {
           return "Calendly client not initialized. Please set CALENDLY_API_KEY and CALENDLY_USER_URI first.";

@@ -1,4 +1,3 @@
-
 import { WebhookEvent } from '@/types/fixed/Webhook';
 
 /**
@@ -29,7 +28,7 @@ export function createWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
     webhookType: data.webhookType || 'custom',
     timestamp: data.timestamp || new Date().toISOString(),
     duration: data.duration,
-    errorMessage: data.errorMessage,
+    errorMessage: data?.errorMessage ?? 'Unknown error',
     responseCode: data.responseCode,
     source: data.source,
     response: data.response

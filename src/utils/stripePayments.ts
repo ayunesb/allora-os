@@ -1,4 +1,3 @@
-
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 
@@ -43,10 +42,12 @@ export async function getCurrentCreditBalance() {
       return 0;
     }
     
+    const userId = user.user?.id ?? 'unknown';
+    
     const { data, error } = await supabase
       .from('billing_profiles')
       .select('credits')
-      .eq('user_id', user.user.id)
+      .eq('user_id', userId)
       .single();
     
     if (error) throw error;

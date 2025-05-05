@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/loggingService';
 
@@ -24,7 +23,7 @@ export async function logSecurityEvent(
   eventType: string, 
   details: string, 
   userId?: string, 
-  severity: number = 1,
+  severity?: number,
   metadata?: Record<string, any>
 ): Promise<boolean>;
 
@@ -162,3 +161,19 @@ export const log = logAuditEvent;
 
 // Also add logSystemChange for backward compatibility
 export const logSystemChange = logAuditEvent;
+
+function logAudit({
+  severity = 1,
+  eventType,
+  details,
+  userId,
+  metadata
+}: {
+  severity?: number;
+  eventType: string;
+  details: string;
+  userId?: string;
+  metadata?: Record<string, any>;
+}) {
+  // ...existing code...
+}

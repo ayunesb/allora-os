@@ -1,11 +1,17 @@
-
 /**
  * Social Media Validation Constants
  * 
  * This file contains constants used in social media validation
  */
 
-import { SocialPlatform } from '@/types/socialMedia';
+type SocialPlatform = "Facebook" | "Instagram" | "Twitter" | "TikTok" | "LinkedIn"; // Added LinkedIn to the type
+
+const SocialPlatform: Record<string, number> = {
+  Facebook: 1,
+  Twitter: 2,
+  TikTok: 3,
+  LinkedIn: 4,
+};
 
 /**
  * URL regex pattern for validating URLs in social media content

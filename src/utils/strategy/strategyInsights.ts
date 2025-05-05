@@ -1,9 +1,9 @@
+import { Strategy, GeneratedStrategy } from '@/types/fixed/strategyTypes';
 import {
   ImplementationStep,
   StrategyStrength,
   StrategyWeakness,
 } from "@/utils/strategy/strategyAnalysis";
-import { Strategy, GeneratedStrategy } from "./strategyTypes";
 
 export const analyzeStrategyFactors = (
   strategy: Strategy | GeneratedStrategy

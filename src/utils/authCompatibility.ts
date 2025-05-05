@@ -1,4 +1,3 @@
-
 import { User } from '@/types/fixed/User';
 import { AuthContextProps } from '@/types/fixed/Auth';
 
@@ -22,7 +21,8 @@ export function createAuthCompatibilityLayer(authContext: any): AuthContextProps
     signOut: async () => {},
     login: async () => ({ success: false, error: 'Auth context not available' }),
     signIn: async () => ({ success: false, error: 'Auth context not available' }),
-    logout: async () => Promise.resolve()
+    logout: async () => Promise.resolve(),
+    session: null
   };
   
   // Extract user from different possible auth context structures
@@ -61,23 +61,24 @@ export function normalizeUserObject(userObject: any): User | null {
   
   // Build consistent user object
   const normalizedUser: User = {
-    id: userObject.id || '',
-    email: userObject.email || '',
-    name: userObject.name || 
-          userMetadata?.name || 
+      id: userObject.id || '',
+      email: userObject.email || '',
+      name: userObject.name ||
+          userMetadata?.name ||
           `${userObject.firstName || userMetadata?.firstName || ''} ${userObject.lastName || userMetadata?.lastName || ''}`.trim(),
-    firstName: userObject.firstName || userMetadata?.firstName || '',
-    lastName: userObject.lastName || userMetadata?.lastName || '',
-    role: userObject.role || 
+      firstName: userObject.firstName || userMetadata?.firstName || '',
+      lastName: userObject.lastName || userMetadata?.lastName || '',
+      role: userObject.role ||
           (appMetadata?.is_admin ? 'admin' : 'user'),
-    created_at: userObject.created_at || new Date().toISOString(),
-    avatar: userObject.avatar,
-    avatar_url: userObject.avatar_url || userObject.avatar,
-    company: userObject.company || userMetadata?.company || '',
-    company_id: userObject.company_id || userMetadata?.company_id || '',
-    industry: userObject.industry || userMetadata?.industry || '',
-    app_metadata: appMetadata,
-    user_metadata: userMetadata,
+      created_at: userObject.created_at || new Date().toISOString(),
+      avatar: userObject.avatar,
+      avatar_url: userObject.avatar_url || userObject.avatar,
+      company: userObject.company || userMetadata?.company || '',
+      company_id: userObject.company_id || userMetadata?.company_id || '',
+      industry: userObject.industry || userMetadata?.industry || '',
+      app_metadata: appMetadata,
+      user_metadata: userMetadata,
+      tenant_id: ''
   };
 
   return normalizedUser;

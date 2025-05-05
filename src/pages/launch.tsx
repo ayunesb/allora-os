@@ -3,6 +3,23 @@ import { Button } from '@/components/ui/button';
 import { Check, Rocket, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import React from 'react';
+
+interface LaunchProps {
+  title: string;
+  description: string;
+  // Removed unused `onClickConfirm` prop
+}
+
+const Launch: React.FC<LaunchProps> = ({ title, description }) => {
+  return (
+    <div>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </div>
+  );
+};
+
 const features = [
     'AI CEO Strategy Generator',
     'Campaign Deployment: WhatsApp, TikTok, Meta, Email',

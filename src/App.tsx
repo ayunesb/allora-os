@@ -45,6 +45,7 @@ const App = () => {
                 <Routes>
                   <Route path="/plugin/:id" element={<PluginDetailPage />}/>
                   <Route path="/strategy/:id" element={<StrategyDetailPage />}/>
+                  <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>
               </Suspense>
               <Toaster position="top-right"/>

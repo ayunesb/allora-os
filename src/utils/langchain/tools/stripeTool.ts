@@ -1,4 +1,3 @@
-
 import { DynamicTool } from "langchain/tools";
 import { Client } from "@notionhq/client";
 
@@ -16,7 +15,7 @@ export function initStripeClient(apiKey: string): void {
   // Dynamically import Stripe to avoid bundling it in the client
   import('stripe').then(({ default: Stripe }) => {
     stripe = new Stripe(apiKey, {
-      apiVersion: '2023-10-16', // Using a stable API version
+      apiVersion: '2025-04-30.basil', // Using a stable API version
     });
   }).catch(err => {
     console.error("Failed to initialize Stripe client", err);
