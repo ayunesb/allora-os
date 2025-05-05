@@ -1,6 +1,3 @@
-export const fetchApi = async (
-  url: string,
-  options?: RequestInit
-): Promise<any> => {
-  return fetch(url, options);
+export const fetchApi = async (url: string, options?: RequestInit) => {
+  return await fetch(url, options);
 };
