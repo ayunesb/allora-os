@@ -24,7 +24,13 @@ export interface WebhookEvent {
   resource: 'example-resource-id', // Added resource to return object
 }
 
-// Add missing types referenced in hooks and components
+export interface WebhookEvent {
+  eventType: string;
+  status: WebhookStatus;
+  resource: string; // ✅ required field
+  // ...other fields
+} // 👈 this closing brace was missing
+
 export interface WebhookTestResult {
   success: boolean;
   message?: string;
@@ -52,4 +58,4 @@ export type BusinessEventType =
 export interface BusinessEventPayload {
   eventType: BusinessEventType;
   data: Record<string, any>;
-}export type WebhookStatus = 'pending' | 'success' | 'failed';export interface WebhookEvent {  id: string;  status: WebhookStatus;  resource: string;  errorMessage?: string;  // ...any other fields}
+}
