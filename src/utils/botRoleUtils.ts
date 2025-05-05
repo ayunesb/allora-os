@@ -1,7 +1,7 @@
 export type BotRoleKey = 'ceo' | 'coo' | 'cfo' | 'cio' | 'cto' | 'cmo' | string;
 
-const botSpecialSkills: Record<BotRoleKey, string> = {
-  ceo: "vision",
+const botSpecialSkills: Record<string, string> = {
+  ceo: 'visionary',
   coo: "ops",
   admin: 'manageUsers',
   moderator: 'banUsers',

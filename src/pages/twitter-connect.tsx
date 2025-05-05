@@ -17,6 +17,7 @@ const TwitterConnect = () => {
   }, [session]);
 
   const handleConnect = async () => {
+    const params = { key: 'value' }; // Replace with actual expected structure
     const params = {
       tenant_id: user?.tenant_id,
       twitterToken: '...',

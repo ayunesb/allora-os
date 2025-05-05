@@ -17,11 +17,12 @@ export const recordPluginEvent = async (params: {
   tenant_id: string;
   value: number;
 }) => {
-  return await fetchApi('/api/plugin-event', {
+  const requestBody = JSON.stringify(params);
+  return await fetchApi('/api/plugin-event', JSON.stringify({
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+    body: requestBody,
+  }));
 };
 
 /**

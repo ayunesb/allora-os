@@ -1,6 +1,6 @@
 import { fetchApi } from '@/services/api/fetchApi';
 
-// ...existing code...
+const params = {}; // Defined params or fetch via queryParams/props
 
 await fetchApi('/api/plugin-event', {
   method: 'POST',

@@ -1,6 +1,10 @@
-const botSpecialSkills: Record<string, string> = {
-  ceo: "vision",
-  cto: "technology",
+type BotSpecialSkills = {
+  [key: string]: string; // Define index signature with proper typing
+};
+
+const botSpecialSkills: BotSpecialSkills = {
+  ceo: "visionary",
+  cto: "technical leadership",
   cfo: "finance",
   coo: "operations",
   cmo: "marketing",
@@ -85,3 +89,5 @@ const botSpecialSkills: Record<string, string> = {
   technologist: "innovation",
   writer: "content",
 };
+
+export { botSpecialSkills };

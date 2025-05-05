@@ -20,6 +20,8 @@ export interface WebhookEvent {
   // Add back these fields which are referenced in components
   eventType?: string;
   webhook_type?: WebhookType;
+  errorMessage?: string; // add this
+  resource: 'example-resource-id', // Added resource to return object
 }
 
 // Add missing types referenced in hooks and components
@@ -50,15 +52,4 @@ export type BusinessEventType =
 export interface BusinessEventPayload {
   eventType: BusinessEventType;
   data: Record<string, any>;
-}
-
-export type WebhookEvent = 'USER_CREATED' | 'ORDER_PLACED' | 'PAYMENT_RECEIVED';
-
-export type WebhookStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
-
-export interface Webhook {
-  id: string;
-  event: WebhookEvent;
-  status: WebhookStatus;
-  // ...existing code...
-}
+}export type WebhookStatus = 'pending' | 'success' | 'failed';export interface WebhookEvent {  id: string;  status: WebhookStatus;  resource: string;  errorMessage?: string;  // ...any other fields}

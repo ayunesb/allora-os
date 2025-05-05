@@ -5,6 +5,23 @@ import {
 } from '@/backend/executiveBots';
 import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
 
+const botSpecialSkills: Record<string, string> = {
+  ceo: 'visionary',
+  cto: 'tech visionary',
+  // ... other roles
+};
+
+const botOutputLocations: Record<string, string> = {
+  ceo: 'strategy',
+  cto: 'technical_docs',
+  // ...
+};
+
+const botExampleActions: Record<string, string> = {
+  ceo: 'lead company mission',
+  // ...
+};
+
 export const formatRoleTitle = (role: string): string => {
   switch (role) {
     // C-Suite

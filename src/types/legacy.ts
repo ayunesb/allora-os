@@ -1,4 +1,3 @@
-
 // This file re-exports types from the central index.ts file
 // It's kept for backward compatibility with existing imports
 import {
@@ -12,7 +11,7 @@ import {
   ExecutiveAgentProfile,
   AgentOptions,
   AgentRunOptions,
-  AccessibilityContextType,
+  ExtendedAccessibilityContextType,
   ValidationResultsUI,
   ChecklistItem,
   ChecklistCategory,
@@ -31,7 +30,7 @@ export type {
   ExecutiveAgentProfile,
   AgentOptions,
   AgentRunOptions,
-  AccessibilityContextType,
+  ExtendedAccessibilityContextType,
   ValidationResultsUI,
   ChecklistItem,
   ChecklistCategory,

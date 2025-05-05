@@ -97,7 +97,12 @@ export const analyzeStrategyFactors = (
   }
   
   // If it's already a GeneratedStrategy, call the original function
-  return analyzeStrategy(strategy as GeneratedStrategy);
+  type PatchedStrategy = GeneratedStrategy & {
+    estimatedROI: number;
+    successMetrics: string[];
+  };
+
+  return analyzeStrategy(strategy as PatchedStrategy);
 };
 
 // Re-export analyzeStrategy with a clear name

@@ -1,4 +1,4 @@
-
+/// <reference types="vitest" />
 import '@testing-library/jest-dom';
 
 // Mock ResizeObserver which is not available in jsdom

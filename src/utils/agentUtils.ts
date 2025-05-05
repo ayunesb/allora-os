@@ -1,3 +1,4 @@
+import type { ExecutiveAgentProfile } from '@/types/fixed/AgentTypes';
 import { supabase } from '@/supabaseClient';
 
 /**

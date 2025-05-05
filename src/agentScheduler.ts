@@ -7,6 +7,7 @@ const botExampleActions: Agent = {
   actions: [
     // ...existing code...
   ],
+  riskLevel: 'Medium', // Fixed riskLevel
 };
 
 const botOutputLocations: Agent = {
@@ -16,6 +17,7 @@ const botOutputLocations: Agent = {
   actions: [
     // ...existing code...
   ],
+  riskLevel: 'Medium', // Fixed riskLevel
 };
 
 const personalityXpMap: Record<AgentPersonality, number> = {
@@ -27,11 +29,12 @@ const personalityXpMap: Record<AgentPersonality, number> = {
 };
 
 // Define the executive object with a valid personality
-const executive: Agent = {
+const executive: ExecutiveAgentProfile = {
   id: 'executiveAgent',
   name: 'Executive Agent',
-  personality: "analytical" as const,
+  personality: 'analytical', // ✅ Matches the union type
   actions: [],
+  riskLevel: 'Medium', // Fixed riskLevel
 };
 
 const xp = personalityXpMap[executive.personality];

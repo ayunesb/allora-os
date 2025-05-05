@@ -7,10 +7,7 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@/api/*": ["src/api/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/types/*": ["src/types/*"]
+      "@/*": ["src/*"]
     },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

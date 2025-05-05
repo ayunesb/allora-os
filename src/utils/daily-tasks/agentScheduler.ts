@@ -1,4 +1,3 @@
-
 /**
  * Scheduler for autonomous executive agents to run daily tasks
  */
@@ -142,4 +141,28 @@ async function getCompanyContext(): Promise<string> {
     logger.error('Failed to get company context', error);
     return "";
   }
+}
+
+const executive: LocalExecutiveAgentProfile = {
+  name: 'Jane',
+  role: 'coo',
+  expertise: ['ops'],
+  description: 'Ops expert',
+  personality: 'analytical', // Must match union
+  decisionStyle: 'balanced',
+};
+
+// Add type if needed
+type AgentOptions = {
+  includeRiskAssessment?: boolean;
+};
+
+// Rename the local interface to avoid conflict
+export interface LocalExecutiveAgentProfile {
+  name: string;
+  role: string;
+  expertise: string[];
+  description: string;
+  personality: 'analytical' | 'creative' | 'strategic' | 'collaborative';
+  decisionStyle: 'intuitive' | 'data_driven' | 'consensus' | 'directive' | 'adaptive' | 'balanced';
 }

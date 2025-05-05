@@ -30,5 +30,5 @@ export { type BusinessEventType, type BusinessEventPayload, type WebhookResult }
 export { ChecklistCategory, ChecklistItem } from './Checklist';
 import { User } from './user'; // Updated import
 
-export * from "./Agent"; // Ensure this is only exported once
+export * from "./fixed/Agent"; // Kept only one export
 export * from "./Webhook"; // Keep only one export for WebhookType
