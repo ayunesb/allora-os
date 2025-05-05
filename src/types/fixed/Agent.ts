@@ -1,4 +1,3 @@
-
 export interface ExecutiveAgentProfile {
   name: string;
   role: string;

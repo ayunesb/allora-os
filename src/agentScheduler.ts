@@ -39,4 +39,9 @@ const executive: ExecutiveAgentProfile = {
 
 const xp = personalityXpMap[executive.personality];
 
+const task = selectTaskForExecutive({
+  ...executive,
+  personality: executive.personality as 'analytical' | 'creative' | 'diplomatic' | 'aggressive' | 'cautious'
+});
+
 // Repeat this fix for similar objects like botExampleActions, botOutputLocations, etc.

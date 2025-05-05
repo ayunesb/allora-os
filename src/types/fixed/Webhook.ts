@@ -4,32 +4,14 @@ export type WebhookStatus = "pending" | "success" | "failed";
 export interface WebhookEvent {
   id: string;
   webhook_id: string;
-  event_type: string;
-  webhookType: WebhookType;
+  eventType: string; // Consolidated property
   status: WebhookStatus;
-  payload: Record<string, any>;
   created_at: string;
-  timestamp?: string;
-  duration?: number;
-  response?: any;
-  responseCode?: number;
-  targetUrl?: string;
-  source?: string;
-  url?: string;
-  type?: string;
-  // Add back these fields which are referenced in components
-  eventType?: string;
-  webhook_type?: WebhookType;
-  errorMessage?: string; // add this
-  resource: 'example-resource-id', // Added resource to return object
+  payload: Record<string, any>;
+  targetUrl: string;
+  response: any;
+  resource: string; // Consolidated property
 }
-
-export interface WebhookEvent {
-  eventType: string;
-  status: WebhookStatus;
-  resource: string; // ✅ required field
-  // ...other fields
-} // 👈 this closing brace was missing
 
 export interface WebhookTestResult {
   success: boolean;

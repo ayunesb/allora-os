@@ -64,4 +64,10 @@ export const onboardingRoutes: RouteObject[] = [
   },
 ];
 
+const normalizedRisk = ['Low', 'Medium', 'High'].includes(strategy.riskLevel || '')
+  ? strategy.riskLevel
+  : 'Medium';
+
+return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk as 'Low' | 'Medium' | 'High' });
+
 export default onboardingRoutes;

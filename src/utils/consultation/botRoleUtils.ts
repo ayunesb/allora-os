@@ -1,9 +1,8 @@
-import { 
-  botSpecialSkills, 
-  botOutputLocations, 
-  botExampleActions 
-} from '@/backend/executiveBots';
-import { ExecutiveBot } from '@/types/fixed/ExecutiveBot';
+import {
+  botSpecialSkills as importedBotSpecialSkills,
+  botOutputLocations as importedBotOutputLocations,
+  botExampleActions as importedBotExampleActions
+} from '@/constants/botSkills';
 
 const botSpecialSkills: Record<string, string> = {
   ceo: 'visionary',
@@ -235,8 +234,8 @@ export const formatRoleTitle = (role: string): string => {
 
 export const getBotExpertise = (role: string): string => {
   // Use the specialized skills if available
-  if (botSpecialSkills && botSpecialSkills[role]) {
-    return botSpecialSkills[role];
+  if (importedBotSpecialSkills && importedBotSpecialSkills[role]) {
+    return importedBotSpecialSkills[role];
   }
   
   // Fall back to default expertise by role category
@@ -333,8 +332,8 @@ export const getBotExpertise = (role: string): string => {
 };
 
 export const getBotOutputLocation = (role: string): string => {
-  if (botOutputLocations && botOutputLocations[role]) {
-    return botOutputLocations[role];
+  if (importedBotOutputLocations && importedBotOutputLocations[role]) {
+    return importedBotOutputLocations[role];
   }
   
   // Default output locations by category
@@ -358,8 +357,8 @@ export const getBotOutputLocation = (role: string): string => {
 };
 
 export const getBotExampleAction = (role: string): string => {
-  if (botExampleActions && botExampleActions[role]) {
-    return botExampleActions[role];
+  if (importedBotExampleActions && importedBotExampleActions[role]) {
+    return importedBotExampleActions[role];
   }
   
   // Default example actions by category
