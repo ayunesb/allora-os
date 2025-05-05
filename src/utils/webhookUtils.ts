@@ -41,3 +41,22 @@ export function createWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
     eventType: event.event_type
   };
 }
+
+export function buildWebhookResponse(data: Partial<WebhookEvent>): WebhookEvent {
+  return {
+    id: data.id || '',
+    eventType: data.eventType || 'custom',
+    webhook_id: data.webhook_id || '',
+    status: data.status || 'pending',
+    created_at: data.created_at || new Date().toISOString(),
+    payload: data.payload || {},
+    targetUrl: data.targetUrl || '',
+    webhookType: data.webhookType || 'custom',
+    timestamp: data.timestamp || new Date().toISOString(),
+    duration: data.duration || 0,
+    errorMessage: data.errorMessage ?? 'Unknown error',
+    responseCode: data.responseCode ?? 500,
+    resource: data.resource || 'unknown',
+    response: data.response || {},
+  };
+}

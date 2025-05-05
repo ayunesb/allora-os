@@ -59,7 +59,10 @@ async function createStripeCustomer(
       industry,
       source: 'allora_platform'
     };
-    await createStripeCustomerUtil({ customerId, ...customerData });
+    await createStripeCustomerUtil({
+      customerId,
+      ...customerData,
+    } as any); // or update createStripeCustomerUtil to accept full object
     if (!response.success) {
       throw new Error(response.message ?? 'Unknown error'); // Ensure `message` is accessed correctly
     }

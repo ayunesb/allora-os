@@ -142,3 +142,14 @@ const getStrategyDetails = (strategy: Strategy) => {
     name: strategy.name,
   };
 };
+
+import { analyzeStrategy } from '@/utils/analysisEngine';
+import { PatchedStrategy } from '@/types/unified-types';
+
+export function getAnalyzedStrategy(strategy: PatchedStrategy) {
+  const normalizedRisk = ['Low', 'Medium', 'High'].includes(strategy.riskLevel || '')
+    ? strategy.riskLevel
+    : 'Medium';
+
+  return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk as 'Low' | 'Medium' | 'High' });
+}

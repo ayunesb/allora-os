@@ -24,12 +24,15 @@ export interface KPIMetric {
   recorded_at: string;
 }
 
-export type BusinessEventType = 'campaign' | 'lead';
+export type BusinessEventType = 'signup' | 'purchase' | 'unsubscribe';
 
 export interface BusinessEventPayload {
-  // Define the structure of the payload
+  event: BusinessEventType;
+  data: Record<string, any>;
 }
 
 export interface WebhookResult {
-  // Define the structure of the result
+  success: boolean;
+  code?: number;
+  error?: string;
 }
