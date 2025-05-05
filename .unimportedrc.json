@@ -1,0 +1,5 @@
+{
+  "entry": ["src/main.tsx"],
+  "extensions": [".ts", ".tsx", ".js"],
+  "ignorePatterns": ["**/*.test.*", "**/*.d.ts", "**/*.config.*"]
+}

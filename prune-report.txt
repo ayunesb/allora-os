@@ -1,0 +1,1673 @@
+vite.config.ts:5 - default
+src/apiClient.tsx:4 - onboardingRoutes (used in module)
+src/apiClient.tsx:105 - default (used in module)
+src/AppRoutes.tsx:5 - allRoutes
+src/authService.ts:3 - onboardingRoutes (used in module)
+src/authService.ts:66 - default (used in module)
+src/campaignHelpers.ts:3 - fetchApi
+src/demoCompanySetup.ts:3 - onboardingRoutes (used in module)
+src/demoCompanySetup.ts:66 - default (used in module)
+src/demoData.tsx:4 - onboardingRoutes (used in module)
+src/demoData.tsx:105 - default (used in module)
+src/enhancedApiClient.ts:11 - default
+src/fetchApi.ts:1 - fetchApi
+src/GalaxyGraph.tsx:27 - default
+src/humanStyleResponder.ts:3 - fetchApi
+src/impact.tsx:13 - default
+src/leaderboard.tsx:13 - default
+src/masterAccountIntegrations.ts:3 - createCustomerRecord
+src/onboarding-routes.tsx:4 - onboardingRoutes (used in module)
+src/onboarding-routes.tsx:105 - default (used in module)
+src/pluginAgent.ts:3 - fetchApi
+src/publish.tsx:13 - default
+src/some-component.tsx:3 - onboardingRoutes (used in module)
+src/some-component.tsx:66 - default (used in module)
+src/some-file.ts:4 - onboardingRoutes (used in module)
+src/some-file.ts:67 - default (used in module)
+src/strategyAnalysis.ts:2 - StrategyStrength
+src/strategyAnalysis.ts:3 - StrategyWeakness
+src/strategyAnalysis.ts:4 - ImplementationStep
+src/strategyInsights.ts:4 - onboardingRoutes (used in module)
+src/strategyInsights.ts:67 - default (used in module)
+src/templateAPI.ts:4 - templateAPI
+src/webhookService.tsx:4 - onboardingRoutes (used in module)
+src/webhookService.tsx:105 - default (used in module)
+types/allora-models.ts:1 - CampaignStatus (used in module)
+types/allora-models.ts:2 - Platform (used in module)
+types/allora-models.ts:4 - Campaign
+types/allora-models.ts:20 - WebhookType (used in module)
+types/allora-models.ts:21 - WebhookEvent
+types/allora-models.ts:32 - SocialMediaPost
+types/api.ts:1 - ApiResponse
+types/api.ts:8 - PluginEventParams
+src/agents/decisionService.ts:35 - saveDecisionToDatabase
+src/agents/executiveMessaging.ts:8 - fetchExecutiveInbox
+src/agents/executiveMessaging.ts:27 - formatInboxForPrompt
+src/agents/executiveMessaging.ts:42 - markMessagesAsRead (used in module)
+src/agents/executiveMessaging.ts:57 - notifyOtherExecutives
+src/agents/executiveMessaging.ts:83 - sendExecutiveMessage (used in module)
+src/agents/executiveMessaging.ts:106 - generateExecutiveMessage
+src/agents/forecaster.ts:11 - trainForecastModel (used in module)
+src/agents/forecaster.ts:46 - forecastFuture (used in module)
+src/agents/forecaster.ts:64 - forecastExecutiveResources
+src/agents/index.ts:24 - runExecutiveAgent
+src/agents/index.ts:9 - executiveProfiles
+src/agents/index.ts:11 - getExecutiveDecisions
+src/agents/index.ts:10 - saveExecutiveDecision
+src/agents/index.ts:41 - fetchCoachingMemories
+src/agents/meshNetwork.ts:3 - ExecutiveMessage (used in module)
+src/agents/meshNetwork.ts:13 - sendExecutiveMessage
+src/agents/meshNetwork.ts:18 - getRecentMessages
+src/agents/pluginAgent.ts:3 - executePlugins
+src/agents/promptTemplates.ts:5 - executivePromptTemplate
+src/agents/resourceManager.ts:59 - adjustVoteWeight
+src/agents/testAgent.ts:12 - testExecutiveAgent (used in module)
+src/api/fetchApi.ts:7 - fetchApiPost (used in module)
+src/api/plugin-chat.ts:3 - default
+src/backend/adminService.ts:8 - AdminUserUpdateData (used in module)
+src/backend/adminService.ts:14 - AdminCompanyUpdateData (used in module)
+src/backend/adminService.ts:20 - getAllUsers
+src/backend/adminService.ts:51 - getAllCompanies
+src/backend/adminService.ts:71 - updateUserAsAdmin
+src/backend/adminService.ts:95 - updateCompanyAsAdmin
+src/backend/adminService.ts:119 - deleteUserAsAdmin
+src/backend/adminService.ts:145 - deleteCompanyAsAdmin
+src/backend/adminService.ts:166 - getCompanyUsers
+src/backend/analyticsService.ts:6 - CompanyAnalytics (used in module)
+src/backend/analyticsService.ts:13 - ConsultationAnalytics (used in module)
+src/backend/analyticsService.ts:20 - DebateAnalytics (used in module)
+src/backend/analyticsService.ts:27 - SystemAnalytics (used in module)
+src/backend/analyticsService.ts:34 - LeadAnalytics (used in module)
+src/backend/analyticsService.ts:42 - PredictiveAnalytics (used in module)
+src/backend/analyticsService.ts:49 - getCompanyUserAnalytics (used in module)
+src/backend/analyticsService.ts:77 - getConsultationAnalytics (used in module)
+src/backend/analyticsService.ts:114 - getDebateAnalytics (used in module)
+src/backend/analyticsService.ts:144 - getLeadAnalytics (used in module)
+src/backend/analyticsService.ts:184 - getPredictiveAnalytics (used in module)
+src/backend/analyticsService.ts:288 - getSystemAnalytics
+src/backend/debateManager.ts:7 - getInitialParticipants
+src/backend/debateManager.ts:8 - generateBotResponse
+src/backend/debateManager.ts:7 - saveDebateSession
+src/backend/debateManager.ts:27 - getCompanyDebateSessions
+src/backend/debateManager.ts:6 - generateDebateSummary
+src/backend/executiveBots.ts:127 - industrySpecificExecutives
+src/backend/executiveBots.ts:407 - executiveIndustryExpertise
+src/backend/heygen.ts:14 - generateVideo
+src/backend/heygen.ts:80 - getVideoStatus
+src/backend/heygen.ts:124 - listAvatars
+src/backend/heygen.ts:152 - listVoices
+src/backend/postmark.ts:104 - sendCampaignEmail
+src/backend/shopify.ts:8 - listProducts
+src/backend/shopify.ts:44 - getProduct
+src/backend/shopify.ts:81 - createProduct
+src/backend/shopify.ts:120 - createCheckout
+src/backend/shopify.ts:163 - getCheckout
+src/backend/strategy.ts:22 - generateStrategy
+src/backend/strategy.ts:102 - saveStrategy
+src/backend/strategy.ts:6 - Strategy (used in module)
+src/backend/stripe.ts:168 - getProducts
+src/backend/supabase.ts:10 - getSession (used in module)
+src/backend/supabase.ts:10 - getCurrentUser (used in module)
+src/backend/supabase.ts:13 - createAdminClient
+src/backend/twilio.ts:12 - sendSMS
+src/backend/twilio.ts:69 - sendBulkSMS
+src/bot/botMaps.ts:1 - botSpecialSkills
+src/bot/botMaps.ts:7 - botOutputLocations
+src/bot/botMaps.ts:13 - botExampleActions
+src/bot/botMaps.ts:19 - botResponses
+src/bot-detail/MessageType.ts:2 - Message
+src/bot-detail/MessageType.ts:9 - Bot
+src/components/AdminRoute.tsx:54 - default
+src/components/CardSkeleton.tsx:1 - CardSkeleton
+src/components/ConsultationHistory.tsx:8 - default
+src/components/CopyButton.tsx:5 - CopyButton (used in module)
+src/components/CopyButton.tsx:34 - default
+src/components/ExecutiveCards.tsx:12 - default
+src/components/ExecutiveRoster.tsx:5 - default
+src/components/HelmetProvider.tsx:6 - default
+src/components/LogSecurityAlert.tsx:8 - LogSecurityAlert
+src/components/PageTitle.tsx:15 - default
+src/components/ProtectedRoute.tsx:35 - default
+src/components/Sidebar.tsx:14 - default
+src/components/ThemeProvider.tsx:4 - ThemeProvider (used in module)
+src/components/ThemeProvider.tsx:18 - useTheme
+src/config/appConfig.ts:5 - APP_NAME
+src/config/appConfig.ts:6 - APP_VERSION
+src/config/appConfig.ts:7 - APP_DESCRIPTION
+src/config/appConfig.ts:10 - API_BASE_URL
+src/config/appConfig.ts:11 - API_VERSION
+src/config/appConfig.ts:22 - FEATURES
+src/config/appConfig.ts:33 - THEMES
+src/config/appConfig.ts:39 - ANALYTICS_CONFIG
+src/config/appConfig.ts:44 - TIMEOUTS
+src/config/appConfig.ts:52 - ERROR_REPORTING
+src/context/AccessibilityContext.tsx:4 - AccessibilityContext (used in module)
+src/context/AuthRedirectContext.tsx:3 - AuthRedirectProvider
+src/context/AuthRedirectContext.tsx:16 - useAuthRedirect
+src/context/ExecutiveWorkflowContext.tsx:16 - ExecutiveWorkflowProvider
+src/context/LanguageContext.tsx:7 - LanguageProvider
+src/context/SocialMediaContext.tsx:242 - useSocialMedia
+src/context/ThemeContext.tsx:6 - ThemeContext (used in module)
+src/context/ThemeContext.tsx:42 - useTheme
+src/hooks/logStrategyChange.ts:1 - logStrategyChange
+src/hooks/use-mobile.ts:16 - useIsMobile
+src/hooks/use-mobile.ts:71 - getResponsiveGridCols
+src/hooks/use-mobile.ts:7 - BREAKPOINTS (used in module)
+src/hooks/use-toast.ts:74 - reducer (used in module)
+src/hooks/useAdvancedLeadScoring.ts:6 - LeadScoreCategory (used in module)
+src/hooks/useAdvancedLeadScoring.ts:9 - LeadScoreBreakdown (used in module)
+src/hooks/useAiDebate.ts:8 - useAiDebate
+src/hooks/useAIExecutiveDebate.ts:18 - useAIExecutiveDebate
+src/hooks/useAiModelPreferences.ts:9 - AiModelPreferences (used in module)
+src/hooks/useAiRecommendations.ts:20 - useAiRecommendations
+src/hooks/useAiRecommendations.ts:7 - RecommendationType (used in module)
+src/hooks/useAnalyticsData.ts:27 - useAnalyticsData
+src/hooks/useAnalyticsData.ts:6 - AnalyticsDataPoint (used in module)
+src/hooks/useAnalyticsData.ts:12 - EnhancedAnalyticsData (used in module)
+src/hooks/useAuthCompat.ts:17 - default
+src/hooks/useAuthErrorHandler.ts:28 - useAuthErrorHandler
+src/hooks/useAuthErrorHandler.ts:8 - AuthErrorType (used in module)
+src/hooks/useAuthState.ts:7 - Profile (used in module)
+src/hooks/useBotVoiceInterface.ts:7 - useBotVoiceInterface
+src/hooks/useCallScripts.ts:2 - useCallScripts
+src/hooks/useCallScripts.ts:2 - CallScript
+src/hooks/useCommunications.ts:2 - CommunicationType
+src/hooks/useCommunications.ts:3 - CommunicationStatus
+src/hooks/useCommunications.ts:4 - CommunicationOutcome
+src/hooks/useCommunications.ts:6 - Communication
+src/hooks/useCommunications.ts:28 - ZoomMeetingData
+src/hooks/useCommunications.ts:36 - CommunicationData
+src/hooks/useCommunications.ts:7 - fetchCommunications
+src/hooks/useCommunications.ts:23 - createZoomMeeting
+src/hooks/useCommunications.ts:46 - logCommunication
+src/hooks/useCommunications.ts:69 - generateAISummary
+src/hooks/useCommunications.ts:92 - updateCommunicationStatus
+src/hooks/useCommunications.ts:5 - getUpcomingCommunications
+src/hooks/useCommunications.ts:17 - getPastCommunications
+src/hooks/useCompanyId.ts:59 - default
+src/hooks/useCompanyInsights.ts:9 - InsightContributor (used in module)
+src/hooks/useCompanyInsights.ts:16 - DetailedInsight (used in module)
+src/hooks/useCompliance.ts:47 - default
+src/hooks/useDashboardData.ts:5 - DashboardRecommendation (used in module)
+src/hooks/useDashboardData.ts:18 - DashboardMetrics (used in module)
+src/hooks/useDashboardData.ts:24 - RecentActivity (used in module)
+src/hooks/useDashboardData.ts:31 - DashboardData (used in module)
+src/hooks/useDashboardNavigation.ts:8 - useDashboardNavigation
+src/hooks/useDebateSession.ts:11 - default
+src/hooks/useDebateState.ts:7 - default
+src/hooks/useEnhancedAiChat.ts:11 - useEnhancedAiChat
+src/hooks/useExecutiveBoard.ts:20 - useExecutiveBoard
+src/hooks/useExecutiveBoard.ts:6 - ExecutiveRole
+src/hooks/useExecutiveBoard.ts:7 - RiskLevel (used in module)
+src/hooks/useExecutiveBoard.ts:9 - ExecutiveBot (used in module)
+src/hooks/useExecutiveBoardroom.ts:38 - default
+src/hooks/useExecutiveBoardroom.ts:10 - ExecutiveVote (used in module)
+src/hooks/useExecutiveBoardroom.ts:18 - DebateSummary (used in module)
+src/hooks/useExecutiveBoardroom.ts:31 - DebateReaction (used in module)
+src/hooks/useExecutiveDebate.ts:9 - DebateExecutive (used in module)
+src/hooks/useExecutiveDebate.ts:15 - DebateMessage (used in module)
+src/hooks/useExecutiveDebate.ts:24 - DebateSummary (used in module)
+src/hooks/useExecutiveDebate.ts:31 - DebateSession (used in module)
+src/hooks/useForecastData.ts:19 - useForecastData
+src/hooks/useFormErrorHandler.ts:14 - useFormErrorHandler
+src/hooks/useMarketAlerts.ts:21 - useMarketAlerts
+src/hooks/useMediaQuery.ts:9 - useMediaQuery (used in module)
+src/hooks/usePendingApprovals.ts:6 - usePendingApprovals
+src/hooks/usePluginLogs.ts:3 - logPluginExecution
+src/hooks/usePlugins.ts:12 - PluginImpactData (used in module)
+src/hooks/useProtectedApi.ts:15 - useProtectedApi (used in module)
+src/hooks/useProtectedApi.ts:69 - default
+src/hooks/useRecommendationApproval.ts:7 - useRecommendationApproval
+src/hooks/useRiskAnalysis.ts:12 - useRiskAnalysis
+src/hooks/useSelfLearning.ts:16 - ActionData (used in module)
+src/hooks/useSession.ts:6 - useSession
+src/hooks/useSignupForm.ts:36 - SignupValues (used in module)
+src/hooks/useSignupForm.ts:115 - default
+src/hooks/useSocialMedia.ts:230 - default
+src/hooks/useStrategyActions.ts:7 - useStrategyActions
+src/hooks/useStrategyDialog.ts:13 - useStrategyDialog
+src/hooks/useStrategyFilter.ts:5 - useStrategyFilter
+src/hooks/useStrategyFilters.ts:9 - useStrategyFilters
+src/hooks/useSystemLogsWithFilters.ts:15 - useSystemLogsWithFilters
+src/hooks/useUserProfile.ts:6 - useUserProfile
+src/hooks/useWebhookHistory.ts:116 - default
+src/hooks/useWebhookHistoryFilters.ts:12 - useWebhookHistoryFilters
+src/hooks/useWebhookHistoryFilters.ts:5 - WebhookFilter (used in module)
+src/hooks/useZapier.ts:6 - WebhookResult (used in module)
+src/hooks/useZapier.ts:15 - BusinessEventType (used in module)
+src/hooks/useZapier.ts:98 - default
+src/hooks/useZoomIntegration.ts:5 - ZoomIntegration (used in module)
+src/hooks/useZoomIntegration.ts:13 - ZoomCallbackResult (used in module)
+src/layouts/RootLayout.tsx:12 - default
+src/lib/api.ts:6 - saveVote
+src/lib/supabaseClient.ts:10 - supabase
+src/lib/utils.ts:9 - formatDate
+src/lib/utils.ts:20 - truncate
+src/lib/utils.ts:25 - sleep
+src/lib/zapier.ts:45 - triggerZapierWebhook (used in module)
+src/models/campaign.ts:4 - CampaignStatus (used in module)
+src/models/campaign.ts:7 - CampaignCreate
+src/models/campaign.ts:8 - CampaignUpdate
+src/pages/_app.tsx:9 - default
+src/pages/404.tsx:1 - default
+src/pages/500.tsx:1 - default
+src/pages/Account.tsx:14 - default
+src/pages/AiBoardroom.tsx:5 - default
+src/pages/App.tsx:7 - default
+src/pages/checkout.tsx:6 - default
+src/pages/CookieSettings.tsx:10 - default
+src/pages/explore.tsx:6 - default
+src/pages/ForgotPassword.tsx:2 - default
+src/pages/GDPRCompliance.tsx:133 - default
+src/pages/Notifications.tsx:11 - default
+src/pages/Onboarding.tsx:26 - default
+src/pages/SignUp.tsx:4 - default
+src/pages/twitter-connect.tsx:50 - default
+src/routes/demo.tsx:8 - default
+src/routes/explore-routes.tsx:18 - default
+src/routes/index.ts:15 - AppRoutes
+src/routes/index.ts:8 - adminRoutes
+src/routes/index.ts:4 - authRoutes
+src/routes/index.ts:11 - dashboardRoutes
+src/routes/index.ts:17 - onboardingRoutes
+src/routes/index.ts:4 - marketingRoutes
+src/routes/index.ts:4 - devRoutes
+src/routes/index.ts:4 - globalRoutes
+src/routes/index.ts:4 - galaxyRoutes
+src/routes/index.ts:4 - academyRoutes
+src/routes/index.ts:4 - vaultRoutes
+src/routes/public-routes.tsx:16 - publicRoutes (used in module)
+src/routes/public-routes.tsx:78 - default
+src/services/adPlatformService.ts:92 - disconnectAdPlatform
+src/services/adPlatformService.ts:6 - AdPlatformConnection (used in module)
+src/services/analyticsService.ts:12 - fetchCampaignAnalytics
+src/services/authService.ts:3 - handleSignIn
+src/services/authService.ts:41 - handleSignUp
+src/services/authService.ts:71 - handleSignOut
+src/services/authService.ts:85 - refreshSession (used in module)
+src/services/authService.ts:120 - verifyOtpCode
+src/services/complianceService.ts:5 - DocumentVersion
+src/services/complianceService.ts:17 - documentIdToName (used in module)
+src/services/complianceService.ts:38 - checkForDocumentUpdates (used in module)
+src/services/complianceService.ts:71 - applyDocumentUpdate
+src/services/complianceService.ts:95 - setupAutomaticUpdates
+src/services/complianceService.ts:118 - scheduleRegularComplianceCheck
+src/services/complianceService.ts:172 - enableAutoUpdatesForDocument
+src/services/complianceService.ts:199 - getDocumentVersionHistory
+src/services/executeCampaign.ts:3 - executeCampaign
+src/services/executiveWorkflowService.ts:11 - CompanyProfile
+src/services/executiveWorkflowService.ts:24 - getOpenAIResponse (used in module)
+src/services/executiveWorkflowService.ts:53 - runExecutiveAgentHybrid
+src/services/memoryService.ts:17 - saveDecisionToMemory
+src/services/memoryService.ts:80 - formatMemoriesForPrompt
+src/services/memoryService.ts:5 - ExecutiveMemory (used in module)
+src/services/socialMediaService.ts:43 - fetchSocialMediaPosts
+src/services/socialMediaService.ts:115 - fetchSocialMediaPost (used in module)
+src/services/socialMediaService.ts:132 - createSocialMediaPost
+src/services/socialMediaService.ts:236 - updateSocialMediaPost
+src/services/socialMediaService.ts:344 - deleteSocialMediaPost
+src/services/socialMediaService.ts:549 - batchSchedulePosts
+src/services/socialMediaService.ts:603 - postToSocialMedia
+src/services/webhookService.ts:5 - getWebhookEvents
+src/services/webhookService.ts:28 - getWebhookEventById
+src/services/webhookService.ts:48 - testWebhook
+src/types/Accessibility.ts:2 - AccessibilityContextType
+src/types/AgentOptions.ts:1 - AgentOptions
+src/types/agents.ts:38 - AgentRunOptions
+src/types/agents.ts:79 - Anomaly
+src/types/aiSettings.ts:6 - PersonalityTrait (used in module)
+src/types/aiSettings.ts:7 - ResponseStyle (used in module)
+src/types/aiSettings.ts:8 - TechnicalLevel (used in module)
+src/types/aiSettings.ts:9 - FocusArea (used in module)
+src/types/aiSettings.ts:11 - AIModelPreference (used in module)
+src/types/aiSettings.ts:17 - BotPersonalitySettings (used in module)
+src/types/aiSettings.ts:29 - AISettingsState
+src/types/aiSettings.ts:41 - AIPersonalityFormValues
+src/types/analytics.ts:2 - DailyMetric (used in module)
+src/types/analytics.ts:12 - MetricComparison (used in module)
+src/types/analytics.ts:17 - ComparisonData (used in module)
+src/types/analytics.ts:26 - PlatformMetric (used in module)
+src/types/analytics.ts:39 - PlatformMetrics (used in module)
+src/types/analytics.ts:59 - ChannelPerformance
+src/types/Auth.ts:4 - AuthContextProps
+src/types/Campaign.ts:6 - Campaign (used in module)
+src/types/campaigns.ts:22 - CampaignMetrics
+src/types/campaigns.ts:35 - CampaignFilters
+src/types/campaigns.ts:46 - CreateCampaignInput
+src/types/campaigns.ts:59 - UpdateCampaignInput
+src/types/company.ts:2 - Company
+src/types/databaseVerification.ts:30 - DatabaseVerificationResult
+src/types/fixed-types.ts:3 - User (used in module)
+src/types/fixed-types.ts:16 - AuthContextProps
+src/types/fixed-types.ts:25 - ExecutiveAgentProfile
+src/types/fixed-types.ts:35 - AgentOptions
+src/types/fixed-types.ts:41 - BusinessEventPayload
+src/types/fixed-types.ts:47 - CampaignPayload
+src/types/fixed-types.ts:57 - LeadPayload
+src/types/fixed-types.ts:66 - ChecklistItem (used in module)
+src/types/fixed-types.ts:77 - ChecklistCategory
+src/types/fixed-types.ts:84 - ValidationResultsUI
+src/types/fixed-types.ts:93 - AccessibilityContextType
+src/types/fixed-types.ts:103 - LaunchProgressProps
+src/types/fixed-types.ts:111 - LaunchInfoBoxProps
+src/types/fixed-types.ts:119 - LaunchInfoProps
+src/types/fixed-types.ts:128 - WebhookType
+src/types/fixed-types.ts:131 - BusinessEventType
+src/types/fixed-types.ts:140 - WebhookResult
+src/types/help.ts:2 - HelpContent
+src/types/index.ts:21 - validateWebhookUrlFormat
+src/types/index.ts:21 - testWebhook
+src/types/index.ts:21 - sanitizeWebhookUrl
+src/types/index.ts:24 - SocialPlatform
+src/types/index.ts:24 - ContentType
+src/types/index.ts:24 - PostStatus
+src/types/index.ts:23 - ExecutiveMessage
+src/types/index.ts:2 - ExtendedAccessibilityContextType
+src/types/index.ts:2 - ExtendedComplianceContextType
+src/types/index.ts:31 - LaunchProgressProps
+src/types/index.ts:39 - ValidationResultItemProps
+src/types/index.ts:66 - LaunchInfoProps
+src/types/index.ts:74 - LaunchInfoBoxProps
+src/types/index.ts:82 - VerificationActionsProps
+src/types/index.ts:2 - Message
+src/types/index.ts:2 - Bot
+src/types/index.ts:23 - CreatePostInput
+src/types/index.ts:11 - UnifiedExecutiveMessage
+src/types/index.ts:21 - KPIMetric
+src/types/index.ts:26 - WebhookTestResult
+src/types/index.ts:59 - Webhook
+src/types/index.ts:2 - PageTitleProps
+src/types/index.ts:8 - UserRole
+src/types/index.ts:13 - UnifiedWebhookEvent
+src/types/index.ts:25 - LegacySocialPost
+src/types/index.ts:30 - PostContentType
+src/types/leads.ts:2 - Lead
+src/types/legacy.ts:24 - User (used in module)
+src/types/legacy.ts:25 - AuthContextProps (used in module)
+src/types/legacy.ts:26 - WebhookType (used in module)
+src/types/legacy.ts:27 - BusinessEventType (used in module)
+src/types/legacy.ts:28 - BusinessEventPayload (used in module)
+src/types/legacy.ts:29 - WebhookResult (used in module)
+src/types/legacy.ts:30 - WebhookEvent (used in module)
+src/types/legacy.ts:31 - ExecutiveAgentProfile (used in module)
+src/types/legacy.ts:32 - AgentOptions (used in module)
+src/types/legacy.ts:33 - AgentRunOptions (used in module)
+src/types/legacy.ts:34 - AccessibilityContextType (used in module)
+src/types/legacy.ts:35 - ValidationResultsUI (used in module)
+src/types/legacy.ts:36 - ChecklistItem (used in module)
+src/types/legacy.ts:37 - ChecklistCategory (used in module)
+src/types/legacy.ts:38 - EnhancedVerificationState (used in module)
+src/types/legacy.ts:39 - DatabaseTableStatus (used in module)
+src/types/shared.ts:9 - Status
+src/types/shared.ts:14 - HealthStatus
+src/types/shared.ts:19 - SocialPlatform
+src/types/shared.ts:24 - FilterParams
+src/types/shared.ts:35 - PaginationParams
+src/types/shared.ts:43 - DateRange
+src/types/shared.ts:51 - PerformanceMetrics
+src/types/socialMedia.ts:2 - ContentType (used in module)
+src/types/stripe.ts:6 - StripeSubscriptionPrice (used in module)
+src/types/stripe.ts:19 - StripeProduct (used in module)
+src/types/stripe.ts:30 - SubscriptionStatus (used in module)
+src/types/stripe.ts:60 - CreateCustomerResponse
+src/types/stripe.ts:66 - StripeProductsResponse
+src/types/table.ts:7 - Column (used in module)
+src/types/table.ts:19 - TableFilters
+src/types/table.ts:34 - PaginationState (used in module)
+src/types/table.ts:43 - ResponsiveTableProps
+src/types/table.ts:58 - MobileCardProps
+src/types/userPreferences.ts:5 - UserPreferences
+src/types/Validation.ts:2 - ValidationResultsUI
+src/types/Validation.ts:10 - DatabaseTableStatus
+src/types/Validation.ts:17 - EnhancedVerificationState
+src/types/webhooks.ts:59 - validateWebhookUrlFormat (used in module)
+src/types/webhooks.ts:63 - testWebhook
+src/types/webhooks.ts:67 - sanitizeWebhookUrl
+src/types/webhooks.ts:2 - WebhookType (used in module)
+src/types/webhooks.ts:4 - WebhookStatus (used in module)
+src/types/webhooks.ts:6 - WebhookEvent
+src/types/webhooks.ts:23 - WebhookTestResult
+src/types/webhooks.ts:30 - WebhookFilter
+src/types/webhooks.ts:37 - BusinessEventType
+src/types/webhooks.ts:46 - BusinessEventPayload
+src/types/webhooks.ts:51 - WebhookResult
+src/utils/accessibilityHelpers.ts:55 - announceToScreenReader
+src/utils/accessibilityHelpers.ts:72 - makeKeyboardAccessible
+src/utils/accessibilityHelpers.ts:84 - focusElement
+src/utils/adminHelper.ts:7 - checkTableExists
+src/utils/adminHelper.ts:32 - checkRlsEnabled
+src/utils/agentScheduler.ts:4 - AgentScheduler
+src/utils/agentUtils.ts:16 - getDecisionStyle
+src/utils/agentUtils.ts:38 - getPersonality
+src/utils/agentUtils.ts:7 - XP_THRESHOLDS (used in module)
+src/utils/ai-executives.ts:13 - getExecutiveSuggestions
+src/utils/ai-executives.ts:160 - generateRiskAssessment
+src/utils/ai-executives.ts:184 - generateRiskScenarios
+src/utils/ai-executives.ts:138 - RiskAssessment (used in module)
+src/utils/ai-executives.ts:145 - RiskCategory
+src/utils/ai-executives.ts:151 - RiskScenario (used in module)
+src/utils/analytics.ts:44 - trackEvent
+src/utils/apiCredentialValidator.ts:20 - validateApiCredential
+src/utils/apiUsageMonitor.ts:59 - recordApiUsage
+src/utils/apiUsageMonitor.ts:128 - getApiUsage
+src/utils/apiUsageMonitor.ts:266 - getUsageSummary
+src/utils/apiUsageMonitor.ts:6 - ApiUsageMetrics (used in module)
+src/utils/apiUsageMonitor.ts:16 - UsageLimits (used in module)
+src/utils/auditLogger.ts:160 - log
+src/utils/authCompatibility.ts:112 - normalizeWebhookEvent
+src/utils/authCompatibility.ts:134 - normalizeExecutiveMessage
+src/utils/authHelpers.ts:4 - resetPassword
+src/utils/authHelpers.ts:32 - updatePassword
+src/utils/authHelpers.ts:51 - verifyOtp (used in module)
+src/utils/botConsultationHelper.ts:10 - lowRiskStrategies (used in module)
+src/utils/botConsultationHelper.ts:10 - mediumRiskStrategies (used in module)
+src/utils/botConsultationHelper.ts:10 - highRiskStrategies (used in module)
+src/utils/botConsultationHelper.ts:17 - customizeTitle
+src/utils/botConsultationHelper.ts:18 - customizeDescription
+src/utils/botConsultationHelper.ts:19 - customizeROI
+src/utils/botConsultationHelper.ts:20 - customizeMetrics
+src/utils/botConsultationHelper.ts:24 - StrategyAction
+src/utils/botConsultationHelper.ts:24 - StrategyTemplate
+src/utils/botConsultationHelper.ts:24 - GeneratedStrategy
+src/utils/botConsultationHelper.ts:28 - estimateTimeToResults
+src/utils/botConsultationHelper.ts:29 - calculateImplementationComplexity
+src/utils/botConsultationHelper.ts:30 - calculateCompetitiveAdvantage
+src/utils/botConsultationHelper.ts:31 - analyzeStrategyFactors
+src/utils/botConsultationHelper.ts:32 - analyzeStrategy (used in module)
+src/utils/botConsultationHelper.ts:33 - getStrategyInsights
+src/utils/botConsultationHelper.ts:37 - StrategyAnalysis
+src/utils/botConsultationHelper.ts:41 - analyzeStrategyInsights (used in module)
+src/utils/botConsultationHelper.ts:44 - RiskProfile
+src/utils/botConsultationHelper.ts:8 - formatRoleTitle
+src/utils/botConsultationHelper.ts:219 - getBotExpertise
+src/utils/botConsultationHelper.ts:318 - getBotOutputLocation
+src/utils/botConsultationHelper.ts:343 - getBotExampleAction
+src/utils/botConsultationHelper.ts:5 - getBotByNameAndRole
+src/utils/botConsultationHelper.ts:9 - saveConsultationMessage
+src/utils/botConsultationHelper.ts:27 - generateBotResponse
+src/utils/botConsultationHelper.ts:5 - getUserConsultationHistory
+src/utils/botConsultationHelper.ts:55 - startNewConsultation
+src/utils/botConsultationHelper.ts:4 - BotConsultation
+src/utils/botConsultationHelper.ts:11 - ConsultationMessage
+src/utils/botConsultationHelper.ts:17 - DebateParticipant
+src/utils/botConsultationHelper.ts:28 - DebateMessage
+src/utils/botConsultationHelper.ts:39 - DebateTopic
+src/utils/botConsultationHelper.ts:45 - DebateSession
+src/utils/botConsultationHelper.ts:67 - ExecutiveBotRole
+src/utils/botConsultationHelper.ts:84 - ExecutiveBot
+src/utils/botConsultationHelper.ts:95 - AIModelType
+src/utils/botConsultationHelper.ts:3 - botResponses
+src/utils/botConsultationHelper.ts:2 - RiskFactor
+src/utils/botConsultationHelper.ts:8 - RiskAssessmentInput
+src/utils/botConsultationHelper.ts:31 - weightedRiskFactors
+src/utils/botConsultationHelper.ts:42 - assessRiskLevel
+src/utils/botConsultationHelper.ts:50 - calculateRiskScore
+src/utils/botRoleUtils.ts:11 - getBotSpecialSkill
+src/utils/botRoleUtils.ts:1 - BotRoleKey (used in module)
+src/utils/callHelpers.ts:57 - getCallStatus
+src/utils/campaignHelpers.ts:6 - fetchCompanyCampaigns
+src/utils/campaignHelpers.ts:29 - fetchCampaign
+src/utils/cleanupForProduction.ts:47 - removeTestData
+src/utils/cleanupForProduction.ts:77 - validateProductionReadiness
+src/utils/cleanupForProduction.ts:105 - verifyZapierWebhooks
+src/utils/company.ts:101 - fetchCompanyDetails
+src/utils/company.ts:6 - CompanyUpdateParams (used in module)
+src/utils/companyHelpers.ts:6 - fetchCompany (used in module)
+src/utils/companyHelpers.ts:44 - updateCompany
+src/utils/companySetup.ts:3 - runTestCompanySetup
+src/utils/companySetup.ts:3 - getTestCompany
+src/utils/companySetup.ts:3 - createTestCompany
+src/utils/compatibilityLayer.ts:11 - normalizeCampaign
+src/utils/compatibilityLayer.ts:20 - normalizeUser
+src/utils/compatibilityLayer.ts:37 - normalizeWebhookEvent
+src/utils/compatibilityLayer.ts:47 - injectPropertiesCompatibility
+src/utils/cryptoUtils.ts:29 - encryptData (used in module)
+src/utils/cryptoUtils.ts:53 - decryptData (used in module)
+src/utils/cryptoUtils.ts:75 - secureStorage
+src/utils/csrfProtection.ts:5 - generateCsrfToken
+src/utils/csrfProtection.ts:16 - validateCsrfToken
+src/utils/csrfProtection.ts:26 - getCsrfToken (used in module)
+src/utils/csrfProtection.ts:33 - clearCsrfToken
+src/utils/csrfProtection.ts:40 - addCsrfToFormData
+src/utils/dateUtils.ts:43 - getRelativeTime
+src/utils/dateUtils.ts:50 - formatDate
+src/utils/dateUtils.ts:64 - formatDateTime
+src/utils/deepLinking.ts:13 - createDeepLink (used in module)
+src/utils/deepLinking.ts:54 - createShareableLink
+src/utils/deepLinking.ts:84 - extractDeepLinkParams
+src/utils/deepLinking.ts:117 - createViewDeepLinker
+src/utils/demoCompanySetup.ts:34 - createDemoCompany
+src/utils/demoCompanySetup.ts:211 - convertDemoToPublicCaseStudy
+src/utils/demoCompanySetup.ts:7 - DemoCompanyOptions (used in module)
+src/utils/demoData.ts:4 - createDemoDebate (used in module)
+src/utils/demoData.ts:51 - addDemoDataButton
+src/utils/env.ts:6 - getAppUrl
+src/utils/env.ts:39 - getEnvVariable
+src/utils/errorHandler.ts:8 - errorHandler
+src/utils/errorHandling.ts:1 - handleError
+src/utils/executorCron.ts:11 - initializeAutoExecutorCron
+src/utils/executorCron.ts:45 - triggerExecutorManually
+src/utils/fetchApi.ts:1 - fetchApi
+src/utils/formatters.ts:17 - formatPercentage (used in module)
+src/utils/formatters.ts:26 - formatPercent
+src/utils/formatters.ts:34 - formatDate
+src/utils/formatters.ts:54 - calculatePercentChange
+src/utils/formatting.ts:54 - formatCurrency
+src/utils/formatting.ts:69 - formatPercentage
+src/utils/formValidation.ts:15 - validateAndSanitize
+src/utils/formValidation.ts:127 - withCsrfProtection
+src/utils/formValidation.ts:61 - emailSchema
+src/utils/formValidation.ts:68 - passwordSchema
+src/utils/formValidation.ts:85 - nameSchema
+src/utils/formValidation.ts:94 - urlSchema
+src/utils/formValidation.ts:101 - phoneSchema
+src/utils/formValidation.ts:112 - dateSchema
+src/utils/formValidation.ts:119 - csrfTokenSchema (used in module)
+src/utils/heygenHelpers.ts:62 - getVideoStatus (used in module)
+src/utils/heygenHelpers.ts:102 - pollVideoStatus
+src/utils/heygenHelpers.ts:136 - listHeygenAvatars
+src/utils/heygenHelpers.ts:155 - listHeygenVoices
+src/utils/humanStyleResponder.ts:3 - fetchApi
+src/utils/i18n.ts:17 - translations (used in module)
+src/utils/isDemoTenant.ts:37 - resetDemoTenant
+src/utils/kpiService.ts:25 - createKPIMetric
+src/utils/kpiService.ts:45 - updateKPIMetric
+src/utils/launchPlanner.ts:44 - checkLaunchReadiness
+src/utils/launchPlanner.ts:255 - completeStep
+src/utils/launchPlanner.ts:282 - verifyRequirement
+src/utils/launchReadiness.ts:5 - ApiStatus (used in module)
+src/utils/launchReadiness.ts:7 - LaunchReadinessStatus (used in module)
+src/utils/launchValidator.ts:6 - ValidationResult (used in module)
+src/utils/leadHelpers.ts:9 - fetchCompanyLeads
+src/utils/leadHelpers.ts:97 - getStatusColor
+src/utils/leadHelpers.ts:119 - formatLeadData
+src/utils/logger.ts:31 - logError
+src/utils/logger.ts:44 - logWarning
+src/utils/logger.ts:55 - logPerformance (used in module)
+src/utils/logger.ts:64 - startPerformanceTimer
+src/utils/masterAccountIntegrations.ts:141 - getCompanyIntegrationIds
+src/utils/masterAccountIntegrations.ts:190 - createLocalCustomer
+src/utils/monitoring.ts:400 - reportInfo
+src/utils/monitoring.ts:408 - reportError
+src/utils/monitoring.ts:412 - reportCritical
+src/utils/monitoring.ts:5 - ServiceHealth (used in module)
+src/utils/monitoring.ts:10 - HealthCheckResult (used in module)
+src/utils/monitoring.ts:19 - AlertSeverity (used in module)
+src/utils/monitoring.ts:21 - Alert (used in module)
+src/utils/monitoring.ts:33 - PerformanceMetric (used in module)
+src/utils/monitoring.ts:41 - GaugeMetric (used in module)
+src/utils/monitoring.ts:55 - TimingMetric (used in module)
+src/utils/navigation.ts:12 - navigate (used in module)
+src/utils/navigation.ts:238 - getRecentRoutes
+src/utils/onboarding.ts:11 - createTenant (used in module)
+src/utils/onboardingHelper.ts:4 - saveOnboardingInfo
+src/utils/onboardingHelper.ts:4 - checkOnboardingStatus
+src/utils/pluginAgent.ts:16 - pluginAgent
+src/utils/pluginAgent.ts:168 - createPluginCampaign
+src/utils/postmarkHelpers.ts:5 - sendEmail
+src/utils/postmarkHelpers.ts:31 - sendTemplateEmail
+src/utils/postmarkHelpers.ts:63 - sendCampaignEmails
+src/utils/postmarkHelpers.ts:96 - sendCampaignTemplateEmails
+src/utils/productionDataValidator.ts:4 - ValidationResults (used in module)
+src/utils/productionReadiness.ts:18 - ProductionReadinessResult (used in module)
+src/utils/productionReadiness.ts:29 - validateProductionReadiness
+src/utils/profileHelpers.ts:46 - getUserDisplayName
+src/utils/profileHelpers.ts:10 - UserProfile (used in module)
+src/utils/routeTracker.ts:25 - legalRouteDisplayNames (used in module)
+src/utils/sanitizers.ts:27 - sanitizeHtml
+src/utils/sanitizers.ts:52 - isValidEmail
+src/utils/sanitizers.ts:62 - normalizeInput
+src/utils/sanitizers.ts:73 - parseNumericInput
+src/utils/sanitizers.ts:102 - sanitizeUrl
+src/utils/sanitizers.ts:131 - generateNonce
+src/utils/sanitizers.ts:141 - isSecurePassword
+src/utils/sanitizers.ts:151 - getCSPDirectives
+src/utils/scrollHelpers.ts:12 - isNearBottom
+src/utils/scrollHelpers.ts:20 - toggleProductionMode
+src/utils/securityHeaders.ts:13 - generateCSP (used in module)
+src/utils/securityHeaders.ts:49 - getSecurityHeaders
+src/utils/securityHeaders.ts:86 - applySecurityHeaders
+src/utils/sendSlackAlert.ts:10 - sendSlackAlert (used in module)
+src/utils/sendSlackAlert.ts:77 - withSlackErrorReporting
+src/utils/shopifyHelpers.ts:24 - getShopifyProduct
+src/utils/shopifyHelpers.ts:43 - createShopifyProduct
+src/utils/shopifyHelpers.ts:63 - createShopifyCheckout
+src/utils/shopifyHelpers.ts:91 - getShopifyCheckout
+src/utils/shopifyOptimization.ts:8 - ShopifyStoreData (used in module)
+src/utils/shopifyOptimization.ts:20 - OptimizationReport (used in module)
+src/utils/shopifyOptimization.ts:28 - OptimizationRecommendation (used in module)
+src/utils/strategyHelpers.ts:11 - fetchCompanyStrategies
+src/utils/strategyHelpers.ts:34 - fetchStrategy
+src/utils/strategyHelpers.ts:57 - createStrategy (used in module)
+src/utils/strategyHelpers.ts:94 - generateStrategyFromAnswers
+src/utils/strategyHelpers.ts:113 - updateStrategy
+src/utils/strategyHelpers.ts:135 - deleteStrategy
+src/utils/stressTestUtils.ts:4 - StressTestOptions (used in module)
+src/utils/stressTestUtils.ts:36 - StressTestProgress (used in module)
+src/utils/stressTestUtils.ts:48 - StressTestResult (used in module)
+src/utils/stressTestUtils.ts:72 - runStressTest (used in module)
+src/utils/stressTestUtils.ts:279 - testApiEndpoint
+src/utils/stringUtils.ts:7 - toSafeString
+src/utils/stripeHelpers.ts:5 - createCheckoutSession
+src/utils/stripeHelpers.ts:25 - createCustomerPortal
+src/utils/stripePayments.ts:37 - getCurrentCreditBalance
+src/utils/stripeUtils.ts:1 - formatCurrency
+src/utils/supabaseClient.ts:6 - SupabaseClient
+src/utils/taskHelpers.ts:6 - fetchStrategyTasks
+src/utils/taskHelpers.ts:29 - createTask
+src/utils/taskHelpers.ts:64 - updateTaskStatus
+src/utils/taskHelpers.ts:86 - deleteTask
+src/utils/testUtils.ts:84 - renderWithProviders
+src/utils/testUtils.ts:108 - generateMockData
+src/utils/testUtils.ts:129 - waitForPromises
+src/utils/toastService.ts:16 - triggerToast
+src/utils/twilioHelpers.ts:33 - sendBulkSMS (used in module)
+src/utils/twilioHelpers.ts:55 - sendBulkWhatsApp
+src/utils/twilioHelpers.ts:103 - trackMessageStatus
+src/utils/userManagementHelpers.ts:23 - fetchCompanyUsers (used in module)
+src/utils/userManagementHelpers.ts:24 - getUserIdByEmail (used in module)
+src/utils/userManagementHelpers.ts:25 - getUserProfileByEmail (used in module)
+src/utils/userManagementHelpers.ts:26 - updateUserRole (used in module)
+src/utils/userManagementHelpers.ts:27 - removeUserFromCompany (used in module)
+src/utils/userManagementHelpers.ts:28 - inviteUserToCompany (used in module)
+src/utils/userManagementHelpers.ts:30 - assignUserToCompany (used in module)
+src/utils/validation.ts:20 - isValidEmail
+src/utils/validation.ts:39 - isNonEmptyString
+src/utils/validation.ts:54 - isValidUuid
+src/utils/validation.ts:77 - validateAll
+src/utils/validation.ts:89 - isValidUrl
+src/utils/validation.ts:105 - isValidIsoDate
+src/utils/validation.ts:117 - isPositiveNumber
+src/utils/validation.ts:131 - isWithinRange
+src/utils/validation.ts:141 - isValidPhoneNumber
+src/utils/validation.ts:155 - isStrongPassword
+src/utils/webhookRetry.ts:37 - executeWebhook (used in module)
+src/utils/webhookRetry.ts:132 - executeWithRetry
+src/utils/webhookTester.ts:5 - verifyZapierWebhooks
+src/utils/webhookTypes.ts:4 - BusinessEventType (used in module)
+src/utils/webhookTypes.ts:14 - BusinessEventPayload
+src/utils/webhookUtils.ts:7 - normalizeWebhookEvent
+src/utils/webhookUtils.ts:19 - createWebhookEvent
+src/utils/webhookValidation.ts:4 - WebhookTestResult (used in module)
+src/utils/webhookValidation.ts:11 - WebhookResult
+src/utils/zapierEventTriggers.ts:69 - onCampaignCreated
+src/utils/zapierEventTriggers.ts:106 - onLeadConverted
+src/__tests__/mocks/supabaseMock.ts:5 - createSupabaseMock (used in module)
+src/__tests__/mocks/supabaseMock.ts:34 - SupabaseMock
+src/agents/debate/debateTest.ts:7 - testDebateSession
+src/agents/debate/index.ts:17 - runExecutiveDebate
+src/agents/debate/index.ts:51 - saveDebateResult
+src/agents/debate/index.ts:85 - analyzeDebateResponse
+src/agents/debate/index.ts:15 - runDebateSession
+src/agents/debate/index.ts:83 - summarizeDebate
+src/components/accessibility/AccessibilityAnnouncer.tsx:8 - AccessibilityAnnouncer (used in module)
+src/components/accessibility/AccessibilityPanel.tsx:9 - AccessibilityPanel (used in module)
+src/components/accessibility/AccessibilityPanel.tsx:92 - default
+src/components/accessibility/SkipToContent.tsx:7 - SkipToContent (used in module)
+src/components/accessibility/SkipToContent.tsx:12 - default
+src/components/admin/AdminNav.tsx:6 - AdminNav
+src/components/admin/AiDecisionPanel.tsx:6 - AiDecisionPanel
+src/components/admin/AuditSummary.tsx:6 - AuditSummary (used in module)
+src/components/admin/AuditSummary.tsx:229 - default
+src/components/admin/index.ts:3 - AdminHeader
+src/components/admin/index.ts:5 - StatsRow
+src/components/admin/index.ts:4 - AdminModuleGrid
+src/components/admin/index.ts:6 - CompanyTable
+src/components/admin/index.ts:7 - CreateCompanyDialog
+src/components/admin/index.ts:4 - CompanyHeader
+src/components/admin/index.ts:2 - UserManagementHeader
+src/components/admin/index.ts:3 - UserTable
+src/components/admin/index.ts:4 - InviteUserDialog
+src/components/admin/index.ts:2 - LeadsHeader
+src/components/admin/index.ts:3 - LeadsTable
+src/components/admin/index.ts:4 - LeadStatusBadge
+src/components/admin/index.ts:5 - LeadsSearchBar
+src/components/admin/index.ts:6 - MobileLeadCards
+src/components/admin/index.ts:7 - AddLeadDialog
+src/components/admin/index.ts:2 - WebhookForm
+src/components/admin/index.ts:3 - WebhookCard
+src/components/admin/index.ts:4 - WebhookList
+src/components/admin/index.ts:5 - WebhookHistoryContent
+src/components/admin/index.ts:2 - SecurityTab
+src/components/admin/index.ts:3 - SecurityToggleItem
+src/components/admin/index.ts:2 - SecuritySettingsType
+src/components/admin/index.ts:9 - SaveSecuritySettingsParams
+src/components/admin/index.ts:5 - saveSecuritySettings
+src/components/admin/index.ts:20 - fetchSecuritySettings
+src/components/admin/LaunchReadinessCheck.tsx:9 - default
+src/components/admin/LaunchVerification.tsx:10 - default
+src/components/admin/LogSecurityAlert.tsx:18 - registerLogSecurityAlert
+src/components/admin/LogSecurityAlert.tsx:23 - default
+src/components/admin/LogsPanel.tsx:9 - LogsPanel
+src/components/admin/PreLaunchValidator.tsx:8 - default
+src/components/admin/TechnicalHealthAccess.tsx:5 - default
+src/components/agents/AgentVote.tsx:2 - default
+src/components/agents/AiDecisionPanel.tsx:6 - AgentPerformanceDashboard
+src/components/agents/GalaxyGraph.tsx:136 - default
+src/components/agents/PluginEvolutionPanel.tsx:39 - default
+src/components/ai/AiPreferencesForm.tsx:8 - AiPreferencesForm (used in module)
+src/components/ai/AiPreferencesForm.tsx:86 - default
+src/components/ai/ExecutiveBoard.tsx:5 - default
+src/components/ai-boardroom/DebateSummaryDisplay.tsx:156 - default
+src/components/ai-boardroom/ExecutiveSelectionDialog.tsx:169 - default
+src/components/ai-boardroom/ExecutiveVotingResult.tsx:116 - default
+src/components/ai-boardroom/ThoughtBubble.tsx:28 - default
+src/components/ai-bots/AiBotsHeader.tsx:7 - AiBotsHeader
+src/components/ai-bots/AiBotsTabsList.tsx:6 - AiBotsTabsList
+src/components/ai-debate/DebateStarterPage.tsx:5 - default
+src/components/ai-debate/ExecutiveBoardroom.tsx:172 - default
+src/components/ai-debate/ExecutiveDebate.tsx:3 - ExecutiveDebate (used in module)
+src/components/ai-executives/AIExecutiveExplainer.tsx:60 - AIExecutiveExplainer (used in module)
+src/components/ai-executives/AIExecutiveExplainer.tsx:175 - default
+src/components/ai-feedback/FeedbackButtons.tsx:9 - default
+src/components/ai-memory/MemoryInsights.tsx:11 - default
+src/components/ai-settings/PersonalitySettings.tsx:24 - PersonalitySettings
+src/components/analytics/AnalyticsInsightCards.tsx:12 - default
+src/components/analytics/BehaviorTabContent.tsx:38 - default
+src/components/analytics/CustomReportBuilder.tsx:13 - CustomReportBuilder
+src/components/analytics/OverviewTabContent.tsx:12 - default
+src/components/analytics/PerformanceMetrics.tsx:52 - default
+src/components/analytics/PredictiveAnalytics.tsx:10 - PredictiveAnalytics
+src/components/analytics/RecommendationsTabContent.tsx:48 - default
+src/components/analytics/StrategyAdoption.tsx:30 - default
+src/components/analytics/UserActivityGraph.tsx:39 - default
+src/components/auth/AuthProviderWrapper.tsx:7 - AuthProviderWrapper
+src/components/auth/AuthStateHandler.tsx:4 - AuthStateHandler
+src/components/auth/MetaCallback.tsx:6 - default
+src/components/auth/PasswordStrengthMeter.tsx:29 - calculatePasswordStrength (used in module)
+src/components/auth/RequireAuth.tsx:3 - default
+src/components/auth/SessionRefreshHandler.tsx:14 - SessionRefreshHandler
+src/components/auth/SocialLoginButtons.tsx:1 - default
+src/components/auth/VerificationHandler.tsx:14 - VerificationHandler
+src/components/auth/VerificationRequiredState.tsx:5 - VerificationRequiredState
+src/components/bot-detail/BotDetailSkeleton.tsx:29 - default
+src/components/bot-detail/BotInfo.tsx:24 - default
+src/components/bot-detail/BotInfoPanel.tsx:3 - BotInfoPanel (used in module)
+src/components/bot-detail/BotInfoPanel.tsx:27 - default
+src/components/bot-detail/MessageInput.tsx:141 - default
+src/components/bot-detail/MessageList.tsx:25 - default
+src/components/bot-detail/MessageType.ts:2 - Message
+src/components/bot-detail/MessageType.ts:9 - Bot
+src/components/bot-detail/NotFoundCard.tsx:67 - default
+src/components/bot-detail/useBotConsultation.ts:24 - useBotConsultation
+src/components/bot-detail/useBotConsultation.ts:6 - Bot (used in module)
+src/components/bot-detail/useBotConsultation.ts:8 - UseBotConsultationResult (used in module)
+src/components/bot-insights/BotInsightsSection.tsx:11 - default
+src/components/calls/AddCommunicationNotes.tsx:7 - default
+src/components/calls/AiZoomAssistant.tsx:20 - default
+src/components/calls/CallsHeader.tsx:4 - default
+src/components/calls/CallTabs.tsx:5 - default
+src/components/calls/CommunicationActions.tsx:9 - default
+src/components/calls/CommunicationAnalytics.tsx:12 - default
+src/components/calls/CommunicationTimeline.tsx:7 - default
+src/components/calls/DirectMessageTab.tsx:8 - default
+src/components/calls/MessageSender.tsx:11 - default
+src/components/calls/PastCommunications.tsx:11 - default
+src/components/calls/ScriptSection.tsx:7 - default
+src/components/calls/UpcomingCommunications.tsx:10 - default
+src/components/campaigns/CampaignAnalytics.tsx:28 - default
+src/components/campaigns/CampaignFormDialog.tsx:15 - default
+src/components/charts/index.ts:2 - LineChart
+src/components/charts/index.ts:3 - BarChart
+src/components/charts/index.ts:4 - PieChart
+src/components/chat/ChatInput.tsx:5 - ChatInput
+src/components/chat/ChatMessageList.tsx:5 - ChatMessageList
+src/components/content-generation/AIContentGenerator.tsx:244 - default
+src/components/customer-journey/CustomerJourneyMapper.tsx:530 - default
+src/components/dashboard/BackendConnectionAlert.tsx:6 - BackendConnectionAlert
+src/components/dashboard/ErrorRecoveryWrapper.tsx:7 - ErrorRecoveryWrapper
+src/components/dashboard/ExecutiveInteraction.tsx:10 - ExecutiveInteraction
+src/components/dashboard/index.ts:3 - AiRecommendations
+src/components/dashboard/index.ts:4 - CeoMessage
+src/components/dashboard/index.ts:5 - DashboardHeader
+src/components/dashboard/index.ts:6 - DashboardLoading
+src/components/dashboard/index.ts:7 - DashboardLoadingState
+src/components/dashboard/index.ts:8 - LearningInsights
+src/components/dashboard/index.ts:9 - QuickAccess
+src/components/dashboard/index.ts:10 - SessionRefreshBar
+src/components/dashboard/index.ts:11 - ProductionDataAlert
+src/components/dashboard/index.ts:12 - StrategyDisplay
+src/components/dashboard/index.ts:13 - WelcomeVideo
+src/components/dashboard/index.ts:14 - UpcomingZoomMeeting
+src/components/dashboard/index.ts:3 - CeoMessageBadges
+src/components/dashboard/index.ts:6 - CeoMessageContent
+src/components/dashboard/index.ts:4 - CeoMessageFooter
+src/components/dashboard/index.ts:5 - CeoMessageHeader
+src/components/dashboard/index.ts:10 - DashboardTabs
+src/components/dashboard/index.ts:5 - MobileNavDrawer
+src/components/dashboard/index.ts:5 - UserDropdown
+src/components/dashboard/LearningInsights.tsx:35 - LearningInsights (used in module)
+src/components/dashboard/LoadingState.tsx:4 - DashboardLoadingState (used in module)
+src/components/dashboard/RecommendationCard.tsx:86 - default
+src/components/dashboard/SimplifiedRecommendations.tsx:6 - default
+src/components/dashboard/SupabaseConnectionStatus.tsx:5 - SupabaseConnectionStatus
+src/components/dashboard/WelcomeVideo.tsx:56 - default
+src/components/debate/DebateChat.tsx:191 - default
+src/components/debate/DebateMessage.tsx:50 - default
+src/components/debate/DebateSetup.tsx:48 - default
+src/components/debate/DebateSummary.tsx:62 - default
+src/components/executives/ExecutiveActionPanel.tsx:8 - ExecutiveActionPanel (used in module)
+src/components/executives/ExecutiveActionPanel.tsx:106 - default
+src/components/executives/ExecutiveMemory.tsx:7 - ExecutiveMemory
+src/components/executives/ExecutiveMemoryPanel.tsx:7 - ExecutiveMemoryPanel
+src/components/executives/ExecutiveMessages.tsx:9 - ExecutiveMessages (used in module)
+src/components/executives/ExecutiveMessages.tsx:79 - default
+src/components/executives/RecentExecutiveMessages.tsx:8 - normalizeExecutiveMessage (used in module)
+src/components/executives/RecentExecutiveMessages.tsx:101 - default
+src/components/forecast/ForecastAnomalies.tsx:39 - default
+src/components/forecast/ForecastCards.tsx:7 - default
+src/components/forecast/ForecastCharts.tsx:53 - default
+src/components/help/ApiDocumentation.tsx:5 - ApiDocumentationPage
+src/components/integration/ZoomCallback.tsx:5 - default
+src/components/integrations/MarketingPlatformIntegrations.tsx:238 - default
+src/components/integrations/ZapierTriggerButton.tsx:5 - default
+src/components/layout/RootLayout.tsx:4 - default
+src/components/layouts/SidebarLayout.tsx:12 - default
+src/components/navigation/MobileNavigation.tsx:67 - default
+src/components/navigation/ThemeToggle.tsx:4 - default
+src/components/navigation/UserMenu.tsx:45 - default
+src/components/onboarding/CompanyDetailsSurvey.tsx:4 - default
+src/components/onboarding/WhatsAppOptIn.tsx:6 - WhatsAppOptIn
+src/components/performance/PerformanceAudit.tsx:4 - default
+src/components/plugin/PluginChatPanel.tsx:10 - default
+src/components/pricing/pricingData.ts:2 - PricingTierData (used in module)
+src/components/pricing/pricingData.ts:14 - FAQItem (used in module)
+src/components/pricing/pricingData.ts:19 - FeatureComparisonItem (used in module)
+src/components/risk/RiskFactorsList.tsx:1 - default
+src/components/settings/AccessibilitySettings.tsx:8 - AccessibilitySettings
+src/components/settings/AccountTab.tsx:7 - default
+src/components/settings/DevelopmentToolsTab.tsx:12 - default
+src/components/settings/NotificationsTab.tsx:7 - default
+src/components/settings/SystemHealthCheck.tsx:9 - SystemHealthCheck
+src/components/settings/ZoomConnector.tsx:8 - ZoomConnector
+src/components/social-media/SocialMediaCalendarView.tsx:8 - SocialMediaCalendarView
+src/components/social-media/SocialMediaContent.tsx:7 - SocialMediaContent
+src/components/social-media/SocialMediaPostDialog.tsx:26 - DialogCreate (used in module)
+src/components/social-media/SocialMediaPostDialog.tsx:146 - default
+src/components/social-media/SocialMediaPostList.tsx:10 - default
+src/components/social-media/SocialPostCard.tsx:6 - SocialPostCard
+src/components/strategies/EmptyState.tsx:34 - default
+src/components/strategies/StrategyContent.tsx:76 - default
+src/components/strategies/StrategyFilters.tsx:54 - default
+src/components/strategies/StrategyForm.tsx:64 - default
+src/components/strategies/StrategyHeader.tsx:28 - default
+src/components/strategies/StrategyInsightsPreview.tsx:4 - default
+src/components/strategy-board/EmptyState.tsx:4 - default
+src/components/strategy-board/ErrorState.tsx:4 - default
+src/components/strategy-board/ExecutiveDebateModal.tsx:10 - default
+src/components/strategy-board/LoadingState.tsx:4 - default
+src/components/strategy-board/MarketAlertBanner.tsx:5 - default
+src/components/strategy-board/StrategyDetailModal.tsx:87 - default
+src/components/strategy-board/StrategyFilters.tsx:4 - default
+src/components/strategy-board/StrategyHeader.tsx:4 - default
+src/components/strategy-board/StrategyWizardModal.tsx:9 - default
+src/components/strategy-board/useStrategies.tsx:10 - useStrategies
+src/components/strategy-generator/StrategyForm.tsx:26 - default
+src/components/strategy-implementation/CompetitorBenchmarking.tsx:291 - default
+src/components/strategy-implementation/StrategyImplementationTools.tsx:5 - StrategyImplementationTools (used in module)
+src/components/strategy-implementation/StrategyImplementationTracker.tsx:127 - default
+src/components/strategy-implementation/StrategyRoiCalculator.tsx:213 - default
+src/components/ui/chart.tsx:163 - ChartContainer (used in module)
+src/components/ui/chart.tsx:163 - ChartTooltip (used in module)
+src/components/ui/chart.tsx:163 - ChartTooltipContent (used in module)
+src/components/ui/chart.tsx:163 - ChartLegend (used in module)
+src/components/ui/chart.tsx:163 - ChartLegendContent (used in module)
+src/components/ui/chart.tsx:163 - ChartStyle (used in module)
+src/components/ui/date-picker.tsx:8 - DatePicker
+src/components/ui/date-range-picker.tsx:8 - DateRangePicker
+src/components/ui/GlassPanel.tsx:2 - GlassPanel
+src/components/ui/help-tooltip.tsx:5 - HelpTooltip
+src/components/ui/index.ts:43 - Textarea
+src/components/ui/index.ts:50 - toast
+src/components/ui/index.ts:50 - Toaster
+src/components/ui/index.ts:53 - ButtonProps
+src/components/ui/index.ts:59 - InputProps
+src/components/ui/index.ts:61 - TextareaProps
+src/components/ui/index.ts:63 - TabsProps
+src/components/ui/index.ts:69 - SelectProps
+src/components/ui/index.ts:75 - DropdownMenuProps
+src/components/ui/index.ts:81 - ProgressProps
+src/components/ui/index.ts:86 - SwitchProps
+src/components/ui/index.ts:92 - CheckboxProps
+src/components/ui/index.ts:98 - BadgeProps
+src/components/ui/index.ts:102 - SliderProps
+src/components/ui/index.ts:110 - TooltipProps
+src/components/ui/index.ts:116 - AccordionProps
+src/components/ui/index.ts:124 - CalendarProps
+src/components/ui/index.ts:130 - RadioGroupProps
+src/components/ui/index.ts:19 - Accordion
+src/components/ui/index.ts:19 - AccordionItem
+src/components/ui/index.ts:19 - AccordionTrigger
+src/components/ui/index.ts:19 - AccordionContent
+src/components/ui/index.ts:23 - Alert
+src/components/ui/index.ts:23 - AlertTitle
+src/components/ui/index.ts:23 - AlertDescription
+src/components/ui/index.ts:28 - AlertDialog
+src/components/ui/index.ts:28 - AlertDialogPortal
+src/components/ui/index.ts:28 - AlertDialogOverlay
+src/components/ui/index.ts:28 - AlertDialogTrigger
+src/components/ui/index.ts:28 - AlertDialogContent
+src/components/ui/index.ts:28 - AlertDialogHeader
+src/components/ui/index.ts:28 - AlertDialogFooter
+src/components/ui/index.ts:28 - AlertDialogTitle
+src/components/ui/index.ts:28 - AlertDialogDescription
+src/components/ui/index.ts:28 - AlertDialogAction
+src/components/ui/index.ts:28 - AlertDialogCancel
+src/components/ui/index.ts:5 - AspectRatio
+src/components/ui/index.ts:10 - Avatar
+src/components/ui/index.ts:10 - AvatarImage
+src/components/ui/index.ts:10 - AvatarFallback
+src/components/ui/index.ts:21 - Badge
+src/components/ui/index.ts:21 - badgeVariants
+src/components/ui/index.ts:27 - Breadcrumb
+src/components/ui/index.ts:27 - BreadcrumbList
+src/components/ui/index.ts:27 - BreadcrumbItem
+src/components/ui/index.ts:27 - BreadcrumbLink
+src/components/ui/index.ts:27 - BreadcrumbPage
+src/components/ui/index.ts:27 - BreadcrumbSeparator
+src/components/ui/index.ts:27 - BreadcrumbEllipsis
+src/components/ui/index.ts:35 - Button
+src/components/ui/index.ts:35 - buttonVariants
+src/components/ui/index.ts:36 - Calendar
+src/components/ui/index.ts:15 - Card
+src/components/ui/index.ts:15 - CardHeader
+src/components/ui/index.ts:15 - CardFooter
+src/components/ui/index.ts:15 - CardTitle
+src/components/ui/index.ts:15 - CardDescription
+src/components/ui/index.ts:15 - CardContent
+src/components/ui/index.ts:109 - Carousel
+src/components/ui/index.ts:109 - CarouselContent
+src/components/ui/index.ts:109 - CarouselItem
+src/components/ui/index.ts:109 - CarouselPrevious
+src/components/ui/index.ts:109 - CarouselNext
+src/components/ui/index.ts:11 - Checkbox
+src/components/ui/index.ts:9 - Collapsible
+src/components/ui/index.ts:9 - CollapsibleTrigger
+src/components/ui/index.ts:9 - CollapsibleContent
+src/components/ui/index.ts:36 - Command
+src/components/ui/index.ts:36 - CommandDialog
+src/components/ui/index.ts:36 - CommandInput
+src/components/ui/index.ts:36 - CommandList
+src/components/ui/index.ts:36 - CommandEmpty
+src/components/ui/index.ts:36 - CommandGroup
+src/components/ui/index.ts:36 - CommandItem
+src/components/ui/index.ts:36 - CommandShortcut
+src/components/ui/index.ts:36 - CommandSeparator
+src/components/ui/index.ts:51 - ContextMenu
+src/components/ui/index.ts:51 - ContextMenuTrigger
+src/components/ui/index.ts:51 - ContextMenuContent
+src/components/ui/index.ts:51 - ContextMenuItem
+src/components/ui/index.ts:51 - ContextMenuCheckboxItem
+src/components/ui/index.ts:51 - ContextMenuRadioItem
+src/components/ui/index.ts:51 - ContextMenuLabel
+src/components/ui/index.ts:51 - ContextMenuSeparator
+src/components/ui/index.ts:51 - ContextMenuShortcut
+src/components/ui/index.ts:51 - ContextMenuGroup
+src/components/ui/index.ts:51 - ContextMenuPortal
+src/components/ui/index.ts:51 - ContextMenuSub
+src/components/ui/index.ts:51 - ContextMenuSubContent
+src/components/ui/index.ts:51 - ContextMenuSubTrigger
+src/components/ui/index.ts:51 - ContextMenuRadioGroup
+src/components/ui/index.ts:30 - Dialog
+src/components/ui/index.ts:30 - DialogPortal
+src/components/ui/index.ts:30 - DialogOverlay
+src/components/ui/index.ts:30 - DialogClose
+src/components/ui/index.ts:30 - DialogTrigger
+src/components/ui/index.ts:30 - DialogContent
+src/components/ui/index.ts:30 - DialogHeader
+src/components/ui/index.ts:30 - DialogFooter
+src/components/ui/index.ts:30 - DialogTitle
+src/components/ui/index.ts:30 - DialogDescription
+src/components/ui/index.ts:27 - Drawer
+src/components/ui/index.ts:27 - DrawerPortal
+src/components/ui/index.ts:27 - DrawerOverlay
+src/components/ui/index.ts:27 - DrawerTrigger
+src/components/ui/index.ts:27 - DrawerClose
+src/components/ui/index.ts:27 - DrawerContent
+src/components/ui/index.ts:27 - DrawerHeader
+src/components/ui/index.ts:27 - DrawerFooter
+src/components/ui/index.ts:27 - DrawerTitle
+src/components/ui/index.ts:27 - DrawerDescription
+src/components/ui/index.ts:53 - DropdownMenu
+src/components/ui/index.ts:53 - DropdownMenuTrigger
+src/components/ui/index.ts:53 - DropdownMenuContent
+src/components/ui/index.ts:53 - DropdownMenuItem
+src/components/ui/index.ts:53 - DropdownMenuCheckboxItem
+src/components/ui/index.ts:53 - DropdownMenuRadioItem
+src/components/ui/index.ts:53 - DropdownMenuLabel
+src/components/ui/index.ts:53 - DropdownMenuSeparator
+src/components/ui/index.ts:53 - DropdownMenuShortcut
+src/components/ui/index.ts:53 - DropdownMenuGroup
+src/components/ui/index.ts:53 - DropdownMenuPortal
+src/components/ui/index.ts:53 - DropdownMenuSub
+src/components/ui/index.ts:53 - DropdownMenuSubContent
+src/components/ui/index.ts:53 - DropdownMenuSubTrigger
+src/components/ui/index.ts:53 - DropdownMenuRadioGroup
+src/components/ui/index.ts:67 - useFormField
+src/components/ui/index.ts:67 - Form
+src/components/ui/index.ts:67 - FormItem
+src/components/ui/index.ts:67 - FormLabel
+src/components/ui/index.ts:67 - FormControl
+src/components/ui/index.ts:67 - FormDescription
+src/components/ui/index.ts:67 - FormMessage
+src/components/ui/index.ts:67 - FormField
+src/components/ui/index.ts:8 - HoverCard
+src/components/ui/index.ts:8 - HoverCardTrigger
+src/components/ui/index.ts:8 - HoverCardContent
+src/components/ui/index.ts:11 - Input
+src/components/ui/index.ts:24 - InputOTP
+src/components/ui/index.ts:24 - InputOTPGroup
+src/components/ui/index.ts:24 - InputOTPSlot
+src/components/ui/index.ts:24 - InputOTPSeparator
+src/components/ui/index.ts:8 - Label
+src/components/ui/index.ts:53 - Menubar
+src/components/ui/index.ts:53 - MenubarMenu
+src/components/ui/index.ts:53 - MenubarTrigger
+src/components/ui/index.ts:53 - MenubarContent
+src/components/ui/index.ts:53 - MenubarItem
+src/components/ui/index.ts:53 - MenubarSeparator
+src/components/ui/index.ts:53 - MenubarLabel
+src/components/ui/index.ts:53 - MenubarCheckboxItem
+src/components/ui/index.ts:53 - MenubarRadioGroup
+src/components/ui/index.ts:53 - MenubarRadioItem
+src/components/ui/index.ts:53 - MenubarPortal
+src/components/ui/index.ts:53 - MenubarSubContent
+src/components/ui/index.ts:53 - MenubarSubTrigger
+src/components/ui/index.ts:53 - MenubarGroup
+src/components/ui/index.ts:53 - MenubarSub
+src/components/ui/index.ts:53 - MenubarShortcut
+src/components/ui/index.ts:33 - navigationMenuTriggerStyle
+src/components/ui/index.ts:33 - NavigationMenu
+src/components/ui/index.ts:33 - NavigationMenuList
+src/components/ui/index.ts:33 - NavigationMenuItem
+src/components/ui/index.ts:33 - NavigationMenuContent
+src/components/ui/index.ts:33 - NavigationMenuTrigger
+src/components/ui/index.ts:33 - NavigationMenuLink
+src/components/ui/index.ts:33 - NavigationMenuIndicator
+src/components/ui/index.ts:33 - NavigationMenuViewport
+src/components/ui/index.ts:35 - Pagination
+src/components/ui/index.ts:35 - PaginationContent
+src/components/ui/index.ts:35 - PaginationEllipsis
+src/components/ui/index.ts:35 - PaginationItem
+src/components/ui/index.ts:35 - PaginationLink
+src/components/ui/index.ts:35 - PaginationNext
+src/components/ui/index.ts:35 - PaginationPrevious
+src/components/ui/index.ts:10 - Popover
+src/components/ui/index.ts:10 - PopoverTrigger
+src/components/ui/index.ts:10 - PopoverContent
+src/components/ui/index.ts:22 - Progress
+src/components/ui/index.ts:16 - RadioGroup
+src/components/ui/index.ts:16 - RadioGroupItem
+src/components/ui/index.ts:11 - ResizablePanelGroup
+src/components/ui/index.ts:11 - ResizablePanel
+src/components/ui/index.ts:11 - ResizableHandle
+src/components/ui/index.ts:18 - ScrollArea
+src/components/ui/index.ts:18 - ScrollBar
+src/components/ui/index.ts:57 - Select
+src/components/ui/index.ts:57 - SelectGroup
+src/components/ui/index.ts:57 - SelectValue
+src/components/ui/index.ts:57 - SelectTrigger
+src/components/ui/index.ts:57 - SelectContent
+src/components/ui/index.ts:57 - SelectLabel
+src/components/ui/index.ts:57 - SelectItem
+src/components/ui/index.ts:57 - SelectSeparator
+src/components/ui/index.ts:57 - SelectScrollUpButton
+src/components/ui/index.ts:57 - SelectScrollDownButton
+src/components/ui/index.ts:6 - Separator
+src/components/ui/index.ts:44 - Sheet
+src/components/ui/index.ts:44 - SheetClose
+src/components/ui/index.ts:44 - SheetContent
+src/components/ui/index.ts:44 - SheetDescription
+src/components/ui/index.ts:44 - SheetFooter
+src/components/ui/index.ts:44 - SheetHeader
+src/components/ui/index.ts:44 - SheetOverlay
+src/components/ui/index.ts:44 - SheetPortal
+src/components/ui/index.ts:44 - SheetTitle
+src/components/ui/index.ts:44 - SheetTrigger
+src/components/ui/index.ts:5 - Skeleton
+src/components/ui/index.ts:11 - Slider
+src/components/ui/index.ts:8 - Switch
+src/components/ui/index.ts:21 - Table
+src/components/ui/index.ts:21 - TableHeader
+src/components/ui/index.ts:21 - TableBody
+src/components/ui/index.ts:21 - TableFooter
+src/components/ui/index.ts:21 - TableHead
+src/components/ui/index.ts:21 - TableRow
+src/components/ui/index.ts:21 - TableCell
+src/components/ui/index.ts:21 - TableCaption
+src/components/ui/index.ts:11 - Tabs
+src/components/ui/index.ts:11 - TabsList
+src/components/ui/index.ts:11 - TabsTrigger
+src/components/ui/index.ts:11 - TabsContent
+src/components/ui/index.ts:24 - Toggle
+src/components/ui/index.ts:24 - toggleVariants
+src/components/ui/index.ts:25 - ToggleGroup
+src/components/ui/index.ts:25 - ToggleGroupItem
+src/components/ui/index.ts:9 - Tooltip
+src/components/ui/index.ts:9 - TooltipTrigger
+src/components/ui/index.ts:9 - TooltipContent
+src/components/ui/index.ts:9 - TooltipProvider
+src/components/ui/index.ts:3 - PageTitle
+src/components/ui/index.ts:11 - TypographyH1
+src/components/ui/index.ts:16 - TypographyP
+src/components/ui/index.ts:21 - TypographySmall
+src/components/ui/json-viewer.tsx:5 - JsonViewer (used in module)
+src/components/ui/json-viewer.tsx:22 - default
+src/components/ui/loading.tsx:38 - SkeletonLoader
+src/components/ui/loading.tsx:54 - DataLoading
+src/components/ui/loading.tsx:62 - APILoading
+src/components/ui/metric.tsx:2 - Metric
+src/components/ui/settings-section.tsx:3 - default
+src/components/ui/sidebar.tsx:54 - useSidebar (used in module)
+src/components/ui/sidebar.tsx:61 - SidebarProvider
+src/components/ui/sidebar.tsx:67 - SidebarTrigger
+src/components/ui/sidebar.tsx:80 - SidebarLink
+src/components/ui/sidebar.tsx:78 - Sidebar (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarHeader (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarContent (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarFooter (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarGroup (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarGroupLabel (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarGroupContent (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarMenu (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarMenuItem (used in module)
+src/components/ui/sidebar.tsx:78 - SidebarMenuButton (used in module)
+src/components/ui/sonner.tsx:14 - Toaster (used in module)
+src/components/ui/spinner.tsx:2 - Spinner
+src/components/ui/time-picker.tsx:3 - TimePicker
+src/components/ui/toast.tsx:34 - ToastAction (used in module)
+src/components/user-preferences/PersonalizationPreferencesForm.tsx:5 - PersonalizationPreferencesForm
+src/components/user-preferences/PreferencesForm.tsx:10 - PreferencesForm
+src/components/voice/VoiceTranscription.tsx:7 - VoiceTranscription
+src/data/executives/index.ts:26 - getExecutiveById
+src/data/executives/index.ts:31 - getExecutiveByTitle
+src/data/executives/index.ts:13 - executiveTeam (used in module)
+src/hooks/admin/index.ts:4 - useAnalytics
+src/hooks/admin/index.ts:23 - useCampaignOperations
+src/hooks/admin/index.ts:7 - CampaignFormData
+src/hooks/admin/index.ts:21 - CampaignCreate
+src/hooks/admin/index.ts:7 - useCompanyManagement
+src/hooks/admin/index.ts:8 - useLeads
+src/hooks/admin/index.ts:7 - useUserManagement
+src/hooks/admin/index.ts:6 - useVerification
+src/hooks/admin/index.ts:12 - usePreLaunchChecklist
+src/hooks/admin/index.ts:4 - ChecklistItem
+src/hooks/admin/index.ts:46 - useDatabaseVerification
+src/hooks/admin/index.ts:7 - TableInfo
+src/hooks/admin/index.ts:15 - FunctionInfo
+src/hooks/admin/index.ts:23 - RlsPolicy
+src/hooks/admin/index.ts:32 - DatabaseVerificationResult
+src/hooks/admin/index.ts:39 - DatabaseIssue
+src/hooks/admin/useWebhookHistoryFilters.ts:12 - useWebhookHistoryFilters (used in module)
+src/hooks/admin/useWebhookHistoryFilters.ts:5 - WebhookFilterState (used in module)
+src/hooks/admin/useWebhooks.ts:7 - useWebhooks
+src/hooks/admin/useWebhookStorage.ts:16 - useWebhookStorage
+src/hooks/admin/useWebhookStorage.ts:5 - WebhookSettings (used in module)
+src/hooks/admin/useWebhookTest.ts:7 - useWebhookTest
+src/hooks/admin/useWebhookValidation.ts:17 - useWebhookValidation (used in module)
+src/hooks/admin/useWebhookValidation.ts:70 - default
+src/hooks/callScripts/index.ts:2 - CallScriptType
+src/hooks/callScripts/index.ts:3 - CallScriptStatus
+src/hooks/callScripts/index.ts:7 - getDefaultScripts
+src/hooks/callScripts/index.ts:7 - createAiGeneratedScripts
+src/hooks/callScripts/index.ts:101 - createExecutiveCollectiveScripts
+src/hooks/campaigns/index.ts:6 - Campaign
+src/hooks/campaigns/index.ts:28 - CampaignCreateParams
+src/hooks/campaigns/index.ts:38 - CampaignUpdateParams
+src/hooks/campaigns/index.ts:6 - useCampaignFetch
+src/hooks/campaigns/index.ts:7 - useCampaignMutations
+src/hooks/campaigns/index.ts:5 - useCampaignTracking
+src/hooks/campaigns/useWebhookHistory.ts:5 - useWebhookHistory
+src/hooks/dashboard/index.ts:6 - useLeadScoring
+src/hooks/dashboard/index.ts:13 - useLeadFilters
+src/hooks/dashboard/index.ts:5 - useLeadSelection
+src/hooks/dashboard/index.ts:7 - useLeadDrawer
+src/hooks/dashboard/index.ts:10 - useLeadsPage
+src/hooks/social/useFilters.ts:5 - useFilters
+src/hooks/social/usePostActions.ts:11 - usePostActions
+src/hooks/social/usePostOperations.ts:20 - usePostOperations
+src/hooks/social/usePostOperations.ts:6 - SocialPost (used in module)
+src/hooks/social/useSocialMedia.ts:179 - default
+src/integrations/supabase/types.ts:1 - Json (used in module)
+src/integrations/supabase/types.ts:4114 - Tables (used in module)
+src/integrations/supabase/types.ts:4141 - TablesInsert
+src/integrations/supabase/types.ts:4164 - TablesUpdate
+src/integrations/supabase/types.ts:4187 - Enums (used in module)
+src/integrations/supabase/types.ts:4202 - CompositeTypes (used in module)
+src/integrations/supabase/types.ts:4217 - Constants
+src/lib/supabase/fetchItem.ts:3 - fetchPluginById
+src/lib/supabase/fetchItem.ts:14 - fetchStrategyById
+src/pages/academy/publish.tsx:8 - default
+src/pages/admin/AdminSystemHealth.tsx:9 - default
+src/pages/admin/AiBotLogic.tsx:3 - default
+src/pages/admin/AIBotLogicPage.tsx:3 - default
+src/pages/admin/Analytics.tsx:3 - default
+src/pages/admin/AnalyticsPage.tsx:3 - default
+src/pages/admin/ApiConfig.tsx:17 - default
+src/pages/admin/ApiDocumentation.tsx:3 - default
+src/pages/admin/ApiIntegrations.tsx:4 - default
+src/pages/admin/ApiKeyManagement.tsx:4 - default
+src/pages/admin/ApiKeysPage.tsx:5 - default
+src/pages/admin/AuditPage.tsx:9 - default
+src/pages/admin/Campaigns.tsx:3 - default
+src/pages/admin/CampaignsPage.tsx:3 - default
+src/pages/admin/CommunicationTools.tsx:3 - default
+src/pages/admin/CommunicationToolsPage.tsx:3 - default
+src/pages/admin/Companies.tsx:3 - default
+src/pages/admin/CompaniesPage.tsx:3 - default
+src/pages/admin/CompanySettings.tsx:16 - default
+src/pages/admin/Dashboard.tsx:3 - default
+src/pages/admin/DashboardModules.tsx:3 - default
+src/pages/admin/DashboardModulesPage.tsx:3 - default
+src/pages/admin/DatabaseVerification.tsx:5 - default
+src/pages/admin/DatabaseVerificationPage.tsx:8 - default
+src/pages/admin/DevHelperRedirect.tsx:62 - default
+src/pages/admin/DiagnosticsPage.tsx:11 - default
+src/pages/admin/EntitiesPage.tsx:11 - default
+src/pages/admin/Index.tsx:14 - default
+src/pages/admin/LaunchCheck.tsx:11 - default
+src/pages/admin/LaunchPlan.tsx:9 - default
+src/pages/admin/LaunchPrep.tsx:7 - default
+src/pages/admin/Leads.tsx:3 - default
+src/pages/admin/LeadsPage.tsx:4 - default
+src/pages/admin/Logs.tsx:14 - default
+src/pages/admin/PlatformStability.tsx:6 - default
+src/pages/admin/PreLaunchAudit.tsx:3 - default
+src/pages/admin/RunAudit.tsx:6 - default
+src/pages/admin/SecurityDashboard.tsx:7 - default
+src/pages/admin/Settings.tsx:10 - default
+src/pages/admin/StrategyImplementationPage.tsx:5 - default
+src/pages/admin/TechnicalImprovementsPage.tsx:19 - default
+src/pages/admin/UserManagement.tsx:9 - default
+src/pages/admin/UserManagementPage.tsx:3 - default
+src/pages/admin/UserOnboarding.tsx:3 - default
+src/pages/admin/Users.tsx:10 - default
+src/pages/admin/WebhookManagement.tsx:4 - default
+src/pages/admin/Webhooks.tsx:3 - default
+src/pages/admin/WebhooksPage.tsx:48 - default
+src/pages/admin/ZapierReadiness.tsx:11 - default
+src/pages/agents/performance.tsx:4 - default
+src/pages/api/rollback-agent.ts:6 - default
+src/pages/api/voice-to-text.ts:5 - default
+src/pages/billing/credits.tsx:10 - default
+src/pages/compliance/Index.tsx:6 - default
+src/pages/dashboard/AdAccountsConnect.tsx:8 - default
+src/pages/dashboard/AiBots.tsx:15 - default
+src/pages/dashboard/AiExecutiveUpgrades.tsx:8 - default
+src/pages/dashboard/Approvals.tsx:9 - default
+src/pages/dashboard/BotDetail.tsx:5 - default
+src/pages/dashboard/CampaignDashboard.tsx:21 - default
+src/pages/dashboard/Debate.tsx:5 - default
+src/pages/dashboard/DigitalTwin.tsx:13 - default
+src/pages/dashboard/ExecutiveActions.tsx:91 - default
+src/pages/dashboard/Galaxy.tsx:7 - default
+src/pages/dashboard/Index.tsx:15 - default
+src/pages/dashboard/Integrations.tsx:12 - default
+src/pages/dashboard/KPIs.tsx:8 - default
+src/pages/dashboard/LeadFollowUpSequences.tsx:3 - default
+src/pages/dashboard/LinkedInAuthCallback.tsx:3 - default
+src/pages/dashboard/LinkedInIntegration.tsx:3 - default
+src/pages/dashboard/MarketingTools.tsx:6 - default
+src/pages/dashboard/OnboardingWorkflow.tsx:10 - default
+src/pages/dashboard/Overview.tsx:2 - default
+src/pages/dashboard/ShopifyOptimization.tsx:11 - default
+src/pages/dashboard/SocialMediaCalendar.tsx:12 - default
+src/pages/dashboard/TechnicalImprovements.tsx:8 - default
+src/pages/plugin/impact.tsx:6 - default
+src/pages/plugins/index.tsx:13 - default
+src/pages/plugins/leaderboard.tsx:8 - default
+src/pages/settings/twitter-connect.tsx:7 - default
+src/routes/dashboard/index.ts:4 - executiveRoutes
+src/routes/dashboard/index.ts:11 - aiRoutes
+src/routes/dashboard/index.ts:4 - marketingRoutes
+src/routes/dashboard/index.ts:4 - strategyRoutes
+src/routes/dashboard/index.ts:4 - integrationRoutes
+src/routes/dashboard/index.ts:4 - accountRoutes
+src/routes/dashboard/index.ts:4 - analyticsRoutes
+src/services/api/apiClient.ts:64 - configureApi
+src/services/api/apiClient.ts:80 - clearCache
+src/services/api/apiClient.ts:91 - request (used in module)
+src/services/api/apiClient.ts:30 - RequestOptions (used in module)
+src/services/api/apiClient.ts:41 - ApiResponse (used in module)
+src/services/api/fetchApi.ts:1 - getErrorMessage (used in module)
+src/services/socialMedia/socialMediaService.ts:10 - fetchSocialMediaPosts
+src/services/socialMedia/socialMediaService.ts:84 - createSocialMediaPost
+src/services/socialMedia/socialMediaService.ts:145 - deleteSocialMediaPost
+src/services/socialMedia/socialMediaService.ts:172 - schedulePost
+src/services/socialMedia/socialMediaService.ts:199 - approvePost
+src/types/fixed/Executives.ts:2 - ExecutivePersona
+src/types/fixed/Executives.ts:25 - ExecutiveMessagesProps
+src/types/fixed/Executives.ts:36 - ExecutiveBoardMember
+src/types/fixed/index.ts:18 - WebhookStatus
+src/types/fixed/index.ts:19 - UserRole
+src/types/fixed/index.ts:20 - ChecklistItemStatus
+src/types/fixed/index.ts:5 - User
+src/types/fixed/index.ts:8 - AuthContextProps
+src/types/fixed/index.ts:2 - ExtendedAccessibilityContextType
+src/types/fixed/index.ts:1 - WebhookType
+src/types/fixed/index.ts:4 - WebhookEvent
+src/types/fixed/index.ts:26 - WebhookTestResult
+src/types/fixed/index.ts:33 - WebhookResult
+src/types/fixed/index.ts:41 - BusinessEventType
+src/types/fixed/index.ts:50 - BusinessEventPayload
+src/types/fixed/index.ts:59 - Webhook
+src/types/fixed/index.ts:1 - CampaignStatus
+src/types/fixed/index.ts:2 - Platform
+src/types/fixed/index.ts:4 - Campaign
+src/types/fixed/index.ts:4 - ChecklistItem
+src/types/fixed/index.ts:14 - ChecklistCategory
+src/types/fixed/index.ts:21 - DatabaseTableStatus
+src/types/fixed/index.ts:31 - LaunchProgressProps
+src/types/fixed/index.ts:39 - ValidationResultItemProps
+src/types/fixed/index.ts:48 - ValidationResultsUI
+src/types/fixed/index.ts:61 - EnhancedVerificationState
+src/types/fixed/index.ts:66 - LaunchInfoProps
+src/types/fixed/index.ts:74 - LaunchInfoBoxProps
+src/types/fixed/index.ts:82 - VerificationActionsProps
+src/types/fixed/index.ts:2 - ExtendedComplianceContextType
+src/types/fixed/index.ts:2 - Message
+src/types/fixed/index.ts:2 - Bot
+src/types/fixed/Integrations.ts:9 - ZapierReadinessTestProps
+src/types/fixed/Integrations.ts:17 - WebhookTestProps
+src/types/fixed/Integrations.ts:26 - ZapierTriggerButtonProps
+src/types/fixed/Onboarding.ts:4 - CompanyProfileFormProps
+src/types/fixed/Platform.ts:5 - Platform
+src/types/fixed/Plugin.ts:16 - PluginConfig
+src/types/fixed/Plugin.ts:28 - PluginExecutionResult
+src/types/fixed/Plugin.ts:38 - PluginImpactData
+src/types/fixed/Plugin.ts:48 - PluginLog (used in module)
+src/types/fixed/Plugin.ts:65 - PluginAnalytics
+src/types/fixed/sharedTypes.ts:1 - Plugin
+src/types/fixed/sharedTypes.ts:6 - SocialMediaPost
+src/types/fixed/SocialMediaPost.ts:1 - SocialMediaPost
+src/utils/api/apiClientEnhanced.ts:20 - useProtectedApi
+src/utils/api/apiClientEnhanced.ts:7 - UseProtectedApiOptions (used in module)
+src/utils/api/apiClientEnhanced.ts:16 - SaveSecuritySettingsParams
+src/utils/api/enhancedApiClient.ts:112 - UseProtectedApiOptions (used in module)
+src/utils/api/enhancedApiClient.ts:121 - SaveSecuritySettingsParams
+src/utils/api/errorHandling.ts:39 - mapHttpStatusToErrorCode (used in module)
+src/utils/api/errorHandling.ts:51 - generateUserFriendlyMessage (used in module)
+src/utils/api/errorHandling.ts:6 - ApiErrorCode (used in module)
+src/utils/api/errorHandling.ts:17 - ApiErrorDetails (used in module)
+src/utils/api/errorHandling.ts:27 - ApiErrorOptions (used in module)
+src/utils/api/fetchApi.ts:1 - fetchApi
+src/utils/api/pluginAPI.ts:6 - fetchPluginLogs
+src/utils/api/pluginAPI.ts:14 - recordPluginEvent
+src/utils/api/responseHandler.ts:8 - standardizeApiResponse
+src/utils/api/responseHandler.ts:48 - extractErrorMessage (used in module)
+src/utils/api/standardResponse.ts:16 - successResponse (used in module)
+src/utils/api/standardResponse.ts:27 - errorResponse (used in module)
+src/utils/api/standardResponse.ts:49 - safeExecute
+src/utils/api/standardResponse.ts:5 - StandardResponse (used in module)
+src/utils/api/templateAPI.ts:6 - fetchTemplateDrafts
+src/utils/api/templateAPI.ts:13 - publishTemplate
+src/utils/company/index.ts:10 - updateCompanyDetails
+src/utils/company/index.ts:2 - runTestCompanySetup
+src/utils/company/index.ts:3 - getTestCompany
+src/utils/company/index.ts:3 - testCompanyExists
+src/utils/company/index.ts:3 - ensureTestCompanyExists
+src/utils/company/index.ts:4 - createTestCompany
+src/utils/company/index.ts:4 - CompanyCreationResult
+src/utils/company/index.ts:10 - CompanyUpdateOptions
+src/utils/conversation/conversationMemory.ts:19 - storeConversationMemory
+src/utils/conversation/conversationMemory.ts:67 - getConversationMemory (used in module)
+src/utils/conversation/conversationMemory.ts:100 - storeUserPreferences
+src/utils/conversation/conversationMemory.ts:140 - storeCompanyData
+src/utils/conversation/conversationMemory.ts:4 - MemoryContext (used in module)
+src/utils/conversation/conversationMemory.ts:10 - ConversationMemory (used in module)
+src/utils/daily-tasks/agentScheduler.ts:30 - runDailyExecutiveTasks
+src/utils/errorHandling/AppError.ts:44 - createAppError
+src/utils/errorHandling/AppError.ts:7 - ApplicationError (used in module)
+src/utils/errorHandling/errorHandler.ts:14 - handleError
+src/utils/errorHandling/errorHandler.ts:5 - ErrorHandlingOptions (used in module)
+src/utils/errorHandling/errorLogging.ts:29 - logError (used in module)
+src/utils/executive-os/executiveBoostService.ts:370 - generateDailyMission
+src/utils/executive-os/integrationService.ts:14 - UpgradedExecutiveBot (used in module)
+src/utils/executive-os/personalizedModels.ts:7 - CognitiveBoost (used in module)
+src/utils/executive-os/personalizedModels.ts:14 - MentalModel (used in module)
+src/utils/executive-os/personalizedModels.ts:21 - ceoCognitiveBoosts (used in module)
+src/utils/executive-os/personalizedModels.ts:45 - cfoCognitiveBoosts (used in module)
+src/utils/executive-os/personalizedModels.ts:54 - techCognitiveBoosts (used in module)
+src/utils/executive-os/personalizedModels.ts:63 - cmoCognitiveBoosts (used in module)
+src/utils/executive-os/personalizedModels.ts:77 - salesCognitiveBoosts (used in module)
+src/utils/executive-os/personalizedModels.ts:91 - cooCognitiveBoosts (used in module)
+src/utils/executive-os/personalizedModels.ts:105 - strategyCognitiveBoosts (used in module)
+src/utils/executive-os/personalizedModels.ts:124 - additionalMentalModels (used in module)
+src/utils/executive-os/personalizedModels.ts:293 - executiveEnhancements (used in module)
+src/utils/executive-os/personalizedModels.ts:357 - getExecutiveEnhancements
+src/utils/executive-os/roleStrategies.ts:3 - defaultStrategicFocuses (used in module)
+src/utils/help/helpContent.ts:5 - HelpContent (used in module)
+src/utils/help/helpContent.ts:261 - hasHelpContent
+src/utils/help/helpContent.ts:269 - getAllHelpContexts
+src/utils/langchain/agent.ts:78 - executeAgentTool
+src/utils/onboarding/checkStatus.ts:7 - checkOnboardingStatus
+src/utils/onboarding/index.ts:13 - checkOnboardingStatus
+src/utils/onboarding/index.ts:16 - saveOnboardingInfo
+src/utils/onboarding/index.ts:12 - completeOnboarding
+src/utils/performance/lazyLoad.tsx:65 - lazyLoad (used in module)
+src/utils/performance/lazyLoad.tsx:101 - lazyLoadOnVisible
+src/utils/selfLearning/index.ts:6 - UserPreferences
+src/utils/selfLearning/index.ts:19 - ActionCategory
+src/utils/selfLearning/index.ts:53 - trackStrategyFeedback
+src/utils/selfLearning/index.ts:75 - trackCampaignFeedback
+src/utils/selfLearning/index.ts:97 - trackScriptFeedback
+src/utils/selfLearning/index.ts:8 - getPersonalizedRecommendations
+src/utils/selfLearning/index.ts:11 - getUserPreferences
+src/utils/selfLearning/index.ts:12 - updateUserPreferences
+src/utils/selfLearning/index.ts:13 - getLearningInsights
+src/utils/selfLearning/index.ts:13 - processFeedbackLoop
+src/utils/selfLearning/index.ts:9 - analyzeUserBehavior
+src/utils/strategy/index.ts:5 - lowRiskStrategies
+src/utils/strategy/index.ts:72 - mediumRiskStrategies
+src/utils/strategy/index.ts:139 - highRiskStrategies
+src/utils/strategy/index.ts:27 - generateCustomizedStrategy
+src/utils/strategy/index.ts:6 - CompanyProfile
+src/utils/strategy/index.ts:12 - Strategy
+src/utils/strategy/index.ts:21 - analyzeStrategy
+src/utils/strategy/index.ts:191 - analyzeStrategyFactors
+src/utils/strategy/index.ts:203 - calculateImplementationComplexity
+src/utils/strategy/index.ts:216 - calculateCompetitiveAdvantage
+src/utils/strategy/index.ts:230 - estimateTimeToResults
+src/utils/strategy/index.ts:5 - StrategyStrength
+src/utils/strategy/index.ts:10 - StrategyWeakness
+src/utils/strategy/index.ts:15 - ImplementationStep
+src/utils/strategy/index.ts:4 - StrategyAction
+src/utils/strategy/index.ts:11 - GeneratedStrategy
+src/utils/strategy/index.ts:22 - StrategyTemplate
+src/utils/strategy/strategyInsights.ts:23 - getStrategyInsights
+src/utils/strategy/strategyInsights.ts:8 - analyzeStrategyFactors
+src/utils/strategyImplementation/competitorBenchmarking.ts:7 - fetchCompetitorBenchmarks
+src/utils/strategyImplementation/competitorBenchmarking.ts:27 - createCompetitorBenchmark
+src/utils/strategyImplementation/competitorBenchmarking.ts:51 - updateCompetitorBenchmark
+src/utils/strategyImplementation/competitorBenchmarking.ts:71 - deleteCompetitorBenchmark
+src/utils/strategyImplementation/competitorBenchmarking.ts:91 - calculateMarketPosition
+src/utils/strategyImplementation/roiCalculator.ts:7 - calculateROI
+src/utils/strategyImplementation/roiCalculator.ts:26 - fetchStrategyROI (used in module)
+src/utils/strategyImplementation/roiCalculator.ts:46 - saveStrategyROI
+src/utils/strategyImplementation/roiCalculator.ts:94 - calculatePaybackPeriod
+src/utils/strategyImplementation/roiCalculator.ts:109 - formatCurrency
+src/utils/validators/apiValidator.ts:8 - validateApiConnections
+src/utils/validators/boardroomValidator.ts:8 - validateExecutiveBoardroom
+src/utils/validators/databaseValidator.ts:8 - validateDatabaseSecurity
+src/utils/validators/functionValidator.ts:7 - validateDatabaseFunctions
+src/utils/validators/index.ts:4 - validateUserAuthentication (used in module)
+src/utils/validators/index.ts:8 - validateLegalAcceptance
+src/utils/validators/index.ts:9 - validateApiConnections
+src/utils/validators/index.ts:10 - validateExecutiveBoardroom
+src/utils/validators/index.ts:11 - validateDatabaseSecurity
+src/utils/validators/index.ts:12 - validatePerformanceOptimization
+src/utils/validators/index.ts:13 - validateRLSPolicies
+src/utils/validators/index.ts:14 - validateDatabaseFunctions
+src/utils/validators/legalValidator.ts:8 - validateLegalAcceptance
+src/utils/validators/performanceValidator.ts:7 - validatePerformanceOptimization
+src/utils/validators/rlsValidator.ts:9 - validateRLSPolicies
+src/utils/validators/socialMediaValidator.ts:22 - SocialMediaPostSchema
+src/utils/validators/types.ts:8 - LaunchValidationResults
+src/utils/validators/webhookValidator.ts:74 - testWebhook
+src/utils/validators/webhookValidator.ts:128 - sanitizeWebhookUrl
+src/utils/whatsapp/humanStyleResponder.ts:125 - generateHumanResponse (used in module)
+src/utils/whatsapp/humanStyleResponder.ts:199 - processWhatsAppMessage
+src/components/admin/audit/AuditChecks.tsx:7 - checkLegalDocuments
+src/components/admin/audit/AuditChecks.tsx:34 - checkPerformanceMetrics
+src/components/admin/audit/AuditChecks.tsx:53 - checkImageOptimization
+src/components/admin/audit/AuditChecks.tsx:69 - checkConsistentBranding
+src/components/admin/audit/AuditChecks.tsx:83 - checkAIStrategyGeneration
+src/components/admin/audit/AuditDashboard.tsx:8 - default
+src/components/admin/audit/AuditOnboarding.tsx:9 - AuditOnboarding
+src/components/admin/audit/AuditUX.tsx:7 - AuditUX
+src/components/admin/audit/RunAuditStatus.tsx:4 - RunAuditStatus
+src/components/admin/audit/types.ts:2 - CategoryStatus (used in module)
+src/components/admin/audit/types.ts:4 - AuditComponentProps
+src/components/admin/audit/types.ts:9 - AuditCheckItem
+src/components/admin/campaigns/index.ts:6 - CreateCampaignDialog (used in module)
+src/components/admin/database-verification/index.ts:4 - DatabaseVerificationResult
+src/components/admin/database-verification/index.ts:13 - DatabaseTableStatus
+src/components/admin/database-verification/index.ts:14 - PolicyStatus
+src/components/admin/database-verification/index.ts:15 - FunctionStatus
+src/components/admin/launch-verification/ChecklistActions.tsx:4 - ChecklistActions
+src/components/admin/launch-verification/EnhancedVerificationChecklist.tsx:8 - EnhancedVerificationChecklist
+src/components/admin/launch-verification/index.ts:2 - ChecklistItem
+src/components/admin/launch-verification/index.ts:3 - LaunchInfoBox
+src/components/admin/launch-verification/index.ts:4 - LaunchProgress
+src/components/admin/launch-verification/index.ts:5 - ValidationResultItem
+src/components/admin/launch-verification/index.ts:6 - VerificationContent
+src/components/admin/launch-verification/index.ts:15 - ChecklistCategory
+src/components/admin/launch-verification/index.ts:16 - LaunchInfoProps
+src/components/admin/launch-verification/index.ts:17 - LaunchProgressProps
+src/components/admin/launch-verification/index.ts:18 - ValidationResultsUI
+src/components/admin/launch-verification/index.ts:19 - DatabaseTableStatus
+src/components/admin/launch-verification/index.ts:20 - EnhancedVerificationState
+src/components/admin/launch-verification/index.ts:24 - ValidationResult
+src/components/admin/launch-verification/LaunchButton.tsx:6 - LaunchButton
+src/components/admin/launch-verification/SeverityCounts.tsx:3 - SeverityCounts
+src/components/admin/pre-launch-checklist/index.ts:4 - ChecklistItem
+src/components/admin/system/ProductionDataStatus.tsx:8 - ProductionDataStatus
+src/components/admin/webhooks/CustomWebhookSection.tsx:29 - default
+src/components/admin/webhooks/GitHubWebhookSection.tsx:65 - default
+src/components/admin/webhooks/hookUtils.ts:8 - getWebhookTemplateUrl
+src/components/admin/webhooks/hookUtils.ts:26 - getWebhookDefaultPayload (used in module)
+src/components/admin/webhooks/hookUtils.ts:68 - testWebhookAdvanced
+src/components/admin/webhooks/SlackWebhookSection.tsx:32 - default
+src/components/admin/webhooks/StripeWebhookSection.tsx:34 - default
+src/components/admin/webhooks/useWebhooks.ts:22 - useWebhooks
+src/components/admin/webhooks/useWebhookValidation.ts:64 - default
+src/components/admin/webhooks/WebhookEventTable.tsx:7 - WebhookEventTable (used in module)
+src/components/admin/webhooks/WebhookEventTable.tsx:93 - default
+src/components/admin/webhooks/WebhooksTab.tsx:10 - default
+src/components/admin/webhooks/ZapierWebhookDemo.tsx:43 - default
+src/components/admin/webhooks/ZapierWebhookSection.tsx:40 - default
+src/components/ai-bots/tabContents/BotsTabContent.tsx:6 - BotsTabContent
+src/components/auth/login/LoginForm.tsx:16 - LoginForm
+src/components/auth/verification/PendingVerificationContent.tsx:4 - PendingVerificationContent
+src/components/auth/verification/VerificationHeader.tsx:3 - VerificationHeader
+src/components/auth/verification/VerificationStatusContent.tsx:3 - VerificationStatusContent
+src/components/campaigns/analytics/AdvancedCampaignAnalytics.tsx:15 - AdvancedCampaignAnalytics
+src/components/campaigns/analytics/ConversionFunnel.tsx:3 - ConversionFunnel
+src/components/campaigns/analytics/MetricCard.tsx:4 - MetricCard
+src/components/campaigns/analytics/PerformanceTable.tsx:4 - PerformanceTable
+src/components/campaigns/dashboard/CampaignCard.tsx:6 - CampaignCard
+src/components/campaigns/dashboard/CampaignEmptyState.tsx:4 - CampaignEmptyState
+src/components/compliance/audit-logs/mockData.ts:5 - mockAuditLogs
+src/components/compliance/reports/mockData.ts:2 - Report (used in module)
+src/components/compliance/reports/mockData.ts:10 - complianceReports
+src/components/compliance/reports/mockData.ts:41 - Certification (used in module)
+src/components/compliance/reports/ReportCard.tsx:4 - default
+src/components/dashboard/leads/index.ts:14 - AddLeadDialog
+src/components/dashboard/leads/index.ts:5 - LeadsHeader
+src/components/dashboard/leads/index.ts:7 - LeadsEmptyState
+src/components/dashboard/leads/index.ts:3 - LeadsLoading
+src/components/dashboard/leads/index.ts:2 - LeadsDescription
+src/components/dashboard/leads/index.ts:5 - LeadFilterBar
+src/components/dashboard/leads/index.ts:9 - LeadsTable
+src/components/dashboard/leads/index.ts:8 - MobileLeadCards
+src/components/dashboard/leads/index.ts:8 - LeadProfileDrawer
+src/components/dashboard/leads/index.ts:5 - LeadScoreBadge
+src/components/dashboard/leads/index.ts:5 - LeadBulkActions
+src/components/dashboard/leads/index.ts:10 - LeadsContent
+src/components/dashboard/leads/index.ts:5 - LeadsErrorState
+src/components/onboarding/company-details/index.ts:4 - SectionProps
+src/components/onboarding/company-details/index.ts:8 - CompanyFundamentals
+src/components/onboarding/company-details/index.ts:6 - MarketAnalysis
+src/components/onboarding/company-details/index.ts:5 - GrowthTraction
+src/components/onboarding/company-details/index.ts:7 - ProductTechnology
+src/components/onboarding/company-details/index.ts:6 - TeamLeadership
+src/components/onboarding/company-details/index.ts:5 - MarketingSales
+src/components/onboarding/company-details/index.ts:6 - AiReadiness
+src/components/onboarding/company-details/index.ts:6 - FinancialOverview
+src/components/onboarding/company-details/index.ts:6 - StrategicGoals
+src/components/onboarding/company-details/index.ts:3 - SpecialInfo
+src/components/social-media/calendar/SocialMediaCalendarView.tsx:10 - SocialMediaCalendarView (used in module)
+src/components/social-media/calendar/SocialMediaCalendarView.tsx:92 - default
+src/components/social-media/calendar/SocialMediaFilters.tsx:8 - SocialMediaFilters
+src/components/social-media/calendar/SocialMediaHeader.tsx:4 - SocialMediaHeader
+src/components/ui/pagination/index.ts:13 - Pagination (used in module)
+src/components/ui/pagination/index.ts:14 - PaginationContent (used in module)
+src/components/ui/pagination/index.ts:15 - PaginationEllipsis (used in module)
+src/components/ui/pagination/index.ts:16 - PaginationItem (used in module)
+src/components/ui/pagination/index.ts:17 - PaginationLink (used in module)
+src/components/ui/pagination/index.ts:18 - PaginationNext (used in module)
+src/components/ui/pagination/index.ts:19 - PaginationPrevious (used in module)
+src/components/ui/pagination/index.ts:23 - default
+src/pages/admin/plugins/logs.tsx:9 - default
+src/pages/admin/system-health/SystemHealthCards.tsx:4 - default
+src/pages/admin/tweets/queue.tsx:12 - default
+src/pages/plugins/[id]/evolution.tsx:2 - default
+src/pages/vault/templates/publish.tsx:9 - default
+src/utils/admin/database-verification/index.ts:9 - checkVerificationAccess
+src/utils/admin/database-verification/index.ts:115 - performDeepScan
+src/utils/company/types/testCompanyTypes.ts:3 - Json (used in module)
+src/utils/langchain/hooks/useCalendlyTool.ts:8 - useCalendlyTool
+src/utils/langchain/hooks/useNotionTool.ts:7 - useNotionTool
+src/utils/langchain/hooks/usePlaidTool.ts:8 - usePlaidTool
+src/utils/langchain/hooks/useStripeTool.ts:7 - useStripeTool
+src/utils/langchain/tools/calendlyTool.ts:10 - initCalendlyClient
+src/utils/langchain/tools/calendlyTool.ts:23 - createCalendlyTool
+src/utils/langchain/tools/clearbitTool.ts:10 - initClearbitClient
+src/utils/langchain/tools/clearbitTool.ts:22 - createClearbitTool
+src/utils/langchain/tools/notionTool.ts:10 - initNotionClient
+src/utils/langchain/tools/notionTool.ts:21 - createNotionTool
+src/utils/langchain/tools/plaidTool.ts:10 - initPlaidClient
+src/utils/langchain/tools/plaidTool.ts:25 - createPlaidTool
+src/utils/langchain/tools/stripeTool.ts:9 - initStripeClient
+src/utils/langchain/tools/stripeTool.ts:28 - createStripeTool
+src/utils/selfLearning/analytics/index.ts:13 - processFeedbackLoop
+src/utils/selfLearning/analytics/index.ts:9 - analyzeUserBehavior
+src/utils/validators/socialMedia/constants.ts:20 - URL_PATTERN
+src/utils/validators/socialMedia/constants.ts:26 - PLATFORM_CHARACTER_LIMITS
+src/utils/validators/socialMedia/constants.ts:38 - HASHTAG_PATTERN
+src/utils/validators/socialMedia/formValidators.ts:18 - validateCreatePost
+src/utils/validators/socialMedia/formValidators.ts:60 - validateUpdatePost
+src/utils/validators/socialMedia/postValidator.ts:29 - validateSocialMediaPost
+src/components/admin/webhooks/config/index.ts:4 - WebhookConfigTab (used in module)
+src/components/admin/webhooks/config/WebhookConfigForm.tsx:8 - WebhookConfigForm
+src/components/admin/webhooks/config/WebhookConfigTab.tsx:2 - WebhookConfigForm (used in module)
+src/components/admin/webhooks/config/WebhookConfigTab.tsx:12 - WebhookConfigTab (used in module)
+src/components/admin/webhooks/config/WebhookForm.tsx:40 - default
+src/components/admin/webhooks/event-table/EmptyState.tsx:26 - default
+src/components/admin/webhooks/event-table/EventDetailsPanel.tsx:95 - default
+src/components/admin/webhooks/event-table/EventTableHeader.tsx:14 - default
+src/components/admin/webhooks/event-table/EventTableRow.tsx:86 - default
+src/components/admin/webhooks/event-table/index.ts:2 - EventTableRow
+src/components/admin/webhooks/event-table/index.ts:3 - EventTableHeader
+src/components/admin/webhooks/event-table/index.ts:4 - EmptyState
+src/components/admin/webhooks/event-table/index.ts:5 - StatusBadge
+src/components/admin/webhooks/event-table/TableHeader.tsx:4 - EventTableHeader
+src/components/admin/webhooks/history/EventDetailsModal.tsx:23 - EventDetailsModal (used in module)
+src/components/admin/webhooks/history/index.ts:6 - WebhookHistoryContent
+src/components/admin/webhooks/history/index.ts:4 - WebhookHistoryPagination
+src/components/admin/webhooks/history/index.ts:5 - FilterOptions
+src/components/admin/webhooks/history/index.ts:12 - useWebhookHistoryFilters
+src/components/admin/webhooks/history/WebhookEventDetailModal.tsx:74 - default
+src/components/admin/webhooks/history/WebhookEventFilters.tsx:45 - WebhookEventFilters (used in module)
+src/components/admin/webhooks/history/WebhookEventRow.tsx:76 - default
+src/components/admin/webhooks/history/WebhookEventTable.tsx:7 - WebhookEventTable (used in module)
+src/components/admin/webhooks/zapier-demo/ZapierWebhookDemoTabs.tsx:6 - ZapierWebhookDemoTabs (used in module)
+src/components/admin/webhooks/zapier-demo/ZapierWebhookDemoTabs.tsx:29 - default
+src/components/compliance/reports/document-tracker/DocumentHeader.tsx:4 - default
+src/components/compliance/reports/document-tracker/DocumentListItem.tsx:4 - default
+src/pages/admin/system-health/tabs/AlertsTab.tsx:7 - default
+src/pages/admin/system-health/tabs/OverviewTab.tsx:6 - default
+src/pages/admin/system-health/tabs/ServicesTab.tsx:5 - default
+src/pages/admin/system-health/tabs/ServiceStatusList.tsx:4 - default
+src/pages/admin/system-health/utils/statusUtils.ts:5 - ServiceStatus (used in module)
+src/pages/admin/system-health/utils/statusUtils.ts:42 - getStatusDescription

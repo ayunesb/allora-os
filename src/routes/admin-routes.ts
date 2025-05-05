@@ -1,9 +1,22 @@
-
 import { RouteObject } from "react-router-dom";
+import React, { lazy } from "react";
+import AdminGuard from "@/guards/AdminGuard";
+import Loading from "@/components/ui/loading";
+
+const LazyAdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 
 export const adminRoutes: RouteObject[] = [
   {
     path: "admin",
+    element: React.createElement(
+      AdminGuard,
+      null,
+      React.createElement(
+        React.Suspense,
+        { fallback: React.createElement(Loading) },
+        React.createElement(LazyAdminDashboard)
+      )
+    ),
     async lazy() {
       const { default: AdminLayout } = await import("@/components/layouts/AdminLayout");
       return { Component: AdminLayout };
