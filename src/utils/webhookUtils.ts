@@ -8,7 +8,7 @@ export function normalizeWebhookEvent(event: WebhookEvent): WebhookEvent {
   return {
     ...event,
     // Add eventType as an alias to event_type for backward compatibility
-    eventType: event.event_type,
+    eventType: event.eventType,
     // Normalize resource property
     resource: event.resource || 'unknown',
   };
@@ -22,7 +22,7 @@ export function createWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
   const event = {
     id: data.id || '',
     webhook_id: data.webhook_id || '',
-    event_type: data.event_type || data.eventType || '',
+    event_type: data.eventType || data.eventType || '',
     status: data.status || 'pending' as const,
     created_at: data.created_at || new Date().toISOString(),
     payload: data.payload || {},
@@ -32,13 +32,13 @@ export function createWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
     duration: data.duration,
     errorMessage: data?.errorMessage ?? 'Unknown error',
     responseCode: data.responseCode,
-    source: data.source,
-    response: data.response
+    resource: data.resource || 'unknown',
+    response: data.response || {},
   };
-  
+
   return {
     ...event,
-    eventType: event.event_type
+    eventType: event.event_type, // Add alias for backward compatibility
   };
 }
 
