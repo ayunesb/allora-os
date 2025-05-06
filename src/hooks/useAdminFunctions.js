@@ -1,38 +1,29 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = useAdminFunctions;
-var useUserManagement_1 = require("@/hooks/admin/useUserManagement");
-var useCompanyManagement_1 = require("@/hooks/admin/useCompanyManagement");
-var useAnalytics_1 = require("@/hooks/admin/useAnalytics");
-function useAdminFunctions() {
-  var userManagement = (0, useUserManagement_1.useUserManagement)();
-  var companyManagement = (0, useCompanyManagement_1.useCompanyManagement)();
-  var analytics = (0, useAnalytics_1.useAnalytics)();
-  return {
-    // User management
-    users: userManagement.users,
-    companyUsers: userManagement.companyUsers,
-    selectedCompany: userManagement.selectedCompany,
-    loadUsers: userManagement.loadUsers,
-    loadCompanyUsers: userManagement.loadCompanyUsers,
-    updateUser: userManagement.updateUser,
-    deleteUser: userManagement.deleteUser,
-    setSelectedCompany: userManagement.setSelectedCompany,
-    // Company management
-    companies: companyManagement.companies,
-    loadCompanies: companyManagement.loadCompanies,
-    updateCompany: companyManagement.updateCompany,
-    deleteCompany: companyManagement.deleteCompany,
-    // Common state
-    isLoading: userManagement.isLoading || companyManagement.isLoading,
-    // Analytics
-    systemAnalytics:
-      analytics === null || analytics === void 0
-        ? void 0
-        : analytics.systemAnalytics,
-    dashboardAnalytics:
-      analytics === null || analytics === void 0
-        ? void 0
-        : analytics.dashboardAnalytics,
-  };
+import { useUserManagement } from "@/hooks/admin/useUserManagement";
+import { useCompanyManagement } from "@/hooks/admin/useCompanyManagement";
+import { useAnalytics } from "@/hooks/admin/useAnalytics";
+export default function useAdminFunctions() {
+    const userManagement = useUserManagement();
+    const companyManagement = useCompanyManagement();
+    const analytics = useAnalytics();
+    return {
+        // User management
+        users: userManagement.users,
+        companyUsers: userManagement.companyUsers,
+        selectedCompany: userManagement.selectedCompany,
+        loadUsers: userManagement.loadUsers,
+        loadCompanyUsers: userManagement.loadCompanyUsers,
+        updateUser: userManagement.updateUser,
+        deleteUser: userManagement.deleteUser,
+        setSelectedCompany: userManagement.setSelectedCompany,
+        // Company management
+        companies: companyManagement.companies,
+        loadCompanies: companyManagement.loadCompanies,
+        updateCompany: companyManagement.updateCompany,
+        deleteCompany: companyManagement.deleteCompany,
+        // Common state
+        isLoading: userManagement.isLoading || companyManagement.isLoading,
+        // Analytics
+        systemAnalytics: analytics === null || analytics === void 0 ? void 0 : analytics.systemAnalytics,
+        dashboardAnalytics: analytics === null || analytics === void 0 ? void 0 : analytics.dashboardAnalytics,
+    };
 }

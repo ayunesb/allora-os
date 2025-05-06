@@ -1,328 +1,156 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Campaigns;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var react_1 = require("react");
-var useCampaigns_1 = require("@/hooks/campaigns/useCampaigns");
-var useCampaignTracking_1 = require("@/hooks/campaigns/useCampaignTracking");
-var useSelfLearning_1 = require("@/hooks/useSelfLearning");
-var sonner_1 = require("sonner");
-var button_1 = require("@/components/ui/button");
-var lucide_react_1 = require("lucide-react");
-var tabs_1 = require("@/components/ui/tabs");
-var skeleton_1 = require("@/components/ui/skeleton");
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState, useEffect, Suspense, lazy } from "react";
+import { useCampaigns } from "@/hooks/campaigns/useCampaigns";
+import { useCampaignTracking } from "@/hooks/campaigns/useCampaignTracking";
+import { useSelfLearning } from "@/hooks/useSelfLearning";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { DownloadIcon } from "lucide-react";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 // Lazy load components for better performance
-var CampaignsList = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/components/campaigns/CampaignsList");
-  });
-});
-var CampaignHeader = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/components/campaigns/CampaignHeader");
-  });
-});
-var CampaignWizard = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/components/campaigns/CampaignWizard");
-  });
-});
-var CampaignAnalytics_1 = require("@/components/campaigns/CampaignAnalytics");
-function Campaigns() {
-  var _a = (0, react_1.useState)(null),
-    editingCampaignId = _a[0],
-    setEditingCampaignId = _a[1];
-  var _b = (0, react_1.useState)(false),
-    isDialogOpen = _b[0],
-    setIsDialogOpen = _b[1];
-  var _c = (0, useCampaigns_1.useCampaigns)(),
-    campaigns = _c.campaigns,
-    isLoading = _c.isLoading,
-    createCampaign = _c.createCampaign,
-    isCreating = _c.isCreating,
-    updateCampaign = _c.updateCampaign,
-    isUpdating = _c.isUpdating,
-    deleteCampaign = _c.deleteCampaign,
-    isDeleting = _c.isDeleting,
-    refetch = _c.refetch;
-  var _d = (0, useCampaignTracking_1.useCampaignTracking)(),
-    trackCampaignView = _d.trackCampaignView,
-    trackCampaignApprove = _d.trackCampaignApprove;
-  var trackAction = (0, useSelfLearning_1.useSelfLearning)().trackAction;
-  (0, react_1.useEffect)(
-    function () {
-      // Track page view
-      trackAction("view_page", "page_view", "campaigns", "page", {
-        page: "campaigns",
-      });
-    },
-    [trackAction],
-  );
-  var onSubmit = function (data) {
-    if (editingCampaignId) {
-      updateCampaign({
-        id: editingCampaignId,
-        name: data.name,
-        platform: data.platform,
-        budget: data.budget,
-        status: "Active",
-        executiveBot: data.executiveBot,
-        justification: "This "
-          .concat(data.platform, " campaign will help you reach your ")
-          .concat(
-            data.goal,
-            " goals. The target audience matches your business perfectly.",
-          ),
-        roi: "Expected ROI: ".concat(
-          Math.floor(Math.random() * 300 + 100),
-          "%",
-        ),
-      });
-    } else {
-      var allExecs = Object.values(executiveBots).flat();
-      // Use the provided executiveBot name if available, otherwise get random exec name
-      var randomExec =
-        data.executiveBot ||
-        allExecs[Math.floor(Math.random() * allExecs.length)];
-      createCampaign({
-        name: data.name,
-        platform: data.platform,
-        budget: data.budget,
-        status: "Active",
-        executiveBot: randomExec,
-        justification: "This "
-          .concat(data.platform, " campaign targets your ideal audience for ")
-          .concat(data.goal, ". Based on your budget of ")
-          .concat(data.budget, ", I expect strong returns."),
-        roi: "Expected ROI: ".concat(
-          Math.floor(Math.random() * 300 + 100),
-          "%",
-        ),
-      });
-      trackAction(
-        "create_campaign",
-        "campaign_management",
-        "new-campaign",
-        "campaign",
-        {
-          name: data.name,
-          platform: data.platform,
-          executiveBot: randomExec,
-        },
-      );
-    }
-    setIsDialogOpen(false);
-    setEditingCampaignId(null);
-  };
-  var handleEditCampaign = function (campaignId) {
-    var campaign = campaigns.find(function (c) {
-      return c.id === campaignId;
-    });
-    if (campaign) {
-      setEditingCampaignId(campaignId);
-      setIsDialogOpen(true);
-      trackCampaignView(campaignId, campaign.name);
-    }
-  };
-  var handleNewCampaign = function () {
-    setEditingCampaignId(null);
-    setIsDialogOpen(true);
-  };
-  var handleApproveCampaign = function (campaignId) {
-    var _a;
-    var campaign = campaigns.find(function (c) {
-      return c.id === campaignId;
-    });
-    if (campaign) {
-      // Extract string name from executiveBot if it's an object
-      var execBotName =
-        typeof campaign.executiveBot === "string"
-          ? campaign.executiveBot
-          : ((_a = campaign.executiveBot) === null || _a === void 0
-              ? void 0
-              : _a.name) || "";
-      trackCampaignApprove(campaignId, campaign.name, execBotName);
-      sonner_1.toast.success(
-        "Feedback for ".concat(execBotName, "'s recommendation recorded"),
-      );
-      setTimeout(function () {
-        return refetch();
-      }, 1000);
-    }
-  };
-  var handleExportCampaign = function (campaignId, format) {
-    var _a;
-    var campaign = campaigns.find(function (c) {
-      return c.id === campaignId;
-    });
-    if (!campaign) return;
-    sonner_1.toast.success(
-      "Exporting "
-        .concat(campaign.name, " as ")
-        .concat(format.toUpperCase(), "..."),
-    );
-    setTimeout(function () {
-      sonner_1.toast.success(
-        "".concat(format.toUpperCase(), " export complete"),
-      );
-    }, 1500);
-    // Extract string name from executiveBot if it's an object
-    var execBotName =
-      typeof campaign.executiveBot === "string"
-        ? campaign.executiveBot
-        : ((_a = campaign.executiveBot) === null || _a === void 0
-            ? void 0
-            : _a.name) || "";
-    trackAction(
-      "export_campaign",
-      "campaign_management",
-      campaignId,
-      "campaign",
-      {
-        name: campaign.name,
-        format: format,
-        executiveBot: execBotName,
-      },
-    );
-  };
-  var getWizardDefaultValues = function () {
-    if (editingCampaignId) {
-      var campaign = campaigns.find(function (c) {
-        return c.id === editingCampaignId;
-      });
-      if (campaign) {
-        var execName = undefined;
-        if (campaign.executiveBot) {
-          execName =
-            typeof campaign.executiveBot === "string"
-              ? campaign.executiveBot
-              : campaign.executiveBot.name;
+const CampaignsList = lazy(() => import("@/components/campaigns/CampaignsList"));
+const CampaignHeader = lazy(() => import("@/components/campaigns/CampaignHeader"));
+const CampaignWizard = lazy(() => import("@/components/campaigns/CampaignWizard"));
+import { CampaignAnalytics } from "@/components/campaigns/CampaignAnalytics";
+export default function Campaigns() {
+    const [editingCampaignId, setEditingCampaignId] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const { campaigns, isLoading, createCampaign, isCreating, updateCampaign, isUpdating, deleteCampaign, isDeleting, refetch, } = useCampaigns();
+    const { trackCampaignView, trackCampaignApprove } = useCampaignTracking();
+    const { trackAction } = useSelfLearning();
+    useEffect(() => {
+        // Track page view
+        trackAction("view_page", "page_view", "campaigns", "page", {
+            page: "campaigns",
+        });
+    }, [trackAction]);
+    const onSubmit = (data) => {
+        if (editingCampaignId) {
+            updateCampaign({
+                id: editingCampaignId,
+                name: data.name,
+                platform: data.platform,
+                budget: data.budget,
+                status: "Active",
+                executiveBot: data.executiveBot,
+                justification: `This ${data.platform} campaign will help you reach your ${data.goal} goals. The target audience matches your business perfectly.`,
+                roi: `Expected ROI: ${Math.floor(Math.random() * 300 + 100)}%`,
+            });
+        }
+        else {
+            const allExecs = Object.values(executiveBots).flat();
+            // Use the provided executiveBot name if available, otherwise get random exec name
+            const randomExec = data.executiveBot ||
+                allExecs[Math.floor(Math.random() * allExecs.length)];
+            createCampaign({
+                name: data.name,
+                platform: data.platform,
+                budget: data.budget,
+                status: "Active",
+                executiveBot: randomExec,
+                justification: `This ${data.platform} campaign targets your ideal audience for ${data.goal}. Based on your budget of ${data.budget}, I expect strong returns.`,
+                roi: `Expected ROI: ${Math.floor(Math.random() * 300 + 100)}%`,
+            });
+            trackAction("create_campaign", "campaign_management", "new-campaign", "campaign", {
+                name: data.name,
+                platform: data.platform,
+                executiveBot: randomExec,
+            });
+        }
+        setIsDialogOpen(false);
+        setEditingCampaignId(null);
+    };
+    const handleEditCampaign = (campaignId) => {
+        const campaign = campaigns.find((c) => c.id === campaignId);
+        if (campaign) {
+            setEditingCampaignId(campaignId);
+            setIsDialogOpen(true);
+            trackCampaignView(campaignId, campaign.name);
+        }
+    };
+    const handleNewCampaign = () => {
+        setEditingCampaignId(null);
+        setIsDialogOpen(true);
+    };
+    const handleApproveCampaign = (campaignId) => {
+        var _a;
+        const campaign = campaigns.find((c) => c.id === campaignId);
+        if (campaign) {
+            // Extract string name from executiveBot if it's an object
+            const execBotName = typeof campaign.executiveBot === "string"
+                ? campaign.executiveBot
+                : ((_a = campaign.executiveBot) === null || _a === void 0 ? void 0 : _a.name) || "";
+            trackCampaignApprove(campaignId, campaign.name, execBotName);
+            toast.success(`Feedback for ${execBotName}'s recommendation recorded`);
+            setTimeout(() => refetch(), 1000);
+        }
+    };
+    const handleExportCampaign = (campaignId, format) => {
+        var _a;
+        const campaign = campaigns.find((c) => c.id === campaignId);
+        if (!campaign)
+            return;
+        toast.success(`Exporting ${campaign.name} as ${format.toUpperCase()}...`);
+        setTimeout(() => {
+            toast.success(`${format.toUpperCase()} export complete`);
+        }, 1500);
+        // Extract string name from executiveBot if it's an object
+        const execBotName = typeof campaign.executiveBot === "string"
+            ? campaign.executiveBot
+            : ((_a = campaign.executiveBot) === null || _a === void 0 ? void 0 : _a.name) || "";
+        trackAction("export_campaign", "campaign_management", campaignId, "campaign", {
+            name: campaign.name,
+            format,
+            executiveBot: execBotName,
+        });
+    };
+    const getWizardDefaultValues = () => {
+        if (editingCampaignId) {
+            const campaign = campaigns.find((c) => c.id === editingCampaignId);
+            if (campaign) {
+                let execName = undefined;
+                if (campaign.executiveBot) {
+                    execName =
+                        typeof campaign.executiveBot === "string"
+                            ? campaign.executiveBot
+                            : campaign.executiveBot.name;
+                }
+                return {
+                    name: campaign.name,
+                    platform: campaign.platform,
+                    budget: campaign.budget || 1000,
+                    executiveBot: execName,
+                    adCopy: campaign.justification || "",
+                    goal: "leads",
+                    audience: "Professionals aged 25-45 interested in business growth",
+                    startDate: new Date().toISOString().split("T")[0],
+                    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                        .toISOString()
+                        .split("T")[0],
+                };
+            }
         }
         return {
-          name: campaign.name,
-          platform: campaign.platform,
-          budget: campaign.budget || 1000,
-          executiveBot: execName,
-          adCopy: campaign.justification || "",
-          goal: "leads",
-          audience: "Professionals aged 25-45 interested in business growth",
-          startDate: new Date().toISOString().split("T")[0],
-          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0],
+            name: "",
+            platform: "Google",
+            budget: 1000,
+            goal: "leads",
+            audience: "",
+            startDate: new Date().toISOString().split("T")[0],
+            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0],
+            adCopy: "",
         };
-      }
-    }
-    return {
-      name: "",
-      platform: "Google",
-      budget: 1000,
-      goal: "leads",
-      audience: "",
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0],
-      adCopy: "",
     };
-  };
-  // Define executives for selection
-  var executiveBots = {
-    ceo: ["Elon Musk", "Jeff Bezos", "Tim Cook", "Satya Nadella"],
-    cmo: ["Seth Godin", "Neil Patel", "Gary Vaynerchuk"],
-    cfo: ["Warren Buffett", "Charlie Munger"],
-    sales_business_development: ["Jill Konrath", "Grant Cardone"],
-    marketing: ["Mari Smith", "Ryan Deiss", "Amy Porterfield"],
-  };
-  return (0, jsx_runtime_1.jsx)(tabs_1.Tabs, {
-    defaultValue: "main",
-    children: (0, jsx_runtime_1.jsx)(tabs_1.TabsContent, {
-      value: "main",
-      children: (0, jsx_runtime_1.jsxs)("div", {
-        className: "container mx-auto px-4 py-8",
-        children: [
-          (0, jsx_runtime_1.jsx)(react_1.Suspense, {
-            fallback: (0, jsx_runtime_1.jsx)(skeleton_1.Skeleton, {
-              className: "h-16 w-full mb-4",
-            }),
-            children: (0, jsx_runtime_1.jsx)(CampaignHeader, {
-              onNewCampaign: handleNewCampaign,
-            }),
-          }),
-          (0, jsx_runtime_1.jsx)(CampaignAnalytics_1.CampaignAnalytics, {
-            campaignName: "All Campaigns Overview",
-            isComparison: false,
-            campaigns: campaigns,
-            isLoading: isLoading,
-          }),
-          (0, jsx_runtime_1.jsxs)("div", {
-            className: "flex justify-between items-center mb-4",
-            children: [
-              (0, jsx_runtime_1.jsx)("h2", {
-                className: "text-xl font-semibold",
-                children: "All Campaigns",
-              }),
-              campaigns.length > 0 &&
-                (0, jsx_runtime_1.jsxs)("div", {
-                  className: "flex space-x-2",
-                  children: [
-                    (0, jsx_runtime_1.jsxs)(button_1.Button, {
-                      variant: "outline",
-                      size: "sm",
-                      onClick: function () {
-                        return handleExportCampaign("all", "csv");
-                      },
-                      children: [
-                        (0, jsx_runtime_1.jsx)(lucide_react_1.DownloadIcon, {
-                          className: "mr-2 h-4 w-4",
-                        }),
-                        "Export All (CSV)",
-                      ],
-                    }),
-                    (0, jsx_runtime_1.jsxs)(button_1.Button, {
-                      variant: "outline",
-                      size: "sm",
-                      onClick: function () {
-                        return handleExportCampaign("all", "pdf");
-                      },
-                      children: [
-                        (0, jsx_runtime_1.jsx)(lucide_react_1.DownloadIcon, {
-                          className: "mr-2 h-4 w-4",
-                        }),
-                        "Export All (PDF)",
-                      ],
-                    }),
-                  ],
-                }),
-            ],
-          }),
-          (0, jsx_runtime_1.jsx)(react_1.Suspense, {
-            fallback: (0, jsx_runtime_1.jsx)(skeleton_1.Skeleton, {
-              className: "h-96 w-full",
-            }),
-            children: (0, jsx_runtime_1.jsx)(CampaignsList, {
-              campaigns: campaigns,
-              isLoading: isLoading,
-              handleEditCampaign: handleEditCampaign,
-              deleteCampaign: deleteCampaign,
-              onCreateCampaign: handleNewCampaign,
-              onApproveCampaign: handleApproveCampaign,
-              onExportCampaign: handleExportCampaign,
-            }),
-          }),
-          (0, jsx_runtime_1.jsx)(react_1.Suspense, {
-            fallback: null,
-            children: (0, jsx_runtime_1.jsx)(CampaignWizard, {
-              open: isDialogOpen,
-              onOpenChange: setIsDialogOpen,
-              onSubmit: onSubmit,
-              defaultValues: getWizardDefaultValues(),
-              isSubmitting: isCreating || isUpdating,
-              isEditing: !!editingCampaignId,
-            }),
-          }),
-        ],
-      }),
-    }),
-  });
+    // Define executives for selection
+    const executiveBots = {
+        ceo: ["Elon Musk", "Jeff Bezos", "Tim Cook", "Satya Nadella"],
+        cmo: ["Seth Godin", "Neil Patel", "Gary Vaynerchuk"],
+        cfo: ["Warren Buffett", "Charlie Munger"],
+        sales_business_development: ["Jill Konrath", "Grant Cardone"],
+        marketing: ["Mari Smith", "Ryan Deiss", "Amy Porterfield"],
+    };
+    return (_jsx(Tabs, { defaultValue: "main", children: _jsx(TabsContent, { value: "main", children: _jsxs("div", { className: "container mx-auto px-4 py-8", children: [_jsx(Suspense, { fallback: _jsx(Skeleton, { className: "h-16 w-full mb-4" }), children: _jsx(CampaignHeader, { onNewCampaign: handleNewCampaign }) }), _jsx(CampaignAnalytics, { campaignName: "All Campaigns Overview", isComparison: false, campaigns: campaigns, isLoading: isLoading }), _jsxs("div", { className: "flex justify-between items-center mb-4", children: [_jsx("h2", { className: "text-xl font-semibold", children: "All Campaigns" }), campaigns.length > 0 && (_jsxs("div", { className: "flex space-x-2", children: [_jsxs(Button, { variant: "outline", size: "sm", onClick: () => handleExportCampaign("all", "csv"), children: [_jsx(DownloadIcon, { className: "mr-2 h-4 w-4" }), "Export All (CSV)"] }), _jsxs(Button, { variant: "outline", size: "sm", onClick: () => handleExportCampaign("all", "pdf"), children: [_jsx(DownloadIcon, { className: "mr-2 h-4 w-4" }), "Export All (PDF)"] })] }))] }), _jsx(Suspense, { fallback: _jsx(Skeleton, { className: "h-96 w-full" }), children: _jsx(CampaignsList, { campaigns: campaigns, isLoading: isLoading, handleEditCampaign: handleEditCampaign, deleteCampaign: deleteCampaign, onCreateCampaign: handleNewCampaign, onApproveCampaign: handleApproveCampaign, onExportCampaign: handleExportCampaign }) }), _jsx(Suspense, { fallback: null, children: _jsx(CampaignWizard, { open: isDialogOpen, onOpenChange: setIsDialogOpen, onSubmit: onSubmit, defaultValues: getWizardDefaultValues(), isSubmitting: isCreating || isUpdating, isEditing: !!editingCampaignId }) })] }) }) }));
 }

@@ -1,4 +1,4 @@
-import type { ApiResponse } from "../types/api"; // Corrected path
+import type { ApiResponse } from "../types/api.js"; // Corrected path
 
 export async function fetchApi<T>(
   url: string,

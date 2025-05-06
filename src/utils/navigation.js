@@ -1,250 +1,209 @@
-"use strict";
 // A utility for navigation that doesn't depend on the useNavigate hook directly
 // This will be used in contexts or services that need to navigate but can't access useNavigate
-var __spreadArray =
-  (this && this.__spreadArray) ||
-  function (to, from, pack) {
-    if (pack || arguments.length === 2)
-      for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-          if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-          ar[i] = from[i];
-        }
-      }
-    return to.concat(ar || Array.prototype.slice.call(from));
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRecentRoutes =
-  exports.trackRouteVisit =
-  exports.normalizeRoute =
-  exports.navigate =
-  exports.registerNavigate =
-    void 0;
-var navigateFunction = null;
-var registerNavigate = function (navigate) {
-  navigateFunction = navigate;
+let navigateFunction = null;
+export const registerNavigate = (navigate) => {
+    navigateFunction = navigate;
 };
-exports.registerNavigate = registerNavigate;
-var navigate = function (to, options) {
-  if (navigateFunction) {
-    // Normalize the route before navigating
-    var normalizedRoute = (0, exports.normalizeRoute)(to);
-    navigateFunction(normalizedRoute, options);
-  } else {
-    console.warn("Navigation function not registered yet.");
-  }
+export const navigate = (to, options) => {
+    if (navigateFunction) {
+        // Normalize the route before navigating
+        const normalizedRoute = normalizeRoute(to);
+        navigateFunction(normalizedRoute, options);
+    }
+    else {
+        console.warn("Navigation function not registered yet.");
+    }
 };
-exports.navigate = navigate;
 // A map of common route misspellings and their corrections
-var COMMON_ROUTE_CORRECTIONS = {
-  "/administrator": "/admin",
-  "/administration": "/admin",
-  "/admins": "/admin",
-  "/users": "/admin/entities?tab=users",
-  "/companies": "/admin/entities?tab=companies",
-  "/board": "/dashboard/strategies",
-  "/board-room": "/dashboard/strategies",
-  "/strategies": "/dashboard/strategies",
-  "/dashboard-home": "/dashboard",
-  "/home-dashboard": "/dashboard",
-  "/account": "/dashboard/profile",
-  "/settings": "/dashboard/settings",
-  "/admin-settings": "/admin/settings",
-  "/user-settings": "/dashboard/settings",
-  "/profile": "/dashboard/profile",
-  "/my-account": "/dashboard/profile",
-  "/logout": "/login",
-  "/signin": "/login",
-  "/register": "/signup",
-  "/campaigns": "/dashboard/campaigns",
-  "/marketing": "/dashboard/campaigns",
-  "/leads": "/dashboard/leads",
-  "/contacts": "/dashboard/leads",
-  "/customers": "/dashboard/leads",
-  "/system": "/admin/system-health",
-  "/system-diagnostics": "/admin/diagnostics",
-  "/diagnostics": "/admin/diagnostics",
-  "/system-health": "/admin/system-health",
-  "/admin-diagnostics": "/admin/diagnostics",
-  "/admin/system": "/admin/system-health",
-  "/admin/diag": "/admin/diagnostics",
-  "/admin/diagnostic": "/admin/diagnostics",
-  // Legal page redirections
-  "/terms": "/legal/terms-of-service",
-  "/tos": "/legal/terms-of-service",
-  "/privacy-policy": "/privacy",
-  "/cookies": "/cookie-policy",
-  "/cookie": "/cookie-policy",
-  "/refund": "/refund-policy",
-  "/messaging": "/messaging-consent",
-  "/gdpr-compliance": "/gdpr",
-  "/gdpr-policy": "/gdpr",
-  "/eu-privacy": "/gdpr",
-  "/eu-data-rights": "/gdpr",
-  "/data-privacy": "/privacy",
-  "/cookie-preferences": "/cookie-settings",
-  "/cookie-manager": "/cookie-settings",
+const COMMON_ROUTE_CORRECTIONS = {
+    "/administrator": "/admin",
+    "/administration": "/admin",
+    "/admins": "/admin",
+    "/users": "/admin/entities?tab=users",
+    "/companies": "/admin/entities?tab=companies",
+    "/board": "/dashboard/strategies",
+    "/board-room": "/dashboard/strategies",
+    "/strategies": "/dashboard/strategies",
+    "/dashboard-home": "/dashboard",
+    "/home-dashboard": "/dashboard",
+    "/account": "/dashboard/profile",
+    "/settings": "/dashboard/settings",
+    "/admin-settings": "/admin/settings",
+    "/user-settings": "/dashboard/settings",
+    "/profile": "/dashboard/profile",
+    "/my-account": "/dashboard/profile",
+    "/logout": "/login",
+    "/signin": "/login",
+    "/register": "/signup",
+    "/campaigns": "/dashboard/campaigns",
+    "/marketing": "/dashboard/campaigns",
+    "/leads": "/dashboard/leads",
+    "/contacts": "/dashboard/leads",
+    "/customers": "/dashboard/leads",
+    "/system": "/admin/system-health",
+    "/system-diagnostics": "/admin/diagnostics",
+    "/diagnostics": "/admin/diagnostics",
+    "/system-health": "/admin/system-health",
+    "/admin-diagnostics": "/admin/diagnostics",
+    "/admin/system": "/admin/system-health",
+    "/admin/diag": "/admin/diagnostics",
+    "/admin/diagnostic": "/admin/diagnostics",
+    // Legal page redirections
+    "/terms": "/legal/terms-of-service",
+    "/tos": "/legal/terms-of-service",
+    "/privacy-policy": "/privacy",
+    "/cookies": "/cookie-policy",
+    "/cookie": "/cookie-policy",
+    "/refund": "/refund-policy",
+    "/messaging": "/messaging-consent",
+    "/gdpr-compliance": "/gdpr",
+    "/gdpr-policy": "/gdpr",
+    "/eu-privacy": "/gdpr",
+    "/eu-data-rights": "/gdpr",
+    "/data-privacy": "/privacy",
+    "/cookie-preferences": "/cookie-settings",
+    "/cookie-manager": "/cookie-settings",
 };
 // Legal routes map for more accurate corrections
-var LEGAL_ROUTE_PATTERNS = {
-  term: "/legal/terms-of-service",
-  tos: "/legal/terms-of-service",
-  "terms-service": "/legal/terms-of-service",
-  privacy: "/legal/privacy-policy",
-  "privacy-policy": "/legal/privacy-policy",
-  private: "/legal/privacy-policy",
-  cookie: "/legal/cookies",
-  "cookie-policy": "/legal/cookies",
-  cookies: "/legal/cookies",
-  refund: "/legal/refund-policy",
-  refunds: "/legal/refund-policy",
-  returns: "/legal/refund-policy",
-  "return-policy": "/legal/refund-policy",
-  message: "/legal/messaging-consent",
-  messaging: "/legal/messaging-consent",
-  consent: "/legal/messaging-consent",
-  "text-consent": "/legal/messaging-consent",
-  "sms-consent": "/legal/messaging-consent",
-  gdpr: "/legal/gdpr",
-  "data-protection": "/legal/gdpr",
-  "eu-privacy": "/legal/gdpr",
-  "cookie-settings": "/legal/cookie-settings",
-  "cookie-preferences": "/legal/cookie-settings",
+const LEGAL_ROUTE_PATTERNS = {
+    term: "/legal/terms-of-service",
+    tos: "/legal/terms-of-service",
+    "terms-service": "/legal/terms-of-service",
+    privacy: "/legal/privacy-policy",
+    "privacy-policy": "/legal/privacy-policy",
+    private: "/legal/privacy-policy",
+    cookie: "/legal/cookies",
+    "cookie-policy": "/legal/cookies",
+    cookies: "/legal/cookies",
+    refund: "/legal/refund-policy",
+    refunds: "/legal/refund-policy",
+    returns: "/legal/refund-policy",
+    "return-policy": "/legal/refund-policy",
+    message: "/legal/messaging-consent",
+    messaging: "/legal/messaging-consent",
+    consent: "/legal/messaging-consent",
+    "text-consent": "/legal/messaging-consent",
+    "sms-consent": "/legal/messaging-consent",
+    gdpr: "/legal/gdpr",
+    "data-protection": "/legal/gdpr",
+    "eu-privacy": "/legal/gdpr",
+    "cookie-settings": "/legal/cookie-settings",
+    "cookie-preferences": "/legal/cookie-settings",
 };
 // Route normalization function to handle common URL variants
-var normalizeRoute = function (route) {
-  // First check direct matches in our correction map
-  if (COMMON_ROUTE_CORRECTIONS[route]) {
-    return COMMON_ROUTE_CORRECTIONS[route];
-  }
-  // Check if this is a legal-related route
-  if (
-    route.includes("/legal/") ||
-    route.startsWith("/term") ||
-    route.startsWith("/priv") ||
-    route.startsWith("/cookie") ||
-    route.startsWith("/refund") ||
-    route.startsWith("/message") ||
-    route.startsWith("/gdpr") ||
-    route.startsWith("/consent")
-  ) {
-    // Try to match against known legal route patterns
-    var routeLower = route.toLowerCase();
-    for (
-      var _i = 0, _a = Object.entries(LEGAL_ROUTE_PATTERNS);
-      _i < _a.length;
-      _i++
-    ) {
-      var _b = _a[_i],
-        pattern = _b[0],
-        correction = _b[1];
-      if (routeLower.includes(pattern)) {
-        return correction;
-      }
+export const normalizeRoute = (route) => {
+    // First check direct matches in our correction map
+    if (COMMON_ROUTE_CORRECTIONS[route]) {
+        return COMMON_ROUTE_CORRECTIONS[route];
     }
-  }
-  // Handle entities route with tab parameter
-  if (route === "/admin/users") {
-    return "/admin/entities?tab=users";
-  }
-  if (route === "/admin/companies") {
-    return "/admin/entities?tab=companies";
-  }
-  // Convert routes to their canonical form
-  if (route.includes("/strategy") && !route.includes("/strategies")) {
-    return route.replace("/strategy", "/strategies");
-  }
-  if (route.includes("/account") && route.includes("/dashboard")) {
-    return route.replace("/account", "/profile");
-  }
-  if (route.includes("/my-leads")) {
-    return route.replace("/my-leads", "/dashboard/leads");
-  }
-  // Handle admin routes
-  if (route.includes("/admin/dashboard")) {
-    return route.replace("/admin/dashboard", "/admin");
-  }
-  // Fix any diagnostic/health confusion
-  if (
-    route.includes("/admin/diagnostic") &&
-    !route.includes("/admin/diagnostics")
-  ) {
-    return route.replace("/admin/diagnostic", "/admin/diagnostics");
-  }
-  if (route.includes("/diagnostic") && !route.includes("/admin")) {
-    return "/admin/diagnostics";
-  }
-  // Fix any boardroom/strategy confusion
-  if (route.includes("/boardroom")) {
-    return route.replace("/boardroom", "/strategies");
-  }
-  if (route === "/auth/login") {
-    return "/login";
-  }
-  // Fix any compliance paths
-  if (route.includes("/complian") && !route.includes("/compliance")) {
-    return route.replace(/\/complian[^\/]*/, "/compliance");
-  }
-  // Fix admin system-health and admin diagnostics routes
-  if (
-    route.includes("/admin/system") &&
-    !route.includes("/admin/system-health")
-  ) {
-    return "/admin/system-health";
-  }
-  if (
-    route.includes("/admin/diagnostic") &&
-    !route.includes("/admin/diagnostics")
-  ) {
-    return "/admin/diagnostics";
-  }
-  // Make sure system-health and diagnostics routes are properly handled
-  if (route === "/system-health") {
-    return "/admin/system-health";
-  }
-  if (route === "/diagnostics" || route === "/system/diagnostics") {
-    return "/admin/diagnostics";
-  }
-  // Legal page normalizations
-  if (route.includes("/term") && !route.includes("/terms-of-service")) {
-    return "/legal/terms-of-service";
-  }
-  if (
-    (route.includes("/privacy") || route.includes("/gdpr")) &&
-    route !== "/privacy"
-  ) {
-    return "/privacy";
-  }
-  if (route.includes("/cookie") && route !== "/cookie-policy") {
-    return "/cookie-policy";
-  }
-  return route;
+    // Check if this is a legal-related route
+    if (route.includes("/legal/") ||
+        route.startsWith("/term") ||
+        route.startsWith("/priv") ||
+        route.startsWith("/cookie") ||
+        route.startsWith("/refund") ||
+        route.startsWith("/message") ||
+        route.startsWith("/gdpr") ||
+        route.startsWith("/consent")) {
+        // Try to match against known legal route patterns
+        const routeLower = route.toLowerCase();
+        for (const [pattern, correction] of Object.entries(LEGAL_ROUTE_PATTERNS)) {
+            if (routeLower.includes(pattern)) {
+                return correction;
+            }
+        }
+    }
+    // Handle entities route with tab parameter
+    if (route === "/admin/users") {
+        return "/admin/entities?tab=users";
+    }
+    if (route === "/admin/companies") {
+        return "/admin/entities?tab=companies";
+    }
+    // Convert routes to their canonical form
+    if (route.includes("/strategy") && !route.includes("/strategies")) {
+        return route.replace("/strategy", "/strategies");
+    }
+    if (route.includes("/account") && route.includes("/dashboard")) {
+        return route.replace("/account", "/profile");
+    }
+    if (route.includes("/my-leads")) {
+        return route.replace("/my-leads", "/dashboard/leads");
+    }
+    // Handle admin routes
+    if (route.includes("/admin/dashboard")) {
+        return route.replace("/admin/dashboard", "/admin");
+    }
+    // Fix any diagnostic/health confusion
+    if (route.includes("/admin/diagnostic") &&
+        !route.includes("/admin/diagnostics")) {
+        return route.replace("/admin/diagnostic", "/admin/diagnostics");
+    }
+    if (route.includes("/diagnostic") && !route.includes("/admin")) {
+        return "/admin/diagnostics";
+    }
+    // Fix any boardroom/strategy confusion
+    if (route.includes("/boardroom")) {
+        return route.replace("/boardroom", "/strategies");
+    }
+    if (route === "/auth/login") {
+        return "/login";
+    }
+    // Fix any compliance paths
+    if (route.includes("/complian") && !route.includes("/compliance")) {
+        return route.replace(/\/complian[^\/]*/, "/compliance");
+    }
+    // Fix admin system-health and admin diagnostics routes
+    if (route.includes("/admin/system") &&
+        !route.includes("/admin/system-health")) {
+        return "/admin/system-health";
+    }
+    if (route.includes("/admin/diagnostic") &&
+        !route.includes("/admin/diagnostics")) {
+        return "/admin/diagnostics";
+    }
+    // Make sure system-health and diagnostics routes are properly handled
+    if (route === "/system-health") {
+        return "/admin/system-health";
+    }
+    if (route === "/diagnostics" || route === "/system/diagnostics") {
+        return "/admin/diagnostics";
+    }
+    // Legal page normalizations
+    if (route.includes("/term") && !route.includes("/terms-of-service")) {
+        return "/legal/terms-of-service";
+    }
+    if ((route.includes("/privacy") || route.includes("/gdpr")) &&
+        route !== "/privacy") {
+        return "/privacy";
+    }
+    if (route.includes("/cookie") && route !== "/cookie-policy") {
+        return "/cookie-policy";
+    }
+    return route;
 };
-exports.normalizeRoute = normalizeRoute;
 // Track route visits for analytics and suggestions
-var recentRoutes = [];
-var trackRouteVisit = function (route) {
-  if (!route) return;
-  // Add to recent routes, keeping only the last 10
-  recentRoutes.unshift(route);
-  if (recentRoutes.length > 10) {
-    recentRoutes = recentRoutes.slice(0, 10);
-  }
-  // Could send to analytics here
-  if (typeof window !== "undefined") {
-    try {
-      window.dispatchEvent(
-        new CustomEvent("route-visit", {
-          detail: { route: route, timestamp: new Date().toISOString() },
-        }),
-      );
-    } catch (e) {
-      // Silent catch - non-critical
+let recentRoutes = [];
+export const trackRouteVisit = (route) => {
+    if (!route)
+        return;
+    // Add to recent routes, keeping only the last 10
+    recentRoutes.unshift(route);
+    if (recentRoutes.length > 10) {
+        recentRoutes = recentRoutes.slice(0, 10);
     }
-  }
+    // Could send to analytics here
+    if (typeof window !== "undefined") {
+        try {
+            window.dispatchEvent(new CustomEvent("route-visit", {
+                detail: { route, timestamp: new Date().toISOString() },
+            }));
+        }
+        catch (e) {
+            // Silent catch - non-critical
+        }
+    }
 };
-exports.trackRouteVisit = trackRouteVisit;
-var getRecentRoutes = function () {
-  return __spreadArray([], recentRoutes, true);
+export const getRecentRoutes = () => {
+    return [...recentRoutes];
 };
-exports.getRecentRoutes = getRecentRoutes;

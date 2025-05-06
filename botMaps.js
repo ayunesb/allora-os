@@ -1,15 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.botExampleActions =
-  exports.botOutputLocations =
-  exports.botSpecialSkills =
-    void 0;
-exports.botSpecialSkills = {
-  // ...existing code...
+export const botSpecialSkills = {
+// ...existing code...
 };
-exports.botOutputLocations = {
-  // ...existing code...
+export const botOutputLocations = {
+// ...existing code...
 };
-exports.botExampleActions = {
-  // ...existing code...
+export const botExampleActions = {
+// ...existing code...
 };

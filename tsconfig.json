@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"],
-      "@/components/*": ["components/*"],
-      "@/pages/*": ["pages/*"],
-      "@/services/*": ["services/*"],
-      "@/layouts/*": ["layouts/*"],
-      "@/hooks/*": ["hooks/*"]
-    },
-    "jsx": "react-jsx"
+      "@/*": ["*"]
+    }
   }
 }

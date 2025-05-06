@@ -1,330 +1,105 @@
-"use strict";
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __generator =
-  (this && this.__generator) ||
-  function (thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function () {
-          if (t[0] & 1) throw t[1];
-          return t[1];
-        },
-        trys: [],
-        ops: [],
-      },
-      f,
-      y,
-      t,
-      g = Object.create(
-        (typeof Iterator === "function" ? Iterator : Object).prototype,
-      );
-    return (
-      (g.next = verb(0)),
-      (g["throw"] = verb(1)),
-      (g["return"] = verb(2)),
-      typeof Symbol === "function" &&
-        (g[Symbol.iterator] = function () {
-          return this;
-        }),
-      g
-    );
-    function verb(n) {
-      return function (v) {
-        return step([n, v]);
-      };
-    }
-    function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
-      while ((g && ((g = 0), op[0] && (_ = 0)), _))
-        try {
-          if (
-            ((f = 1),
-            y &&
-              (t =
-                op[0] & 2
-                  ? y["return"]
-                  : op[0]
-                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                    : y.next) &&
-              !(t = t.call(y, op[1])).done)
-          )
-            return t;
-          if (((y = 0), t)) op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
-              t = op;
-              break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (
-                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
-                (op[0] === 6 || op[0] === 2)
-              ) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2]) _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
-        }
-      if (op[0] & 5) throw op[1];
-      return { value: op[0] ? op[1] : void 0, done: true };
-    }
-  };
-var __spreadArray =
-  (this && this.__spreadArray) ||
-  function (to, from, pack) {
-    if (pack || arguments.length === 2)
-      for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-          if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-          ar[i] = from[i];
-        }
-      }
-    return to.concat(ar || Array.prototype.slice.call(from));
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.runDebateSession = runDebateSession;
-exports.summarizeDebate = summarizeDebate;
-var debateEngine_1 = require("./debateEngine");
-var executives = [
-  { name: "Elon Musk", role: "Chief Executive Officer" },
-  { name: "Sheryl Sandberg", role: "Chief Operations Officer" },
-  { name: "Warren Buffett", role: "Chief Financial Officer" },
-  { name: "Antonio Lucio", role: "Chief Marketing Officer" },
+};
+import { runExecutiveDebate, saveDebateResult, analyzeDebateResponse, } from "./debateEngine";
+const executives = [
+    { name: "Elon Musk", role: "Chief Executive Officer" },
+    { name: "Sheryl Sandberg", role: "Chief Operations Officer" },
+    { name: "Warren Buffett", role: "Chief Financial Officer" },
+    { name: "Antonio Lucio", role: "Chief Marketing Officer" },
 ];
 /**
  * Run a debate session with multiple executives
  */
-function runDebateSession(task_1) {
-  return __awaiter(
-    this,
-    arguments,
-    void 0,
-    function (task, riskAppetite, businessPriority) {
-      var debateResults,
-        allRisks,
-        allOpportunities,
-        _i,
-        executives_1,
-        exec,
-        response_1,
-        _a,
-        stance,
-        risks,
-        opportunities,
-        error_1,
-        summary;
-      if (riskAppetite === void 0) {
-        riskAppetite = "medium";
-      }
-      if (businessPriority === void 0) {
-        businessPriority = "growth";
-      }
-      return __generator(this, function (_b) {
-        switch (_b.label) {
-          case 0:
-            debateResults = [];
-            allRisks = [];
-            allOpportunities = [];
-            (_i = 0), (executives_1 = executives);
-            _b.label = 1;
-          case 1:
-            if (!(_i < executives_1.length)) return [3 /*break*/, 7];
-            exec = executives_1[_i];
-            _b.label = 2;
-          case 2:
-            _b.trys.push([2, 5, , 6]);
-            console.log(
-              "Running debate for "
-                .concat(exec.name, " on task: ")
-                .concat(task),
-            );
-            return [
-              4 /*yield*/,
-              (0, debateEngine_1.runExecutiveDebate)(
-                exec.name,
-                exec.role,
-                task,
-                riskAppetite,
-                businessPriority,
-              ),
-            ];
-          case 3:
-            response_1 = _b.sent();
-            (_a = (0, debateEngine_1.analyzeDebateResponse)(response_1)),
-              (stance = _a.stance),
-              (risks = _a.risks),
-              (opportunities = _a.opportunities);
-            // Add risks and opportunities to our collection
-            allRisks.push.apply(allRisks, risks);
-            allOpportunities.push.apply(allOpportunities, opportunities);
-            // Save the result
-            return [
-              4 /*yield*/,
-              (0, debateEngine_1.saveDebateResult)(
-                task,
-                exec.name,
-                exec.role,
-                response_1,
-              ),
-            ];
-          case 4:
-            // Save the result
-            _b.sent();
-            // Add to our results
-            debateResults.push({
-              executiveName: exec.name,
-              role: exec.role,
-              opinion: response_1,
-              stance: stance,
-            });
-            return [3 /*break*/, 6];
-          case 5:
-            error_1 = _b.sent();
-            console.error(
-              "Error in debate for ".concat(exec.name, ":"),
-              error_1,
-            );
-            // Add a fallback entry
-            debateResults.push({
-              executiveName: exec.name,
-              role: exec.role,
-              opinion:
-                "Unable to process debate due to technical issues: ".concat(
-                  error_1,
-                ),
-              stance: "Neutral",
-            });
-            return [3 /*break*/, 6];
-          case 6:
-            _i++;
-            return [3 /*break*/, 1];
-          case 7:
-            summary = summarizeDebate(
-              debateResults,
-              allRisks,
-              allOpportunities,
-            );
-            return [
-              2 /*return*/,
-              {
-                task: task,
-                debates: debateResults,
-                summary: summary,
-              },
-            ];
+export function runDebateSession(task_1) {
+    return __awaiter(this, arguments, void 0, function* (task, riskAppetite = "medium", businessPriority = "growth") {
+        // Get profiles for executives
+        const debateResults = [];
+        const allRisks = [];
+        const allOpportunities = [];
+        // Run debates for each executive
+        for (const exec of executives) {
+            try {
+                console.log(`Running debate for ${exec.name} on task: ${task}`);
+                // Get the executive's opinion
+                const response = yield runExecutiveDebate(exec.name, exec.role, task, riskAppetite, businessPriority);
+                // Analyze the response
+                const { stance, risks, opportunities } = analyzeDebateResponse(response);
+                // Add risks and opportunities to our collection
+                allRisks.push(...risks);
+                allOpportunities.push(...opportunities);
+                // Save the result
+                yield saveDebateResult(task, exec.name, exec.role, response);
+                // Add to our results
+                debateResults.push({
+                    executiveName: exec.name,
+                    role: exec.role,
+                    opinion: response,
+                    stance: stance,
+                });
+            }
+            catch (error) {
+                console.error(`Error in debate for ${exec.name}:`, error);
+                // Add a fallback entry
+                debateResults.push({
+                    executiveName: exec.name,
+                    role: exec.role,
+                    opinion: `Unable to process debate due to technical issues: ${error}`,
+                    stance: "Neutral",
+                });
+            }
         }
-      });
-    },
-  );
+        // Create a summary of the debate
+        const summary = summarizeDebate(debateResults, allRisks, allOpportunities);
+        return {
+            task,
+            debates: debateResults,
+            summary,
+        };
+    });
 }
 /**
  * Summarize the debate results
  */
-function summarizeDebate(debateResults, risks, opportunities) {
-  if (risks === void 0) {
-    risks = [];
-  }
-  if (opportunities === void 0) {
-    opportunities = [];
-  }
-  var forVotes = 0;
-  var againstVotes = 0;
-  // Count votes
-  debateResults.forEach(function (debate) {
-    if (debate.stance === "For") {
-      forVotes += 1;
-    } else if (debate.stance === "Against") {
-      againstVotes += 1;
+export function summarizeDebate(debateResults, risks = [], opportunities = []) {
+    let forVotes = 0;
+    let againstVotes = 0;
+    // Count votes
+    debateResults.forEach((debate) => {
+        if (debate.stance === "For") {
+            forVotes += 1;
+        }
+        else if (debate.stance === "Against") {
+            againstVotes += 1;
+        }
+    });
+    // Determine majority
+    let majority = "Tie";
+    if (forVotes > againstVotes) {
+        majority = "For";
     }
-  });
-  // Determine majority
-  var majority = "Tie";
-  if (forVotes > againstVotes) {
-    majority = "For";
-  } else if (againstVotes > forVotes) {
-    majority = "Against";
-  }
-  // Calculate confidence score
-  var totalVotes = forVotes + againstVotes;
-  var confidenceScore =
-    totalVotes > 0 ? Math.max(forVotes, againstVotes) / totalVotes : 0.5;
-  // Get top risks and opportunities
-  var uniqueRisks = __spreadArray([], new Set(risks), true);
-  var uniqueOpportunities = __spreadArray([], new Set(opportunities), true);
-  return {
-    totalExecutives: debateResults.length,
-    forVotes: forVotes,
-    againstVotes: againstVotes,
-    majority: majority,
-    confidenceScore: confidenceScore,
-    topRisks: uniqueRisks.slice(0, 3),
-    topOpportunities: uniqueOpportunities.slice(0, 3),
-  };
+    else if (againstVotes > forVotes) {
+        majority = "Against";
+    }
+    // Calculate confidence score
+    const totalVotes = forVotes + againstVotes;
+    const confidenceScore = totalVotes > 0 ? Math.max(forVotes, againstVotes) / totalVotes : 0.5;
+    // Get top risks and opportunities
+    const uniqueRisks = [...new Set(risks)];
+    const uniqueOpportunities = [...new Set(opportunities)];
+    return {
+        totalExecutives: debateResults.length,
+        forVotes,
+        againstVotes,
+        majority,
+        confidenceScore,
+        topRisks: uniqueRisks.slice(0, 3),
+        topOpportunities: uniqueOpportunities.slice(0, 3),
+    };
 }

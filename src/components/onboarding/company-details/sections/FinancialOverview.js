@@ -1,91 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FinancialOverview = FinancialOverview;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var accordion_1 = require("@/components/ui/accordion");
-var input_1 = require("@/components/ui/input");
-var textarea_1 = require("@/components/ui/textarea");
-var button_1 = require("@/components/ui/button");
-var lucide_react_1 = require("lucide-react");
-function FinancialOverview(_a) {
-  var companyDetails = _a.companyDetails,
-    handleTextChange = _a.handleTextChange,
-    onNext = _a.onNext;
-  return (0, jsx_runtime_1.jsxs)(accordion_1.AccordionItem, {
-    value: "financial",
-    children: [
-      (0, jsx_runtime_1.jsx)(accordion_1.AccordionTrigger, {
-        className: "text-base font-medium",
-        children: "Financial Overview",
-      }),
-      (0, jsx_runtime_1.jsxs)(accordion_1.AccordionContent, {
-        className: "space-y-4 pt-4",
-        children: [
-          (0, jsx_runtime_1.jsxs)("div", {
-            className: "space-y-2",
-            children: [
-              (0, jsx_runtime_1.jsx)("label", {
-                className: "text-sm font-medium",
-                children: "Current Financials",
-              }),
-              (0, jsx_runtime_1.jsx)(textarea_1.Textarea, {
-                placeholder: "Profit/Loss, Cash Flow",
-                value: companyDetails.financials || "",
-                onChange: function (e) {
-                  return handleTextChange("financials", e.target.value);
-                },
-              }),
-            ],
-          }),
-          (0, jsx_runtime_1.jsxs)("div", {
-            className: "space-y-2",
-            children: [
-              (0, jsx_runtime_1.jsx)("label", {
-                className: "text-sm font-medium",
-                children: "Burn Rate",
-              }),
-              (0, jsx_runtime_1.jsx)(input_1.Input, {
-                placeholder: "Monthly cash spend",
-                value: companyDetails.burnRate || "",
-                onChange: function (e) {
-                  return handleTextChange("burnRate", e.target.value);
-                },
-              }),
-            ],
-          }),
-          (0, jsx_runtime_1.jsxs)("div", {
-            className: "space-y-2",
-            children: [
-              (0, jsx_runtime_1.jsx)("label", {
-                className: "text-sm font-medium",
-                children: "Runway",
-              }),
-              (0, jsx_runtime_1.jsx)(input_1.Input, {
-                placeholder: "How many months left before needing new funding?",
-                value: companyDetails.runway || "",
-                onChange: function (e) {
-                  return handleTextChange("runway", e.target.value);
-                },
-              }),
-            ],
-          }),
-          (0, jsx_runtime_1.jsx)("div", {
-            className: "flex justify-end mt-4",
-            children: (0, jsx_runtime_1.jsxs)(button_1.Button, {
-              onClick: function (e) {
-                return onNext && onNext("financial");
-              },
-              className: "gap-2",
-              children: [
-                "Continue to Strategic Goals",
-                (0, jsx_runtime_1.jsx)(lucide_react_1.ArrowRight, {
-                  className: "h-4 w-4",
-                }),
-              ],
-            }),
-          }),
-        ],
-      }),
-    ],
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+export function FinancialOverview({ companyDetails, handleTextChange, onNext, }) {
+    return (_jsxs(AccordionItem, { value: "financial", children: [_jsx(AccordionTrigger, { className: "text-base font-medium", children: "Financial Overview" }), _jsxs(AccordionContent, { className: "space-y-4 pt-4", children: [_jsxs("div", { className: "space-y-2", children: [_jsx("label", { className: "text-sm font-medium", children: "Current Financials" }), _jsx(Textarea, { placeholder: "Profit/Loss, Cash Flow", value: companyDetails.financials || "", onChange: (e) => handleTextChange("financials", e.target.value) })] }), _jsxs("div", { className: "space-y-2", children: [_jsx("label", { className: "text-sm font-medium", children: "Burn Rate" }), _jsx(Input, { placeholder: "Monthly cash spend", value: companyDetails.burnRate || "", onChange: (e) => handleTextChange("burnRate", e.target.value) })] }), _jsxs("div", { className: "space-y-2", children: [_jsx("label", { className: "text-sm font-medium", children: "Runway" }), _jsx(Input, { placeholder: "How many months left before needing new funding?", value: companyDetails.runway || "", onChange: (e) => handleTextChange("runway", e.target.value) })] }), _jsx("div", { className: "flex justify-end mt-4", children: _jsxs(Button, { onClick: (e) => onNext && onNext("financial"), className: "gap-2", children: ["Continue to Strategic Goals", _jsx(ArrowRight, { className: "h-4 w-4" })] }) })] })] }));
 }

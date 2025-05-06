@@ -26,7 +26,7 @@ export function useNotionTool() {
       }
 
       toast.success("Saved to Notion successfully");
-      return data;
+      return data || null; // Ensure a valid return type
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to save to Notion";

@@ -1,40 +1,8 @@
-"use strict";
-var __createBinding =
-  (this && this.__createBinding) ||
-  (Object.create
-    ? function (o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        var desc = Object.getOwnPropertyDescriptor(m, k);
-        if (
-          !desc ||
-          ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)
-        ) {
-          desc = {
-            enumerable: true,
-            get: function () {
-              return m[k];
-            },
-          };
-        }
-        Object.defineProperty(o, k2, desc);
-      }
-    : function (o, m, k, k2) {
-        if (k2 === undefined) k2 = k;
-        o[k2] = m[k];
-      });
-var __exportStar =
-  (this && this.__exportStar) ||
-  function (m, exports) {
-    for (var p in m)
-      if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p))
-        __createBinding(exports, m, p);
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
 // Export all dashboard route modules for easier imports
-__exportStar(require("./executive-routes"), exports);
-__exportStar(require("./ai-routes"), exports);
-__exportStar(require("./marketing-routes"), exports);
-__exportStar(require("./strategy-routes"), exports);
-__exportStar(require("./integration-routes"), exports);
-__exportStar(require("./account-routes"), exports);
-__exportStar(require("./analytics-routes"), exports);
+export * from "./executive-routes";
+export * from "./ai-routes";
+export * from "./marketing-routes";
+export * from "./strategy-routes";
+export * from "./integration-routes";
+export * from "./account-routes";
+export * from "./analytics-routes";

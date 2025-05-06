@@ -1,6 +1,6 @@
 // ...existing code...
 return {
-  success: false,
-  error: error instanceof Error ? error.message : "Unknown error",
+    success: false,
+    error: error instanceof Error ? error.message : "Unknown error",
 };
 // ...existing code...

@@ -1,5 +1,5 @@
 // ...existing code...
 if (typeof window !== "undefined") {
-  window.location.href = "/some-path";
+    window.location.href = "/some-path";
 }
 // ...existing code...

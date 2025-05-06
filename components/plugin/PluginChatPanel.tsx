@@ -3,15 +3,17 @@ import { ChatMessage } from "@/types";
 import Message from "./Message";
 import { usePlugin } from "@/hooks/usePlugin";
 
-const PluginChatPanel = ({ pluginId }) => {
+const PluginChatPanel = (props: { pluginId: string }) => {
+  const { pluginId } = props; // Explicitly type `pluginId`
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const { plugin } = usePlugin(pluginId);
-  const bottomRef = useRef(null);
+  const bottomRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const element = bottomRef.current as HTMLElement; // Fix `scrollIntoView` type error
+    element.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = async () => {

@@ -1,3 +1,4 @@
+import { google } from 'next/font/google'; // Fix import
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
 import { Inter } from "next/font/google";

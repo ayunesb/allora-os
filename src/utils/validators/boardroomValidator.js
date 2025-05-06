@@ -1,279 +1,95 @@
-"use strict";
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __generator =
-  (this && this.__generator) ||
-  function (thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function () {
-          if (t[0] & 1) throw t[1];
-          return t[1];
-        },
-        trys: [],
-        ops: [],
-      },
-      f,
-      y,
-      t,
-      g = Object.create(
-        (typeof Iterator === "function" ? Iterator : Object).prototype,
-      );
-    return (
-      (g.next = verb(0)),
-      (g["throw"] = verb(1)),
-      (g["return"] = verb(2)),
-      typeof Symbol === "function" &&
-        (g[Symbol.iterator] = function () {
-          return this;
-        }),
-      g
-    );
-    function verb(n) {
-      return function (v) {
-        return step([n, v]);
-      };
-    }
-    function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
-      while ((g && ((g = 0), op[0] && (_ = 0)), _))
-        try {
-          if (
-            ((f = 1),
-            y &&
-              (t =
-                op[0] & 2
-                  ? y["return"]
-                  : op[0]
-                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                    : y.next) &&
-              !(t = t.call(y, op[1])).done)
-          )
-            return t;
-          if (((y = 0), t)) op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
-              t = op;
-              break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (
-                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
-                (op[0] === 6 || op[0] === 2)
-              ) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2]) _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
-        }
-      if (op[0] & 5) throw op[1];
-      return { value: op[0] ? op[1] : void 0, done: true };
-    }
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateExecutiveBoardroom = validateExecutiveBoardroom;
-var client_1 = require("@/integrations/supabase/client");
+};
+import { supabase } from "@/integrations/supabase/client";
 /**
  * Validates executive boardroom functionality
  */
-function validateExecutiveBoardroom() {
-  return __awaiter(this, void 0, void 0, function () {
-    var _a, data, tableCheckError, testResult, error_1;
-    return __generator(this, function (_b) {
-      switch (_b.label) {
-        case 0:
-          _b.trys.push([0, 3, , 4]);
-          return [
-            4 /*yield*/,
-            client_1.supabase
-              .from("ai_boardroom_debates")
-              .select("id")
-              .limit(1),
-          ];
-        case 1:
-          (_a = _b.sent()), (data = _a.data), (tableCheckError = _a.error);
-          if (tableCheckError) {
-            if (tableCheckError.code === "42P01") {
-              // Table doesn't exist
-              return [
-                2 /*return*/,
-                {
-                  valid: false,
-                  message:
-                    "The ai_boardroom_debates table does not exist in the database.",
-                },
-              ];
+export function validateExecutiveBoardroom() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Check if the ai_boardroom_debates table exists
+            const { data, error: tableCheckError } = yield supabase
+                .from("ai_boardroom_debates")
+                .select("id")
+                .limit(1);
+            if (tableCheckError) {
+                if (tableCheckError.code === "42P01") {
+                    // Table doesn't exist
+                    return {
+                        valid: false,
+                        message: "The ai_boardroom_debates table does not exist in the database.",
+                    };
+                }
+                return {
+                    valid: false,
+                    message: `Error accessing ai_boardroom_debates: ${tableCheckError.message}`,
+                };
             }
-            return [
-              2 /*return*/,
-              {
+            // Check RLS policy by trying to access data that should be restricted
+            const testResult = yield checkBoardroomRlsPolicies();
+            if (!testResult.valid) {
+                return testResult;
+            }
+            return {
+                valid: true,
+                message: "Executive boardroom functionality is ready.",
+            };
+        }
+        catch (error) {
+            return {
                 valid: false,
-                message: "Error accessing ai_boardroom_debates: ".concat(
-                  tableCheckError.message,
-                ),
-              },
-            ];
-          }
-          return [4 /*yield*/, checkBoardroomRlsPolicies()];
-        case 2:
-          testResult = _b.sent();
-          if (!testResult.valid) {
-            return [2 /*return*/, testResult];
-          }
-          return [
-            2 /*return*/,
-            {
-              valid: true,
-              message: "Executive boardroom functionality is ready.",
-            },
-          ];
-        case 3:
-          error_1 = _b.sent();
-          return [
-            2 /*return*/,
-            {
-              valid: false,
-              message:
-                "Error validating executive boardroom: " +
-                (error_1 instanceof Error ? error_1.message : String(error_1)),
-            },
-          ];
-        case 4:
-          return [2 /*return*/];
-      }
+                message: "Error validating executive boardroom: " +
+                    (error instanceof Error ? error.message : String(error)),
+            };
+        }
     });
-  });
 }
 /**
  * Check whether RLS policies are correctly applied on the ai_boardroom_debates table
  */
 function checkBoardroomRlsPolicies() {
-  return __awaiter(this, void 0, void 0, function () {
-    var _a, data, error, rlsEnabled, error_2;
-    return __generator(this, function (_b) {
-      switch (_b.label) {
-        case 0:
-          _b.trys.push([0, 2, , 3]);
-          return [
-            4 /*yield*/,
-            client_1.supabase
-              .from("ai_boardroom_debates")
-              .select("rls_enabled")
-              .limit(1),
-          ];
-        case 1:
-          (_a = _b.sent()), (data = _a.data), (error = _a.error);
-          if (error && error.message.includes("permission denied")) {
-            // This suggests RLS is active and working
-            return [
-              2 /*return*/,
-              {
-                valid: true,
-                message:
-                  "RLS policies for executive boardroom are properly configured.",
-              },
-            ];
-          }
-          // If we received data, check if RLS is enabled in the table
-          if (data && data.length > 0) {
-            rlsEnabled = data[0].rls_enabled;
-            if (rlsEnabled) {
-              return [
-                2 /*return*/,
-                {
-                  valid: true,
-                  message: "RLS is enabled for the boardroom debates table.",
-                },
-              ];
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // Check if the table has the rls_enabled column
+            const { data, error } = yield supabase
+                .from("ai_boardroom_debates")
+                .select("rls_enabled")
+                .limit(1);
+            if (error && error.message.includes("permission denied")) {
+                // This suggests RLS is active and working
+                return {
+                    valid: true,
+                    message: "RLS policies for executive boardroom are properly configured.",
+                };
             }
-          }
-          return [
-            2 /*return*/,
-            {
-              valid: true,
-              message: "RLS appears to be working for the boardroom table.",
-            },
-          ];
-        case 2:
-          error_2 = _b.sent();
-          return [
-            2 /*return*/,
-            {
-              valid: false,
-              message:
-                "Error checking RLS policies for executive boardroom: " +
-                (error_2 instanceof Error ? error_2.message : String(error_2)),
-            },
-          ];
-        case 3:
-          return [2 /*return*/];
-      }
+            // If we received data, check if RLS is enabled in the table
+            if (data && data.length > 0) {
+                const rlsEnabled = data[0].rls_enabled;
+                if (rlsEnabled) {
+                    return {
+                        valid: true,
+                        message: "RLS is enabled for the boardroom debates table.",
+                    };
+                }
+            }
+            return {
+                valid: true,
+                message: "RLS appears to be working for the boardroom table.",
+            };
+        }
+        catch (error) {
+            return {
+                valid: false,
+                message: "Error checking RLS policies for executive boardroom: " +
+                    (error instanceof Error ? error.message : String(error)),
+            };
+        }
     });
-  });
 }

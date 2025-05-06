@@ -1,4 +1,4 @@
-import { enhancedApiClient } from "./enhancedApiClient"; // Corrected path
+import enhancedApiClient from './enhancedApiClient'; // Ensure this path is correct
 import type { ApiResponse, PluginEventParams } from "../types/api"; // Corrected path
 
 export async function firePluginEvent(
