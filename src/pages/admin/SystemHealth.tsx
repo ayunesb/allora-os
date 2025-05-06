@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger, TabsTriggerProps } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Activity, Shield, Cpu, Globe, CheckCircle2, XCircle, BarChart3, RefreshCw } from 'lucide-react';
@@ -9,9 +9,25 @@ import PerformanceMetrics from '@/components/monitoring/PerformanceMetrics';
 import AlertsPanel from '@/components/monitoring/AlertsPanel';
 import { monitoring } from '@/utils/monitoring';
 import { useToast } from '@/components/ui/use-toast';
+
+type HealthStatus = {
+    name: string;
+    status: string;
+    latency: number;
+    lastChecked: Date;
+    message?: string; // Add optional 'message' property
+};
+
+// Fixing the Toast type
+type Toast = {
+    title: string;
+    description?: string;
+    variant?: "default" | "destructive" | "success" | "warning" | "info"; // Ensure valid variants
+};
+
 export default function SystemHealth() {
     const [activeTab, setActiveTab] = useState('overview');
-    const [services, setServices] = useState([]);
+    const [services, setServices] = useState<HealthStatus[]>([]);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     // Simulate fetching service health on load
@@ -115,7 +131,7 @@ export default function SystemHealth() {
     };
     const systemHealth = calculateSystemHealth();
     // Get health status icon
-    const getStatusIcon = (status) => {
+    const getStatusIcon = (status: string) => {
         switch (status) {
             case 'healthy':
                 return <CheckCircle2 className="h-5 w-5 text-green-500"/>;
@@ -128,7 +144,7 @@ export default function SystemHealth() {
         }
     };
     // Get status color class
-    const getStatusColorClass = (status) => {
+    const getStatusColorClass = (status: string) => {
         switch (status) {
             case 'healthy':
                 return 'bg-green-50 text-green-700 border-green-200';
@@ -226,7 +242,7 @@ export default function SystemHealth() {
           </Card>
         </div>
         
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs defaultValue="overview" value={activeTab as TabsTriggerProps["value"]} onValueChange={(value) => setActiveTab(value)}>
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
@@ -319,7 +335,7 @@ export default function SystemHealth() {
                         <div>
                           <span className="text-muted-foreground">Last Checked:</span>
                           <span className="ml-2 font-medium">
-                            {service.lastChecked.toLocaleTimeString()}
+                            {service.lastChecked ? service.lastChecked.toLocaleTimeString() : 'N/A'} {/* Handle undefined lastChecked */}
                           </span>
                         </div>
                         {service.message && (<div className="col-span-2">

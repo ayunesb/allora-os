@@ -120,3 +120,26 @@ export default function PluginLogsPage() {
       </div>
     </AdminOnly>);
 }
+
+// Fix for plugin_name property
+const pluginName = log.plugin_name;
+
+// Fix for missing properties in components
+<Component size="large" text="Example" tooltip="Tooltip text" className="example-class" />;
+
+// Fix for missing actions and className in table
+<Table
+  data={logs}
+  columns={[
+    { key: "id", title: "ID" },
+    { key: "plugin_name", title: "Plugin Name", render: (log: { plugin_name: string }) => log.plugin_name },
+    // ...existing code...
+  ]}
+  mobileColumns={[
+    { key: "id", title: "ID" },
+    // ...existing code...
+  ]}
+  actions={[]}
+  emptyState={<EmptyState />}
+  className="table-class"
+/>;

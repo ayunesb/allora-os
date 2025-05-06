@@ -14,6 +14,8 @@ export default function TwitterConnectPage() {
         post_wins: true,
         post_strategies: true
     });
+    const [state, setState] = useState<string | null>(null);
+    setState('some-string');
     // Load connection status
     useEffect(() => {
         if (!user)

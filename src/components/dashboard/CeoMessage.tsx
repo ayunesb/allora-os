@@ -6,7 +6,14 @@ import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from '@/components/ui/skeleton';
 import { createAuthCompatibilityLayer } from '@/utils/authCompatibility';
-export default function CeoMessage({ riskAppetite }) {
+
+type CeoMessageProps = {
+    children: React.ReactNode;
+    variant?: "formal" | "casual";
+    size?: "small" | "large";
+};
+
+const CeoMessage: React.FC<CeoMessageProps> = ({ children, variant = "formal", size = "large", riskAppetite }) => {
     const authContext = useAuth();
     const auth = createAuthCompatibilityLayer(authContext);
     const navigate = useNavigate();

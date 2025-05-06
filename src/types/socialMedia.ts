@@ -48,3 +48,11 @@ export interface SocialMediaCalendarFilters {
   endDate?: string;
   tags?: string[];
 }
+
+export interface UpdatePostInput {
+  id: string;
+  mentions?: string[];
+  hashtags?: string[];
+  location?: string;
+  link_url?: string;
+}

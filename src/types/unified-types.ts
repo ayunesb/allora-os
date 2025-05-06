@@ -49,3 +49,5 @@ export {
   BusinessEventType,
   WebhookResult,
 };
+
+export type { PatchedStrategy } from './fixed/Strategy';

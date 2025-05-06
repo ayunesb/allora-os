@@ -9,11 +9,24 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLeadOperations } from '@/hooks/admin/useLeadOperations';
 import { useAdvancedLeadScoring } from '@/hooks/useAdvancedLeadScoring';
+
+// Extend the Lead type with additional properties used in the code
+type Lead = {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+    status: string;
+    score?: number;
+    created_at: string;
+};
+
 export default function AdminLeads() {
     const { fetchLeads, updateLeadStatus, deleteLead, isLoading } = useLeadOperations();
     const { getLeadScoreCategory, getNextBestAction } = useAdvancedLeadScoring();
-    const [leads, setLeads] = useState([]);
-    const [filteredLeads, setFilteredLeads] = useState([]);
+    const [leads, setLeads] = useState<Lead[]>([]);
+    const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     const [sortBy, setSortBy] = useState('score');
@@ -57,7 +70,9 @@ export default function AdminLeads() {
         });
         setFilteredLeads(result);
     }, [leads, searchQuery, activeFilter, sortBy, sortOrder]);
-    const handleSort = (column) => {
+
+    // Explicitly type the handleSort parameter
+    const handleSort = (column: string) => {
         if (sortBy === column) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
         }
@@ -66,21 +81,45 @@ export default function AdminLeads() {
             setSortOrder('desc');
         }
     };
-    const handleStatusUpdate = async (leadId, status) => {
+
+    // Explicitly type the parameters for handleStatusUpdate
+    const handleStatusUpdate = async (leadId: string, status: string) => {
         const success = await updateLeadStatus(leadId, status);
         if (success) {
             setLeads(prev => prev.map(lead => lead.id === leadId ? { ...lead, status } : lead));
         }
         return success;
     };
-    const handleDelete = async (leadId) => {
+
+    // Explicitly type the parameters for handleDelete
+    const handleDelete = async (leadId: string) => {
         const success = await deleteLead(leadId);
         if (success) {
             setLeads(prev => prev.filter(lead => lead.id !== leadId));
         }
         return success;
     };
-    const renderStatusBadge = (status) => {
+
+    // Fix the spread type issue by ensuring the object is of the correct type
+    const handleUpdateLead = (leadId: string, updatedData: Partial<Lead>) => {
+        setLeads((prevLeads) =>
+            prevLeads.map((lead) =>
+                lead.id === leadId ? { ...lead, ...updatedData } : lead
+            )
+        );
+    };
+
+    // Explicitly type the parameters
+    const handleDeleteLead = (leadId: string) => {
+        setLeads((prevLeads) => prevLeads.filter((lead) => lead.id !== leadId));
+    };
+
+    const handleStatusChange = (status: string) => {
+        // ...existing code...
+    };
+
+    // Explicitly type the renderStatusBadge parameter
+    const renderStatusBadge = (status: string) => {
         switch (status) {
             case 'new':
                 return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30">{status}</Badge>;
@@ -100,7 +139,9 @@ export default function AdminLeads() {
                 return <Badge variant="outline">{status}</Badge>;
         }
     };
-    const renderLeadScore = (lead) => {
+
+    // Explicitly type the renderLeadScore parameter
+    const renderLeadScore = (lead: Lead) => {
         const scoreCategory = getLeadScoreCategory(lead);
         let colorClass = "";
         if (scoreCategory === 'hot') {
@@ -181,7 +222,9 @@ export default function AdminLeads() {
             render: (item) => renderLeadScore(item),
         },
     ];
-    const actions = (item) => (<div className="flex gap-2 justify-end">
+
+    // Explicitly type the actions parameter
+    const actions = (item: Lead) => (<div className="flex gap-2 justify-end">
       <Button size="icon" variant="ghost">
         <Phone className="h-4 w-4"/>
       </Button>
@@ -198,7 +241,7 @@ export default function AdminLeads() {
     return (<div className="container mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <TypographyH1>Lead Management</TypographyH1>
-        <Button className="w-full sm:w-auto">
+        <Button variant="primary" className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2"/>
           Add Lead
         </Button>

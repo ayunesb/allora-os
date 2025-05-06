@@ -9,7 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
-export const LinkedInIntegration = () => {
+
+type LinkedInIntegrationProps = {
+    children: React.ReactNode;
+    variant?: "default" | "minimal";
+    size?: "small" | "medium";
+};
+
+export const LinkedInIntegration: React.FC<LinkedInIntegrationProps> = ({ children, variant = "default", size = "medium" }) => {
     const { connectToLinkedIn, searchConnections, importConnections, disconnect, isAuthenticated, isConnecting, isSearching, isImporting } = useLinkedInIntegration();
     const [searchQuery, setSearchQuery] = useState('');
     const [connections, setConnections] = useState([]);

@@ -14,6 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import AlertMessage from "@/components/ui/AlertMessage";
 import { Wand2 } from "lucide-react";
+
+type StrategyFormProps = {
+    children: React.ReactNode;
+    variant?: "default" | "advanced";
+    size?: "small" | "large";
+};
+
 const formSchema = z.object({
     industry: z.string().min(1, { message: "Industry is required" }),
     companySize: z.number().min(1, { message: "Company size is required" }),
@@ -23,7 +30,8 @@ const formSchema = z.object({
     timeHorizon: z.string().min(1, { message: "Time horizon is required" }),
     challenges: z.string().optional(),
 });
-export default function StrategyForm() {
+
+const StrategyForm: React.FC<StrategyFormProps> = ({ children, variant = "default", size = "large" }) => {
     const { user } = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [strategies, setStrategies] = useState([]);

@@ -5,8 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, TrendingUp, Award, AlertCircle } from "lucide-react";
 import { usePlugins } from '@/hooks/usePlugins';
 import { DashboardBreadcrumb } from '@/components/ui/dashboard-breadcrumb';
+
+// Define the type for leaderboard items
+interface LeaderboardItem {
+  plugin_name: string;
+  usage_count: number;
+  total_value: number;
+  average_value: number;
+}
+
 export default function PluginLeaderboard() {
-    const [impactData, setImpactData] = useState([]);
+    const [impactData, setImpactData] = useState<LeaderboardItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { fetchPluginImpact } = usePlugins();
@@ -30,7 +39,7 @@ export default function PluginLeaderboard() {
         fetchData();
     }, [fetchPluginImpact]);
     // Format currency with dollar sign
-    const formatCurrency = (value) => {
+    const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',

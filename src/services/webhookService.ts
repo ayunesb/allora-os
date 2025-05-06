@@ -7,15 +7,20 @@ export const getWebhookEvents = async (): Promise<WebhookEvent[]> => {
     // In a real application, this would fetch data from Supabase
     return [
       {
-        id: '1',
+        id: 'event-id',
+        webhook_id: 'webhook-id',
+        createdAt: new Date().toISOString(),
+        eventType: 'TEST',
+        status: 'Success',
+        payload: { id: 'payload-id' },
+        targetUrl: 'https://example.com',
+        resource: 'example-resource',
+        response: {},
+        webhookType: 'manual',
         timestamp: new Date().toISOString(),
-        type: 'webhook.test' as any, // ✅ Cast to suppress TS error
-        status: 'success',
-        payload: { test: true },
-        response: '200 OK',
-        validProperty: 'value',
-        webhook_type: 'zapier',
-        tenant_id: '123'
+        duration: 200,
+        errorMessage: '',
+        responseCode: 200,
       }
     ];
   } catch (error) {
@@ -28,15 +33,20 @@ export const getWebhookEventById = async (id: string): Promise<WebhookEvent | nu
   try {
     // Placeholder implementation
     return {
-      id,
+      id: 'event-id',
+      webhook_id: 'webhook-id',
+      createdAt: new Date().toISOString(),
+      eventType: 'TEST',
+      status: 'Success',
+      payload: { id: 'payload-id' },
+      targetUrl: 'https://example.com',
+      resource: 'example-resource',
+      response: {},
+      webhookType: 'manual',
       timestamp: new Date().toISOString(),
-      type: 'webhook.test' as any, // ✅ Cast to suppress TS error
-      status: 'success',
-      payload: { test: true },
-      response: '200 OK',
-      validProperty: 'value',
-      webhook_type: 'zapier',
-      tenant_id: '123'
+      duration: 200,
+      errorMessage: '',
+      responseCode: 200,
     };
   } catch (error) {
     console.error(`Error fetching webhook event with id ${id}:`, error);
@@ -67,7 +77,7 @@ interface TempWebhookEvent extends WebhookEvent {
 // Example usage:
 const event: TempWebhookEvent = {
   id: "123",
-  event_type: "ORDER_CREATED",
+  eventType: "ORDER_CREATED", // Fixed typo from 'event_type' to 'eventType'
   validProperty: "value", // ✅ Now valid
-  payload: { /* ...payload data... */ },
+  payload: { id: 'mock-id' },
 };

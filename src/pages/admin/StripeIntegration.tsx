@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import APIKeyInput from '@/components/admin/APIKeyInput';
 import { useQuery } from '@tanstack/react-query';
+import { InputProps } from '@/components/ui/input'; // Corrected import for InputProps
+
 export default function StripeIntegration() {
     const [stripeSecretKey, setStripeSecretKey] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,7 +112,13 @@ export default function StripeIntegration() {
             </Alert>)}
 
           <div className="mt-4">
-            <APIKeyInput id="stripe-secret-key" label="Stripe Secret Key" value={stripeSecretKey} onChange={setStripeSecretKey} placeholder="sk_live_..."/>
+            <APIKeyInput
+              id="stripe-secret-key"
+              label="Stripe Secret Key"
+              value={stripeSecretKey}
+              onChange={(value: string) => setStripeSecretKey(value)} // Fixed onChange handler
+              placeholder="sk_live_..."
+            />
             <p className="text-xs text-muted-foreground mt-1">
               Find this in your Stripe Dashboard under API Keys. Use your secret key (not publishable key).
             </p>
@@ -132,7 +140,12 @@ export default function StripeIntegration() {
           <CardContent className="space-y-4">
             <div className="flex flex-col space-y-2">
               <Label htmlFor="test-query">Test Query</Label>
-              <Input id="test-query" placeholder="e.g., What's our total revenue in the last 30 days?" value={testQuery} onChange={(e) => setTestQuery(e.target.value)}/>
+              <Input
+                id="test-query"
+                placeholder="e.g., What's our total revenue in the last 30 days?"
+                value={testQuery}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTestQuery(e.target.value)} // Ensured proper state update
+              />
               <p className="text-xs text-muted-foreground">
                 Try queries like "total revenue", "active subscriptions", or "refunds this week"
               </p>
@@ -142,10 +155,12 @@ export default function StripeIntegration() {
               {isLoading ? 'Running...' : 'Run Test Query'}
             </Button>
 
-            {testResult && (<div className="mt-4 p-4 bg-gray-50 rounded-md border">
+            {testResult && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-md border">
                 <h3 className="font-medium mb-2">Result:</h3>
                 <pre className="whitespace-pre-wrap text-sm">{testResult}</pre>
-              </div>)}
+              </div>
+            )}
           </CardContent>
         </Card>)}
     </div>);

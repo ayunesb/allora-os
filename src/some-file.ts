@@ -1,5 +1,5 @@
 import { RouteObject } from "react-router-dom";
-import type { User } from '@/types/user';
+import { User } from './types/user'; // Adjusted the import path to match the correct module
 
 export interface User {
   id: string;

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { AlertCircle, CheckCircle, Server, Database, Network } from 'lucide-react';
 import SystemHealthHeader from './SystemHealthHeader';
 import SystemHealthTabs from './SystemHealthTabs';
+
 export default function SystemHealthPage() {
     const [activeTab, setActiveTab] = useState('overview');
     const [isLoading, setIsLoading] = useState(true);
@@ -13,6 +14,9 @@ export default function SystemHealthPage() {
         status: 'healthy',
         percentage: 100
     });
+
+    const [data, setData] = useState<{ id: string; name: string; description: string; status: string; lastChecked: string; responseTime: number; details: string }[]>([]);
+
     useEffect(() => {
         const fetchSystemHealth = async () => {
             try {
@@ -96,10 +100,12 @@ export default function SystemHealthPage() {
         };
         fetchSystemHealth();
     }, []);
-    const handleTabChange = (value) => {
+
+    const handleTabChange = (value: string) => {
         setActiveTab(value);
     };
-    const getStatusBadge = (status) => {
+
+    const getStatusBadge = (status: string) => {
         switch (status) {
             case 'healthy':
                 return (<div className="flex items-center">
@@ -126,6 +132,7 @@ export default function SystemHealthPage() {
                 return null;
         }
     };
+
     return (<div className="space-y-6">
       <SystemHealthHeader />
       

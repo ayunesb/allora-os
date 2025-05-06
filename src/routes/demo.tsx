@@ -8,7 +8,7 @@ import { useCompanyId } from '@/hooks/useCompanyId';
 export default function DemoRoute() {
     const { user } = useAuth();
     const tenantId = useCompanyId();
-    const [isDemo, setIsDemo] = useState(null);
+    const [isDemo, setIsDemo] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     useEffect(() => {
@@ -39,7 +39,7 @@ export default function DemoRoute() {
       <Alert className="rounded-none border-t-0 border-x-0 bg-amber-50 dark:bg-amber-900/20">
         <AlertTitle className="flex items-center justify-between">
           <span>Demo Mode</span>
-          <Button onClick={() => navigate('/dashboard')} variant="secondary" size="sm" className="bg-amber-100 hover:bg-amber-200 dark:bg-amber-800 dark:hover:bg-amber-700">
+          <Button onClick={() => navigate('/dashboard')} type="default" size="sm" className="bg-amber-100 hover:bg-amber-200 dark:bg-amber-800 dark:hover:bg-amber-700">
             Exit Demo
           </Button>
         </AlertTitle>
@@ -50,6 +50,9 @@ export default function DemoRoute() {
       
       <div className="flex-1">
         <Outlet />
+        <div>
+          {["Text", 123]}
+        </div>
       </div>
     </div>);
 }

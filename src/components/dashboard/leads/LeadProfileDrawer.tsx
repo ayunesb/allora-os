@@ -5,7 +5,14 @@ import { Separator } from '@/components/ui/separator';
 import { LeadStatusBadge } from '@/components/admin/leads/LeadStatusBadge';
 import { LeadScoreBadge } from './LeadScoreBadge';
 import { Mail, Phone, CalendarClock, LayoutList, ArrowRightCircle } from 'lucide-react';
-export const LeadProfileDrawer = ({ open, onOpenChange, lead, onStatusUpdate, onDelete, getLeadScore, getNextBestAction }) => {
+
+type LeadProfileDrawerProps = {
+    children: React.ReactNode;
+    variant?: "default" | "detailed";
+    size?: "small" | "large";
+};
+
+export const LeadProfileDrawer: React.FC<LeadProfileDrawerProps> = ({ children, variant = "default", size = "large" }) => {
     const leadScore = getLeadScore(lead);
     const nextAction = getNextBestAction(lead);
     return (<Drawer open={open} onOpenChange={onOpenChange}>

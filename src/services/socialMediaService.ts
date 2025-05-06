@@ -15,14 +15,15 @@ import {
 } from '@/types/socialMedia';
 import { Campaign } from '@/types/fixed/Campaign';
 import { 
-  validateCreatePost, 
-  validateUpdatePost, 
-  validateMediaUrl 
-} from '@/utils/validators/socialMediaValidator';
+  validateCreatePost as validateCreatePostExternal, 
+  validateUpdatePost as validateUpdatePostExternal 
+} from '@/types/socialMedia';
 import { apiRequest, clearApiCache } from '@/utils/api/apiClient';
 import { wrapSupabaseQuery } from '@/utils/api/supabaseWrapper';
 import { logger } from '@/utils/loggingService';
 import { CreatePostInput } from '@/types/fixed/SocialMediaPost';
+import type { UpdatePostInput } from '@/types/fixed/SocialMediaPost';
+import { UpdatePostInput } from '../types/socialMedia';
 
 /**
  * Cache key for social media posts
@@ -148,8 +149,8 @@ export async function createSocialMediaPost(
     const validatedData = validation.data;
     
     // Additional validation for media URLs
-    if (validatedData.media_urls?.length) {
-      const invalidUrls = validatedData.media_urls.filter((url: string) => !validateMediaUrl(url));
+    if (validatedData.mediaUrls?.length) {
+      const invalidUrls = validatedData.mediaUrls.filter((url: string) => !validateMediaUrl(url));
       if (invalidUrls.length > 0) {
         return {
           success: false,
@@ -171,13 +172,13 @@ export async function createSocialMediaPost(
             title: validatedData.title,
             content: validatedData.content,
             platform: validatedData.platform,
-            scheduled_date: validatedData.scheduled_date,
-            publish_time: validatedData.publish_time,
+            scheduledAt: validatedData.scheduledAt,
+            publishTime: validatedData.publishTime,
             status: 'Draft' as PostStatus, // Default status
-            content_type: validatedData.content_type,
-            media_urls: validatedData.media_urls,
-            campaign_id: validatedData.campaign_id,
-            is_approved: validatedData.is_approved || false,
+            contentType: validatedData.contentType,
+            mediaUrls: validatedData.mediaUrls,
+            campaignId: validatedData.campaignId,
+            isApproved: validatedData.isApproved || false,
             tags: validatedData.tags || [],
             mentions: validatedData.mentions || [],
             hashtags: validatedData.hashtags || [],
@@ -233,11 +234,11 @@ export async function createSocialMediaPost(
  * @returns Promise with success status or error details
  */
 export async function updateSocialMediaPost(
-  postData: UpdatePostInput
+  validatedData: UpdatePostInput
 ): Promise<{ success: boolean; error?: string; validationErrors?: Record<string, string> }> {
   try {
     // Validate the input data
-    const validation = validateUpdatePost(postData);
+    const validation = validateUpdatePost(validatedData);
     
     if (!validation.valid || !validation.data) {
       return { 
@@ -251,8 +252,8 @@ export async function updateSocialMediaPost(
     const validatedData = validation.data;
     
     // Additional validation for media URLs if provided
-    if (validatedData.media_urls?.length) {
-      const invalidUrls = validatedData.media_urls.filter((url: string) => !validateMediaUrl(url));
+    if (validatedData.mediaUrls?.length) {
+      const invalidUrls = validatedData.mediaUrls.filter((url: string) => !validateMediaUrl(url));
       if (invalidUrls.length > 0) {
         return {
           success: false,
@@ -282,13 +283,13 @@ export async function updateSocialMediaPost(
             title: validatedData.title,
             content: validatedData.content,
             platform: validatedData.platform,
-            scheduled_date: validatedData.scheduled_date,
-            publish_time: validatedData.publish_time,
+            scheduledAt: validatedData.scheduledAt,
+            publishTime: validatedData.publishTime,
             status: validatedData.status,
-            content_type: validatedData.content_type,
-            media_urls: validatedData.media_urls,
-            campaign_id: validatedData.campaign_id,
-            is_approved: validatedData.is_approved,
+            contentType: validatedData.contentType,
+            mediaUrls: validatedData.mediaUrls,
+            campaignId: validatedData.campaignId,
+            isApproved: validatedData.isApproved,
             approval_notes: validatedData.approval_notes,
             tags: validatedData.tags,
             mentions: validatedData.mentions,

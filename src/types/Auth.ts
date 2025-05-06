@@ -1,4 +1,4 @@
-import type { User } from './user'; // Ensure user.ts has a valid export
+import { User } from './user'; // Adjusted the import path to match the correct module
 
 export interface User {
   id: string;

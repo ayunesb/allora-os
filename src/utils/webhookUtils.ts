@@ -69,11 +69,11 @@ export function getMockWebhook(): WebhookEvent {
 
 export function getWebhookData(data: Partial<WebhookEvent>): WebhookEvent {
   const webhookEvent: WebhookEvent = {
-    id: data.id || '',
-    webhook_id: data.webhook_id || '',
+    id: data.id || '123', // Added missing 'id'
+    webhook_id: data.webhook_id || '456', // Fixed 'webhookId' to 'webhook_id'
     eventType: data.eventType || '',
     status: data.status || '',
-    createdAt: data.createdAt || '',
+    createdAt: data.createdAt || new Date().toISOString(), // Added missing 'createdAt'
     payload: { id: data.payload?.id || '' }, // Ensure payload has required properties
     targetUrl: data.targetUrl || '',
     resource: data.resource || '',

@@ -136,6 +136,20 @@ export default function CompanySettings() {
         "Consulting",
         "Other"
     ];
+
+    // Explicitly type 'field' parameter
+    const renderField = (field: { name: string; label: string; value: string }) => (
+        <div>
+            <label>{field.label}</label>
+            <input value={field.value} />
+        </div>
+    );
+
+    // Ensure 'children' is used correctly and define CustomComponent properly
+    const CustomComponent: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+        <div>{children}</div>
+    );
+
     return (<>
       <Helmet>
         <title>Company Settings | Allora AI</title>

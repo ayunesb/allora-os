@@ -7,7 +7,14 @@ import { ThumbsUp, ThumbsDown, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { toast } from "sonner";
-export default function AiRecommendations({ recommendations, onApprove }) {
+
+type AiRecommendationsProps = {
+    children: React.ReactNode;
+    variant?: "default" | "highlighted";
+    size?: "compact" | "expanded";
+};
+
+const AiRecommendations: React.FC<AiRecommendationsProps> = ({ children, variant = "default", size = "expanded" }) => {
     const [feedbackState, setFeedbackState] = useState({});
     const handleFeedback = (index, isPositive) => {
         setFeedbackState(prev => ({
@@ -84,3 +91,5 @@ export default function AiRecommendations({ recommendations, onApprove }) {
       </div>
     </>);
 }
+
+export default AiRecommendations;

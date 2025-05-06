@@ -38,7 +38,7 @@ const LoadingFallback = () => (<div className="flex items-center justify-center 
     </div>
   </div>);
 // Common suspense wrapper
-const withSuspense = (Component) => (<Suspense fallback={<LoadingFallback />}>
+const withSuspense = (Component: React.ComponentType) => (<Suspense fallback={<LoadingFallback />}>
     <Component />
   </Suspense>);
 // Navigation layout with error boundary

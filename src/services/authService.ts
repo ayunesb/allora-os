@@ -30,7 +30,12 @@ export async function handleSignIn(email: string, password: string, rememberMe =
       success: true,
       user: data.user 
     };
-  } catch (error: any) {
+  } catch (error) {
+    if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+    } else {
+        console.error('An unknown error occurred.');
+    }
     return { 
       success: false, 
       error: error.message || 'Failed to sign in' 
@@ -60,7 +65,12 @@ export async function handleSignUp(email: string, password: string) {
       success: true, 
       user: data.user 
     };
-  } catch (error: any) {
+  } catch (error) {
+    if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+    } else {
+        console.error('An unknown error occurred.');
+    }
     return { 
       success: false, 
       error: error.message || 'Failed to sign up' 
@@ -77,7 +87,11 @@ export async function handleSignOut() {
     localStorage.removeItem('rememberMe');
     return { success: true };
   } catch (error) {
-    console.error('Error signing out:', error);
+    if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+    } else {
+        console.error('An unknown error occurred.');
+    }
     return { success: false, error: error.message };
   }
 }
@@ -89,7 +103,11 @@ export async function refreshSession() {
     
     return { session: data.session, user: data.session?.user ?? null };
   } catch (error) {
-    console.error('Error refreshing session:', error);
+    if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+    } else {
+        console.error('An unknown error occurred.');
+    }
     throw error;
   }
 }
@@ -109,7 +127,12 @@ export async function sendPasswordResetEmail(email: string) {
     }
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
+    if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+    } else {
+        console.error('An unknown error occurred.');
+    }
     return { 
       success: false, 
       error: error.message || 'Failed to send reset instructions' 
@@ -130,7 +153,12 @@ export async function verifyOtpCode(email: string, token: string) {
     }
 
     return { success: true, session: data.session };
-  } catch (error: any) {
+  } catch (error) {
+    if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+    } else {
+        console.error('An unknown error occurred.');
+    }
     return {
       success: false,
       error: error.message || 'Failed to verify reset code',
@@ -149,7 +177,12 @@ export async function updateUserPassword(password: string) {
     }
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
+    if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+    } else {
+        console.error('An unknown error occurred.');
+    }
     return { 
       success: false, 
       error: error.message || 'Failed to update password' 

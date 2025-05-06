@@ -8,6 +8,21 @@ import RiskHeatmapChart from "@/components/risk/RiskHeatmapChart";
 // import RiskFactorsList from "@/components/risk/RiskFactorsList";
 import RiskMitigationTable from "@/components/risk/RiskMitigationTable";
 import { useRiskData } from "@/hooks/useRiskData";
+
+type RiskData = {
+    riskData: any[];
+    isLoading: boolean;
+    error: string | null;
+    refreshData: () => void;
+};
+
+const data: RiskData = {
+    riskData: [],
+    isLoading: false,
+    error: null,
+    refreshData: () => console.log('Refreshing data'),
+};
+
 export default function RiskHeatmap() {
     const [activeTab, setActiveTab] = useState("heatmap");
     const { riskData, isLoading, error, refreshData } = useRiskData();

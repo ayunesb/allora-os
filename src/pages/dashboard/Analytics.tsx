@@ -6,6 +6,13 @@ import LeadSourceAnalysis from '@/components/analytics/LeadSourceAnalysis';
 import CampaignConversionMetrics from '@/components/analytics/CampaignConversionMetrics';
 import WeeklyPerformanceCard from '@/components/analytics/WeeklyPerformanceCard';
 import AnalyticsHeader from '@/components/analytics/AnalyticsHeader';
+
+const loadingState1 = { isLoading: true, data: null };
+const loadingState2 = { isLoading: false, data: [] };
+const loadingState3 = { isLoading: true, data: {} };
+const loadingState4 = { isLoading: false, data: { key: "value" } };
+const loadingState5 = { isLoading: true, data: [] };
+
 export default function Analytics() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [dateRange, setDateRange] = useState([null, null]);
@@ -16,14 +23,14 @@ export default function Analytics() {
         await new Promise(resolve => setTimeout(resolve, 1500));
         setIsRefreshing(false);
     };
-    const handleDateRangeChange = (newRange) => {
+    const handleDateRangeChange = (newRange: [Date | null, Date | null]) => {
         setDateRange(newRange);
         // Fetch new data based on date range
     };
     return (<div className="container mx-auto p-4 space-y-6">
       <AnalyticsHeader isRefreshing={isRefreshing} onRefresh={handleRefresh} dateRange={dateRange} onDateRangeChange={handleDateRangeChange}/>
       
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="overview" onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4 w-full max-w-lg">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>

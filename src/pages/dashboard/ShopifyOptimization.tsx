@@ -96,3 +96,5 @@ export default function ShopifyOptimization() {
         </Card>) : (<ShopifyOptimizationDashboard storeId={storeId}/>)}
     </div>);
 }
+<Button variant="outline">Click Me</Button>;
+<Label htmlFor="input-id">Label Text</Label>;

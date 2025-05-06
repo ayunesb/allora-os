@@ -3,7 +3,14 @@ import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { SUPABASE_CONFIG } from "@/config/appConfig";
-export function BackendConnectionAlert() {
+
+type BackendConnectionAlertProps = {
+    children: React.ReactNode;
+    variant?: "error" | "warning" | "info";
+    size?: "small" | "medium";
+};
+
+const BackendConnectionAlert: React.FC<BackendConnectionAlertProps> = ({ children, variant = "info", size = "medium" }) => {
     // Only show this alert when we're using fallback values
     if (!SUPABASE_CONFIG.usingFallback)
         return null;

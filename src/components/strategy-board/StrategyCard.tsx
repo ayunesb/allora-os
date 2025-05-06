@@ -4,7 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, BarChart2, FileDown } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-export default function StrategyCard({ strategy, onDebate, onExport, onClick }) {
+
+type StrategyCardProps = {
+    children: React.ReactNode;
+    variant?: "default" | "highlighted";
+    size?: "small" | "medium";
+};
+
+const StrategyCard: React.FC<StrategyCardProps> = ({ children, variant = "default", size = "medium" }) => {
     // Determine the risk level from any of the possible properties
     const riskLevel = strategy.risk || strategy.risk_level || "Medium";
     // Create a mapping of risk levels to badge variants and color classes
@@ -97,3 +104,5 @@ export default function StrategyCard({ strategy, onDebate, onExport, onClick }) 
       </CardFooter>
     </Card>);
 }
+
+export default StrategyCard;

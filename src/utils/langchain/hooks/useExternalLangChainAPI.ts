@@ -57,7 +57,8 @@ export function useExternalLangChainAPI() {
       const toastConfig = {
         title: 'Error',
         description: 'API failure',
-        variant: 'destructive' as const // Use proper typing
+        variant: 'destructive' as const, // Use proper typing
+        children: 'Error details', // Added missing 'children' property
       };
       toast(toastConfig);
       return { result: '', error: errorMessage };

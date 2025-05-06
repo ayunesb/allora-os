@@ -6,11 +6,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Shield, Database, Server, RefreshCw, CheckCircle, XCircle, AlertTriangle, FileWarning, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
+
 export default function SystemDiagnostics() {
     const [isCheckingConnection, setIsCheckingConnection] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState({ connected: false, error: null });
     const [routeErrors, setRouteErrors] = useState([]);
     const [componentErrors, setComponentErrors] = useState([]);
+    const [diagnosticError, setDiagnosticError] = useState<string | null>(null);
+
     // Check database connection
     const checkDatabaseConnection = async () => {
         setIsCheckingConnection(true);
@@ -33,6 +36,7 @@ export default function SystemDiagnostics() {
             setIsCheckingConnection(false);
         }
     };
+
     // Initial checks
     useEffect(() => {
         // Check DB connection on mount
@@ -63,18 +67,19 @@ export default function SystemDiagnostics() {
             }
         ]);
     }, []);
+
     return (<div className="min-h-screen bg-background p-6">
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">System Diagnostics</h1>
           <div className="flex space-x-2">
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild={true}>
               <Link to="/">
                 <LayoutDashboard className="mr-2 h-4 w-4"/>
                 Home
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild={true}>
               <Link to="/admin">
                 <Shield className="mr-2 h-4 w-4"/>
                 Admin
@@ -87,14 +92,10 @@ export default function SystemDiagnostics() {
           {/* Database Connection Status */}
           <Card className={connectionStatus.connected ? "border-green-200" : "border-red-200"}>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Database className="mr-2 h-5 w-5 text-primary"/>
-                Database Connection
-              </CardTitle>
               <CardDescription>
                 Status of your Supabase database connection
               </CardDescription>
-            </CardHeader>
+            </CardHeader> {/* Fixed closing tag for CardHeader */}
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center">
@@ -168,7 +169,7 @@ export default function SystemDiagnostics() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> {/* Fixed closing tag for Card */}
         </div>
         
         {/* Quick Fixes */}

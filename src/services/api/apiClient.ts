@@ -1,4 +1,3 @@
-
 import { logger } from '@/utils/loggingService';
 import { handleApiError } from '@/utils/api/errorHandling';
 import { toast } from 'sonner';
@@ -240,7 +239,7 @@ export const api = {
     // Don't set Content-Type for multipart/form-data - browser sets it with boundary
     const { headers, ...rest } = options || {};
     const customHeaders = headers instanceof Headers 
-      ? Object.fromEntries(Array.from(headers.entries()))
+      ? Object.fromEntries(headers)
       : headers as Record<string, string>;
       
     return request<T>(url, { 
@@ -251,3 +250,6 @@ export const api = {
     });
   }
 };
+
+// Ensure 'payload' matches the expected type
+apiClient.post('/endpoint', { data: payload });

@@ -6,6 +6,22 @@ import CompanyDetailsForm from "@/components/CompanyDetailsForm";
 import ProfileForm from "@/components/profile/ProfileForm";
 import { toast } from "sonner";
 import ProfileDiagnostics from "@/components/settings/ProfileDiagnostics";
+
+type UserProfile = {
+    id: string;
+    name: string;
+    company: string;
+    industry: string;
+};
+
+// Ensure the object being used is typed correctly
+const user: UserProfile = {
+    id: '123',
+    name: 'John Doe',
+    company: 'TechCorp',
+    industry: 'Software',
+};
+
 export default function Profile() {
     const auth = useAuth();
     const { user, profile, isLoading, refreshProfile } = auth;

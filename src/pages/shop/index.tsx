@@ -3,9 +3,19 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+
+// Define the type for the items in the array
+interface ShopItem {
+  id: string;
+  link: string;
+  image_url: string;
+  title: string;
+  price: string;
+}
+
 export default function ShopAssistant() {
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState([]);
+    const [results, setResults] = useState<ShopItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [searched, setSearched] = useState(false);
     const handleSearch = async () => {
@@ -44,7 +54,7 @@ export default function ShopAssistant() {
             setLoading(false);
         }, 800);
     };
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             handleSearch();
         }

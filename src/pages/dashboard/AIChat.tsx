@@ -8,12 +8,30 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageSquare, Send, Mic, RefreshCw, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useApiClient } from '@/utils/api/apiClientEnhanced';
-const AIChat = () => {
-    const [messages, setMessages] = useState([]);
+
+// Define the expected type for the props
+interface Message {
+  id: string;
+  content: string;
+  role: string;
+  isLoading: boolean;
+  executiveName?: string;
+  executiveRole?: string;
+  timestamp?: Date;
+}
+
+interface AIChatProps {
+  children?: React.ReactNode;
+  executiveName?: string;
+  executiveRole?: string;
+  messages: Message[];
+}
+
+const AIChat: React.FC<AIChatProps> = ({ children, executiveName, executiveRole, messages }) => {
     const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState('ceo');
-    const messagesEndRef = useRef(null);
+    const [activeTab, setActiveTab] = useState<keyof typeof executives>('ceo');
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const { execute } = useApiClient();
     const executives = {
         ceo: { id: '1', name: 'Alex Chen', role: 'CEO', avatarUrl: '/assets/executives/ceo-avatar.png' },
@@ -99,7 +117,7 @@ const AIChat = () => {
             setIsLoading(false);
         }
     };
-    const generateResponse = (message, executive) => {
+    const generateResponse = (message: string, executive: { id: string; name: string; role: string }): string => {
         // This is a placeholder. In a real app, this would come from your AI backend
         const responses = {
             ceo: [
@@ -128,13 +146,13 @@ const AIChat = () => {
                 executive.id === '3' ? 'cmo' : 'cto'];
         return roleResponses[Math.floor(Math.random() * roleResponses.length)];
     };
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();
         }
     };
-    const provideFeedback = (messageId, isPositive) => {
+    const provideFeedback = (messageId: string, isPositive: boolean): void => {
         toast.success(`${isPositive ? 'Positive' : 'Negative'} feedback recorded. Thank you!`);
         // Here you would typically send this feedback to your API
     };

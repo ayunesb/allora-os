@@ -3,7 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send } from 'lucide-react';
-const BotChatPanel = ({ botId, bot, selectedBot, onSelectBot, allBots }) => {
+
+type BotChatPanelProps = {
+    children: React.ReactNode;
+    variant?: "default" | "compact";
+    size?: "small" | "medium" | "large";
+};
+
+const BotChatPanel: React.FC<BotChatPanelProps> = ({ children, variant = "default", size = "medium", botId, bot, selectedBot, onSelectBot, allBots }) => {
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
     // Use botId if provided or use selectedBot if available

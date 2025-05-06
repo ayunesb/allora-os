@@ -31,5 +31,3 @@ export type {
   PatchedStrategy,
   GeneratedStrategy,
 };
-
-export type { ExecutiveAgentProfile } from './fixed/Agent'; // ✅ Ensure this line exists

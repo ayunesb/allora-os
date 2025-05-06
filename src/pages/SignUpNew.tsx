@@ -30,8 +30,8 @@ export default function SignUpNew() {
             navigate('/login');
         }
     }, [isSubmitted, navigate]);
-    const handleSubmitSuccess = (user) => {
-        if (!user) {
+    const handleUser = (user: { id: string; [key: string]: any }) => {
+        if (!user.id) {
             setSignupError("Failed to retrieve user information after signup.");
             return;
         }
@@ -39,6 +39,9 @@ export default function SignUpNew() {
         setNewUser(user);
         setShowLegalModal(true);
         setSignupError(null);
+    };
+    const handleSubmitSuccess = (user) => {
+        handleUser(user);
     };
     const handleTryAgain = () => {
         setIsSubmitted(false);
@@ -80,8 +83,9 @@ export default function SignUpNew() {
         }
     };
     if (isSubmitted) {
+        const userId = newUser?.id ?? null; // Ensure `id` is properly typed
         return (<SignupLayout>
-        <EmailVerificationView email={userEmail} onTryAgain={handleTryAgain} isNewSignup={true} userId={newUser?.id}/>
+        <EmailVerificationView email={userEmail} onTryAgain={handleTryAgain} isNewSignup={true} userId={userId}/>
         
         {legalError && (<Card className="mt-4 border-destructive bg-destructive/10">
             <CardContent className="pt-6">

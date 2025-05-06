@@ -4,7 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { usePlugins } from '@/hooks/usePlugins';
 import { ArrowUp } from 'lucide-react';
 import { toast } from 'sonner';
-export function PluginLeaderboard({ className }) {
+
+type PluginLeaderboardProps = {
+    children: React.ReactNode;
+    variant?: "default" | "compact";
+    size?: "small" | "large";
+};
+
+const PluginLeaderboard: React.FC<PluginLeaderboardProps> = ({ children, variant = "default", size = "large" }) => {
     const [pluginImpact, setPluginImpact] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const { fetchPluginImpact } = usePlugins();

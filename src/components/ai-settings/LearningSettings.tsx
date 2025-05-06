@@ -5,7 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Brain, Info, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-export function LearningSettings({ learningEnabled, onToggleLearning }) {
+
+type LearningSettingsProps = {
+    children: React.ReactNode;
+    variant?: "default" | "custom";
+    size?: "small" | "medium";
+};
+
+const LearningSettings: React.FC<LearningSettingsProps> = ({ children, variant = "default", size = "medium" }) => {
     const handleResetLearning = async () => {
         try {
             toast.success("Learning data has been reset", {

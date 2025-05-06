@@ -6,8 +6,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Medal, Award, TrendingUp, Brain, ShieldAlert } from 'lucide-react';
 import { Link } from "react-router-dom";
+
+// Define the correct type for the data being used
+type LeaderboardItem = {
+  executiveName: string;
+  executiveRole: string;
+  decisionCount: number;
+  averageRisk: number;
+  priorityScore: number;
+};
+
+const SomeComponent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return <div>{children}</div>;
+};
+
 export default function ExecutiveLeaderboard() {
-    const [leaderboard, setLeaderboard] = useState([]);
+    const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     useEffect(() => {
@@ -71,7 +85,7 @@ export default function ExecutiveLeaderboard() {
         fetchLeaderboardData();
     }, []);
     // Render a medal based on position
-    const getMedal = (position) => {
+    const getMedal = (position: number) => {
         switch (position) {
             case 0:
                 return <Medal className="h-5 w-5 text-yellow-500"/>;
@@ -84,7 +98,7 @@ export default function ExecutiveLeaderboard() {
         }
     };
     // Function to get color based on risk score
-    const getRiskColor = (score) => {
+    const getRiskColor = (score: number) => {
         if (score >= 4)
             return 'text-red-500';
         if (score >= 3)
@@ -94,7 +108,7 @@ export default function ExecutiveLeaderboard() {
         return 'text-green-500';
     };
     // Function to get color based on priority score
-    const getPriorityColor = (score) => {
+    const getPriorityColor = (score: number) => {
         if (score >= 2.5)
             return 'text-purple-500';
         if (score >= 1.5)

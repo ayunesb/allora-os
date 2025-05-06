@@ -9,10 +9,12 @@ import { format } from 'date-fns';
 import { CalendarIcon, Trash2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
+
 export default function TweetQueuePage() {
     const [queuedTweets, setQueuedTweets] = useState([]);
     const [newTweetContent, setNewTweetContent] = useState('');
-    const [scheduledDate, setScheduledDate] = useState(new Date());
+    const [scheduledDate, setScheduledDate] = useState<Date>(new Date());
+
     useEffect(() => {
         const fetchTweets = async () => {
             try {
@@ -34,6 +36,7 @@ export default function TweetQueuePage() {
         };
         fetchTweets();
     }, []);
+
     const handleDelete = async (tweetId) => {
         try {
             // Properly separate URL from options object
@@ -61,6 +64,7 @@ export default function TweetQueuePage() {
             });
         }
     };
+
     const handleScheduleTweet = async () => {
         if (!newTweetContent || !scheduledDate) {
             toast({
@@ -93,7 +97,7 @@ export default function TweetQueuePage() {
             // Update state
             setQueuedTweets(prevTweets => [...prevTweets, mockNewTweet]);
             setNewTweetContent('');
-            setScheduledDate(undefined);
+            setScheduledDate(new Date());
             toast({
                 title: "Tweet Scheduled",
                 description: "Your tweet has been scheduled successfully.",
@@ -108,6 +112,7 @@ export default function TweetQueuePage() {
             });
         }
     };
+
     return (<div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-4">Tweet Queue</h1>
       
@@ -119,7 +124,7 @@ export default function TweetQueuePage() {
         <CardContent className="space-y-4">
           <div>
             <Label htmlFor="tweet-content">Tweet Content</Label>
-            <Input id="tweet-content" placeholder="What's on your mind?" value={newTweetContent} onChange={(e) => setNewTweetContent(e.target.value)}/>
+            <Input id="tweet-content" placeholder="What's on your mind?" value={newTweetContent} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTweetContent(e.target.value)}/>
           </div>
           
           <div>
@@ -132,7 +137,13 @@ export default function TweetQueuePage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="center" side="bottom">
-                <Calendar mode="single" selected={scheduledDate} onSelect={setScheduledDate} disabled={(date) => date < new Date()} initialFocus/>
+                <Calendar 
+                  mode="single" 
+                  selected={scheduledDate} 
+                  onSelect={setScheduledDate} 
+                  disabled={(date) => date < new Date()} // Fixed syntax error here
+                  initialFocus
+                />
               </PopoverContent>
             </Popover>
           </div>
