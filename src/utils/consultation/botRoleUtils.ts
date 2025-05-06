@@ -235,7 +235,9 @@ export const formatRoleTitle = (role: string): string => {
 export const getBotExpertise = (role: string): string => {
   // Use the specialized skills if available
   if (importedBotSpecialSkills && importedBotSpecialSkills[role]) {
-    return importedBotSpecialSkills[role];
+    return Array.isArray(importedBotSpecialSkills[role]) 
+      ? importedBotSpecialSkills[role].join(', ') 
+      : importedBotSpecialSkills[role];
   }
   
   // Fall back to default expertise by role category
@@ -333,7 +335,9 @@ export const getBotExpertise = (role: string): string => {
 
 export const getBotOutputLocation = (role: string): string => {
   if (importedBotOutputLocations && importedBotOutputLocations[role]) {
-    return importedBotOutputLocations[role];
+    return Array.isArray(importedBotOutputLocations[role]) 
+      ? importedBotOutputLocations[role].join(', ') 
+      : importedBotOutputLocations[role];
   }
   
   // Default output locations by category
@@ -358,7 +362,9 @@ export const getBotOutputLocation = (role: string): string => {
 
 export const getBotExampleAction = (role: string): string => {
   if (importedBotExampleActions && importedBotExampleActions[role]) {
-    return importedBotExampleActions[role];
+    return Array.isArray(importedBotExampleActions[role]) 
+      ? importedBotExampleActions[role].join(', ') 
+      : importedBotExampleActions[role];
   }
   
   // Default example actions by category
