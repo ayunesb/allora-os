@@ -1,4 +1,3 @@
-
 export type WebhookType = 'zapier' | 'custom' | 'stripe' | 'github' | 'slack' | 'notion';
 
 export type BusinessEventType = 
@@ -41,4 +40,5 @@ export interface WebhookEvent {
   errorMessage?: string;
   responseCode?: number;
   source?: string;
+  type?: string; // ✅ Optional fallback
 }

@@ -9,9 +9,8 @@ export * from './fixed/Campaign';
 export * from './fixed/Message';
 export * from './fixed/Bot';
 export * from './fixed/SocialMedia';
-export * from './fixed/SocialMediaPost';
 export * from './fixed/Strategy';
-export type { WebhookEvent, WebhookStatus } from './fixed/Webhook';
+export * from './fixed/Webhook';
 
 // Unified + compatibility types
 export * from './unified-types';
@@ -19,7 +18,6 @@ export * from './compatibility';
 
 // Webhook utility compatibility
 export {
-  WebhookType,
   validateWebhookUrlFormat,
   testWebhook,
   sanitizeWebhookUrl,
@@ -47,3 +45,9 @@ export type {
   AgentRunOptions,
   ExtendedAccessibilityContextType,
 } from './legacy';
+
+// ✅ KEEP CLEAN RE-EXPORTS ONLY
+export { WebhookType } from './fixed/Webhook';
+export * from './fixed/Agent';
+export * from './fixed/Webhook';
+export * from './unified-types';

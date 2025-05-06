@@ -1,19 +1,26 @@
-// This file re-exports types from the central index.ts file
-// It's kept for backward compatibility with existing imports
+// ⚠️ Do not re-export from 'index.ts' or this will cause circular type errors.
+// Always import directly from './fixed/*' or './unified-types'.
+// Legacy re-exports for backward compatibility
 
-// ✅ Replace with direct imports:
+// Fixed types
 import type { User, AuthContextProps } from './fixed/User';
 import type { WebhookType, WebhookEvent } from './fixed/Webhook';
-import type { ValidationResultsUI, DatabaseTableStatus } from './fixed/LaunchChecklist';
+import type { ValidationResultsUI, DatabaseTableStatus, ChecklistItem, ChecklistCategory, EnhancedVerificationState } from './fixed/LaunchChecklist';
+import type { ExtendedAccessibilityContextType } from './fixed/Accessibility';
+import type { ExecutiveAgentProfile, AgentOptions, AgentRunOptions } from './fixed/Agent';
+import type { PatchedStrategy, GeneratedStrategy } from './fixed/Strategy';
+
+// Unified types
+import type { BusinessEventType, BusinessEventPayload, WebhookResult } from './unified-types';
 
 export type {
   User,
   AuthContextProps,
   WebhookType,
+  WebhookEvent,
   BusinessEventType,
   BusinessEventPayload,
   WebhookResult,
-  WebhookEvent,
   ExecutiveAgentProfile,
   AgentOptions,
   AgentRunOptions,
@@ -23,4 +30,6 @@ export type {
   ChecklistCategory,
   EnhancedVerificationState,
   DatabaseTableStatus,
+  PatchedStrategy,
+  GeneratedStrategy,
 };

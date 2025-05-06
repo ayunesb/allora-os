@@ -21,6 +21,7 @@ export interface WebhookEvent {
   duration?: number;
   errorMessage?: string;
   responseCode?: number;
+  type?: string;
 }
 
 export type WebhookStatus = 'active' | 'pending' | 'failed';

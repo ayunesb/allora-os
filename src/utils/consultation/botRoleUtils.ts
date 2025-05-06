@@ -1,7 +1,7 @@
 import {
   botSpecialSkills as importedBotSpecialSkills,
   botOutputLocations as importedBotOutputLocations,
-  botExampleActions as importedBotExampleActions
+  botExampleActions as importedBotExampleActions,
 } from '@/constants/botSkills';
 
 const botSpecialSkills: Record<string, string> = {
