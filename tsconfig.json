@@ -1,35 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "lib": ["DOM", "ESNext"],
-    "jsx": "react-jsx",
-    "moduleResolution": "node",
-    "baseUrl": "./",
+    // ...existing code...
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
-    },
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "noEmit": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "types": ["vitest"]
-  },
-  "include": [
-    "src",
-    "types",
-    "vite.config.ts",
-    "src/types/fixed/strategyTypes.ts",
-    "src/pages/dashboard/AIBots.tsx",
-    "src/types/Webhooks.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".turbo"
-  ]
+      "@/types/*": ["types/*"],
+      "@/utils/*": ["utils/*"],
+      "@/components/*": ["components/*"],
+      "@/pages/*": ["pages/*"],
+      "@/services/*": ["services/*"],
+      "@/layouts/*": ["layouts/*"],
+      "@/hooks/*": ["hooks/*"]
+    }
+  }
 }

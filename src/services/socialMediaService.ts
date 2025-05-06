@@ -10,19 +10,18 @@ import { toast } from 'sonner';
 import { 
   SocialMediaPost, 
   SocialMediaCalendarFilters,
-  BatchPostResponse,
   PostStatus
 } from '@/types/socialMedia';
-import { Campaign } from '@/types/fixed/Campaign';
 import { 
-  validateCreatePost as validateCreatePostExternal, 
-  validateUpdatePost as validateUpdatePostExternal 
-} from '@/types/socialMedia';
-import { apiRequest, clearApiCache } from '@/utils/api/apiClient';
+  apiRequest, 
+  clearApiCache 
+} from '@/utils/api/apiClient';
 import { wrapSupabaseQuery } from '@/utils/api/supabaseWrapper';
 import { logger } from '@/utils/loggingService';
-import { CreatePostInput } from '@/types/fixed/SocialMediaPost';
+import { CreatePostInput, BatchPostResponse } from '@/types/fixed/SocialMediaPost';
 import type { UpdatePostInput } from '@/types/fixed/SocialMediaPost';
+import { validateCreatePost as validateCreatePostExternal, validateUpdatePost as validateUpdatePostExternal } from '@/types/fixed/SocialMediaPost'; // Rename conflicting imports
+import { validateMediaUrl } from '@/utils/validators/mediaValidator'; // Ensure this is the correct path
 
 /**
  * Cache key for social media posts
@@ -134,7 +133,7 @@ export async function createSocialMediaPost(
 ): Promise<{ success: boolean; postId?: string; error?: string; validationErrors?: Record<string, string> }> {
   try {
     // Validate the input data
-    const validation = validateCreatePost(postData);
+    const validation = validateCreatePostExternal(postData);
     
     if (!validation.valid || !validation.data) {
       return { 
@@ -145,7 +144,7 @@ export async function createSocialMediaPost(
     }
     
     // Validated and sanitized data
-    const validatedData = validation.data;
+    const validatedData = validation.data as Required<CreatePostInput>; // Ensure all properties exist
     
     // Additional validation for media URLs
     if (validatedData.mediaUrls?.length) {
@@ -211,17 +210,17 @@ export async function createSocialMediaPost(
       success: true, 
       postId: result.data?.id 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log the error
     logger.error('Error creating social media post', { 
-      error: error.message, 
+      error: (error as Error).message, 
       companyId, 
       postData 
     });
     
     return { 
       success: false, 
-      error: error.message || 'An unexpected error occurred' 
+      error: (error as Error).message || 'An unexpected error occurred' 
     };
   }
 }
@@ -236,7 +235,7 @@ export async function updateSocialMediaPost(
   postData: UpdatePostInput
 ): Promise<{ success: boolean; error?: string; validationErrors?: Record<string, string> }> {
   try {
-    const validation = validateUpdatePost(postData);
+    const validation = validateUpdatePostExternal(postData);
 
     if (!validation.valid || !validation.data) {
       return { 
@@ -246,7 +245,7 @@ export async function updateSocialMediaPost(
       };
     }
 
-    const validatedData = validation.data;
+    const validatedData = validation.data as Required<UpdatePostInput>; // Ensure all properties exist
 
     // Additional validation for media URLs if provided
     if (validatedData.mediaUrls?.length) {
@@ -272,38 +271,33 @@ export async function updateSocialMediaPost(
     }
     
     // Update post in database
-    await apiRequest(
-      wrapSupabaseQuery(async () => {
-        const { data, error } = await supabase
-          .from('social_media_posts')
-          .update({
-            title: validatedData.title,
-            content: validatedData.content,
-            platform: validatedData.platform,
-            scheduledAt: validatedData.scheduledAt,
-            publishTime: validatedData.publishTime,
-            status: validatedData.status,
-            contentType: validatedData.contentType,
-            mediaUrls: validatedData.mediaUrls,
-            campaignId: validatedData.campaignId,
-            isApproved: validatedData.isApproved,
-            approval_notes: validatedData.approval_notes,
-            tags: validatedData.tags,
-            mentions: validatedData.mentions,
-            hashtags: validatedData.hashtags,
-            location: validatedData.location,
-            link_url: validatedData.link_url,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', validatedData.id); // Ensure this is part of the query chain
-        return { data, error };
-      }),
-      {
-        successMessage: 'Social media post updated successfully',
-        errorMessage: 'Failed to update social media post'
-      }
-    );
-    
+    const { data, error } = await supabase
+      .from('social_media_posts')
+      .update({
+        title: validatedData.title,
+        content: validatedData.content,
+        platform: validatedData.platform,
+        scheduledAt: validatedData.scheduledAt,
+        publishTime: validatedData.publishTime,
+        status: validatedData.status,
+        contentType: validatedData.contentType,
+        mediaUrls: validatedData.mediaUrls,
+        campaignId: validatedData.campaignId,
+        isApproved: validatedData.isApproved, // Ensure this property exists
+        approval_notes: validatedData.approval_notes, // Ensure this property exists
+        tags: validatedData.tags, // Ensure this property exists
+        mentions: validatedData.mentions, // Ensure this property exists
+        hashtags: validatedData.hashtags, // Ensure this property exists
+        location: validatedData.location, // Ensure this property exists
+        link_url: validatedData.link_url, // Ensure this property exists
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', validatedData.id); // Ensure `.eq` is part of the query chain
+
+    if (error) {
+      throw new Error(error.message || 'Failed to update social media post');
+    }
+
     // Clear the specific post cache and the posts list cache
     clearApiCache(`social_media_post_${validatedData.id}`);
     if (updatedPost.company_id) {
@@ -317,16 +311,16 @@ export async function updateSocialMediaPost(
     });
     
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log the error
     logger.error('Error updating social media post', { 
-      error: error.message, 
+      error: (error as Error).message, 
       postId: postData.id 
     });
     
     return { 
       success: false, 
-      error: error.message || 'An unexpected error occurred' 
+      error: (error as Error).message || 'An unexpected error occurred' 
     };
   }
 }
@@ -358,7 +352,7 @@ export async function deleteSocialMediaPost(
           .delete()
           .eq('id', postId);
         
-        return { data, error };
+        return { data, error }; // Ensure `data` is returned
       }),
       {
         successMessage: 'Social media post deleted successfully',
@@ -525,13 +519,13 @@ export async function approvePost(
     });
     
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log the error
-    logger.error('Error approving social media post', { error: error.message, postId });
+    logger.error('Error approving social media post', { error: (error as Error).message, postId });
     
     return { 
       success: false, 
-      error: error.message || 'An unexpected error occurred' 
+      error: (error as Error).message || 'An unexpected error occurred' 
     };
   }
 }
@@ -549,7 +543,8 @@ export async function batchSchedulePosts(
     return {
       success: true,
       processed: 0,
-      failed: 0
+      failed: 0,
+      error_details: []
     };
   }
   
@@ -567,9 +562,9 @@ export async function batchSchedulePosts(
         failed++;
         errors.push({ post_id: postId, error: result.error || 'Unknown error' });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       failed++;
-      errors.push({ post_id: postId, error: error.message || 'Unknown error' });
+      errors.push({ post_id: postId, error: (error as Error).message || 'Unknown error' });
     }
   }
   
@@ -592,7 +587,7 @@ export async function batchSchedulePosts(
     success: failed === 0,
     processed,
     failed,
-    error_details: errors.length ? errors : undefined
+    error_details: errors
   };
 }
 
@@ -600,15 +595,15 @@ export async function postToSocialMedia(platform: string, content: string): Prom
   try {
     // Mock implementation: Replace with actual API calls
     if (platform === 'twitter') {
-      console.log(`Posting to Twitter: ${content}`);
+      logger.info(`Posting to Twitter: ${content}`);
     } else if (platform === 'facebook') {
-      console.log(`Posting to Facebook: ${content}`);
+      logger.info(`Posting to Facebook: ${content}`);
     } else {
       throw new Error(`Unsupported platform: ${platform}`);
     }
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'An unexpected error occurred' };
+  } catch (error: unknown) {
+    return { success: false, error: (error as Error).message || 'An unexpected error occurred' };
   }
 }
 
@@ -639,39 +634,35 @@ function validateUpdatePost(input: UpdatePostInput): ValidationResult<UpdatePost
 }
 
 // Add missing properties to the UpdatePostInput type
-export interface UpdatePostInput {
-    id: string;
-    mentions?: string[];
-    hashtags?: string[];
-    location?: string;
-    link_url?: string;
-    // ...existing properties...
-}
+export type UpdatePostInput = {
+  id: string; // Ensure `id` exists
+  mentions?: string[];
+  hashtags?: string[];
+  location?: string; // Add missing property
+  link_url?: string; // Add missing property
+  isApproved?: boolean; // Add missing property
+  approval_notes?: string; // Add missing property
+  tags?: string[]; // Add missing property
+  // ...existing properties...
+};
 
-// Fix usage of validatedData properties
-// ...existing code...
-mentions: validatedData.mentions;
-// ...existing code...
-hashtags: validatedData.hashtags;
-// ...existing code...
-location: validatedData.location;
-// ...existing code...
-link_url: validatedData.link_url;
-// ...existing code...
-// Ensure this line is placed within a valid function or block, such as inside the `updateSocialMediaPost` function:
-.eq('id', validatedData.id); // Example: This should be part of a query chain
-// ...existing code...
-clearApiCache(`social_media_post_${validatedData.id}`);
-// ...existing code...
-postId: validatedData.id;
-// ...existing code...
-
-// Remove duplicate function implementation
-// Ensure only one `updateSocialMediaPost` function exists
-export async function updateSocialMediaPost(
-    input: UpdatePostInput
-): Promise<{ success: boolean; error?: string; validationErrors?: Record<string, string> }> {
-    // ...existing code...
-    return { success: true }; // Ensure proper return statement
-}
+// Fix missing properties in CreatePostInput
+export type CreatePostInput = {
+  title: string;
+  content: string;
+  platform: string;
+  scheduledAt: string;
+  publishTime?: string;
+  status?: PostStatus;
+  contentType?: string;
+  mediaUrls?: string[];
+  campaignId?: string;
+  isApproved?: boolean;
+  tags?: string[];
+  mentions?: string[];
+  hashtags?: string[];
+  location?: string;
+  link_url?: string;
+  // ...existing properties...
+};
 

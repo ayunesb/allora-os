@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -10,7 +11,9 @@
     "baseUrl": ".", // Required
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "outDir": "dist/app"
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }
