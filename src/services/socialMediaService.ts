@@ -23,7 +23,6 @@ import { wrapSupabaseQuery } from '@/utils/api/supabaseWrapper';
 import { logger } from '@/utils/loggingService';
 import { CreatePostInput } from '@/types/fixed/SocialMediaPost';
 import type { UpdatePostInput } from '@/types/fixed/SocialMediaPost';
-import { UpdatePostInput } from '../types/socialMedia';
 
 /**
  * Cache key for social media posts
@@ -296,8 +295,7 @@ export async function updateSocialMediaPost(
             link_url: validatedData.link_url,
             updated_at: new Date().toISOString()
           })
-          .eq('id', validatedData.id); // Correct placement
-        
+          .eq('id', validatedData.id); // Ensure this is part of the query chain
         return { data, error };
       }),
       {
@@ -660,7 +658,8 @@ location: validatedData.location;
 // ...existing code...
 link_url: validatedData.link_url;
 // ...existing code...
-.eq('id', validatedData.id);
+// Ensure this line is placed within a valid function or block, such as inside the `updateSocialMediaPost` function:
+.eq('id', validatedData.id); // Example: This should be part of a query chain
 // ...existing code...
 clearApiCache(`social_media_post_${validatedData.id}`);
 // ...existing code...
@@ -675,3 +674,4 @@ export async function updateSocialMediaPost(
     // ...existing code...
     return { success: true }; // Ensure proper return statement
 }
+
