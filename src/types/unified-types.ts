@@ -5,6 +5,7 @@ export * from "./fixed/Layout";
 export * from "./fixed/Compliance";
 export * from "./fixed/Accessibility";
 export * from "./fixed/SocialMedia";
+export type { WebhookEvent, WebhookStatus, WebhookType } from './fixed/Webhook';
 
 // Add missing types needed for compatibility with components
 export interface UnifiedExecutiveMessage {

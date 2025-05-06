@@ -8,21 +8,22 @@ export interface Webhook {
 
 export interface WebhookEvent {
   id: string;
-  eventType: string;
   webhook_id: string;
+  eventType: string;
   status: string;
   created_at: string;
   payload: Record<string, any>;
   targetUrl: string;
+  resource: string;
+  response: any;
   webhookType?: string;
   timestamp?: string;
   duration?: number;
   errorMessage?: string;
   responseCode?: number;
-  resource: string;
-  response: any;
 }
 
-export type WebhookType = 'created' | 'updated' | 'deleted';
+export type WebhookStatus = 'pending' | 'active' | 'failed';
+export type WebhookType = 'custom' | 'stripe' | 'github';
 
-export {};
+export default {}; // Ensures this file is treated as a module

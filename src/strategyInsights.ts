@@ -1,5 +1,6 @@
 import { RouteObject } from "react-router-dom";
-import type { Strategy } from "@/types/fixed/strategyTypes";
+import type { Strategy } from '@/types/fixed/Strategy';
+import { analyzeStrategy } from '@/utils/strategyAnalysis';
 
 export const onboardingRoutes: RouteObject[] = [
   {
@@ -64,10 +65,12 @@ export const onboardingRoutes: RouteObject[] = [
   },
 ];
 
-const normalizedRisk = ['Low', 'Medium', 'High'].includes(strategy.riskLevel || '')
-  ? strategy.riskLevel
-  : 'Medium';
+export function processStrategy(strategy: Strategy) {
+  const normalizedRisk = (['Low', 'Medium', 'High'] as const).includes(strategy.riskLevel || '')
+    ? strategy.riskLevel
+    : 'Medium';
 
-return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk as 'Low' | 'Medium' | 'High' });
+  return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk });
+}
 
 export default onboardingRoutes;
