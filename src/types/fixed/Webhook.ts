@@ -23,7 +23,7 @@ export interface WebhookEvent {
   responseCode?: number;
 }
 
-export type WebhookStatus = 'pending' | 'active' | 'failed';
+export type WebhookStatus = 'active' | 'pending' | 'failed';
 export type WebhookType = 'custom' | 'stripe' | 'github';
 
 export default {}; // Ensures this file is treated as a module

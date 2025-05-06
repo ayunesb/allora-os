@@ -5,7 +5,8 @@ export * from "./fixed/Layout";
 export * from "./fixed/Compliance";
 export * from "./fixed/Accessibility";
 export * from "./fixed/SocialMedia";
-export type { WebhookEvent, WebhookStatus, WebhookType } from './fixed/Webhook';
+
+// Do not re-export Webhook types here if already exported in index.ts
 
 // Add missing types needed for compatibility with components
 export interface UnifiedExecutiveMessage {
@@ -37,3 +38,7 @@ export interface WebhookResult {
   code?: number;
   error?: string;
 }
+
+// ✅ Keep this lean:
+export type { BusinessEventPayload, BusinessEventType, WebhookResult } from './fixed/Webhook';
+// DO NOT re-export these again from index.ts.

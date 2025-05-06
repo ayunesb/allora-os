@@ -10,6 +10,9 @@ export * from './fixed/Campaign';
 export * from './fixed/Message';
 export * from './fixed/Bot';
 export * from './fixed/SocialMedia';
+export * from './fixed/Strategy';
+export * from './fixed/Webhook';
+export * from './fixed/SocialMediaPost';
 
 // Export all from unified types
 export * from './unified-types';
@@ -29,3 +32,9 @@ import { User } from './user'; // Updated import
 
 export * from "./fixed/Agent"; // Kept only one export
 export * from "./Webhook"; // Keep only one export for WebhookType
+
+export {
+	ExecutiveAgentProfile,
+	AgentOptions,
+	AgentRunOptions,
+} from './legacy';
