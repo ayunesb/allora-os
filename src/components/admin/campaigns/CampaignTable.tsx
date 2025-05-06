@@ -4,7 +4,34 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import { formatCurrency } from '@/utils/formatters';
-const CampaignTable = ({ campaigns, isLoading, error, onRetry }) => {
+
+// Define the type for a single campaign
+interface Campaign {
+  id: string;
+  name: string;
+  companies?: { name: string };
+  platform: string;
+  budget?: number;
+}
+
+// Define the props for the CampaignTable component
+interface CampaignTableProps {
+  campaigns: Campaign[];
+  isLoading: boolean;
+  error?: string;
+  onRetry?: () => void;
+}
+
+// Ensure TableHead and TableCell accept children of type React.ReactNode
+interface TableHeadProps {
+  children: React.ReactNode;
+}
+
+interface TableCellProps {
+  children: React.ReactNode;
+}
+
+const CampaignTable: React.FC<CampaignTableProps> = ({ campaigns, isLoading, error, onRetry }) => {
     // Loading state with skeletons
     if (isLoading) {
         return (<div>

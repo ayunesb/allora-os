@@ -6,8 +6,18 @@ import { toast } from 'sonner';
 import AdminOnly from '@/components/AdminOnly';
 import { supabase } from '@/integrations/supabase/client';
 import { Loading } from '@/components/ui/loading';
+
+// Define the type for plugin logs
+interface PluginLog {
+  plugin_name: string;
+  tenant_id: string;
+  event: string;
+  value: number;
+  created_at: string;
+}
+
 export default function PluginLogsPage() {
-    const [logs, setLogs] = useState([]);
+    const [logs, setLogs] = useState<PluginLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [totalValue, setTotalValue] = useState(0);
     const loadLogs = async () => {
@@ -21,7 +31,7 @@ export default function PluginLogsPage() {
             if (error)
                 throw error;
             // Safely cast data and set state
-            const typedLogs = data;
+            const typedLogs = data as PluginLog[];
             setLogs(typedLogs);
             // Calculate total value for reporting
             const total = typedLogs.reduce((sum, log) => sum + (log.value || 0), 0);
@@ -46,12 +56,12 @@ export default function PluginLogsPage() {
         {
             key: 'value',
             title: 'Value',
-            render: (log) => `$${log.value.toFixed(2)}`
+            render: (log: PluginLog) => `$${log.value.toFixed(2)}`
         },
         {
             key: 'created_at',
             title: 'Date',
-            render: (log) => new Date(log.created_at).toLocaleString()
+            render: (log: PluginLog) => new Date(log.created_at).toLocaleString()
         }
     ];
     // Mobile-optimized columns
@@ -61,7 +71,7 @@ export default function PluginLogsPage() {
         {
             key: 'value',
             title: 'Value',
-            render: (log) => `$${log.value.toFixed(2)}`
+            render: (log: PluginLog) => `$${log.value.toFixed(2)}`
         }
     ];
     return (<AdminOnly>
@@ -120,26 +130,3 @@ export default function PluginLogsPage() {
       </div>
     </AdminOnly>);
 }
-
-// Fix for plugin_name property
-const pluginName = log.plugin_name;
-
-// Fix for missing properties in components
-<Component size="large" text="Example" tooltip="Tooltip text" className="example-class" />;
-
-// Fix for missing actions and className in table
-<Table
-  data={logs}
-  columns={[
-    { key: "id", title: "ID" },
-    { key: "plugin_name", title: "Plugin Name", render: (log: { plugin_name: string }) => log.plugin_name },
-    // ...existing code...
-  ]}
-  mobileColumns={[
-    { key: "id", title: "ID" },
-    // ...existing code...
-  ]}
-  actions={[]}
-  emptyState={<EmptyState />}
-  className="table-class"
-/>;

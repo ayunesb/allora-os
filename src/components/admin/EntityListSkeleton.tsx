@@ -1,6 +1,36 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+// Update TableProps to include className
+interface TableProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export function Table({ children, className }: TableProps) {
+  return <table className={className}>{children}</table>;
+}
+
+export function TableHeader({ children, className }: TableProps) {
+  return <thead className={className}>{children}</thead>;
+}
+
+export function TableBody({ children, className }: TableProps) {
+  return <tbody className={className}>{children}</tbody>;
+}
+
+export function TableRow({ children, className }: TableProps) {
+  return <tr className={className}>{children}</tr>;
+}
+
+export function TableHead({ children, className }: TableProps) {
+  return <th className={className}>{children}</th>;
+}
+
+export function TableCell({ children, className }: TableProps) {
+  return <td className={className}>{children}</td>;
+}
+
 export function EntityListSkeleton() {
     return (<div className="space-y-4 animate-pulse">
       <div className="flex justify-between items-center mb-4">

@@ -3,7 +3,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Loader2, Users, Pencil, Trash2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-export function CompanyTable({ companies, isLoading, onViewUsers, onEditCompany, onDeleteCompany }) {
+
+// Define the type for a single company
+interface Company {
+  id: string;
+  name: string;
+  industry?: string;
+  created_at: string;
+}
+
+// Define the props for the CompanyTable component
+interface CompanyTableProps {
+  companies: Company[];
+  isLoading: boolean;
+  onViewUsers: (companyId: string) => void;
+  onEditCompany?: (company: Company) => void;
+  onDeleteCompany?: (companyId: string) => void;
+}
+
+export const CompanyTable: React.FC<CompanyTableProps> = ({ companies, isLoading, onViewUsers, onEditCompany, onDeleteCompany }) => {
     if (isLoading) {
         return (<div className="flex justify-center items-center py-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary"/>

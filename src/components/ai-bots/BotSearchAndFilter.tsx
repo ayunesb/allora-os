@@ -100,7 +100,9 @@ export const BotSearchAndFilter = ({ searchQuery, setSearchQuery, roleFilter, se
                 <SelectItem value="cybersecurity_specialist">Cybersecurity</SelectItem>
                 <SelectItem value="sustainability_officer">Sustainability</SelectItem>
                 <SelectItem value="legal_counsel">Legal</SelectItem>
-                <SelectItem value="compliance_officer">Compliance</SelectItem>
+                <SelectItem value="compliance_officer">
+                  Compliance
+                </SelectItem>
                 <SelectItem value="business_analyst">Business Analysis</SelectItem>
               </SelectGroup>
             </SelectContent>
