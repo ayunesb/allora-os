@@ -1,8 +1,7 @@
-// Export all types from the fixed directory
+// Export base types
 export * from './fixed/User';
 export * from './fixed/Auth';
 export * from './fixed/Agent';
-export type { WebhookEvent, WebhookStatus } from './fixed/Webhook';
 export * from './fixed/Accessibility';
 export * from './fixed/Compliance';
 export * from './fixed/LaunchChecklist';
@@ -10,31 +9,41 @@ export * from './fixed/Campaign';
 export * from './fixed/Message';
 export * from './fixed/Bot';
 export * from './fixed/SocialMedia';
-export * from './fixed/Strategy';
-export * from './fixed/Webhook';
 export * from './fixed/SocialMediaPost';
+export * from './fixed/Strategy';
+export type { WebhookEvent, WebhookStatus } from './fixed/Webhook';
 
-// Export all from unified types
+// Unified + compatibility types
 export * from './unified-types';
-
-// Export compatibility types
 export * from './compatibility';
 
-// Re-export the WebhookType for compatibility
-export { WebhookType, validateWebhookUrlFormat, testWebhook, sanitizeWebhookUrl } from '@/utils/webhookValidation';
-
-// Re-export social media types for compatibility
-export { type SocialPlatform, type ContentType, type PostStatus, type SocialMediaPost, type SocialMediaCalendarFilters } from './unified-types';
-
-// Re-export any other types needed
-export { ChecklistCategory, ChecklistItem } from './Checklist';
-import { User } from './user'; // Updated import
-
-export * from "./fixed/Agent"; // Kept only one export
-export * from "./Webhook"; // Keep only one export for WebhookType
-
+// Webhook utility compatibility
 export {
-	ExecutiveAgentProfile,
-	AgentOptions,
-	AgentRunOptions,
+  WebhookType,
+  validateWebhookUrlFormat,
+  testWebhook,
+  sanitizeWebhookUrl,
+} from '@/utils/webhookValidation';
+
+// Social media types (explicit)
+export type {
+  SocialPlatform,
+  ContentType,
+  PostStatus,
+  SocialMediaPost,
+  SocialMediaCalendarFilters,
+} from './unified-types';
+
+// Checklist types (explicit)
+export type {
+  ChecklistCategory,
+  ChecklistItem,
+} from './fixed/LaunchChecklist';
+
+// Legacy types that are NOT already exported above
+export type {
+  ExecutiveAgentProfile,
+  AgentOptions,
+  AgentRunOptions,
+  ExtendedAccessibilityContextType,
 } from './legacy';
