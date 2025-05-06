@@ -10,7 +10,7 @@ import CompanySetup from "@/pages/DevAdminHelper";
 import Debate from "@/pages/dashboard/Debate";
 import CampaignPaymentSuccess from "@/pages/dashboard/CampaignPaymentSuccess";
 import Billing from "@/pages/Billing";
-import AiBots from "@/pages/dashboard/AiBots";
+import AIBots from "@/pages/dashboard/AIBots";
 import AIExecutiveDebate from "@/pages/dashboard/AIExecutiveDebate";
 import AISettings from "@/pages/dashboard/AISettings";
 import Calls from "@/pages/dashboard/Calls";
@@ -132,7 +132,7 @@ export const dashboardRoutes: RouteObject[] = [
       },
       {
         path: "ai-bots",
-        element: <AiBots />,
+        element: <AIBots />,
       },
       {
         path: "ai-bots/:botId",
