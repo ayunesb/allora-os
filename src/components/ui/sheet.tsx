@@ -3,7 +3,22 @@ import { cva } from "class-variance-authority";
 import { X } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
-const Sheet = SheetPrimitive.Root;
+
+export interface SheetProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+}
+
+export const Sheet = React.forwardRef<HTMLDivElement, SheetProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn('sheet', className)} {...props}>
+        {children}
+      </div>
+    );
+  }
+);
+Sheet.displayName = 'Sheet';
+
 const SheetTrigger = SheetPrimitive.Trigger;
 const SheetClose = SheetPrimitive.Close;
 const SheetPortal = SheetPrimitive.Portal;

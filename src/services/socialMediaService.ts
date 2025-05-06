@@ -610,3 +610,26 @@ export async function postToSocialMedia(platform: string, content: string) {
 		throw new Error(`Unsupported platform: ${platform}`);
 	}
 }
+
+interface ValidationResult<T> {
+  data: T;
+  errors?: string[];
+}
+
+function validateMyData<T>(input: any): ValidationResult<T> {
+  // ...validation logic...
+  return { data: /* validated data */, errors: /* optional errors */ };
+}
+
+// Usage example:
+const validation: ValidationResult<MyExpectedType> = validateMyData(input);
+
+if (typeof validation === "object" && validation !== null) {
+  validationErrors: validation.errors;
+  const validatedData = validation.data;
+} else {
+  validationErrors: [];
+  const validatedData = null;
+}
+
+const validatedData = (validation as { data: any }).data;

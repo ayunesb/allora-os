@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 
@@ -56,7 +55,7 @@ export function useExternalLangChainAPI() {
       const errorMessage = err.message || 'An unknown error occurred';
       setError(errorMessage);
       toast({
-        variant: "destructive",
+        type: "destructive",
         title: "LangChain API Error",
         description: errorMessage,
       });

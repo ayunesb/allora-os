@@ -13,7 +13,7 @@ export const getWebhookEvents = async (): Promise<WebhookEvent[]> => {
         status: 'success',
         payload: { test: true },
         response: '200 OK',
-        url: 'https://example.com/webhook',
+        validProperty: 'value',
         webhook_type: 'zapier',
         tenant_id: '123'
       }
@@ -34,7 +34,7 @@ export const getWebhookEventById = async (id: string): Promise<WebhookEvent | nu
       status: 'success',
       payload: { test: true },
       response: '200 OK',
-      url: 'https://example.com/webhook',
+      validProperty: 'value',
       webhook_type: 'zapier',
       tenant_id: '123'
     };
@@ -51,4 +51,23 @@ export const testWebhook = async (url: string, type: WebhookType): Promise<{ suc
   } catch (error) {
     return { success: false, message: 'Webhook test failed' };
   }
+};
+
+type WebhookEventExtended = WebhookEvent & { validProperty?: string };
+
+const fakeEvent: WebhookEventExtended = {
+  ...otherProps,
+  validProperty: 'value',
+};
+
+interface TempWebhookEvent extends WebhookEvent {
+  validProperty: string;
+}
+
+// Example usage:
+const event: TempWebhookEvent = {
+  id: "123",
+  event_type: "ORDER_CREATED",
+  validProperty: "value", // ✅ Now valid
+  payload: { /* ...payload data... */ },
 };

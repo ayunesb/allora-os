@@ -40,10 +40,12 @@ export interface WebhookResult {
 }
 
 // ✅ Keep this lean:
-export type { BusinessEventPayload, BusinessEventType, WebhookResult } from './fixed/Webhook';
-export type {
-  BusinessEventPayload as UnifiedBusinessEventPayload,
-  BusinessEventType as UnifiedBusinessEventType,
-  WebhookResult as UnifiedWebhookResult,
-} from './fixed/Webhook';
-// DO NOT re-export these again from index.ts.
+import BusinessEventPayload from './fixed/Webhook';
+import BusinessEventType from './fixed/Webhook';
+import WebhookResult from './fixed/Webhook';
+
+export {
+  BusinessEventPayload,
+  BusinessEventType,
+  WebhookResult,
+};

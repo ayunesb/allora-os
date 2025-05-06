@@ -5,6 +5,6 @@ export interface Strategy {
 	[key: string]: any;
 }
 
-export type PatchedStrategy = Strategy & {
+export interface PatchedStrategy extends Strategy {
 	riskLevel: 'Low' | 'Medium' | 'High';
-};
+}

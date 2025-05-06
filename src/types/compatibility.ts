@@ -1,7 +1,7 @@
-
 // This file provides type compatibility for legacy code
 import { User } from './fixed/User';
-import { WebhookEvent, WebhookType, BusinessEventType } from './fixed/Webhook';
+import { WebhookEvent, WebhookType } from './fixed/Webhook';
+import BusinessEventType from './fixed/Webhook'; // ✅ default import
 import { SocialMediaPost, SocialPlatform, ContentType, PostStatus } from './unified-types';
 
 // Type aliases for backward compatibility

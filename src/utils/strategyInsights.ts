@@ -102,7 +102,7 @@ export const analyzeStrategyFactors = (
     successMetrics: string[];
   };
 
-  return analyzeStrategy(strategy as PatchedStrategy);
+  return analyzeStrategy(strategy as unknown as GeneratedStrategy);
 };
 
 // Re-export analyzeStrategy with a clear name
@@ -152,3 +152,5 @@ export function getAnalyzedStrategy(strategy: PatchedStrategy) {
 
   return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk as 'Low' | 'Medium' | 'High' });
 }
+
+export {}; // ✅ Marks the file as a module

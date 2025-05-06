@@ -1,5 +1,11 @@
 import { RouteObject } from "react-router-dom";
-import { User } from '@/types/user';
+import type { User } from '@/types/user';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 export const onboardingRoutes: RouteObject[] = [
   {

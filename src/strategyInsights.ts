@@ -67,8 +67,8 @@ export const onboardingRoutes: RouteObject[] = [
 
 export function processStrategy(strategy: Strategy) {
   const normalizedRisk = (['Low', 'Medium', 'High'] as const).includes(strategy.riskLevel || '')
-    ? strategy.riskLevel
-    : 'Medium';
+    ? (strategy.riskLevel as 'Low' | 'Medium' | 'High')
+    : 'Low';
 
   return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk });
 }
