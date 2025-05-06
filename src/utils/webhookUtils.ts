@@ -1,4 +1,4 @@
-import { WebhookEvent } from '@/types/fixed/Webhook';
+import { WebhookEvent, BusinessEventPayload } from '../types/fixed/Webhook';
 
 /**
  * Normalizes webhook event objects to handle different property names
@@ -19,26 +19,18 @@ export function normalizeWebhookEvent(event: WebhookEvent): WebhookEvent {
  * to maintain compatibility with different components
  */
 export function createWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
-  const event = {
-    id: data.id || '',
-    webhook_id: data.webhook_id || '',
-    event_type: data.eventType || data.eventType || '',
-    status: data.status || 'pending' as const,
-    created_at: data.created_at || new Date().toISOString(),
-    payload: data.payload || {},
+  return {
+    eventType: data.eventType || 'custom',
+    status: data.status || 'pending',
+    payload: data.payload as BusinessEventPayload, // Ensure payload has required properties
     targetUrl: data.targetUrl || '',
-    webhookType: data.webhookType || 'custom',
-    timestamp: data.timestamp || new Date().toISOString(),
-    duration: data.duration,
-    errorMessage: data?.errorMessage ?? 'Unknown error',
-    responseCode: data.responseCode,
     resource: data.resource || 'unknown',
     response: data.response || {},
-  };
-
-  return {
-    ...event,
-    eventType: event.event_type, // Add alias for backward compatibility
+    webhookType: data.webhookType || 'default',
+    timestamp: data.timestamp || new Date().toISOString(),
+    duration: data.duration || 0,
+    errorMessage: data.errorMessage,
+    responseCode: data.responseCode,
   };
 }
 
@@ -46,9 +38,9 @@ export function buildWebhookResponse(data: Partial<WebhookEvent>): WebhookEvent 
   return {
     id: data.id || '',
     eventType: data.eventType || 'custom',
-    webhook_id: data.webhook_id || '',
+    webhookId: data.webhookId || '',
     status: data.status || 'pending',
-    created_at: data.created_at || new Date().toISOString(),
+    createdAt: data.createdAt || new Date().toISOString(),
     payload: data.payload || {},
     targetUrl: data.targetUrl || '',
     webhookType: data.webhookType || 'custom',
@@ -64,10 +56,10 @@ export function buildWebhookResponse(data: Partial<WebhookEvent>): WebhookEvent 
 export function getMockWebhook(): WebhookEvent {
   return {
     id: '123',
-    webhook_id: 'abc',
+    webhookId: 'abc',
     eventType: 'mock',
     status: 'pending',
-    created_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
     payload: {},
     targetUrl: 'https://example.com',
     resource: 'example-resource-id',
@@ -78,10 +70,10 @@ export function getMockWebhook(): WebhookEvent {
 export function getWebhookData(data: Partial<WebhookEvent>): WebhookEvent {
   return {
     id: data.id || '',
-    webhook_id: data.webhook_id || '',
+    webhookId: data.webhookId || '',
     eventType: data.eventType || 'custom',
     status: data.status || 'pending',
-    created_at: data.created_at || new Date().toISOString(),
+    createdAt: data.createdAt || new Date().toISOString(),
     payload: data.payload || {},
     targetUrl: data.targetUrl || '',
     resource: data.resource || 'unknown',

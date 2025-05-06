@@ -1,4 +1,4 @@
-import type { WebhookEvent } from '@/types/fixed/Webhook';
+import { WebhookEvent, BusinessEventPayload } from './types/fixed/Webhook';
 
 export function getMockWebhook(): WebhookEvent {
   return {
@@ -40,6 +40,22 @@ export function getWebhookData(data: Partial<WebhookEvent>): WebhookEvent {
     webhookType: data.webhookType,
     timestamp: data.timestamp,
     duration: data.duration,
+    errorMessage: data.errorMessage,
+    responseCode: data.responseCode,
+  };
+}
+
+export function initializeWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
+  return {
+    eventType: data.eventType || 'custom',
+    status: data.status || 'pending',
+    payload: data.payload as BusinessEventPayload, // Ensure payload has required properties
+    targetUrl: data.targetUrl || '',
+    resource: data.resource || 'unknown',
+    response: data.response || {},
+    webhookType: data.webhookType || 'default',
+    timestamp: data.timestamp || new Date().toISOString(),
+    duration: data.duration || 0,
     errorMessage: data.errorMessage,
     responseCode: data.responseCode,
   };

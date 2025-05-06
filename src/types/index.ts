@@ -52,3 +52,6 @@ export { WebhookType } from './fixed/Webhook';
 export * from './fixed/Agent';
 export * from './fixed/Webhook';
 export * from './unified-types';
+
+// Explicitly re-export Webhook types to resolve ambiguity
+export { WebhookEvent, BusinessEventType, BusinessEventPayload, WebhookResult } from './fixed/Webhook';
