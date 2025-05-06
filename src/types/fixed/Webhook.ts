@@ -13,20 +13,24 @@ export type BusinessEventPayload = {
   // ...other properties...
 };
 
-export type WebhookEvent = {
+export interface WebhookEvent {
+  id: string;
+  webhook_id: string;
   eventType: string;
   status: string;
-  payload: BusinessEventPayload;
-  targetUrl: string;
-  resource: string;
-  response: object;
+  createdAt: string; // Corrected from created_at
   webhookType: string;
   timestamp: string;
   duration: number;
-  errorMessage?: string;
-  responseCode?: number;
-  // ...other properties...
-};
+  errorMessage: string;
+  responseCode: number;
+
+  // Added missing properties
+  payload: { id: string };
+  targetUrl: string;
+  resource: string;
+  response: object;
+}
 
 export type BusinessEventType = 'ORDER_CREATED' | 'USER_SIGNED_UP' | 'CREATED' | 'UPDATED' | 'DELETED';
 

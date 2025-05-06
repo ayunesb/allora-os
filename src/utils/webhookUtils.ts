@@ -7,8 +7,8 @@ import { WebhookEvent, BusinessEventPayload } from '../types/fixed/Webhook';
 export function normalizeWebhookEvent(event: WebhookEvent): WebhookEvent {
   return {
     ...event,
-    // Add eventType as an alias to event_type for backward compatibility
-    eventType: event.eventType,
+    // Ensure compatibility by mapping eventType to event_type if needed
+    eventType: 'eventType' in event ? event.eventType || 'unknown' : (event as any).event_type || 'unknown', // Provide a default value
     // Normalize resource property
     resource: event.resource || 'unknown',
   };
@@ -41,7 +41,7 @@ export function buildWebhookResponse(data: Partial<WebhookEvent>): WebhookEvent 
     webhookId: data.webhookId || '',
     status: data.status || 'pending',
     createdAt: data.createdAt || new Date().toISOString(),
-    payload: data.payload || {},
+    payload: data.payload || { id: 'default-id' }, // Ensure `id` is provided
     targetUrl: data.targetUrl || '',
     webhookType: data.webhookType || 'custom',
     timestamp: data.timestamp || new Date().toISOString(),
@@ -68,20 +68,28 @@ export function getMockWebhook(): WebhookEvent {
 }
 
 export function getWebhookData(data: Partial<WebhookEvent>): WebhookEvent {
-  return {
+  const webhookEvent: WebhookEvent = {
     id: data.id || '',
-    webhookId: data.webhookId || '',
-    eventType: data.eventType || 'custom',
-    status: data.status || 'pending',
-    createdAt: data.createdAt || new Date().toISOString(),
-    payload: data.payload || {},
+    webhook_id: data.webhook_id || '',
+    eventType: data.eventType || '',
+    status: data.status || '',
+    createdAt: data.createdAt || '',
+    payload: { id: data.payload?.id || '' }, // Ensure payload has required properties
+    targetUrl: data.targetUrl || '',
+    resource: data.resource || '',
+    response: data.response || {},
+    webhookType: data.webhookType || '',
+    timestamp: data.timestamp || '',
+    duration: data.duration || 0,
+    errorMessage: data.errorMessage || '',
+    responseCode: data.responseCode || 0,
+  };
+
+  return {
+    ...webhookEvent,
+    payload: data.payload || { id: 'default-id' }, // Ensure `id` is provided
     targetUrl: data.targetUrl || '',
     resource: data.resource || 'unknown',
     response: data.response || {},
-    webhookType: data.webhookType,
-    timestamp: data.timestamp,
-    duration: data.duration,
-    errorMessage: data.errorMessage,
-    responseCode: data.responseCode,
   };
 }

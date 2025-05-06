@@ -1,4 +1,4 @@
-import { toast } from './path/to/toast'; // Ensure correct import path
+import { toast } from './utils/toast'; // Update to the correct path
 
 type Toast = {
   variant?: 'default' | 'destructive'; // ✅ Added 'destructive'
