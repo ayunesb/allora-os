@@ -153,8 +153,6 @@ export function getAnalyzedStrategy(strategy: PatchedStrategy) {
   return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk as 'Low' | 'Medium' | 'High' });
 }
 
-import type { GeneratedStrategy } from '../types/fixed/strategyTypes'; // Ensure correct type import
-
 function analyzeStrategy(strategy: GeneratedStrategy) {
     // Ensure strategy has all required properties
     // ...existing code...

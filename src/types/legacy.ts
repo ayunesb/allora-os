@@ -7,7 +7,7 @@ import type { User } from './fixed/User';
 import type { WebhookEvent, BusinessEventType } from './fixed/Webhook';
 import type { ValidationResultsUI, DatabaseTableStatus, ChecklistItem, ChecklistCategory, EnhancedVerificationState } from './fixed/LaunchChecklist';
 import type { ExtendedAccessibilityContextType } from './fixed/Accessibility';
-import type { AgentOptions, AgentRunOptions } from './fixed/Agent'; // Ensure these are exported
+import type { AgentOptions, AgentRunOptions, ExecutiveAgentProfile } from './fixed/Agent'; // Ensure these are exported
 import type { PatchedStrategy, GeneratedStrategy } from './fixed/Strategy'; // Ensure this is exported
 
 // Unified types
@@ -21,6 +21,7 @@ export type {
   WebhookResult,
   AgentOptions,
   AgentRunOptions,
+  ExecutiveAgentProfile,
   ExtendedAccessibilityContextType,
   ValidationResultsUI,
   ChecklistItem,

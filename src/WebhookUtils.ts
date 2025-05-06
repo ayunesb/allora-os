@@ -27,17 +27,21 @@ export const sampleWebhook = (): WebhookEvent => ({
 });
 
 export function getWebhookData(data: Partial<WebhookEvent>): WebhookEvent {
-  const webhookData: WebhookEvent = {
-    id: data.id || '',
-    webhook_id: data.webhook_id || '',
-    eventType: data.eventType || 'custom',
+  const defaultWebhookEvent: WebhookEvent = {
+    id: data.id || 'default-id',
+    webhook_id: data.webhook_id || 'default-webhook',
+    eventType: data.eventType || 'event',
     status: data.status || 'pending',
     createdAt: data.createdAt || new Date().toISOString(),
-    webhookType: data.webhookType || 'default',
-    timestamp: data.timestamp || new Date().toISOString(),
-    duration: data.duration || 0,
-    errorMessage: data.errorMessage || '',
-    responseCode: data.responseCode || 200,
+    webhookType: data.webhookType ?? 'generic',
+    timestamp: data.timestamp ?? new Date().toISOString(),
+    duration: data.duration ?? 0,
+    errorMessage: data.errorMessage ?? '',
+    responseCode: data.responseCode ?? 200,
+    payload: data.payload || { id: 'default-id' },
+    targetUrl: data.targetUrl ?? '',
+    resource: data.resource ?? '',
+    response: data.response ?? {}
   };
 
   return {
@@ -59,16 +63,21 @@ export function getWebhookData(data: Partial<WebhookEvent>): WebhookEvent {
 }
 
 export function initializeWebhookEvent(data: Partial<WebhookEvent>): WebhookEvent {
-  const webhookEvent: WebhookEvent = {
-    payload: data.payload || { id: 'default-id' }, // Ensure payload includes required 'id'
-    targetUrl: data.targetUrl || '',
-    resource: data.resource || 'unknown',
-    response: data.response || {},
-    webhookType: data.webhookType || 'defaultType',
-    timestamp: data.timestamp || new Date().toISOString(),
-    duration: data.duration || 0,
-    errorMessage: data.errorMessage || '',
-    responseCode: data.responseCode || 200,
+  const defaultWebhookEvent: WebhookEvent = {
+    id: data.id || 'default-id',
+    webhook_id: data.webhook_id || 'default-webhook',
+    eventType: data.eventType || 'event',
+    status: data.status || 'pending',
+    createdAt: data.createdAt || new Date().toISOString(),
+    webhookType: data.webhookType ?? 'generic',
+    timestamp: data.timestamp ?? new Date().toISOString(),
+    duration: data.duration ?? 0,
+    errorMessage: data.errorMessage ?? '',
+    responseCode: data.responseCode ?? 200,
+    payload: data.payload || { id: 'default-id' },
+    targetUrl: data.targetUrl ?? '',
+    resource: data.resource ?? '',
+    response: data.response ?? {}
   };
 
   return {

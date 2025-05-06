@@ -54,10 +54,10 @@ export function useExternalLangChainAPI() {
     } catch (err: any) {
       const errorMessage = err.message || 'An unknown error occurred';
       setError(errorMessage);
-      const toastConfig: Toast = {
-        type: "destructive" as any, // Ensure 'type' is a valid property or cast it
-        title: "LangChain API Error",
-        description: errorMessage,
+      const toastConfig = {
+        title: 'Error',
+        description: 'API failure',
+        variant: 'destructive' as const // Use proper typing
       };
       toast(toastConfig);
       return { result: '', error: errorMessage };
