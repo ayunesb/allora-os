@@ -14,7 +14,8 @@ export * from './fixed/Webhook';
 
 // Unified + compatibility types
 export * from './unified-types';
-export * from './compatibility';
+// Explicitly re-export required members from './compatibility'
+// export { CompatibilityBusinessEventType } from './compatibility'; // Removed due to missing export
 
 // Webhook utility compatibility
 export {
