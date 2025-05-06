@@ -22,8 +22,8 @@ export interface WebhookEvent {
   webhookType: string;
   timestamp: string;
   duration: number;
-  errorMessage: string;
-  responseCode: number;
+  errorMessage?: string;   // <-- was string
+  responseCode?: number;   // <-- was number
 
   // Added missing properties
   payload: { id: string };

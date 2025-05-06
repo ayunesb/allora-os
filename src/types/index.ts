@@ -56,4 +56,4 @@ export * from './unified-types';
 // Explicitly re-export Webhook types to resolve ambiguity
 export { WebhookEvent, BusinessEventType, BusinessEventPayload, WebhookResult } from './fixed/Webhook';
 
-export { ExecutiveAgentProfile } from './legacy'; // Ensure legacy.ts exports this
+export { ExecutiveAgentProfile } from './legacy'; // ✅ Keep only this line

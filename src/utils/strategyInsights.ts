@@ -8,7 +8,7 @@ import type {
 // Import from strategy with individual imports to avoid naming conflicts
 import { 
   analyzeStrategy,
-} from './strategy/strategyAnalysis';
+} from '@/utils/strategyAnalyzer'; // ✅ Adjust to the correct path
 
 // Define the StrategyAnalysis type that's missing
 export interface StrategyAnalysis {
@@ -151,11 +151,6 @@ export function getAnalyzedStrategy(strategy: PatchedStrategy) {
     : 'Medium';
 
   return analyzeStrategy({ ...strategy, riskLevel: normalizedRisk as 'Low' | 'Medium' | 'High' });
-}
-
-function analyzeStrategy(strategy: GeneratedStrategy) {
-    // Ensure strategy has all required properties
-    // ...existing code...
 }
 
 export {}; // ✅ Marks the file as a module

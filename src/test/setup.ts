@@ -1,3 +1,4 @@
+import { vi } from 'vitest'; // ✅ Add this at the top
 /// <reference types="vitest" />
 import '@testing-library/jest-dom';
 
