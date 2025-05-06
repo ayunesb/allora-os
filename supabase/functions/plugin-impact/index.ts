@@ -8,13 +8,43 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
+interface PluginImpactInput {
+  plugin_name: string;
+  impact: string;
+  value: number;
+  tenant_id?: string;
+}
+
+interface PluginImpact {
+  plugin_name: string;
+  usage_count: number;
+  avg_value: number;
+  total_value: number;
+}
+
+serve(async (req: Request) => {
   // Handle CORS preflight request
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    if (req.method !== "POST") {
+      return new Response("Method not allowed", { status: 405 });
+    }
+
+    const impact: PluginImpact = await req.json();
+
+    if (
+      !impact.plugin_name ||
+      typeof impact.plugin_name !== "string" ||
+      isNaN(impact.usage_count) ||
+      isNaN(impact.avg_value) ||
+      isNaN(impact.total_value)
+    ) {
+      return new Response("Missing or invalid fields", { status: 400 });
+    }
+
     // Create a Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";

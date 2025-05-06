@@ -1,4 +1,45 @@
+import type { CreateStrategyInput } from "@/types/Strategy";
 import { useState } from "react";
+import { useStrategyActions } from "@/hooks/useStrategyActions";
+
+interface StrategyFormProps {
+  onCreated?: () => void;
+}
+
+export const StrategyForm: React.FC<StrategyFormProps> = ({ onCreated }) => {
+  const [form, setForm] = useState<CreateStrategyInput>({
+    name: "",
+    objective: "",
+    channels: [],
+  });
+
+  const { createStrategy } = useStrategyActions();
+
+  const handleSubmit = async () => {
+    try {
+      await createStrategy(form);
+      onCreated?.();
+      setForm({ name: "", objective: "", channels: [] }); // Reset form
+    } catch (error) {
+      console.error("Failed to create strategy:", error);
+    }
+  };
+
+  return (
+    <form onSubmit={(e) => e.preventDefault()}>
+      <input
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+        placeholder="Strategy Name"
+        aria-label="Strategy Name"
+      />
+      {/* More fields... */}
+      <button type="button" onClick={handleSubmit}>
+        Create
+      </button>
+    </form>
+  );
+};
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -27,12 +68,6 @@ import {
 } from "@/components/ui/select";
 import AlertMessage from "@/components/ui/AlertMessage";
 import { Wand2 } from "lucide-react";
-
-type StrategyFormProps = {
-  children: React.ReactNode;
-  variant?: "default" | "advanced";
-  size?: "small" | "large";
-};
 
 const formSchema = z.object({
   industry: z.string().min(1, { message: "Industry is required" }),

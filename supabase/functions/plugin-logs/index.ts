@@ -1,3 +1,4 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -7,15 +8,22 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 // Initialize the Supabase client with the service role key (admin privileges)
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-Deno.serve(async (req) => {
+interface PluginLogInput {
+  plugin_name: string;
+  event: string;
+  value: number;
+  tenant_id?: string;
+}
+
+serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Only allow GET requests
-    if (req.method !== "GET") {
+    // Only allow GET and POST requests
+    if (req.method !== "GET" && req.method !== "POST") {
       return new Response(
         JSON.stringify({
           error: "Method not allowed",
@@ -76,6 +84,24 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
+    }
+
+    if (req.method === "POST") {
+      const { plugin_name, event, value, tenant_id }: PluginLogInput = await req.json();
+      if (!plugin_name || !event || value == null) {
+        return new Response("Invalid payload", { status: 400 });
+      }
+
+      const { error } = await supabase.from("plugin_logs").insert([
+        { plugin_name, event, value, tenant_id },
+      ]);
+
+      if (error) {
+        console.error("Database insert error:", error);
+        return new Response("Error inserting log", { status: 500 });
+      }
+
+      return new Response("Logged", { status: 200 });
     }
 
     // Get plugin logs

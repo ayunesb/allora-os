@@ -49,25 +49,24 @@ export function usePlugins() {
     PluginImpactData[]
   > => {
     if (!tenantId) {
+      toast.error("Company ID is required");
       return [];
     }
 
-    setIsLoading(true);
-    try {
-      // Call the plugin-impact edge function
-      const { data, error } = await supabase.functions.invoke("plugin-impact", {
-        body: { tenant_id: tenantId },
-      });
+    const { data, error } = await supabase
+      .from("plugin_impact")
+      .select("*")
+      .eq("company_id", tenantId);
 
-      if (error) throw error;
-      setPluginImpact(data || []);
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching plugin impact data:", error);
-      toast.error("Failed to load plugin impact data");
+    if (error) {
+      toast.error("Plugin data fetch failed");
       return [];
-    } finally {
-      setIsLoading(false);
+    } else if (Array.isArray(data)) {
+      setPluginImpact(data as PluginImpactData[]);
+      return data as PluginImpactData[];
+    } else {
+      toast.error("Unexpected data format");
+      return [];
     }
   }, [tenantId]);
 

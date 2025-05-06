@@ -5,57 +5,7 @@ import { HelpTooltip } from "@/components/help/HelpTooltip";
 /**
  * Loading component that displays a spinner and optional text
  */
-export function Loading({
-  size = "md",
-  text,
-  center = false,
-  fullHeight = false,
-  tooltip,
-  className,
-}) {
-  // Map sizes to Tailwind classes
-  const sizeClasses = {
-    sm: "h-4 w-4",
-    md: "h-8 w-8",
-    lg: "h-12 w-12",
-  };
-  // Basic component
-  const spinner = (
-    <Loader2 className={cn(sizeClasses[size], "animate-spin", className)} />
-  );
-  // If just the spinner is needed without any positioning or text
-  if (!center && !fullHeight && !text) {
-    return tooltip ? (
-      <HelpTooltip content={tooltip}>{spinner}</HelpTooltip>
-    ) : (
-      spinner
-    );
-  }
-  return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center",
-        center && "w-full",
-        fullHeight && "min-h-[200px]",
-        center && fullHeight && "min-h-[50vh]",
-      )}
-      role="status"
-      aria-live="polite"
-    >
-      {spinner}
-      {text && (
-        <div className="mt-2 flex items-center">
-          <p className="text-sm text-muted-foreground">{text}</p>
-          {tooltip && (
-            <HelpTooltip content={tooltip}>
-              <Info className="ml-1 h-4 w-4 text-muted-foreground cursor-help" />
-            </HelpTooltip>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+export const Loading: React.FC = () => <div className="spinner">Loading...</div>;
 /**
  * Skeleton loader for content that's still loading
  */

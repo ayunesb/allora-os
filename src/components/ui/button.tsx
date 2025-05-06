@@ -3,10 +3,12 @@ import { cn } from "@/lib/utils";
 
 interface ButtonProps {
     children: React.ReactNode;
-    variant?: "default" | "outline";
+    variant?: "default" | "outline" | "ghost";
     size?: "sm" | "md" | "lg";
     onClick?: () => void;
     disabled?: boolean;
+    className?: string; // Ensure optional
+    type?: "button" | "submit" | "reset";
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -15,17 +17,15 @@ export const Button: React.FC<ButtonProps> = ({
     size = "md",
     onClick,
     disabled = false,
+    className = "", // Default value
+    type = "button",
 }) => {
     return (
         <button
-            className={cn(
-                "btn",
-                variant === "outline" && "btn-outline",
-                size === "lg" && "btn-lg",
-                size === "sm" && "btn-sm"
-            )}
+            type={type}
             onClick={onClick}
             disabled={disabled}
+            className={`btn ${variant} ${size} ${className}`.trim()} // Ensure no trailing spaces
         >
             {children}
         </button>

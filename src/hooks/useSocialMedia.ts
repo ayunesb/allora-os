@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   SocialMediaPost,
   CreatePostInput,
@@ -78,45 +79,18 @@ export const useSocialMedia = () => {
     setIsCreateDialogOpen(false);
   }, []);
 
-  const fetchPosts = useCallback(
-    async (filters?: SocialMediaCalendarFilters) => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        // In real app, this would be an API call
-        setTimeout(() => {
-          const filteredPosts = mockPosts.filter((post) => {
-            if (
-              filters?.search_query &&
-              !post.title
-                .toLowerCase()
-                .includes(filters.search_query.toLowerCase()) &&
-              !post.content
-                .toLowerCase()
-                .includes(filters.search_query.toLowerCase())
-            ) {
-              return false;
-            }
-            if (filters?.platform && post.platform !== filters.platform) {
-              return false;
-            }
-            if (filters?.status && post.status !== filters.status) {
-              return false;
-            }
-            return true;
-          });
-
-          setPosts(filteredPosts);
-          setIsLoading(false);
-        }, 500);
-      } catch (err) {
-        setError("Failed to fetch posts");
-        setIsLoading(false);
-      }
-    },
-    [],
-  );
+  const fetchPosts = useCallback(async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase.from("posts").select("*");
+    if (error) {
+      toast.error("Error fetching posts");
+    } else if (Array.isArray(data)) {
+      setPosts(data as SocialMediaPost[]);
+    } else {
+      toast.error("Unexpected data format");
+    }
+    setIsLoading(false);
+  }, []);
 
   const refreshPosts = useCallback(async () => {
     await fetchPosts({

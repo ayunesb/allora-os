@@ -3,7 +3,17 @@ import { Slot } from "@radix-ui/react-slot";
 import { Controller, FormProvider, useFormContext } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-const Form = FormProvider;
+
+export const Form: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit, children }) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    onSubmit(Object.fromEntries(formData));
+  };
+
+  return <form onSubmit={handleSubmit}>{children}</form>;
+};
+
 const FormFieldContext = React.createContext({});
 const FormField = ({ ...props }) => {
   return (
@@ -104,7 +114,6 @@ const FormMessage = React.forwardRef(
 FormMessage.displayName = "FormMessage";
 export {
   useFormField,
-  Form,
   FormItem,
   FormLabel,
   FormControl,

@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client"; // Fixed import path
 import { WebhookResult, TempWebhookEvent } from "@/types/unified-types"; // Fixed import path
 import { logger } from "@/utils/logger"; // Added logger import
+import { fetchApi } from "@/utils/api/fetchApi";
 
 export const getWebhookEvents = async (): Promise<WebhookEvent[]> => {
   try {
@@ -111,3 +112,23 @@ const tempWebhookEvent: TempWebhookEvent = {
   validProperty: "value", // ✅ Now valid
   payload: { id: "mock-id" },
 };
+
+interface WebhookPayload {
+  event: string;
+  data: any;
+  source: string;
+}
+
+export async function sendWebhook(payload: WebhookPayload): Promise<boolean> {
+  try {
+    const res = await fetchApi("/api/webhooks", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    });
+    return true;
+  } catch (err: unknown) {
+    if (err instanceof Error) console.error("Webhook error:", err.message);
+    return false;
+  }
+}
