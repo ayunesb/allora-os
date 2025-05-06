@@ -1,29 +1,37 @@
-import { vi } from 'vitest';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createSupabaseMock = void 0;
+var vitest_1 = require("vitest");
 // Create a type-safe mock for the Supabase client
-export const createSupabaseMock = () => ({
-    from: vi.fn().mockImplementation((table) => ({
-        select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-                eq: vi.fn().mockReturnValue({
-                    single: vi.fn(),
-                    limit: vi.fn()
-                }),
-                single: vi.fn()
-            })
+var createSupabaseMock = function () {
+  return {
+    from: vitest_1.vi.fn().mockImplementation(function (table) {
+      return {
+        select: vitest_1.vi.fn().mockReturnValue({
+          eq: vitest_1.vi.fn().mockReturnValue({
+            eq: vitest_1.vi.fn().mockReturnValue({
+              single: vitest_1.vi.fn(),
+              limit: vitest_1.vi.fn(),
+            }),
+            single: vitest_1.vi.fn(),
+          }),
         }),
-        insert: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-    })),
-    rpc: vi.fn(),
+        insert: vitest_1.vi.fn(),
+        update: vitest_1.vi.fn(),
+        delete: vitest_1.vi.fn(),
+      };
+    }),
+    rpc: vitest_1.vi.fn(),
     auth: {
-        getUser: vi.fn(),
-        getSession: vi.fn(),
-        signUp: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
+      getUser: vitest_1.vi.fn(),
+      getSession: vitest_1.vi.fn(),
+      signUp: vitest_1.vi.fn(),
+      signIn: vitest_1.vi.fn(),
+      signOut: vitest_1.vi.fn(),
     },
     storage: {
-        from: vi.fn(),
+      from: vitest_1.vi.fn(),
     },
-});
+  };
+};
+exports.createSupabaseMock = createSupabaseMock;

@@ -1,6 +1,6 @@
-import { SocialMediaCalendarFilters } from '@/types/socialMedia';
+import { SocialMediaCalendarFilters } from "@/types/socialMedia";
 export declare function useFilters(): {
-    filters: SocialMediaCalendarFilters;
-    setPostFilters: (newFilters: SocialMediaCalendarFilters) => void;
-    clearFilters: () => void;
+  filters: SocialMediaCalendarFilters;
+  setPostFilters: (newFilters: SocialMediaCalendarFilters) => void;
+  clearFilters: () => void;
 };

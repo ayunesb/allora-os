@@ -1,15 +1,22 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import OnboardingLayout from '@/components/layouts/OnboardingLayout';
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import OnboardingLayout from "@/components/layouts/OnboardingLayout";
 
-import { trpc } from '@/utils/trpc';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/components/ui/use-toast';
+import { trpc } from "@/utils/trpc";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/components/ui/use-toast";
 
 const schema = z.object({
   email: z.string().email(),
@@ -29,13 +36,13 @@ export default function Onboarding() {
     try {
       await trpc.auth.register.mutateAsync(data);
       toast({
-        title: 'Success',
-        description: 'You have successfully registered!',
+        title: "Success",
+        description: "You have successfully registered!",
       });
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
       });
     } finally {

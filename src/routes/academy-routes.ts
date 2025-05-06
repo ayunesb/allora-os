@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 
 export const academyRoutes: RouteObject[] = [
@@ -7,6 +6,6 @@ export const academyRoutes: RouteObject[] = [
     async lazy() {
       const { default: AcademyPage } = await import("@/pages/academy/index");
       return { Component: AcademyPage };
-    }
-  }
+    },
+  },
 ];

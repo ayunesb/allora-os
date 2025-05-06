@@ -1,6 +1,8 @@
-import { Campaign } from '@/types/unified-types';
+import { Campaign } from "@/types/unified-types";
 interface CampaignMetricCardsProps {
-    campaign: Campaign;
+  campaign: Campaign;
 }
-export declare function CampaignMetricCards({ campaign }: CampaignMetricCardsProps): JSX.Element;
+export declare function CampaignMetricCards({
+  campaign,
+}: CampaignMetricCardsProps): JSX.Element;
 export {};

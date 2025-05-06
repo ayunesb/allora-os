@@ -1,11 +1,11 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 import { getSecret } from "../_shared/secretManager.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
@@ -27,7 +27,7 @@ serve(async (req) => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -48,37 +48,40 @@ serve(async (req) => {
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     const companyId = profile.company_id;
-    
+
     if (!companyId) {
       return new Response(
         JSON.stringify({ error: "User does not have an associated company" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     // Store Shopify integration details
     const { data: integrationData, error: integrationError } = await supabase
       .from("company_integrations")
-      .upsert({
-        company_id: companyId,
-        integration_ids: {
-          shopify: {
-            domain: shopDomain,
-            access_token: accessToken,
-            connected_at: new Date().toISOString()
-          }
-        }
-      }, {
-        onConflict: 'company_id'
-      })
+      .upsert(
+        {
+          company_id: companyId,
+          integration_ids: {
+            shopify: {
+              domain: shopDomain,
+              access_token: accessToken,
+              connected_at: new Date().toISOString(),
+            },
+          },
+        },
+        {
+          onConflict: "company_id",
+        },
+      )
       .select();
 
     if (integrationError) {
@@ -88,7 +91,7 @@ serve(async (req) => {
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -96,11 +99,14 @@ serve(async (req) => {
     let shopInfo = null;
     if (accessToken) {
       try {
-        const shopResponse = await fetch(`https://${shopDomain}/admin/api/2023-07/shop.json`, {
-          headers: {
-            "X-Shopify-Access-Token": accessToken
-          }
-        });
+        const shopResponse = await fetch(
+          `https://${shopDomain}/admin/api/2023-07/shop.json`,
+          {
+            headers: {
+              "X-Shopify-Access-Token": accessToken,
+            },
+          },
+        );
 
         if (shopResponse.ok) {
           const shopData = await shopResponse.json();
@@ -113,15 +119,15 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         message: "Shopify integration saved successfully",
-        shop: shopInfo
+        shop: shopInfo,
       }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     console.error("Error in shopify-connect function:", error);
@@ -130,7 +136,7 @@ serve(async (req) => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 });

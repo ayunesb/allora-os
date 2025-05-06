@@ -1,7 +1,23 @@
-import { ChecklistItem, ChecklistCategory, LaunchInfoProps, LaunchProgressProps, ValidationResultsUI, DatabaseTableStatus, EnhancedVerificationState } from "@/types/fixed/LaunchChecklist";
-export type { ChecklistItem, ChecklistCategory, LaunchInfoProps, LaunchProgressProps, ValidationResultsUI, DatabaseTableStatus, EnhancedVerificationState };
+import {
+  ChecklistItem,
+  ChecklistCategory,
+  LaunchInfoProps,
+  LaunchProgressProps,
+  ValidationResultsUI,
+  DatabaseTableStatus,
+  EnhancedVerificationState,
+} from "@/types/fixed/LaunchChecklist";
+export type {
+  ChecklistItem,
+  ChecklistCategory,
+  LaunchInfoProps,
+  LaunchProgressProps,
+  ValidationResultsUI,
+  DatabaseTableStatus,
+  EnhancedVerificationState,
+};
 export interface ValidationResult {
-    valid: boolean;
-    message: string;
-    details?: any;
+  valid: boolean;
+  message: string;
+  details?: any;
 }

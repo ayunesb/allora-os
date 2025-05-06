@@ -28,7 +28,12 @@ const GalaxyGraph: React.FC<GalaxyGraphProps> = ({ pluginFilter }) => {
   const [showAgentModal, setShowAgentModal] = useState(false);
   const [selectedPluginName, setSelectedPluginName] = useState("");
 
-  const logAgentXP = async (agentType: string, taskType: string, context: string, xp: number) => {
+  const logAgentXP = async (
+    agentType: string,
+    taskType: string,
+    context: string,
+    xp: number,
+  ) => {
     const supabase = createClientComponentClient();
     try {
       await supabase.from("agent_logs").insert({
@@ -52,18 +57,27 @@ const GalaxyGraph: React.FC<GalaxyGraphProps> = ({ pluginFilter }) => {
         return prevNodes;
       }
       return prevNodes.map((node) =>
-        node.id === name ? { ...node, total_xp: (node.total_xp || 0) + delta } : node
+        node.id === name
+          ? { ...node, total_xp: (node.total_xp || 0) + delta }
+          : node,
       );
     });
     const node = nodes.find((node) => node.id === name);
     if (node) {
-      logAgentXP(node.agent_type || "unknown", "plugin_interaction", `Updated XP for ${name}`, delta);
+      logAgentXP(
+        node.agent_type || "unknown",
+        "plugin_interaction",
+        `Updated XP for ${name}`,
+        delta,
+      );
     }
   };
 
   const updateAgentTypeXP = (agentType: string, delta: number) => {
     setNodes((prevNodes) => {
-      const agentExists = prevNodes.some((node) => node.agent_type === agentType);
+      const agentExists = prevNodes.some(
+        (node) => node.agent_type === agentType,
+      );
       if (!agentExists) {
         console.warn(`Agent type ${agentType} not found.`);
         return prevNodes;
@@ -71,17 +85,24 @@ const GalaxyGraph: React.FC<GalaxyGraphProps> = ({ pluginFilter }) => {
       return prevNodes.map((node) =>
         node.agent_type === agentType
           ? { ...node, total_xp: (node.total_xp || 0) + delta }
-          : node
+          : node,
       );
     });
-    logAgentXP(agentType, "agent_type_update", `Updated XP for agent type ${agentType}`, delta);
+    logAgentXP(
+      agentType,
+      "agent_type_update",
+      `Updated XP for agent type ${agentType}`,
+      delta,
+    );
   };
 
   useEffect(() => {
     const supabase = createClientComponentClient();
     const fetchGraphData = async () => {
       try {
-        const query = supabase.from("plugin_logs").select("plugin_name, total_xp, agent_type");
+        const query = supabase
+          .from("plugin_logs")
+          .select("plugin_name, total_xp, agent_type");
         if (pluginFilter) {
           query.filter("plugin_name", "eq", pluginFilter);
         }
@@ -115,7 +136,7 @@ const GalaxyGraph: React.FC<GalaxyGraphProps> = ({ pluginFilter }) => {
           const agentType = payload.new.agent_type || "unknown";
           updateNodeXP(pluginName, xp);
           updateAgentTypeXP(agentType, xp);
-        }
+        },
       )
       .subscribe();
     return () => {
@@ -151,7 +172,13 @@ const GalaxyGraph: React.FC<GalaxyGraphProps> = ({ pluginFilter }) => {
           const radius = 10;
           const percent = Math.min(node.total_xp / 100, 1);
           ctx.beginPath();
-          ctx.arc(node.x || 0, node.y || 0, radius, -Math.PI / 2, 2 * Math.PI * percent - Math.PI / 2);
+          ctx.arc(
+            node.x || 0,
+            node.y || 0,
+            radius,
+            -Math.PI / 2,
+            2 * Math.PI * percent - Math.PI / 2,
+          );
           ctx.strokeStyle = "#22d3ee";
           ctx.lineWidth = 3 / globalScale;
           ctx.stroke();

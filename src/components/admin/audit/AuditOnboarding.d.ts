@@ -1,2 +1,5 @@
-import { AuditComponentProps } from './types';
-export declare function AuditOnboarding({ status, onStatusChange }: AuditComponentProps): JSX.Element;
+import { AuditComponentProps } from "./types";
+export declare function AuditOnboarding({
+  status,
+  onStatusChange,
+}: AuditComponentProps): JSX.Element;

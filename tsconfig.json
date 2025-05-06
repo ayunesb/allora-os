@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    // ...existing code...
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
-      "@/types/*": ["types/*"],
-      "@/utils/*": ["utils/*"],
+      "@/*": ["src/*"],
       "@/components/*": ["components/*"],
       "@/pages/*": ["pages/*"],
       "@/services/*": ["services/*"],
       "@/layouts/*": ["layouts/*"],
       "@/hooks/*": ["hooks/*"]
-    }
+    },
+    "jsx": "react-jsx"
   }
 }

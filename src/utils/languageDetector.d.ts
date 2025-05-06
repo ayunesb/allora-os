@@ -1,1 +1,3 @@
-export declare function detectUserLanguage(acceptLanguageHeader: string): string;
+export declare function detectUserLanguage(
+  acceptLanguageHeader: string,
+): string;

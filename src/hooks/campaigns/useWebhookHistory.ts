@@ -1,12 +1,11 @@
-
-import { useState, useCallback, useEffect } from 'react';
-import { WebhookEvent } from '@/types/unified-types';
+import { useState, useCallback, useEffect } from "react";
+import { WebhookEvent } from "@/types/unified-types";
 
 export function useWebhookHistory() {
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const refreshEvents = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -16,22 +15,22 @@ export function useWebhookHistory() {
       // setEvents(data);
       setEvents([]);
     } catch (err) {
-      setError('Failed to fetch webhook events');
-      console.error('Error fetching webhook events:', err);
+      setError("Failed to fetch webhook events");
+      console.error("Error fetching webhook events:", err);
     } finally {
       setIsLoading(false);
     }
   }, []);
-  
+
   // Initial fetch
   useEffect(() => {
     refreshEvents();
   }, [refreshEvents]);
-  
+
   return {
     events,
     isLoading,
     error,
-    refreshEvents
+    refreshEvents,
   };
 }

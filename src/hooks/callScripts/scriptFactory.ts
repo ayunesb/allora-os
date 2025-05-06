@@ -1,5 +1,4 @@
-
-import { CallScript } from './types';
+import { CallScript } from "./types";
 
 /**
  * Generates AI-created call scripts based on company insights
@@ -7,7 +6,7 @@ import { CallScript } from './types';
 export function createAiGeneratedScripts(
   insights: any[],
   companyName: string,
-  industry: string
+  industry: string,
 ): CallScript[] {
   if (!insights || insights.length === 0) {
     return [];
@@ -16,7 +15,7 @@ export function createAiGeneratedScripts(
   // Just create a few sample AI-generated scripts for demonstration
   return [
     {
-      id: 'ai-cold-call-script-1',
+      id: "ai-cold-call-script-1",
       title: `AI-Optimized Cold Call for ${industry} Companies`,
       content: `# AI-Optimized Cold Call Script for ${industry} Companies
 
@@ -49,17 +48,17 @@ export function createAiGeneratedScripts(
 - Summarize key points and next actions
 - Provide your direct contact information`,
       target: `${industry} Businesses`,
-      duration: '8-10 minutes',
-      status: 'Ready',
-      type: 'call',
+      duration: "8-10 minutes",
+      status: "Ready",
+      type: "call",
       aiGenerated: true,
       primaryBot: {
-        name: 'Sales Optimization AI',
-        role: 'Cold Calling Expert'
-      }
+        name: "Sales Optimization AI",
+        role: "Cold Calling Expert",
+      },
     },
     {
-      id: 'ai-message-template-1',
+      id: "ai-message-template-1",
       title: `${industry} Personalized Email Template`,
       content: `Subject: Enhancing Your ${industry} Operations with ${companyName}
 
@@ -83,15 +82,15 @@ Best regards,
 ${companyName}
 [Your Contact Information]`,
       target: `${industry} Decision Makers`,
-      duration: 'N/A',
-      status: 'Ready',
-      type: 'message',
+      duration: "N/A",
+      status: "Ready",
+      type: "message",
       aiGenerated: true,
       primaryBot: {
-        name: 'Digital Communication AI',
-        role: 'Marketing Expert'
-      }
-    }
+        name: "Digital Communication AI",
+        role: "Marketing Expert",
+      },
+    },
   ];
 }
 
@@ -102,12 +101,12 @@ export function createExecutiveCollectiveScripts(
   companyName: string,
   industry: string,
   companySize: string,
-  riskAppetite: string
+  riskAppetite: string,
 ): CallScript[] {
   // Generate scripts based on company profile
   return [
     {
-      id: 'exec-call-script-1',
+      id: "exec-call-script-1",
       title: `Executive Strategy - ${companySize} ${industry} Call Script`,
       content: `# Executive Collective Call Strategy for ${companySize} ${industry} Companies
 
@@ -141,28 +140,28 @@ export function createExecutiveCollectiveScripts(
 - Schedule a meeting with relevant stakeholders
 - Share appropriate executive materials`,
       target: `${companySize} ${industry} Companies`,
-      duration: '10-15 minutes',
-      status: 'Ready',
-      type: 'call',
+      duration: "10-15 minutes",
+      status: "Ready",
+      type: "call",
       executiveGenerated: true,
       aiGenerated: false,
       primaryBot: {
-        name: 'Executive Strategy Team',
-        role: 'Chief Strategy Officer'
+        name: "Executive Strategy Team",
+        role: "Chief Strategy Officer",
       },
       collaborators: [
         {
-          name: 'Alex Morgan',
-          role: 'CEO'
+          name: "Alex Morgan",
+          role: "CEO",
         },
         {
-          name: 'Jordan Chen',
-          role: 'CRO'
-        }
-      ]
+          name: "Jordan Chen",
+          role: "CRO",
+        },
+      ],
     },
     {
-      id: 'exec-message-1',
+      id: "exec-message-1",
       title: `Executive Outreach - ${riskAppetite.toUpperCase()} Risk Profile`,
       content: `Subject: Strategic Partnership Opportunity - ${companyName} Executive Team
 
@@ -187,21 +186,21 @@ Regards,
 ${companyName}
 [Your Contact Information]`,
       target: `C-Suite Executives (${riskAppetite.toUpperCase()} Risk Profile)`,
-      duration: 'N/A',
-      status: 'Ready',
-      type: 'message',
+      duration: "N/A",
+      status: "Ready",
+      type: "message",
       executiveGenerated: true,
       aiGenerated: false,
       primaryBot: {
-        name: 'Executive Advisory Team',
-        role: 'Chief Strategy Officer'
+        name: "Executive Advisory Team",
+        role: "Chief Strategy Officer",
       },
       collaborators: [
         {
-          name: 'Taylor Wu',
-          role: 'CFO'
-        }
-      ]
-    }
+          name: "Taylor Wu",
+          role: "CFO",
+        },
+      ],
+    },
   ];
 }

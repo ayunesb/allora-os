@@ -1,10 +1,9 @@
-
-import { useState } from 'react';
-import { WebhookType, WebhookStatus } from '@/types';
+import { useState } from "react";
+import { WebhookType, WebhookStatus } from "@/types";
 
 export interface WebhookFilter {
   types?: WebhookType[];
-  status?: WebhookStatus | '';
+  status?: WebhookStatus | "";
   dateRange?: [Date | null, Date | null];
   search?: string;
 }

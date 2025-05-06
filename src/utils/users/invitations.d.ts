@@ -5,4 +5,8 @@
  * @param role Role to assign to the user (default: 'user')
  * @returns Boolean indicating success
  */
-export declare function inviteUserToCompany(email: string, companyId: string, role?: 'admin' | 'user'): Promise<boolean>;
+export declare function inviteUserToCompany(
+  email: string,
+  companyId: string,
+  role?: "admin" | "user",
+): Promise<boolean>;

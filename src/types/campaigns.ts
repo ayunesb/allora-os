@@ -1,9 +1,8 @@
-
 export interface Campaign {
   id: string;
   name: string;
   platform: string;
-  status: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  status: "Draft" | "Active" | "Paused" | "Completed";
   budget?: number;
   start_date?: string;
   end_date?: string;
@@ -46,7 +45,7 @@ export interface CampaignFilters {
 export interface CreateCampaignInput {
   name: string;
   platform: string;
-  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  status?: "Draft" | "Active" | "Paused" | "Completed";
   budget?: number;
   start_date?: string;
   end_date?: string;
@@ -60,7 +59,7 @@ export interface UpdateCampaignInput {
   id: string;
   name?: string;
   platform?: string;
-  status?: 'Draft' | 'Active' | 'Paused' | 'Completed';
+  status?: "Draft" | "Active" | "Paused" | "Completed";
   budget?: number;
   start_date?: string;
   end_date?: string;

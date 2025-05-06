@@ -1,5 +1,7 @@
 interface CampaignEmptyStateProps {
-    onCreateCampaign: () => void;
+  onCreateCampaign: () => void;
 }
-export declare function CampaignEmptyState({ onCreateCampaign }: CampaignEmptyStateProps): import("react").JSX.Element;
+export declare function CampaignEmptyState({
+  onCreateCampaign,
+}: CampaignEmptyStateProps): import("react").JSX.Element;
 export {};

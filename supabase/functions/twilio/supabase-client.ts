@@ -1,4 +1,3 @@
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
 // Initialize Supabase client with environment variables and fallback values

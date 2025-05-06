@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 interface LeadsErrorStateProps {
-    onRetry: () => void;
+  onRetry: () => void;
 }
 export declare const LeadsErrorState: React.FC<LeadsErrorStateProps>;
 export {};

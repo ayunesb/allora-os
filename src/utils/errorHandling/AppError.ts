@@ -1,5 +1,4 @@
-
-import { AppError, ErrorType } from './errorTypes';
+import { AppError, ErrorType } from "./errorTypes";
 
 /**
  * Creates an application error with standardized structure
@@ -17,7 +16,7 @@ export class ApplicationError implements AppError {
     code = ErrorType.UNKNOWN,
     data,
     source,
-    isCritical = false
+    isCritical = false,
   }: {
     message: string;
     code?: string;
@@ -46,13 +45,13 @@ export function createAppError(
   code: string = ErrorType.UNKNOWN,
   data?: any,
   source?: string,
-  isCritical: boolean = false
+  isCritical: boolean = false,
 ): AppError {
   return new ApplicationError({
     message,
     code,
     data,
     source,
-    isCritical
+    isCritical,
   });
 }

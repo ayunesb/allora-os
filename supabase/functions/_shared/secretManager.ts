@@ -11,11 +11,11 @@
  */
 export function getSecret(key: string, required = true): string {
   const value = Deno.env.get(key) || "";
-  
+
   if (!value && required) {
     console.error(`Missing required secret: ${key}`);
   }
-  
+
   return value;
 }
 
@@ -24,21 +24,21 @@ export function getSecret(key: string, required = true): string {
  * @param keys Array of required secret keys
  * @returns Object with validation result and any missing keys
  */
-export function validateRequiredSecrets(keys: string[]): { 
-  valid: boolean; 
-  missingKeys: string[]
+export function validateRequiredSecrets(keys: string[]): {
+  valid: boolean;
+  missingKeys: string[];
 } {
   const missingKeys: string[] = [];
-  
+
   for (const key of keys) {
     if (!Deno.env.get(key)) {
       missingKeys.push(key);
     }
   }
-  
+
   return {
     valid: missingKeys.length === 0,
-    missingKeys
+    missingKeys,
   };
 }
 
@@ -49,12 +49,12 @@ export function validateRequiredSecrets(keys: string[]): {
  */
 export function maskSecret(secret: string): string {
   if (!secret) return "";
-  
+
   // Keep first 4 characters visible if longer than 8 chars
   if (secret.length > 8) {
     return `${secret.substring(0, 4)}${"•".repeat(secret.length - 4)}`;
   }
-  
+
   // Otherwise mask all but first character
   return `${secret.substring(0, 1)}${"•".repeat(secret.length - 1)}`;
 }

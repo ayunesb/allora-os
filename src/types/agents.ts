@@ -1,5 +1,4 @@
-
-import { User as UserModel } from '@/models/user';
+import { User as UserModel } from "@/models/user";
 
 export type User = UserModel;
 
@@ -8,8 +7,18 @@ export interface ExecutiveAgentProfile {
   name: string;
   role: string;
   expertise: string[];
-  personality: 'analytical' | 'creative' | 'diplomatic' | 'aggressive' | 'cautious';
-  decisionStyle: 'data_driven' | 'intuitive' | 'consensus' | 'directive' | 'adaptive';
+  personality:
+    | "analytical"
+    | "creative"
+    | "diplomatic"
+    | "aggressive"
+    | "cautious";
+  decisionStyle:
+    | "data_driven"
+    | "intuitive"
+    | "consensus"
+    | "directive"
+    | "adaptive";
   avatarUrl?: string;
 }
 
@@ -48,14 +57,14 @@ export interface DebateEntry {
   executiveName: string;
   role: string;
   opinion: string;
-  stance: 'For' | 'Against' | 'Neutral';
+  stance: "For" | "Against" | "Neutral";
 }
 
 export interface DebateSummary {
   totalExecutives: number;
   forVotes: number;
   againstVotes: number;
-  majority: 'For' | 'Against' | 'Tie';
+  majority: "For" | "Against" | "Tie";
   confidenceScore: number;
   topRisks: string[];
   topOpportunities: string[];
@@ -72,7 +81,7 @@ export interface ExecutiveMessage {
   from_executive: string;
   to_executive: string;
   message_content: string;
-  status: 'read' | 'unread';
+  status: "read" | "unread";
   created_at: string;
 }
 

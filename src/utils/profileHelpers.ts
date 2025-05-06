@@ -1,11 +1,10 @@
-
 export type Json =
   | string
   | number
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export interface UserProfile {
   id: string;
@@ -31,35 +30,38 @@ export interface UserProfile {
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<Omit<UserProfile, 'id' | 'created_at'>>
+  updates: Partial<Omit<UserProfile, "id" | "created_at">>,
 ): Promise<boolean> {
   try {
     // Implementation would go here in a real app
-    console.log('Updating profile for user:', userId, updates);
+    console.log("Updating profile for user:", userId, updates);
     return true;
   } catch (error) {
-    console.error('Error updating user profile:', error);
+    console.error("Error updating user profile:", error);
     return false;
   }
 }
 
 export function getUserDisplayName(profile: UserProfile | null): string {
-  if (!profile) return 'User';
-  return profile.name || profile.email || 'User';
+  if (!profile) return "User";
+  return profile.name || profile.email || "User";
 }
 
 // Add the missing saveCompanyInfo function
 export async function saveCompanyInfo(
   userId: string,
   companyName: string,
-  industry: string
+  industry: string,
 ): Promise<boolean> {
   try {
     // Implementation would go here in a real app
-    console.log('Saving company info for user:', userId, { companyName, industry });
+    console.log("Saving company info for user:", userId, {
+      companyName,
+      industry,
+    });
     return true;
   } catch (error) {
-    console.error('Error saving company info:', error);
+    console.error("Error saving company info:", error);
     return false;
   }
 }

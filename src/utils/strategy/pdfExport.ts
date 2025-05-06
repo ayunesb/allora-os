@@ -1,4 +1,3 @@
-
 import { Strategy } from "@/models/strategy";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -10,23 +9,23 @@ export const exportStrategyToPdf = (strategy: Strategy): void => {
   try {
     // In a real implementation, this would use a PDF library like jspdf or pdfmake
     // For now, we'll simulate PDF generation by creating a text file
-    
-    const filename = `${strategy.title.replace(/\s+/g, '_').toLowerCase()}_strategy.pdf`;
-    
+
+    const filename = `${strategy.title.replace(/\s+/g, "_").toLowerCase()}_strategy.pdf`;
+
     // Create a blob with the content
     const content = generateStrategyContent(strategy);
-    const blob = new Blob([content], { type: 'application/pdf' });
-    
+    const blob = new Blob([content], { type: "application/pdf" });
+
     // Create download link
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
-    
+
     // Trigger download
     document.body.appendChild(a);
     a.click();
-    
+
     // Cleanup
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
@@ -45,23 +44,25 @@ export const exportAllStrategiesToPdf = (strategies: Strategy[]): void => {
   try {
     // In a real implementation, this would use a PDF library to combine multiple strategies
     // For now, we'll simulate by creating a text file with all strategies
-    
+
     const filename = "all_strategies.pdf";
-    
+
     // Create content with all strategies
-    const content = strategies.map(strategy => generateStrategyContent(strategy)).join("\n\n============\n\n");
-    const blob = new Blob([content], { type: 'application/pdf' });
-    
+    const content = strategies
+      .map((strategy) => generateStrategyContent(strategy))
+      .join("\n\n============\n\n");
+    const blob = new Blob([content], { type: "application/pdf" });
+
     // Create download link
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
-    
+
     // Trigger download
     document.body.appendChild(a);
     a.click();
-    
+
     // Cleanup
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
@@ -79,34 +80,34 @@ export const exportAllStrategiesToPdf = (strategies: Strategy[]): void => {
 const generateStrategyContent = (strategy: Strategy): string => {
   const updatedDate = new Date(strategy.updated_at || strategy.created_at);
   const timeAgo = formatDistanceToNow(updatedDate, { addSuffix: true });
-  
+
   return `
 STRATEGY: ${strategy.title}
 ===============================
 
-Risk Level: ${strategy.risk || strategy.risk_level || 'Medium'}
-Impact: ${strategy.impact || 'Medium'}
+Risk Level: ${strategy.risk || strategy.risk_level || "Medium"}
+Impact: ${strategy.impact || "Medium"}
 Last Updated: ${timeAgo}
-Proposed by: ${strategy.executiveBot || 'AI Executive Team'}
+Proposed by: ${strategy.executiveBot || "AI Executive Team"}
 
 DESCRIPTION
 -----------
-${strategy.description || 'No description provided.'}
+${strategy.description || "No description provided."}
 
 EXPECTED ROI
 -----------
-${strategy.expectedROI || 'Not specified'}
+${strategy.expectedROI || "Not specified"}
 
 SUCCESS METRICS
 --------------
-${strategy.successMetrics ? strategy.successMetrics.join("\n") : 'Not specified'}
+${strategy.successMetrics ? strategy.successMetrics.join("\n") : "Not specified"}
 
 TIMEFRAME
 ---------
-${strategy.timeframe || 'Not specified'}
+${strategy.timeframe || "Not specified"}
 
 PROGRESS
 --------
-${strategy.progress !== undefined ? `${strategy.progress}%` : 'Not specified'}
+${strategy.progress !== undefined ? `${strategy.progress}%` : "Not specified"}
   `;
 };

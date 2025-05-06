@@ -1,4 +1,3 @@
-
 /**
  * Types for Stripe subscription management
  */
@@ -8,7 +7,7 @@ export interface StripeSubscriptionPrice {
   currency: string;
   unit_amount: number;
   recurring: {
-    interval: 'day' | 'week' | 'month' | 'year';
+    interval: "day" | "week" | "month" | "year";
     interval_count: number;
   };
   product: string;
@@ -34,7 +33,14 @@ export interface SubscriptionStatus {
   expiresAt?: string;
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string;
-  status?: 'active' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'past_due' | 'trialing' | 'unpaid';
+  status?:
+    | "active"
+    | "canceled"
+    | "incomplete"
+    | "incomplete_expired"
+    | "past_due"
+    | "trialing"
+    | "unpaid";
   error?: string;
 }
 

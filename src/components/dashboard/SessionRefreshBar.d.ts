@@ -1,5 +1,7 @@
 interface SessionRefreshBarProps {
-    onRefreshSession: () => void;
+  onRefreshSession: () => void;
 }
-export declare function SessionRefreshBar({ onRefreshSession }: SessionRefreshBarProps): import("react").JSX.Element;
+export declare function SessionRefreshBar({
+  onRefreshSession,
+}: SessionRefreshBarProps): import("react").JSX.Element;
 export {};

@@ -17,7 +17,13 @@ export interface Campaign {
   ad_platform?: never;
 }
 
-export type WebhookType = "zapier" | "custom" | "stripe" | "slack" | "github" | "notion";
+export type WebhookType =
+  | "zapier"
+  | "custom"
+  | "stripe"
+  | "slack"
+  | "github"
+  | "notion";
 export interface WebhookEvent {
   id: string;
   event_type: string;

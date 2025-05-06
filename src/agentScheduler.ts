@@ -1,23 +1,23 @@
-import { Agent, AgentPersonality } from './types';
+import { Agent, AgentPersonality } from "./types";
 
 const botExampleActions: Agent = {
-  id: 'botExampleActions',
-  name: 'Example Bot Actions',
+  id: "botExampleActions",
+  name: "Example Bot Actions",
   personality: "analytical" as const, // or validate against the enum
   actions: [
     // ...existing code...
   ],
-  riskLevel: 'Medium', // Fixed riskLevel
+  riskLevel: "Medium", // Fixed riskLevel
 };
 
 const botOutputLocations: Agent = {
-  id: 'botOutputLocations',
-  name: 'Output Locations Bot',
+  id: "botOutputLocations",
+  name: "Output Locations Bot",
   personality: "analytical" as const, // or validate against the enum
   actions: [
     // ...existing code...
   ],
-  riskLevel: 'Medium', // Fixed riskLevel
+  riskLevel: "Medium", // Fixed riskLevel
 };
 
 const personalityXpMap: Record<AgentPersonality, number> = {
@@ -30,18 +30,23 @@ const personalityXpMap: Record<AgentPersonality, number> = {
 
 // Define the executive object with a valid personality
 const executive: ExecutiveAgentProfile = {
-  id: 'executiveAgent',
-  name: 'Executive Agent',
-  personality: 'analytical', // ✅ Matches the union type
+  id: "executiveAgent",
+  name: "Executive Agent",
+  personality: "analytical", // ✅ Matches the union type
   actions: [],
-  riskLevel: 'Medium', // Fixed riskLevel
+  riskLevel: "Medium", // Fixed riskLevel
 };
 
 const xp = personalityXpMap[executive.personality];
 
 const task = selectTaskForExecutive({
   ...executive,
-  personality: executive.personality as 'analytical' | 'creative' | 'diplomatic' | 'aggressive' | 'cautious'
+  personality: executive.personality as
+    | "analytical"
+    | "creative"
+    | "diplomatic"
+    | "aggressive"
+    | "cautious",
 });
 
 // Repeat this fix for similar objects like botExampleActions, botOutputLocations, etc.

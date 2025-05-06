@@ -1,4 +1,4 @@
-import { User } from '@/models/user';
+import { User } from "@/models/user";
 /**
  * Fetches all users belonging to a specific company
  * @param companyId The company ID to fetch users for
@@ -16,4 +16,6 @@ export declare function getUserIdByEmail(email: string): Promise<string | null>;
  * @param email User email to lookup
  * @returns User profile or null if not found
  */
-export declare function getUserProfileByEmail(email: string): Promise<User | null>;
+export declare function getUserProfileByEmail(
+  email: string,
+): Promise<User | null>;

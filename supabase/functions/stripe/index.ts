@@ -1,11 +1,11 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 import { Stripe } from "https://esm.sh/stripe@12.6.0?target=deno";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -19,13 +19,17 @@ serve(async (req) => {
   const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY") || "";
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
   const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
-  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const SUPABASE_SERVICE_ROLE_KEY =
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
   if (!STRIPE_SECRET_KEY || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    return new Response(JSON.stringify({ error: "Missing environment variables" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
+    return new Response(
+      JSON.stringify({ error: "Missing environment variables" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 
   try {
@@ -36,18 +40,21 @@ serve(async (req) => {
 
     // Create Supabase clients - one for auth, one with service role for admin operations
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
+
     // Get the user's JWT from the request
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      throw new Error('Missing Authorization header');
+      throw new Error("Missing Authorization header");
     }
-    const token = authHeader.replace('Bearer ', '');
-    
+    const token = authHeader.replace("Bearer ", "");
+
     // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
     if (authError || !user) {
-      throw new Error('User not authenticated');
+      throw new Error("User not authenticated");
     }
 
     // Parse the request body
@@ -60,13 +67,15 @@ serve(async (req) => {
 
       // Get the origin for success/cancel URLs
       const origin = req.headers.get("origin") || "http://localhost:8080";
-      
+
       // Create a checkout session
       const session = await stripe.checkout.sessions.create({
-        line_items: [{
-          price: priceId,
-          quantity: 1,
-        }],
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
         mode: "payment",
         success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/payment-canceled`,
@@ -75,7 +84,7 @@ serve(async (req) => {
 
       // Return the checkout URL
       return new Response(JSON.stringify({ url: session.url }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -84,7 +93,7 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

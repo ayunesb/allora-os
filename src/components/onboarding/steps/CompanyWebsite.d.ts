@@ -1,5 +1,7 @@
 interface CompanyWebsiteProps {
-    onCompanyDataFetched: (success: boolean) => void;
+  onCompanyDataFetched: (success: boolean) => void;
 }
-export declare function CompanyWebsite({ onCompanyDataFetched }: CompanyWebsiteProps): import("react").JSX.Element;
+export declare function CompanyWebsite({
+  onCompanyDataFetched,
+}: CompanyWebsiteProps): import("react").JSX.Element;
 export {};

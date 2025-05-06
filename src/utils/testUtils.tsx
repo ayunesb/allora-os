@@ -7,8 +7,8 @@
  * - Mock data generation
  * - Test event simulation
  */
-import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { render } from "@testing-library/react";
+import "@testing-library/jest-dom";
 /**
  * Tests validation schema against multiple cases
  * Useful for unit testing Zod schemas
@@ -40,21 +40,28 @@ import '@testing-library/jest-dom';
  * );
  */
 export function testValidationSchema(schema, validCases, invalidCases) {
-    describe('Schema validation', () => {
-        // Test valid cases
-        test.each(validCases)('validates valid case: %p', (testCase) => {
-            const result = schema.safeParse(testCase);
-            expect(result.success).toBe(true);
-        });
-        // Test invalid cases
-        test.each(invalidCases)('invalidates case: $data with error: $expectedError', ({ data, expectedError }) => {
-            const result = schema.safeParse(data);
-            expect(result.success).toBe(false);
-            if (!result.success) {
-                expect(result.error.errors.some(err => err.message.includes(expectedError))).toBe(true);
-            }
-        });
+  describe("Schema validation", () => {
+    // Test valid cases
+    test.each(validCases)("validates valid case: %p", (testCase) => {
+      const result = schema.safeParse(testCase);
+      expect(result.success).toBe(true);
     });
+    // Test invalid cases
+    test.each(invalidCases)(
+      "invalidates case: $data with error: $expectedError",
+      ({ data, expectedError }) => {
+        const result = schema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(
+            result.error.errors.some((err) =>
+              err.message.includes(expectedError),
+            ),
+          ).toBe(true);
+        }
+      },
+    );
+  });
 }
 /**
  * Custom render function for testing components with providers
@@ -70,12 +77,12 @@ export function testValidationSchema(schema, validCases, invalidCases) {
  * expect(getByText('Hello')).toBeInTheDocument();
  */
 export function renderWithProviders(ui, options = {}) {
-    return render(ui, {
-        // Wrap with providers as needed
-        // For example: <QueryClientProvider client={queryClient}>
-        wrapper: ({ children }) => children,
-        ...options,
-    });
+  return render(ui, {
+    // Wrap with providers as needed
+    // For example: <QueryClientProvider client={queryClient}>
+    wrapper: ({ children }) => children,
+    ...options,
+  });
 }
 /**
  * Generates mock data for tests based on schema
@@ -90,12 +97,12 @@ export function renderWithProviders(ui, options = {}) {
  * const mockUser = generateMockData(userSchema, { name: "Custom Name" });
  */
 export function generateMockData(schema, overrides = {}) {
-    // Simple implementation - in a real app, would use a more sophisticated approach
-    // like faker or a dedicated mock data generator
-    return schema.parse({
-        // Default values could be derived from schema
-        ...overrides
-    });
+  // Simple implementation - in a real app, would use a more sophisticated approach
+  // like faker or a dedicated mock data generator
+  return schema.parse({
+    // Default values could be derived from schema
+    ...overrides,
+  });
 }
 /**
  * Waits for all promises to resolve
@@ -107,8 +114,8 @@ export function generateMockData(schema, overrides = {}) {
  * expect(getByText('Loaded')).toBeInTheDocument();
  */
 export async function waitForPromises() {
-    return new Promise(resolve => {
-        // Wait for all promises to resolve
-        setTimeout(resolve, 0);
-    });
+  return new Promise((resolve) => {
+    // Wait for all promises to resolve
+    setTimeout(resolve, 0);
+  });
 }

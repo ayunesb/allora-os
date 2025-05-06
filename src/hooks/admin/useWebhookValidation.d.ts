@@ -3,10 +3,10 @@
  *
  * This hook provides validation for webhook URLs in admin interfaces
  */
-import { WebhookType } from '@/types/fixed/Webhook';
+import { WebhookType } from "@/types/fixed/Webhook";
 export declare function useWebhookValidation(type: WebhookType): {
-    isValid: boolean;
-    validationMessage: string;
-    validateUrl: (url: string) => void;
+  isValid: boolean;
+  validationMessage: string;
+  validateUrl: (url: string) => void;
 };
 export default useWebhookValidation;

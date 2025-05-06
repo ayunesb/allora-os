@@ -1,6 +1,5 @@
-
-import { supabase } from '@/backend/supabase';
-import { BasicCompanyData, CompanyResponse } from '../types/testCompanyTypes';
+import { supabase } from "@/backend/supabase";
+import { BasicCompanyData, CompanyResponse } from "../types/testCompanyTypes";
 
 /**
  * Checks if the test company exists in the database
@@ -8,15 +7,15 @@ import { BasicCompanyData, CompanyResponse } from '../types/testCompanyTypes';
 export async function testCompanyExists(): Promise<boolean> {
   try {
     const { data, error } = await supabase
-      .from('companies')
-      .select('id')
-      .eq('name', 'Test Company')
+      .from("companies")
+      .select("id")
+      .eq("name", "Test Company")
       .maybeSingle();
 
     if (error) throw error;
     return !!data;
   } catch (error) {
-    console.error('Error checking test company:', error);
+    console.error("Error checking test company:", error);
     return false;
   }
 }
@@ -27,29 +26,29 @@ export async function testCompanyExists(): Promise<boolean> {
 export async function getTestCompany(): Promise<CompanyResponse> {
   try {
     const { data, error } = await supabase
-      .from('companies')
-      .select('*')
-      .eq('name', 'Test Company')
+      .from("companies")
+      .select("*")
+      .eq("name", "Test Company")
       .maybeSingle();
 
     if (error) {
       return {
         success: false,
         message: `Error fetching test company: ${error.message}`,
-        errorCode: error.code
+        errorCode: error.code,
       };
     }
 
     return {
       success: true,
       data: data as BasicCompanyData,
-      message: data ? 'Test company found' : 'No test company found'
+      message: data ? "Test company found" : "No test company found",
     };
   } catch (error: any) {
     return {
       success: false,
       message: `Error fetching test company: ${error.message}`,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -63,26 +62,26 @@ export async function ensureTestCompanyExists(): Promise<BasicCompanyData | null
     const exists = await testCompanyExists();
     if (exists) {
       const { data } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('name', 'Test Company')
+        .from("companies")
+        .select("*")
+        .eq("name", "Test Company")
         .maybeSingle();
       return data as BasicCompanyData;
     }
 
     // Create test company
     const { data, error } = await supabase
-      .from('companies')
+      .from("companies")
       .insert([
         {
-          name: 'Test Company',
-          industry: 'Technology',
+          name: "Test Company",
+          industry: "Technology",
           details: {
             founded: 2023,
-            size: 'small',
-            description: 'A test company for development purposes'
-          }
-        }
+            size: "small",
+            description: "A test company for development purposes",
+          },
+        },
       ])
       .select()
       .single();
@@ -90,7 +89,7 @@ export async function ensureTestCompanyExists(): Promise<BasicCompanyData | null
     if (error) throw error;
     return data as BasicCompanyData;
   } catch (error) {
-    console.error('Error creating test company:', error);
+    console.error("Error creating test company:", error);
     return null;
   }
 }

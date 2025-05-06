@@ -1,4 +1,3 @@
-
 export interface AccessibilityContextType {
   highContrast?: boolean;
   reducedMotion?: boolean;

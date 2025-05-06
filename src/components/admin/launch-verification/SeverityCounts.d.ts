@@ -1,11 +1,13 @@
 interface SeverityCount {
-    critical: number;
-    high: number;
-    medium: number;
-    low: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
 }
 interface SeverityCountsProps {
-    counts: SeverityCount;
+  counts: SeverityCount;
 }
-export declare function SeverityCounts({ counts }: SeverityCountsProps): JSX.Element;
+export declare function SeverityCounts({
+  counts,
+}: SeverityCountsProps): JSX.Element;
 export {};

@@ -3,7 +3,7 @@
  *
  * This file contains constants used in social media validation
  */
-import { SocialPlatform } from '@/types/socialMedia';
+import { SocialPlatform } from "@/types/socialMedia";
 /**
  * URL regex pattern for validating URLs in social media content
  * Matches standard URLs with http/https protocol

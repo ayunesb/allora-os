@@ -4,4 +4,7 @@
  * @param role The new role to assign
  * @returns Boolean indicating success
  */
-export declare function updateUserRole(userId: string, role: 'admin' | 'user'): Promise<boolean>;
+export declare function updateUserRole(
+  userId: string,
+  role: "admin" | "user",
+): Promise<boolean>;

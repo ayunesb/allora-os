@@ -1,115 +1,349 @@
-import { useState } from 'react';
-import { fetchApi } from '@/utils/api/apiClient';
-export function useZoomIntegration() {
-    const [isConnecting, setIsConnecting] = useState(false);
-    const [isConnected, setIsConnected] = useState(false);
-    const [error, setError] = useState(null);
-    const [integration, setIntegration] = useState(null);
-    const checkConnection = async () => {
+"use strict";
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
+    return new (P || (P = Promise))(function (resolve, reject) {
+      function fulfilled(value) {
         try {
-            const response = await fetchApi('/api/zoom/status', 'GET');
-            if (response.integration) {
-                setIntegration(response.integration);
-                setIsConnected(response.connected);
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
+var __generator =
+  (this && this.__generator) ||
+  function (thisArg, body) {
+    var _ = {
+        label: 0,
+        sent: function () {
+          if (t[0] & 1) throw t[1];
+          return t[1];
+        },
+        trys: [],
+        ops: [],
+      },
+      f,
+      y,
+      t,
+      g = Object.create(
+        (typeof Iterator === "function" ? Iterator : Object).prototype,
+      );
+    return (
+      (g.next = verb(0)),
+      (g["throw"] = verb(1)),
+      (g["return"] = verb(2)),
+      typeof Symbol === "function" &&
+        (g[Symbol.iterator] = function () {
+          return this;
+        }),
+      g
+    );
+    function verb(n) {
+      return function (v) {
+        return step([n, v]);
+      };
+    }
+    function step(op) {
+      if (f) throw new TypeError("Generator is already executing.");
+      while ((g && ((g = 0), op[0] && (_ = 0)), _))
+        try {
+          if (
+            ((f = 1),
+            y &&
+              (t =
+                op[0] & 2
+                  ? y["return"]
+                  : op[0]
+                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
+                    : y.next) &&
+              !(t = t.call(y, op[1])).done)
+          )
+            return t;
+          if (((y = 0), t)) op = [op[0] & 2, t.value];
+          switch (op[0]) {
+            case 0:
+            case 1:
+              t = op;
+              break;
+            case 4:
+              _.label++;
+              return { value: op[1], done: false };
+            case 5:
+              _.label++;
+              y = op[1];
+              op = [0];
+              continue;
+            case 7:
+              op = _.ops.pop();
+              _.trys.pop();
+              continue;
+            default:
+              if (
+                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
+                (op[0] === 6 || op[0] === 2)
+              ) {
+                _ = 0;
+                continue;
+              }
+              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
+                _.label = op[1];
+                break;
+              }
+              if (op[0] === 6 && _.label < t[1]) {
+                _.label = t[1];
+                t = op;
+                break;
+              }
+              if (t && _.label < t[2]) {
+                _.label = t[2];
+                _.ops.push(op);
+                break;
+              }
+              if (t[2]) _.ops.pop();
+              _.trys.pop();
+              continue;
+          }
+          op = body.call(thisArg, _);
+        } catch (e) {
+          op = [6, e];
+          y = 0;
+        } finally {
+          f = t = 0;
+        }
+      if (op[0] & 5) throw op[1];
+      return { value: op[0] ? op[1] : void 0, done: true };
+    }
+  };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.useZoomIntegration = useZoomIntegration;
+var react_1 = require("react");
+var apiClient_1 = require("@/utils/api/apiClient");
+function useZoomIntegration() {
+  var _this = this;
+  var _a = (0, react_1.useState)(false),
+    isConnecting = _a[0],
+    setIsConnecting = _a[1];
+  var _b = (0, react_1.useState)(false),
+    isConnected = _b[0],
+    setIsConnected = _b[1];
+  var _c = (0, react_1.useState)(null),
+    error = _c[0],
+    setError = _c[1];
+  var _d = (0, react_1.useState)(null),
+    integration = _d[0],
+    setIntegration = _d[1];
+  var checkConnection = function () {
+    return __awaiter(_this, void 0, void 0, function () {
+      var response_1, err_1;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2, , 3]);
+            return [
+              4 /*yield*/,
+              (0, apiClient_1.fetchApi)("/api/zoom/status", "GET"),
+            ];
+          case 1:
+            response_1 = _a.sent();
+            if (response_1.integration) {
+              setIntegration(response_1.integration);
+              setIsConnected(response_1.connected);
             }
-            return response;
+            return [2 /*return*/, response_1];
+          case 2:
+            err_1 = _a.sent();
+            setError(err_1.message || "Failed to check Zoom connection status");
+            return [2 /*return*/, { connected: false }];
+          case 3:
+            return [2 /*return*/];
         }
-        catch (err) {
-            setError(err.message || 'Failed to check Zoom connection status');
-            return { connected: false };
-        }
-    };
-    const initiateZoomConnection = async () => {
-        setIsConnecting(true);
-        setError(null);
-        try {
-            const response = await fetchApi('/api/zoom/authorize', 'POST', {
-                redirectUri: `${window.location.origin}/zoom-callback`,
-                state: Math.random().toString(36).substring(2)
-            });
-            return response.authUrl;
-        }
-        catch (err) {
-            setError(err.message || 'Failed to connect to Zoom');
-            throw err;
-        }
-        finally {
+      });
+    });
+  };
+  var initiateZoomConnection = function () {
+    return __awaiter(_this, void 0, void 0, function () {
+      var response_2, err_2;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            setIsConnecting(true);
+            setError(null);
+            _a.label = 1;
+          case 1:
+            _a.trys.push([1, 3, 4, 5]);
+            return [
+              4 /*yield*/,
+              (0, apiClient_1.fetchApi)("/api/zoom/authorize", "POST", {
+                redirectUri: "".concat(
+                  window.location.origin,
+                  "/zoom-callback",
+                ),
+                state: Math.random().toString(36).substring(2),
+              }),
+            ];
+          case 2:
+            response_2 = _a.sent();
+            return [2 /*return*/, response_2.authUrl];
+          case 3:
+            err_2 = _a.sent();
+            setError(err_2.message || "Failed to connect to Zoom");
+            throw err_2;
+          case 4:
             setIsConnecting(false);
+            return [7 /*endfinally*/];
+          case 5:
+            return [2 /*return*/];
         }
-    };
-    const connectZoom = async () => {
-        try {
-            const authUrl = await initiateZoomConnection();
+      });
+    });
+  };
+  var connectZoom = function () {
+    return __awaiter(_this, void 0, void 0, function () {
+      var authUrl, err_3;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2, , 3]);
+            return [4 /*yield*/, initiateZoomConnection()];
+          case 1:
+            authUrl = _a.sent();
             window.location.href = authUrl;
+            return [3 /*break*/, 3];
+          case 2:
+            err_3 = _a.sent();
+            setError(err_3.message || "Failed to connect to Zoom");
+            throw err_3;
+          case 3:
+            return [2 /*return*/];
         }
-        catch (err) {
-            setError(err.message || 'Failed to connect to Zoom');
-            throw err;
-        }
-    };
-    const handleCallback = async (code, state, redirectUri) => {
-        setIsConnecting(true);
-        setError(null);
-        try {
-            const response = await fetchApi('/api/zoom/callback', 'POST', {
-                code,
-                state,
-                redirectUri
-            });
-            if (response.success) {
-                setIsConnected(true);
-                if (response.integration) {
-                    setIntegration(response.integration);
-                }
-                return { success: true, data: response };
+      });
+    });
+  };
+  var handleCallback = function (code, state, redirectUri) {
+    return __awaiter(_this, void 0, void 0, function () {
+      var response_3, err_4;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            setIsConnecting(true);
+            setError(null);
+            _a.label = 1;
+          case 1:
+            _a.trys.push([1, 3, 4, 5]);
+            return [
+              4 /*yield*/,
+              (0, apiClient_1.fetchApi)("/api/zoom/callback", "POST", {
+                code: code,
+                state: state,
+                redirectUri: redirectUri,
+              }),
+            ];
+          case 2:
+            response_3 = _a.sent();
+            if (response_3.success) {
+              setIsConnected(true);
+              if (response_3.integration) {
+                setIntegration(response_3.integration);
+              }
+              return [2 /*return*/, { success: true, data: response_3 }];
+            } else {
+              setError("Failed to connect Zoom account");
+              return [
+                2 /*return*/,
+                {
+                  success: false,
+                  error: {
+                    message: "Failed to connect Zoom account",
+                  },
+                },
+              ];
             }
-            else {
-                setError('Failed to connect Zoom account');
-                return {
-                    success: false,
-                    error: {
-                        message: 'Failed to connect Zoom account'
-                    }
-                };
-            }
-        }
-        catch (err) {
-            setError(err.message || 'An error occurred while connecting to Zoom');
-            return {
+            return [3 /*break*/, 5];
+          case 3:
+            err_4 = _a.sent();
+            setError(
+              err_4.message || "An error occurred while connecting to Zoom",
+            );
+            return [
+              2 /*return*/,
+              {
                 success: false,
                 error: {
-                    message: err.message || 'An error occurred while connecting to Zoom',
-                    code: err.code
-                }
-            };
-        }
-        finally {
+                  message:
+                    err_4.message ||
+                    "An error occurred while connecting to Zoom",
+                  code: err_4.code,
+                },
+              },
+            ];
+          case 4:
             setIsConnecting(false);
+            return [7 /*endfinally*/];
+          case 5:
+            return [2 /*return*/];
         }
-    };
-    const disconnectZoom = async () => {
-        try {
-            const response = await fetchApi('/api/zoom/disconnect', 'POST');
-            if (response.success) {
-                setIsConnected(false);
-                setIntegration(null);
+      });
+    });
+  };
+  var disconnectZoom = function () {
+    return __awaiter(_this, void 0, void 0, function () {
+      var response_4, err_5;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2, , 3]);
+            return [
+              4 /*yield*/,
+              (0, apiClient_1.fetchApi)("/api/zoom/disconnect", "POST"),
+            ];
+          case 1:
+            response_4 = _a.sent();
+            if (response_4.success) {
+              setIsConnected(false);
+              setIntegration(null);
             }
-            return response;
+            return [2 /*return*/, response_4];
+          case 2:
+            err_5 = _a.sent();
+            setError(err_5.message || "Failed to disconnect Zoom");
+            return [2 /*return*/, { success: false }];
+          case 3:
+            return [2 /*return*/];
         }
-        catch (err) {
-            setError(err.message || 'Failed to disconnect Zoom');
-            return { success: false };
-        }
-    };
-    return {
-        isConnecting,
-        isConnected,
-        error,
-        integration,
-        initiateZoomConnection,
-        handleCallback,
-        disconnectZoom,
-        connectZoom,
-        checkConnection
-    };
+      });
+    });
+  };
+  return {
+    isConnecting: isConnecting,
+    isConnected: isConnected,
+    error: error,
+    integration: integration,
+    initiateZoomConnection: initiateZoomConnection,
+    handleCallback: handleCallback,
+    disconnectZoom: disconnectZoom,
+    connectZoom: connectZoom,
+    checkConnection: checkConnection,
+  };
 }

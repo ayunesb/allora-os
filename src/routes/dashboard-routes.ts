@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import { executiveRoutes } from "./dashboard/executive-routes";
 import { aiRoutes } from "./dashboard/ai-routes";
@@ -12,16 +11,20 @@ export const dashboardRoutes: RouteObject[] = [
   {
     path: "/dashboard",
     async lazy() {
-      const { default: DashboardLayout } = await import("@/components/DashboardLayout");
+      const { default: DashboardLayout } = await import(
+        "@/components/DashboardLayout"
+      );
       return { Component: DashboardLayout };
     },
     children: [
       {
         index: true,
         async lazy() {
-          const { default: Dashboard } = await import("@/pages/dashboard/Dashboard");
+          const { default: Dashboard } = await import(
+            "@/pages/dashboard/Dashboard"
+          );
           return { Component: Dashboard };
-        }
+        },
       },
       // Include all modular route sections
       ...marketingRoutes,
@@ -37,8 +40,8 @@ export const dashboardRoutes: RouteObject[] = [
         async lazy() {
           const { default: NotFound } = await import("@/pages/NotFound");
           return { Component: NotFound };
-        }
-      }
-    ]
-  }
+        },
+      },
+    ],
+  },
 ];

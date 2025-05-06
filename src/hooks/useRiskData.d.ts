@@ -1,5 +1,5 @@
 export declare function useRiskData(): {
-    risks: any[];
-    loading: boolean;
-    refresh: () => void;
+  risks: any[];
+  loading: boolean;
+  refresh: () => void;
 };

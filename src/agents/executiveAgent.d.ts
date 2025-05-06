@@ -1,8 +1,8 @@
-import { ExecutiveDecision } from '@/types/agents';
-export { executiveProfiles } from './agentProfiles';
-export { getExecutiveDecisions } from './executiveMemory';
+import { ExecutiveDecision } from "@/types/agents";
+export { executiveProfiles } from "./agentProfiles";
+export { getExecutiveDecisions } from "./executiveMemory";
 interface AgentOptions {
-    saveToDatabase?: boolean;
+  saveToDatabase?: boolean;
 }
 /**
  * Runs an executive agent to make a decision on a given task
@@ -11,7 +11,11 @@ interface AgentOptions {
  * @param options Additional options
  * @returns The decision made by the executive
  */
-export declare function runExecutiveAgent(task: string, executiveProfile: {
+export declare function runExecutiveAgent(
+  task: string,
+  executiveProfile: {
     name: string;
     role: string;
-}, options?: AgentOptions): Promise<ExecutiveDecision>;
+  },
+  options?: AgentOptions,
+): Promise<ExecutiveDecision>;

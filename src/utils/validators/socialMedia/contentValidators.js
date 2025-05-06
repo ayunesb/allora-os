@@ -1,27 +1,33 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateHashtags = validateHashtags;
+exports.validateContentLength = validateContentLength;
 /**
  * Platform-specific character limits
  */
-const PLATFORM_CHARACTER_LIMITS = {
-    'Twitter': 280,
-    'Facebook': 63206,
-    'Instagram': 2200,
-    'LinkedIn': 3000
+var PLATFORM_CHARACTER_LIMITS = {
+  Twitter: 280,
+  Facebook: 63206,
+  Instagram: 2200,
+  LinkedIn: 3000,
 };
 /**
  * Validates hashtags to ensure they follow the correct format
  */
-export function validateHashtags(hashtags) {
-    if (!Array.isArray(hashtags)) {
-        return false;
-    }
-    // Valid hashtag pattern: # followed by letters, numbers, or underscores
-    const hashtagPattern = /^#[a-zA-Z0-9_]+$/;
-    return hashtags.every(tag => hashtagPattern.test(tag));
+function validateHashtags(hashtags) {
+  if (!Array.isArray(hashtags)) {
+    return false;
+  }
+  // Valid hashtag pattern: # followed by letters, numbers, or underscores
+  var hashtagPattern = /^#[a-zA-Z0-9_]+$/;
+  return hashtags.every(function (tag) {
+    return hashtagPattern.test(tag);
+  });
 }
 /**
  * Validates content length based on platform-specific limits
  */
-export function validateContentLength(content, platform) {
-    const limit = PLATFORM_CHARACTER_LIMITS[platform] || 1000; // Default to 1000 if platform not found
-    return content.length <= limit;
+function validateContentLength(content, platform) {
+  var limit = PLATFORM_CHARACTER_LIMITS[platform] || 1000; // Default to 1000 if platform not found
+  return content.length <= limit;
 }

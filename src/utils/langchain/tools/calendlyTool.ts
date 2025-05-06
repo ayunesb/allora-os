@@ -12,7 +12,7 @@ export function initCalendlyClient(apiKey: string, userUri: string): void {
     console.error("Calendly API key and user URI are required");
     return;
   }
-  
+
   g.CALENDLY_API_KEY = apiKey;
   g.CALENDLY_USER_URI = userUri;
 }
@@ -28,21 +28,24 @@ export function createCalendlyTool() {
       try {
         const apiKey = g.CALENDLY_API_KEY;
         const userUri = g.CALENDLY_USER_URI;
-        
+
         if (!apiKey || !userUri) {
           return "Calendly client not initialized. Please set CALENDLY_API_KEY and CALENDLY_USER_URI first.";
         }
-        
+
         const normalized = input.toLowerCase();
 
         // Check availability
-        if (normalized.includes('availability')) {
-          const response = await fetch(`https://api.calendly.com/scheduling_links`, {
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              'Content-Type': 'application/json'
-            }
-          });
+        if (normalized.includes("availability")) {
+          const response = await fetch(
+            `https://api.calendly.com/scheduling_links`,
+            {
+              headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+              },
+            },
+          );
 
           if (!response.ok) {
             return "Failed to fetch Calendly availability.";
@@ -51,20 +54,21 @@ export function createCalendlyTool() {
           const data = await response.json();
           const links = data.collection;
           if (!links || links.length === 0) {
-            return 'No scheduling links found.';
+            return "No scheduling links found.";
           }
 
-          return `Available booking links:\n${links.map((link: any) => 
-            `- ${link.name}: ${link.booking_url}`).join('\n')}`;
+          return `Available booking links:\n${links
+            .map((link: any) => `- ${link.name}: ${link.booking_url}`)
+            .join("\n")}`;
         }
 
         // Schedule meeting (provide booking link)
-        if (normalized.includes('schedule')) {
+        if (normalized.includes("schedule")) {
           const response = await fetch(`${userUri}/event_types`, {
             headers: {
               Authorization: `Bearer ${apiKey}`,
-              'Content-Type': 'application/json'
-            }
+              "Content-Type": "application/json",
+            },
           });
 
           if (!response.ok) {
@@ -73,20 +77,24 @@ export function createCalendlyTool() {
 
           const data = await response.json();
           const eventTypes = data.collection;
-          
+
           if (!eventTypes || eventTypes.length === 0) {
-            return 'No event types found.';
+            return "No event types found.";
           }
 
-          return `Available meeting types:\n${eventTypes.map((event: any) => 
-            `- ${event.name} (${event.duration} min): ${event.scheduling_url}`).join('\n')}`;
+          return `Available meeting types:\n${eventTypes
+            .map(
+              (event: any) =>
+                `- ${event.name} (${event.duration} min): ${event.scheduling_url}`,
+            )
+            .join("\n")}`;
         }
 
         return 'Please specify "check availability" or "schedule a meeting".';
       } catch (err) {
-        console.error('CalendlyTool error:', err);
+        console.error("CalendlyTool error:", err);
         return `Failed to process Calendly request: ${err instanceof Error ? err.message : String(err)}`;
       }
-    }
+    },
   });
 }

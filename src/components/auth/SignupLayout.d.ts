@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 interface SignupLayoutProps {
-    children: ReactNode;
+  children: ReactNode;
 }
-export default function SignupLayout({ children }: SignupLayoutProps): import("react").JSX.Element;
+export default function SignupLayout({
+  children,
+}: SignupLayoutProps): import("react").JSX.Element;
 export {};

@@ -1,6 +1,13 @@
 import { ArrowRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSignupForm } from "@/hooks/useSignupForm";
@@ -8,36 +15,63 @@ import PasswordInput from "./PasswordInput";
 import CompanyInfoFields from "./CompanyInfoFields";
 import { useState } from "react";
 export default function SignupForm({ onSubmitSuccess }) {
-    const { form, isLoading, onSubmit, navigate, formError } = useSignupForm({
-        onSubmitSuccess
-    });
-    const [showPasswordTips, setShowPasswordTips] = useState(false);
-    return (<Form {...form}>
+  const { form, isLoading, onSubmit, navigate, formError } = useSignupForm({
+    onSubmitSuccess,
+  });
+  const [showPasswordTips, setShowPasswordTips] = useState(false);
+  return (
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {formError && (<Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4"/>
+        {formError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>{formError}</AlertDescription>
-          </Alert>)}
-        
-        <FormField control={form.control} name="name" render={({ field }) => (<FormItem>
+          </Alert>
+        )}
+
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field}/>
+                <Input placeholder="John Doe" {...field} />
               </FormControl>
               <FormMessage />
-            </FormItem>)}/>
-        
-        <FormField control={form.control} name="email" render={({ field }) => (<FormItem>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} type="email" autoComplete="email"/>
+                <Input
+                  placeholder="you@example.com"
+                  {...field}
+                  type="email"
+                  autoComplete="email"
+                />
               </FormControl>
               <FormMessage />
-            </FormItem>)}/>
-        
-        <PasswordInput form={form} name="password" label="Password" showStrengthMeter={true} setShowTips={setShowPasswordTips}/>
+            </FormItem>
+          )}
+        />
 
-        {showPasswordTips && (<div className="text-xs text-muted-foreground space-y-1 bg-muted p-2 rounded">
+        <PasswordInput
+          form={form}
+          name="password"
+          label="Password"
+          showStrengthMeter={true}
+          setShowTips={setShowPasswordTips}
+        />
+
+        {showPasswordTips && (
+          <div className="text-xs text-muted-foreground space-y-1 bg-muted p-2 rounded">
             <p>Your password should:</p>
             <ul className="list-disc pl-4 space-y-1">
               <li>Be at least 8 characters long</li>
@@ -45,26 +79,46 @@ export default function SignupForm({ onSubmitSuccess }) {
               <li>Include at least one number</li>
               <li>Include at least one special character</li>
             </ul>
-          </div>)}
+          </div>
+        )}
 
-        <PasswordInput form={form} name="confirmPassword" label="Confirm Password"/>
-        
-        <CompanyInfoFields form={form}/>
-        
-        <Button type="submit" className="w-full mt-6" disabled={isLoading} size="lg">
-          {isLoading ? "Creating Account..." : (<>
-              Create Account <ArrowRight className="ml-2 h-4 w-4"/>
-            </>)}
+        <PasswordInput
+          form={form}
+          name="confirmPassword"
+          label="Confirm Password"
+        />
+
+        <CompanyInfoFields form={form} />
+
+        <Button
+          type="submit"
+          className="w-full mt-6"
+          disabled={isLoading}
+          size="lg"
+        >
+          {isLoading ? (
+            "Creating Account..."
+          ) : (
+            <>
+              Create Account <ArrowRight className="ml-2 h-4 w-4" />
+            </>
+          )}
         </Button>
 
         <div className="text-center mt-4">
           <p className="text-muted-foreground">
             Already have an account?{" "}
-            <Button variant="link" className="p-0" onClick={() => navigate("/login")} type="button">
+            <Button
+              variant="link"
+              className="p-0"
+              onClick={() => navigate("/login")}
+              type="button"
+            >
               Log in
             </Button>
           </p>
         </div>
       </form>
-    </Form>);
+    </Form>
+  );
 }

@@ -1,15 +1,14 @@
-
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 import { ExecutiveDecision } from "@/types/agents";
-import { logger } from '@/utils/loggingService';
+import { logger } from "@/utils/loggingService";
 
 /**
  * Saves an executive decision to the database
  */
 export async function saveExecutiveDecision(
   decision: ExecutiveDecision,
-  userId: string
+  userId: string,
 ): Promise<void> {
   try {
     const { error } = await supabase.from("executive_decisions").insert({
@@ -23,7 +22,7 @@ export async function saveExecutiveDecision(
       reasoning: decision.reasoning,
       risk_assessment: decision.riskAssessment,
       priority: decision.priority,
-      created_at: decision.timestamp
+      created_at: decision.timestamp,
     });
 
     if (error) {
@@ -38,7 +37,9 @@ export async function saveExecutiveDecision(
 /**
  * Fetches coaching memories for a specific executive
  */
-export async function fetchCoachingMemories(executiveName: string): Promise<string[]> {
+export async function fetchCoachingMemories(
+  executiveName: string,
+): Promise<string[]> {
   try {
     const { data, error } = await supabase
       .from("coaching_insights")
@@ -61,7 +62,10 @@ export async function fetchCoachingMemories(executiveName: string): Promise<stri
 /**
  * Fetches recent executive decisions
  */
-export async function getExecutiveDecisions(userId: string, limit: number = 10): Promise<ExecutiveDecision[]> {
+export async function getExecutiveDecisions(
+  userId: string,
+  limit: number = 10,
+): Promise<ExecutiveDecision[]> {
   try {
     const { data, error } = await supabase
       .from("executive_decisions")
@@ -74,18 +78,20 @@ export async function getExecutiveDecisions(userId: string, limit: number = 10):
       throw new Error(`Failed to fetch executive decisions: ${error.message}`);
     }
 
-    return data ? data.map(item => ({
-      id: item.id,
-      executiveName: item.executive_name,
-      executiveRole: item.executive_role,
-      task: item.task,
-      options: item.options,
-      selectedOption: item.selected_option,
-      reasoning: item.reasoning,
-      riskAssessment: item.risk_assessment,
-      priority: item.priority,
-      timestamp: item.created_at
-    })) : [];
+    return data
+      ? data.map((item) => ({
+          id: item.id,
+          executiveName: item.executive_name,
+          executiveRole: item.executive_role,
+          task: item.task,
+          options: item.options,
+          selectedOption: item.selected_option,
+          reasoning: item.reasoning,
+          riskAssessment: item.risk_assessment,
+          priority: item.priority,
+          timestamp: item.created_at,
+        }))
+      : [];
   } catch (error: any) {
     logger.error("Error fetching executive decisions:", error);
     return [];

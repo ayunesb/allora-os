@@ -1,5 +1,7 @@
 interface AlertBadgeProps {
-    severity: string;
+  severity: string;
 }
-export declare const AlertBadge: ({ severity }: AlertBadgeProps) => import("react").JSX.Element;
+export declare const AlertBadge: ({
+  severity,
+}: AlertBadgeProps) => import("react").JSX.Element;
 export {};

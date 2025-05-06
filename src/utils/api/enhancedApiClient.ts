@@ -1,11 +1,10 @@
-
-import { toast } from 'sonner';
-import { fetchApi } from './apiClient';
-import { handleApiError } from '@/utils/api/errorHandling';
-import { useState } from 'react';
+import { toast } from "sonner";
+import { fetchApi } from "./apiClient";
+import { handleApiError } from "@/utils/api/errorHandling";
+import { useState } from "react";
 
 export interface EnhancedRequestConfig {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   headers?: Record<string, string>;
   body?: any;
   timeout?: number;
@@ -37,10 +36,13 @@ export const clearApiCache = (cacheKey?: string) => {
   }
 };
 
-export const enhancedFetch = async <T>(url: string, options: EnhancedRequestConfig = {}): Promise<StandardResponse<T>> => {
-  const { 
-    method = 'GET', 
-    headers = {}, 
+export const enhancedFetch = async <T>(
+  url: string,
+  options: EnhancedRequestConfig = {},
+): Promise<StandardResponse<T>> => {
+  const {
+    method = "GET",
+    headers = {},
     body,
     cacheKey,
     cacheTTL = 5 * 60 * 1000, // 5 minutes default
@@ -48,16 +50,17 @@ export const enhancedFetch = async <T>(url: string, options: EnhancedRequestConf
     maxRetries = 3,
     timeout = 30000,
     successMessage,
-    errorMessage
+    errorMessage,
   } = options;
 
   // Generate a cache key if not provided
-  const effectiveCacheKey = cacheKey || `${method}:${url}:${body ? JSON.stringify(body) : ''}`;
-  
+  const effectiveCacheKey =
+    cacheKey || `${method}:${url}:${body ? JSON.stringify(body) : ""}`;
+
   // Check cache for GET requests
-  if (method === 'GET' && apiCache.has(effectiveCacheKey)) {
+  if (method === "GET" && apiCache.has(effectiveCacheKey)) {
     const cachedItem = apiCache.get(effectiveCacheKey);
-    if (cachedItem && (Date.now() - cachedItem.timestamp) < cacheTTL) {
+    if (cachedItem && Date.now() - cachedItem.timestamp < cacheTTL) {
       return { success: true, data: cachedItem.data, error: null };
     }
   }
@@ -66,45 +69,40 @@ export const enhancedFetch = async <T>(url: string, options: EnhancedRequestConf
     // Create abort controller for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
-    const result = await fetchApi<T>(
-      url, 
-      method, 
-      body, 
-      {
-        ...headers,
-        'Content-Type': 'application/json'
-      }
-    );
-    
+
+    const result = await fetchApi<T>(url, method, body, {
+      ...headers,
+      "Content-Type": "application/json",
+    });
+
     clearTimeout(timeoutId);
-    
+
     // Cache successful GET responses
-    if (method === 'GET') {
+    if (method === "GET") {
       apiCache.set(effectiveCacheKey, {
         data: result,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
-    
+
     if (successMessage) {
       toast.success(successMessage);
     }
-    
+
     return { success: true, data: result, error: null };
   } catch (error: any) {
     // Handle error with custom message if provided
     handleApiError(error, {
       customMessage: errorMessage,
-      rethrow: false
+      rethrow: false,
     });
-    
-    return { 
-      success: false, 
-      data: null, 
-      error, 
+
+    return {
+      success: false,
+      data: null,
+      error,
       statusCode: error.statusCode || 500,
-      message: error.message || errorMessage || 'An error occurred'
+      message: error.message || errorMessage || "An error occurred",
     };
   }
 };
@@ -124,49 +122,51 @@ export interface SaveSecuritySettingsParams {
 
 export function useProtectedApi<T, P = any>(
   apiFunction: (params: P) => Promise<T>,
-  options: UseProtectedApiOptions = {}
+  options: UseProtectedApiOptions = {},
 ) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  
+
   const execute = async (params: P): Promise<T> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const result = await apiFunction(params);
-      
+
       if (options.showSuccessToast) {
-        toast.success(options.successMessage || 'Operation completed successfully');
+        toast.success(
+          options.successMessage || "Operation completed successfully",
+        );
       }
-      
+
       if (options.onSuccess) {
         options.onSuccess(result);
       }
-      
+
       return result;
     } catch (err: any) {
       setError(err);
-      
+
       if (options.showErrorToast) {
-        toast.error(options.errorMessage || err.message || 'An error occurred');
+        toast.error(options.errorMessage || err.message || "An error occurred");
       }
-      
+
       if (options.onError) {
         options.onError(err);
       }
-      
+
       handleApiError(err, {
         showToast: false, // We're already showing a toast above
-        rethrow: false
+        rethrow: false,
       });
-      
+
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   return { execute, isLoading, error, fetchApi };
 }
 
@@ -176,15 +176,20 @@ export function useApiClient() {
 
   const execute = async <T, U = any>(
     endpoint: string,
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
+    method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
     data?: U,
-    additionalHeaders?: Record<string, string>
+    additionalHeaders?: Record<string, string>,
   ): Promise<T> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const result = await fetchApi<T>(endpoint, method, data, additionalHeaders);
+      const result = await fetchApi<T>(
+        endpoint,
+        method,
+        data,
+        additionalHeaders,
+      );
       return result;
     } catch (err: any) {
       setError(err);
@@ -199,6 +204,6 @@ export function useApiClient() {
     fetchApi,
     execute,
     isLoading,
-    error
+    error,
   };
 }

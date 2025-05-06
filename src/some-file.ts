@@ -1,5 +1,5 @@
 import { RouteObject } from "react-router-dom";
-import { User } from './types/user'; // Adjusted the import path to match the correct module
+import { User } from "./types/user"; // Adjusted the import path to match the correct module
 
 export interface User {
   id: string;
@@ -11,7 +11,8 @@ export const onboardingRoutes: RouteObject[] = [
   {
     path: "onboarding",
     async lazy() {
-      const OnboardingLayout = (await import('@/layouts/OnboardingLayout')).default;
+      const OnboardingLayout = (await import("@/layouts/OnboardingLayout"))
+        .default;
       return {
         Component: OnboardingLayout,
       };
@@ -20,49 +21,63 @@ export const onboardingRoutes: RouteObject[] = [
       {
         index: true,
         async lazy() {
-          const { default: OnboardingWelcome } = await import("@/pages/onboarding/OnboardingWelcome");
+          const { default: OnboardingWelcome } = await import(
+            "@/pages/onboarding/OnboardingWelcome"
+          );
           return { Component: OnboardingWelcome };
         },
       },
       {
         path: "profile",
         async lazy() {
-          const { default: OnboardingProfile } = await import("@/pages/onboarding/OnboardingProfile");
+          const { default: OnboardingProfile } = await import(
+            "@/pages/onboarding/OnboardingProfile"
+          );
           return { Component: OnboardingProfile };
         },
       },
       {
         path: "company",
         async lazy() {
-          const { default: OnboardingCompany } = await import("@/pages/onboarding/OnboardingCompany");
+          const { default: OnboardingCompany } = await import(
+            "@/pages/onboarding/OnboardingCompany"
+          );
           return { Component: OnboardingCompany };
         },
       },
       {
         path: "team",
         async lazy() {
-          const { default: OnboardingTeam } = await import("@/pages/onboarding/OnboardingTeam");
+          const { default: OnboardingTeam } = await import(
+            "@/pages/onboarding/OnboardingTeam"
+          );
           return { Component: OnboardingTeam };
         },
       },
       {
         path: "integrations",
         async lazy() {
-          const { default: OnboardingIntegrations } = await import("@/pages/onboarding/OnboardingIntegrations");
+          const { default: OnboardingIntegrations } = await import(
+            "@/pages/onboarding/OnboardingIntegrations"
+          );
           return { Component: OnboardingIntegrations };
         },
       },
       {
         path: "ai-workflow",
         async lazy() {
-          const { default: OnboardingAIWorkflow } = await import("@/pages/onboarding/OnboardingAIWorkflow");
+          const { default: OnboardingAIWorkflow } = await import(
+            "@/pages/onboarding/OnboardingAIWorkflow"
+          );
           return { Component: OnboardingAIWorkflow };
         },
       },
       {
         path: "complete",
         async lazy() {
-          const { default: OnboardingComplete } = await import("@/pages/onboarding/OnboardingComplete");
+          const { default: OnboardingComplete } = await import(
+            "@/pages/onboarding/OnboardingComplete"
+          );
           return { Component: OnboardingComplete };
         },
       },

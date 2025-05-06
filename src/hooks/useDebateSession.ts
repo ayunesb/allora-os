@@ -1,22 +1,18 @@
-
-import { useCallback } from 'react';
-import { generateDebateSummary } from '@/backend/debate';
-import { DebateSession } from '@/utils/consultation/types';
-import useDebateParticipants from './useDebateParticipants';
-import useDebateMessages from './useDebateMessages';
-import useDebateSetup from './useDebateSetup';
-import useDebateContext from './useDebateContext';
-import useDebateActions from './useDebateActions';
+import { useCallback } from "react";
+import { generateDebateSummary } from "@/backend/debate";
+import { DebateSession } from "@/utils/consultation/types";
+import useDebateParticipants from "./useDebateParticipants";
+import useDebateMessages from "./useDebateMessages";
+import useDebateSetup from "./useDebateSetup";
+import useDebateContext from "./useDebateContext";
+import useDebateActions from "./useDebateActions";
 
 export default function useDebateSession() {
   const { sessionId, setSessionId, profile } = useDebateContext();
-  
-  const {
-    participants,
-    setParticipants,
-    availableExecutives
-  } = useDebateParticipants();
-  
+
+  const { participants, setParticipants, availableExecutives } =
+    useDebateParticipants();
+
   const {
     messages,
     favorites,
@@ -27,9 +23,9 @@ export default function useDebateSession() {
     simulateBotResponses,
     sendUserMessage: sendMessage,
     voteMessage,
-    toggleFavorite
+    toggleFavorite,
   } = useDebateMessages();
-  
+
   const {
     selectedTopic,
     debateTitle,
@@ -46,46 +42,50 @@ export default function useDebateSession() {
     setIsDebateActive,
     setRiskAppetite,
     setBusinessPriority,
-    getSelectedTopicDetails
+    getSelectedTopicDetails,
   } = useDebateSetup();
 
-  const { startDebate, sendUserMessage: sendUserMessageAction } = useDebateActions({
-    sessionId,
-    setSessionId,
-    profile,
-    participants,
-    selectedTopic,
-    messages,
-    debateTitle,
-    debateObjective,
-    debateDuration,
-    riskAppetite,
-    businessPriority,
-    addSystemMessage,
-    setIsLoading,
-    setIsDebateActive,
-    setMessages,
-    simulateBotResponses,
-    getSelectedTopicDetails
-  });
+  const { startDebate, sendUserMessage: sendUserMessageAction } =
+    useDebateActions({
+      sessionId,
+      setSessionId,
+      profile,
+      participants,
+      selectedTopic,
+      messages,
+      debateTitle,
+      debateObjective,
+      debateDuration,
+      riskAppetite,
+      businessPriority,
+      addSystemMessage,
+      setIsLoading,
+      setIsDebateActive,
+      setMessages,
+      simulateBotResponses,
+      getSelectedTopicDetails,
+    });
 
-  const sendUserMessage = useCallback((content: string) => {
-    sendUserMessageAction(
-      content, 
-      participants, 
-      selectedTopic, 
-      riskAppetite, 
-      businessPriority, 
-      sendMessage
-    );
-  }, [
-    sendUserMessageAction, 
-    participants, 
-    selectedTopic, 
-    riskAppetite, 
-    businessPriority, 
-    sendMessage
-  ]);
+  const sendUserMessage = useCallback(
+    (content: string) => {
+      sendUserMessageAction(
+        content,
+        participants,
+        selectedTopic,
+        riskAppetite,
+        businessPriority,
+        sendMessage,
+      );
+    },
+    [
+      sendUserMessageAction,
+      participants,
+      selectedTopic,
+      riskAppetite,
+      businessPriority,
+      sendMessage,
+    ],
+  );
 
   return {
     participants,

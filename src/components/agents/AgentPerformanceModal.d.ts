@@ -1,7 +1,11 @@
 interface AgentPerformanceModalProps {
-    open: boolean;
-    onClose: () => void;
-    pluginName?: string;
+  open: boolean;
+  onClose: () => void;
+  pluginName?: string;
 }
-export declare const AgentPerformanceModal: ({ open, onClose, pluginName, }: AgentPerformanceModalProps) => import("react").JSX.Element;
+export declare const AgentPerformanceModal: ({
+  open,
+  onClose,
+  pluginName,
+}: AgentPerformanceModalProps) => import("react").JSX.Element;
 export {};

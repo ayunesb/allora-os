@@ -1,9 +1,9 @@
-
 # Security Best Practices for Allora AI
 
 ## API Keys and Secrets Management
 
 ### Supabase Edge Functions
+
 For Supabase Edge Functions, secrets should be configured in the Supabase Dashboard:
 
 1. Go to the Supabase Dashboard
@@ -11,6 +11,7 @@ For Supabase Edge Functions, secrets should be configured in the Supabase Dashbo
 3. Add your secrets in the "Environment Variables" section
 
 Required secrets for Allora AI:
+
 - `POSTMARK_API_TOKEN` - For sending emails
 - `POSTMARK_FROM_EMAIL` - Default sender email address
 - `STRIPE_SECRET_KEY` - For payment processing
@@ -19,7 +20,9 @@ Required secrets for Allora AI:
 - `OPENAI_API_KEY` - For AI capabilities
 
 ### Frontend Environment Variables
+
 For frontend code, configure the following in your hosting environment:
+
 - `VITE_SUPABASE_URL` - Your Supabase project URL
 - `VITE_SUPABASE_ANON_KEY` - Your Supabase anon key (this is safe to expose)
 - `VITE_STRIPE_PUBLIC_KEY` - Your Stripe publishable key
@@ -42,4 +45,3 @@ For frontend code, configure the following in your hosting environment:
 2. The `.env` files should be added to `.gitignore` if used locally.
 3. Supabase Edge Functions have a separate environment variable system than your frontend.
 4. API keys with `VITE_` prefix in frontend code will be included in the bundle, so only use public keys there.
-

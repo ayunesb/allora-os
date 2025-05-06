@@ -1,5 +1,4 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Sends an SMS message to a specified phone number with company metadata
@@ -13,48 +12,48 @@ export const sendSMS = async (
   to: string,
   body: string,
   companyId: string,
-  leadId?: string
+  leadId?: string,
 ): Promise<{ success: boolean; message: string; sid?: string }> => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to send SMS');
+      throw new Error("Authentication required to send SMS");
     }
 
     // Call the Twilio edge function
-    const { data, error } = await supabase.functions.invoke(
-      "twilio",
-      {
-        body: {
-          action: "send-sms",
-          to,
-          body,
-          leadId,
-          companyId // Pass company ID for tracking
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("twilio", {
+      body: {
+        action: "send-sms",
+        to,
+        body,
+        leadId,
+        companyId, // Pass company ID for tracking
+      },
+    });
 
     if (error || !data.success) {
-      console.error('Error sending SMS:', error || data.message);
-      return { 
-        success: false, 
-        message: error?.message || data?.message || 'Failed to send SMS'
+      console.error("Error sending SMS:", error || data.message);
+      return {
+        success: false,
+        message: error?.message || data?.message || "Failed to send SMS",
       };
     }
 
     return {
       success: true,
-      message: 'SMS sent successfully',
-      sid: data.sid
+      message: "SMS sent successfully",
+      sid: data.sid,
     };
   } catch (error) {
-    console.error('Failed to send SMS:', error);
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : 'Unknown error sending SMS'
+    console.error("Failed to send SMS:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Unknown error sending SMS",
     };
   }
 };
@@ -69,7 +68,7 @@ export const sendSMS = async (
 export const sendBulkSMS = async (
   messageType: string,
   body: string,
-  companyId: string
+  companyId: string,
 ): Promise<{
   success: boolean;
   totalSent?: number;
@@ -79,30 +78,29 @@ export const sendBulkSMS = async (
 }> => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to send bulk SMS');
+      throw new Error("Authentication required to send bulk SMS");
     }
 
     // Call the Twilio edge function
-    const { data, error } = await supabase.functions.invoke(
-      "twilio",
-      {
-        body: {
-          action: "send-bulk-sms",
-          messageType,
-          body,
-          companyId // Pass company ID for tracking
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("twilio", {
+      body: {
+        action: "send-bulk-sms",
+        messageType,
+        body,
+        companyId, // Pass company ID for tracking
+      },
+    });
 
     if (error) {
-      console.error('Error sending bulk SMS:', error);
-      return { 
-        success: false, 
-        message: error.message
+      console.error("Error sending bulk SMS:", error);
+      return {
+        success: false,
+        message: error.message,
       };
     }
 
@@ -110,13 +108,16 @@ export const sendBulkSMS = async (
       success: true,
       totalSent: data.totalSent,
       totalFailed: data.totalFailed,
-      results: data.results
+      results: data.results,
     };
   } catch (error) {
-    console.error('Failed to send bulk SMS:', error);
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : 'Unknown error sending bulk SMS'
+    console.error("Failed to send bulk SMS:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Unknown error sending bulk SMS",
     };
   }
 };

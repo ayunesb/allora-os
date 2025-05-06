@@ -1,6 +1,6 @@
 /* Allora AI Premium Theme */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -8,42 +8,46 @@
 
 :root {
   /* Base Colors */
-  --background-start: #0A0A23;
-  --background-end: #1A1A40;
-  --foreground: #FFFFFF;
-  
+  --background-start: #0a0a23;
+  --background-end: #1a1a40;
+  --foreground: #ffffff;
+
   /* Accent Colors */
-  --primary: #5A67D8;
-  --primary-light: #7986E7;
-  --primary-dark: #4A57C8;
-  --secondary: #63B3ED;
-  --secondary-light: #83C3FD;
-  --secondary-dark: #43A3DD;
-  
+  --primary: #5a67d8;
+  --primary-light: #7986e7;
+  --primary-dark: #4a57c8;
+  --secondary: #63b3ed;
+  --secondary-light: #83c3fd;
+  --secondary-dark: #43a3dd;
+
   /* Alert Colors */
-  --success: #48BB78;
-  --warning: #ECC94B;
-  --error: #F56565;
-  
+  --success: #48bb78;
+  --warning: #ecc94b;
+  --error: #f56565;
+
   /* UI Colors */
   --card-bg: rgba(15, 15, 35, 0.7);
-  --input-bg: #1F2937;
-  --placeholder: #A0AEC0;
+  --input-bg: #1f2937;
+  --placeholder: #a0aec0;
   --border: rgba(90, 103, 216, 0.3);
-  --sidebar-bg-start: #0A0A23;
+  --sidebar-bg-start: #0a0a23;
   --sidebar-bg-end: #000000;
-  
+
   /* Typography */
-  --font-primary: 'Inter', system-ui, sans-serif;
-  --font-secondary: 'Poppins', system-ui, sans-serif;
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'Fira Code', monospace;
+  --font-primary: "Inter", system-ui, sans-serif;
+  --font-secondary: "Poppins", system-ui, sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Fira Code", monospace;
 }
 
 /* Global Styles */
 body {
   font-family: var(--font-primary);
-  background: linear-gradient(135deg, var(--background-start), var(--background-end));
+  background: linear-gradient(
+    135deg,
+    var(--background-start),
+    var(--background-end)
+  );
   background-attachment: fixed;
   color: var(--foreground);
   @apply bg-background text-foreground font-sans;
@@ -53,7 +57,9 @@ button {
   @apply bg-primary text-white hover:bg-accent transition-all rounded-xl px-4 py-2;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   @apply bg-card text-foreground border border-border rounded-md px-3 py-2;
 }
 
@@ -123,32 +129,38 @@ input, select, textarea {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
-    opacity: 0; 
+  from {
+    opacity: 0;
     transform: translateY(20px);
   }
-  to { 
-    opacity: 1; 
+  to {
+    opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes float {
-  0%, 100% { 
-    transform: translateY(0); 
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  50% { 
+  50% {
     transform: translateY(-5px);
   }
 }
 
 @keyframes glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(99, 179, 237, 0.4);
   }
   50% {
@@ -158,18 +170,18 @@ input, select, textarea {
 
 @layer utilities {
   .bg-primary {
-    background-color: theme('colors.primary');
+    background-color: theme("colors.primary");
   }
 
   .bg-card {
-    background-color: theme('colors.card');
+    background-color: theme("colors.card");
   }
 
   .text-foreground {
-    color: theme('colors.foreground');
+    color: theme("colors.foreground");
   }
 
   .bg-gradient-futuristic {
-    background: linear-gradient(135deg, #0A0A23, #1A1A40);
+    background: linear-gradient(135deg, #0a0a23, #1a1a40);
   }
 }

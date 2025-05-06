@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -10,23 +9,23 @@ export function useOnboardingStatusCheck() {
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const navigate = useNavigate();
-  
+
   // Define hasInitialized based on user having been checked
   const hasInitialized = user !== undefined;
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const checkStatus = async () => {
       if (!user && retryCount < 3) {
         setTimeout(() => {
           if (isMounted) {
-            setRetryCount(prev => prev + 1);
+            setRetryCount((prev) => prev + 1);
           }
         }, 1500);
         return;
       }
-      
+
       if (!user) {
         if (hasInitialized) {
           toast.error("You must be logged in to complete onboarding");
@@ -51,7 +50,7 @@ export function useOnboardingStatusCheck() {
     };
 
     checkStatus();
-    
+
     return () => {
       isMounted = false;
     };
@@ -60,6 +59,6 @@ export function useOnboardingStatusCheck() {
   return {
     isCheckingStatus,
     retryCount,
-    user
+    user,
   };
 }

@@ -1,3 +1,3 @@
-import React from 'react';
+import React from "react";
 declare const DangerZone: React.FC;
 export default DangerZone;

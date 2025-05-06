@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 // Mock ResizeObserver which is not available in jsdom
 global.ResizeObserver = class ResizeObserver {
@@ -9,9 +9,9 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -24,7 +24,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Suppress console errors during tests
-vi.spyOn(console, 'error').mockImplementation(() => {});
+vi.spyOn(console, "error").mockImplementation(() => {});
 
 // Clean up after each test
 afterEach(() => {

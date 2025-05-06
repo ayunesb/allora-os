@@ -1,13 +1,12 @@
-
-import { useState, useCallback } from 'react';
-import { useApiClient } from '@/utils/api/enhancedApiClient';
-import { toast } from 'sonner';
+import { useState, useCallback } from "react";
+import { useApiClient } from "@/utils/api/enhancedApiClient";
+import { toast } from "sonner";
 
 export interface Campaign {
   id: string;
   name: string;
   description?: string;
-  status: 'draft' | 'active' | 'paused' | 'completed';
+  status: "draft" | "active" | "paused" | "completed";
   startDate?: string;
   endDate?: string;
   budget?: number;
@@ -28,7 +27,7 @@ export interface Campaign {
 export interface CampaignCreateParams {
   name: string;
   description?: string;
-  status?: 'draft' | 'active' | 'paused' | 'completed';
+  status?: "draft" | "active" | "paused" | "completed";
   startDate?: string;
   endDate?: string;
   budget?: number;
@@ -51,94 +50,114 @@ export function useCampaigns() {
   const fetchCampaigns = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const result = await execute<Campaign[]>('/api/campaigns', 'GET');
+      const result = await execute<Campaign[]>("/api/campaigns", "GET");
       setCampaigns(result);
       return result;
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch campaigns');
-      toast.error(err.message || 'Failed to fetch campaigns');
+      setError(err.message || "Failed to fetch campaigns");
+      toast.error(err.message || "Failed to fetch campaigns");
       throw err;
     } finally {
       setIsLoading(false);
     }
   }, [execute]);
 
-  const fetchCampaignById = useCallback(async (campaignId: string) => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      return await execute<Campaign>(`/api/campaigns/${campaignId}`, 'GET');
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch campaign');
-      toast.error(err.message || 'Failed to fetch campaign');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [execute]);
+  const fetchCampaignById = useCallback(
+    async (campaignId: string) => {
+      setIsLoading(true);
+      setError(null);
 
-  const createCampaign = useCallback(async (params: CampaignCreateParams) => {
-    setIsCreating(true);
-    setError(null);
-    
-    try {
-      const result = await execute<Campaign>('/api/campaigns', 'POST', params);
-      setCampaigns(prev => [...prev, result]);
-      toast.success('Campaign created successfully');
-      return result;
-    } catch (err: any) {
-      setError(err.message || 'Failed to create campaign');
-      toast.error(err.message || 'Failed to create campaign');
-      throw err;
-    } finally {
-      setIsCreating(false);
-    }
-  }, [execute]);
+      try {
+        return await execute<Campaign>(`/api/campaigns/${campaignId}`, "GET");
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch campaign");
+        toast.error(err.message || "Failed to fetch campaign");
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [execute],
+  );
 
-  const updateCampaign = useCallback(async (params: CampaignUpdateParams) => {
-    setIsUpdating(true);
-    setError(null);
-    
-    try {
-      const { id, ...updateData } = params;
-      const result = await execute<Campaign>(`/api/campaigns/${id}`, 'PUT', updateData);
-      
-      setCampaigns(prev => 
-        prev.map(campaign => 
-          campaign.id === id ? result : campaign
-        )
-      );
-      
-      toast.success('Campaign updated successfully');
-      return result;
-    } catch (err: any) {
-      setError(err.message || 'Failed to update campaign');
-      toast.error(err.message || 'Failed to update campaign');
-      throw err;
-    } finally {
-      setIsUpdating(false);
-    }
-  }, [execute]);
+  const createCampaign = useCallback(
+    async (params: CampaignCreateParams) => {
+      setIsCreating(true);
+      setError(null);
 
-  const deleteCampaign = useCallback(async (campaignId: string) => {
-    setIsDeleting(true);
-    setError(null);
-    
-    try {
-      await execute<void>(`/api/campaigns/${campaignId}`, 'DELETE');
-      setCampaigns(prev => prev.filter(campaign => campaign.id !== campaignId));
-      toast.success('Campaign deleted successfully');
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete campaign');
-      toast.error(err.message || 'Failed to delete campaign');
-      throw err;
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [execute]);
+      try {
+        const result = await execute<Campaign>(
+          "/api/campaigns",
+          "POST",
+          params,
+        );
+        setCampaigns((prev) => [...prev, result]);
+        toast.success("Campaign created successfully");
+        return result;
+      } catch (err: any) {
+        setError(err.message || "Failed to create campaign");
+        toast.error(err.message || "Failed to create campaign");
+        throw err;
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [execute],
+  );
+
+  const updateCampaign = useCallback(
+    async (params: CampaignUpdateParams) => {
+      setIsUpdating(true);
+      setError(null);
+
+      try {
+        const { id, ...updateData } = params;
+        const result = await execute<Campaign>(
+          `/api/campaigns/${id}`,
+          "PUT",
+          updateData,
+        );
+
+        setCampaigns((prev) =>
+          prev.map((campaign) => (campaign.id === id ? result : campaign)),
+        );
+
+        toast.success("Campaign updated successfully");
+        return result;
+      } catch (err: any) {
+        setError(err.message || "Failed to update campaign");
+        toast.error(err.message || "Failed to update campaign");
+        throw err;
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [execute],
+  );
+
+  const deleteCampaign = useCallback(
+    async (campaignId: string) => {
+      setIsDeleting(true);
+      setError(null);
+
+      try {
+        await execute<void>(`/api/campaigns/${campaignId}`, "DELETE");
+        setCampaigns((prev) =>
+          prev.filter((campaign) => campaign.id !== campaignId),
+        );
+        toast.success("Campaign deleted successfully");
+      } catch (err: any) {
+        setError(err.message || "Failed to delete campaign");
+        toast.error(err.message || "Failed to delete campaign");
+        throw err;
+      } finally {
+        setIsDeleting(false);
+      }
+    },
+    [execute],
+  );
 
   // Add refetch as an alias for fetchCampaigns for compatibility
   const refetch = fetchCampaigns;
@@ -155,6 +174,6 @@ export function useCampaigns() {
     createCampaign,
     updateCampaign,
     deleteCampaign,
-    refetch
+    refetch,
   };
 }

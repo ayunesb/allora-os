@@ -1,5 +1,5 @@
-export * from './saveOnboarding';
-export * from './completeOnboarding';
+export * from "./saveOnboarding";
+export * from "./completeOnboarding";
 /**
  * Checks if a user has already completed onboarding
  * @param userId The user ID to check

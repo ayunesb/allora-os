@@ -1,5 +1,5 @@
-import React from 'react';
-import DashboardBreadcrumb from '@/components/DashboardBreadcrumb';
+import React from "react";
+import DashboardBreadcrumb from "@/components/DashboardBreadcrumb";
 
 const Publish = () => {
   return (

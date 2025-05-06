@@ -1,13 +1,15 @@
-
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { Strategy } from "@/models/strategy";
-import { exportStrategyToPdf, exportAllStrategiesToPdf } from "@/utils/strategy/pdfExport";
+import {
+  exportStrategyToPdf,
+  exportAllStrategiesToPdf,
+} from "@/utils/strategy/pdfExport";
 
 export function useStrategyActions() {
   const handleExportPDF = useCallback((strategy: Strategy) => {
     toast.info("Preparing PDF export...");
-    
+
     setTimeout(() => {
       try {
         exportStrategyToPdf(strategy);
@@ -18,15 +20,15 @@ export function useStrategyActions() {
       }
     }, 1000);
   }, []);
-  
+
   const handleExportAllPDF = useCallback((strategies: Strategy[]) => {
     if (!strategies || strategies.length === 0) {
       toast.error("No strategies to export");
       return;
     }
-    
+
     toast.info("Exporting all strategies...");
-    
+
     setTimeout(() => {
       try {
         exportAllStrategiesToPdf(strategies);
@@ -40,6 +42,6 @@ export function useStrategyActions() {
 
   return {
     handleExportPDF,
-    handleExportAllPDF
+    handleExportAllPDF,
   };
 }

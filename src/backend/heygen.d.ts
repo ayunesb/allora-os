@@ -8,12 +8,19 @@
  * @param strategyId Optional strategy ID to associate the video with
  * @returns A promise with the result of the operation
  */
-export declare const generateVideo: (text: string, avatarId: string, voiceId: string, companyName: string, campaignId?: string, strategyId?: string) => Promise<{
-    success: boolean;
-    videoId?: string;
-    status?: string;
-    dbRecordId?: string;
-    message?: string;
+export declare const generateVideo: (
+  text: string,
+  avatarId: string,
+  voiceId: string,
+  companyName: string,
+  campaignId?: string,
+  strategyId?: string,
+) => Promise<{
+  success: boolean;
+  videoId?: string;
+  status?: string;
+  dbRecordId?: string;
+  message?: string;
 }>;
 /**
  * Checks the status of a generated video
@@ -21,10 +28,10 @@ export declare const generateVideo: (text: string, avatarId: string, voiceId: st
  * @returns A promise with the status information
  */
 export declare const getVideoStatus: (videoId: string) => Promise<{
-    success: boolean;
-    status?: string;
-    videoUrl?: string;
-    message?: string;
+  success: boolean;
+  status?: string;
+  videoUrl?: string;
+  message?: string;
 }>;
 /**
  * Lists available avatars from Heygen

@@ -24,21 +24,21 @@ export declare const decryptData: (encryptedData: string) => string;
  * Secure storage interface with encryption
  */
 export declare const secureStorage: {
-    /**
-     * Store data securely
-     * @param key Storage key
-     * @param value Value to store
-     */
-    setItem: (key: string, value: string) => void;
-    /**
-     * Retrieve data securely
-     * @param key Storage key
-     * @returns Decrypted value or null if not found
-     */
-    getItem: (key: string) => string | null;
-    /**
-     * Remove data securely
-     * @param key Storage key
-     */
-    removeItem: (key: string) => void;
+  /**
+   * Store data securely
+   * @param key Storage key
+   * @param value Value to store
+   */
+  setItem: (key: string, value: string) => void;
+  /**
+   * Retrieve data securely
+   * @param key Storage key
+   * @returns Decrypted value or null if not found
+   */
+  getItem: (key: string) => string | null;
+  /**
+   * Remove data securely
+   * @param key Storage key
+   */
+  removeItem: (key: string) => void;
 };

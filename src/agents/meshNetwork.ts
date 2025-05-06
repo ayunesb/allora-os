@@ -1,4 +1,3 @@
-
 // Add placeholder for ExecutiveMessage type
 export interface ExecutiveMessage {
   id: string;
@@ -21,24 +20,26 @@ export const getRecentMessages = async (): Promise<ExecutiveMessage[]> => {
 };
 
 // Add the required function for ExecutiveMessages component
-export const fetchMessagesForExecutive = async (executiveName: string): Promise<ExecutiveMessage[]> => {
+export const fetchMessagesForExecutive = async (
+  executiveName: string,
+): Promise<ExecutiveMessage[]> => {
   // Placeholder implementation
   return [
     {
-      id: '1',
-      from: 'AI CEO',
+      id: "1",
+      from: "AI CEO",
       to: executiveName,
-      content: 'Here is the latest strategy update for your review.',
+      content: "Here is the latest strategy update for your review.",
       timestamp: new Date().toISOString(),
-      read: false
+      read: false,
     },
     {
-      id: '2',
-      from: 'Marketing Director',
+      id: "2",
+      from: "Marketing Director",
       to: executiveName,
-      content: 'Can we discuss the campaign performance metrics?',
+      content: "Can we discuss the campaign performance metrics?",
       timestamp: new Date(Date.now() - 3600000).toISOString(),
-      read: true
-    }
+      read: true,
+    },
   ];
 };

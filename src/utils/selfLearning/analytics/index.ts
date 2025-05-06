@@ -1,7 +1,6 @@
-
 /**
  * Analytics modules - Main entry point
  */
 
-export * from './processFeedbackLoop';
-export * from './analyzeUserBehavior';
+export * from "./processFeedbackLoop";
+export * from "./analyzeUserBehavior";

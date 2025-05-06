@@ -1,14 +1,13 @@
-
-import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
-import { Company } from '@/models/company';
+import { supabase } from "@/backend/supabase";
+import { toast } from "sonner";
+import { Company } from "@/models/company";
 
 export async function fetchCompany(companyId: string): Promise<Company | null> {
   try {
     const { data, error } = await supabase
-      .from('companies')
-      .select('*')
-      .eq('id', companyId)
+      .from("companies")
+      .select("*")
+      .eq("id", companyId)
       .single();
 
     if (error) {
@@ -17,17 +16,19 @@ export async function fetchCompany(companyId: string): Promise<Company | null> {
 
     return data;
   } catch (error: any) {
-    console.error('Error fetching company:', error.message);
+    console.error("Error fetching company:", error.message);
     return null;
   }
 }
 
-export async function fetchUserCompany(userId: string): Promise<Company | null> {
+export async function fetchUserCompany(
+  userId: string,
+): Promise<Company | null> {
   try {
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('company_id')
-      .eq('id', userId)
+      .from("profiles")
+      .select("company_id")
+      .eq("id", userId)
       .single();
 
     if (profileError || !profile.company_id) {
@@ -36,26 +37,26 @@ export async function fetchUserCompany(userId: string): Promise<Company | null> 
 
     return await fetchCompany(profile.company_id);
   } catch (error: any) {
-    console.error('Error fetching user company:', error.message);
+    console.error("Error fetching user company:", error.message);
     return null;
   }
 }
 
 export async function updateCompany(
   companyId: string,
-  updates: Partial<Omit<Company, 'id' | 'created_at'>>
+  updates: Partial<Omit<Company, "id" | "created_at">>,
 ): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('companies')
+      .from("companies")
       .update(updates)
-      .eq('id', companyId);
+      .eq("id", companyId);
 
     if (error) {
       throw error;
     }
 
-    toast.success('Company updated successfully');
+    toast.success("Company updated successfully");
     return true;
   } catch (error: any) {
     toast.error(`Failed to update company: ${error.message}`);

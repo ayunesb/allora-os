@@ -1,10 +1,10 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
@@ -23,7 +23,7 @@ serve(async (req) => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 
@@ -32,13 +32,10 @@ serve(async (req) => {
     const { userId } = await req.json();
 
     if (!userId) {
-      return new Response(
-        JSON.stringify({ error: "userId is required" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "userId is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Initialize Supabase client
@@ -58,7 +55,7 @@ serve(async (req) => {
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -76,12 +73,13 @@ serve(async (req) => {
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     // Get user's email from auth
-    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+    const { data: userData, error: userError } =
+      await supabase.auth.admin.getUserById(userId);
 
     if (userError || !userData?.user?.email) {
       console.error("Error fetching user data:", userError);
@@ -90,18 +88,24 @@ serve(async (req) => {
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     const userEmail = userData.user.email;
     const firstName = profile.name?.split(" ")[0] || "there";
     const companyName = company?.name || profile.company || "your business";
-    const riskAppetite = (company?.details?.riskAppetite || profile.risk_appetite || "medium").toLowerCase();
+    const riskAppetite = (
+      company?.details?.riskAppetite ||
+      profile.risk_appetite ||
+      "medium"
+    ).toLowerCase();
 
     // Create an executive team based on the risk appetite
     const executives = getExecutiveTeam(riskAppetite);
-    const executivesList = executives.map(exec => `<li>${exec.name} - ${exec.role}</li>`).join("");
+    const executivesList = executives
+      .map((exec) => `<li>${exec.name} - ${exec.role}</li>`)
+      .join("");
 
     // Create welcome email content
     const emailHtml = `
@@ -157,9 +161,9 @@ serve(async (req) => {
     const response = await fetch("https://api.postmarkapp.com/email", {
       method: "POST",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
-        "X-Postmark-Server-Token": POSTMARK_API_KEY
+        "X-Postmark-Server-Token": POSTMARK_API_KEY,
       },
       body: JSON.stringify({
         From: "welcome@alloraai.com",
@@ -167,8 +171,8 @@ serve(async (req) => {
         Subject: `Welcome to Allora AI, ${firstName}!`,
         HtmlBody: emailHtml,
         TextBody: `Welcome to Allora AI, ${firstName}! We're excited to have you and ${companyName} join our platform. Your AI executive team is ready to help you grow your business with tailored strategies and insights.`,
-        MessageStream: "outbound"
-      })
+        MessageStream: "outbound",
+      }),
     });
 
     const responseData = await response.json();
@@ -180,27 +184,25 @@ serve(async (req) => {
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
     // Log the email in the communications table
-    const { error: logError } = await supabase
-      .from("communications")
-      .insert({
-        lead_id: userId,
-        type: "email",
-        content: "Welcome email",
-        status: "sent",
-        created_at: new Date().toISOString(),
-        channel: 'email',
-        is_ai_generated: true,
-        metadata: {
-          email_type: "welcome",
-          template: "welcome_email",
-          postmark_message_id: responseData.MessageID
-        }
-      });
+    const { error: logError } = await supabase.from("communications").insert({
+      lead_id: userId,
+      type: "email",
+      content: "Welcome email",
+      status: "sent",
+      created_at: new Date().toISOString(),
+      channel: "email",
+      is_ai_generated: true,
+      metadata: {
+        email_type: "welcome",
+        template: "welcome_email",
+        postmark_message_id: responseData.MessageID,
+      },
+    });
 
     if (logError) {
       console.error("Error logging email in communications:", logError);
@@ -211,7 +213,7 @@ serve(async (req) => {
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     console.error("Error in welcome-email function:", error);
@@ -220,34 +222,38 @@ serve(async (req) => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 });
 
 // Helper function to select executive team based on risk appetite
-function getExecutiveTeam(riskAppetite: string): Array<{ name: string; role: string; }> {
+function getExecutiveTeam(
+  riskAppetite: string,
+): Array<{ name: string; role: string }> {
   const executives = {
     low: [
       { name: "Warren Buffett", role: "Chief Investment Advisor" },
       { name: "Satya Nadella", role: "Technology Strategy" },
       { name: "Mary Barra", role: "Operations Executive" },
-      { name: "Tim Cook", role: "Supply Chain & Execution" }
+      { name: "Tim Cook", role: "Supply Chain & Execution" },
     ],
     medium: [
       { name: "Sheryl Sandberg", role: "COO & Growth Strategy" },
       { name: "Jeff Bezos", role: "Business Expansion" },
       { name: "Trish Bertuzzi", role: "Sales Innovation" },
-      { name: "Brian Chesky", role: "Customer Experience" }
+      { name: "Brian Chesky", role: "Customer Experience" },
     ],
     high: [
       { name: "Elon Musk", role: "Chief Innovation Officer" },
       { name: "Steve Jobs", role: "Product Visionary" },
       { name: "Mike Weinberg", role: "Sales Strategy" },
-      { name: "Gary Vaynerchuk", role: "Marketing Disruption" }
-    ]
+      { name: "Gary Vaynerchuk", role: "Marketing Disruption" },
+    ],
   };
 
   // Default to medium if risk appetite is not recognized
-  return executives[riskAppetite as keyof typeof executives] || executives.medium;
+  return (
+    executives[riskAppetite as keyof typeof executives] || executives.medium
+  );
 }

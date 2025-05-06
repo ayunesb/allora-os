@@ -9,4 +9,7 @@ export declare function formatDate(dateString: string): string;
  * @param data Array of objects to export
  * @param filename Name of the file to download
  */
-export declare function exportToCSV(data: Record<string, any>[], filename: string): void;
+export declare function exportToCSV(
+  data: Record<string, any>[],
+  filename: string,
+): void;

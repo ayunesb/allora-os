@@ -1,25 +1,34 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { Helmet } from "react-helmet-async";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Lock, AlertTriangle } from 'lucide-react';
+import { Shield, Lock, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 export default function SecurityDashboard() {
-    return (<>
+  return (
+    <>
       <Helmet>
         <title>Security Dashboard | Allora AI</title>
       </Helmet>
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Security Dashboard</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Security Dashboard
+            </h1>
             <p className="text-muted-foreground">
               Monitor and manage security settings
             </p>
           </div>
         </div>
-        
+
         <Tabs defaultValue="overview">
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -27,13 +36,13 @@ export default function SecurityDashboard() {
             <TabsTrigger value="data">Data Protection</TabsTrigger>
             <TabsTrigger value="logs">Audit Logs</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
-                    <Shield className="h-5 w-5 mr-2"/>
+                    <Shield className="h-5 w-5 mr-2" />
                     Security Status
                   </CardTitle>
                 </CardHeader>
@@ -47,11 +56,11 @@ export default function SecurityDashboard() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
-                    <Lock className="h-5 w-5 mr-2"/>
+                    <Lock className="h-5 w-5 mr-2" />
                     Last Audit
                   </CardTitle>
                 </CardHeader>
@@ -62,11 +71,11 @@ export default function SecurityDashboard() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
-                    <AlertTriangle className="h-5 w-5 mr-2"/>
+                    <AlertTriangle className="h-5 w-5 mr-2" />
                     Threats Detected
                   </CardTitle>
                 </CardHeader>
@@ -78,7 +87,7 @@ export default function SecurityDashboard() {
                 </CardContent>
               </Card>
             </div>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Security Overview</CardTitle>
@@ -92,7 +101,7 @@ export default function SecurityDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="access">
             <Card>
               <CardHeader>
@@ -106,7 +115,7 @@ export default function SecurityDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="data">
             <Card>
               <CardHeader>
@@ -120,7 +129,7 @@ export default function SecurityDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="logs">
             <Card>
               <CardHeader>
@@ -136,5 +145,6 @@ export default function SecurityDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </>);
+    </>
+  );
 }

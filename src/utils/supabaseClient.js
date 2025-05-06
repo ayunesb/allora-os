@@ -1,4 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-export const supabase = createClient(supabaseUrl, supabaseKey);
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SupabaseClient = void 0;
+var supabase_js_1 = require("@supabase/supabase-js");
+var supabaseUrl = process.env.SUPABASE_URL || "";
+var supabaseKey = process.env.SUPABASE_KEY || "";
+exports.SupabaseClient = (0, supabase_js_1.createClient)(
+  supabaseUrl,
+  supabaseKey,
+);

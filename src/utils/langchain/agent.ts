@@ -1,6 +1,5 @@
-
-import { logger } from '@/utils/loggingService';
-import { supabase } from '@/integrations/supabase/client';
+import { logger } from "@/utils/loggingService";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Interface for agent query requests
@@ -28,46 +27,48 @@ export interface AgentResponse {
 /**
  * Run the LangChain agent with the provided query and context
  */
-export async function runLangChainAgent(params: AgentQuery): Promise<AgentResponse> {
+export async function runLangChainAgent(
+  params: AgentQuery,
+): Promise<AgentResponse> {
   const { query, context = {}, userId, companyId } = params;
-  
+
   try {
-    logger.info('Running LangChain agent', { query, userId, companyId });
-    
+    logger.info("Running LangChain agent", { query, userId, companyId });
+
     // Call the Supabase Edge Function that runs the agent
-    const { data, error } = await supabase.functions.invoke('langchain-agent', {
+    const { data, error } = await supabase.functions.invoke("langchain-agent", {
       body: {
         query,
         context: {
           ...context,
           userId,
-          companyId
-        }
-      }
+          companyId,
+        },
+      },
     });
-    
+
     if (error) {
-      logger.error('LangChain agent error', error);
+      logger.error("LangChain agent error", error);
       return {
-        result: '',
-        error: `Agent execution failed: ${error.message}`
+        result: "",
+        error: `Agent execution failed: ${error.message}`,
       };
     }
-    
-    logger.info('LangChain agent execution complete', {
+
+    logger.info("LangChain agent execution complete", {
       success: true,
-      toolCallCount: data.toolCalls?.length || 0
+      toolCallCount: data.toolCalls?.length || 0,
     });
-    
+
     return {
       result: data.result,
-      toolCalls: data.toolCalls
+      toolCalls: data.toolCalls,
     };
   } catch (err: any) {
-    logger.error('LangChain agent execution error', err);
+    logger.error("LangChain agent execution error", err);
     return {
-      result: '',
-      error: `Agent execution failed: ${err.message}`
+      result: "",
+      error: `Agent execution failed: ${err.message}`,
     };
   }
 }
@@ -76,27 +77,27 @@ export async function runLangChainAgent(params: AgentQuery): Promise<AgentRespon
  * Execute a specific tool directly without running the full agent
  */
 export async function executeAgentTool(
-  toolName: string, 
-  input: Record<string, any>
+  toolName: string,
+  input: Record<string, any>,
 ): Promise<any> {
   try {
-    logger.info('Executing agent tool directly', { toolName, input });
-    
-    const { data, error } = await supabase.functions.invoke('langchain-tool', {
+    logger.info("Executing agent tool directly", { toolName, input });
+
+    const { data, error } = await supabase.functions.invoke("langchain-tool", {
       body: {
         tool: toolName,
-        input
-      }
+        input,
+      },
     });
-    
+
     if (error) {
-      logger.error('Tool execution error', error);
+      logger.error("Tool execution error", error);
       throw new Error(`Tool execution failed: ${error.message}`);
     }
-    
+
     return data.result;
   } catch (err: any) {
-    logger.error('Tool execution error', err);
+    logger.error("Tool execution error", err);
     throw new Error(`Tool execution failed: ${err.message}`);
   }
 }

@@ -1,5 +1,7 @@
 interface AlertIconProps {
-    severity: string;
+  severity: string;
 }
-export declare const AlertStatusIcon: ({ severity }: AlertIconProps) => import("react").JSX.Element;
+export declare const AlertStatusIcon: ({
+  severity,
+}: AlertIconProps) => import("react").JSX.Element;
 export {};

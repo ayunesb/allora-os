@@ -1,5 +1,8 @@
-
-import { DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/types/databaseVerification';
+import {
+  DatabaseTableStatus,
+  PolicyStatus,
+  FunctionStatus,
+} from "@/types/databaseVerification";
 
 export interface DatabaseVerificationResult {
   tables: DatabaseTableStatus[];
@@ -9,8 +12,4 @@ export interface DatabaseVerificationResult {
 }
 
 // Correctly re-export types using 'export type'
-export type { 
-  DatabaseTableStatus, 
-  PolicyStatus, 
-  FunctionStatus 
-};
+export type { DatabaseTableStatus, PolicyStatus, FunctionStatus };

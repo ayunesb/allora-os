@@ -1,7 +1,15 @@
-
-export type CommunicationType = 'phone' | 'zoom' | 'whatsapp';
-export type CommunicationStatus = 'scheduled' | 'completed' | 'missed' | 'cancelled';
-export type CommunicationOutcome = 'follow_up' | 'opportunity' | 'closed_won' | 'closed_lost' | null;
+export type CommunicationType = "phone" | "zoom" | "whatsapp";
+export type CommunicationStatus =
+  | "scheduled"
+  | "completed"
+  | "missed"
+  | "cancelled";
+export type CommunicationOutcome =
+  | "follow_up"
+  | "opportunity"
+  | "closed_won"
+  | "closed_lost"
+  | null;
 
 export interface Communication {
   id: string;
@@ -22,7 +30,7 @@ export interface Communication {
     email: string;
     phone: string;
     status: string;
-  }
+  };
 }
 
 export interface ZoomMeetingData {

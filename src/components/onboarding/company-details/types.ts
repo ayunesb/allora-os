@@ -1,4 +1,3 @@
-
 import { PartialCompanyDetails } from "@/models/companyDetails";
 
 export interface SectionProps {
@@ -9,6 +8,9 @@ export interface SectionProps {
   addToArray: (field: keyof PartialCompanyDetails) => void;
   removeFromArray: (field: keyof PartialCompanyDetails, index: number) => void;
   handleTextChange: (field: keyof PartialCompanyDetails, value: string) => void;
-  handleNumberChange?: (field: keyof PartialCompanyDetails, value: string) => void;
+  handleNumberChange?: (
+    field: keyof PartialCompanyDetails,
+    value: string,
+  ) => void;
   onNext?: (section?: string) => void;
 }

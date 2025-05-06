@@ -4,11 +4,15 @@
  * @param successMessage Default success message
  * @param error Optional error object
  */
-export declare function standardizeApiResponse(result: any, successMessage: string, error?: any): {
-    success: any;
-    message: any;
-    data: any;
-    error: any;
+export declare function standardizeApiResponse(
+  result: any,
+  successMessage: string,
+  error?: any,
+): {
+  success: any;
+  message: any;
+  data: any;
+  error: any;
 };
 /**
  * Safely extracts error messages from various error object formats

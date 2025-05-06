@@ -26,7 +26,7 @@ export interface KPIMetric {
   recorded_at: string;
 }
 
-export type BusinessEventType = 'signup' | 'purchase' | 'unsubscribe';
+export type BusinessEventType = "signup" | "purchase" | "unsubscribe";
 
 export interface BusinessEventPayload {
   event: BusinessEventType;
@@ -40,14 +40,10 @@ export interface WebhookResult {
 }
 
 // ✅ Keep this lean:
-import BusinessEventPayload from './fixed/Webhook';
-import BusinessEventType from './fixed/Webhook';
-import WebhookResult from './fixed/Webhook';
+import BusinessEventPayload from "./fixed/Webhook";
+import BusinessEventType from "./fixed/Webhook";
+import WebhookResult from "./fixed/Webhook";
 
-export {
-  BusinessEventPayload,
-  BusinessEventType,
-  WebhookResult,
-};
+export { BusinessEventPayload, BusinessEventType, WebhookResult };
 
-export type { PatchedStrategy } from './fixed/Strategy';
+export type { PatchedStrategy } from "./fixed/Strategy";

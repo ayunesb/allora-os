@@ -1,4 +1,3 @@
-
 export type RiskFactor = {
   name: string;
   score: number;
@@ -18,7 +17,7 @@ export type RiskAssessmentInput = {
 };
 
 export type RiskProfile = {
-  level: 'Low' | 'Medium' | 'High';
+  level: "Low" | "Medium" | "High";
   score: number;
   breakdown: {
     [key: string]: {
@@ -36,28 +35,35 @@ export const weightedRiskFactors = {
   competitionIntensity: 0.1,
   organizationalReadiness: 0.1,
   innovationCapacity: 0.05,
-  regulatoryConstraints: 0.05
+  regulatoryConstraints: 0.05,
 };
 
-export const assessRiskLevel = (answers: RiskAssessmentInput): 'Low' | 'Medium' | 'High' => {
+export const assessRiskLevel = (
+  answers: RiskAssessmentInput,
+): "Low" | "Medium" | "High" => {
   const score = calculateRiskScore(answers).score;
-  
-  if (score <= 2.5) return 'Low';
-  if (score <= 3.5) return 'Medium';
-  return 'High';
+
+  if (score <= 2.5) return "Low";
+  if (score <= 3.5) return "Medium";
+  return "High";
 };
 
-export const calculateRiskScore = (answers: RiskAssessmentInput): RiskProfile => {
+export const calculateRiskScore = (
+  answers: RiskAssessmentInput,
+): RiskProfile => {
   // Initialize variables
   let totalScore = 0;
   let totalWeight = 0;
-  const breakdown: RiskProfile['breakdown'] = {};
+  const breakdown: RiskProfile["breakdown"] = {};
 
   // Calculate core factors (required)
   const coreFactors = {
     ambition: { value: answers.ambition, weight: weightedRiskFactors.ambition },
     budget: { value: answers.budget, weight: weightedRiskFactors.budget },
-    timeframe: { value: answers.timeframe, weight: weightedRiskFactors.timeframe }
+    timeframe: {
+      value: answers.timeframe,
+      weight: weightedRiskFactors.timeframe,
+    },
   };
 
   // Calculate weighted score for core factors
@@ -67,32 +73,32 @@ export const calculateRiskScore = (answers: RiskAssessmentInput): RiskProfile =>
     totalWeight += weight;
     breakdown[name] = {
       contribution,
-      percentage: 0 // Will calculate percentages after all factors are processed
+      percentage: 0, // Will calculate percentages after all factors are processed
     };
   }
 
   // Calculate additional factors (optional)
   const additionalFactors = {
-    marketVolatility: { 
-      value: answers.marketVolatility, 
-      weight: weightedRiskFactors.marketVolatility 
+    marketVolatility: {
+      value: answers.marketVolatility,
+      weight: weightedRiskFactors.marketVolatility,
     },
-    competitionIntensity: { 
-      value: answers.competitionIntensity, 
-      weight: weightedRiskFactors.competitionIntensity 
+    competitionIntensity: {
+      value: answers.competitionIntensity,
+      weight: weightedRiskFactors.competitionIntensity,
     },
-    organizationalReadiness: { 
-      value: answers.organizationalReadiness, 
-      weight: weightedRiskFactors.organizationalReadiness 
+    organizationalReadiness: {
+      value: answers.organizationalReadiness,
+      weight: weightedRiskFactors.organizationalReadiness,
     },
-    innovationCapacity: { 
-      value: answers.innovationCapacity, 
-      weight: weightedRiskFactors.innovationCapacity 
+    innovationCapacity: {
+      value: answers.innovationCapacity,
+      weight: weightedRiskFactors.innovationCapacity,
     },
-    regulatoryConstraints: { 
-      value: answers.regulatoryConstraints, 
-      weight: weightedRiskFactors.regulatoryConstraints 
-    }
+    regulatoryConstraints: {
+      value: answers.regulatoryConstraints,
+      weight: weightedRiskFactors.regulatoryConstraints,
+    },
   };
 
   // Add scores for available additional factors
@@ -103,7 +109,7 @@ export const calculateRiskScore = (answers: RiskAssessmentInput): RiskProfile =>
       totalWeight += weight;
       breakdown[name] = {
         contribution,
-        percentage: 0 // Will calculate percentages after all factors are processed
+        percentage: 0, // Will calculate percentages after all factors are processed
       };
     }
   }
@@ -116,28 +122,30 @@ export const calculateRiskScore = (answers: RiskAssessmentInput): RiskProfile =>
       totalWeight += factor.weight;
       breakdown[factor.name] = {
         contribution,
-        percentage: 0
+        percentage: 0,
       };
     }
   }
 
   // Normalize the score if weights don't add up to 1
-  const normalizedScore = totalWeight > 0 ? totalScore / totalWeight * 5 : totalScore;
-  
+  const normalizedScore =
+    totalWeight > 0 ? (totalScore / totalWeight) * 5 : totalScore;
+
   // Calculate percentage contributions
   for (const factor in breakdown) {
-    breakdown[factor].percentage = (breakdown[factor].contribution / totalScore) * 100;
+    breakdown[factor].percentage =
+      (breakdown[factor].contribution / totalScore) * 100;
   }
 
   // Determine risk level
-  let riskLevel: 'Low' | 'Medium' | 'High';
-  if (normalizedScore <= 2.5) riskLevel = 'Low';
-  else if (normalizedScore <= 3.5) riskLevel = 'Medium';
-  else riskLevel = 'High';
+  let riskLevel: "Low" | "Medium" | "High";
+  if (normalizedScore <= 2.5) riskLevel = "Low";
+  else if (normalizedScore <= 3.5) riskLevel = "Medium";
+  else riskLevel = "High";
 
   return {
     level: riskLevel,
     score: parseFloat(normalizedScore.toFixed(2)),
-    breakdown
+    breakdown,
   };
 };

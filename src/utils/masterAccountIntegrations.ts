@@ -1,6 +1,6 @@
-import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
-import { createCustomer as createStripeCustomerUtil } from '@/backend/stripe';
+import { supabase } from "@/backend/supabase";
+import { toast } from "sonner";
+import { createCustomer as createStripeCustomerUtil } from "@/backend/stripe";
 
 /**
  * Creates integration records for a new company in all master service accounts
@@ -10,33 +10,39 @@ export async function setupCompanyIntegrations(
   companyId: string,
   companyName: string,
   industry: string,
-  email: string
+  email: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('Setting up integrations for company:', companyName);
-    
+    console.log("Setting up integrations for company:", companyName);
+
     // Create integration mappings object to store external IDs
     const integrationIds: Record<string, string> = {};
-    
+
     // 1. Create Stripe customer
-    const stripeResult = await createStripeCustomer(companyName, email, industry);
+    const stripeResult = await createStripeCustomer(
+      companyName,
+      email,
+      industry,
+    );
     if (stripeResult.success && stripeResult.customerId) {
       integrationIds.stripe_customer_id = stripeResult.customerId;
-      console.log('Created Stripe customer:', stripeResult.customerId);
+      console.log("Created Stripe customer:", stripeResult.customerId);
     } else {
-      console.warn('Failed to create Stripe customer:', stripeResult.error);
+      console.warn("Failed to create Stripe customer:", stripeResult.error);
     }
-    
+
     // 2. Store all integration IDs in Supabase
     await storeIntegrationIds(companyId, integrationIds);
-    
-    console.log('Successfully set up company integrations');
+
+    console.log("Successfully set up company integrations");
     return { success: true };
   } catch (error: any) {
-    console.error('Failed to set up company integrations:', error);
-    return { 
+    console.error("Failed to set up company integrations:", error);
+    return {
       success: false,
-      error: error.message || 'An unexpected error occurred during integration setup'
+      error:
+        error.message ||
+        "An unexpected error occurred during integration setup",
     };
   }
 }
@@ -45,33 +51,33 @@ export async function setupCompanyIntegrations(
  * Creates a Stripe customer for a company in the master Stripe account
  */
 async function createStripeCustomer(
-  companyName: string, 
+  companyName: string,
   email: string,
-  industry: string
+  industry: string,
 ): Promise<{ success: boolean; customerId?: string; error?: string }> {
   try {
-    console.log('Creating Stripe customer for:', companyName, email);
-    
+    console.log("Creating Stripe customer for:", companyName, email);
+
     // Call the createCustomer function from our stripe.ts utility
     const customerId = companyName; // Assuming companyName is used as customerId
     const customerData = {
       email,
       industry,
-      source: 'allora_platform'
+      source: "allora_platform",
     };
     await createStripeCustomerUtil(String(customerId));
     if (!response.success) {
-      throw new Error(response.message ?? 'Unknown error'); // Ensure `message` is accessed correctly
+      throw new Error(response.message ?? "Unknown error"); // Ensure `message` is accessed correctly
     }
     return {
       success: true,
-      customerId: response.customerId
+      customerId: response.customerId,
     };
   } catch (error: any) {
-    console.error('Failed to create Stripe customer:', error);
+    console.error("Failed to create Stripe customer:", error);
     return {
       success: false,
-      error: error.message || 'Failed to create Stripe customer'
+      error: error.message || "Failed to create Stripe customer",
     };
   }
 }
@@ -81,56 +87,60 @@ async function createStripeCustomer(
  */
 async function storeIntegrationIds(
   companyId: string,
-  integrationIds: Record<string, string>
+  integrationIds: Record<string, string>,
 ): Promise<void> {
   try {
-    console.log('Storing integration IDs for company:', companyId, integrationIds);
-    
+    console.log(
+      "Storing integration IDs for company:",
+      companyId,
+      integrationIds,
+    );
+
     // First check if a record already exists
     const { data, error: fetchError } = await supabase
-      .from('company_integrations')
-      .select('*')
-      .eq('company_id', companyId)
+      .from("company_integrations")
+      .select("*")
+      .eq("company_id", companyId)
       .maybeSingle();
-      
+
     if (fetchError) {
-      console.error('Error fetching existing integration record:', fetchError);
+      console.error("Error fetching existing integration record:", fetchError);
       throw fetchError;
     }
-    
+
     if (data) {
-      console.log('Updating existing integration record');
+      console.log("Updating existing integration record");
       // Update existing record
       const { error: updateError } = await supabase
-        .from('company_integrations')
-        .update({ 
-          integration_ids: integrationIds 
+        .from("company_integrations")
+        .update({
+          integration_ids: integrationIds,
         })
-        .eq('company_id', companyId);
-        
+        .eq("company_id", companyId);
+
       if (updateError) {
-        console.error('Error updating integration record:', updateError);
+        console.error("Error updating integration record:", updateError);
         throw updateError;
       }
     } else {
-      console.log('Creating new integration record');
+      console.log("Creating new integration record");
       // Create new record
       const { error: insertError } = await supabase
-        .from('company_integrations')
-        .insert({ 
+        .from("company_integrations")
+        .insert({
           company_id: companyId,
-          integration_ids: integrationIds
+          integration_ids: integrationIds,
         });
-        
+
       if (insertError) {
-        console.error('Error inserting integration record:', insertError);
+        console.error("Error inserting integration record:", insertError);
         throw insertError;
       }
     }
-    
-    console.log('Successfully stored integration IDs');
+
+    console.log("Successfully stored integration IDs");
   } catch (error: any) {
-    console.error('Failed to store integration IDs:', error);
+    console.error("Failed to store integration IDs:", error);
     throw error;
   }
 }
@@ -139,43 +149,43 @@ async function storeIntegrationIds(
  * Retrieves the integration IDs for a company
  */
 export async function getCompanyIntegrationIds(
-  companyId: string
+  companyId: string,
 ): Promise<Record<string, string> | null> {
   try {
-    console.log('Getting integration IDs for company:', companyId);
-    
+    console.log("Getting integration IDs for company:", companyId);
+
     const { data, error } = await supabase
-      .from('company_integrations')
-      .select('integration_ids')
-      .eq('company_id', companyId)
+      .from("company_integrations")
+      .select("integration_ids")
+      .eq("company_id", companyId)
       .maybeSingle();
-      
+
     if (error) {
-      console.error('Error fetching integration IDs:', error);
+      console.error("Error fetching integration IDs:", error);
       throw error;
     }
-    
+
     // Ensure we're returning a Record<string, string> or null
     if (data?.integration_ids) {
       const typedIntegrationIds: Record<string, string> = {};
-      
+
       // Convert the JSONB data to the expected type
-      if (typeof data.integration_ids === 'object') {
+      if (typeof data.integration_ids === "object") {
         Object.entries(data.integration_ids).forEach(([key, value]) => {
-          if (typeof value === 'string') {
+          if (typeof value === "string") {
             typedIntegrationIds[key] = value;
           }
         });
       }
-      
-      console.log('Found integration IDs:', typedIntegrationIds);
+
+      console.log("Found integration IDs:", typedIntegrationIds);
       return typedIntegrationIds;
     }
-    
-    console.log('No integration IDs found');
+
+    console.log("No integration IDs found");
     return null;
   } catch (error: any) {
-    console.error('Failed to get company integration IDs:', error.message);
+    console.error("Failed to get company integration IDs:", error.message);
     return null;
   }
 }

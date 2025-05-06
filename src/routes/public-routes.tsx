@@ -14,65 +14,65 @@ import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
 import TermsOfService from "@/pages/TermsOfService";
 export const publicRoutes = [
-    {
-        path: "/welcome",
-        element: <Index />,
-    },
-    {
-        path: "/home",
-        element: <Home />,
-    },
-    {
-        path: "/pricing",
-        element: <Pricing />,
-    },
-    {
-        path: "/privacy",
-        element: <Privacy />,
-    },
-    {
-        path: "/legal",
-        element: <Legal />,
-    },
-    {
-        path: "/refund-policy",
-        element: <RefundPolicy />,
-    },
-    {
-        path: "/cookie-policy",
-        element: <CookiePolicy />,
-    },
-    {
-        path: "/messaging-consent",
-        element: <MessagingConsent />,
-    },
-    {
-        path: "/compliance",
-        element: <Compliance />,
-    },
-    {
-        path: "/faq",
-        element: <FAQ />,
-    },
-    {
-        path: "/legal/:documentId",
-        element: <LegalDocument />,
-    },
-    {
-        path: "/dev-admin-helper",
-        element: <DevAdminHelper />,
-    },
-    {
-        path: "/checkout-success",
-        element: <CheckoutSuccess />,
-    },
-    {
-        path: "/contact",
-        element: <Contact />
-    },
-    {
-        path: "/legal/terms-of-service",
-        element: <TermsOfService />,
-    },
+  {
+    path: "/welcome",
+    element: <Index />,
+  },
+  {
+    path: "/home",
+    element: <Home />,
+  },
+  {
+    path: "/pricing",
+    element: <Pricing />,
+  },
+  {
+    path: "/privacy",
+    element: <Privacy />,
+  },
+  {
+    path: "/legal",
+    element: <Legal />,
+  },
+  {
+    path: "/refund-policy",
+    element: <RefundPolicy />,
+  },
+  {
+    path: "/cookie-policy",
+    element: <CookiePolicy />,
+  },
+  {
+    path: "/messaging-consent",
+    element: <MessagingConsent />,
+  },
+  {
+    path: "/compliance",
+    element: <Compliance />,
+  },
+  {
+    path: "/faq",
+    element: <FAQ />,
+  },
+  {
+    path: "/legal/:documentId",
+    element: <LegalDocument />,
+  },
+  {
+    path: "/dev-admin-helper",
+    element: <DevAdminHelper />,
+  },
+  {
+    path: "/checkout-success",
+    element: <CheckoutSuccess />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
+  },
+  {
+    path: "/legal/terms-of-service",
+    element: <TermsOfService />,
+  },
 ];
 export default publicRoutes;

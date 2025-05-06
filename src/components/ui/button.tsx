@@ -7,22 +7,22 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  className, 
-  variant = "default", 
-  size = "sm", 
-  ...props 
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  className,
+  variant = "default",
+  size = "sm",
+  ...props
 }) => {
   return (
-    <button 
+    <button
       className={cn(
-        "btn", 
-        variant === "outline" && "btn-outline", 
-        size === "lg" && "btn-lg", 
-        size === "sm" && "btn-sm", 
-        className
-      )} 
+        "btn",
+        variant === "outline" && "btn-outline",
+        size === "lg" && "btn-lg",
+        size === "sm" && "btn-sm",
+        className,
+      )}
       {...props}
     >
       {children}

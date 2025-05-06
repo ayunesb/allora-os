@@ -7,9 +7,9 @@
  * - Mock data generation
  * - Test event simulation
  */
-import { ReactElement } from 'react';
-import '@testing-library/jest-dom';
-import { ZodSchema } from 'zod';
+import { ReactElement } from "react";
+import "@testing-library/jest-dom";
+import { ZodSchema } from "zod";
 /**
  * Tests validation schema against multiple cases
  * Useful for unit testing Zod schemas
@@ -40,10 +40,14 @@ import { ZodSchema } from 'zod';
  *   ]
  * );
  */
-export declare function testValidationSchema<T>(schema: ZodSchema<T>, validCases: any[], invalidCases: {
+export declare function testValidationSchema<T>(
+  schema: ZodSchema<T>,
+  validCases: any[],
+  invalidCases: {
     data: any;
     expectedError: string;
-}[]): void;
+  }[],
+): void;
 /**
  * Custom render function for testing components with providers
  * Wraps components with necessary providers for testing
@@ -57,7 +61,10 @@ export declare function testValidationSchema<T>(schema: ZodSchema<T>, validCases
  * const { getByText } = renderWithProviders(<MyComponent />);
  * expect(getByText('Hello')).toBeInTheDocument();
  */
-export declare function renderWithProviders(ui: ReactElement, options?: {}): any;
+export declare function renderWithProviders(
+  ui: ReactElement,
+  options?: {},
+): any;
 /**
  * Generates mock data for tests based on schema
  * Creates valid test data matching the provided schema
@@ -70,7 +77,10 @@ export declare function renderWithProviders(ui: ReactElement, options?: {}): any
  * // Generate mock user data
  * const mockUser = generateMockData(userSchema, { name: "Custom Name" });
  */
-export declare function generateMockData<T>(schema: ZodSchema<T>, overrides?: {}): T;
+export declare function generateMockData<T>(
+  schema: ZodSchema<T>,
+  overrides?: {},
+): T;
 /**
  * Waits for all promises to resolve
  * Useful for testing async operations

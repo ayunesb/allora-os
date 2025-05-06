@@ -1,4 +1,3 @@
-
 /**
  * Template for executive agent prompts
  */

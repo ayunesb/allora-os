@@ -4,19 +4,19 @@
  * @returns Sanitized string
  */
 export function sanitizeInput(input: string): string {
-  if (!input) return '';
-  
+  if (!input) return "";
+
   return input
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
-    .replace(/`/g, '&#x60;')
-    .replace(/{/g, '&#x7B;')
-    .replace(/}/g, '&#x7D;')
-    .replace(/eval\(/gi, 'blocked(')
-    .replace(/javascript:/gi, 'blocked:');
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/\//g, "&#x2F;")
+    .replace(/`/g, "&#x60;")
+    .replace(/{/g, "&#x7B;")
+    .replace(/}/g, "&#x7D;")
+    .replace(/eval\(/gi, "blocked(")
+    .replace(/javascript:/gi, "blocked:");
 }
 
 /**
@@ -25,23 +25,23 @@ export function sanitizeInput(input: string): string {
  * @returns Sanitized HTML string
  */
 export function sanitizeHtml(html: string): string {
-  if (!html) return '';
-  
+  if (!html) return "";
+
   // In a production app, you should use a library like DOMPurify
   // This is a simple implementation that handles common attack vectors
   return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
-    .replace(/javascript:/gi, '')
-    .replace(/data:/gi, '') 
-    .replace(/on\w+="[^"]*"/g, '')
-    .replace(/on\w+='[^']*'/g, '')
-    .replace(/on\w+=\S+/g, '')
-    .replace(/onerror/gi, 'data-blocked')
-    .replace(/onload/gi, 'data-blocked')
-    .replace(/onclick/gi, 'data-blocked');
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, "")
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, "")
+    .replace(/javascript:/gi, "")
+    .replace(/data:/gi, "")
+    .replace(/on\w+="[^"]*"/g, "")
+    .replace(/on\w+='[^']*'/g, "")
+    .replace(/on\w+=\S+/g, "")
+    .replace(/onerror/gi, "data-blocked")
+    .replace(/onload/gi, "data-blocked")
+    .replace(/onclick/gi, "data-blocked");
 }
 
 /**
@@ -60,8 +60,8 @@ export function isValidEmail(email: string): boolean {
  * @returns Normalized string
  */
 export function normalizeInput(input: string): string {
-  if (!input) return '';
-  return input.trim().replace(/\s+/g, ' ');
+  if (!input) return "";
+  return input.trim().replace(/\s+/g, " ");
 }
 
 /**
@@ -70,7 +70,10 @@ export function normalizeInput(input: string): string {
  * @param defaultValue Default value if parsing fails
  * @returns Parsed number or default value
  */
-export function parseNumericInput(input: string, defaultValue: number = 0): number {
+export function parseNumericInput(
+  input: string,
+  defaultValue: number = 0,
+): number {
   const parsed = parseFloat(input);
   return isNaN(parsed) ? defaultValue : parsed;
 }
@@ -80,16 +83,18 @@ export function parseNumericInput(input: string, defaultValue: number = 0): numb
  * @param formData Object containing form data to sanitize
  * @returns Sanitized form data object
  */
-export function sanitizeFormData<T extends Record<string, any>>(formData: T): T {
+export function sanitizeFormData<T extends Record<string, any>>(
+  formData: T,
+): T {
   const sanitized = { ...formData };
-  
-  Object.keys(sanitized).forEach(key => {
+
+  Object.keys(sanitized).forEach((key) => {
     const value = sanitized[key as keyof T];
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       sanitized[key as keyof T] = sanitizeInput(value) as any;
     }
   });
-  
+
   return sanitized;
 }
 
@@ -100,27 +105,33 @@ export function sanitizeFormData<T extends Record<string, any>>(formData: T): T 
  * @returns Sanitized URL or empty string if invalid
  */
 export function sanitizeUrl(url: string, allowedDomains?: string[]): string {
-  if (!url) return '';
-  
+  if (!url) return "";
+
   try {
     const urlObj = new URL(url);
-    
+
     // If allowedDomains is provided, check if the URL's domain is in the list
     if (allowedDomains && allowedDomains.length > 0) {
-      if (!allowedDomains.some(domain => urlObj.hostname === domain || urlObj.hostname.endsWith(`.${domain}`))) {
-        return '';
+      if (
+        !allowedDomains.some(
+          (domain) =>
+            urlObj.hostname === domain ||
+            urlObj.hostname.endsWith(`.${domain}`),
+        )
+      ) {
+        return "";
       }
     }
-    
+
     // Only allow http and https protocols
-    if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
-      return '';
+    if (urlObj.protocol !== "http:" && urlObj.protocol !== "https:") {
+      return "";
     }
-    
+
     return url;
   } catch (e) {
     // If the URL is invalid, return an empty string
-    return '';
+    return "";
   }
 }
 
@@ -129,8 +140,10 @@ export function sanitizeUrl(url: string, allowedDomains?: string[]): string {
  * @returns Random nonce string
  */
 export function generateNonce(): string {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15);
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
 
 /**
@@ -140,7 +153,8 @@ export function generateNonce(): string {
  */
 export function isSecurePassword(password: string): boolean {
   // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$/;
   return passwordRegex.test(password);
 }
 
@@ -160,5 +174,7 @@ export function getCSPDirectives(): string {
     frame-src 'self';
     base-uri 'self';
     form-action 'self';
-  `.replace(/\s+/g, ' ').trim();
+  `
+    .replace(/\s+/g, " ")
+    .trim();
 }

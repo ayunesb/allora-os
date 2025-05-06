@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { getExecutiveDecisions } from "@/agents/decisionService";
 import { ExecutiveDecision } from "@/types/agents";
 

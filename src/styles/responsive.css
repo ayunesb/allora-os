@@ -1,10 +1,9 @@
-
 /* Main responsive styles file - imports modular components */
 
 /* Import individual responsive style files */
-@import './responsive/breakpoints.css';
-@import './responsive/admin-styles.css';
-@import './responsive/tabs.css';
-@import './responsive/scrollbars.css';
+@import "./responsive/breakpoints.css";
+@import "./responsive/admin-styles.css";
+@import "./responsive/tabs.css";
+@import "./responsive/scrollbars.css";
 
 /* Additional responsive utilities can be added here */

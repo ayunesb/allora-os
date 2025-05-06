@@ -1,10 +1,18 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DatabaseVerificationDashboard } from "@/components/admin/database-verification";
 import { useDatabaseVerification } from "@/hooks/admin/useDatabaseVerification";
 export default function DatabaseVerification() {
-    const { verificationResult, verifyDatabaseConfiguration } = useDatabaseVerification();
-    return (<div className="space-y-6">
+  const { verificationResult, verifyDatabaseConfiguration } =
+    useDatabaseVerification();
+  return (
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Database Verification</CardTitle>
@@ -13,8 +21,12 @@ export default function DatabaseVerification() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <DatabaseVerificationDashboard result={verificationResult} onVerify={verifyDatabaseConfiguration}/>
+          <DatabaseVerificationDashboard
+            result={verificationResult}
+            onVerify={verifyDatabaseConfiguration}
+          />
         </CardContent>
       </Card>
-    </div>);
+    </div>
+  );
 }

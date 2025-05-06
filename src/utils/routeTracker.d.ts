@@ -18,6 +18,6 @@ export declare const isValidLegalRoute: (path: string) => boolean;
  * @returns Array of matching route objects with path and display name
  */
 export declare const getSuggestedLegalRoutes: (partialPath: string) => Array<{
-    path: string;
-    name: string;
+  path: string;
+  name: string;
 }>;

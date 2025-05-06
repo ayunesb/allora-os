@@ -1,5 +1,7 @@
 interface ComplianceUpdateNotificationProps {
-    className?: string;
+  className?: string;
 }
-export default function ComplianceUpdateNotification({ className }: ComplianceUpdateNotificationProps): JSX.Element;
+export default function ComplianceUpdateNotification({
+  className,
+}: ComplianceUpdateNotificationProps): JSX.Element;
 export {};

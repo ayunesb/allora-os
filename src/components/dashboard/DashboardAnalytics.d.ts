@@ -1,6 +1,9 @@
 interface DashboardAnalyticsProps {
-    data?: any;
-    isLoading?: boolean;
+  data?: any;
+  isLoading?: boolean;
 }
-export declare function DashboardAnalytics({ data, isLoading }: DashboardAnalyticsProps): JSX.Element;
+export declare function DashboardAnalytics({
+  data,
+  isLoading,
+}: DashboardAnalyticsProps): JSX.Element;
 export {};

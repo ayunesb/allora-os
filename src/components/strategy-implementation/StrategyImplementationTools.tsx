@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { ImplementationTabs } from './tabs/ImplementationTabs';
-import ImplementationTabContent from './tabs/ImplementationTabContent';
-export function StrategyImplementationTools({ strategyId, strategyName = 'Current Strategy' }) {
-    const [activeTab, setActiveTab] = useState('overview');
-    const handleTabChange = (value) => {
-        setActiveTab(value);
-    };
-    return (<Card>
+import React, { useState } from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { ImplementationTabs } from "./tabs/ImplementationTabs";
+import ImplementationTabContent from "./tabs/ImplementationTabContent";
+export function StrategyImplementationTools({
+  strategyId,
+  strategyName = "Current Strategy",
+}) {
+  const [activeTab, setActiveTab] = useState("overview");
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+  };
+  return (
+    <Card>
       <CardHeader>
         <CardTitle>Implementation Tools</CardTitle>
         <CardDescription>
@@ -15,9 +25,16 @@ export function StrategyImplementationTools({ strategyId, strategyName = 'Curren
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ImplementationTabs activeTab={activeTab} onTabChange={handleTabChange}/>
-        <ImplementationTabContent strategyId={strategyId} activeTab={activeTab}/>
+        <ImplementationTabs
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
+        <ImplementationTabContent
+          strategyId={strategyId}
+          activeTab={activeTab}
+        />
       </CardContent>
-    </Card>);
+    </Card>
+  );
 }
 export default StrategyImplementationTools;

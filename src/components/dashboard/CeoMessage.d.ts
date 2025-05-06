@@ -1,5 +1,7 @@
 interface CeoMessageProps {
-    riskAppetite: string;
+  riskAppetite: string;
 }
-export default function CeoMessage({ riskAppetite }: CeoMessageProps): JSX.Element;
+export default function CeoMessage({
+  riskAppetite,
+}: CeoMessageProps): JSX.Element;
 export {};

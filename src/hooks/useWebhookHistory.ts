@@ -1,7 +1,6 @@
-
-import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '@/backend/supabase';
-import { WebhookEvent, BusinessEventType } from '@/types/unified-types';
+import { useState, useCallback, useEffect } from "react";
+import { supabase } from "@/backend/supabase";
+import { WebhookEvent, BusinessEventType } from "@/types/unified-types";
 
 interface UseWebhookHistoryOptions {
   limit?: number;
@@ -15,7 +14,7 @@ interface UseWebhookHistoryOptions {
 
 export function useWebhookHistory({
   limit = 50,
-  initialFilter
+  initialFilter,
 }: UseWebhookHistoryOptions = {}) {
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +26,7 @@ export function useWebhookHistory({
       eventType,
       status,
       fromDate,
-      toDate
+      toDate,
     }: {
       eventType?: BusinessEventType;
       status?: string;
@@ -39,33 +38,33 @@ export function useWebhookHistory({
         setError(null);
 
         let query = supabase
-          .from('webhook_logs')
-          .select('*', { count: 'exact' });
+          .from("webhook_logs")
+          .select("*", { count: "exact" });
 
         // Apply filters if provided
         if (eventType) {
           // Handle conversion from Zapier's "lead_created" format to our "lead.created" format
           let mappedEventType: BusinessEventType = eventType;
-          if (eventType === 'lead.created' as BusinessEventType) {
-            mappedEventType = 'lead.created' as BusinessEventType;
+          if (eventType === ("lead.created" as BusinessEventType)) {
+            mappedEventType = "lead.created" as BusinessEventType;
           }
-          query = query.eq('message_type', mappedEventType);
+          query = query.eq("message_type", mappedEventType);
         }
 
         if (status) {
-          query = query.eq('status', status);
+          query = query.eq("status", status);
         }
 
         if (fromDate) {
-          query = query.gte('created_at', fromDate.toISOString());
+          query = query.gte("created_at", fromDate.toISOString());
         }
 
         if (toDate) {
-          query = query.lte('created_at', toDate.toISOString());
+          query = query.lte("created_at", toDate.toISOString());
         }
 
         // Order by created_at desc and limit results
-        query = query.order('created_at', { ascending: false }).limit(limit);
+        query = query.order("created_at", { ascending: false }).limit(limit);
 
         const { data, error, count } = await query;
 
@@ -74,13 +73,13 @@ export function useWebhookHistory({
         // Transform to WebhookEvent format
         const transformedEvents: WebhookEvent[] = (data || []).map((event) => ({
           id: event.id,
-          webhook_id: event.webhook_id || '',
+          webhook_id: event.webhook_id || "",
           event_type: event.message_type as BusinessEventType,
-          status: event.status as 'success' | 'failed' | 'pending',
+          status: event.status as "success" | "failed" | "pending",
           created_at: event.created_at,
           payload: event.payload || {},
           targetUrl: event.url,
-          webhookType: 'custom', // Default value, should be updated based on URL or other logic
+          webhookType: "custom", // Default value, should be updated based on URL or other logic
           timestamp: event.created_at,
           response: event.response,
           // Legacy field aliases for backward compatibility
@@ -90,13 +89,13 @@ export function useWebhookHistory({
         setEvents(transformedEvents);
         setTotal(count || 0);
       } catch (err) {
-        console.error('Error fetching webhook history:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        console.error("Error fetching webhook history:", err);
+        setError(err instanceof Error ? err.message : "Unknown error");
       } finally {
         setIsLoading(false);
       }
     },
-    [limit]
+    [limit],
   );
 
   // Initial fetch with any provided filters

@@ -3,11 +3,16 @@ import { AgentPerformanceModal } from "@/components/agents/AgentPerformanceModal
 // ...existing code...
 const [showAgentModal, setShowAgentModal] = useState(false);
 const [selectedPluginName, setSelectedPluginName] = useState(null);
-const onNodeClick = (node: any) => { // Added explicit type for 'node'
-    if (node.type === "plugin") {
-        setSelectedPluginName(node.name);
-        setShowAgentModal(true);
-    }
+const onNodeClick = (node: any) => {
+  // Added explicit type for 'node'
+  if (node.type === "plugin") {
+    setSelectedPluginName(node.name);
+    setShowAgentModal(true);
+  }
 };
 // ...existing code...
-<AgentPerformanceModal open={showAgentModal} onClose={() => setShowAgentModal(false)} pluginName={selectedPluginName}/>;
+<AgentPerformanceModal
+  open={showAgentModal}
+  onClose={() => setShowAgentModal(false)}
+  pluginName={selectedPluginName}
+/>;

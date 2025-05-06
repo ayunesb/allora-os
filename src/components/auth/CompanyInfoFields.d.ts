@@ -1,6 +1,8 @@
 import { UseFormReturn } from "react-hook-form";
 interface CompanyInfoFieldsProps {
-    form: UseFormReturn<any>;
+  form: UseFormReturn<any>;
 }
-export default function CompanyInfoFields({ form }: CompanyInfoFieldsProps): import("react").JSX.Element;
+export default function CompanyInfoFields({
+  form,
+}: CompanyInfoFieldsProps): import("react").JSX.Element;
 export {};

@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 
@@ -20,8 +19,12 @@ const SystemPage = lazy(() => import("@/pages/admin/system"));
 // Lazy load audit-related pages for better performance
 const AuditPage = lazy(() => import("@/pages/admin/AuditPage"));
 const RunAudit = lazy(() => import("@/pages/admin/RunAudit"));
-const TechnicalImprovementsPage = lazy(() => import("@/pages/admin/TechnicalImprovementsPage"));
-const StrategyImplementationPage = lazy(() => import("@/pages/admin/StrategyImplementationPage"));
+const TechnicalImprovementsPage = lazy(
+  () => import("@/pages/admin/TechnicalImprovementsPage"),
+);
+const StrategyImplementationPage = lazy(
+  () => import("@/pages/admin/StrategyImplementationPage"),
+);
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -30,70 +33,70 @@ export const adminRoutes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <AdminDashboard />
+        element: <AdminDashboard />,
       },
       {
         path: "entities",
-        element: <AdminEntities />
+        element: <AdminEntities />,
       },
       {
         path: "users",
-        element: <AdminUsers />
+        element: <AdminUsers />,
       },
       {
         path: "companies",
-        element: <AdminCompanies />
+        element: <AdminCompanies />,
       },
       {
         path: "settings",
-        element: <AdminSettings />
+        element: <AdminSettings />,
       },
       {
         path: "webhooks",
-        element: <AdminWebhooks />
+        element: <AdminWebhooks />,
       },
       {
         path: "system-health",
-        element: <AdminSystemHealth />
+        element: <AdminSystemHealth />,
       },
       {
         path: "diagnostics",
-        element: <SystemPage />
+        element: <SystemPage />,
       },
       {
         path: "launch-prep",
-        element: <AdminLaunchPrep />
+        element: <AdminLaunchPrep />,
       },
       {
         path: "campaigns",
-        element: <AdminCampaigns />
+        element: <AdminCampaigns />,
       },
       {
         path: "analytics",
-        element: <AdminAnalytics />
+        element: <AdminAnalytics />,
       },
       {
         path: "leads",
-        element: <AdminLeads />
+        element: <AdminLeads />,
       },
       {
         path: "audit",
-        element: <AuditPage />
+        element: <AuditPage />,
       },
       {
         path: "run-audit",
-        element: <RunAudit />
+        element: <RunAudit />,
       },
       {
         path: "technical-improvements",
-        element: <TechnicalImprovementsPage />
+        element: <TechnicalImprovementsPage />,
       },
       {
         path: "strategy-implementation/:id",
-        element: <StrategyImplementationPage />
-      }
-    ]
-  }
+        element: <StrategyImplementationPage />,
+      },
+    ],
+  },
 ];
 
 export default adminRoutes;

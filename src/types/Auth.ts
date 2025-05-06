@@ -1,4 +1,4 @@
-import { User } from './user'; // Adjusted the import path to match the correct module
+import { User } from "./user"; // Adjusted the import path to match the correct module
 
 export interface User {
   id: string;

@@ -1,4 +1,3 @@
-
 export interface ValidationResultsUI {
   databaseTables?: any[];
   databaseIndexes?: any[];
@@ -21,4 +20,4 @@ export interface EnhancedVerificationState {
 }
 
 // Import the ChecklistCategory type
-import { ChecklistCategory } from './Checklist';
+import { ChecklistCategory } from "./Checklist";

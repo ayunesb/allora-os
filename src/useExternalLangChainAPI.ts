@@ -1,7 +1,7 @@
-import { toast } from '@/utils/toast'; // Fix path
+import { toast } from "@/utils/toast"; // Fix path
 
 type Toast = {
-  variant?: 'default' | 'destructive'; // ✅ Added 'destructive'
+  variant?: "default" | "destructive"; // ✅ Added 'destructive'
   // ...other properties...
 };
 
@@ -12,7 +12,7 @@ const toastContent = {
 };
 
 toast({
-  children: 'Error!',
-  description: 'Something went wrong',
-  variant: 'destructive', // Ensure 'variant' is a valid property
+  children: "Error!",
+  description: "Something went wrong",
+  variant: "destructive", // Ensure 'variant' is a valid property
 });

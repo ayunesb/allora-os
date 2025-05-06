@@ -3,6 +3,6 @@
  * This is a destructive action that cannot be undone
  */
 export declare function deleteUserAccount(): Promise<{
-    success: boolean;
-    error?: string;
+  success: boolean;
+  error?: string;
 }>;

@@ -1,6 +1,11 @@
-
 // Define a type for JSON data
-export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json }
+  | Json[];
 
 // Company data type
 export type BasicCompanyData = {

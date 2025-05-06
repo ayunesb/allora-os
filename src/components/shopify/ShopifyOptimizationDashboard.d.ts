@@ -1,5 +1,7 @@
 interface ShopifyOptimizationDashboardProps {
-    storeId: string;
+  storeId: string;
 }
-export default function ShopifyOptimizationDashboard({ storeId }: ShopifyOptimizationDashboardProps): import("react").JSX.Element;
+export default function ShopifyOptimizationDashboard({
+  storeId,
+}: ShopifyOptimizationDashboardProps): import("react").JSX.Element;
 export {};

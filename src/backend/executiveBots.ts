@@ -2,125 +2,437 @@
 export const executiveBots = {
   // C-Suite
   ceo: ["Elon Musk", "Jeff Bezos", "Satya Nadella", "Tim Cook"],
-  coo: ["Sheryl Sandberg", "Gwynne Shotwell", "Jeffrey Bezos (COO Mode)", "Anne Mulcahy"],
-  cfo: ["Warren Buffett", "Ruth Porat", "David Wehner", "Kelly R. Bennett", "Michael S. Dell", "Jamie Dimon"],
-  cio: ["Satya Nadella", "Bob Lord", "Cynthia Stoddard", "Abby Kohnstamm", "Caterina Fake"],
-  cto: ["Mike Schroepfer", "Werner Vogels", "Parag Agrawal", "Anders Hejlsberg"],
-  cmo: ["Antonio Lucio", "Phil Schiller", "Keith Weed", "Mindy Grossman", "Seth Godin"],
+  coo: [
+    "Sheryl Sandberg",
+    "Gwynne Shotwell",
+    "Jeffrey Bezos (COO Mode)",
+    "Anne Mulcahy",
+  ],
+  cfo: [
+    "Warren Buffett",
+    "Ruth Porat",
+    "David Wehner",
+    "Kelly R. Bennett",
+    "Michael S. Dell",
+    "Jamie Dimon",
+  ],
+  cio: [
+    "Satya Nadella",
+    "Bob Lord",
+    "Cynthia Stoddard",
+    "Abby Kohnstamm",
+    "Caterina Fake",
+  ],
+  cto: [
+    "Mike Schroepfer",
+    "Werner Vogels",
+    "Parag Agrawal",
+    "Anders Hejlsberg",
+  ],
+  cmo: [
+    "Antonio Lucio",
+    "Phil Schiller",
+    "Keith Weed",
+    "Mindy Grossman",
+    "Seth Godin",
+  ],
   chro: ["Pat Wadors", "Jenny Dearborn", "Laszlo Bock", "Anu Monga"],
-  
+
   // VPs and Directors
-  vp_sales: ["Mike Weinberg", "Grant Cardone", "Brian Tracy", "Zig Ziglar", "Jill Konrath"],
+  vp_sales: [
+    "Mike Weinberg",
+    "Grant Cardone",
+    "Brian Tracy",
+    "Zig Ziglar",
+    "Jill Konrath",
+  ],
   vp_product: ["Marissa Mayer", "Sundar Pichai", "Julie Zhuo", "Des Traynor"],
-  vp_operations: ["Gwynne Shotwell", "Tim Cook", "Jeff Wilke", "Rosalind Brewer"],
-  vp_marketing: ["Phil Schiller", "Antonio Lucio", "Beth Comstock", "Bozoma Saint John"],
-  digital_marketing: ["Neil Patel", "Gary Vaynerchuk", "Rand Fishkin", "Avinash Kaushik"],
+  vp_operations: [
+    "Gwynne Shotwell",
+    "Tim Cook",
+    "Jeff Wilke",
+    "Rosalind Brewer",
+  ],
+  vp_marketing: [
+    "Phil Schiller",
+    "Antonio Lucio",
+    "Beth Comstock",
+    "Bozoma Saint John",
+  ],
+  digital_marketing: [
+    "Neil Patel",
+    "Gary Vaynerchuk",
+    "Rand Fishkin",
+    "Avinash Kaushik",
+  ],
   seo_specialist: ["Rand Fishkin", "Moz Team", "Ahrefs Team", "Marie Haynes"],
-  ppc_specialist: ["Brad Geddes", "Larry Kim", "Samantha Noble", "Frederick Vallaeys"],
-  
+  ppc_specialist: [
+    "Brad Geddes",
+    "Larry Kim",
+    "Samantha Noble",
+    "Frederick Vallaeys",
+  ],
+
   // Technical Specialists
-  data_scientist: ["Yann LeCun", "Andrew Ng", "Geoffrey Hinton", "Fei-Fei Li", "DJ Patil"],
-  ml_engineer: ["Demis Hassabis", "Ian Goodfellow", "Andrej Karpathy", "Christopher Manning"],
-  software_engineer: ["Kent Beck", "Martin Fowler", "Linus Torvalds", "Guido van Rossum"],
-  cloud_architect: ["Urs Hölzle", "Werner Vogels", "James Gosling", "Adrian Cockcroft"],
-  blockchain_developer: ["Vitalik Buterin", "Gavin Wood", "Charles Hoskinson", "Joseph Lubin"],
-  
+  data_scientist: [
+    "Yann LeCun",
+    "Andrew Ng",
+    "Geoffrey Hinton",
+    "Fei-Fei Li",
+    "DJ Patil",
+  ],
+  ml_engineer: [
+    "Demis Hassabis",
+    "Ian Goodfellow",
+    "Andrej Karpathy",
+    "Christopher Manning",
+  ],
+  software_engineer: [
+    "Kent Beck",
+    "Martin Fowler",
+    "Linus Torvalds",
+    "Guido van Rossum",
+  ],
+  cloud_architect: [
+    "Urs Hölzle",
+    "Werner Vogels",
+    "James Gosling",
+    "Adrian Cockcroft",
+  ],
+  blockchain_developer: [
+    "Vitalik Buterin",
+    "Gavin Wood",
+    "Charles Hoskinson",
+    "Joseph Lubin",
+  ],
+
   // Business and Strategy
-  strategy: ["Clayton Christensen", "Brian Chesky", "Reed Hastings", "Marissa Mayer"],
-  business_analyst: ["Thomas Davenport", "Michael Porter", "Jim Collins", "Peter Drucker"],
+  strategy: [
+    "Clayton Christensen",
+    "Brian Chesky",
+    "Reed Hastings",
+    "Marissa Mayer",
+  ],
+  business_analyst: [
+    "Thomas Davenport",
+    "Michael Porter",
+    "Jim Collins",
+    "Peter Drucker",
+  ],
   growth_hacker: ["Andrew Chen", "Sean Ellis", "Noah Kagan", "Hiten Shah"],
-  innovation_manager: ["Clayton Christensen", "W. Chan Kim", "Steve Blank", "Eric Ries"],
-  brand_strategist: ["Keith Weed", "Cindy Gallop", "Martin Lindstrom", "Wally Olins"],
-  
+  innovation_manager: [
+    "Clayton Christensen",
+    "W. Chan Kim",
+    "Steve Blank",
+    "Eric Ries",
+  ],
+  brand_strategist: [
+    "Keith Weed",
+    "Cindy Gallop",
+    "Martin Lindstrom",
+    "Wally Olins",
+  ],
+
   // Finance and Investment
-  venture_capitalist: ["Peter Thiel", "Marc Andreessen", "Mary Meeker", "Bill Gurley"],
-  investment_banker: ["Jamie Dimon", "Lloyd Blankfein", "Adena Friedman", "James Gorman"],
+  venture_capitalist: [
+    "Peter Thiel",
+    "Marc Andreessen",
+    "Mary Meeker",
+    "Bill Gurley",
+  ],
+  investment_banker: [
+    "Jamie Dimon",
+    "Lloyd Blankfein",
+    "Adena Friedman",
+    "James Gorman",
+  ],
   risk_manager: ["Warren Buffett", "Ray Dalio", "Robert Rubin", "Sheila Bair"],
-  financial_advisor: ["Suze Orman", "Dave Ramsey", "Ramit Sethi", "Robert Kiyosaki"],
-  
+  financial_advisor: [
+    "Suze Orman",
+    "Dave Ramsey",
+    "Ramit Sethi",
+    "Robert Kiyosaki",
+  ],
+
   // Operations and Logistics
-  supply_chain_manager: ["Doug McMillon", "Tim Cook", "Mary Barra", "Frederick W. Smith"],
-  manufacturing_engineer: ["Elon Musk", "Jeff Bezos", "Shigefumi Goto", "Taiichi Ohno"],
-  transportation_manager: ["Elon Musk", "Richard Branson", "Ed Bastian", "Frederick W. Smith"],
-  aviation_manager: ["Akbar Al Baker", "Richard Branson", "Alan Joyce", "Carsten Spohr"],
-  
+  supply_chain_manager: [
+    "Doug McMillon",
+    "Tim Cook",
+    "Mary Barra",
+    "Frederick W. Smith",
+  ],
+  manufacturing_engineer: [
+    "Elon Musk",
+    "Jeff Bezos",
+    "Shigefumi Goto",
+    "Taiichi Ohno",
+  ],
+  transportation_manager: [
+    "Elon Musk",
+    "Richard Branson",
+    "Ed Bastian",
+    "Frederick W. Smith",
+  ],
+  aviation_manager: [
+    "Akbar Al Baker",
+    "Richard Branson",
+    "Alan Joyce",
+    "Carsten Spohr",
+  ],
+
   // Legal and Compliance
-  legal_counsel: ["David Boies", "Ruth Bader Ginsburg", "Mary Jo White", "Wachtell Lipton Team"],
-  compliance_officer: ["Mary Jo White", "Jay Clayton", "Kenneth Feinberg", "Preet Bharara"],
-  
+  legal_counsel: [
+    "David Boies",
+    "Ruth Bader Ginsburg",
+    "Mary Jo White",
+    "Wachtell Lipton Team",
+  ],
+  compliance_officer: [
+    "Mary Jo White",
+    "Jay Clayton",
+    "Kenneth Feinberg",
+    "Preet Bharara",
+  ],
+
   // UX/UI and Design
   ux_designer: ["Jonathan Ive", "Don Norman", "Steve Krug", "Jakob Nielsen"],
   architect: ["Norman Foster", "Zaha Hadid", "Rem Koolhaas", "Frank Gehry"],
-  civil_engineer: ["Isambard Brunel", "Gustave Eiffel", "Leslie Robertson", "Fazlur Rahman Khan"],
-  structural_engineer: ["Santiago Calatrava", "Ove Arup", "Peter Rice", "Leslie Robertson"],
-  fashion_designer: ["Coco Chanel", "Giorgio Armani", "Donatella Versace", "Tom Ford"],
-  
+  civil_engineer: [
+    "Isambard Brunel",
+    "Gustave Eiffel",
+    "Leslie Robertson",
+    "Fazlur Rahman Khan",
+  ],
+  structural_engineer: [
+    "Santiago Calatrava",
+    "Ove Arup",
+    "Peter Rice",
+    "Leslie Robertson",
+  ],
+  fashion_designer: [
+    "Coco Chanel",
+    "Giorgio Armani",
+    "Donatella Versace",
+    "Tom Ford",
+  ],
+
   // Special Sectors
-  sustainability_officer: ["Christiana Figueres", "Al Gore", "Gro Harlem Brundtland", "Paul Polman"],
-  biotech_scientist: ["Jennifer Doudna", "George Church", "Craig Venter", "Feng Zhang"],
-  genetic_engineer: ["Feng Zhang", "Jennifer Doudna", "George Church", "Emmanuelle Charpentier"],
-  medical_doctor: ["Valentin Fuster", "Atul Gawande", "Anthony Fauci", "Eric Topol"],
+  sustainability_officer: [
+    "Christiana Figueres",
+    "Al Gore",
+    "Gro Harlem Brundtland",
+    "Paul Polman",
+  ],
+  biotech_scientist: [
+    "Jennifer Doudna",
+    "George Church",
+    "Craig Venter",
+    "Feng Zhang",
+  ],
+  genetic_engineer: [
+    "Feng Zhang",
+    "Jennifer Doudna",
+    "George Church",
+    "Emmanuelle Charpentier",
+  ],
+  medical_doctor: [
+    "Valentin Fuster",
+    "Atul Gawande",
+    "Anthony Fauci",
+    "Eric Topol",
+  ],
   neurosurgeon: ["Sanjay Gupta", "Ben Carson", "Henry Marsh", "James Watson"],
-  
+
   // AI Ethics and Security
-  ai_ethics_researcher: ["Timnit Gebru", "Kate Crawford", "Joy Buolamwini", "Meredith Whittaker"],
-  cybersecurity_specialist: ["Kevin Mitnick", "Bruce Schneier", "Mikko Hypponen", "Brian Krebs"],
-  
+  ai_ethics_researcher: [
+    "Timnit Gebru",
+    "Kate Crawford",
+    "Joy Buolamwini",
+    "Meredith Whittaker",
+  ],
+  cybersecurity_specialist: [
+    "Kevin Mitnick",
+    "Bruce Schneier",
+    "Mikko Hypponen",
+    "Brian Krebs",
+  ],
+
   // Media and Communications
-  content_creator: ["MrBeast", "Casey Neistat", "Peter McKinnon", "Lilly Singh"],
-  public_relations: ["Richard Edelman", "Harold Burson", "Dan Edelman", "Melissa Waggener"],
-  journalist: ["Christiane Amanpour", "Anderson Cooper", "Kara Swisher", "Walt Mossberg"],
-  diplomat: ["Kofi Annan", "Madeleine Albright", "Henry Kissinger", "Ban Ki-moon"],
-  
+  content_creator: [
+    "MrBeast",
+    "Casey Neistat",
+    "Peter McKinnon",
+    "Lilly Singh",
+  ],
+  public_relations: [
+    "Richard Edelman",
+    "Harold Burson",
+    "Dan Edelman",
+    "Melissa Waggener",
+  ],
+  journalist: [
+    "Christiane Amanpour",
+    "Anderson Cooper",
+    "Kara Swisher",
+    "Walt Mossberg",
+  ],
+  diplomat: [
+    "Kofi Annan",
+    "Madeleine Albright",
+    "Henry Kissinger",
+    "Ban Ki-moon",
+  ],
+
   // Entertainment and Hospitality
   music_producer: ["Rick Rubin", "Dr. Dre", "Quincy Jones", "Max Martin"],
-  film_director: ["Steven Spielberg", "Christopher Nolan", "Kathryn Bigelow", "Quentin Tarantino"],
+  film_director: [
+    "Steven Spielberg",
+    "Christopher Nolan",
+    "Kathryn Bigelow",
+    "Quentin Tarantino",
+  ],
   actor: ["Meryl Streep", "Tom Hanks", "Daniel Day-Lewis", "Viola Davis"],
-  food_beverage_director: ["José Andrés", "Gordon Ramsay", "Alice Waters", "Thomas Keller"],
-  hospitality_manager: ["Arne Sorenson", "Bill Marriott", "Ian Schrager", "Isadore Sharp"],
-  
+  food_beverage_director: [
+    "José Andrés",
+    "Gordon Ramsay",
+    "Alice Waters",
+    "Thomas Keller",
+  ],
+  hospitality_manager: [
+    "Arne Sorenson",
+    "Bill Marriott",
+    "Ian Schrager",
+    "Isadore Sharp",
+  ],
+
   // Customer Success and Service
-  customer_success: ["Nick Mehta", "Tony Hsieh", "Lincoln Murphy", "Jeffrey Pfeffer", "Ann-Marie Campbell"],
-  call_center_manager: ["Tony Hsieh", "Jeff Bezos", "Richard Branson", "Herb Kelleher"],
-  
+  customer_success: [
+    "Nick Mehta",
+    "Tony Hsieh",
+    "Lincoln Murphy",
+    "Jeffrey Pfeffer",
+    "Ann-Marie Campbell",
+  ],
+  call_center_manager: [
+    "Tony Hsieh",
+    "Jeff Bezos",
+    "Richard Branson",
+    "Herb Kelleher",
+  ],
+
   // Sales and Business Development
   sales_business_development: ["Marc Benioff", "Howard Schultz", "Mary Barra"],
   cold_calling: ["Grant Cardone", "Brian Tracy", "Zig Ziglar", "Jill Konrath"],
   lead_qualification: ["Trish Bertuzzi", "Mike Weinberg"],
-  
+
   // E-commerce and Retail
-  retail_manager: ["Doug McMillon", "Mickey Drexler", "Angela Ahrendts", "Stacey Widlitz"],
+  retail_manager: [
+    "Doug McMillon",
+    "Mickey Drexler",
+    "Angela Ahrendts",
+    "Stacey Widlitz",
+  ],
   ecommerce_director: ["Jeff Bezos", "Jack Ma", "Michael Dubin", "Marc Lore"],
-  luxury_brand_manager: ["Bernard Arnault", "François-Henri Pinault", "Miuccia Prada", "Patrizio Bertelli"],
-  
+  luxury_brand_manager: [
+    "Bernard Arnault",
+    "François-Henri Pinault",
+    "Miuccia Prada",
+    "Patrizio Bertelli",
+  ],
+
   // Sports and Education
-  sports_coach: ["Pep Guardiola", "Phil Jackson", "Alex Ferguson", "Bill Belichick"],
+  sports_coach: [
+    "Pep Guardiola",
+    "Phil Jackson",
+    "Alex Ferguson",
+    "Bill Belichick",
+  ],
   sports_agent: ["Scott Boras", "Jeff Schwartz", "Rich Paul", "Mino Raiola"],
-  education_consultant: ["Sal Khan", "Ken Robinson", "Sugata Mitra", "Carol Dweck"],
-  university_president: ["Drew Faust", "Rafael Reif", "John Hennessy", "Lawrence Bacow"],
-  
+  education_consultant: [
+    "Sal Khan",
+    "Ken Robinson",
+    "Sugata Mitra",
+    "Carol Dweck",
+  ],
+  university_president: [
+    "Drew Faust",
+    "Rafael Reif",
+    "John Hennessy",
+    "Lawrence Bacow",
+  ],
+
   // Real Estate and Construction
-  real_estate_broker: ["Ryan Serhant", "Barbara Corcoran", "Grant Cardone", "Josh Altman"],
-  construction_manager: ["Jorge Pérez", "Steve Wynn", "Donald Trump", "Sam Zell"],
-  
+  real_estate_broker: [
+    "Ryan Serhant",
+    "Barbara Corcoran",
+    "Grant Cardone",
+    "Josh Altman",
+  ],
+  construction_manager: [
+    "Jorge Pérez",
+    "Steve Wynn",
+    "Donald Trump",
+    "Sam Zell",
+  ],
+
   // Gaming and Immersive Tech
-  vr_ar_developer: ["Palmer Luckey", "John Carmack", "Brendan Iribe", "Michael Abrash"],
-  game_designer: ["Shigeru Miyamoto", "Hideo Kojima", "Will Wright", "Sid Meier"],
+  vr_ar_developer: [
+    "Palmer Luckey",
+    "John Carmack",
+    "Brendan Iribe",
+    "Michael Abrash",
+  ],
+  game_designer: [
+    "Shigeru Miyamoto",
+    "Hideo Kojima",
+    "Will Wright",
+    "Sid Meier",
+  ],
   esports_coach: ["Danny Sørensen", "Kim Jeong-soo", "Cain", "Kkoma"],
-  
+
   // Event Planning
-  event_planner: ["Mindy Weiss", "Preston Bailey", "David Tutera", "Colin Cowie"],
-  
+  event_planner: [
+    "Mindy Weiss",
+    "Preston Bailey",
+    "David Tutera",
+    "Colin Cowie",
+  ],
+
   // Special Operations
-  operations_efficiency: ["Indra Nooyi", "Tim Cook", "Mary Barra", "Greg Brenneman"],
-  political_campaign_manager: ["David Axelrod", "Kellyanne Conway", "James Carville", "Karl Rove"],
-  strategic_partnerships: ["Sheryl Sandberg", "Satya Nadella", "Tim Cook", "Marc Benioff"],
+  operations_efficiency: [
+    "Indra Nooyi",
+    "Tim Cook",
+    "Mary Barra",
+    "Greg Brenneman",
+  ],
+  political_campaign_manager: [
+    "David Axelrod",
+    "Kellyanne Conway",
+    "James Carville",
+    "Karl Rove",
+  ],
+  strategic_partnerships: [
+    "Sheryl Sandberg",
+    "Satya Nadella",
+    "Tim Cook",
+    "Marc Benioff",
+  ],
   renewable_energy_engineer: ["Elon Musk", "Bill Gross", "Akon", "Lynn Jurich"],
-  electric_vehicle_engineer: ["JB Straubel", "Elon Musk", "Henrik Fisker", "Peter Rawlinson"],
-  aerospace_engineer: ["Gwynne Shotwell", "Elon Musk", "Burt Rutan", "Kelly Johnson"],
-  
-  // Marketing 
-  marketing: ["Seth Godin", "Gary Vaynerchuk", "Rand Fishkin", "Neil Patel"]
+  electric_vehicle_engineer: [
+    "JB Straubel",
+    "Elon Musk",
+    "Henrik Fisker",
+    "Peter Rawlinson",
+  ],
+  aerospace_engineer: [
+    "Gwynne Shotwell",
+    "Elon Musk",
+    "Burt Rutan",
+    "Kelly Johnson",
+  ],
+
+  // Marketing
+  marketing: ["Seth Godin", "Gary Vaynerchuk", "Rand Fishkin", "Neil Patel"],
 };
 
 // Additional specialized industry-specific executives
@@ -128,33 +440,37 @@ export const industrySpecificExecutives = {
   healthcare: {
     cmo: ["Angela Hwang", "Emma Walmsley", "Vas Narasimhan"],
     chro: ["Bernard J. Tyson", "Carla Irwin", "David Feinberg"],
-    compliance: ["Catherine Corley", "Richard Sauber", "Melissa Stapleton Barnes"],
-    strategic_partnerships: ["Jessica Mega", "Kieran Murphy", "Joaquin Duato"]
+    compliance: [
+      "Catherine Corley",
+      "Richard Sauber",
+      "Melissa Stapleton Barnes",
+    ],
+    strategic_partnerships: ["Jessica Mega", "Kieran Murphy", "Joaquin Duato"],
   },
   technology: {
     cio: ["Satya Nadella", "Sarah Friar", "Safra Catz"],
     cto: ["Werner Vogels", "Mike Schroepfer", "Parag Agrawal"],
     security: ["Christopher Krebs", "Katie Moussouris", "Bruce Schneier"],
-    product_strategy: ["Marissa Mayer", "Sundar Pichai", "Lisa Su"]
+    product_strategy: ["Marissa Mayer", "Sundar Pichai", "Lisa Su"],
   },
   finance: {
     cfo: ["Ruth Porat", "Jamie Dimon", "Jane Fraser"],
     risk_officer: ["Sarah Dahlgren", "Brian Moynihan", "Marianne Lake"],
     investment_advisor: ["Ray Dalio", "Cathie Wood", "Howard Marks"],
-    regulatory_compliance: ["Mary Schapiro", "Gary Gensler", "Hester Peirce"]
+    regulatory_compliance: ["Mary Schapiro", "Gary Gensler", "Hester Peirce"],
   },
   retail: {
     cmo: ["Seth Godin", "Bozoma Saint John", "Marc Pritchard"],
     supply_chain: ["Tim Cook", "Alexis Maybank", "Dave Clark"],
     customer_experience: ["Tony Hsieh", "Horst Schulze", "Shep Hyken"],
-    ecommerce_director: ["Daniel Zhang", "Julie Wainwright", "Kunal Bahl"]
+    ecommerce_director: ["Daniel Zhang", "Julie Wainwright", "Kunal Bahl"],
   },
   manufacturing: {
     operations: ["Tim Cook", "Mary Barra", "Gwynne Shotwell"],
     supply_chain: ["Liz Elting", "Annette Clayton", "Ruth Hartman"],
     quality_control: ["W. Edwards Deming", "Joseph Juran", "Mary Walton"],
-    innovation_manager: ["Jim Hackett", "Marillyn Hewson", "Alan Mulally"]
-  }
+    innovation_manager: ["Jim Hackett", "Marillyn Hewson", "Alan Mulally"],
+  },
 };
 
 // Defines the output locations for each role
@@ -236,7 +552,7 @@ export const botOutputLocations = {
   compliance_officer: "Compliance Center",
   cold_calling: "Calls / Messaging",
   lead_qualification: "Calls / Messaging",
-  sales_business_development: "Partner Manager"
+  sales_business_development: "Partner Manager",
 };
 
 // Define special skills for each role
@@ -318,7 +634,7 @@ export const botSpecialSkills = {
   compliance_officer: "Legal checks",
   cold_calling: "Objection handling",
   lead_qualification: "Lead scoring",
-  sales_business_development: "Partnership deals"
+  sales_business_development: "Partnership deals",
 };
 
 // Define example actions for each role
@@ -400,14 +716,39 @@ export const botExampleActions = {
   compliance_officer: "GDPR and SOC2 checklist",
   cold_calling: "Build high-conversion call scripts",
   lead_qualification: "Develop lead scoring system",
-  sales_business_development: "Create strategic partnership roadmaps"
+  sales_business_development: "Create strategic partnership roadmaps",
 };
 
 // Define industry expertise for executives
 export const executiveIndustryExpertise = {
-  healthcare: ["Regulatory compliance", "Patient experience", "Clinical trials", "Healthcare technology"],
-  technology: ["Digital transformation", "Software development", "Cloud architecture", "Cybersecurity"],
-  finance: ["Risk management", "Investment strategy", "Financial regulations", "Market analysis"],
-  retail: ["Consumer behavior", "Omnichannel strategy", "Supply chain optimization", "Brand development"],
-  manufacturing: ["Lean production", "Quality assurance", "Supply chain management", "Operational efficiency"]
+  healthcare: [
+    "Regulatory compliance",
+    "Patient experience",
+    "Clinical trials",
+    "Healthcare technology",
+  ],
+  technology: [
+    "Digital transformation",
+    "Software development",
+    "Cloud architecture",
+    "Cybersecurity",
+  ],
+  finance: [
+    "Risk management",
+    "Investment strategy",
+    "Financial regulations",
+    "Market analysis",
+  ],
+  retail: [
+    "Consumer behavior",
+    "Omnichannel strategy",
+    "Supply chain optimization",
+    "Brand development",
+  ],
+  manufacturing: [
+    "Lean production",
+    "Quality assurance",
+    "Supply chain management",
+    "Operational efficiency",
+  ],
 };

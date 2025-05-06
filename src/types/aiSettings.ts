@@ -1,15 +1,24 @@
-
 /**
  * AI Settings Types
  */
 
-export type PersonalityTrait = 'conservative' | 'balanced' | 'bold' | 'aggressive';
-export type ResponseStyle = 'concise' | 'balanced' | 'detailed';
-export type TechnicalLevel = 'basic' | 'intermediate' | 'advanced';
-export type FocusArea = 'general' | 'growth' | 'profitability' | 'innovation' | 'risk' | 'operations';
+export type PersonalityTrait =
+  | "conservative"
+  | "balanced"
+  | "bold"
+  | "aggressive";
+export type ResponseStyle = "concise" | "balanced" | "detailed";
+export type TechnicalLevel = "basic" | "intermediate" | "advanced";
+export type FocusArea =
+  | "general"
+  | "growth"
+  | "profitability"
+  | "innovation"
+  | "risk"
+  | "operations";
 
 export interface AIModelPreference {
-  provider: 'openai' | 'anthropic' | 'google' | 'mistral';
+  provider: "openai" | "anthropic" | "google" | "mistral";
   model: string;
   temperature: number;
 }

@@ -1,9 +1,9 @@
-
-import { useState, useEffect } from 'react';
-import { getAdPlatformConnections } from '@/services/adPlatformService';
+import { useState, useEffect } from "react";
+import { getAdPlatformConnections } from "@/services/adPlatformService";
 
 export function useAdPlatformConnections() {
-  const [hasAdPlatformConnections, setHasAdPlatformConnections] = useState(false);
+  const [hasAdPlatformConnections, setHasAdPlatformConnections] =
+    useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export function useAdPlatformConnections() {
         const connections = await getAdPlatformConnections();
         setHasAdPlatformConnections(connections.length > 0);
       } catch (error) {
-        console.error('Error checking ad platform connections:', error);
+        console.error("Error checking ad platform connections:", error);
         setHasAdPlatformConnections(false);
       } finally {
         setIsLoading(false);

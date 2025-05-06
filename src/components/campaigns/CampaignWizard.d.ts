@@ -1,5 +1,6 @@
-import { z } from 'zod';
-declare const campaignSchema: z.ZodObject<{
+import { z } from "zod";
+declare const campaignSchema: z.ZodObject<
+  {
     name: z.ZodString;
     description: z.ZodOptional<z.ZodString>;
     platform: z.ZodEnum<["meta", "tiktok", "email", "whatsapp", "Google"]>;
@@ -7,7 +8,10 @@ declare const campaignSchema: z.ZodObject<{
     goal: z.ZodOptional<z.ZodString>;
     audience: z.ZodOptional<z.ZodString>;
     adCopy: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     name?: string;
     description?: string;
     platform?: "meta" | "email" | "whatsapp" | "tiktok" | "Google";
@@ -15,7 +19,8 @@ declare const campaignSchema: z.ZodObject<{
     goal?: string;
     adCopy?: string;
     audience?: string;
-}, {
+  },
+  {
     name?: string;
     description?: string;
     platform?: "meta" | "email" | "whatsapp" | "tiktok" | "Google";
@@ -23,11 +28,15 @@ declare const campaignSchema: z.ZodObject<{
     goal?: string;
     adCopy?: string;
     audience?: string;
-}>;
+  }
+>;
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 interface CampaignWizardProps {
-    onSubmit: (campaign: any) => void;
-    initialValues?: Partial<CampaignFormValues>;
+  onSubmit: (campaign: any) => void;
+  initialValues?: Partial<CampaignFormValues>;
 }
-export declare function CampaignWizard({ onSubmit, initialValues }: CampaignWizardProps): JSX.Element;
+export declare function CampaignWizard({
+  onSubmit,
+  initialValues,
+}: CampaignWizardProps): JSX.Element;
 export default CampaignWizard;

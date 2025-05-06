@@ -28,20 +28,28 @@ export declare function normalizeInput(input: string): string;
  * @param defaultValue Default value if parsing fails
  * @returns Parsed number or default value
  */
-export declare function parseNumericInput(input: string, defaultValue?: number): number;
+export declare function parseNumericInput(
+  input: string,
+  defaultValue?: number,
+): number;
 /**
  * Helper function to safely sanitize form data
  * @param formData Object containing form data to sanitize
  * @returns Sanitized form data object
  */
-export declare function sanitizeFormData<T extends Record<string, any>>(formData: T): T;
+export declare function sanitizeFormData<T extends Record<string, any>>(
+  formData: T,
+): T;
 /**
  * Sanitizes a URL to prevent open redirect vulnerabilities
  * @param url URL to sanitize
  * @param allowedDomains Array of allowed domains (optional)
  * @returns Sanitized URL or empty string if invalid
  */
-export declare function sanitizeUrl(url: string, allowedDomains?: string[]): string;
+export declare function sanitizeUrl(
+  url: string,
+  allowedDomains?: string[],
+): string;
 /**
  * Generates a nonce for CSP headers
  * @returns Random nonce string

@@ -1,5 +1,4 @@
-
-import { CallScript } from './types';
+import { CallScript } from "./types";
 
 /**
  * Provides default call scripts that are always available
@@ -7,8 +6,8 @@ import { CallScript } from './types';
 export function getDefaultScripts(): CallScript[] {
   return [
     {
-      id: 'default-cold-call-1',
-      title: 'Cold Call - First Contact',
+      id: "default-cold-call-1",
+      title: "Cold Call - First Contact",
       content: `# Cold Call Script - First Contact
 
 ## Introduction
@@ -38,15 +37,15 @@ export function getDefaultScripts(): CallScript[] {
 - Thank them for their time
 - Restate any commitments made
 - Provide your contact information`,
-      target: 'New Prospects',
-      duration: '5-7 minutes',
-      status: 'Ready',
-      type: 'call',
-      aiGenerated: false
+      target: "New Prospects",
+      duration: "5-7 minutes",
+      status: "Ready",
+      type: "call",
+      aiGenerated: false,
     },
     {
-      id: 'default-follow-up-1',
-      title: 'Follow-Up After Initial Contact',
+      id: "default-follow-up-1",
+      title: "Follow-Up After Initial Contact",
       content: `# Follow-Up Call Script
 
 ## Introduction
@@ -75,15 +74,15 @@ export function getDefaultScripts(): CallScript[] {
 - Thank them for their continued interest
 - Confirm the next steps
 - Provide your contact information again`,
-      target: 'Warm Prospects',
-      duration: '7-10 minutes',
-      status: 'Ready',
-      type: 'call',
-      aiGenerated: false
+      target: "Warm Prospects",
+      duration: "7-10 minutes",
+      status: "Ready",
+      type: "call",
+      aiGenerated: false,
     },
     {
-      id: 'default-message-1',
-      title: 'Email Follow-Up Template',
+      id: "default-message-1",
+      title: "Email Follow-Up Template",
       content: `Subject: Following Up on Our Conversation About [Solution]
 
 Hi [Name],
@@ -98,11 +97,11 @@ Best regards,
 [Your Name]
 [Your Title]
 [Your Contact Information]`,
-      target: 'Recent Contacts',
-      duration: 'N/A',
-      status: 'Ready',
-      type: 'message',
-      aiGenerated: false
-    }
+      target: "Recent Contacts",
+      duration: "N/A",
+      status: "Ready",
+      type: "message",
+      aiGenerated: false,
+    },
   ];
 }

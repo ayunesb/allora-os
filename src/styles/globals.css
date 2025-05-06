@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
 
 @layer base {
   :root {
@@ -20,51 +20,57 @@
   * {
     @apply border-border;
   }
-  
-  html, body {
+
+  html,
+  body {
     @apply h-full overflow-auto;
   }
-  
+
   html {
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     scroll-behavior: smooth;
   }
-  
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background-attachment: fixed;
   }
-  
+
   /* After pseudo-element for the mesh grid overlay */
   body::after {
-    content: '';
+    content: "";
     @apply fixed inset-0 bg-gradient-mesh bg-[size:40px_40px] opacity-10 pointer-events-none z-[-1];
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading font-bold tracking-tight text-white;
   }
-  
+
   h1 {
     @apply text-3xl md:text-4xl;
   }
-  
+
   h2 {
     @apply text-2xl md:text-3xl;
   }
-  
+
   h3 {
     @apply text-xl md:text-2xl;
   }
-  
+
   h4 {
     @apply text-lg md:text-xl;
   }
-  
+
   h5 {
     @apply text-base md:text-lg;
   }
-  
+
   h6 {
     @apply text-sm md:text-base;
   }
@@ -79,7 +85,7 @@
            focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2
            disabled:opacity-50 disabled:pointer-events-none;
   }
-  
+
   .btn-secondary {
     @apply border border-primary/20 bg-transparent hover:bg-primary/10 text-primary 
            px-4 py-2 rounded-xl font-medium transition-all duration-300 
@@ -87,7 +93,7 @@
            focus:outline-none focus:ring-2 focus:ring-primary/30
            disabled:opacity-50 disabled:pointer-events-none;
   }
-  
+
   .btn-destructive {
     @apply bg-destructive hover:bg-destructive/90 text-white px-4 py-2 rounded-xl font-medium 
            shadow-sm hover:shadow-md transition-all duration-300 
@@ -95,7 +101,7 @@
            focus:outline-none focus:ring-2 focus:ring-destructive/50 focus:ring-offset-2
            disabled:opacity-50 disabled:pointer-events-none;
   }
-  
+
   .btn-ghost {
     @apply text-foreground hover:bg-muted/50 px-4 py-2 rounded-xl font-medium 
            transition-colors duration-300 
@@ -103,118 +109,118 @@
            focus:outline-none focus:ring-2 focus:ring-muted
            disabled:opacity-50 disabled:pointer-events-none;
   }
-  
+
   /* Form Styles */
   .form-group {
     @apply space-y-2 mb-6;
   }
-  
+
   .form-label {
     @apply block text-sm font-medium text-foreground;
   }
-  
+
   .form-input {
     @apply w-full rounded-lg border border-input bg-muted/30 backdrop-blur-md px-3 py-2 text-sm 
            placeholder:text-muted-foreground 
            focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent
            disabled:cursor-not-allowed disabled:opacity-50;
   }
-  
+
   .form-error {
     @apply text-xs text-destructive mt-1;
   }
-  
+
   .form-helper {
     @apply text-xs text-muted-foreground mt-1;
   }
-  
+
   /* Card Styles */
   .neo-card {
     @apply rounded-2xl border border-white/10 bg-card/80 backdrop-blur-md
            hover:shadow-glow-sm hover:border-primary/20 overflow-hidden
            transition-all duration-300;
   }
-  
+
   /* Glass Elements */
   .neo-glass {
     @apply bg-black/20 backdrop-blur-lg border border-white/10 rounded-2xl;
   }
-  
+
   /* Status Indicators */
   .status-success {
     @apply text-green-500 bg-green-500/10 border border-green-500/20 
            px-2 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1;
   }
-  
+
   .status-warning {
     @apply text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 
            px-2 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1;
   }
-  
+
   .status-error {
     @apply text-red-500 bg-red-500/10 border border-red-500/20 
            px-2 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1;
   }
-  
+
   .status-info {
     @apply text-blue-500 bg-blue-500/10 border border-blue-500/20 
            px-2 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1;
   }
-  
+
   /* Futuristic UI Elements */
   .gradient-border {
     @apply relative before:absolute before:inset-0 before:rounded-2xl 
            before:p-[1px] before:bg-gradient-to-r before:from-primary before:to-secondary
            before:content-[''] before:-z-10;
   }
-  
+
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
   }
-  
+
   .badge-premium {
     @apply bg-gradient-premium text-white px-2 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1;
   }
-  
+
   .badge-glow {
     @apply relative;
   }
-  
+
   .badge-glow::after {
-    content: '';
+    content: "";
     @apply absolute inset-0 rounded-full animate-pulse-subtle;
     box-shadow: 0 0 15px 5px rgba(59, 130, 246, 0.3);
   }
-  
+
   /* Container Styles */
   .container-xl {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
-  
+
   /* Section Styles */
   .section {
     @apply py-12 md:py-16;
   }
-  
+
   .section-sm {
     @apply py-8 md:py-12;
   }
-  
+
   /* Glassmorphism */
   .glass {
     @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
   }
-  
+
   /* Loading Animations */
   .loading-shimmer {
     @apply animate-pulse bg-muted/50 rounded-md;
   }
-  
+
   /* Transitions and Animations */
   .fade-in {
     @apply animate-fade-in;
   }
-  
+
   .slide-in {
     @apply animate-slide-in;
   }
@@ -225,44 +231,47 @@
   .animate-fade-in {
     animation: fadeIn 0.5s ease-out forwards;
   }
-  
+
   .animate-slide-in {
     animation: slideIn 0.5s ease-out forwards;
   }
-  
+
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  
+
   .button-glow {
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
   }
-  
+
   .text-shadow-sm {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   /* Gradient Animations */
   @keyframes gradient-x {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 0% 50%;
     }
     50% {
       background-position: 100% 50%;
     }
   }
-  
+
   @keyframes gradient-y {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 50% 0%;
     }
     50% {
       background-position: 50% 100%;
     }
   }
-  
+
   @keyframes gradient-xy {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 0% 0%;
     }
     25% {
@@ -275,7 +284,7 @@
       background-position: 0% 100%;
     }
   }
-  
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -284,7 +293,7 @@
       opacity: 1;
     }
   }
-  
+
   @keyframes slideIn {
     from {
       transform: translateY(20px);
@@ -295,75 +304,78 @@
       opacity: 1;
     }
   }
-  
+
   @keyframes pulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
       opacity: 0.7;
     }
   }
-  
+
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0);
     }
     50% {
       transform: translateY(-10px);
     }
   }
-  
+
   @keyframes glow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 5px rgba(59, 130, 246, 0.4);
     }
     50% {
       box-shadow: 0 0 15px rgba(59, 130, 246, 0.7);
     }
   }
-  
+
   /* Frosted Glass Background */
   .bg-frosted {
     @apply backdrop-blur-md bg-white/[0.01] border border-white/10;
   }
-  
+
   /* Custom Gradients */
   .bg-gradient-blue-green {
     @apply bg-gradient-to-r from-blue-600 to-emerald-500;
   }
-  
+
   .bg-gradient-blue-purple {
     @apply bg-gradient-to-r from-blue-600 to-purple-600;
   }
-  
+
   .bg-gradient-animated {
     @apply bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-[size:200%_200%] animate-gradient-x;
   }
-  
+
   /* Interactive States */
   .interactive {
     @apply transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
   }
-  
+
   /* Improved Scrollbars */
   .scrollbar-thin {
     scrollbar-width: thin;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
     @apply bg-primary/50 rounded-full;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     @apply bg-primary/80;
   }

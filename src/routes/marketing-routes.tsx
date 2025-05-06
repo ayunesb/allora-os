@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import Pricing from "@/pages/Pricing";
 import Legal from "@/pages/Legal";

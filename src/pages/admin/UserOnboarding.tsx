@@ -1,7 +1,14 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 export default function UserOnboarding() {
-    return (<div className="space-y-6">
+  return (
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>User Onboarding</CardTitle>
@@ -13,5 +20,6 @@ export default function UserOnboarding() {
           <p>User onboarding configuration content will be displayed here.</p>
         </CardContent>
       </Card>
-    </div>);
+    </div>
+  );
 }

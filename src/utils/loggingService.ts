@@ -1,7 +1,6 @@
-
 // Base logger implementation
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LoggerOptions {
   minLevel: LogLevel;
@@ -17,7 +16,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 };
 
 const DEFAULT_OPTIONS: LoggerOptions = {
-  minLevel: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+  minLevel: process.env.NODE_ENV === "development" ? "debug" : "info",
   includeTimestamps: true,
 };
 
@@ -29,7 +28,11 @@ class Logger {
     this.options = { ...DEFAULT_OPTIONS, ...options };
   }
 
-  private formatMessage(level: LogLevel, message: string, ...args: any[]): string {
+  private formatMessage(
+    level: LogLevel,
+    message: string,
+    ...args: any[]
+  ): string {
     let formattedMessage = message;
 
     // Add namespace if configured
@@ -51,26 +54,26 @@ class Logger {
   }
 
   debug(message: string, ...args: any[]): void {
-    if (this.shouldLog('debug')) {
-      console.debug(this.formatMessage('debug', message), ...args);
+    if (this.shouldLog("debug")) {
+      console.debug(this.formatMessage("debug", message), ...args);
     }
   }
 
   info(message: string, ...args: any[]): void {
-    if (this.shouldLog('info')) {
-      console.info(this.formatMessage('info', message), ...args);
+    if (this.shouldLog("info")) {
+      console.info(this.formatMessage("info", message), ...args);
     }
   }
 
   warn(message: string, ...args: any[]): void {
-    if (this.shouldLog('warn')) {
-      console.warn(this.formatMessage('warn', message), ...args);
+    if (this.shouldLog("warn")) {
+      console.warn(this.formatMessage("warn", message), ...args);
     }
   }
 
   error(message: string, ...args: any[]): void {
-    if (this.shouldLog('error')) {
-      console.error(this.formatMessage('error', message), ...args);
+    if (this.shouldLog("error")) {
+      console.error(this.formatMessage("error", message), ...args);
     }
   }
 

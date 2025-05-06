@@ -1,18 +1,26 @@
 type SecurityEventDetails = {
-    user: string;
-    action: string;
-    resource: string;
-    details?: Record<string, any>;
-    severity?: 'low' | 'medium' | 'high';
+  user: string;
+  action: string;
+  resource: string;
+  details?: Record<string, any>;
+  severity?: "low" | "medium" | "high";
 };
 /**
  * Log a security event to the audit log
  */
-export declare function logSecurityEvent(eventDetails: SecurityEventDetails): Promise<boolean>;
+export declare function logSecurityEvent(
+  eventDetails: SecurityEventDetails,
+): Promise<boolean>;
 /**
  * Legacy signature for backwards compatibility
  */
-export declare function logSecurityEvent(eventType: string, details: string, userId?: string, severity?: number, metadata?: Record<string, any>): Promise<boolean>;
+export declare function logSecurityEvent(
+  eventType: string,
+  details: string,
+  userId?: string,
+  severity?: number,
+  metadata?: Record<string, any>,
+): Promise<boolean>;
 /**
  * Log an audit event for compliance or record-keeping
  *
@@ -22,7 +30,12 @@ export declare function logSecurityEvent(eventType: string, details: string, use
  * @param metadata Any additional metadata to log
  * @returns Success status
  */
-export declare function logAuditEvent(eventType: string, details: string, userId?: string, metadata?: Record<string, any>): Promise<boolean>;
+export declare function logAuditEvent(
+  eventType: string,
+  details: string,
+  userId?: string,
+  metadata?: Record<string, any>,
+): Promise<boolean>;
 /**
  * Log a compliance change for audit purposes
  *
@@ -31,7 +44,11 @@ export declare function logAuditEvent(eventType: string, details: string, userId
  * @param metadata Any additional metadata to log
  * @returns Success status
  */
-export declare function logComplianceChange(userId: string, details: string, metadata?: Record<string, any>): Promise<boolean>;
+export declare function logComplianceChange(
+  userId: string,
+  details: string,
+  metadata?: Record<string, any>,
+): Promise<boolean>;
 export declare const log: typeof logAuditEvent;
 export declare const logSystemChange: typeof logAuditEvent;
 export {};

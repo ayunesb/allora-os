@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState } from "react";
 
 export function useAnalytics() {
   const [systemAnalytics, setSystemAnalytics] = useState<any>(null);
@@ -9,6 +8,6 @@ export function useAnalytics() {
     systemAnalytics,
     dashboardAnalytics,
     setSystemAnalytics,
-    setDashboardAnalytics
+    setDashboardAnalytics,
   };
 }

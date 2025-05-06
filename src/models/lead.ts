@@ -1,5 +1,12 @@
-
-export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'proposal' | 'negotiation' | 'closed' | 'lost' | 'client';
+export type LeadStatus =
+  | "new"
+  | "contacted"
+  | "qualified"
+  | "proposal"
+  | "negotiation"
+  | "closed"
+  | "lost"
+  | "client";
 
 export type Lead = {
   id: string;
@@ -21,7 +28,7 @@ export type Lead = {
   lastContact?: string;
   last_contact_date?: string;
   engagement_level?: number; // 1-5 scale
-  follow_up_status?: 'pending' | 'in_progress' | 'completed';
+  follow_up_status?: "pending" | "in_progress" | "completed";
   follow_up_sequence_id?: string;
   linkedin_profile_url?: string;
   tags?: string[];

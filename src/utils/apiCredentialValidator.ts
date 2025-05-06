@@ -1,14 +1,13 @@
-
 /**
  * API Credential Validation Utility
- * 
+ *
  * This utility provides functions to validate different types of API credentials
  * including webhook URLs, API keys, and other authentication tokens.
  */
 
-import { WebhookType } from '@/utils/webhookTypes';
-import { validateWebhookUrlFormat } from '@/utils/validators/webhookValidator';
-import { logger } from '@/utils/loggingService';
+import { WebhookType } from "@/utils/webhookTypes";
+import { validateWebhookUrlFormat } from "@/utils/validators/webhookValidator";
+import { logger } from "@/utils/loggingService";
 
 /**
  * Validates API credentials format (not just webhooks, but other API keys too)
@@ -19,45 +18,51 @@ import { logger } from '@/utils/loggingService';
  */
 export const validateApiCredential = async (
   credential: string,
-  type: WebhookType | 'stripe_key' | 'postmark_key' | 'twilio_key' | 'openai_key',
-  options: { logAttempts?: boolean; redactSensitive?: boolean } = {}
+  type:
+    | WebhookType
+    | "stripe_key"
+    | "postmark_key"
+    | "twilio_key"
+    | "openai_key",
+  options: { logAttempts?: boolean; redactSensitive?: boolean } = {},
 ): Promise<boolean> => {
   const { logAttempts = false, redactSensitive = true } = options;
-  
+
   if (!credential) return false;
-  
+
   // Format validation for webhook URLs
-  if (['stripe', 'zapier', 'github', 'slack', 'custom'].includes(type)) {
+  if (["stripe", "zapier", "github", "slack", "custom"].includes(type)) {
     return validateWebhookUrlFormat(credential, type as WebhookType);
   }
-  
+
   // For API keys, check the format based on known patterns
   const keyPatterns: Record<string, RegExp> = {
     stripe_key: /^sk_(?:test|live)_[a-zA-Z0-9]{24,}$/,
-    postmark_key: /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
+    postmark_key:
+      /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
     twilio_key: /^[a-zA-Z0-9]{32}$/,
-    openai_key: /^sk-[a-zA-Z0-9]{32,}$/
+    openai_key: /^sk-[a-zA-Z0-9]{32,}$/,
   };
-  
+
   const pattern = keyPatterns[type];
   if (!pattern) {
     logger.error(`Unknown API credential type: ${type}`);
     return false;
   }
-  
+
   const isValid = pattern.test(credential);
-  
+
   if (logAttempts) {
     const redactedCredential = redactSensitive
       ? `${credential.substring(0, 4)}...${credential.substring(credential.length - 4)}`
       : credential;
-    
+
     if (isValid) {
       logger.info(`Valid ${type} credential format: ${redactedCredential}`);
     } else {
       logger.warn(`Invalid ${type} credential format: ${redactedCredential}`);
     }
   }
-  
+
   return isValid;
 };

@@ -1,5 +1,4 @@
-
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import { ExecutiveDecision } from "@/types/agents";
 
 export function useDecisionFilter(decisions: ExecutiveDecision[]) {
@@ -11,7 +10,9 @@ export function useDecisionFilter(decisions: ExecutiveDecision[]) {
   const filteredDecisions = useMemo(() => {
     return decisions.filter((decision) => {
       const matchesExecutive = executiveFilter
-        ? decision.executiveName.toLowerCase().includes(executiveFilter.toLowerCase())
+        ? decision.executiveName
+            .toLowerCase()
+            .includes(executiveFilter.toLowerCase())
         : true;
 
       const matchesPriority = priorityFilter
@@ -23,12 +24,19 @@ export function useDecisionFilter(decisions: ExecutiveDecision[]) {
         : true;
 
       const matchesSearch = searchQuery
-        ? (decision.task.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          decision.selectedOption.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (decision.reasoning && decision.reasoning.toLowerCase().includes(searchQuery.toLowerCase())))
+        ? decision.task.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          decision.selectedOption
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          (decision.reasoning &&
+            decision.reasoning
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()))
         : true;
 
-      return matchesExecutive && matchesPriority && matchesRisk && matchesSearch;
+      return (
+        matchesExecutive && matchesPriority && matchesRisk && matchesSearch
+      );
     });
   }, [decisions, executiveFilter, priorityFilter, riskFilter, searchQuery]);
 
@@ -41,6 +49,6 @@ export function useDecisionFilter(decisions: ExecutiveDecision[]) {
     setRiskFilter,
     searchQuery,
     setSearchQuery,
-    filteredDecisions
+    filteredDecisions,
   };
 }

@@ -1,4 +1,3 @@
-
 /**
  * Utility functions for formatting values
  */
@@ -10,37 +9,37 @@
  * @returns Truncated URL string
  */
 export function truncateUrl(url: string, maxLength: number = 40): string {
-  if (!url) return '';
-  
+  if (!url) return "";
+
   try {
     // Extract domain from URL
     const urlObj = new URL(url);
     const domain = urlObj.hostname;
-    
+
     // Include path, but truncate if too long
     const path = urlObj.pathname;
     const query = urlObj.search;
-    
+
     // If URL is already short enough, return it as is
     if (url.length <= maxLength) {
       return url;
     }
-    
+
     // If just domain and path are short enough, use them
     const domainAndPath = `${domain}${path}`;
     if (domainAndPath.length <= maxLength - 3) {
-      return `${domainAndPath}${query ? '...' : ''}`;
+      return `${domainAndPath}${query ? "..." : ""}`;
     }
-    
+
     // Truncate path
     const availableLength = maxLength - domain.length - 6; // 6 for "..." and some padding
-    const truncatedPath = path.substring(0, availableLength) + '...';
-    
+    const truncatedPath = path.substring(0, availableLength) + "...";
+
     return `${domain}${truncatedPath}`;
   } catch (error) {
     // If URL parsing fails, just truncate the string directly
-    return url.length > maxLength 
-      ? url.substring(0, maxLength - 3) + '...' 
+    return url.length > maxLength
+      ? url.substring(0, maxLength - 3) + "..."
       : url;
   }
 }
@@ -51,12 +50,15 @@ export function truncateUrl(url: string, maxLength: number = 40): string {
  * @param currency Currency code (default: USD)
  * @returns Formatted currency string
  */
-export function formatCurrency(value: number, currency: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+export function formatCurrency(
+  value: number,
+  currency: string = "USD",
+): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency,
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(value);
 }
 

@@ -1,2 +1,2 @@
-import { RouteObject } from 'react-router-dom';
+import { RouteObject } from "react-router-dom";
 export declare const allRoutes: RouteObject[];

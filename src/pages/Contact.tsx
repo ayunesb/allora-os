@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin } from "lucide-react";
 export default function Contact() {
-    return (<div className="container mx-auto px-4 py-12 max-w-7xl">
+  return (
+    <div className="container mx-auto px-4 py-12 max-w-7xl">
       <h1 className="text-4xl font-bold text-center mb-8">Contact Us</h1>
-      
+
       <div className="grid md:grid-cols-2 gap-8">
         <Card>
           <CardHeader>
@@ -16,40 +17,56 @@ export default function Contact() {
           <CardContent>
             <form className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium mb-1"
+                >
                   Your Name
                 </label>
-                <Input id="name" placeholder="Enter your name"/>
+                <Input id="name" placeholder="Enter your name" />
               </div>
-              
+
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium mb-1"
+                >
                   Email Address
                 </label>
-                <Input id="email" type="email" placeholder="Enter your email"/>
+                <Input id="email" type="email" placeholder="Enter your email" />
               </div>
-              
+
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="subject"
+                  className="block text-sm font-medium mb-1"
+                >
                   Subject
                 </label>
-                <Input id="subject" placeholder="What is this regarding?"/>
+                <Input id="subject" placeholder="What is this regarding?" />
               </div>
-              
+
               <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium mb-1"
+                >
                   Message
                 </label>
-                <Textarea id="message" placeholder="How can we help you?" className="min-h-[120px]"/>
+                <Textarea
+                  id="message"
+                  placeholder="How can we help you?"
+                  className="min-h-[120px]"
+                />
               </div>
-              
+
               <Button type="submit" className="w-full">
                 Send Message
               </Button>
             </form>
           </CardContent>
         </Card>
-        
+
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -57,34 +74,35 @@ export default function Contact() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start space-x-3">
-                <Mail className="h-5 w-5 text-primary mt-0.5"/>
+                <Mail className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <h3 className="font-medium">Email</h3>
                   <p className="text-muted-foreground">contact@allora-ai.com</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
-                <Phone className="h-5 w-5 text-primary mt-0.5"/>
+                <Phone className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <h3 className="font-medium">Phone</h3>
                   <p className="text-muted-foreground">+1 (555) 123-4567</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
-                <MapPin className="h-5 w-5 text-primary mt-0.5"/>
+                <MapPin className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <h3 className="font-medium">Address</h3>
                   <p className="text-muted-foreground">
-                    123 AI Innovation Way<br />
+                    123 AI Innovation Way
+                    <br />
                     San Francisco, CA 94105
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Business Hours</CardTitle>
@@ -108,5 +126,6 @@ export default function Contact() {
           </Card>
         </div>
       </div>
-    </div>);
+    </div>
+  );
 }

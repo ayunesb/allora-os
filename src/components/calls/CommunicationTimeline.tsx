@@ -1,40 +1,61 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, Phone, MessageSquare, VideoIcon } from "lucide-react";
 import CommunicationItem from "./CommunicationItem";
 import { Skeleton } from "@/components/ui/skeleton";
-export default function CommunicationTimeline({ upcomingCommunications, pastCommunications, isLoading }) {
-    const [activeFilter, setActiveFilter] = useState("all");
-    const filterCommunications = (communications, filter) => {
-        if (filter === "all")
-            return communications;
-        return communications.filter(comm => comm.type === filter);
-    };
-    const filteredUpcoming = filterCommunications(upcomingCommunications, activeFilter);
-    const filteredPast = filterCommunications(pastCommunications, activeFilter);
-    // Show only the 5 most recent past communications in the timeline
-    const recentPastCommunications = filteredPast.slice(0, 5);
-    return (<Card className="h-full">
+export default function CommunicationTimeline({
+  upcomingCommunications,
+  pastCommunications,
+  isLoading,
+}) {
+  const [activeFilter, setActiveFilter] = useState("all");
+  const filterCommunications = (communications, filter) => {
+    if (filter === "all") return communications;
+    return communications.filter((comm) => comm.type === filter);
+  };
+  const filteredUpcoming = filterCommunications(
+    upcomingCommunications,
+    activeFilter,
+  );
+  const filteredPast = filterCommunications(pastCommunications, activeFilter);
+  // Show only the 5 most recent past communications in the timeline
+  const recentPastCommunications = filteredPast.slice(0, 5);
+  return (
+    <Card className="h-full">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
             <CardTitle>Communication Timeline</CardTitle>
-            <CardDescription>Upcoming and recent communications</CardDescription>
+            <CardDescription>
+              Upcoming and recent communications
+            </CardDescription>
           </div>
-          <Tabs defaultValue="all" value={activeFilter} onValueChange={(v) => setActiveFilter(v)}>
+          <Tabs
+            defaultValue="all"
+            value={activeFilter}
+            onValueChange={(v) => setActiveFilter(v)}
+          >
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+              <TabsTrigger value="all" className="text-xs">
+                All
+              </TabsTrigger>
               <TabsTrigger value="phone" className="text-xs">
-                <Phone className="h-3 w-3 mr-1"/>
+                <Phone className="h-3 w-3 mr-1" />
                 Phone
               </TabsTrigger>
               <TabsTrigger value="zoom" className="text-xs">
-                <VideoIcon className="h-3 w-3 mr-1"/>
+                <VideoIcon className="h-3 w-3 mr-1" />
                 Zoom
               </TabsTrigger>
               <TabsTrigger value="whatsapp" className="text-xs">
-                <MessageSquare className="h-3 w-3 mr-1"/>
+                <MessageSquare className="h-3 w-3 mr-1" />
                 WhatsApp
               </TabsTrigger>
             </TabsList>
@@ -42,54 +63,81 @@ export default function CommunicationTimeline({ upcomingCommunications, pastComm
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (<TimelineLoading />) : (<>
+        {isLoading ? (
+          <TimelineLoading />
+        ) : (
+          <>
             {/* Upcoming Communications */}
             <div className="mb-8">
               <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center mb-4">
-                <CalendarDays className="h-4 w-4 mr-2"/>
+                <CalendarDays className="h-4 w-4 mr-2" />
                 Upcoming
               </h3>
-              
-              {filteredUpcoming.length === 0 ? (<p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
+
+              {filteredUpcoming.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
                   No upcoming communications
-                </p>) : (<div className="space-y-4">
-                  {filteredUpcoming.map((communication) => (<CommunicationItem key={communication.id} communication={communication} isUpcoming={true}/>))}
-                </div>)}
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {filteredUpcoming.map((communication) => (
+                    <CommunicationItem
+                      key={communication.id}
+                      communication={communication}
+                      isUpcoming={true}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-            
+
             {/* Recent Past Communications */}
             <div>
               <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center mb-4">
                 Recent Activity
               </h3>
-              
-              {recentPastCommunications.length === 0 ? (<p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
+
+              {recentPastCommunications.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
                   No recent communications
-                </p>) : (<div className="space-y-4">
-                  {recentPastCommunications.map((communication) => (<CommunicationItem key={communication.id} communication={communication} isUpcoming={false}/>))}
-                </div>)}
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {recentPastCommunications.map((communication) => (
+                    <CommunicationItem
+                      key={communication.id}
+                      communication={communication}
+                      isUpcoming={false}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          </>)}
+          </>
+        )}
       </CardContent>
-    </Card>);
+    </Card>
+  );
 }
 function TimelineLoading() {
-    return (<div className="space-y-6">
+  return (
+    <div className="space-y-6">
       <div>
-        <Skeleton className="h-5 w-32 mb-4"/>
+        <Skeleton className="h-5 w-32 mb-4" />
         <div className="space-y-4">
-          <Skeleton className="h-24 w-full"/>
-          <Skeleton className="h-24 w-full"/>
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
         </div>
       </div>
-      
+
       <div>
-        <Skeleton className="h-5 w-32 mb-4"/>
+        <Skeleton className="h-5 w-32 mb-4" />
         <div className="space-y-4">
-          <Skeleton className="h-24 w-full"/>
-          <Skeleton className="h-24 w-full"/>
-          <Skeleton className="h-24 w-full"/>
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
         </div>
       </div>
-    </div>);
+    </div>
+  );
 }

@@ -1,6 +1,10 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
-export async function handleSignIn(email: string, password: string, rememberMe = false) {
+export async function handleSignIn(
+  email: string,
+  password: string,
+  rememberMe = false,
+) {
   try {
     console.log("Signing in with email:", email);
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -9,7 +13,7 @@ export async function handleSignIn(email: string, password: string, rememberMe =
       options: {
         // If rememberMe is true, session will be kept until explicitly signed out
         // Otherwise, session expires after browser close (default behavior)
-      }
+      },
     });
 
     if (error) {
@@ -21,24 +25,24 @@ export async function handleSignIn(email: string, password: string, rememberMe =
 
     // Store user preference for "remember me" in local storage
     if (rememberMe) {
-      localStorage.setItem('rememberMe', 'true');
+      localStorage.setItem("rememberMe", "true");
     } else {
-      localStorage.removeItem('rememberMe');
+      localStorage.removeItem("rememberMe");
     }
 
-    return { 
+    return {
       success: true,
-      user: data.user 
+      user: data.user,
     };
   } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message); // Safely access 'message' property
+      console.error(error.message); // Safely access 'message' property
     } else {
-        console.error('An unknown error occurred.');
+      console.error("An unknown error occurred.");
     }
-    return { 
-      success: false, 
-      error: error.message || 'Failed to sign in' 
+    return {
+      success: false,
+      error: error.message || "Failed to sign in",
     };
   }
 }
@@ -48,32 +52,32 @@ export async function handleSignUp(email: string, password: string) {
     // Get the current URL origin for the redirect
     const origin = window.location.origin;
     const redirectTo = `${origin}/login`;
-    
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectTo
-      }
+        emailRedirectTo: redirectTo,
+      },
     });
 
     if (error) {
       throw error;
     }
 
-    return { 
-      success: true, 
-      user: data.user 
+    return {
+      success: true,
+      user: data.user,
     };
   } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message); // Safely access 'message' property
+      console.error(error.message); // Safely access 'message' property
     } else {
-        console.error('An unknown error occurred.');
+      console.error("An unknown error occurred.");
     }
-    return { 
-      success: false, 
-      error: error.message || 'Failed to sign up' 
+    return {
+      success: false,
+      error: error.message || "Failed to sign up",
     };
   }
 }
@@ -82,15 +86,15 @@ export async function handleSignOut() {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    
+
     // Clear any auth related items from storage
-    localStorage.removeItem('rememberMe');
+    localStorage.removeItem("rememberMe");
     return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message); // Safely access 'message' property
+      console.error(error.message); // Safely access 'message' property
     } else {
-        console.error('An unknown error occurred.');
+      console.error("An unknown error occurred.");
     }
     return { success: false, error: error.message };
   }
@@ -100,13 +104,13 @@ export async function refreshSession() {
   try {
     const { data, error } = await supabase.auth.refreshSession();
     if (error) throw error;
-    
+
     return { session: data.session, user: data.session?.user ?? null };
   } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message); // Safely access 'message' property
+      console.error(error.message); // Safely access 'message' property
     } else {
-        console.error('An unknown error occurred.');
+      console.error("An unknown error occurred.");
     }
     throw error;
   }
@@ -129,13 +133,13 @@ export async function sendPasswordResetEmail(email: string) {
     return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message); // Safely access 'message' property
+      console.error(error.message); // Safely access 'message' property
     } else {
-        console.error('An unknown error occurred.');
+      console.error("An unknown error occurred.");
     }
-    return { 
-      success: false, 
-      error: error.message || 'Failed to send reset instructions' 
+    return {
+      success: false,
+      error: error.message || "Failed to send reset instructions",
     };
   }
 }
@@ -145,7 +149,7 @@ export async function verifyOtpCode(email: string, token: string) {
     const { data, error } = await supabase.auth.verifyOtp({
       email,
       token,
-      type: 'recovery',
+      type: "recovery",
     });
 
     if (error) {
@@ -155,13 +159,13 @@ export async function verifyOtpCode(email: string, token: string) {
     return { success: true, session: data.session };
   } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message); // Safely access 'message' property
+      console.error(error.message); // Safely access 'message' property
     } else {
-        console.error('An unknown error occurred.');
+      console.error("An unknown error occurred.");
     }
     return {
       success: false,
-      error: error.message || 'Failed to verify reset code',
+      error: error.message || "Failed to verify reset code",
     };
   }
 }
@@ -179,13 +183,13 @@ export async function updateUserPassword(password: string) {
     return { success: true };
   } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message); // Safely access 'message' property
+      console.error(error.message); // Safely access 'message' property
     } else {
-        console.error('An unknown error occurred.');
+      console.error("An unknown error occurred.");
     }
-    return { 
-      success: false, 
-      error: error.message || 'Failed to update password' 
+    return {
+      success: false,
+      error: error.message || "Failed to update password",
     };
   }
 }

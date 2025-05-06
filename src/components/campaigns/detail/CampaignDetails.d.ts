@@ -1,6 +1,8 @@
-import { Campaign } from '@/types/unified-types';
+import { Campaign } from "@/types/unified-types";
 interface CampaignDetailsProps {
-    campaign: Campaign;
+  campaign: Campaign;
 }
-export declare function CampaignDetails({ campaign }: CampaignDetailsProps): import("react").JSX.Element;
+export declare function CampaignDetails({
+  campaign,
+}: CampaignDetailsProps): import("react").JSX.Element;
 export {};

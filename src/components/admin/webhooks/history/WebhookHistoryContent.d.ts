@@ -1,6 +1,8 @@
-import { WebhookEvent } from '@/types/fixed/Webhook';
+import { WebhookEvent } from "@/types/fixed/Webhook";
 interface WebhookHistoryContentProps {
-    events: WebhookEvent[];
+  events: WebhookEvent[];
 }
-export declare function WebhookHistoryContent({ events: initialEvents }: WebhookHistoryContentProps): JSX.Element;
+export declare function WebhookHistoryContent({
+  events: initialEvents,
+}: WebhookHistoryContentProps): JSX.Element;
 export default WebhookHistoryContent;

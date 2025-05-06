@@ -11,9 +11,9 @@
  * @returns Validated data or error details
  */
 export declare function validateCreatePost(postData: any): {
-    valid: boolean;
-    data?: any;
-    errors?: Record<string, string>;
+  valid: boolean;
+  data?: any;
+  errors?: Record<string, string>;
 };
 /**
  * Validate data for updating a social media post
@@ -23,7 +23,7 @@ export declare function validateCreatePost(postData: any): {
  * @returns Validated data or error details
  */
 export declare function validateUpdatePost(postData: any): {
-    valid: boolean;
-    data?: any;
-    errors?: Record<string, string>;
+  valid: boolean;
+  data?: any;
+  errors?: Record<string, string>;
 };

@@ -1,9 +1,15 @@
-import React from 'react';
+import React from "react";
 export interface DashboardBreadcrumbProps {
-    rootPath: string;
-    rootLabel: string;
-    rootIcon?: React.ReactNode;
-    currentPath?: string;
-    currentLabel?: string;
+  rootPath: string;
+  rootLabel: string;
+  rootIcon?: React.ReactNode;
+  currentPath?: string;
+  currentLabel?: string;
 }
-export declare function DashboardBreadcrumb({ rootPath, rootLabel, rootIcon, currentPath, currentLabel }: DashboardBreadcrumbProps): JSX.Element;
+export declare function DashboardBreadcrumb({
+  rootPath,
+  rootLabel,
+  rootIcon,
+  currentPath,
+  currentLabel,
+}: DashboardBreadcrumbProps): JSX.Element;

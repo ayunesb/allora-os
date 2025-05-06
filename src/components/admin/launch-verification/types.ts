@@ -1,12 +1,11 @@
-
-import { 
+import {
   ChecklistItem,
   ChecklistCategory,
   LaunchInfoProps,
   LaunchProgressProps,
   ValidationResultsUI,
   DatabaseTableStatus,
-  EnhancedVerificationState
+  EnhancedVerificationState,
 } from "@/types/fixed/LaunchChecklist";
 
 // Re-export all types from LaunchChecklist to prevent import errors
@@ -17,7 +16,7 @@ export type {
   LaunchProgressProps,
   ValidationResultsUI,
   DatabaseTableStatus,
-  EnhancedVerificationState
+  EnhancedVerificationState,
 };
 
 // Interface for the ValidationResult

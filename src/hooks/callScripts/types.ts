@@ -1,6 +1,5 @@
-
-export type CallScriptType = 'call' | 'message';
-export type CallScriptStatus = 'Ready' | 'Draft' | 'Coming Soon';
+export type CallScriptType = "call" | "message";
+export type CallScriptStatus = "Ready" | "Draft" | "Coming Soon";
 
 export interface CallScript {
   id: string;

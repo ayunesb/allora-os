@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import StrategyForm from '@/components/strategies/StrategyForm';
+import { useState } from "react";
+import StrategyForm from "@/components/strategies/StrategyForm";
 
 const IndexPage = () => {
   const [strategies, setStrategies] = useState([]);

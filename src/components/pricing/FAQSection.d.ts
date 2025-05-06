@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 interface FAQItem {
-    question: string;
-    answer: string;
+  question: string;
+  answer: string;
 }
 interface FAQSectionProps {
-    title: string;
-    items: FAQItem[];
+  title: string;
+  items: FAQItem[];
 }
 declare const FAQSection: React.FC<FAQSectionProps>;
 export default FAQSection;

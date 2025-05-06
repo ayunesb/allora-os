@@ -1,8 +1,10 @@
-
-import { useState } from 'react';
-import { WebhookType, WebhookTestResult } from '@/types/unified-types';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useState } from "react";
+import {
+  WebhookResult as WebhookTestResult,
+  WebhookType,
+} from "@/types/unified-types";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export function useWebhookTest() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -11,40 +13,48 @@ export function useWebhookTest() {
   /**
    * Test a webhook URL
    */
-  const testWebhook = async (url: string, webhookType: WebhookType): Promise<WebhookTestResult> => {
+  const testWebhook = async (
+    url: string,
+    webhookType: WebhookType,
+  ): Promise<WebhookTestResult> => {
     if (!url) {
-      const result = { success: false, message: 'No URL provided' };
+      const result: WebhookTestResult = {
+        success: false,
+        message: "No URL provided",
+      };
       setLastResult(result);
       return result;
     }
 
     setIsLoading(true);
-    
+
     try {
-      // Call edge function to test webhook
-      const { data, error } = await supabase.functions.invoke('test-webhook', {
-        body: { url, webhookType, testMode: true }
+      const { data, error } = await supabase.functions.invoke("test-webhook", {
+        body: { url, webhookType, testMode: true } as Record<string, unknown>, // TODO: refine type
       });
-      
+
       if (error) {
         throw error;
       }
-      
+
       const result = data as WebhookTestResult;
-      
+
       if (result.success) {
-        toast.success('Webhook test successful');
+        toast.success("Webhook test successful");
       } else {
-        toast.error(`Webhook test failed: ${result.message || 'Unknown error'}`);
+        toast.error(
+          `Webhook test failed: ${result.message || "Unknown error"}`,
+        );
       }
-      
+
       setLastResult(result);
       return result;
-    } catch (error: any) {
-      console.error('Error testing webhook:', error);
-      const result = { 
-        success: false, 
-        message: error.message || 'Failed to test webhook' 
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to test webhook";
+      const result: WebhookTestResult = {
+        success: false,
+        message: errorMessage,
       };
       setLastResult(result);
       toast.error(result.message);
@@ -53,10 +63,10 @@ export function useWebhookTest() {
       setIsLoading(false);
     }
   };
-  
+
   return {
     testWebhook,
     isLoading,
-    lastResult
+    lastResult,
   };
 }

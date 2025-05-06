@@ -1,5 +1,4 @@
-
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 /**
  * Generic column definition for tables
@@ -19,7 +18,7 @@ export interface Column<T> {
 export interface TableFilters {
   search?: string;
   sortField?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   status?: string;
   dateRange?: {
     from: Date | null;

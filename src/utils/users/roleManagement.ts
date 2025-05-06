@@ -1,6 +1,5 @@
-
-import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
+import { supabase } from "@/backend/supabase";
+import { toast } from "sonner";
 
 /**
  * Updates a user's role within the system
@@ -10,19 +9,19 @@ import { toast } from 'sonner';
  */
 export async function updateUserRole(
   userId: string,
-  role: 'admin' | 'user'
+  role: "admin" | "user",
 ): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('profiles')
+      .from("profiles")
       .update({ role })
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (error) {
       throw error;
     }
 
-    toast.success('User role updated successfully');
+    toast.success("User role updated successfully");
     return true;
   } catch (error: any) {
     toast.error(`Failed to update user role: ${error.message}`);

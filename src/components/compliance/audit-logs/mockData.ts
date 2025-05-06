@@ -1,4 +1,3 @@
-
 import { AuditLog } from "./AuditLogTable";
 
 // Mock audit log data
@@ -10,7 +9,7 @@ export const mockAuditLogs: AuditLog[] = [
     action: "DATA_ACCESS",
     resource: "customer_records",
     details: "Viewed customer #1098 personal information",
-    ip: "192.168.1.45"
+    ip: "192.168.1.45",
   },
   {
     id: "2",
@@ -19,7 +18,7 @@ export const mockAuditLogs: AuditLog[] = [
     action: "SYSTEM_CHANGE",
     resource: "security_settings",
     details: "Updated password policy requirements",
-    ip: "203.0.113.42"
+    ip: "203.0.113.42",
   },
   {
     id: "3",
@@ -28,7 +27,7 @@ export const mockAuditLogs: AuditLog[] = [
     action: "EXPORT",
     resource: "financial_data",
     details: "Exported Q1 financial report",
-    ip: "198.51.100.73"
+    ip: "198.51.100.73",
   },
   {
     id: "4",
@@ -37,7 +36,7 @@ export const mockAuditLogs: AuditLog[] = [
     action: "AUTHENTICATION",
     resource: "login_service",
     details: "Failed login attempt for user mark@example.com",
-    ip: "203.0.113.15"
+    ip: "203.0.113.15",
   },
   {
     id: "5",
@@ -46,6 +45,6 @@ export const mockAuditLogs: AuditLog[] = [
     action: "DATA_MODIFICATION",
     resource: "product_database",
     details: "Updated pricing for product SKU-7734",
-    ip: "192.168.1.27"
-  }
+    ip: "192.168.1.27",
+  },
 ];

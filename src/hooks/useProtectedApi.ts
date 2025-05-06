@@ -1,7 +1,6 @@
-
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 interface ApiRequestOptions {
   url: string;
@@ -17,24 +16,31 @@ export function useProtectedApi() {
   const auth = useAuth();
 
   const makeRequest = async <T>(options: ApiRequestOptions): Promise<T> => {
-    const { url, method = 'GET', headers = {}, body, skipAuthCheck = false, quiet = false } = options;
+    const {
+      url,
+      method = "GET",
+      headers = {},
+      body,
+      skipAuthCheck = false,
+      quiet = false,
+    } = options;
     setIsLoading(true);
 
     try {
       // Check if user is authenticated unless explicitly skipped
       if (!skipAuthCheck && (!auth.user || !auth.session)) {
-        throw new Error('User not authenticated');
+        throw new Error("User not authenticated");
       }
 
       // Prepare request headers with authentication token if available
       const requestHeaders = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...headers,
       };
 
       // Add auth token if available
       if (auth.session?.access_token) {
-        requestHeaders['Authorization'] = `Bearer ${auth.session.access_token}`;
+        requestHeaders["Authorization"] = `Bearer ${auth.session.access_token}`;
       }
 
       // Make the API request
@@ -45,8 +51,13 @@ export function useProtectedApi() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Network response was not ok' }));
-        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: "Network response was not ok" }));
+        throw new Error(
+          errorData.message ||
+            `Error ${response.status}: ${response.statusText}`,
+        );
       }
 
       const data: T = await response.json();
@@ -55,8 +66,9 @@ export function useProtectedApi() {
     } catch (error) {
       setIsLoading(false);
       if (!quiet) {
-        toast.error('API request failed', { 
-          description: error instanceof Error ? error.message : 'Unknown error occurred' 
+        toast.error("API request failed", {
+          description:
+            error instanceof Error ? error.message : "Unknown error occurred",
         });
       }
       throw error;

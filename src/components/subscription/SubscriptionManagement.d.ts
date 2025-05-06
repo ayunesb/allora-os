@@ -1,5 +1,7 @@
 interface SubscriptionManagementProps {
-    onUpgradePlan?: () => void;
+  onUpgradePlan?: () => void;
 }
-export default function SubscriptionManagement({ onUpgradePlan }: SubscriptionManagementProps): import("react").JSX.Element;
+export default function SubscriptionManagement({
+  onUpgradePlan,
+}: SubscriptionManagementProps): import("react").JSX.Element;
 export {};

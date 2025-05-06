@@ -1,12 +1,11 @@
-
 /* Import base styles first */
-@import './base.css';
-@import './components.css';
-@import './utilities.css';
-@import './theme.css';
-@import './responsive.css';
-@import './globals.css';
-@import './responsive/admin-styles.css';
+@import "./base.css";
+@import "./components.css";
+@import "./utilities.css";
+@import "./theme.css";
+@import "./responsive.css";
+@import "./globals.css";
+@import "./responsive/admin-styles.css";
 
 /* Global styles */
 html {
@@ -15,7 +14,11 @@ html {
 
 /* Apply premium font globally */
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 /* Premium UI globals */

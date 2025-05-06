@@ -1,10 +1,12 @@
-import { User } from '@/types/fixed/User';
-import { AuthContextProps } from '@/types/fixed/Auth';
+import { User } from "@/types/fixed/User";
+import { AuthContextProps } from "@/types/fixed/Auth";
 /**
  * Creates a compatibility layer for authentication context
  * This ensures backwards compatibility with different auth implementations
  */
-export declare function createAuthCompatibilityLayer(authContext: any): AuthContextProps;
+export declare function createAuthCompatibilityLayer(
+  authContext: any,
+): AuthContextProps;
 /**
  * Normalizes a user object from various potential sources to ensure it matches
  * the User interface required by the application.

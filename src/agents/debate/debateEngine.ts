@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ExecutiveAgentProfile } from "@/types/agents";
 
@@ -6,32 +5,35 @@ import { ExecutiveAgentProfile } from "@/types/agents";
 function getExecutiveDebates() {
   return {
     insert: (data: any[]) => ({
-      error: null
-    })
+      error: null,
+    }),
   };
 }
 
 /**
- * Runs a debate with a single executive 
+ * Runs a debate with a single executive
  */
 export async function runExecutiveDebate(
   executiveName: string,
   role: string,
   task: string,
-  riskAppetite: string = 'medium',
-  businessPriority: string = 'growth'
+  riskAppetite: string = "medium",
+  businessPriority: string = "growth",
 ): Promise<string> {
   try {
     // Call our Supabase edge function to run the debate
-    const { data, error } = await supabase.functions.invoke("executive-debate", {
-      body: {
-        executiveName,
-        role,
-        task,
-        riskAppetite,
-        businessPriority
+    const { data, error } = await supabase.functions.invoke(
+      "executive-debate",
+      {
+        body: {
+          executiveName,
+          role,
+          task,
+          riskAppetite,
+          businessPriority,
+        },
       },
-    });
+    );
 
     if (error) {
       console.error("Error in debate function:", error);
@@ -52,11 +54,14 @@ export async function saveDebateResult(
   task: string,
   executiveName: string,
   role: string,
-  opinion: string
+  opinion: string,
 ): Promise<void> {
   try {
-    const finalVote = opinion.includes("FINAL VERDICT: For") ? "For" : 
-                      opinion.includes("FINAL VERDICT: Against") ? "Against" : "Neutral";
+    const finalVote = opinion.includes("FINAL VERDICT: For")
+      ? "For"
+      : opinion.includes("FINAL VERDICT: Against")
+        ? "Against"
+        : "Neutral";
 
     // Use mock function instead of direct Supabase call
     const { error } = getExecutiveDebates().insert([
@@ -83,37 +88,37 @@ export async function saveDebateResult(
  * Analyzes a debate response to extract stance, risks and opportunities
  */
 export function analyzeDebateResponse(response: string): {
-  stance: 'For' | 'Against' | 'Neutral';
+  stance: "For" | "Against" | "Neutral";
   risks: string[];
   opportunities: string[];
 } {
   // Default values
-  let stance: 'For' | 'Against' | 'Neutral' = 'Neutral';
+  let stance: "For" | "Against" | "Neutral" = "Neutral";
   const risks: string[] = [];
   const opportunities: string[] = [];
 
   // Determine stance
   if (response.includes("FINAL VERDICT: For")) {
-    stance = 'For';
+    stance = "For";
   } else if (response.includes("FINAL VERDICT: Against")) {
-    stance = 'Against';
+    stance = "Against";
   }
 
   // Extract risks
-  const riskMatch = response.match(/Risk[s]?:?(.*?)(?=Opportunit|FINAL|$)/si);
+  const riskMatch = response.match(/Risk[s]?:?(.*?)(?=Opportunit|FINAL|$)/is);
   if (riskMatch && riskMatch[1]) {
     const riskText = riskMatch[1].trim();
-    
+
     // Split by bullet points or numbers
     const riskItems = riskText.split(/(?:\r?\n|\r)(?:[-•*]|\d+\.)\s*/);
-    
+
     for (const item of riskItems) {
       const trimmed = item.trim();
       if (trimmed && trimmed.length > 5) {
         risks.push(trimmed);
       }
     }
-    
+
     // If no bullet points were found, use the whole text
     if (risks.length === 0 && riskText.length > 5) {
       risks.push(riskText);
@@ -121,20 +126,20 @@ export function analyzeDebateResponse(response: string): {
   }
 
   // Extract opportunities
-  const oppMatch = response.match(/Opportunit[y|ies]:?(.*?)(?=Risk|FINAL|$)/si);
+  const oppMatch = response.match(/Opportunit[y|ies]:?(.*?)(?=Risk|FINAL|$)/is);
   if (oppMatch && oppMatch[1]) {
     const oppText = oppMatch[1].trim();
-    
+
     // Split by bullet points or numbers
     const oppItems = oppText.split(/(?:\r?\n|\r)(?:[-•*]|\d+\.)\s*/);
-    
+
     for (const item of oppItems) {
       const trimmed = item.trim();
       if (trimmed && trimmed.length > 5) {
         opportunities.push(trimmed);
       }
     }
-    
+
     // If no bullet points were found, use the whole text
     if (opportunities.length === 0 && oppText.length > 5) {
       opportunities.push(oppText);

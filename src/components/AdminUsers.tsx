@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { User } from '../types';
+import React, { useEffect, useState } from "react";
+import { User } from "../types";
 
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -7,8 +7,8 @@ const AdminUsers: React.FC = () => {
   useEffect(() => {
     // Fetch users from API or other source
     const fetchedUsers: User[] = [
-      { id: 1, name: 'John Doe' },
-      { id: 2, name: 'Jane Smith' },
+      { id: 1, name: "John Doe" },
+      { id: 2, name: "Jane Smith" },
     ];
     setUsers(fetchedUsers);
   }, []);

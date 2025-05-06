@@ -1,4 +1,3 @@
-
 import { normalizeRoute } from "./navigation";
 
 type DeepLinkParams = Record<string, string | number | boolean>;
@@ -13,35 +12,35 @@ type DeepLinkParams = Record<string, string | number | boolean>;
 export const createDeepLink = (
   basePath: string,
   params?: DeepLinkParams,
-  hash?: string
+  hash?: string,
 ): string => {
   // First normalize the route in case it's a common alias
   const normalizedPath = normalizeRoute(basePath);
-  
+
   // Construct URL with query parameters if provided
   let url = normalizedPath;
-  
+
   if (params && Object.keys(params).length > 0) {
     const searchParams = new URLSearchParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         searchParams.append(key, String(value));
       }
     });
-    
+
     const queryString = searchParams.toString();
     if (queryString) {
       url += `?${queryString}`;
     }
   }
-  
+
   // Add hash if provided
   if (hash) {
     // Ensure hash starts with # symbol
-    url += hash.startsWith('#') ? hash : `#${hash}`;
+    url += hash.startsWith("#") ? hash : `#${hash}`;
   }
-  
+
   return url;
 };
 
@@ -53,24 +52,24 @@ export const createDeepLink = (
  */
 export const createShareableLink = (
   route: string,
-  state: Record<string, any>
+  state: Record<string, any>,
 ): string => {
   const baseUrl = window.location.origin;
   const params: DeepLinkParams = {};
-  
+
   // Only include serializable values in the URL
   Object.entries(state).forEach(([key, value]) => {
     if (
-      value !== undefined && 
-      value !== null && 
-      (typeof value === 'string' || 
-       typeof value === 'number' || 
-       typeof value === 'boolean')
+      value !== undefined &&
+      value !== null &&
+      (typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean")
     ) {
       params[key] = value;
     }
   });
-  
+
   const deepLink = createDeepLink(route, params);
   return `${baseUrl}${deepLink}`;
 };
@@ -83,21 +82,21 @@ export const createShareableLink = (
  */
 export const extractDeepLinkParams = <T extends Record<string, any>>(
   searchParams: URLSearchParams,
-  paramMap: Record<string, 'string' | 'number' | 'boolean'>
+  paramMap: Record<string, "string" | "number" | "boolean">,
 ): Partial<T> => {
   const result: Record<string, any> = {};
-  
+
   Object.entries(paramMap).forEach(([paramName, paramType]) => {
     if (searchParams.has(paramName)) {
       const value = searchParams.get(paramName);
-      
+
       if (value !== null) {
         switch (paramType) {
-          case 'number':
+          case "number":
             result[paramName] = parseFloat(value);
             break;
-          case 'boolean':
-            result[paramName] = value === 'true';
+          case "boolean":
+            result[paramName] = value === "true";
             break;
           default:
             result[paramName] = value;
@@ -105,7 +104,7 @@ export const extractDeepLinkParams = <T extends Record<string, any>>(
       }
     }
   });
-  
+
   return result as Partial<T>;
 };
 

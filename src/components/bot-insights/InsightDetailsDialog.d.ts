@@ -1,8 +1,12 @@
-import { BotInsight } from './BotInsightCard';
+import { BotInsight } from "./BotInsightCard";
 interface InsightDetailsDialogProps {
-    insight: BotInsight | null;
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+  insight: BotInsight | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
-export default function InsightDetailsDialog({ insight, open, onOpenChange }: InsightDetailsDialogProps): JSX.Element;
+export default function InsightDetailsDialog({
+  insight,
+  open,
+  onOpenChange,
+}: InsightDetailsDialogProps): JSX.Element;
 export {};

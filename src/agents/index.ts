@@ -1,4 +1,3 @@
-
-export * from './executiveAgent';
-export * from './executiveMemory';
-export * from './agentProfiles';
+export * from "./executiveAgent";
+export * from "./executiveMemory";
+export * from "./agentProfiles";

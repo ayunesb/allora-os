@@ -8,9 +8,9 @@ export declare function getSupabaseAnonKey(): any;
  * Type-safe mapping of environment variable names to their expected types
  */
 type EnvVar = {
-    name: string;
-    required: boolean;
-    fallback?: string;
+  name: string;
+  required: boolean;
+  fallback?: string;
 };
 declare const ENV_VARS: Record<string, EnvVar>;
 /**

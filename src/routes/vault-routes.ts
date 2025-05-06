@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 
 export const vaultRoutes: RouteObject[] = [
@@ -8,10 +7,12 @@ export const vaultRoutes: RouteObject[] = [
       {
         path: "templates",
         async lazy() {
-          const { default: VaultTemplatesPage } = await import("@/pages/vault/templates/index");
+          const { default: VaultTemplatesPage } = await import(
+            "@/pages/vault/templates/index"
+          );
           return { Component: VaultTemplatesPage };
-        }
-      }
-    ]
-  }
+        },
+      },
+    ],
+  },
 ];

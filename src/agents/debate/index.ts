@@ -1,3 +1,2 @@
-
-export * from './debateEngine';
-export * from './debateSession';
+export * from "./debateEngine";
+export * from "./debateSession";

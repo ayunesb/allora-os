@@ -1,5 +1,4 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Checks if the user has completed onboarding
@@ -14,9 +13,9 @@ export async function checkOnboardingStatus(userId: string): Promise<boolean> {
 
     // Get the user's profile
     const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('onboarding_completed, company_id')
-      .eq('id', userId)
+      .from("profiles")
+      .select("onboarding_completed, company_id")
+      .eq("id", userId)
       .single();
 
     if (profileError) {
@@ -35,9 +34,9 @@ export async function checkOnboardingStatus(userId: string): Promise<boolean> {
     if (profileData?.company_id) {
       console.log("User has company ID, checking company details");
       const { data: companyData, error: companyError } = await supabase
-        .from('companies')
-        .select('details')
-        .eq('id', profileData.company_id)
+        .from("companies")
+        .select("details")
+        .eq("id", profileData.company_id)
         .single();
 
       if (companyError) {

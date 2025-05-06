@@ -1,3 +1,3 @@
-import React from 'react';
+import React from "react";
 declare const UserActivityGraph: React.FC;
 export default UserActivityGraph;

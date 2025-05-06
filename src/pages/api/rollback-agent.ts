@@ -1,9 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -16,7 +22,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Authenticate the request (e.g., check user roles or permissions)
-    const { data: user, error: authError } = await supabase.auth.getUser(req.headers.authorization || "");
+    const { data: user, error: authError } = await supabase.auth.getUser(
+      req.headers.authorization || "",
+    );
     if (authError || !user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -28,7 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .eq("plugin_name", pluginName);
 
     if (rollbackError) {
-      return res.status(500).json({ error: "Failed to rollback plugin version" });
+      return res
+        .status(500)
+        .json({ error: "Failed to rollback plugin version" });
     }
 
     res.status(200).json({ message: "Rollback successful" });

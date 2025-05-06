@@ -22,7 +22,11 @@ export declare const createProduct: (productData: any) => Promise<any>;
  * @param shippingAddress Optional shipping address information
  * @returns A promise with the checkout details
  */
-export declare const createCheckout: (variantId: string, quantity: number, shippingAddress?: any) => Promise<any>;
+export declare const createCheckout: (
+  variantId: string,
+  quantity: number,
+  shippingAddress?: any,
+) => Promise<any>;
 /**
  * Gets the details of a checkout
  * @param checkoutId The Shopify checkout ID

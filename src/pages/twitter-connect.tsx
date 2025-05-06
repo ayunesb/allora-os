@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/client';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/client";
+import axios from "axios";
 
 const TwitterConnect = () => {
   const [session, loading] = useSession();
@@ -10,27 +10,27 @@ const TwitterConnect = () => {
 
   useEffect(() => {
     if (session) {
-      axios.get('/api/user').then((response) => {
+      axios.get("/api/user").then((response) => {
         setUser(response.data);
       });
     }
   }, [session]);
 
   const handleConnect = async () => {
-    const params = { key: 'value' }; // Replace with actual expected structure
+    const params = { key: "value" }; // Replace with actual expected structure
     const params = {
       tenant_id: user?.tenant_id,
-      twitterToken: '...',
+      twitterToken: "...",
       // etc.
     };
 
     try {
-      const response = await axios.post('/api/twitter/connect', params);
+      const response = await axios.post("/api/twitter/connect", params);
       if (response.status === 200) {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     } catch (error) {
-      console.error('Error connecting to Twitter:', error);
+      console.error("Error connecting to Twitter:", error);
     }
   };
 

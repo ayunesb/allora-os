@@ -1,15 +1,14 @@
+import { useState, useEffect } from "react";
 
-import { useState, useEffect } from 'react';
-
-type Breakpoint = 'xs' | 'mobile' | 'tablet' | 'laptop' | 'desktop';
+type Breakpoint = "xs" | "mobile" | "tablet" | "laptop" | "desktop";
 
 // Define breakpoints for better responsive design
 export const BREAKPOINTS = {
-  xs: 480,    // Extra small devices
-  mobile: 640,  // Small mobile devices
-  tablet: 768,  // Tablets and large tablets
+  xs: 480, // Extra small devices
+  mobile: 640, // Small mobile devices
+  tablet: 768, // Tablets and large tablets
   laptop: 1024, // Small laptops and large tablets
-  desktop: 1280 // Desktop and large laptops
+  desktop: 1280, // Desktop and large laptops
 };
 
 // Hook to check if viewport is mobile-sized
@@ -20,13 +19,13 @@ export function useIsMobile() {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < BREAKPOINTS.tablet);
     };
-    
+
     // Add event listener for resize
     window.addEventListener("resize", checkIfMobile);
-    
+
     // Set initial value
     checkIfMobile();
-    
+
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
@@ -34,21 +33,21 @@ export function useIsMobile() {
 }
 
 export function useBreakpoint(): Breakpoint {
-  const [breakpoint, setBreakpoint] = useState<Breakpoint>('desktop');
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
 
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       if (width < BREAKPOINTS.xs) {
-        setBreakpoint('xs');
+        setBreakpoint("xs");
       } else if (width < BREAKPOINTS.mobile) {
-        setBreakpoint('mobile');
+        setBreakpoint("mobile");
       } else if (width < BREAKPOINTS.tablet) {
-        setBreakpoint('tablet');
+        setBreakpoint("tablet");
       } else if (width < BREAKPOINTS.laptop) {
-        setBreakpoint('laptop');
+        setBreakpoint("laptop");
       } else {
-        setBreakpoint('desktop');
+        setBreakpoint("desktop");
       }
     };
 
@@ -56,11 +55,11 @@ export function useBreakpoint(): Breakpoint {
     handleResize();
 
     // Set up event listener
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // Clean up
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -69,18 +68,18 @@ export function useBreakpoint(): Breakpoint {
 
 // Helper function to get appropriate column count based on breakpoint
 export function getResponsiveGridCols(breakpoint: string) {
-  switch(breakpoint) {
-    case 'xs':
-      return 'grid-cols-1';
-    case 'mobile':
-      return 'grid-cols-1';
-    case 'tablet':
-      return 'grid-cols-2';
-    case 'laptop':
-      return 'grid-cols-3';
-    case 'desktop':
-      return 'grid-cols-4';
+  switch (breakpoint) {
+    case "xs":
+      return "grid-cols-1";
+    case "mobile":
+      return "grid-cols-1";
+    case "tablet":
+      return "grid-cols-2";
+    case "laptop":
+      return "grid-cols-3";
+    case "desktop":
+      return "grid-cols-4";
     default:
-      return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
   }
 }

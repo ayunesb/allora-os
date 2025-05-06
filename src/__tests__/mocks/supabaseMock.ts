@@ -1,5 +1,4 @@
-
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Create a type-safe mock for the Supabase client
 export const createSupabaseMock = () => ({
@@ -8,10 +7,10 @@ export const createSupabaseMock = () => ({
       eq: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn(),
-          limit: vi.fn()
+          limit: vi.fn(),
         }),
-        single: vi.fn()
-      })
+        single: vi.fn(),
+      }),
     }),
     insert: vi.fn(),
     update: vi.fn(),

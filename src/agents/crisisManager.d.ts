@@ -5,4 +5,6 @@ import { Anomaly } from "./anomalyDetector";
  * @param anomalies Array of detected anomalies
  * @returns Promise resolved when all crisis meetings have been processed
  */
-export declare function triggerCrisisMeeting(anomalies: Anomaly[]): Promise<void>;
+export declare function triggerCrisisMeeting(
+  anomalies: Anomaly[],
+): Promise<void>;

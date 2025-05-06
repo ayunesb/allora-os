@@ -1,5 +1,4 @@
-
-import { AppError } from './errorTypes';
+import { AppError } from "./errorTypes";
 
 type ErrorHandler = (error: AppError) => void;
 
@@ -21,18 +20,18 @@ class ErrorEventBus {
    * Unsubscribe from error events
    */
   unsubscribe(handler: ErrorHandler): void {
-    this.handlers = this.handlers.filter(h => h !== handler);
+    this.handlers = this.handlers.filter((h) => h !== handler);
   }
 
   /**
    * Publish an error event to all subscribers
    */
   publish(error: AppError): void {
-    this.handlers.forEach(handler => {
+    this.handlers.forEach((handler) => {
       try {
         handler(error);
       } catch (e) {
-        console.error('Error in error handler:', e);
+        console.error("Error in error handler:", e);
       }
     });
   }

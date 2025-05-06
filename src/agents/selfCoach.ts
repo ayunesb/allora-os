@@ -1,6 +1,5 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/loggingService';
+import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/utils/loggingService";
 
 const selfCoachingPromptTemplate = `
 You are {executiveName}, a {role} at Allora AI.
@@ -28,36 +27,38 @@ export async function generateSelfCoachingNote(
   role: string,
   task: string,
   outcome: string,
-  performanceNotes: string
+  performanceNotes: string,
 ): Promise<string> {
   try {
-    logger.info(`Generating self-coaching note for ${executiveName} on task: ${task}`);
-    
+    logger.info(
+      `Generating self-coaching note for ${executiveName} on task: ${task}`,
+    );
+
     const filledPrompt = selfCoachingPromptTemplate
-      .replace('{executiveName}', executiveName)
-      .replace('{role}', role)
-      .replace('{task}', task)
-      .replace('{outcome}', outcome)
-      .replace('{performanceNotes}', performanceNotes);
+      .replace("{executiveName}", executiveName)
+      .replace("{role}", role)
+      .replace("{task}", task)
+      .replace("{outcome}", outcome)
+      .replace("{performanceNotes}", performanceNotes);
 
     // Call Supabase edge function to generate the coaching note
-    const { data, error } = await supabase.functions.invoke('generate-text', {
+    const { data, error } = await supabase.functions.invoke("generate-text", {
       body: {
         prompt: filledPrompt,
-        temperature: 0.3
-      }
+        temperature: 0.3,
+      },
     });
 
     if (error) {
-      logger.error('Failed to generate self-coaching note', { error });
+      logger.error("Failed to generate self-coaching note", { error });
       return `Unable to generate coaching note due to API error: ${error.message}`;
     }
 
-    logger.info('Self-coaching note generated successfully');
+    logger.info("Self-coaching note generated successfully");
     return data.content;
   } catch (error) {
-    logger.error('Error generating self-coaching note', { error });
-    return `Error in self-coaching process: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    logger.error("Error generating self-coaching note", { error });
+    return `Error in self-coaching process: ${error instanceof Error ? error.message : "Unknown error"}`;
   }
 }
 
@@ -68,10 +69,10 @@ export async function saveCoachingNoteToMemory(
   userId: string,
   executiveName: string,
   task: string,
-  coachingNote: string
+  coachingNote: string,
 ): Promise<boolean> {
   try {
-    const { error } = await supabase.from('executive_memory').insert([
+    const { error } = await supabase.from("executive_memory").insert([
       {
         user_id: userId,
         executive_name: executiveName,
@@ -81,14 +82,14 @@ export async function saveCoachingNoteToMemory(
     ]);
 
     if (error) {
-      logger.error('Failed to save coaching note to memory', { error });
+      logger.error("Failed to save coaching note to memory", { error });
       return false;
     }
 
-    logger.info('Coaching note saved to memory successfully');
+    logger.info("Coaching note saved to memory successfully");
     return true;
   } catch (error) {
-    logger.error('Error saving coaching note to memory', { error });
+    logger.error("Error saving coaching note to memory", { error });
     return false;
   }
 }

@@ -1,4 +1,3 @@
-
 import { PartialCompanyDetails } from "@/models/companyDetails";
 
 export type CompanyCreationResult = {

@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 
 export const galaxyRoutes: RouteObject[] = [
@@ -11,12 +10,14 @@ export const galaxyRoutes: RouteObject[] = [
           {
             path: "leaderboard",
             async lazy() {
-              const { default: PluginLeaderboard } = await import("@/pages/galaxy/plugins/leaderboard");
+              const { default: PluginLeaderboard } = await import(
+                "@/pages/galaxy/plugins/leaderboard"
+              );
               return { Component: PluginLeaderboard };
-            }
-          }
-        ]
-      }
-    ]
-  }
+            },
+          },
+        ],
+      },
+    ],
+  },
 ];

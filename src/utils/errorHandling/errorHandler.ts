@@ -13,7 +13,7 @@ export interface ErrorHandlingOptions {
 
 export function handleError(
   error: any,
-  options: ErrorHandlingOptions = {}
+  options: ErrorHandlingOptions = {},
 ): void {
   const {
     showToast = true,
@@ -21,17 +21,18 @@ export function handleError(
     logToService = true,
     context = {},
     friendlyMessage = "An error occurred. Please try again.",
-    type
+    type,
   } = options;
 
   // Extract error message
   const errorMessage = error?.message || String(error);
-  const errorType = (error?.type as keyof typeof ErrorType) || 'UNEXPECTED_ERROR';
+  const errorType =
+    (error?.type as keyof typeof ErrorType) || "UNEXPECTED_ERROR";
   const errorDetails = {
     message: errorMessage,
     stack: error?.stack,
     type: type || errorType,
-    ...context
+    ...context,
   };
 
   // Log to console
@@ -47,9 +48,10 @@ export function handleError(
   // Show toast notification
   if (showToast) {
     toast.error(friendlyMessage, {
-      description: errorMessage.length > 100 
-        ? errorMessage.substring(0, 100) + "..." 
-        : errorMessage
+      description:
+        errorMessage.length > 100
+          ? errorMessage.substring(0, 100) + "..."
+          : errorMessage,
     });
   }
 }

@@ -1,11 +1,10 @@
-
 /**
  * Launch planner utility for business launch preparation
  */
 
 // Import necessary utilities
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 // Define interfaces
 interface LaunchStep {
@@ -15,7 +14,7 @@ interface LaunchStep {
   isCompleted: boolean;
   isRequired: boolean;
   order: number;
-  category: 'api' | 'data' | 'user' | 'compliance' | 'security';
+  category: "api" | "data" | "user" | "compliance" | "security";
 }
 
 interface LaunchCategory {
@@ -41,17 +40,20 @@ interface LaunchPlan {
 /**
  * Main function to check if all launch requirements are met
  */
-export async function checkLaunchReadiness(): Promise<{ isReady: boolean; plan: LaunchPlan }> {
+export async function checkLaunchReadiness(): Promise<{
+  isReady: boolean;
+  plan: LaunchPlan;
+}> {
   try {
     // Get the launch plan
     const plan = await generateLaunchPlan();
-    
+
     // Check if all required steps are completed
     const isReady = plan.completedRequiredSteps === plan.totalRequiredSteps;
-    
+
     return { isReady, plan };
   } catch (error) {
-    console.error('Error checking launch readiness:', error);
+    console.error("Error checking launch readiness:", error);
     return {
       isReady: false,
       plan: {
@@ -60,8 +62,8 @@ export async function checkLaunchReadiness(): Promise<{ isReady: boolean; plan: 
         completedSteps: 0,
         totalSteps: 0,
         completedRequiredSteps: 0,
-        totalRequiredSteps: 0
-      }
+        totalRequiredSteps: 0,
+      },
     };
   }
 }
@@ -73,205 +75,207 @@ async function generateLaunchPlan(): Promise<LaunchPlan> {
   // This would typically load from database, but for demo we'll create static plan
   const categories: LaunchCategory[] = [
     {
-      id: 'api',
-      name: 'API Integrations',
-      description: 'Connect all required external services',
+      id: "api",
+      name: "API Integrations",
+      description: "Connect all required external services",
       steps: [
         {
-          id: 'api-1',
-          name: 'Connect to Stripe',
-          description: 'Set up billing integration with Stripe',
+          id: "api-1",
+          name: "Connect to Stripe",
+          description: "Set up billing integration with Stripe",
           isCompleted: true,
           isRequired: true,
           order: 1,
-          category: 'api'
+          category: "api",
         },
         {
-          id: 'api-2',
-          name: 'Connect to Twilio',
-          description: 'Set up SMS and WhatsApp messaging',
+          id: "api-2",
+          name: "Connect to Twilio",
+          description: "Set up SMS and WhatsApp messaging",
           isCompleted: true,
           isRequired: true,
           order: 2,
-          category: 'api'
+          category: "api",
         },
         {
-          id: 'api-3',
-          name: 'Connect to Postmark',
-          description: 'Set up email delivery service',
+          id: "api-3",
+          name: "Connect to Postmark",
+          description: "Set up email delivery service",
           isCompleted: true,
           isRequired: true,
           order: 3,
-          category: 'api'
+          category: "api",
         },
         {
-          id: 'api-4',
-          name: 'Connect to OpenAI',
-          description: 'Set up AI assistant capabilities',
+          id: "api-4",
+          name: "Connect to OpenAI",
+          description: "Set up AI assistant capabilities",
           isCompleted: true,
           isRequired: true,
           order: 4,
-          category: 'api'
-        }
+          category: "api",
+        },
       ],
       completedSteps: 4,
       totalSteps: 4,
       requiredSteps: 4,
-      completedRequiredSteps: 4
+      completedRequiredSteps: 4,
     },
     {
-      id: 'data',
-      name: 'Data Management',
-      description: 'Ensure database and data workflows are ready',
+      id: "data",
+      name: "Data Management",
+      description: "Ensure database and data workflows are ready",
       steps: [
         {
-          id: 'data-1',
-          name: 'Database RLS Policies',
-          description: 'Set up row-level security policies',
+          id: "data-1",
+          name: "Database RLS Policies",
+          description: "Set up row-level security policies",
           isCompleted: true,
           isRequired: true,
           order: 1,
-          category: 'data'
+          category: "data",
         },
         {
-          id: 'data-2',
-          name: 'Database Indexes',
-          description: 'Create indexes for performance',
+          id: "data-2",
+          name: "Database Indexes",
+          description: "Create indexes for performance",
           isCompleted: true,
           isRequired: true,
           order: 2,
-          category: 'data'
+          category: "data",
         },
         {
-          id: 'data-3',
-          name: 'Data backup process',
-          description: 'Configure automated backups',
+          id: "data-3",
+          name: "Data backup process",
+          description: "Configure automated backups",
           isCompleted: false,
           isRequired: true,
           order: 3,
-          category: 'data'
-        }
+          category: "data",
+        },
       ],
       completedSteps: 2,
       totalSteps: 3,
       requiredSteps: 3,
-      completedRequiredSteps: 2
+      completedRequiredSteps: 2,
     },
     {
-      id: 'user',
-      name: 'User Management',
-      description: 'Prepare user workflows and onboarding',
+      id: "user",
+      name: "User Management",
+      description: "Prepare user workflows and onboarding",
       steps: [
         {
-          id: 'user-1',
-          name: 'User Onboarding Flow',
-          description: 'Complete and test user onboarding',
+          id: "user-1",
+          name: "User Onboarding Flow",
+          description: "Complete and test user onboarding",
           isCompleted: true,
           isRequired: true,
           order: 1,
-          category: 'user'
+          category: "user",
         },
         {
-          id: 'user-2',
-          name: 'Admin User Setup',
-          description: 'Create admin users and roles',
+          id: "user-2",
+          name: "Admin User Setup",
+          description: "Create admin users and roles",
           isCompleted: true,
           isRequired: true,
           order: 2,
-          category: 'user'
-        }
+          category: "user",
+        },
       ],
       completedSteps: 2,
       totalSteps: 2,
       requiredSteps: 2,
-      completedRequiredSteps: 2
+      completedRequiredSteps: 2,
     },
     {
-      id: 'compliance',
-      name: 'Legal Compliance',
-      description: 'Ensure legal and regulatory compliance',
+      id: "compliance",
+      name: "Legal Compliance",
+      description: "Ensure legal and regulatory compliance",
       steps: [
         {
-          id: 'compliance-1',
-          name: 'Privacy Policy',
-          description: 'Create and post privacy policy',
+          id: "compliance-1",
+          name: "Privacy Policy",
+          description: "Create and post privacy policy",
           isCompleted: true,
           isRequired: true,
           order: 1,
-          category: 'compliance'
+          category: "compliance",
         },
         {
-          id: 'compliance-2',
-          name: 'Terms of Service',
-          description: 'Create and post terms of service',
+          id: "compliance-2",
+          name: "Terms of Service",
+          description: "Create and post terms of service",
           isCompleted: true,
           isRequired: true,
           order: 2,
-          category: 'compliance'
+          category: "compliance",
         },
         {
-          id: 'compliance-3',
-          name: 'GDPR Compliance',
-          description: 'Implement GDPR requirements',
+          id: "compliance-3",
+          name: "GDPR Compliance",
+          description: "Implement GDPR requirements",
           isCompleted: false,
           isRequired: false,
           order: 3,
-          category: 'compliance'
-        }
+          category: "compliance",
+        },
       ],
       completedSteps: 2,
       totalSteps: 3,
       requiredSteps: 2,
-      completedRequiredSteps: 2
-    }
+      completedRequiredSteps: 2,
+    },
   ];
-  
+
   // Calculate totals
   let completedSteps = 0;
   let totalSteps = 0;
   let completedRequiredSteps = 0;
   let totalRequiredSteps = 0;
-  
-  categories.forEach(category => {
+
+  categories.forEach((category) => {
     completedSteps += category.completedSteps;
     totalSteps += category.totalSteps;
     completedRequiredSteps += category.completedRequiredSteps;
     totalRequiredSteps += category.requiredSteps;
   });
-  
+
   return {
     categories,
     isReady: completedRequiredSteps === totalRequiredSteps,
     completedSteps,
     totalSteps,
     completedRequiredSteps,
-    totalRequiredSteps
+    totalRequiredSteps,
   };
 }
 
 /**
  * Mark a launch step as completed
  */
-export async function completeStep(stepId: string): Promise<{success: boolean; message: string}> {
+export async function completeStep(
+  stepId: string,
+): Promise<{ success: boolean; message: string }> {
   try {
     // In a real implementation, this would update the database
     console.log(`Step ${stepId} marked as completed`);
-    
+
     // Simulate success
     toast.success(`Step ${stepId} completed`);
-    
+
     return {
       success: true,
-      message: 'Step completed successfully'
+      message: "Step completed successfully",
     };
   } catch (error) {
-    console.error('Error completing step:', error);
-    
-    toast.error('Failed to complete step');
-    
+    console.error("Error completing step:", error);
+
+    toast.error("Failed to complete step");
+
     return {
       success: false,
-      message: 'Failed to complete step'
+      message: "Failed to complete step",
     };
   }
 }
@@ -279,24 +283,26 @@ export async function completeStep(stepId: string): Promise<{success: boolean; m
 /**
  * Verify a specific launch requirement
  */
-export async function verifyRequirement(id: string): Promise<{valid: boolean; message: string}> {
+export async function verifyRequirement(
+  id: string,
+): Promise<{ valid: boolean; message: string }> {
   switch (id) {
-    case 'api-1':
+    case "api-1":
       return verifyStripeIntegration();
-    case 'api-2':
+    case "api-2":
       return verifyTwilioIntegration();
-    case 'api-3':
+    case "api-3":
       return verifyPostmarkIntegration();
-    case 'api-4':
+    case "api-4":
       return verifyOpenAIIntegration();
-    case 'data-1':
+    case "data-1":
       return verifyRLSPolicies();
-    case 'data-2':
+    case "data-2":
       return verifyDatabaseIndexes();
     default:
       return {
         valid: false,
-        message: 'Unknown requirement'
+        message: "Unknown requirement",
       };
   }
 }
@@ -304,65 +310,83 @@ export async function verifyRequirement(id: string): Promise<{valid: boolean; me
 /**
  * Helper function to verify Stripe integration
  */
-async function verifyStripeIntegration(): Promise<{valid: boolean; message: string}> {
+async function verifyStripeIntegration(): Promise<{
+  valid: boolean;
+  message: string;
+}> {
   // This would include real verification in production
   return {
     valid: true,
-    message: 'Stripe integration verified'
+    message: "Stripe integration verified",
   };
 }
 
 /**
  * Helper function to verify Twilio integration
  */
-async function verifyTwilioIntegration(): Promise<{valid: boolean; message: string}> {
+async function verifyTwilioIntegration(): Promise<{
+  valid: boolean;
+  message: string;
+}> {
   // This would include real verification in production
   return {
     valid: true,
-    message: 'Twilio integration verified'
+    message: "Twilio integration verified",
   };
 }
 
 /**
  * Helper function to verify Postmark integration
  */
-async function verifyPostmarkIntegration(): Promise<{valid: boolean; message: string}> {
+async function verifyPostmarkIntegration(): Promise<{
+  valid: boolean;
+  message: string;
+}> {
   // This would include real verification in production
   return {
     valid: true,
-    message: 'Postmark integration verified'
+    message: "Postmark integration verified",
   };
 }
 
 /**
  * Helper function to verify OpenAI integration
  */
-async function verifyOpenAIIntegration(): Promise<{valid: boolean; message: string}> {
+async function verifyOpenAIIntegration(): Promise<{
+  valid: boolean;
+  message: string;
+}> {
   // This would include real verification in production
   return {
     valid: true,
-    message: 'OpenAI integration verified'
+    message: "OpenAI integration verified",
   };
 }
 
 /**
  * Helper function to verify RLS policies
  */
-async function verifyRLSPolicies(): Promise<{valid: boolean; message: string}> {
+async function verifyRLSPolicies(): Promise<{
+  valid: boolean;
+  message: string;
+}> {
   // This would include real verification in production
   return {
     valid: true,
-    message: 'Row-level security policies are properly configured'
+    message: "Row-level security policies are properly configured",
   };
 }
 
 /**
  * Helper function to verify database indexes
  */
-async function verifyDatabaseIndexes(): Promise<{valid: boolean; message: string}> {
+async function verifyDatabaseIndexes(): Promise<{
+  valid: boolean;
+  message: string;
+}> {
   // This would include real verification in production
   return {
     valid: true,
-    message: 'Database indexes are properly configured'
+    message: "Database indexes are properly configured",
   };
 }

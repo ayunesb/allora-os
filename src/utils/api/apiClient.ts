@@ -1,4 +1,3 @@
-
 /**
  * API client options interface
  */
@@ -16,38 +15,44 @@ export interface ApiRequestOptions {
 }
 
 // API function type that handles both fetch and Supabase queries
-export type ApiFetchFunction = (() => Promise<Response>) | (() => Promise<{ data: any; error?: any }>);
+export type ApiFetchFunction =
+  | (() => Promise<Response>)
+  | (() => Promise<{ data: any; error?: any }>);
 
 /**
  * Core API request function
  */
 export const apiRequest = async <T>(
   fetchFunction: ApiFetchFunction,
-  options: ApiRequestOptions = {}
-): Promise<{ data: T | null; error: Error | null; status: 'success' | 'error' }> => {
+  options: ApiRequestOptions = {},
+): Promise<{
+  data: T | null;
+  error: Error | null;
+  status: "success" | "error";
+}> => {
   try {
     const response = await fetchFunction();
-    
+
     // Handle both standard fetch responses and Supabase responses
-    if ('ok' in response) {
+    if ("ok" in response) {
       // Standard fetch response
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
       const data = await response.json();
-      return { data, error: null, status: 'success' };
+      return { data, error: null, status: "success" };
     } else {
       // Supabase response
       if (response.error) {
-        throw new Error(response.error.message || 'Unknown Supabase error');
+        throw new Error(response.error.message || "Unknown Supabase error");
       }
-      return { data: response.data, error: null, status: 'success' };
+      return { data: response.data, error: null, status: "success" };
     }
   } catch (error) {
-    return { 
-      data: null, 
-      error: error instanceof Error ? error : new Error('Unknown error'), 
-      status: 'error' 
+    return {
+      data: null,
+      error: error instanceof Error ? error : new Error("Unknown error"),
+      status: "error",
     };
   }
 };
@@ -64,7 +69,7 @@ export const clearApiCache = (endpoint?: string) => {
 };
 
 // Expose the clearApiCache function globally
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.clearApiCache = clearApiCache;
 }
 
@@ -80,22 +85,22 @@ declare global {
  */
 export const fetchApi = async <T>(
   endpoint: string,
-  method: string = 'GET',
+  method: string = "GET",
   data?: any,
-  additionalHeaders?: Record<string, string>
+  additionalHeaders?: Record<string, string>,
 ): Promise<T> => {
   const headers = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(additionalHeaders || {}),
   };
 
   const options: RequestInit = {
     method,
     headers,
-    credentials: 'include',
+    credentials: "include",
   };
 
-  if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+  if (data && (method === "POST" || method === "PUT" || method === "PATCH")) {
     options.body = JSON.stringify(data);
   }
 
@@ -106,7 +111,8 @@ export const fetchApi = async <T>(
     let errorMessage: string;
     try {
       const errorJson = JSON.parse(errorText);
-      errorMessage = errorJson.message || errorJson.error || `API error: ${response.status}`;
+      errorMessage =
+        errorJson.message || errorJson.error || `API error: ${response.status}`;
     } catch {
       errorMessage = errorText || `API error: ${response.status}`;
     }

@@ -1,4 +1,4 @@
 export declare function useCeoFeedback(): {
-    provideFeedback: (isPositive: boolean) => Promise<void>;
-    isSubmitting: boolean;
+  provideFeedback: (isPositive: boolean) => Promise<void>;
+  isSubmitting: boolean;
 };

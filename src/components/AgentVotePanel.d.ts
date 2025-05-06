@@ -1,1 +1,7 @@
-export declare function AgentVotePanel({ logId, agentId, xp, version, onVote }: any): JSX.Element;
+export declare function AgentVotePanel({
+  logId,
+  agentId,
+  xp,
+  version,
+  onVote,
+}: any): JSX.Element;

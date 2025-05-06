@@ -1,6 +1,8 @@
-import { SecuritySettingsType } from './types';
+import { SecuritySettingsType } from "./types";
 interface SecurityTabProps {
-    initialSettings?: SecuritySettingsType;
+  initialSettings?: SecuritySettingsType;
 }
-declare const SecurityTab: ({ initialSettings }: SecurityTabProps) => JSX.Element;
+declare const SecurityTab: ({
+  initialSettings,
+}: SecurityTabProps) => JSX.Element;
 export default SecurityTab;

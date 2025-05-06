@@ -1,6 +1,20 @@
-export const analyzeStrategyFactors = (strategy) => {
-    // ...existing code...
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.analyzeStrategyFactors = void 0;
+exports.getStrategyInsights = getStrategyInsights;
+var analyzeStrategyFactors = function (strategy) {
+  // Your logic
+  return {
+    steps: [],
+    strengths: [],
+    weaknesses: [],
+  };
 };
-export function getStrategyInsights(strategy) {
-    // ...existing code...
+exports.analyzeStrategyFactors = analyzeStrategyFactors;
+function getStrategyInsights(strategy) {
+  return {
+    steps: [],
+    strengths: [],
+    weaknesses: [],
+  };
 }

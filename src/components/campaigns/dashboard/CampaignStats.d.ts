@@ -1,6 +1,8 @@
-import { Campaign } from '@/types/unified-types';
+import { Campaign } from "@/types/unified-types";
 interface CampaignStatsProps {
-    campaigns: Campaign[];
+  campaigns: Campaign[];
 }
-export declare function CampaignStats({ campaigns }: CampaignStatsProps): import("react").JSX.Element;
+export declare function CampaignStats({
+  campaigns,
+}: CampaignStatsProps): import("react").JSX.Element;
 export {};

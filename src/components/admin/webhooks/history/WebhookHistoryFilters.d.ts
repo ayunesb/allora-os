@@ -1,8 +1,12 @@
-import { WebhookFilterState } from '@/hooks/admin/useWebhookHistoryFilters';
+import { WebhookFilterState } from "@/hooks/admin/useWebhookHistoryFilters";
 interface WebhookHistoryFiltersProps {
-    filter: WebhookFilterState;
-    onFilterChange: (filter: Partial<WebhookFilterState>) => void;
-    onResetFilters: () => void;
+  filter: WebhookFilterState;
+  onFilterChange: (filter: Partial<WebhookFilterState>) => void;
+  onResetFilters: () => void;
 }
-export default function WebhookHistoryFilters({ filter, onFilterChange, onResetFilters, }: WebhookHistoryFiltersProps): JSX.Element;
+export default function WebhookHistoryFilters({
+  filter,
+  onFilterChange,
+  onResetFilters,
+}: WebhookHistoryFiltersProps): JSX.Element;
 export {};

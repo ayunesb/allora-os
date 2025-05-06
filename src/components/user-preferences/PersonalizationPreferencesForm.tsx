@@ -1,10 +1,23 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 export function PersonalizationPreferencesForm() {
-    const { preferences, updatePreference, isLoading } = useUserPreferences();
-    return (<Card>
+  const { preferences, updatePreference, isLoading } = useUserPreferences();
+  return (
+    <Card>
       <CardHeader>
         <CardTitle>AI Personalization</CardTitle>
         <CardDescription>
@@ -13,10 +26,16 @@ export function PersonalizationPreferencesForm() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Writing Style</label>
-          <Select value={preferences.writingStyle || 'Formal'} onValueChange={(value) => updatePreference('writingStyle', value)} disabled={isLoading}>
+          <label className="block text-sm font-medium mb-2">
+            Writing Style
+          </label>
+          <Select
+            value={preferences.writingStyle || "Formal"}
+            onValueChange={(value) => updatePreference("writingStyle", value)}
+            disabled={isLoading}
+          >
             <SelectTrigger>
-              <SelectValue placeholder="Select writing style"/>
+              <SelectValue placeholder="Select writing style" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Casual">Casual</SelectItem>
@@ -30,9 +49,13 @@ export function PersonalizationPreferencesForm() {
 
         <div>
           <label className="block text-sm font-medium mb-2">Tone</label>
-          <Select value={preferences.tone || 'Confident'} onValueChange={(value) => updatePreference('tone', value)} disabled={isLoading}>
+          <Select
+            value={preferences.tone || "Confident"}
+            onValueChange={(value) => updatePreference("tone", value)}
+            disabled={isLoading}
+          >
             <SelectTrigger>
-              <SelectValue placeholder="Select tone"/>
+              <SelectValue placeholder="Select tone" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Friendly">Friendly</SelectItem>
@@ -43,5 +66,6 @@ export function PersonalizationPreferencesForm() {
           </Select>
         </div>
       </CardContent>
-    </Card>);
+    </Card>
+  );
 }

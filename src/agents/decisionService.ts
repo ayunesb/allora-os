@@ -1,20 +1,19 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { ExecutiveDecision } from '@/types/agents';
-import { logger } from '@/utils/loggingService';
+import { supabase } from "@/integrations/supabase/client";
+import { ExecutiveDecision } from "@/types/agents";
+import { logger } from "@/utils/loggingService";
 
 export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
   try {
     const { data, error } = await supabase
-      .from('executive_decisions')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("executive_decisions")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) {
       throw error;
     }
 
-    return (data || []).map(item => ({
+    return (data || []).map((item) => ({
       id: item.id,
       executiveName: item.executive_name,
       executiveRole: item.executive_role,
@@ -24,18 +23,20 @@ export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
       reasoning: item.reasoning,
       riskAssessment: item.risk_assessment,
       timestamp: item.created_at,
-      priority: item.priority
+      priority: item.priority,
     }));
   } catch (error) {
-    logger.error('Failed to get executive decisions from database', error);
+    logger.error("Failed to get executive decisions from database", error);
     return [];
   }
 }
 
-export async function saveDecisionToDatabase(decision: ExecutiveDecision): Promise<string | null> {
+export async function saveDecisionToDatabase(
+  decision: ExecutiveDecision,
+): Promise<string | null> {
   try {
     const { data, error } = await supabase
-      .from('executive_decisions')
+      .from("executive_decisions")
       .insert([
         {
           executive_name: decision.executiveName,
@@ -46,8 +47,8 @@ export async function saveDecisionToDatabase(decision: ExecutiveDecision): Promi
           reasoning: decision.reasoning,
           risk_assessment: decision.riskAssessment,
           priority: decision.priority,
-          created_at: decision.timestamp
-        }
+          created_at: decision.timestamp,
+        },
       ])
       .select();
 
@@ -57,9 +58,9 @@ export async function saveDecisionToDatabase(decision: ExecutiveDecision): Promi
 
     return data?.[0]?.id || null;
   } catch (error) {
-    logger.error('Failed to save executive decision to database', error, {
+    logger.error("Failed to save executive decision to database", error, {
       executiveName: decision.executiveName,
-      task: decision.task
+      task: decision.task,
     });
     return null;
   }

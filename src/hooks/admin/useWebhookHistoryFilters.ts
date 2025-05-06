@@ -1,10 +1,9 @@
-
-import { useState } from 'react';
-import { WebhookType, WebhookStatus } from '@/types/fixed/Webhook';
+import { useState } from "react";
+import { WebhookType, WebhookStatus } from "@/types/fixed/Webhook";
 
 export interface WebhookFilterState {
   types: WebhookType[];
-  status: WebhookStatus | '';
+  status: WebhookStatus | "";
   dateRange: [Date | null, Date | null];
   search: string;
 }
@@ -12,24 +11,24 @@ export interface WebhookFilterState {
 export function useWebhookHistoryFilters() {
   const [filter, setFilter] = useState<WebhookFilterState>({
     types: [],
-    status: '',
+    status: "",
     dateRange: [null, null],
-    search: '',
+    search: "",
   });
 
   const updateFilter = (newFilter: Partial<WebhookFilterState>) => {
-    setFilter(prev => ({
+    setFilter((prev) => ({
       ...prev,
-      ...newFilter
+      ...newFilter,
     }));
   };
 
   const resetFilter = () => {
     setFilter({
       types: [],
-      status: '',
+      status: "",
       dateRange: [null, null],
-      search: '',
+      search: "",
     });
   };
 
@@ -37,7 +36,7 @@ export function useWebhookHistoryFilters() {
     updateFilter({ types });
   };
 
-  const setStatusFilter = (status: WebhookStatus | '') => {
+  const setStatusFilter = (status: WebhookStatus | "") => {
     updateFilter({ status });
   };
 

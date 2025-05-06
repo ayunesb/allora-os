@@ -1,16 +1,17 @@
-
 /**
  * Smoothly scrolls an element to the bottom
  */
 export function scrollToBottom(element: HTMLElement) {
-  element.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  element.scrollIntoView({ behavior: "smooth", block: "end" });
 }
 
 /**
  * Checks if an element is near the bottom
  */
 export function isNearBottom(element: HTMLElement, threshold = 50) {
-  return element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
+  return (
+    element.scrollHeight - element.scrollTop - element.clientHeight < threshold
+  );
 }
 
 /**
@@ -19,11 +20,11 @@ export function isNearBottom(element: HTMLElement, threshold = 50) {
  */
 export function toggleProductionMode(force: boolean = true) {
   if (force) {
-    localStorage.setItem('allora_force_production_mode', 'true');
+    localStorage.setItem("allora_force_production_mode", "true");
     // Reload the page to apply changes
     window.location.reload();
   } else {
-    localStorage.removeItem('allora_force_production_mode');
+    localStorage.removeItem("allora_force_production_mode");
     // Reload the page to apply changes
     window.location.reload();
   }

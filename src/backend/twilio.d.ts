@@ -6,10 +6,15 @@
  * @param leadId Optional lead ID to associate the message with
  * @returns A promise with the result of the operation
  */
-export declare const sendSMS: (to: string, body: string, companyId: string, leadId?: string) => Promise<{
-    success: boolean;
-    message: string;
-    sid?: string;
+export declare const sendSMS: (
+  to: string,
+  body: string,
+  companyId: string,
+  leadId?: string,
+) => Promise<{
+  success: boolean;
+  message: string;
+  sid?: string;
 }>;
 /**
  * Sends bulk SMS messages to leads in a campaign
@@ -18,10 +23,14 @@ export declare const sendSMS: (to: string, body: string, companyId: string, lead
  * @param companyId The company ID to associate the messages with
  * @returns A promise with the result of the operation
  */
-export declare const sendBulkSMS: (messageType: string, body: string, companyId: string) => Promise<{
-    success: boolean;
-    totalSent?: number;
-    totalFailed?: number;
-    results?: any[];
-    message?: string;
+export declare const sendBulkSMS: (
+  messageType: string,
+  body: string,
+  companyId: string,
+) => Promise<{
+  success: boolean;
+  totalSent?: number;
+  totalFailed?: number;
+  results?: any[];
+  message?: string;
 }>;

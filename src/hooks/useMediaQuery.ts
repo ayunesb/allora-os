@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 /**
  * Custom hook for responsive design
@@ -18,7 +17,7 @@ export function useMediaQuery(query: string): boolean {
     };
 
     if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handler);
+      mediaQuery.addEventListener("change", handler);
     } else {
       // For older browsers
       mediaQuery.addListener(handler);
@@ -26,7 +25,7 @@ export function useMediaQuery(query: string): boolean {
 
     return () => {
       if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener('change', handler);
+        mediaQuery.removeEventListener("change", handler);
       } else {
         // For older browsers
         mediaQuery.removeListener(handler);

@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 
 export const accountRoutes: RouteObject[] = [
@@ -7,27 +6,27 @@ export const accountRoutes: RouteObject[] = [
     async lazy() {
       const { default: Settings } = await import("@/pages/dashboard/Settings");
       return { Component: Settings };
-    }
+    },
   },
   {
     path: "profile",
     async lazy() {
       const { default: Profile } = await import("@/pages/dashboard/Profile");
       return { Component: Profile };
-    }
+    },
   },
   {
     path: "company-setup",
     async lazy() {
       const { default: CompanySetup } = await import("@/pages/DevAdminHelper");
       return { Component: CompanySetup };
-    }
+    },
   },
   {
     path: "billing",
     async lazy() {
       const { default: Billing } = await import("@/pages/Billing");
       return { Component: Billing };
-    }
-  }
+    },
+  },
 ];

@@ -1,4 +1,4 @@
 export declare function useAdPlatformConnections(): {
-    hasAdPlatformConnections: boolean;
-    isLoading: boolean;
+  hasAdPlatformConnections: boolean;
+  isLoading: boolean;
 };

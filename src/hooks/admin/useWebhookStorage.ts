@@ -1,6 +1,5 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface WebhookSettings {
   stripe: string;
@@ -17,58 +16,59 @@ export function useWebhookStorage() {
   /**
    * Save webhook settings to database
    */
-  const saveWebhookSettings = async (settings: WebhookSettings): Promise<boolean> => {
+  const saveWebhookSettings = async (
+    settings: WebhookSettings,
+  ): Promise<boolean> => {
     try {
-      const { error } = await supabase
-        .from('system_settings')
-        .upsert(
-          { 
-            key: 'webhook_settings', 
-            value: settings,
-            updated_at: new Date().toISOString()
-          },
-          { onConflict: 'key' }
-        );
-      
+      const { error } = await supabase.from("system_settings").upsert(
+        {
+          key: "webhook_settings",
+          value: settings,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "key" },
+      );
+
       if (error) {
-        console.error('Error saving webhook settings:', error);
+        console.error("Error saving webhook settings:", error);
         return false;
       }
-      
+
       return true;
     } catch (error) {
-      console.error('Exception saving webhook settings:', error);
+      console.error("Exception saving webhook settings:", error);
       return false;
     }
   };
-  
+
   /**
    * Load webhook settings from database
    */
   const loadWebhookSettings = async (): Promise<WebhookSettings | null> => {
     try {
       const { data, error } = await supabase
-        .from('system_settings')
-        .select('value')
-        .eq('key', 'webhook_settings')
+        .from("system_settings")
+        .select("value")
+        .eq("key", "webhook_settings")
         .single();
-      
+
       if (error) {
-        if (error.code !== 'PGRST116') { // Not found error code
-          console.error('Error loading webhook settings:', error);
+        if (error.code !== "PGRST116") {
+          // Not found error code
+          console.error("Error loading webhook settings:", error);
         }
         return null;
       }
-      
-      return data?.value as WebhookSettings || null;
+
+      return (data?.value as WebhookSettings) || null;
     } catch (error) {
-      console.error('Exception loading webhook settings:', error);
+      console.error("Exception loading webhook settings:", error);
       return null;
     }
   };
-  
+
   return {
     saveWebhookSettings,
-    loadWebhookSettings
+    loadWebhookSettings,
   };
 }

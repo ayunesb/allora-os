@@ -2,7 +2,8 @@ import React from "react";
 import { WebhooksTab } from "@/components/admin";
 import { Helmet } from "react-helmet-async";
 export default function WebhookManagement() {
-    return (<>
+  return (
+    <>
       <Helmet>
         <title>Webhook Management | Allora AI</title>
       </Helmet>
@@ -13,8 +14,9 @@ export default function WebhookManagement() {
             Configure and manage webhooks to integrate with external services
           </p>
         </div>
-        
+
         <WebhooksTab />
       </div>
-    </>);
+    </>
+  );
 }

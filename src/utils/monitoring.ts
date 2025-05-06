@@ -1,14 +1,13 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { v4 as uuidv4 } from 'uuid';
+import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from "uuid";
 
 export interface ServiceHealth {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   responseTime?: number;
 }
 
 export interface HealthCheckResult {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: "healthy" | "degraded" | "unhealthy";
   services: Record<string, ServiceHealth>;
   environment?: string;
   version?: string;
@@ -16,7 +15,7 @@ export interface HealthCheckResult {
 }
 
 // Alert System
-export type AlertSeverity = 'info' | 'warning' | 'error' | 'critical';
+export type AlertSeverity = "info" | "warning" | "error" | "critical";
 
 export interface Alert {
   id: string;
@@ -76,21 +75,21 @@ class MonitoringSystem {
 
   // Alert Management
   public getRecentAlerts(count: number = 10): Alert[] {
-    return [...this.alerts].sort((a, b) => 
-      b.timestamp.getTime() - a.timestamp.getTime()
-    ).slice(0, count);
+    return [...this.alerts]
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, count);
   }
 
   public getAlerts(severity?: AlertSeverity): Alert[] {
     if (!severity) return [...this.alerts];
-    return this.alerts.filter(alert => alert.severity === severity);
+    return this.alerts.filter((alert) => alert.severity === severity);
   }
 
   public triggerAlert(
     title: string,
     message: string,
-    severity: AlertSeverity = 'info',
-    metadata?: Record<string, any>
+    severity: AlertSeverity = "info",
+    metadata?: Record<string, any>,
   ): Alert {
     const newAlert: Alert = {
       id: uuidv4(),
@@ -99,24 +98,24 @@ class MonitoringSystem {
       severity,
       timestamp: new Date(),
       acknowledged: false,
-      metadata
+      metadata,
     };
 
     this.alerts.push(newAlert);
-    
+
     // Notify listeners
     this.notifyListeners();
-    
+
     // Persist to database if critical or error
-    if (severity === 'critical' || severity === 'error') {
+    if (severity === "critical" || severity === "error") {
       this.persistAlert(newAlert);
     }
-    
+
     return newAlert;
   }
 
   public dismissAlert(alertId: string): void {
-    const alertIndex = this.alerts.findIndex(a => a.id === alertId);
+    const alertIndex = this.alerts.findIndex((a) => a.id === alertId);
     if (alertIndex >= 0) {
       this.alerts.splice(alertIndex, 1);
       this.notifyListeners();
@@ -124,7 +123,7 @@ class MonitoringSystem {
   }
 
   public acknowledgeAlert(alertId: string): void {
-    const alert = this.alerts.find(a => a.id === alertId);
+    const alert = this.alerts.find((a) => a.id === alertId);
     if (alert) {
       alert.acknowledged = true;
       this.notifyListeners();
@@ -140,7 +139,7 @@ class MonitoringSystem {
   public addListener(listener: AlertListener): () => void {
     this.listeners.push(listener);
     return () => {
-      this.listeners = this.listeners.filter(l => l !== listener);
+      this.listeners = this.listeners.filter((l) => l !== listener);
     };
   }
 
@@ -153,16 +152,16 @@ class MonitoringSystem {
   // Alert Persistence
   private async persistAlert(alert: Alert): Promise<void> {
     try {
-      await supabase.from('system_alerts').insert({
+      await supabase.from("system_alerts").insert({
         alert_id: alert.id,
         title: alert.title,
         message: alert.message,
         severity: alert.severity,
         timestamp: alert.timestamp.toISOString(),
-        metadata: alert.metadata
+        metadata: alert.metadata,
       });
     } catch (error) {
-      console.error('Failed to persist alert:', error);
+      console.error("Failed to persist alert:", error);
     }
   }
 
@@ -173,46 +172,46 @@ class MonitoringSystem {
 
   public endApiTimer(name: string): number | null {
     if (!this.timers[name]) return null;
-    
+
     const startTime = this.timers[name];
     const endTime = performance.now();
     const duration = endTime - startTime;
-    
+
     this.recordPerformanceMetric({
       name,
       value: duration,
-      unit: 'ms',
-      timestamp: new Date()
+      unit: "ms",
+      timestamp: new Date(),
     });
-    
+
     // Clean up timer
     delete this.timers[name];
-    
+
     return duration;
   }
 
   public recordPerformanceMetric(metric: PerformanceMetric): void {
     this.performanceMetrics.push(metric);
-    
+
     // If response time is too slow, create an alert
-    if (metric.name.includes('api') && metric.value > 1000) {
+    if (metric.name.includes("api") && metric.value > 1000) {
       this.triggerAlert(
-        'Slow API Response',
+        "Slow API Response",
         `${metric.name} took ${metric.value}ms to complete`,
-        'warning',
-        { metric }
+        "warning",
+        { metric },
       );
     }
   }
 
   // New method for gauge metrics
   public setGauge(
-    name: string, 
-    value: number, 
-    min: number = 0, 
-    max: number = 100, 
-    unit: string = '%',
-    thresholds?: { warning: number; critical: number }
+    name: string,
+    value: number,
+    min: number = 0,
+    max: number = 100,
+    unit: string = "%",
+    thresholds?: { warning: number; critical: number },
   ): void {
     const metric: GaugeMetric = {
       name,
@@ -221,32 +220,32 @@ class MonitoringSystem {
       max,
       unit,
       thresholds,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    
+
     // Update existing gauge or add new one
-    const existingIndex = this.gaugeMetrics.findIndex(g => g.name === name);
+    const existingIndex = this.gaugeMetrics.findIndex((g) => g.name === name);
     if (existingIndex >= 0) {
       this.gaugeMetrics[existingIndex] = metric;
     } else {
       this.gaugeMetrics.push(metric);
     }
-    
+
     // Check thresholds and trigger alerts if necessary
     if (thresholds) {
       if (value >= thresholds.critical) {
         this.triggerAlert(
           `Critical ${name}`,
           `${name} is at ${value}${unit}, which exceeds critical threshold of ${thresholds.critical}${unit}`,
-          'critical',
-          { metric }
+          "critical",
+          { metric },
         );
       } else if (value >= thresholds.warning) {
         this.triggerAlert(
           `Warning ${name}`,
           `${name} is at ${value}${unit}, which exceeds warning threshold of ${thresholds.warning}${unit}`,
-          'warning',
-          { metric }
+          "warning",
+          { metric },
         );
       }
     }
@@ -258,23 +257,27 @@ class MonitoringSystem {
   }
 
   // New method for timing metrics
-  public recordTiming(name: string, duration: number, category: string = 'general'): void {
+  public recordTiming(
+    name: string,
+    duration: number,
+    category: string = "general",
+  ): void {
     const metric: TimingMetric = {
       name,
       duration,
       category,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    
+
     this.timingMetrics.push(metric);
-    
+
     // Alert on slow operations
     if (duration > 3000) {
       this.triggerAlert(
-        'Slow Operation',
+        "Slow Operation",
         `${name} took ${duration}ms to complete`,
-        'warning',
-        { metric }
+        "warning",
+        { metric },
       );
     }
   }
@@ -282,7 +285,7 @@ class MonitoringSystem {
   // Get timing metrics
   public getTimingMetrics(category?: string): TimingMetric[] {
     if (category) {
-      return [...this.timingMetrics].filter(m => m.category === category);
+      return [...this.timingMetrics].filter((m) => m.category === category);
     }
     return [...this.timingMetrics];
   }
@@ -307,7 +310,7 @@ export async function checkSystemHealth(): Promise<HealthCheckResult> {
     const services: Record<string, ServiceHealth> = {
       database: supabaseCheck,
       authentication: await checkAuthService(),
-      api: await checkApiService()
+      api: await checkApiService(),
     };
 
     // Determine overall system status
@@ -316,16 +319,16 @@ export async function checkSystemHealth(): Promise<HealthCheckResult> {
     return {
       status: overallStatus,
       services,
-      environment: import.meta.env.MODE || 'development',
-      version: import.meta.env.VITE_APP_VERSION || '1.0.0',
-      uptime: process.uptime ? process.uptime() * 1000 : undefined
+      environment: import.meta.env.MODE || "development",
+      version: import.meta.env.VITE_APP_VERSION || "1.0.0",
+      uptime: process.uptime ? process.uptime() * 1000 : undefined,
     };
   } catch (error) {
-    console.error('System health check failed:', error);
+    console.error("System health check failed:", error);
     return {
-      status: 'unhealthy',
+      status: "unhealthy",
       services: {},
-      environment: import.meta.env.MODE || 'development'
+      environment: import.meta.env.MODE || "development",
     };
   }
 }
@@ -334,26 +337,26 @@ async function checkSupabaseConnection(): Promise<ServiceHealth> {
   try {
     const start = Date.now();
     const { data, error } = await supabase
-      .from('system_settings')
-      .select('key')
+      .from("system_settings")
+      .select("key")
       .limit(1);
 
     const responseTime = Date.now() - start;
 
     if (error) {
       return {
-        status: 'unhealthy',
-        responseTime
+        status: "unhealthy",
+        responseTime,
       };
     }
 
     return {
-      status: responseTime < 500 ? 'healthy' : 'degraded',
-      responseTime
+      status: responseTime < 500 ? "healthy" : "degraded",
+      responseTime,
     };
   } catch {
     return {
-      status: 'unhealthy'
+      status: "unhealthy",
     };
   }
 }
@@ -365,12 +368,12 @@ async function checkAuthService(): Promise<ServiceHealth> {
     const responseTime = Date.now() - start;
 
     return {
-      status: responseTime < 300 ? 'healthy' : 'degraded',
-      responseTime
+      status: responseTime < 300 ? "healthy" : "degraded",
+      responseTime,
     };
   } catch {
     return {
-      status: 'unhealthy'
+      status: "unhealthy",
     };
   }
 }
@@ -378,37 +381,55 @@ async function checkAuthService(): Promise<ServiceHealth> {
 async function checkApiService(): Promise<ServiceHealth> {
   // Simulated API check - replace with actual API endpoint if available
   const start = Date.now();
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
   const responseTime = Date.now() - start;
 
   return {
-    status: responseTime < 200 ? 'healthy' : 'degraded',
-    responseTime
+    status: responseTime < 200 ? "healthy" : "degraded",
+    responseTime,
   };
 }
 
-function determineOverallStatus(services: Record<string, ServiceHealth>): 'healthy' | 'degraded' | 'unhealthy' {
-  const statuses = Object.values(services).map(service => service.status);
-  
-  if (statuses.some(status => status === 'unhealthy')) return 'unhealthy';
-  if (statuses.some(status => status === 'degraded')) return 'degraded';
-  
-  return 'healthy';
+function determineOverallStatus(
+  services: Record<string, ServiceHealth>,
+): "healthy" | "degraded" | "unhealthy" {
+  const statuses = Object.values(services).map((service) => service.status);
+
+  if (statuses.some((status) => status === "unhealthy")) return "unhealthy";
+  if (statuses.some((status) => status === "degraded")) return "degraded";
+
+  return "healthy";
 }
 
 // Helper functions for reporting different types of alerts
-export function reportInfo(title: string, message: string, metadata?: Record<string, any>): Alert {
-  return monitoring.triggerAlert(title, message, 'info', metadata);
+export function reportInfo(
+  title: string,
+  message: string,
+  metadata?: Record<string, any>,
+): Alert {
+  return monitoring.triggerAlert(title, message, "info", metadata);
 }
 
-export function reportWarning(title: string, message: string, metadata?: Record<string, any>): Alert {
-  return monitoring.triggerAlert(title, message, 'warning', metadata);
+export function reportWarning(
+  title: string,
+  message: string,
+  metadata?: Record<string, any>,
+): Alert {
+  return monitoring.triggerAlert(title, message, "warning", metadata);
 }
 
-export function reportError(title: string, message: string, metadata?: Record<string, any>): Alert {
-  return monitoring.triggerAlert(title, message, 'error', metadata);
+export function reportError(
+  title: string,
+  message: string,
+  metadata?: Record<string, any>,
+): Alert {
+  return monitoring.triggerAlert(title, message, "error", metadata);
 }
 
-export function reportCritical(title: string, message: string, metadata?: Record<string, any>): Alert {
-  return monitoring.triggerAlert(title, message, 'critical', metadata);
+export function reportCritical(
+  title: string,
+  message: string,
+  metadata?: Record<string, any>,
+): Alert {
+  return monitoring.triggerAlert(title, message, "critical", metadata);
 }

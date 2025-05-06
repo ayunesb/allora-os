@@ -1,5 +1,7 @@
 interface SocialMediaHeaderProps {
-    onCreatePost: () => void;
+  onCreatePost: () => void;
 }
-export declare function SocialMediaHeader({ onCreatePost }: SocialMediaHeaderProps): JSX.Element;
+export declare function SocialMediaHeader({
+  onCreatePost,
+}: SocialMediaHeaderProps): JSX.Element;
 export {};

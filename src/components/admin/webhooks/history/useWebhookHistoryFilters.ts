@@ -1,10 +1,13 @@
-
-import { useState, useCallback, useMemo } from 'react';
-import { WebhookStatus, WebhookType, WebhookEvent } from '@/types/unified-types';
+import { useState, useCallback, useMemo } from "react";
+import {
+  WebhookStatus,
+  WebhookType,
+  WebhookEvent,
+} from "@/types/unified-types";
 
 export type FilterOptions = {
   types: WebhookType[];
-  status: WebhookStatus | '';
+  status: WebhookStatus | "";
   dateRange: [Date | null, Date | null];
   search: string;
 };
@@ -12,17 +15,17 @@ export type FilterOptions = {
 export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[]) => {
   const [filters, setFilters] = useState<FilterOptions>({
     types: [],
-    status: '',
+    status: "",
     dateRange: [null, null],
-    search: ''
+    search: "",
   });
 
   // Extract unique webhook types for filter options
   const availableTypes = useMemo(() => {
     const types = new Set<WebhookType>();
-    initialEvents.forEach(event => {
+    initialEvents.forEach((event) => {
       const type = event.webhookType;
-      if (type && typeof type === 'string') {
+      if (type && typeof type === "string") {
         types.add(type as WebhookType);
       }
     });
@@ -30,7 +33,7 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[]) => {
   }, [initialEvents]);
 
   const filterEvents = useCallback(() => {
-    return initialEvents.filter(event => {
+    return initialEvents.filter((event) => {
       // Type filter
       if (filters.types.length > 0) {
         const eventType = event.webhookType;
@@ -40,7 +43,7 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[]) => {
       }
 
       // Status filter - only apply if a status is selected
-      if (filters.status !== '') {
+      if (filters.status !== "") {
         const eventStatus = event.status as WebhookStatus;
         if (eventStatus !== filters.status) {
           return false;
@@ -48,7 +51,7 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[]) => {
       }
 
       // Date range filter
-      const eventDate = new Date(event.created_at || '');
+      const eventDate = new Date(event.created_at || "");
       if (filters.dateRange[0] && eventDate < filters.dateRange[0]) {
         return false;
       }
@@ -64,12 +67,12 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[]) => {
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        const eventType = event.event_type || '';
-        
-        const matchesSearch = 
+        const eventType = event.event_type || "";
+
+        const matchesSearch =
           eventType.toLowerCase().includes(searchLower) ||
           event.id.toLowerCase().includes(searchLower);
-        
+
         if (!matchesSearch) {
           return false;
         }
@@ -79,11 +82,11 @@ export const useWebhookHistoryFilters = (initialEvents: WebhookEvent[]) => {
     });
   }, [initialEvents, filters]);
 
-  return { 
-    filters, 
-    setFilters, 
-    filterEvents, 
-    availableTypes 
+  return {
+    filters,
+    setFilters,
+    filterEvents,
+    availableTypes,
   };
 };
 

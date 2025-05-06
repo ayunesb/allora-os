@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 type AdminOnlyProps = {
-    children: React.ReactNode;
+  children: React.ReactNode;
 };
 export default function AdminOnly({ children }: AdminOnlyProps): JSX.Element;
 export {};

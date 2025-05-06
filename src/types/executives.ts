@@ -1,4 +1,3 @@
-
 export interface ExecutivePersona {
   id: string;
   name: string;

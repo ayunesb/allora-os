@@ -1,12 +1,12 @@
-
 /**
  * Generate a CSRF token and store it in localStorage
  */
 export const generateCsrfToken = (): string => {
-  const token = Math.random().toString(36).substring(2, 15) + 
-               Math.random().toString(36).substring(2, 15);
-  
-  localStorage.setItem('csrf_token', token);
+  const token =
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
+
+  localStorage.setItem("csrf_token", token);
   return token;
 };
 
@@ -14,7 +14,7 @@ export const generateCsrfToken = (): string => {
  * Validate CSRF token
  */
 export const validateCsrfToken = (): boolean => {
-  const token = localStorage.getItem('csrf_token');
+  const token = localStorage.getItem("csrf_token");
   // In a real implementation, you would validate against a token from the server
   // This is a simplified version for demo purposes
   return !!token;
@@ -24,14 +24,14 @@ export const validateCsrfToken = (): boolean => {
  * Get the current CSRF token
  */
 export const getCsrfToken = (): string | null => {
-  return localStorage.getItem('csrf_token');
+  return localStorage.getItem("csrf_token");
 };
 
 /**
  * Clear the CSRF token
  */
 export const clearCsrfToken = (): void => {
-  localStorage.removeItem('csrf_token');
+  localStorage.removeItem("csrf_token");
 };
 
 /**
@@ -40,7 +40,7 @@ export const clearCsrfToken = (): void => {
 export const addCsrfToFormData = (formData: FormData): FormData => {
   const token = getCsrfToken();
   if (token) {
-    formData.append('csrf_token', token);
+    formData.append("csrf_token", token);
   }
   return formData;
 };

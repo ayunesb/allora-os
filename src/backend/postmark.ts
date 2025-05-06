@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 /**
  * Sends an email using Postmark with company metadata
@@ -21,7 +21,7 @@ export const sendEmail = async ({
   textBody,
   templateId,
   templateModel,
-  leadId
+  leadId,
 }: {
   to: string;
   subject: string;
@@ -38,53 +38,62 @@ export const sendEmail = async ({
 }> => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      console.warn("No session found when sending email. This might be expected for public emails.");
+      console.warn(
+        "No session found when sending email. This might be expected for public emails.",
+      );
     }
 
     // Call the Postmark edge function
-    const { data, error } = await supabase.functions.invoke(
-      "postmark",
-      {
-        body: {
-          action: "send-email",
-          to,
-          subject,
-          htmlBody,
-          textBody,
-          templateId,
-          templateModel,
-          leadId,
-          tag: companyName // Use company name as tag for tracking
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("postmark", {
+      body: {
+        action: "send-email",
+        to,
+        subject,
+        htmlBody,
+        textBody,
+        templateId,
+        templateModel,
+        leadId,
+        tag: companyName, // Use company name as tag for tracking
+      },
+    });
 
     console.log("Postmark edge function response:", data);
 
     if (error || !data.success) {
-      console.error('Error sending email:', error || data?.message, data?.details);
-      toast.error(data?.message || error?.message || 'Failed to send email');
-      return { 
-        success: false, 
-        message: error?.message || data?.message || 'Failed to send email'
+      console.error(
+        "Error sending email:",
+        error || data?.message,
+        data?.details,
+      );
+      toast.error(data?.message || error?.message || "Failed to send email");
+      return {
+        success: false,
+        message: error?.message || data?.message || "Failed to send email",
       };
     }
 
-    toast.success('Email sent successfully');
+    toast.success("Email sent successfully");
     return {
       success: true,
       messageId: data.messageId,
-      message: 'Email sent successfully'
+      message: "Email sent successfully",
     };
   } catch (error) {
-    console.error('Failed to send email:', error);
-    toast.error('Failed to send email: ' + (error instanceof Error ? error.message : 'Unknown error'));
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : 'Unknown error sending email'
+    console.error("Failed to send email:", error);
+    toast.error(
+      "Failed to send email: " +
+        (error instanceof Error ? error.message : "Unknown error"),
+    );
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Unknown error sending email",
     };
   }
 };
@@ -109,7 +118,7 @@ export const sendCampaignEmail = async ({
   textBody,
   templateId,
   templateModel,
-  messageType = 'all'
+  messageType = "all",
 }: {
   campaignId: string;
   subject?: string;
@@ -128,35 +137,34 @@ export const sendCampaignEmail = async ({
 }> => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to send campaign emails');
+      throw new Error("Authentication required to send campaign emails");
     }
 
     // Call the Postmark edge function
-    const { data, error } = await supabase.functions.invoke(
-      "postmark",
-      {
-        body: {
-          action: "send-campaign",
-          campaignId,
-          subject,
-          htmlBody,
-          textBody,
-          templateId,
-          templateModel,
-          messageType,
-          tag: companyName // Use company name as tag for tracking
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("postmark", {
+      body: {
+        action: "send-campaign",
+        campaignId,
+        subject,
+        htmlBody,
+        textBody,
+        templateId,
+        templateModel,
+        messageType,
+        tag: companyName, // Use company name as tag for tracking
+      },
+    });
 
     if (error) {
-      console.error('Error sending campaign emails:', error);
-      return { 
-        success: false, 
-        message: error.message
+      console.error("Error sending campaign emails:", error);
+      return {
+        success: false,
+        message: error.message,
       };
     }
 
@@ -164,13 +172,16 @@ export const sendCampaignEmail = async ({
       success: true,
       totalSent: data.totalSent,
       totalFailed: data.totalFailed,
-      results: data.results
+      results: data.results,
     };
   } catch (error) {
-    console.error('Failed to send campaign emails:', error);
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : 'Unknown error sending campaign emails'
+    console.error("Failed to send campaign emails:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Unknown error sending campaign emails",
     };
   }
 };

@@ -1,6 +1,6 @@
-import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
-import { sendEmail } from '@/backend/postmark';
+import { supabase } from "@/backend/supabase";
+import { toast } from "sonner";
+import { sendEmail } from "@/backend/postmark";
 /**
  * Invites a user to join a company
  * @param email Email of the user to invite
@@ -8,23 +8,27 @@ import { sendEmail } from '@/backend/postmark';
  * @param role Role to assign to the user (default: 'user')
  * @returns Boolean indicating success
  */
-export async function inviteUserToCompany(email, companyId, role = 'user') {
-    try {
-        console.log(`Inviting user ${email} to company ${companyId} with role ${role}`);
-        const { data: companyData, error: companyError } = await supabase
-            .from('companies')
-            .select('name')
-            .eq('id', companyId)
-            .single();
-        if (companyError) {
-            throw new Error(`Failed to get company information: ${companyError.message}`);
-        }
-        const companyName = companyData.name || 'Our Company';
-        const result = await sendEmail({
-            to: email,
-            subject: 'Invitation to join Allora AI',
-            companyName,
-            htmlBody: `
+export async function inviteUserToCompany(email, companyId, role = "user") {
+  try {
+    console.log(
+      `Inviting user ${email} to company ${companyId} with role ${role}`,
+    );
+    const { data: companyData, error: companyError } = await supabase
+      .from("companies")
+      .select("name")
+      .eq("id", companyId)
+      .single();
+    if (companyError) {
+      throw new Error(
+        `Failed to get company information: ${companyError.message}`,
+      );
+    }
+    const companyName = companyData.name || "Our Company";
+    const result = await sendEmail({
+      to: email,
+      subject: "Invitation to join Allora AI",
+      companyName,
+      htmlBody: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #4f46e5;">You've Been Invited!</h2>
           <p>You've been invited to join ${companyName} on Allora AI.</p>
@@ -37,7 +41,7 @@ export async function inviteUserToCompany(email, companyId, role = 'user') {
           <p>Thank you,<br>The Allora AI Team</p>
         </div>
       `,
-            textBody: `
+      textBody: `
         You've been invited to join ${companyName} on Allora AI.
         
         To accept this invitation, please visit this link to create your account:
@@ -47,18 +51,17 @@ export async function inviteUserToCompany(email, companyId, role = 'user') {
         
         Thank you,
         The Allora AI Team
-      `
-        });
-        if (!result.success) {
-            throw new Error(result.message || 'Failed to send invitation email');
-        }
-        console.log('Invitation email sent successfully');
-        toast.success(`Invitation sent to ${email}`);
-        return true;
+      `,
+    });
+    if (!result.success) {
+      throw new Error(result.message || "Failed to send invitation email");
     }
-    catch (error) {
-        console.error('Failed to invite user:', error);
-        toast.error(`Failed to invite user: ${error.message}`);
-        return false;
-    }
+    console.log("Invitation email sent successfully");
+    toast.success(`Invitation sent to ${email}`);
+    return true;
+  } catch (error) {
+    console.error("Failed to invite user:", error);
+    toast.error(`Failed to invite user: ${error.message}`);
+    return false;
+  }
 }

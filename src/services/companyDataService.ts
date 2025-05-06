@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export type CompanyScrapedData = {
@@ -14,14 +13,17 @@ export type CompanyScrapedData = {
 };
 
 export async function fetchCompanyDataFromWebsite(
-  website: string
+  website: string,
 ): Promise<CompanyScrapedData | null> {
   try {
     console.log("Fetching company data for:", website);
-    
-    const { data, error } = await supabase.functions.invoke("get-company-data", {
-      body: { website },
-    });
+
+    const { data, error } = await supabase.functions.invoke(
+      "get-company-data",
+      {
+        body: { website },
+      },
+    );
 
     if (error) {
       console.error("Error fetching company data:", error);

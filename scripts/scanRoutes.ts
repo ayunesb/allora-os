@@ -18,7 +18,7 @@ async function scanRoutes(): Promise<void> {
   ];
 
   const routerPaths: Set<string> = new Set(
-    routerMatches.map(([, route]) => route)
+    routerMatches.map(([, route]) => route),
   );
 
   const allRoutes: Map<string, string[]> = new Map();
@@ -44,13 +44,13 @@ async function scanRoutes(): Promise<void> {
     r === "*" || r.includes(":") || r.startsWith("/:");
 
   const unusedRoutes: { route: string; files: string[] }[] = Array.from(
-    allRoutes.entries()
+    allRoutes.entries(),
   )
     .filter(([route]) => !routerPaths.has(route) && !isWildcardOrDynamic(route))
     .map(([route, files]) => ({ route, files }));
 
   const duplicateRouteList: { route: string; files: string[] }[] = Array.from(
-    duplicateRoutes
+    duplicateRoutes,
   ).map((route) => ({
     route,
     files: allRoutes.get(route) || [],
@@ -60,7 +60,11 @@ async function scanRoutes(): Promise<void> {
   if (outputJson) {
     fs.writeFileSync(
       "route-audit.json",
-      JSON.stringify({ unusedRoutes, duplicateRoutes: duplicateRouteList }, null, 2)
+      JSON.stringify(
+        { unusedRoutes, duplicateRoutes: duplicateRouteList },
+        null,
+        2,
+      ),
     );
     console.log("✅ route-audit.json generated.");
   } else {
@@ -68,7 +72,7 @@ async function scanRoutes(): Promise<void> {
     if (unusedRoutes.length > 0) {
       console.log(`❌ Unused Routes:`);
       unusedRoutes.forEach(({ route, files }) =>
-        console.log(`   → ${route} (in: ${files.join(", ")})`)
+        console.log(`   → ${route} (in: ${files.join(", ")})`),
       );
     } else {
       console.log("✅ No unused routes found.");
@@ -77,7 +81,7 @@ async function scanRoutes(): Promise<void> {
     if (duplicateRouteList.length > 0) {
       console.log(`\n⚠️ Duplicate Routes:`);
       duplicateRouteList.forEach(({ route, files }) =>
-        console.log(`   → ${route} (in: ${files.join(", ")})`)
+        console.log(`   → ${route} (in: ${files.join(", ")})`),
       );
     } else {
       console.log("✅ No duplicate routes found.");

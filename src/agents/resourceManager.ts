@@ -1,8 +1,11 @@
-import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/loggingService';
-import '../mocks/executivesMock'; // Import the mock implementation
+import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/utils/loggingService";
+import "../mocks/executivesMock"; // Import the mock implementation
 
-export async function allocateResources(executiveName: string, outcome: string) {
+export async function allocateResources(
+  executiveName: string,
+  outcome: string,
+) {
   try {
     const { data, error } = await supabase
       .from("executives")
@@ -32,23 +35,29 @@ export async function allocateResources(executiveName: string, outcome: string) 
       .eq("name", executiveName);
 
     if (updateError) {
-      logger.error("Failed to update resource points", { executiveName, updateError });
+      logger.error("Failed to update resource points", {
+        executiveName,
+        updateError,
+      });
     } else {
       logger.info(`${executiveName} now has ${points} Resource Points`);
     }
-    
+
     // Track resource points history for forecasting (using a real table)
     await supabase
       .from("agent_logs")
       .insert({
         agent_id: executiveName,
-        tenant_id: 'development',
+        tenant_id: "development",
         xp: points,
-        task: `Resource allocation: ${outcome}`
+        task: `Resource allocation: ${outcome}`,
       })
       .then(({ error }) => {
         if (error) {
-          logger.error("Failed to track resource history", { executiveName, error });
+          logger.error("Failed to track resource history", {
+            executiveName,
+            error,
+          });
         }
       });
   } catch (err) {

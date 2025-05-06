@@ -1,1 +1,1 @@
-export * from './debate';
+export * from "./debate";

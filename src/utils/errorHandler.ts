@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
 interface ErrorResponse {
   statusCode: number;
@@ -9,10 +9,10 @@ export const errorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   const statusCode = err.statusCode || 500;
-  const errorMessage: string = (err as any)?.errorMessage ?? 'Unknown error';
+  const errorMessage: string = (err as any)?.errorMessage ?? "Unknown error";
 
   const errorResponse: ErrorResponse = {
     statusCode,

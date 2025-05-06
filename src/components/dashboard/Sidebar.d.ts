@@ -1,5 +1,5 @@
 interface SidebarProps {
-    className?: string;
+  className?: string;
 }
 export declare function Sidebar({ className }: SidebarProps): JSX.Element;
 export {};

@@ -3,7 +3,7 @@
  *
  * This file contains the main validation function for entire social media posts
  */
-import { ValidationResult } from '../types';
+import { ValidationResult } from "../types";
 /**
  * Validate a social media post for security and data integrity
  * Performs deep validation of all post properties
@@ -19,4 +19,6 @@ import { ValidationResult } from '../types';
  *   return;
  * }
  */
-export declare function validateSocialMediaPost(postData: any): Promise<ValidationResult>;
+export declare function validateSocialMediaPost(
+  postData: any,
+): Promise<ValidationResult>;

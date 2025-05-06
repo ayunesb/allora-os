@@ -1,7 +1,11 @@
-
-import { toast } from 'sonner';
-import { logger } from '@/utils/loggingService';
-import { apiRequest, ApiFetchFunction, ApiRequestOptions, clearApiCache } from '@/utils/api/apiClient';
+import { toast } from "sonner";
+import { logger } from "@/utils/loggingService";
+import {
+  apiRequest,
+  ApiFetchFunction,
+  ApiRequestOptions,
+  clearApiCache,
+} from "@/utils/api/apiClient";
 
 /**
  * An optimized API client that focuses on performance and error recovery
@@ -13,16 +17,16 @@ export const optimizedApiClient = {
   fetch: async <T>(
     endpoint: string,
     options: ApiRequestOptions & {
-      retryStrategy?: 'exponential' | 'linear' | 'none';
+      retryStrategy?: "exponential" | "linear" | "none";
       maxRetries?: number;
       retryDelay?: number;
       fallbackData?: T;
       showToastOnError?: boolean;
       fetchFunction?: ApiFetchFunction;
-    } = {}
+    } = {},
   ) => {
     const {
-      retryStrategy = 'exponential',
+      retryStrategy = "exponential",
       maxRetries = 3,
       retryDelay = 1000,
       fallbackData,
@@ -46,17 +50,17 @@ export const optimizedApiClient = {
             retry: attempt < maxRetries,
             maxRetries: maxRetries - attempt,
             cacheTTL: 60000, // 1 minute cache
-            cacheKey: endpoint
-          }
+            cacheKey: endpoint,
+          },
         );
 
-        if (response.status === 'success') {
+        if (response.status === "success") {
           // Successfully fetched data, return it
           return {
             data: response.data,
             error: null,
-            status: 'success' as const,
-            isFallback: false
+            status: "success" as const,
+            isFallback: false,
           };
         } else {
           // Request completed but returned an error
@@ -69,32 +73,37 @@ export const optimizedApiClient = {
         if (attempt <= maxRetries) {
           // Calculate delay based on retry strategy
           let delay = retryDelay;
-          if (retryStrategy === 'exponential') {
+          if (retryStrategy === "exponential") {
             delay = retryDelay * Math.pow(2, attempt - 1);
-          } else if (retryStrategy === 'linear') {
+          } else if (retryStrategy === "linear") {
             delay = retryDelay * attempt;
           }
 
-          logger.warn(`API request failed, retrying (${attempt}/${maxRetries})...`, {
-            endpoint,
-            error: error?.message || 'Unknown error',
-            nextRetryDelay: delay
-          });
+          logger.warn(
+            `API request failed, retrying (${attempt}/${maxRetries})...`,
+            {
+              endpoint,
+              error: error?.message || "Unknown error",
+              nextRetryDelay: delay,
+            },
+          );
 
           // Wait before next retry
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
     }
 
     // All retries failed
     if (showToastOnError) {
-      toast.error(lastError?.message || 'Failed to load data after multiple attempts');
+      toast.error(
+        lastError?.message || "Failed to load data after multiple attempts",
+      );
     }
 
     logger.error(`API request failed after ${maxRetries} attempts`, {
       endpoint,
-      error: lastError
+      error: lastError,
     });
 
     // Return fallback data if provided
@@ -102,16 +111,16 @@ export const optimizedApiClient = {
       return {
         data: fallbackData,
         error: lastError,
-        status: 'error' as const,
-        isFallback: true
+        status: "error" as const,
+        isFallback: true,
       };
     }
 
     return {
       data: null,
       error: lastError,
-      status: 'error' as const,
-      isFallback: false
+      status: "error" as const,
+      isFallback: false,
     };
   },
 
@@ -122,17 +131,17 @@ export const optimizedApiClient = {
     endpoint: string,
     data: any,
     options: ApiRequestOptions & {
-      retryStrategy?: 'exponential' | 'linear' | 'none';
+      retryStrategy?: "exponential" | "linear" | "none";
       maxRetries?: number;
       showLoadingToast?: boolean;
       loadingMessage?: string;
-    } = {}
+    } = {},
   ) => {
     const {
-      retryStrategy = 'linear',
+      retryStrategy = "linear",
       maxRetries = 2,
       showLoadingToast = false,
-      loadingMessage = 'Processing request...',
+      loadingMessage = "Processing request...",
       ...restOptions
     } = options;
 
@@ -147,17 +156,17 @@ export const optimizedApiClient = {
         retryStrategy,
         maxRetries,
         showToastOnError: false,
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          ...(options.headers || {})
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
-      if (response.status === 'success') {
+      if (response.status === "success") {
         if (toastId) {
-          toast.success(options.successMessage || 'Success', { id: toastId });
+          toast.success(options.successMessage || "Success", { id: toastId });
         }
         return response;
       } else {
@@ -165,13 +174,16 @@ export const optimizedApiClient = {
       }
     } catch (error: any) {
       if (toastId) {
-        toast.error(error?.message || options.errorMessage || 'Request failed', { id: toastId });
+        toast.error(
+          error?.message || options.errorMessage || "Request failed",
+          { id: toastId },
+        );
       }
       return {
         data: null,
         error,
-        status: 'error' as const,
-        isFallback: false
+        status: "error" as const,
+        isFallback: false,
       };
     }
   },
@@ -181,5 +193,5 @@ export const optimizedApiClient = {
    */
   clearCache: (endpoint?: string) => {
     clearApiCache(endpoint);
-  }
+  },
 };

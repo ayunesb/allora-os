@@ -1,12 +1,21 @@
 import { Badge } from "@/components/ui/badge";
 export default function ReportsList({ reports }) {
-    return (<div className="rounded-md border">
+  return (
+    <div className="rounded-md border">
       <div className="divide-y">
-        {reports.map((report) => (<div key={report.id} className="flex flex-col md:flex-row justify-between p-4 gap-4">
+        {reports.map((report) => (
+          <div
+            key={report.id}
+            className="flex flex-col md:flex-row justify-between p-4 gap-4"
+          >
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">{report.title}</h3>
-                <Badge variant={report.status === "completed" ? "default" : "outline"}>
+                <Badge
+                  variant={
+                    report.status === "completed" ? "default" : "outline"
+                  }
+                >
                   {report.status === "completed" ? "Completed" : "Scheduled"}
                 </Badge>
               </div>
@@ -18,7 +27,9 @@ export default function ReportsList({ reports }) {
                 {report.status === "completed" ? "Download" : "View details"}
               </button>
             </div>
-          </div>))}
+          </div>
+        ))}
       </div>
-    </div>);
+    </div>
+  );
 }

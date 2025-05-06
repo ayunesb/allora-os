@@ -1,33 +1,44 @@
-import { Lead } from '@/models/lead';
+import { Lead } from "@/models/lead";
 export declare function useLeadsPage(): {
-    leads: Lead[];
-    isLoading: boolean;
-    leadsError: Error;
-    searchQuery: string;
-    sortBy: "name" | "status" | "email" | "created_at";
-    sortOrder: "desc" | "asc";
-    activeFilter: string;
-    filteredLeads: Lead[];
-    selectedLeads: string[];
-    selectedLead: Lead;
-    isDrawerOpen: boolean;
-    formattedCampaigns: {
-        value: string;
-        label: string;
-    }[];
-    isPending: boolean;
-    setSearchQuery: import("react").Dispatch<import("react").SetStateAction<string>>;
-    toggleSort: (column: "name" | "status" | "email" | "created_at") => void;
-    setActiveFilter: import("react").Dispatch<import("react").SetStateAction<string>>;
-    handleLeadSelect: (leadId: string, isSelected: boolean) => void;
-    handleSelectAll: (isSelected: boolean) => void;
-    handleBulkStatusUpdate: (newStatus: Lead["status"]) => Promise<boolean>;
-    handleViewLead: (lead: Lead) => void;
-    setIsDrawerOpen: import("react").Dispatch<import("react").SetStateAction<boolean>>;
-    handleLeadStatusUpdate: (leadId: string, newStatus: Lead["status"]) => Promise<boolean>;
-    handleLeadDelete: (leadId: string) => Promise<boolean>;
-    refetchLeads: () => Promise<void>;
-    getLeadScore: (lead: Lead) => import("@/hooks/useAdvancedLeadScoring").LeadScoreCategory;
-    getNextBestAction: (lead: Lead) => string;
-    getLeadPriority: (lead: Lead) => number;
+  leads: Lead[];
+  isLoading: boolean;
+  leadsError: Error;
+  searchQuery: string;
+  sortBy: "name" | "status" | "email" | "created_at";
+  sortOrder: "desc" | "asc";
+  activeFilter: string;
+  filteredLeads: Lead[];
+  selectedLeads: string[];
+  selectedLead: Lead;
+  isDrawerOpen: boolean;
+  formattedCampaigns: {
+    value: string;
+    label: string;
+  }[];
+  isPending: boolean;
+  setSearchQuery: import("react").Dispatch<
+    import("react").SetStateAction<string>
+  >;
+  toggleSort: (column: "name" | "status" | "email" | "created_at") => void;
+  setActiveFilter: import("react").Dispatch<
+    import("react").SetStateAction<string>
+  >;
+  handleLeadSelect: (leadId: string, isSelected: boolean) => void;
+  handleSelectAll: (isSelected: boolean) => void;
+  handleBulkStatusUpdate: (newStatus: Lead["status"]) => Promise<boolean>;
+  handleViewLead: (lead: Lead) => void;
+  setIsDrawerOpen: import("react").Dispatch<
+    import("react").SetStateAction<boolean>
+  >;
+  handleLeadStatusUpdate: (
+    leadId: string,
+    newStatus: Lead["status"],
+  ) => Promise<boolean>;
+  handleLeadDelete: (leadId: string) => Promise<boolean>;
+  refetchLeads: () => Promise<void>;
+  getLeadScore: (
+    lead: Lead,
+  ) => import("@/hooks/useAdvancedLeadScoring").LeadScoreCategory;
+  getNextBestAction: (lead: Lead) => string;
+  getLeadPriority: (lead: Lead) => number;
 };

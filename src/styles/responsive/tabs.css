@@ -1,4 +1,3 @@
-
 /* Tabs specific mobile styles */
 @media (max-width: 640px) {
   .tabs-scrollable {
@@ -11,11 +10,11 @@
     padding-bottom: 0.25rem !important;
     max-width: 100vw !important;
   }
-  
+
   .tabs-scrollable::-webkit-scrollbar {
     display: none !important;
   }
-  
+
   /* Improved tab compact styles for mobile */
   .tab-compact {
     padding: 0.25rem 0.5rem !important;
@@ -24,7 +23,7 @@
     flex-shrink: 0 !important;
     margin-right: 0.25rem !important;
   }
-  
+
   .tab-icon-only {
     min-width: 2.5rem !important;
   }
@@ -35,7 +34,7 @@
   .tabs-flex-wrap {
     flex-wrap: wrap !important;
   }
-  
+
   .tab-text-sm {
     font-size: 0.875rem !important;
   }

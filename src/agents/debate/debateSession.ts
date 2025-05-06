@@ -1,5 +1,13 @@
-import { runExecutiveDebate, saveDebateResult, analyzeDebateResponse } from "./debateEngine";
-import { DebateSessionResult, DebateEntry, DebateSummary } from "@/types/agents";
+import {
+  runExecutiveDebate,
+  saveDebateResult,
+  analyzeDebateResponse,
+} from "./debateEngine";
+import {
+  DebateSessionResult,
+  DebateEntry,
+  DebateSummary,
+} from "@/types/agents";
 import { executiveProfiles } from "@/agents/agentProfiles";
 
 const executives = [
@@ -14,8 +22,8 @@ const executives = [
  */
 export async function runDebateSession(
   task: string,
-  riskAppetite: string = 'medium',
-  businessPriority: string = 'growth'
+  riskAppetite: string = "medium",
+  businessPriority: string = "growth",
 ): Promise<DebateSessionResult> {
   // Get profiles for executives
   const debateResults: DebateEntry[] = [];
@@ -26,54 +34,53 @@ export async function runDebateSession(
   for (const exec of executives) {
     try {
       console.log(`Running debate for ${exec.name} on task: ${task}`);
-      
+
       // Get the executive's opinion
       const response = await runExecutiveDebate(
-        exec.name, 
-        exec.role, 
+        exec.name,
+        exec.role,
         task,
         riskAppetite,
-        businessPriority
+        businessPriority,
       );
-      
+
       // Analyze the response
       const { stance, risks, opportunities } = analyzeDebateResponse(response);
-      
+
       // Add risks and opportunities to our collection
       allRisks.push(...risks);
       allOpportunities.push(...opportunities);
 
       // Save the result
       await saveDebateResult(task, exec.name, exec.role, response);
-      
+
       // Add to our results
       debateResults.push({
         executiveName: exec.name,
         role: exec.role,
         opinion: response,
-        stance: stance
+        stance: stance,
       });
-      
     } catch (error) {
       console.error(`Error in debate for ${exec.name}:`, error);
-      
+
       // Add a fallback entry
       debateResults.push({
         executiveName: exec.name,
         role: exec.role,
         opinion: `Unable to process debate due to technical issues: ${error}`,
-        stance: 'Neutral'
+        stance: "Neutral",
       });
     }
   }
 
   // Create a summary of the debate
   const summary = summarizeDebate(debateResults, allRisks, allOpportunities);
-  
+
   return {
     task,
     debates: debateResults,
-    summary
+    summary,
   };
 }
 
@@ -83,7 +90,7 @@ export async function runDebateSession(
 export function summarizeDebate(
   debateResults: DebateEntry[],
   risks: string[] = [],
-  opportunities: string[] = []
+  opportunities: string[] = [],
 ): DebateSummary {
   let forVotes = 0;
   let againstVotes = 0;
@@ -98,18 +105,17 @@ export function summarizeDebate(
   });
 
   // Determine majority
-  let majority: 'For' | 'Against' | 'Tie' = 'Tie';
+  let majority: "For" | "Against" | "Tie" = "Tie";
   if (forVotes > againstVotes) {
-    majority = 'For';
+    majority = "For";
   } else if (againstVotes > forVotes) {
-    majority = 'Against';
+    majority = "Against";
   }
 
   // Calculate confidence score
   const totalVotes = forVotes + againstVotes;
-  const confidenceScore = totalVotes > 0 
-    ? Math.max(forVotes, againstVotes) / totalVotes 
-    : 0.5;
+  const confidenceScore =
+    totalVotes > 0 ? Math.max(forVotes, againstVotes) / totalVotes : 0.5;
 
   // Get top risks and opportunities
   const uniqueRisks = [...new Set(risks)];
@@ -122,6 +128,6 @@ export function summarizeDebate(
     majority,
     confidenceScore,
     topRisks: uniqueRisks.slice(0, 3),
-    topOpportunities: uniqueOpportunities.slice(0, 3)
+    topOpportunities: uniqueOpportunities.slice(0, 3),
   };
 }

@@ -1,5 +1,7 @@
 interface CeoMessageContentProps {
-    riskAppetite: 'low' | 'medium' | 'high';
+  riskAppetite: "low" | "medium" | "high";
 }
-export declare function CeoMessageContent({ riskAppetite }: CeoMessageContentProps): import("react").JSX.Element;
+export declare function CeoMessageContent({
+  riskAppetite,
+}: CeoMessageContentProps): import("react").JSX.Element;
 export {};

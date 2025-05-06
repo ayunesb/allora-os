@@ -3,7 +3,7 @@
  *
  * This utility provides webhook validation functionality for various webhook types.
  */
-import { WebhookType } from '@/utils/webhookTypes';
+import { WebhookType } from "@/utils/webhookTypes";
 /**
  * Validates a webhook URL format based on the service type
  *
@@ -11,7 +11,10 @@ import { WebhookType } from '@/utils/webhookTypes';
  * @param type The type of webhook service
  * @returns Boolean indicating if the URL format is valid
  */
-export declare const validateWebhookUrlFormat: (url: string, type: WebhookType) => boolean;
+export declare const validateWebhookUrlFormat: (
+  url: string,
+  type: WebhookType,
+) => boolean;
 /**
  * Tests a webhook by sending a test payload
  *
@@ -19,9 +22,12 @@ export declare const validateWebhookUrlFormat: (url: string, type: WebhookType) 
  * @param type The type of webhook service
  * @returns Promise with test result
  */
-export declare const testWebhook: (url: string, type: WebhookType) => Promise<{
-    success: boolean;
-    message?: string;
+export declare const testWebhook: (
+  url: string,
+  type: WebhookType,
+) => Promise<{
+  success: boolean;
+  message?: string;
 }>;
 /**
  * Sanitizes a webhook URL to remove any potential security issues
@@ -30,4 +36,7 @@ export declare const testWebhook: (url: string, type: WebhookType) => Promise<{
  * @param type The type of webhook service
  * @returns Sanitized URL or null if invalid
  */
-export declare const sanitizeWebhookUrl: (url: string, type: WebhookType) => string | null;
+export declare const sanitizeWebhookUrl: (
+  url: string,
+  type: WebhookType,
+) => string | null;

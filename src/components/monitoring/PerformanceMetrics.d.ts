@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 interface PerformanceMetricsProps {
-    isLoading?: boolean;
+  isLoading?: boolean;
 }
 declare const PerformanceMetrics: React.FC<PerformanceMetricsProps>;
 export default PerformanceMetrics;

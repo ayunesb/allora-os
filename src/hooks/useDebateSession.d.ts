@@ -1,28 +1,42 @@
 export default function useDebateSession(): {
-    participants: import("@/utils/consultation/types").DebateParticipant[];
-    selectedTopic: string;
-    messages: import("@/utils/consultation/types").DebateMessage[];
-    favorites: string[];
-    isDebateActive: boolean;
-    debateTitle: string;
-    debateObjective: string;
-    debateDuration: string;
-    riskAppetite: "medium" | "high" | "low";
-    businessPriority: string;
-    isLoading: boolean;
-    sessionId: string;
-    debateTopics: import("@/utils/consultation/types").DebateTopic[];
-    availableExecutives: any[];
-    startDebate: () => Promise<void>;
-    simulateBotResponses: () => void;
-    sendUserMessage: (content: string) => void;
-    setSelectedTopic: (value: string) => void;
-    setDebateTitle: import("react").Dispatch<import("react").SetStateAction<string>>;
-    setDebateObjective: import("react").Dispatch<import("react").SetStateAction<string>>;
-    setDebateDuration: import("react").Dispatch<import("react").SetStateAction<string>>;
-    setRiskAppetite: import("react").Dispatch<import("react").SetStateAction<"medium" | "high" | "low">>;
-    setBusinessPriority: import("react").Dispatch<import("react").SetStateAction<string>>;
-    setParticipants: import("react").Dispatch<import("react").SetStateAction<import("@/utils/consultation/types").DebateParticipant[]>>;
-    voteMessage: (messageId: string, increment: boolean) => void;
-    toggleFavorite: (messageId: string) => void;
+  participants: import("@/utils/consultation/types").DebateParticipant[];
+  selectedTopic: string;
+  messages: import("@/utils/consultation/types").DebateMessage[];
+  favorites: string[];
+  isDebateActive: boolean;
+  debateTitle: string;
+  debateObjective: string;
+  debateDuration: string;
+  riskAppetite: "medium" | "high" | "low";
+  businessPriority: string;
+  isLoading: boolean;
+  sessionId: string;
+  debateTopics: import("@/utils/consultation/types").DebateTopic[];
+  availableExecutives: any[];
+  startDebate: () => Promise<void>;
+  simulateBotResponses: () => void;
+  sendUserMessage: (content: string) => void;
+  setSelectedTopic: (value: string) => void;
+  setDebateTitle: import("react").Dispatch<
+    import("react").SetStateAction<string>
+  >;
+  setDebateObjective: import("react").Dispatch<
+    import("react").SetStateAction<string>
+  >;
+  setDebateDuration: import("react").Dispatch<
+    import("react").SetStateAction<string>
+  >;
+  setRiskAppetite: import("react").Dispatch<
+    import("react").SetStateAction<"medium" | "high" | "low">
+  >;
+  setBusinessPriority: import("react").Dispatch<
+    import("react").SetStateAction<string>
+  >;
+  setParticipants: import("react").Dispatch<
+    import("react").SetStateAction<
+      import("@/utils/consultation/types").DebateParticipant[]
+    >
+  >;
+  voteMessage: (messageId: string, increment: boolean) => void;
+  toggleFavorite: (messageId: string) => void;
 };

@@ -14,79 +14,106 @@ import DirectMessageTab from "./whatsapp/DirectMessageTab";
 import TemplateTab from "./whatsapp/TemplateTab";
 import WhatsAppFooter from "./whatsapp/WhatsAppFooter";
 export default function WhatsAppSender({ phoneNumber, onPhoneNumberChange }) {
-    const [selectedLeadId, setSelectedLeadId] = useState("");
-    const [activeTab, setActiveTab] = useState("direct");
-    const [templates, setTemplates] = useState([]);
-    const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
-    const [templateError, setTemplateError] = useState(null);
-    const { leads, isLoading: leadsLoading } = useLeads();
-    const { logCommunication, isLoadingMutation } = useCommunications();
-    useEffect(() => {
-        async function fetchTemplates() {
-            setIsLoadingTemplates(true);
-            setTemplateError(null);
-            try {
-                const templatesList = await getWhatsAppTemplates();
-                setTemplates(templatesList);
-                if (templatesList.length === 0) {
-                    setTemplateError("No WhatsApp templates found. Templates may not be configured properly.");
-                }
-            }
-            catch (error) {
-                console.error("Error fetching WhatsApp templates:", error);
-                setTemplateError(`Error fetching WhatsApp templates: ${error.message || "Unknown error"}`);
-                toast.error("Failed to load WhatsApp templates");
-            }
-            finally {
-                setIsLoadingTemplates(false);
-            }
+  const [selectedLeadId, setSelectedLeadId] = useState("");
+  const [activeTab, setActiveTab] = useState("direct");
+  const [templates, setTemplates] = useState([]);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+  const [templateError, setTemplateError] = useState(null);
+  const { leads, isLoading: leadsLoading } = useLeads();
+  const { logCommunication, isLoadingMutation } = useCommunications();
+  useEffect(() => {
+    async function fetchTemplates() {
+      setIsLoadingTemplates(true);
+      setTemplateError(null);
+      try {
+        const templatesList = await getWhatsAppTemplates();
+        setTemplates(templatesList);
+        if (templatesList.length === 0) {
+          setTemplateError(
+            "No WhatsApp templates found. Templates may not be configured properly.",
+          );
         }
-        fetchTemplates();
-    }, []);
-    const handleSelectLead = (leadId) => {
-        setSelectedLeadId(leadId);
-        const selectedLead = leads?.find(lead => lead.id === leadId);
-        if (selectedLead?.phone) {
-            onPhoneNumberChange(selectedLead.phone);
-        }
-        else {
-            onPhoneNumberChange("");
-        }
-    };
-    // Create a wrapper function to ensure correct parameter passing
-    const handleMessageSent = async (communicationData) => {
-        if (selectedLeadId) {
-            await logCommunication(selectedLeadId, communicationData);
-        }
-    };
-    return (<div className="space-y-4">
-      <LeadSelector selectedLeadId={selectedLeadId} onSelectLead={handleSelectLead} leads={leads} isLoading={leadsLoading}/>
-      
+      } catch (error) {
+        console.error("Error fetching WhatsApp templates:", error);
+        setTemplateError(
+          `Error fetching WhatsApp templates: ${error.message || "Unknown error"}`,
+        );
+        toast.error("Failed to load WhatsApp templates");
+      } finally {
+        setIsLoadingTemplates(false);
+      }
+    }
+    fetchTemplates();
+  }, []);
+  const handleSelectLead = (leadId) => {
+    setSelectedLeadId(leadId);
+    const selectedLead = leads?.find((lead) => lead.id === leadId);
+    if (selectedLead?.phone) {
+      onPhoneNumberChange(selectedLead.phone);
+    } else {
+      onPhoneNumberChange("");
+    }
+  };
+  // Create a wrapper function to ensure correct parameter passing
+  const handleMessageSent = async (communicationData) => {
+    if (selectedLeadId) {
+      await logCommunication(selectedLeadId, communicationData);
+    }
+  };
+  return (
+    <div className="space-y-4">
+      <LeadSelector
+        selectedLeadId={selectedLeadId}
+        onSelectLead={handleSelectLead}
+        leads={leads}
+        isLoading={leadsLoading}
+      />
+
       <div className="space-y-2">
         <Label htmlFor="whatsapp-phone">Phone Number</Label>
-        <Input id="whatsapp-phone" placeholder="+1 (555) 123-4567" value={phoneNumber} onChange={(e) => onPhoneNumberChange(e.target.value)}/>
+        <Input
+          id="whatsapp-phone"
+          placeholder="+1 (555) 123-4567"
+          value={phoneNumber}
+          onChange={(e) => onPhoneNumberChange(e.target.value)}
+        />
       </div>
-      
-      {templateError && (<Alert variant="destructive" className="my-4">
-          <AlertCircle className="h-4 w-4"/>
+
+      {templateError && (
+        <Alert variant="destructive" className="my-4">
+          <AlertCircle className="h-4 w-4" />
           <AlertDescription>{templateError}</AlertDescription>
-        </Alert>)}
-      
+        </Alert>
+      )}
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-2 w-full">
           <TabsTrigger value="direct">Direct Message</TabsTrigger>
           <TabsTrigger value="template">Template</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="direct" className="space-y-4">
-          <DirectMessageTab phoneNumber={phoneNumber} selectedLeadId={selectedLeadId} onMessageSent={handleMessageSent} isLoadingMutation={isLoadingMutation}/>
+          <DirectMessageTab
+            phoneNumber={phoneNumber}
+            selectedLeadId={selectedLeadId}
+            onMessageSent={handleMessageSent}
+            isLoadingMutation={isLoadingMutation}
+          />
         </TabsContent>
-        
+
         <TabsContent value="template" className="space-y-4">
-          <TemplateTab phoneNumber={phoneNumber} selectedLeadId={selectedLeadId} templates={templates} isLoadingTemplates={isLoadingTemplates} onMessageSent={handleMessageSent} isLoadingMutation={isLoadingMutation}/>
+          <TemplateTab
+            phoneNumber={phoneNumber}
+            selectedLeadId={selectedLeadId}
+            templates={templates}
+            isLoadingTemplates={isLoadingTemplates}
+            onMessageSent={handleMessageSent}
+            isLoadingMutation={isLoadingMutation}
+          />
         </TabsContent>
       </Tabs>
-      
+
       <WhatsAppFooter />
-    </div>);
+    </div>
+  );
 }

@@ -15,4 +15,8 @@ export declare function removeUserFromCompany(userId: string): Promise<boolean>;
  * @param role The role to assign to the user
  * @returns Boolean indicating success
  */
-export declare function assignUserToCompany(userEmail: string, companyId: string, role?: 'admin' | 'user'): Promise<boolean>;
+export declare function assignUserToCompany(
+  userEmail: string,
+  companyId: string,
+  role?: "admin" | "user",
+): Promise<boolean>;

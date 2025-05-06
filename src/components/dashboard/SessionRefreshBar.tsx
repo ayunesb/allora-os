@@ -1,11 +1,18 @@
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 export function SessionRefreshBar({ onRefreshSession }) {
-    return (<div className="bg-muted py-2 px-4 border-b">
+  return (
+    <div className="bg-muted py-2 px-4 border-b">
       <div className="container mx-auto flex justify-end">
-        <Button size="sm" variant="ghost" onClick={onRefreshSession} className="text-xs flex items-center gap-1">
-          <RefreshCw className="h-3 w-3"/> Refresh Session
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onRefreshSession}
+          className="text-xs flex items-center gap-1"
+        >
+          <RefreshCw className="h-3 w-3" /> Refresh Session
         </Button>
       </div>
-    </div>);
+    </div>
+  );
 }

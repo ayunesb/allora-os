@@ -1,5 +1,5 @@
-import type { Task } from '@/types/fixed/TaskTypes';
-import type { ExecutiveAgentProfile, Agent } from '@/types/fixed/AgentTypes';
+import type { Task } from "@/types/fixed/TaskTypes";
+import type { ExecutiveAgentProfile, Agent } from "@/types/fixed/AgentTypes";
 
 export class AgentScheduler {
   private agents: Agent[];
@@ -16,5 +16,5 @@ export class AgentScheduler {
 }
 
 const agentProfile = {
-  personality: 'cautious' as ExecutiveAgentProfile['personality'],
+  personality: "cautious" as ExecutiveAgentProfile["personality"],
 };

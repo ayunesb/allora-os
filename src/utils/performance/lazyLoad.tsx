@@ -1,14 +1,19 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from "react";
 /**
  * Default loading component
  */
-const DefaultLoadingFallback = () => (<div className="flex items-center justify-center min-h-[200px]">
+const DefaultLoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
     <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-  </div>);
+  </div>
+);
 /**
  * Error fallback component
  */
-const ErrorFallback: React.FC<{ error: any; resetErrorBoundary: () => void }> = ({ error, resetErrorBoundary }) => (
+const ErrorFallback: React.FC<{
+  error: any;
+  resetErrorBoundary: () => void;
+}> = ({ error, resetErrorBoundary }) => (
   <div className="p-4 border border-red-300 rounded bg-red-50 text-red-800">
     <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
     <p className="mb-2">{error.message}</p>
@@ -25,10 +30,16 @@ const ErrorFallback: React.FC<{ error: any; resetErrorBoundary: () => void }> = 
  * Error boundary component
  */
 class LazyErrorBoundary extends React.Component<
-  { fallback: React.FC<{ error: any; resetErrorBoundary: () => void }>; children: React.ReactNode },
+  {
+    fallback: React.FC<{ error: any; resetErrorBoundary: () => void }>;
+    children: React.ReactNode;
+  },
   { hasError: boolean; error: any }
 > {
-  constructor(props: { fallback: React.FC<{ error: any; resetErrorBoundary: () => void }>; children: React.ReactNode }) {
+  constructor(props: {
+    fallback: React.FC<{ error: any; resetErrorBoundary: () => void }>;
+    children: React.ReactNode;
+  }) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -44,7 +55,12 @@ class LazyErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError && this.state.error) {
       const { fallback: Fallback } = this.props;
-      return <Fallback error={this.state.error} resetErrorBoundary={this.resetErrorBoundary} />;
+      return (
+        <Fallback
+          error={this.state.error}
+          resetErrorBoundary={this.resetErrorBoundary}
+        />
+      );
     }
     return this.props.children;
   }
@@ -64,9 +80,13 @@ type LazyLoadOptions = {
 
 export function lazyLoad(
   importFunc: () => Promise<{ default: React.ComponentType<any> }>,
-  options: LazyLoadOptions = {}
+  options: LazyLoadOptions = {},
 ) {
-  const { fallback = <DefaultLoadingFallback />, errorBoundary = true, preload = false } = options;
+  const {
+    fallback = <DefaultLoadingFallback />,
+    errorBoundary = true,
+    preload = false,
+  } = options;
 
   // Create the lazy component
   const LazyComponent = lazy(importFunc);
@@ -84,7 +104,11 @@ export function lazyLoad(
       </Suspense>
     );
     if (errorBoundary) {
-      return <LazyErrorBoundary fallback={ErrorFallback}>{content}</LazyErrorBoundary>;
+      return (
+        <LazyErrorBoundary fallback={ErrorFallback}>
+          {content}
+        </LazyErrorBoundary>
+      );
     }
     return content;
   };
@@ -99,31 +123,38 @@ export function lazyLoad(
  * @returns Lazy-loaded component that loads on viewport visibility
  */
 export function lazyLoadOnVisible(
-  importFunc: () => Promise<{ default: React.ComponentType<any> }>, 
-  options: LazyLoadOptions = {}
+  importFunc: () => Promise<{ default: React.ComponentType<any> }>,
+  options: LazyLoadOptions = {},
 ) {
-    const LazyComponent = lazyLoad(importFunc, options);
-    const VisibilityWrapper: React.FC<any> = (props) => {
-        const [isVisible, setIsVisible] = React.useState(false);
-        const ref = React.useRef(null);
-        React.useEffect(() => {
-            if (!ref.current)
-                return;
-            const observer = new IntersectionObserver(([entry]) => {
-                if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    observer.disconnect();
-                }
-            }, { rootMargin: '200px' } // Start loading when within 200px of viewport
-            );
-            observer.observe(ref.current);
-            return () => {
-                observer.disconnect();
-            };
-        }, []);
-        return (<div ref={ref} className="min-h-[10px]">
-        {isVisible ? <LazyComponent {...props}/> : options.fallback || <DefaultLoadingFallback />}
-      </div>);
-    };
-    return VisibilityWrapper;
+  const LazyComponent = lazyLoad(importFunc, options);
+  const VisibilityWrapper: React.FC<any> = (props) => {
+    const [isVisible, setIsVisible] = React.useState(false);
+    const ref = React.useRef(null);
+    React.useEffect(() => {
+      if (!ref.current) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin: "200px" }, // Start loading when within 200px of viewport
+      );
+      observer.observe(ref.current);
+      return () => {
+        observer.disconnect();
+      };
+    }, []);
+    return (
+      <div ref={ref} className="min-h-[10px]">
+        {isVisible ? (
+          <LazyComponent {...props} />
+        ) : (
+          options.fallback || <DefaultLoadingFallback />
+        )}
+      </div>
+    );
+  };
+  return VisibilityWrapper;
 }

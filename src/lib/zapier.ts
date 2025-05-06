@@ -1,27 +1,28 @@
+import { toast } from "sonner";
+import { WebhookTestResult, BusinessEventType } from "@/types/fixed/Webhook";
 
-import { toast } from 'sonner';
-import { WebhookTestResult, BusinessEventType } from '@/types/fixed/Webhook';
-
-export const testZapierWebhook = async (webhookUrl: string): Promise<WebhookTestResult> => {
+export const testZapierWebhook = async (
+  webhookUrl: string,
+): Promise<WebhookTestResult> => {
   try {
-    if (!webhookUrl || !webhookUrl.startsWith('https://hooks.zapier.com/')) {
+    if (!webhookUrl || !webhookUrl.startsWith("https://hooks.zapier.com/")) {
       return {
         success: false,
-        message: 'Invalid Zapier webhook URL',
-        statusCode: 400
+        message: "Invalid Zapier webhook URL",
+        statusCode: 400,
       };
     }
 
     const response = await fetch(webhookUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      mode: 'no-cors', // Required for CORS issues with Zapier
+      mode: "no-cors", // Required for CORS issues with Zapier
       body: JSON.stringify({
         test: true,
         timestamp: new Date().toISOString(),
-        source: 'Allora AI Platform',
+        source: "Allora AI Platform",
       }),
     });
 
@@ -29,60 +30,69 @@ export const testZapierWebhook = async (webhookUrl: string): Promise<WebhookTest
     // So we'll assume it went through if no error was thrown
     return {
       success: true,
-      message: 'Webhook test sent to Zapier',
-      statusCode: 200
+      message: "Webhook test sent to Zapier",
+      statusCode: 200,
     };
   } catch (error) {
-    console.error('Error testing Zapier webhook:', error);
+    console.error("Error testing Zapier webhook:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Unknown error occurred',
-      statusCode: 500
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+      statusCode: 500,
     };
   }
 };
 
-export const triggerZapierWebhook = async (webhookUrl: string, data: any = {}): Promise<WebhookTestResult> => {
+export const triggerZapierWebhook = async (
+  webhookUrl: string,
+  data: any = {},
+): Promise<WebhookTestResult> => {
   try {
     if (!webhookUrl) {
-      toast.error('No Zapier webhook URL provided');
+      toast.error("No Zapier webhook URL provided");
       return {
         success: false,
-        message: 'No webhook URL provided',
-        statusCode: 400
+        message: "No webhook URL provided",
+        statusCode: 400,
       };
     }
 
     await fetch(webhookUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      mode: 'no-cors',
+      mode: "no-cors",
       body: JSON.stringify({
         ...data,
         timestamp: new Date().toISOString(),
       }),
     });
 
-    toast.success('Event sent to Zapier');
+    toast.success("Event sent to Zapier");
     return {
       success: true,
-      message: 'Webhook triggered successfully',
-      statusCode: 200
+      message: "Webhook triggered successfully",
+      statusCode: 200,
     };
   } catch (error) {
-    console.error('Error triggering Zapier webhook:', error);
-    toast.error('Failed to trigger Zapier webhook');
+    console.error("Error triggering Zapier webhook:", error);
+    toast.error("Failed to trigger Zapier webhook");
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to trigger webhook',
-      statusCode: 500
+      message:
+        error instanceof Error ? error.message : "Failed to trigger webhook",
+      statusCode: 500,
     };
   }
 };
 
-export const triggerBusinessEvent = async (webhookUrl: string, eventType: BusinessEventType, data: Record<string, any>): Promise<WebhookTestResult> => {
+export const triggerBusinessEvent = async (
+  webhookUrl: string,
+  eventType: BusinessEventType,
+  data: Record<string, any>,
+): Promise<WebhookTestResult> => {
   return triggerZapierWebhook(webhookUrl, {
     eventType,
     ...data,

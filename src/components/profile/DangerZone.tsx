@@ -1,15 +1,18 @@
-import React from 'react';
-import { Separator } from '@/components/ui/separator';
-import DeleteAccountDialog from './DeleteAccountDialog';
+import React from "react";
+import { Separator } from "@/components/ui/separator";
+import DeleteAccountDialog from "./DeleteAccountDialog";
 const DangerZone = () => {
-    return (<div className="w-full">
-      <Separator className="my-4"/>
-      
+  return (
+    <div className="w-full">
+      <Separator className="my-4" />
+
       <h3 className="text-lg font-medium text-destructive mb-2">Danger Zone</h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Permanently delete your account and all associated data. This action cannot be undone.
+        Permanently delete your account and all associated data. This action
+        cannot be undone.
       </p>
       <DeleteAccountDialog />
-    </div>);
+    </div>
+  );
 };
 export default DangerZone;

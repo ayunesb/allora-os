@@ -1,6 +1,5 @@
-
-import { runAutoExecutor } from '@/agents/autoExecutor';
-import { logger } from '@/utils/loggingService';
+import { runAutoExecutor } from "@/agents/autoExecutor";
+import { logger } from "@/utils/loggingService";
 
 let executorInterval: number | null = null;
 
@@ -15,21 +14,24 @@ export function initializeAutoExecutorCron() {
   }
 
   // Check if we're in a browser environment
-  if (typeof window !== 'undefined') {
-    logger.info('Initializing auto-executor cron job');
-    
+  if (typeof window !== "undefined") {
+    logger.info("Initializing auto-executor cron job");
+
     // Set up the interval to run every 5 minutes
-    executorInterval = window.setInterval(() => {
-      runAutoExecutor().catch(error => {
-        logger.error('Error running auto executor:', error);
-      });
-    }, 5 * 60 * 1000); // 5 minutes
-    
+    executorInterval = window.setInterval(
+      () => {
+        runAutoExecutor().catch((error) => {
+          logger.error("Error running auto executor:", error);
+        });
+      },
+      5 * 60 * 1000,
+    ); // 5 minutes
+
     // Also run immediately on startup
-    runAutoExecutor().catch(error => {
-      logger.error('Error running initial auto executor:', error);
+    runAutoExecutor().catch((error) => {
+      logger.error("Error running initial auto executor:", error);
     });
-    
+
     return () => {
       if (executorInterval) {
         clearInterval(executorInterval);
@@ -43,6 +45,6 @@ export function initializeAutoExecutorCron() {
  * Manually triggers the auto-executor to run immediately
  */
 export async function triggerExecutorManually() {
-  logger.info('Manually triggering auto-executor');
+  logger.info("Manually triggering auto-executor");
   await runAutoExecutor();
 }

@@ -1,112 +1,329 @@
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+"use strict";
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
+    return new (P || (P = Promise))(function (resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
+var __generator =
+  (this && this.__generator) ||
+  function (thisArg, body) {
+    var _ = {
+        label: 0,
+        sent: function () {
+          if (t[0] & 1) throw t[1];
+          return t[1];
+        },
+        trys: [],
+        ops: [],
+      },
+      f,
+      y,
+      t,
+      g = Object.create(
+        (typeof Iterator === "function" ? Iterator : Object).prototype,
+      );
+    return (
+      (g.next = verb(0)),
+      (g["throw"] = verb(1)),
+      (g["return"] = verb(2)),
+      typeof Symbol === "function" &&
+        (g[Symbol.iterator] = function () {
+          return this;
+        }),
+      g
+    );
+    function verb(n) {
+      return function (v) {
+        return step([n, v]);
+      };
+    }
+    function step(op) {
+      if (f) throw new TypeError("Generator is already executing.");
+      while ((g && ((g = 0), op[0] && (_ = 0)), _))
+        try {
+          if (
+            ((f = 1),
+            y &&
+              (t =
+                op[0] & 2
+                  ? y["return"]
+                  : op[0]
+                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
+                    : y.next) &&
+              !(t = t.call(y, op[1])).done)
+          )
+            return t;
+          if (((y = 0), t)) op = [op[0] & 2, t.value];
+          switch (op[0]) {
+            case 0:
+            case 1:
+              t = op;
+              break;
+            case 4:
+              _.label++;
+              return { value: op[1], done: false };
+            case 5:
+              _.label++;
+              y = op[1];
+              op = [0];
+              continue;
+            case 7:
+              op = _.ops.pop();
+              _.trys.pop();
+              continue;
+            default:
+              if (
+                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
+                (op[0] === 6 || op[0] === 2)
+              ) {
+                _ = 0;
+                continue;
+              }
+              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
+                _.label = op[1];
+                break;
+              }
+              if (op[0] === 6 && _.label < t[1]) {
+                _.label = t[1];
+                t = op;
+                break;
+              }
+              if (t && _.label < t[2]) {
+                _.label = t[2];
+                _.ops.push(op);
+                break;
+              }
+              if (t[2]) _.ops.pop();
+              _.trys.pop();
+              continue;
+          }
+          op = body.call(thisArg, _);
+        } catch (e) {
+          op = [6, e];
+          y = 0;
+        } finally {
+          f = t = 0;
+        }
+      if (op[0] & 5) throw op[1];
+      return { value: op[0] ? op[1] : void 0, done: true };
+    }
+  };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fetchCommunications = fetchCommunications;
+exports.createZoomMeeting = createZoomMeeting;
+exports.logCommunication = logCommunication;
+exports.generateAISummary = generateAISummary;
+exports.updateCommunicationStatus = updateCommunicationStatus;
+var client_1 = require("@/integrations/supabase/client");
+var sonner_1 = require("sonner");
 // Fetch all communications
-export async function fetchCommunications() {
-    try {
-        const { data, error } = await supabase
-            .from('communications')
-            .select('*, leads(name, email, phone, status)')
-            .order('created_at', { ascending: false });
-        if (error)
-            throw error;
-        return data;
-    }
-    catch (error) {
-        console.error('Error fetching communications:', error.message);
-        throw error;
-    }
+function fetchCommunications() {
+  return __awaiter(this, void 0, void 0, function () {
+    var _a, data, error, error_1;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          _b.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            client_1.supabase
+              .from("communications")
+              .select("*, leads(name, email, phone, status)")
+              .order("created_at", { ascending: false }),
+          ];
+        case 1:
+          (_a = _b.sent()), (data = _a.data), (error = _a.error);
+          if (error) throw error;
+          return [2 /*return*/, data];
+        case 2:
+          error_1 = _b.sent();
+          console.error("Error fetching communications:", error_1.message);
+          throw error_1;
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
 }
 // Create a new Zoom meeting
-export async function createZoomMeeting(leadId, meetingData) {
-    try {
-        const { data: result, error } = await supabase.functions.invoke('communications', {
-            body: {
-                action: 'create-zoom-meeting',
-                leadId,
-                meetingData
-            }
-        });
-        if (error)
-            throw error;
-        if (result.error)
-            throw new Error(result.error);
-        toast.success('Zoom meeting created successfully');
-        return result;
-    }
-    catch (error) {
-        console.error('Error creating Zoom meeting:', error);
-        toast.error(`Failed to create Zoom meeting: ${error.message}`);
-        throw error;
-    }
+function createZoomMeeting(leadId, meetingData) {
+  return __awaiter(this, void 0, void 0, function () {
+    var _a, result, error, error_2;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          _b.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            client_1.supabase.functions.invoke("communications", {
+              body: {
+                action: "create-zoom-meeting",
+                leadId: leadId,
+                meetingData: meetingData,
+              },
+            }),
+          ];
+        case 1:
+          (_a = _b.sent()), (result = _a.data), (error = _a.error);
+          if (error) throw error;
+          if (result.error) throw new Error(result.error);
+          sonner_1.toast.success("Zoom meeting created successfully");
+          return [2 /*return*/, result];
+        case 2:
+          error_2 = _b.sent();
+          console.error("Error creating Zoom meeting:", error_2);
+          sonner_1.toast.error(
+            "Failed to create Zoom meeting: ".concat(error_2.message),
+          );
+          throw error_2;
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
 }
 // Log a communication
-export async function logCommunication(leadId, communicationData) {
-    try {
-        const { data: result, error } = await supabase.functions.invoke('communications', {
-            body: {
-                action: 'log-communication',
-                leadId,
-                communicationData
-            }
-        });
-        if (error)
-            throw error;
-        if (result.error)
-            throw new Error(result.error);
-        toast.success(`${communicationData.type} communication logged successfully`);
-        return result;
-    }
-    catch (error) {
-        console.error('Error logging communication:', error);
-        toast.error(`Failed to log communication: ${error.message}`);
-        throw error;
-    }
+function logCommunication(leadId, communicationData) {
+  return __awaiter(this, void 0, void 0, function () {
+    var _a, result, error, error_3;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          _b.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            client_1.supabase.functions.invoke("communications", {
+              body: {
+                action: "log-communication",
+                leadId: leadId,
+                communicationData: communicationData,
+              },
+            }),
+          ];
+        case 1:
+          (_a = _b.sent()), (result = _a.data), (error = _a.error);
+          if (error) throw error;
+          if (result.error) throw new Error(result.error);
+          sonner_1.toast.success(
+            "".concat(
+              communicationData.type,
+              " communication logged successfully",
+            ),
+          );
+          return [2 /*return*/, result];
+        case 2:
+          error_3 = _b.sent();
+          console.error("Error logging communication:", error_3);
+          sonner_1.toast.error(
+            "Failed to log communication: ".concat(error_3.message),
+          );
+          throw error_3;
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
 }
 // Generate AI summary for a communication
-export async function generateAISummary(communicationId, transcriptText) {
-    try {
-        const { data: result, error } = await supabase.functions.invoke('communications', {
-            body: {
-                action: 'generate-summary',
-                communicationId,
-                transcriptText
-            }
-        });
-        if (error)
-            throw error;
-        if (result.error)
-            throw new Error(result.error);
-        toast.success('AI summary generated successfully');
-        return result;
-    }
-    catch (error) {
-        console.error('Error generating AI summary:', error);
-        toast.error(`Failed to generate AI summary: ${error.message}`);
-        throw error;
-    }
+function generateAISummary(communicationId, transcriptText) {
+  return __awaiter(this, void 0, void 0, function () {
+    var _a, result, error, error_4;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          _b.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            client_1.supabase.functions.invoke("communications", {
+              body: {
+                action: "generate-summary",
+                communicationId: communicationId,
+                transcriptText: transcriptText,
+              },
+            }),
+          ];
+        case 1:
+          (_a = _b.sent()), (result = _a.data), (error = _a.error);
+          if (error) throw error;
+          if (result.error) throw new Error(result.error);
+          sonner_1.toast.success("AI summary generated successfully");
+          return [2 /*return*/, result];
+        case 2:
+          error_4 = _b.sent();
+          console.error("Error generating AI summary:", error_4);
+          sonner_1.toast.error(
+            "Failed to generate AI summary: ".concat(error_4.message),
+          );
+          throw error_4;
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
 }
 // Update communication status
-export async function updateCommunicationStatus(id, status, notes, outcome) {
-    try {
-        const updateData = { status };
-        if (notes !== undefined)
-            updateData.notes = notes;
-        if (outcome !== undefined)
-            updateData.outcome = outcome;
-        if (status === 'completed')
+function updateCommunicationStatus(id, status, notes, outcome) {
+  return __awaiter(this, void 0, void 0, function () {
+    var updateData, error, error_5;
+    return __generator(this, function (_a) {
+      switch (_a.label) {
+        case 0:
+          _a.trys.push([0, 2, , 3]);
+          updateData = { status: status };
+          if (notes !== undefined) updateData.notes = notes;
+          if (outcome !== undefined) updateData.outcome = outcome;
+          if (status === "completed")
             updateData.ended_at = new Date().toISOString();
-        const { error } = await supabase
-            .from('communications')
-            .update(updateData)
-            .eq('id', id);
-        if (error)
-            throw error;
-        toast.success(`Communication marked as ${status}`);
-        return true;
-    }
-    catch (error) {
-        console.error('Error updating communication status:', error);
-        toast.error(`Failed to update status: ${error.message}`);
-        throw error;
-    }
+          return [
+            4 /*yield*/,
+            client_1.supabase
+              .from("communications")
+              .update(updateData)
+              .eq("id", id),
+          ];
+        case 1:
+          error = _a.sent().error;
+          if (error) throw error;
+          sonner_1.toast.success("Communication marked as ".concat(status));
+          return [2 /*return*/, true];
+        case 2:
+          error_5 = _a.sent();
+          console.error("Error updating communication status:", error_5);
+          sonner_1.toast.error(
+            "Failed to update status: ".concat(error_5.message),
+          );
+          throw error_5;
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
 }

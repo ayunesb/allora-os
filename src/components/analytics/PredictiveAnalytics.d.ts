@@ -1,5 +1,7 @@
 interface PredictiveAnalyticsProps {
-    onRefresh?: () => void;
+  onRefresh?: () => void;
 }
-export declare function PredictiveAnalytics({ onRefresh }: PredictiveAnalyticsProps): JSX.Element;
+export declare function PredictiveAnalytics({
+  onRefresh,
+}: PredictiveAnalyticsProps): JSX.Element;
 export {};

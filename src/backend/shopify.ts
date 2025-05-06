@@ -1,5 +1,4 @@
-
-import { supabase } from './supabase';
+import { supabase } from "./supabase";
 
 /**
  * Lists products from Shopify store
@@ -8,30 +7,29 @@ import { supabase } from './supabase';
 export const listProducts = async () => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to list products');
+      throw new Error("Authentication required to list products");
     }
 
     // Call the Shopify edge function
-    const { data, error } = await supabase.functions.invoke(
-      "shopify",
-      {
-        body: {
-          action: "list-products"
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("shopify", {
+      body: {
+        action: "list-products",
+      },
+    });
 
     if (error) {
-      console.error('Error listing products:', error);
+      console.error("Error listing products:", error);
       throw error;
     }
 
     return data.products || [];
   } catch (error) {
-    console.error('Failed to list products:', error);
+    console.error("Failed to list products:", error);
     return [];
   }
 };
@@ -44,25 +42,24 @@ export const listProducts = async () => {
 export const getProduct = async (productId: string) => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to get product');
+      throw new Error("Authentication required to get product");
     }
 
     // Call the Shopify edge function
-    const { data, error } = await supabase.functions.invoke(
-      "shopify",
-      {
-        body: {
-          action: "get-product",
-          productId
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("shopify", {
+      body: {
+        action: "get-product",
+        productId,
+      },
+    });
 
     if (error) {
-      console.error('Error getting product:', error);
+      console.error("Error getting product:", error);
       throw error;
     }
 
@@ -81,31 +78,30 @@ export const getProduct = async (productId: string) => {
 export const createProduct = async (productData: any) => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to create product');
+      throw new Error("Authentication required to create product");
     }
 
     // Call the Shopify edge function
-    const { data, error } = await supabase.functions.invoke(
-      "shopify",
-      {
-        body: {
-          action: "create-product",
-          productData
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("shopify", {
+      body: {
+        action: "create-product",
+        productData,
+      },
+    });
 
     if (error) {
-      console.error('Error creating product:', error);
+      console.error("Error creating product:", error);
       throw error;
     }
 
     return data.product;
   } catch (error) {
-    console.error('Failed to create product:', error);
+    console.error("Failed to create product:", error);
     return null;
   }
 };
@@ -120,37 +116,36 @@ export const createProduct = async (productData: any) => {
 export const createCheckout = async (
   variantId: string,
   quantity: number,
-  shippingAddress?: any
+  shippingAddress?: any,
 ) => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to create checkout');
+      throw new Error("Authentication required to create checkout");
     }
 
     // Call the Shopify edge function
-    const { data, error } = await supabase.functions.invoke(
-      "shopify",
-      {
-        body: {
-          action: "create-checkout",
-          variantId,
-          quantity,
-          shippingAddress
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("shopify", {
+      body: {
+        action: "create-checkout",
+        variantId,
+        quantity,
+        shippingAddress,
+      },
+    });
 
     if (error) {
-      console.error('Error creating checkout:', error);
+      console.error("Error creating checkout:", error);
       throw error;
     }
 
     return data.checkout;
   } catch (error) {
-    console.error('Failed to create checkout:', error);
+    console.error("Failed to create checkout:", error);
     return null;
   }
 };
@@ -163,25 +158,24 @@ export const createCheckout = async (
 export const getCheckout = async (checkoutId: string) => {
   try {
     // Get the current auth session
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     if (!session) {
-      throw new Error('Authentication required to get checkout');
+      throw new Error("Authentication required to get checkout");
     }
 
     // Call the Shopify edge function
-    const { data, error } = await supabase.functions.invoke(
-      "shopify",
-      {
-        body: {
-          action: "get-checkout",
-          checkoutId
-        }
-      }
-    );
+    const { data, error } = await supabase.functions.invoke("shopify", {
+      body: {
+        action: "get-checkout",
+        checkoutId,
+      },
+    });
 
     if (error) {
-      console.error('Error getting checkout:', error);
+      console.error("Error getting checkout:", error);
       throw error;
     }
 

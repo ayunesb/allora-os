@@ -1,4 +1,3 @@
-
 /**
  * Enhanced logging utility for development and debugging
  */
@@ -11,30 +10,34 @@ const VERBOSE_LOGGING = true;
  */
 export function logDiagnosticInfo(title: string, data: any) {
   if (!VERBOSE_LOGGING) return;
-  
+
   console.group(`🔍 ${title}`);
-  
-  if (typeof data === 'object' && data !== null) {
+
+  if (typeof data === "object" && data !== null) {
     Object.entries(data).forEach(([key, value]) => {
       console.log(`${key}:`, value);
     });
   } else {
     console.log(data);
   }
-  
+
   console.groupEnd();
 }
 
 /**
  * Log application errors with context information
  */
-export function logError(error: unknown, context: string, additionalData?: any) {
+export function logError(
+  error: unknown,
+  context: string,
+  additionalData?: any,
+) {
   console.error(`❌ Error in ${context}:`, error);
-  
+
   if (additionalData && VERBOSE_LOGGING) {
-    console.error('Additional context:', additionalData);
+    console.error("Additional context:", additionalData);
   }
-  
+
   // In a production app, we could send this to an error tracking service
 }
 
@@ -43,9 +46,9 @@ export function logError(error: unknown, context: string, additionalData?: any) 
  */
 export function logWarning(message: string, context: string, data?: any) {
   console.warn(`⚠️ Warning in ${context}: ${message}`);
-  
+
   if (data && VERBOSE_LOGGING) {
-    console.warn('Details:', data);
+    console.warn("Details:", data);
   }
 }
 
@@ -54,7 +57,7 @@ export function logWarning(message: string, context: string, data?: any) {
  */
 export function logPerformance(operation: string, timeInMs: number) {
   if (!VERBOSE_LOGGING) return;
-  
+
   console.log(`⏱️ Performance: ${operation} took ${timeInMs.toFixed(2)}ms`);
 }
 
@@ -63,9 +66,9 @@ export function logPerformance(operation: string, timeInMs: number) {
  */
 export function startPerformanceTimer(operation: string): () => void {
   if (!VERBOSE_LOGGING) return () => {};
-  
+
   const startTime = performance.now();
-  
+
   return () => {
     const endTime = performance.now();
     logPerformance(operation, endTime - startTime);

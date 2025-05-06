@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 interface LeadsHeaderProps {
-    isMobileView: boolean;
+  isMobileView: boolean;
 }
 export declare const LeadsHeader: React.FC<LeadsHeaderProps>;
 export {};

@@ -5,4 +5,12 @@ declare const PaginationLink: any;
 declare const PaginationPrevious: any;
 declare const PaginationNext: any;
 declare const PaginationEllipsis: any;
-export { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious };
+export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+};

@@ -1,4 +1,3 @@
-
 export interface DailyMetric {
   date: string;
   impressions: number;

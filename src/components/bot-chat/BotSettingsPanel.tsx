@@ -1,27 +1,28 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Slider } from '@/components/ui/slider';
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
 const BotSettingsPanel = ({ botId, bot, onSettingChange }) => {
-    const settings = bot?.settings || {
-        autoRespond: false,
-        proactiveInsights: true,
-        responseLength: 50,
-        creativityLevel: 70
-    };
-    const handleToggleChange = (setting, checked) => {
-        if (onSettingChange) {
-            onSettingChange(setting, checked);
-        }
-    };
-    const handleSliderChange = (setting, value) => {
-        if (onSettingChange) {
-            onSettingChange(setting, value[0]);
-        }
-    };
-    return (<Card className="h-full">
+  const settings = bot?.settings || {
+    autoRespond: false,
+    proactiveInsights: true,
+    responseLength: 50,
+    creativityLevel: 70,
+  };
+  const handleToggleChange = (setting, checked) => {
+    if (onSettingChange) {
+      onSettingChange(setting, checked);
+    }
+  };
+  const handleSliderChange = (setting, value) => {
+    if (onSettingChange) {
+      onSettingChange(setting, value[0]);
+    }
+  };
+  return (
+    <Card className="h-full">
       <CardContent className="pt-6 space-y-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -31,11 +32,17 @@ const BotSettingsPanel = ({ botId, bot, onSettingChange }) => {
                 Allow this bot to respond proactively to relevant discussions
               </p>
             </div>
-            <Switch id="auto-respond" checked={settings.autoRespond} onCheckedChange={(checked) => handleToggleChange('autoRespond', checked)}/>
+            <Switch
+              id="auto-respond"
+              checked={settings.autoRespond}
+              onCheckedChange={(checked) =>
+                handleToggleChange("autoRespond", checked)
+              }
+            />
           </div>
-          
+
           <Separator />
-          
+
           <div className="flex justify-between items-center">
             <div className="space-y-0.5">
               <Label htmlFor="proactive-insights">Proactive Insights</Label>
@@ -43,11 +50,17 @@ const BotSettingsPanel = ({ botId, bot, onSettingChange }) => {
                 Let the bot suggest ideas based on your company data
               </p>
             </div>
-            <Switch id="proactive-insights" checked={settings.proactiveInsights} onCheckedChange={(checked) => handleToggleChange('proactiveInsights', checked)}/>
+            <Switch
+              id="proactive-insights"
+              checked={settings.proactiveInsights}
+              onCheckedChange={(checked) =>
+                handleToggleChange("proactiveInsights", checked)
+              }
+            />
           </div>
-          
+
           <Separator />
-          
+
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label>Response Length</Label>
@@ -55,21 +68,35 @@ const BotSettingsPanel = ({ botId, bot, onSettingChange }) => {
                 Controls how detailed the responses will be
               </p>
               <div className="pt-2">
-                <Slider defaultValue={[settings.responseLength || 50]} max={100} step={10} onValueChange={(value) => handleSliderChange('responseLength', value)}/>
+                <Slider
+                  defaultValue={[settings.responseLength || 50]}
+                  max={100}
+                  step={10}
+                  onValueChange={(value) =>
+                    handleSliderChange("responseLength", value)
+                  }
+                />
                 <div className="flex justify-between mt-1 text-xs text-muted-foreground">
                   <span>Concise</span>
                   <span>Detailed</span>
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-1.5 pt-2">
               <Label>Creativity Level</Label>
               <p className="text-sm text-muted-foreground">
                 Controls how creative versus factual the responses will be
               </p>
               <div className="pt-2">
-                <Slider defaultValue={[settings.creativityLevel || 70]} max={100} step={10} onValueChange={(value) => handleSliderChange('creativityLevel', value)}/>
+                <Slider
+                  defaultValue={[settings.creativityLevel || 70]}
+                  max={100}
+                  step={10}
+                  onValueChange={(value) =>
+                    handleSliderChange("creativityLevel", value)
+                  }
+                />
                 <div className="flex justify-between mt-1 text-xs text-muted-foreground">
                   <span>Factual</span>
                   <span>Creative</span>
@@ -79,6 +106,7 @@ const BotSettingsPanel = ({ botId, bot, onSettingChange }) => {
           </div>
         </div>
       </CardContent>
-    </Card>);
+    </Card>
+  );
 };
 export default BotSettingsPanel;

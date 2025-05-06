@@ -1,5 +1,5 @@
-import React from 'react';
-export type ServiceStatus = 'healthy' | 'degraded' | 'down';
+import React from "react";
+export type ServiceStatus = "healthy" | "degraded" | "down";
 /**
  * Returns the appropriate icon component for the given status
  */

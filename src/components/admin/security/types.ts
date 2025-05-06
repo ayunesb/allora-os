@@ -1,4 +1,3 @@
-
 export interface SecuritySettingsType {
   twoFactorEnabled: boolean;
   extendedSessionTimeout: boolean;

@@ -1,6 +1,6 @@
 // ...existing code...
 // Replace or remove the following line if `ExecutiveBot` is obsolete
-import { ExecutiveBot } from '@/models/campaign';
+import { ExecutiveBot } from "@/models/campaign";
 
 type ExecutiveBot = {
   name: string;

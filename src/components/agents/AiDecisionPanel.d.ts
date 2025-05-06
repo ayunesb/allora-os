@@ -1,3 +1,5 @@
-export declare const AgentPerformanceDashboard: ({ pluginFilter, }: {
-    pluginFilter?: string;
+export declare const AgentPerformanceDashboard: ({
+  pluginFilter,
+}: {
+  pluginFilter?: string;
 }) => JSX.Element;

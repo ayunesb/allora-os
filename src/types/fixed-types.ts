@@ -1,9 +1,8 @@
-
 // User model
 export interface User {
   id: string;
   email: string;
-  role: 'admin' | 'user';
+  role: "admin" | "user";
   company_id?: string;
   company?: string;
   industry?: string;
@@ -68,7 +67,7 @@ export interface ChecklistItem {
   name: string;
   description?: string;
   details?: string;
-  status: 'pending' | 'error' | 'completed';
+  status: "pending" | "error" | "completed";
   statusMessage?: string;
   isRequired?: boolean;
 }
@@ -103,7 +102,7 @@ export interface AccessibilityContextType {
 export interface LaunchProgressProps {
   totalItems: number;
   completedItems: number;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  status: "pending" | "in-progress" | "completed" | "error";
   isComplete?: boolean;
   launchStep?: number;
 }
@@ -112,7 +111,7 @@ export interface LaunchInfoBoxProps {
   title: string;
   description?: string;
   icon?: React.ReactNode;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  status: "pending" | "in-progress" | "completed" | "error";
   children?: React.ReactNode;
 }
 
@@ -120,22 +119,28 @@ export interface LaunchInfoProps {
   title: string;
   description?: string;
   icon?: React.ReactNode;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
+  status: "pending" | "in-progress" | "completed" | "error";
   children?: React.ReactNode;
 }
 
 // Additional needed WebhookType export
-export type WebhookType = 'zapier' | 'custom' | 'slack' | 'notion' | 'github' | 'stripe';
+export type WebhookType =
+  | "zapier"
+  | "custom"
+  | "slack"
+  | "notion"
+  | "github"
+  | "stripe";
 
 // Business event types
-export type BusinessEventType = 
-  | 'campaign_created' 
-  | 'strategy_approved' 
-  | 'lead_converted'
-  | 'revenue_milestone'
-  | 'user_onboarded'
-  | 'campaign_launched'
-  | 'lead_added';
+export type BusinessEventType =
+  | "campaign_created"
+  | "strategy_approved"
+  | "lead_converted"
+  | "revenue_milestone"
+  | "user_onboarded"
+  | "campaign_launched"
+  | "lead_added";
 
 export interface WebhookResult {
   success: boolean;

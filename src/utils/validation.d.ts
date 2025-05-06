@@ -56,7 +56,10 @@ export declare function isValidUuid(value: unknown): boolean;
  * @param validationFns Array of validation functions to apply
  * @returns Boolean indicating if the value passes all validations
  */
-export declare function validateAll(value: unknown, validationFns: Array<(value: unknown) => boolean>): boolean;
+export declare function validateAll(
+  value: unknown,
+  validationFns: Array<(value: unknown) => boolean>,
+): boolean;
 /**
  * Validates if a value is a valid URL
  * @param url URL to validate
@@ -82,7 +85,11 @@ export declare function isPositiveNumber(value: unknown): boolean;
  * @param max Maximum allowed value
  * @returns Boolean indicating if the value is within range
  */
-export declare function isWithinRange(value: number, min: number, max: number): boolean;
+export declare function isWithinRange(
+  value: number,
+  min: number,
+  max: number,
+): boolean;
 /**
  * Validates if a value is a valid phone number
  * Uses a basic regex that accepts common formats

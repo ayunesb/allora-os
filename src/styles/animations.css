@@ -32,7 +32,8 @@
 }
 
 @keyframes glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(99, 179, 237, 0.4);
   }
   50% {
@@ -41,7 +42,8 @@
 }
 
 @keyframes pulse-once {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -50,7 +52,8 @@
 }
 
 @keyframes bounce-once {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -59,7 +62,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -86,7 +90,8 @@
 }
 
 @keyframes border-glow {
-  0%, 100% {
+  0%,
+  100% {
     border-color: rgba(99, 179, 237, 0.3);
   }
   50% {
@@ -95,7 +100,8 @@
 }
 
 @keyframes scale-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -133,7 +139,8 @@
 }
 
 @keyframes pulseParticle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.1;
   }
   50% {
@@ -145,7 +152,7 @@
   .animate-fadeIn {
     animation: fadeIn 0.4s ease-in-out forwards;
   }
-  
+
   .animate-slideIn {
     animation: slideIn 0.5s ease-out forwards;
   }
@@ -153,94 +160,99 @@
   .animate-scaleIn {
     animation: scaleIn 0.4s ease-out forwards;
   }
-  
+
   .animate-glow {
     animation: glow 2s infinite;
   }
-  
+
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
-  
+
   .animate-pulse-once {
     animation: pulse-once 0.3s ease-in-out;
   }
-  
+
   .animate-bounce-once {
     animation: bounce-once 0.3s ease-in-out;
   }
-  
+
   .animate-spin-slow {
     animation: spin-slow 8s linear infinite;
   }
-  
+
   .animate-shimmer {
     animation: shimmer 3s infinite linear;
-    background: linear-gradient(to right, rgba(99, 179, 237, 0) 0%, rgba(99, 179, 237, 0.3) 50%, rgba(99, 179, 237, 0) 100%);
+    background: linear-gradient(
+      to right,
+      rgba(99, 179, 237, 0) 0%,
+      rgba(99, 179, 237, 0.3) 50%,
+      rgba(99, 179, 237, 0) 100%
+    );
     background-size: 1000px 100%;
   }
-  
+
   .animate-border-glow {
     animation: border-glow 2s infinite ease-in-out;
   }
-  
+
   .animate-scale-pulse {
     animation: scale-pulse 2s infinite ease-in-out;
   }
-  
+
   .animate-slide-tab {
     animation: slide-tab 0.3s ease-out forwards;
   }
-  
+
   .transition-all-fast {
     transition: all 0.2s ease;
   }
-  
+
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
   }
-  
+
   .hover-glow {
     @apply transition-all duration-300;
   }
-  
+
   .hover-glow:hover {
     box-shadow: 0 0 12px rgba(99, 179, 237, 0.6);
   }
-  
+
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
   }
-  
+
   .card-gradient {
     @apply bg-gradient-to-br from-secondary/90 to-background/80 backdrop-blur-md;
   }
-  
+
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-600;
   }
-  
+
   .button-glow {
     @apply relative overflow-hidden;
   }
-  
+
   .button-glow::after {
-    content: '';
+    content: "";
     @apply absolute inset-0 opacity-0 transition-opacity duration-300 bg-gradient-to-r from-blue-400/20 to-purple-500/20;
   }
-  
+
   .button-glow:hover::after {
     @apply opacity-100;
   }
-  
+
   .error-card {
     @apply bg-red-950/10 border-red-300/20 text-red-300 animate-fadeIn;
   }
-  
+
   .retry-button {
     @apply bg-primary/80 hover:bg-primary transition-colors duration-200 animate-pulse-once;
   }
-  
+
   .blur-bg {
     @apply backdrop-blur-md bg-background/60;
   }

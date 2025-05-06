@@ -37,8 +37,8 @@ export interface CreatePostInput {
 }
 
 export interface SocialMediaCalendarFilters {
-  platform?: SocialPlatform | 'all';
-  status?: PostStatus | 'all';
+  platform?: SocialPlatform | "all";
+  status?: PostStatus | "all";
   dateRange?: [Date | null, Date | null];
   search?: string;
   content_type?: string;

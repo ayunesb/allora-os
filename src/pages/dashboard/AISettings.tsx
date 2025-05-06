@@ -1,31 +1,42 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Helmet } from 'react-helmet-async';
-import { AIPreferencesForm } from '@/components/ai/AiPreferencesForm';
-import { AiBehaviorSettings } from '@/components/ai/AiBehaviorSettings';
-import { ModelPreferences } from '@/components/ai-settings/ModelPreferences';
-import { LearningSettings } from '@/components/ai-settings/LearningSettings';
-import { Settings, BookOpen } from 'lucide-react';
-import { PageTitle } from '@/components/PageTitle';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Helmet } from "react-helmet-async";
+import { AIPreferencesForm } from "@/components/ai/AiPreferencesForm";
+import { AiBehaviorSettings } from "@/components/ai/AiBehaviorSettings";
+import { ModelPreferences } from "@/components/ai-settings/ModelPreferences";
+import { LearningSettings } from "@/components/ai-settings/LearningSettings";
+import { Settings, BookOpen } from "lucide-react";
+import { PageTitle } from "@/components/PageTitle";
 export default function AISettings() {
-    return (<div className="container mx-auto py-6 space-y-6">
+  return (
+    <div className="container mx-auto py-6 space-y-6">
       <Helmet>
         <title>AI Settings | Allora AI</title>
       </Helmet>
-      
-      <PageTitle title="AI Settings & Preferences" description="Customize how the AI executive team behaves and makes decisions">
+
+      <PageTitle
+        title="AI Settings & Preferences"
+        description="Customize how the AI executive team behaves and makes decisions"
+      >
         <div className="flex items-center space-x-2">
-          <Settings className="h-5 w-5 text-primary"/>
+          <Settings className="h-5 w-5 text-primary" />
           <span>AI Control Center</span>
         </div>
       </PageTitle>
-      
+
       <Card className="w-full">
         <CardHeader>
           <CardTitle>AI Executive Settings</CardTitle>
           <CardDescription>
-            Configure how your AI executives analyze and generate business strategies
+            Configure how your AI executives analyze and generate business
+            strategies
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -55,18 +66,20 @@ export default function AISettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5"/>
+            <BookOpen className="h-5 w-5" />
             AI Learning Documentation
           </CardTitle>
           <CardDescription>
-            Learn more about how the AI executives learn and adapt to your business needs
+            Learn more about how the AI executives learn and adapt to your
+            business needs
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="prose">
             <p>
-              Our AI executives continually learn from your feedback and interactions. The more you engage with them,
-              the better they'll understand your business needs and goals.
+              Our AI executives continually learn from your feedback and
+              interactions. The more you engage with them, the better they'll
+              understand your business needs and goals.
             </p>
             <h4>Key learning mechanisms:</h4>
             <ul>
@@ -78,5 +91,6 @@ export default function AISettings() {
           </div>
         </CardContent>
       </Card>
-    </div>);
+    </div>
+  );
 }

@@ -1,5 +1,4 @@
-
-export type CategoryStatus = 'pending' | 'in-progress' | 'passed' | 'failed';
+export type CategoryStatus = "pending" | "in-progress" | "passed" | "failed";
 
 export interface AuditComponentProps {
   status: CategoryStatus;

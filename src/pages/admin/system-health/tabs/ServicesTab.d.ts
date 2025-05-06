@@ -1,6 +1,8 @@
-import { SystemService } from '../SystemHealthPage';
+import { SystemService } from "../SystemHealthPage";
 interface ServicesTabProps {
-    services: SystemService[];
+  services: SystemService[];
 }
-export default function ServicesTab({ services }: ServicesTabProps): JSX.Element;
+export default function ServicesTab({
+  services,
+}: ServicesTabProps): JSX.Element;
 export {};

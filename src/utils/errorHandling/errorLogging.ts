@@ -1,26 +1,25 @@
-
-import { logger } from '@/utils/loggingService';
+import { logger } from "@/utils/loggingService";
 
 /**
  * Setup global error logging
  */
 export function setupErrorLogging() {
   // Handle uncaught exceptions
-  window.addEventListener('error', (event) => {
+  window.addEventListener("error", (event) => {
     logError(event.error || new Error(event.message), {
       filename: event.filename,
       lineno: event.lineno,
       colno: event.colno,
-      type: 'uncaught',
+      type: "uncaught",
     });
   });
 
   // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
-    logError(event.reason, { type: 'unhandled-promise' });
+  window.addEventListener("unhandledrejection", (event) => {
+    logError(event.reason, { type: "unhandled-promise" });
   });
 
-  logger.info('Global error logging initialized');
+  logger.info("Global error logging initialized");
 }
 
 /**
@@ -28,11 +27,12 @@ export function setupErrorLogging() {
  */
 export function logError(
   error: Error | unknown,
-  metadata: Record<string, any> = {}
+  metadata: Record<string, any> = {},
 ) {
   try {
-    const errorObject = error instanceof Error ? error : new Error(String(error));
-    
+    const errorObject =
+      error instanceof Error ? error : new Error(String(error));
+
     const errorInfo = {
       name: errorObject.name,
       message: errorObject.message,
@@ -44,15 +44,15 @@ export function logError(
     };
 
     // Log to console in development
-    logger.error('Error logged:', errorObject, errorInfo);
+    logger.error("Error logged:", errorObject, errorInfo);
 
     // In production, you would send this to your error tracking service
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       // Example: Sentry.captureException(errorObject, { extra: errorInfo });
     }
   } catch (loggingError) {
     // Fallback if our error logger itself fails
-    console.error('Error logging failed:', loggingError);
-    console.error('Original error:', error);
+    console.error("Error logging failed:", loggingError);
+    console.error("Original error:", error);
   }
 }

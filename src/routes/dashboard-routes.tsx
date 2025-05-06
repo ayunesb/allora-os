@@ -46,7 +46,9 @@ export const dashboardRoutes: RouteObject[] = [
       {
         index: true,
         lazy: async () => {
-          const { default: Dashboard } = await import("@/pages/dashboard/Dashboard");
+          const { default: Dashboard } = await import(
+            "@/pages/dashboard/Dashboard"
+          );
           return { Component: Dashboard };
         },
       },
@@ -197,18 +199,20 @@ export const dashboardRoutes: RouteObject[] = [
       {
         path: "strategy-generator",
         lazy: async () => {
-          const { default: StrategyGenerator } = await import("@/pages/dashboard/StrategyGenerator");
+          const { default: StrategyGenerator } = await import(
+            "@/pages/dashboard/StrategyGenerator"
+          );
           return { Component: StrategyGenerator };
         },
       },
       {
         path: "galaxy",
-        element: <GalaxyPage />
+        element: <GalaxyPage />,
       },
       {
         path: "*",
         element: <NotFound />,
-      }
+      },
     ],
   },
 ];

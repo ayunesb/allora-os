@@ -1,116 +1,380 @@
-import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
-import { assessRiskLevel } from '@/utils/riskEngine';
-export async function fetchCompanyStrategies(companyId) {
-    try {
-        const { data, error } = await supabase
-            .from('strategies')
-            .select('*')
-            .eq('company_id', companyId)
-            .order('created_at', { ascending: false });
-        if (error) {
-            throw error;
+"use strict";
+var __assign =
+  (this && this.__assign) ||
+  function () {
+    __assign =
+      Object.assign ||
+      function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i];
+          for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
         }
-        // Cast the data to ensure it matches the Strategy type
-        return (data || []).map(strategy => ({
-            ...strategy,
-            riskLevel: strategy.risk_level
-        }));
+        return t;
+      };
+    return __assign.apply(this, arguments);
+  };
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
     }
-    catch (error) {
-        console.error('Error fetching strategies:', error.message);
-        return [];
-    }
-}
-export async function fetchStrategy(strategyId) {
-    try {
-        const { data, error } = await supabase
-            .from('strategies')
-            .select('*')
-            .eq('id', strategyId)
-            .single();
-        if (error) {
-            throw error;
+    return new (P || (P = Promise))(function (resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
         }
-        // Cast the data to ensure it matches the Strategy type
-        return data ? {
-            ...data,
-            riskLevel: data.risk_level
-        } : null;
-    }
-    catch (error) {
-        console.error('Error fetching strategy:', error.message);
-        return null;
-    }
-}
-export async function createStrategy(companyId, title, description, riskLevel) {
-    try {
-        const { data, error } = await supabase
-            .from('strategies')
-            .insert([
-            {
-                company_id: companyId,
-                title,
-                description,
-                risk_level: riskLevel
-            }
-        ])
-            .select()
-            .single();
-        if (error) {
-            throw error;
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
         }
-        toast.success('Strategy created successfully');
-        // Cast the data to ensure it matches the Strategy type
-        return data ? {
-            ...data,
-            risk_level: data.risk_level
-        } : null;
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
+var __generator =
+  (this && this.__generator) ||
+  function (thisArg, body) {
+    var _ = {
+        label: 0,
+        sent: function () {
+          if (t[0] & 1) throw t[1];
+          return t[1];
+        },
+        trys: [],
+        ops: [],
+      },
+      f,
+      y,
+      t,
+      g = Object.create(
+        (typeof Iterator === "function" ? Iterator : Object).prototype,
+      );
+    return (
+      (g.next = verb(0)),
+      (g["throw"] = verb(1)),
+      (g["return"] = verb(2)),
+      typeof Symbol === "function" &&
+        (g[Symbol.iterator] = function () {
+          return this;
+        }),
+      g
+    );
+    function verb(n) {
+      return function (v) {
+        return step([n, v]);
+      };
     }
-    catch (error) {
-        toast.error(`Failed to create strategy: ${error.message}`);
-        return null;
-    }
-}
-export async function generateStrategyFromAnswers(companyId, answers) {
-    const riskLevel = assessRiskLevel(answers);
-    // Create a basic strategy template instead of using generateStrategy
-    const strategyTitle = `${riskLevel} Risk Growth Strategy`;
-    const strategyDescription = `This is a ${riskLevel.toLowerCase()} risk strategy generated based on your business profile and risk assessment.`;
-    // Now create the strategy with the basic template
-    return await createStrategy(companyId, strategyTitle, strategyDescription, riskLevel);
-}
-export async function updateStrategy(strategyId, updates) {
-    try {
-        const { error } = await supabase
-            .from('strategies')
-            .update(updates)
-            .eq('id', strategyId);
-        if (error) {
-            throw error;
+    function step(op) {
+      if (f) throw new TypeError("Generator is already executing.");
+      while ((g && ((g = 0), op[0] && (_ = 0)), _))
+        try {
+          if (
+            ((f = 1),
+            y &&
+              (t =
+                op[0] & 2
+                  ? y["return"]
+                  : op[0]
+                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
+                    : y.next) &&
+              !(t = t.call(y, op[1])).done)
+          )
+            return t;
+          if (((y = 0), t)) op = [op[0] & 2, t.value];
+          switch (op[0]) {
+            case 0:
+            case 1:
+              t = op;
+              break;
+            case 4:
+              _.label++;
+              return { value: op[1], done: false };
+            case 5:
+              _.label++;
+              y = op[1];
+              op = [0];
+              continue;
+            case 7:
+              op = _.ops.pop();
+              _.trys.pop();
+              continue;
+            default:
+              if (
+                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
+                (op[0] === 6 || op[0] === 2)
+              ) {
+                _ = 0;
+                continue;
+              }
+              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
+                _.label = op[1];
+                break;
+              }
+              if (op[0] === 6 && _.label < t[1]) {
+                _.label = t[1];
+                t = op;
+                break;
+              }
+              if (t && _.label < t[2]) {
+                _.label = t[2];
+                _.ops.push(op);
+                break;
+              }
+              if (t[2]) _.ops.pop();
+              _.trys.pop();
+              continue;
+          }
+          op = body.call(thisArg, _);
+        } catch (e) {
+          op = [6, e];
+          y = 0;
+        } finally {
+          f = t = 0;
         }
-        toast.success('Strategy updated successfully');
-        return true;
+      if (op[0] & 5) throw op[1];
+      return { value: op[0] ? op[1] : void 0, done: true };
     }
-    catch (error) {
-        toast.error(`Failed to update strategy: ${error.message}`);
-        return false;
-    }
-}
-export async function deleteStrategy(strategyId) {
-    try {
-        const { error } = await supabase
-            .from('strategies')
-            .delete()
-            .eq('id', strategyId);
-        if (error) {
+  };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fetchCompanyStrategies = fetchCompanyStrategies;
+exports.fetchStrategy = fetchStrategy;
+exports.createStrategy = createStrategy;
+exports.generateStrategyFromAnswers = generateStrategyFromAnswers;
+exports.updateStrategy = updateStrategy;
+exports.deleteStrategy = deleteStrategy;
+var supabase_1 = require("@/backend/supabase");
+var sonner_1 = require("sonner");
+var riskEngine_1 = require("@/utils/riskEngine");
+function fetchCompanyStrategies(companyId) {
+  return __awaiter(this, void 0, void 0, function () {
+    var _a, data, error, error_1;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          _b.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            supabase_1.supabase
+              .from("strategies")
+              .select("*")
+              .eq("company_id", companyId)
+              .order("created_at", { ascending: false }),
+          ];
+        case 1:
+          (_a = _b.sent()), (data = _a.data), (error = _a.error);
+          if (error) {
             throw error;
-        }
-        toast.success('Strategy deleted successfully');
-        return true;
-    }
-    catch (error) {
-        toast.error(`Failed to delete strategy: ${error.message}`);
-        return false;
-    }
+          }
+          // Cast the data to ensure it matches the Strategy type
+          return [
+            2 /*return*/,
+            (data || []).map(function (strategy) {
+              return __assign(__assign({}, strategy), {
+                riskLevel: strategy.risk_level,
+              });
+            }),
+          ];
+        case 2:
+          error_1 = _b.sent();
+          console.error("Error fetching strategies:", error_1.message);
+          return [2 /*return*/, []];
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
+}
+function fetchStrategy(strategyId) {
+  return __awaiter(this, void 0, void 0, function () {
+    var _a, data, error, error_2;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          _b.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            supabase_1.supabase
+              .from("strategies")
+              .select("*")
+              .eq("id", strategyId)
+              .single(),
+          ];
+        case 1:
+          (_a = _b.sent()), (data = _a.data), (error = _a.error);
+          if (error) {
+            throw error;
+          }
+          // Cast the data to ensure it matches the Strategy type
+          return [
+            2 /*return*/,
+            data
+              ? __assign(__assign({}, data), { riskLevel: data.risk_level })
+              : null,
+          ];
+        case 2:
+          error_2 = _b.sent();
+          console.error("Error fetching strategy:", error_2.message);
+          return [2 /*return*/, null];
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
+}
+function createStrategy(companyId, title, description, riskLevel) {
+  return __awaiter(this, void 0, void 0, function () {
+    var _a, data, error, error_3;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          _b.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            supabase_1.supabase
+              .from("strategies")
+              .insert([
+                {
+                  company_id: companyId,
+                  title: title,
+                  description: description,
+                  risk_level: riskLevel,
+                },
+              ])
+              .select()
+              .single(),
+          ];
+        case 1:
+          (_a = _b.sent()), (data = _a.data), (error = _a.error);
+          if (error) {
+            throw error;
+          }
+          sonner_1.toast.success("Strategy created successfully");
+          // Cast the data to ensure it matches the Strategy type
+          return [
+            2 /*return*/,
+            data
+              ? __assign(__assign({}, data), { risk_level: data.risk_level })
+              : null,
+          ];
+        case 2:
+          error_3 = _b.sent();
+          sonner_1.toast.error(
+            "Failed to create strategy: ".concat(error_3.message),
+          );
+          return [2 /*return*/, null];
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
+}
+function generateStrategyFromAnswers(companyId, answers) {
+  return __awaiter(this, void 0, void 0, function () {
+    var riskLevel, strategyTitle, strategyDescription;
+    return __generator(this, function (_a) {
+      switch (_a.label) {
+        case 0:
+          riskLevel = (0, riskEngine_1.assessRiskLevel)(answers);
+          strategyTitle = "".concat(riskLevel, " Risk Growth Strategy");
+          strategyDescription = "This is a ".concat(
+            riskLevel.toLowerCase(),
+            " risk strategy generated based on your business profile and risk assessment.",
+          );
+          return [
+            4 /*yield*/,
+            createStrategy(
+              companyId,
+              strategyTitle,
+              strategyDescription,
+              riskLevel,
+            ),
+          ];
+        case 1:
+          // Now create the strategy with the basic template
+          return [2 /*return*/, _a.sent()];
+      }
+    });
+  });
+}
+function updateStrategy(strategyId, updates) {
+  return __awaiter(this, void 0, void 0, function () {
+    var error, error_4;
+    return __generator(this, function (_a) {
+      switch (_a.label) {
+        case 0:
+          _a.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            supabase_1.supabase
+              .from("strategies")
+              .update(updates)
+              .eq("id", strategyId),
+          ];
+        case 1:
+          error = _a.sent().error;
+          if (error) {
+            throw error;
+          }
+          sonner_1.toast.success("Strategy updated successfully");
+          return [2 /*return*/, true];
+        case 2:
+          error_4 = _a.sent();
+          sonner_1.toast.error(
+            "Failed to update strategy: ".concat(error_4.message),
+          );
+          return [2 /*return*/, false];
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
+}
+function deleteStrategy(strategyId) {
+  return __awaiter(this, void 0, void 0, function () {
+    var error, error_5;
+    return __generator(this, function (_a) {
+      switch (_a.label) {
+        case 0:
+          _a.trys.push([0, 2, , 3]);
+          return [
+            4 /*yield*/,
+            supabase_1.supabase
+              .from("strategies")
+              .delete()
+              .eq("id", strategyId),
+          ];
+        case 1:
+          error = _a.sent().error;
+          if (error) {
+            throw error;
+          }
+          sonner_1.toast.success("Strategy deleted successfully");
+          return [2 /*return*/, true];
+        case 2:
+          error_5 = _a.sent();
+          sonner_1.toast.error(
+            "Failed to delete strategy: ".concat(error_5.message),
+          );
+          return [2 /*return*/, false];
+        case 3:
+          return [2 /*return*/];
+      }
+    });
+  });
 }

@@ -1,4 +1,3 @@
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
 // Initialize Supabase client
@@ -21,14 +20,14 @@ export async function handleIncomingWhatsApp(
   messageSid: string,
   numMedia: string,
   mediaContentType?: string,
-  mediaUrl?: string
+  mediaUrl?: string,
 ): Promise<string> {
   console.log(`Received WhatsApp from ${from}: ${body}`);
-  
+
   try {
     // Initialize Supabase client with service role key
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
+
     // Log the incoming message
     await supabase.from("inbound_messages").insert({
       platform: "whatsapp",
@@ -38,9 +37,9 @@ export async function handleIncomingWhatsApp(
       has_media: numMedia !== "0",
       media_type: mediaContentType || null,
       media_url: mediaUrl || null,
-      received_at: new Date().toISOString()
+      received_at: new Date().toISOString(),
     });
-    
+
     // Find the lead associated with this phone number
     const { data: leads, error: leadsError } = await supabase
       .from("leads")
@@ -48,27 +47,28 @@ export async function handleIncomingWhatsApp(
       .eq("phone", from.replace("whatsapp:", ""))
       .order("created_at", { ascending: false })
       .limit(1);
-      
+
     if (leadsError) {
       console.error("Error finding lead:", leadsError);
     }
-    
+
     // Process the message and generate a response
-    let responseMessage = "Thank you for your message. Our team will get back to you shortly.";
-    
+    let responseMessage =
+      "Thank you for your message. Our team will get back to you shortly.";
+
     // If we found a lead, personalize the response
     if (leads && leads.length > 0) {
       const lead = leads[0];
-      
+
       // Log the communication for this lead
       await supabase.from("lead_communications").insert({
         lead_id: lead.id,
         type: "whatsapp",
         content: body,
         direction: "inbound",
-        received_at: new Date().toISOString()
+        received_at: new Date().toISOString(),
       });
-      
+
       // Personalize response based on lead status
       if (lead.name) {
         switch (lead.status) {
@@ -90,10 +90,10 @@ export async function handleIncomingWhatsApp(
       await supabase.from("unknown_contacts").insert({
         phone_number: from,
         last_message: body,
-        last_contact: new Date().toISOString()
+        last_contact: new Date().toISOString(),
       });
     }
-    
+
     return responseMessage;
   } catch (error) {
     console.error("Error handling incoming WhatsApp:", error);

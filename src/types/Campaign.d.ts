@@ -1,2 +1,2 @@
-import { Campaign as UnifiedCampaign } from './unified-types';
+import { Campaign as UnifiedCampaign } from "./unified-types";
 export type Campaign = UnifiedCampaign;

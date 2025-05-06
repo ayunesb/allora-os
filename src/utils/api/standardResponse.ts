@@ -1,4 +1,3 @@
-
 /**
  * Represents a standardized API response structure
  */
@@ -13,11 +12,14 @@ export interface StandardResponse<T> {
 /**
  * Creates a success response with the given data and message
  */
-export function successResponse<T>(data: T, message = 'Operation successful'): StandardResponse<T> {
+export function successResponse<T>(
+  data: T,
+  message = "Operation successful",
+): StandardResponse<T> {
   return {
     success: true,
     data,
-    message
+    message,
   };
 }
 
@@ -25,21 +27,21 @@ export function successResponse<T>(data: T, message = 'Operation successful'): S
  * Creates an error response with the given message and optional error details
  */
 export function errorResponse<T>(
-  message: string, 
+  message: string,
   error?: string,
-  errorCode?: string
+  errorCode?: string,
 ): StandardResponse<T> {
   // Simpler error logging without depending on a logger
   if (error) {
     console.error(`API Error: ${message}`, { error, errorCode });
   }
-  
+
   return {
     success: false,
     data: null,
     message,
     error,
-    errorCode
+    errorCode,
   };
 }
 
@@ -48,14 +50,15 @@ export function errorResponse<T>(
  */
 export async function safeExecute<T>(
   fn: () => Promise<T>,
-  successMessage = 'Operation successful',
-  errorMessage = 'Operation failed'
+  successMessage = "Operation successful",
+  errorMessage = "Operation failed",
 ): Promise<StandardResponse<T>> {
   try {
     const result = await fn();
     return successResponse(result, successMessage);
   } catch (error) {
-    const errorDetail = error instanceof Error ? error.message : 'Unknown error';
+    const errorDetail =
+      error instanceof Error ? error.message : "Unknown error";
     return errorResponse(errorMessage, errorDetail);
   }
 }

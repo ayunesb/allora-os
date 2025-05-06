@@ -1,4 +1,3 @@
-
 import { RouteObject, Navigate } from "react-router-dom";
 import NotFound from "@/pages/NotFound";
 import { isValidLegalRoute } from "@/utils/routeTracker";
@@ -158,5 +157,5 @@ export const globalRoutes: RouteObject[] = [
   {
     path: "*",
     element: <NotFound />,
-  }
+  },
 ];

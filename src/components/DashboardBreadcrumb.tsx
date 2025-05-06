@@ -1,13 +1,16 @@
-import React from 'react';
-import { Breadcrumb } from 'antd';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Breadcrumb } from "antd";
+import { Link } from "react-router-dom";
 
 interface DashboardBreadcrumbProps {
   rootPath: string;
   rootLabel: string;
 }
 
-const DashboardBreadcrumb: React.FC<DashboardBreadcrumbProps> = ({ rootPath, rootLabel }) => {
+const DashboardBreadcrumb: React.FC<DashboardBreadcrumbProps> = ({
+  rootPath,
+  rootLabel,
+}) => {
   return (
     <Breadcrumb>
       <Breadcrumb.Item>

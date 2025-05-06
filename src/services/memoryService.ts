@@ -1,6 +1,5 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { ExecutiveDecision } from '@/types/agents';
+import { supabase } from "@/integrations/supabase/client";
+import { ExecutiveDecision } from "@/types/agents";
 
 export interface ExecutiveMemory {
   id?: string;
@@ -16,26 +15,26 @@ export interface ExecutiveMemory {
  */
 export async function saveDecisionToMemory(
   userId: string,
-  decision: ExecutiveDecision
+  decision: ExecutiveDecision,
 ): Promise<boolean> {
   try {
-    const { error } = await supabase.from('executive_memory').insert({
+    const { error } = await supabase.from("executive_memory").insert({
       user_id: userId,
       executive_name: decision.executiveName,
       task: decision.task,
       decision: decision.selectedOption,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     if (error) {
-      console.error('Error saving decision to memory:', error);
+      console.error("Error saving decision to memory:", error);
       return false;
     }
 
-    console.log('Decision saved to memory successfully');
+    console.log("Decision saved to memory successfully");
     return true;
   } catch (error) {
-    console.error('Failed to save decision to memory:', error);
+    console.error("Failed to save decision to memory:", error);
     return false;
   }
 }
@@ -46,30 +45,30 @@ export async function saveDecisionToMemory(
 export async function fetchRecentMemories(
   userId: string,
   executiveName?: string,
-  limit: number = 5
+  limit: number = 5,
 ): Promise<ExecutiveMemory[]> {
   try {
     let query = supabase
-      .from('executive_memory')
-      .select('*')
-      .eq('user_id', userId)
-      .order('timestamp', { ascending: false })
+      .from("executive_memory")
+      .select("*")
+      .eq("user_id", userId)
+      .order("timestamp", { ascending: false })
       .limit(limit);
-    
+
     if (executiveName) {
-      query = query.eq('executive_name', executiveName);
+      query = query.eq("executive_name", executiveName);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching memories:', error);
+      console.error("Error fetching memories:", error);
       return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error('Failed to fetch memories:', error);
+    console.error("Failed to fetch memories:", error);
     return [];
   }
 }

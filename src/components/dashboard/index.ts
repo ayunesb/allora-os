@@ -1,11 +1,10 @@
-
 // Export all dashboard components
 export { default as AiRecommendations } from "./AiRecommendations";
 export { default as CeoMessage } from "./CeoMessage";
 export { DashboardHeader } from "./DashboardHeader";
 export { DashboardLoading } from "./DashboardLoading";
 export { default as DashboardLoadingState } from "./LoadingState";
-export { default as LearningInsights } from "./LearningInsights"; 
+export { default as LearningInsights } from "./LearningInsights";
 export { default as QuickAccess } from "./QuickAccess";
 export { SessionRefreshBar } from "./SessionRefreshBar";
 export { default as ProductionDataAlert } from "./ProductionDataAlert";

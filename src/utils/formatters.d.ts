@@ -7,4 +7,7 @@ export declare const formatPercent: (value: number) => string;
 export declare const formatNumber: (value: number) => string;
 export declare const formatDate: (dateString: string) => string;
 export declare const formatMetric: (value: number) => string;
-export declare const calculatePercentChange: (current: number, previous: number) => number;
+export declare const calculatePercentChange: (
+  current: number,
+  previous: number,
+) => number;

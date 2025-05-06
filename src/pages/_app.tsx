@@ -1,9 +1,11 @@
 import { Toaster } from "sonner";
 import "../styles/globals.css";
 function MyApp({ Component, pageProps }) {
-    return (<>
+  return (
+    <>
       <Toaster />
-      <Component {...pageProps}/>
-    </>);
+      <Component {...pageProps} />
+    </>
+  );
 }
 export default MyApp;

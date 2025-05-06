@@ -1,2 +1,5 @@
-import { AuditComponentProps } from './types';
-export declare function AuditAI({ status, onStatusChange }: AuditComponentProps): JSX.Element;
+import { AuditComponentProps } from "./types";
+export declare function AuditAI({
+  status,
+  onStatusChange,
+}: AuditComponentProps): JSX.Element;

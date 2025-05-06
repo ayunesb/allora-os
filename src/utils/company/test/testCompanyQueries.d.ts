@@ -1,4 +1,4 @@
-import { BasicCompanyData, CompanyResponse } from '../types/testCompanyTypes';
+import { BasicCompanyData, CompanyResponse } from "../types/testCompanyTypes";
 /**
  * Checks if the test company exists in the database
  */

@@ -1,5 +1,7 @@
 interface CompanyHeaderProps {
-    onAddCompanyClick: () => void;
+  onAddCompanyClick: () => void;
 }
-export declare function CompanyHeader({ onAddCompanyClick }: CompanyHeaderProps): JSX.Element;
+export declare function CompanyHeader({
+  onAddCompanyClick,
+}: CompanyHeaderProps): JSX.Element;
 export {};

@@ -1,7 +1,6 @@
-
-import { useState } from 'react';
-import { Campaign, Platform, CampaignStatus } from '@/types';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Campaign, Platform, CampaignStatus } from "@/types";
+import { toast } from "sonner";
 
 // Define the shape of campaign create/edit data
 export interface CampaignFormData {
@@ -27,7 +26,7 @@ export function useCampaignOperations() {
 
   const createCampaign = async (campaignData: CampaignCreate) => {
     setIsCreating(true);
-    
+
     try {
       // Implementation for creating campaign
       // This is simplified for the fix
@@ -42,13 +41,13 @@ export function useCampaignOperations() {
         adCopy: campaignData.adCopy,
         justification: campaignData.justification,
         goal: campaignData.goal,
-        roi: 0 // Initialize with zero
+        roi: 0, // Initialize with zero
       };
-      
-      toast.success('Campaign created successfully');
+
+      toast.success("Campaign created successfully");
       return newCampaign;
     } catch (error: any) {
-      toast.error('Failed to create campaign: ' + error.message);
+      toast.error("Failed to create campaign: " + error.message);
       throw error;
     } finally {
       setIsCreating(false);
@@ -57,13 +56,13 @@ export function useCampaignOperations() {
 
   const updateCampaign = async (id: string, updates: Partial<Campaign>) => {
     setIsUpdating(true);
-    
+
     try {
       // Implementation for updating campaign
-      toast.success('Campaign updated successfully');
+      toast.success("Campaign updated successfully");
       return { id, ...updates };
     } catch (error: any) {
-      toast.error('Failed to update campaign: ' + error.message);
+      toast.error("Failed to update campaign: " + error.message);
       throw error;
     } finally {
       setIsUpdating(false);
@@ -72,13 +71,13 @@ export function useCampaignOperations() {
 
   const deleteCampaign = async (id: string) => {
     setIsDeleting(true);
-    
+
     try {
       // Implementation for deleting campaign
-      toast.success('Campaign deleted successfully');
+      toast.success("Campaign deleted successfully");
       return true;
     } catch (error: any) {
-      toast.error('Failed to delete campaign: ' + error.message);
+      toast.error("Failed to delete campaign: " + error.message);
       throw error;
     } finally {
       setIsDeleting(false);
@@ -91,6 +90,6 @@ export function useCampaignOperations() {
     deleteCampaign,
     isCreating,
     isUpdating,
-    isDeleting
+    isDeleting,
   };
 }

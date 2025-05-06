@@ -1,7 +1,6 @@
-
-import { useState, useCallback } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/backend/supabase';
+import { useState, useCallback } from "react";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "@/backend/supabase";
 
 export function useUserProfile() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,17 +19,17 @@ export function useUserProfile() {
 
   const loadUserProfile = useCallback(async (userId: string) => {
     if (!userId) return;
-    
+
     setIsProfileLoading(true);
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (error) {
-        console.error('Error loading user profile:', error);
+        console.error("Error loading user profile:", error);
         return;
       }
 
@@ -38,7 +37,7 @@ export function useUserProfile() {
         setProfile(data);
       }
     } catch (error) {
-      console.error('Unexpected error loading profile:', error);
+      console.error("Unexpected error loading profile:", error);
     } finally {
       setIsProfileLoading(false);
     }
@@ -54,6 +53,6 @@ export function useUserProfile() {
     authError,
     setAuthError,
     loadUserProfile,
-    updateEmailVerification
+    updateEmailVerification,
   };
 }

@@ -1,5 +1,5 @@
-import { AuthService } from './authService'; // Normalized import casing
-import { Slug, TenantId, CompanyId } from '@/types/fixed'; // Consistent shared types
+import { AuthService } from "./authService"; // Normalized import casing
+import { Slug, TenantId, CompanyId } from "@/types/fixed"; // Consistent shared types
 
 class AuthService {
   // ...existing code...
@@ -7,12 +7,15 @@ class AuthService {
   async login(username: string, password: string) {
     try {
       // Normalized ID field names for consistency:
-      const slug: Slug = 'example-slug';
-      const tenantId: TenantId = 'example-tenant-id';
-      const companyId: CompanyId = 'example-company-id';
+      const slug: Slug = "example-slug";
+      const tenantId: TenantId = "example-tenant-id";
+      const companyId: CompanyId = "example-company-id";
       // ...existing code...
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   }
 

@@ -1,5 +1,8 @@
-
-export type ImplementationStatus = 'not_started' | 'in_progress' | 'completed' | 'delayed';
+export type ImplementationStatus =
+  | "not_started"
+  | "in_progress"
+  | "completed"
+  | "delayed";
 
 export type StrategyMilestone = {
   id: string;

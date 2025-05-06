@@ -2,19 +2,19 @@
  * Help content utility for displaying context-sensitive help throughout the application
  */
 export type HelpContent = {
-    id: string;
+  id: string;
+  title: string;
+  description: string;
+  content?: string;
+  steps?: {
     title: string;
     description: string;
-    content?: string;
-    steps?: {
-        title: string;
-        description: string;
-    }[];
-    links?: {
-        title: string;
-        url: string;
-    }[];
-    video?: string;
+  }[];
+  links?: {
+    title: string;
+    url: string;
+  }[];
+  video?: string;
 };
 /**
  * Get help content for a specific context ID

@@ -1,7 +1,6 @@
-
-import { supabase } from '@/backend/supabase';
-import { toast } from 'sonner';
-import { sendEmail } from '@/backend/postmark';
+import { supabase } from "@/backend/supabase";
+import { toast } from "sonner";
+import { sendEmail } from "@/backend/postmark";
 
 /**
  * Invites a user to join a company
@@ -13,26 +12,30 @@ import { sendEmail } from '@/backend/postmark';
 export async function inviteUserToCompany(
   email: string,
   companyId: string,
-  role: 'admin' | 'user' = 'user'
+  role: "admin" | "user" = "user",
 ): Promise<boolean> {
   try {
-    console.log(`Inviting user ${email} to company ${companyId} with role ${role}`);
-    
+    console.log(
+      `Inviting user ${email} to company ${companyId} with role ${role}`,
+    );
+
     const { data: companyData, error: companyError } = await supabase
-      .from('companies')
-      .select('name')
-      .eq('id', companyId)
+      .from("companies")
+      .select("name")
+      .eq("id", companyId)
       .single();
-      
+
     if (companyError) {
-      throw new Error(`Failed to get company information: ${companyError.message}`);
+      throw new Error(
+        `Failed to get company information: ${companyError.message}`,
+      );
     }
-    
-    const companyName = companyData.name || 'Our Company';
-    
+
+    const companyName = companyData.name || "Our Company";
+
     const result = await sendEmail({
       to: email,
-      subject: 'Invitation to join Allora AI',
+      subject: "Invitation to join Allora AI",
       companyName,
       htmlBody: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -57,18 +60,18 @@ export async function inviteUserToCompany(
         
         Thank you,
         The Allora AI Team
-      `
+      `,
     });
 
     if (!result.success) {
-      throw new Error(result.message || 'Failed to send invitation email');
+      throw new Error(result.message || "Failed to send invitation email");
     }
 
-    console.log('Invitation email sent successfully');
+    console.log("Invitation email sent successfully");
     toast.success(`Invitation sent to ${email}`);
     return true;
   } catch (error: any) {
-    console.error('Failed to invite user:', error);
+    console.error("Failed to invite user:", error);
     toast.error(`Failed to invite user: ${error.message}`);
     return false;
   }

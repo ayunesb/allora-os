@@ -1,5 +1,7 @@
 interface EmptyStateProps {
-    onCreateNew: () => void;
+  onCreateNew: () => void;
 }
-export default function EmptyState({ onCreateNew }: EmptyStateProps): JSX.Element;
+export default function EmptyState({
+  onCreateNew,
+}: EmptyStateProps): JSX.Element;
 export {};

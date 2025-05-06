@@ -1,7 +1,7 @@
-import React from 'react';
-import { FeatureComparisonItem } from './pricingData';
+import React from "react";
+import { FeatureComparisonItem } from "./pricingData";
 interface PlanComparisonTableProps {
-    featureData: FeatureComparisonItem[];
+  featureData: FeatureComparisonItem[];
 }
 declare const PlanComparisonTable: React.FC<PlanComparisonTableProps>;
 export default PlanComparisonTable;

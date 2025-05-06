@@ -10,19 +10,28 @@
  * @param leadId Lead ID to associate the email with (optional)
  * @returns A promise with the result of the operation
  */
-export declare const sendEmail: ({ to, subject, companyName, htmlBody, textBody, templateId, templateModel, leadId }: {
-    to: string;
-    subject: string;
-    companyName: string;
-    htmlBody?: string;
-    textBody?: string;
-    templateId?: string;
-    templateModel?: Record<string, any>;
-    leadId?: string;
+export declare const sendEmail: ({
+  to,
+  subject,
+  companyName,
+  htmlBody,
+  textBody,
+  templateId,
+  templateModel,
+  leadId,
+}: {
+  to: string;
+  subject: string;
+  companyName: string;
+  htmlBody?: string;
+  textBody?: string;
+  templateId?: string;
+  templateModel?: Record<string, any>;
+  leadId?: string;
 }) => Promise<{
-    success: boolean;
-    messageId?: string;
-    message?: string;
+  success: boolean;
+  messageId?: string;
+  message?: string;
 }>;
 /**
  * Sends a campaign email to multiple leads
@@ -36,19 +45,28 @@ export declare const sendEmail: ({ to, subject, companyName, htmlBody, textBody,
  * @param messageType Type of leads to email ('new', 'contacted', 'qualified', 'all', etc.)
  * @returns A promise with the result of the operation
  */
-export declare const sendCampaignEmail: ({ campaignId, subject, companyName, htmlBody, textBody, templateId, templateModel, messageType }: {
-    campaignId: string;
-    subject?: string;
-    companyName: string;
-    htmlBody?: string;
-    textBody?: string;
-    templateId?: string;
-    templateModel?: Record<string, any>;
-    messageType?: string;
+export declare const sendCampaignEmail: ({
+  campaignId,
+  subject,
+  companyName,
+  htmlBody,
+  textBody,
+  templateId,
+  templateModel,
+  messageType,
+}: {
+  campaignId: string;
+  subject?: string;
+  companyName: string;
+  htmlBody?: string;
+  textBody?: string;
+  templateId?: string;
+  templateModel?: Record<string, any>;
+  messageType?: string;
 }) => Promise<{
-    success: boolean;
-    totalSent?: number;
-    totalFailed?: number;
-    results?: any[];
-    message?: string;
+  success: boolean;
+  totalSent?: number;
+  totalFailed?: number;
+  results?: any[];
+  message?: string;
 }>;

@@ -1,7 +1,10 @@
-
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { enhancedFetch, EnhancedRequestConfig, clearApiCache } from '@/utils/api/enhancedApiClient';
-import { StandardResponse } from '@/utils/api/enhancedApiClient';
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  enhancedFetch,
+  EnhancedRequestConfig,
+  clearApiCache,
+} from "@/utils/api/enhancedApiClient";
+import { StandardResponse } from "@/utils/api/enhancedApiClient";
 
 interface UseApiQueryOptions<T> extends EnhancedRequestConfig {
   initialData?: T;
@@ -28,7 +31,7 @@ interface UseApiQueryResult<T> {
  */
 export function useApiQuery<T>(
   url: string,
-  options: UseApiQueryOptions<T> = {}
+  options: UseApiQueryOptions<T> = {},
 ): UseApiQueryResult<T> {
   const {
     initialData = null,
@@ -49,7 +52,7 @@ export function useApiQuery<T>(
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);
   const selectRef = useRef(select);
-  
+
   // Update refs when dependencies change
   useEffect(() => {
     fetchOptionsRef.current = fetchOptions;
@@ -61,25 +64,30 @@ export function useApiQuery<T>(
   // Create fetch function
   const fetchData = useCallback(async () => {
     if (!enabled) return;
-    
+
     setIsLoading(true);
-    
+
     try {
-      const response: StandardResponse<T> = await enhancedFetch<T>(url, fetchOptionsRef.current);
-      
+      const response: StandardResponse<T> = await enhancedFetch<T>(
+        url,
+        fetchOptionsRef.current,
+      );
+
       if (response.success && response.data !== null) {
-        const processedData = selectRef.current ? selectRef.current(response.data) : response.data;
+        const processedData = selectRef.current
+          ? selectRef.current(response.data)
+          : response.data;
         setData(processedData);
         setIsError(false);
         setError(null);
-        
+
         if (onSuccessRef.current) {
           onSuccessRef.current(processedData);
         }
       } else {
         setIsError(true);
-        setError(response.error || 'Unknown error');
-        
+        setError(response.error || "Unknown error");
+
         if (onErrorRef.current) {
           onErrorRef.current(response.error);
         }
@@ -87,7 +95,7 @@ export function useApiQuery<T>(
     } catch (err) {
       setIsError(true);
       setError(err);
-      
+
       if (onErrorRef.current) {
         onErrorRef.current(err);
       }
@@ -99,15 +107,15 @@ export function useApiQuery<T>(
   // Initial fetch and refetch interval
   useEffect(() => {
     if (!enabled) return;
-    
+
     fetchData();
-    
+
     let intervalId: number | null = null;
-    
+
     if (refetchInterval && refetchInterval > 0) {
       intervalId = window.setInterval(fetchData, refetchInterval);
     }
-    
+
     return () => {
       if (intervalId !== null) {
         clearInterval(intervalId);
@@ -117,8 +125,9 @@ export function useApiQuery<T>(
 
   // Clear cache function
   const clearCacheAndRefetch = useCallback(() => {
-    const cacheKey = fetchOptionsRef.current.cacheKey || 
-      `GET:${url}:${fetchOptionsRef.current.body ? JSON.stringify(fetchOptionsRef.current.body) : ''}`;
+    const cacheKey =
+      fetchOptionsRef.current.cacheKey ||
+      `GET:${url}:${fetchOptionsRef.current.body ? JSON.stringify(fetchOptionsRef.current.body) : ""}`;
     clearApiCache(cacheKey);
     return fetchData();
   }, [url, fetchData]);
@@ -137,6 +146,6 @@ export function useApiQuery<T>(
     error,
     refetch: fetchData,
     reset,
-    clearCache: clearCacheAndRefetch
+    clearCache: clearCacheAndRefetch,
   };
 }

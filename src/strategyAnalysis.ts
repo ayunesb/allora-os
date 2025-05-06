@@ -1,5 +1,11 @@
 // ...existing code...
-export interface StrategyStrength { /* ... */ }
-export interface StrategyWeakness { /* ... */ }
-export interface ImplementationStep { /* ... */ }
+export interface StrategyStrength {
+  /* ... */
+}
+export interface StrategyWeakness {
+  /* ... */
+}
+export interface ImplementationStep {
+  /* ... */
+}
 // ...existing code...

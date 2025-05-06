@@ -1,46 +1,62 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ERROR_REPORTING =
+  exports.TIMEOUTS =
+  exports.ANALYTICS_CONFIG =
+  exports.THEMES =
+  exports.FEATURES =
+  exports.SUPABASE_CONFIG =
+  exports.API_VERSION =
+  exports.API_BASE_URL =
+  exports.APP_DESCRIPTION =
+  exports.APP_VERSION =
+  exports.APP_NAME =
+    void 0;
 // Central configuration file for the application
-import { getSupabaseUrl, getSupabaseAnonKey } from '@/utils/env';
-export const APP_NAME = 'Allora AI';
-export const APP_VERSION = '1.0.0';
-export const APP_DESCRIPTION = 'Business Acceleration Platform';
+var env_1 = require("@/utils/env");
+exports.APP_NAME = "Allora AI";
+exports.APP_VERSION = "1.0.0";
+exports.APP_DESCRIPTION = "Business Acceleration Platform";
 // API Endpoints
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-export const API_VERSION = 'v1';
+exports.API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+exports.API_VERSION = "v1";
 // Supabase Configuration
-export const SUPABASE_CONFIG = {
-    url: getSupabaseUrl(),
-    anonKey: getSupabaseAnonKey(),
-    // Flag to indicate if we're using fallback values
-    usingFallback: !import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY
+exports.SUPABASE_CONFIG = {
+  url: (0, env_1.getSupabaseUrl)(),
+  anonKey: (0, env_1.getSupabaseAnonKey)(),
+  // Flag to indicate if we're using fallback values
+  usingFallback:
+    !import.meta.env.VITE_SUPABASE_URL ||
+    !import.meta.env.VITE_SUPABASE_ANON_KEY,
 };
 // Feature Flags
-export const FEATURES = {
-    enableDebate: true,
-    enableMemory: true,
-    enableVault: true,
-    enableZapier: process.env.NODE_ENV === 'production',
-    enableWhatsApp: process.env.NODE_ENV === 'production',
-    enableTwilio: false,
-    enableZoom: false,
+exports.FEATURES = {
+  enableDebate: true,
+  enableMemory: true,
+  enableVault: true,
+  enableZapier: process.env.NODE_ENV === "production",
+  enableWhatsApp: process.env.NODE_ENV === "production",
+  enableTwilio: false,
+  enableZoom: false,
 };
 // Theme Configuration
-export const THEMES = {
-    default: 'dark',
-    available: ['light', 'dark', 'system'],
+exports.THEMES = {
+  default: "dark",
+  available: ["light", "dark", "system"],
 };
 // Analytics Configuration
-export const ANALYTICS_CONFIG = {
-    enabled: process.env.NODE_ENV === 'production',
+exports.ANALYTICS_CONFIG = {
+  enabled: process.env.NODE_ENV === "production",
 };
 // Timeout Configuration
-export const TIMEOUTS = {
-    debounce: 300, // ms
-    apiRequest: 30000, // ms
-    sessionRefresh: 5 * 60 * 1000, // 5 minutes
-    tokenExpiry: 60 * 60 * 24 * 7, // 7 days
+exports.TIMEOUTS = {
+  debounce: 300, // ms
+  apiRequest: 30000, // ms
+  sessionRefresh: 5 * 60 * 1000, // 5 minutes
+  tokenExpiry: 60 * 60 * 24 * 7, // 7 days
 };
 // Error Reporting Configuration
-export const ERROR_REPORTING = {
-    logToConsole: true,
-    logToAPI: process.env.NODE_ENV === 'production',
+exports.ERROR_REPORTING = {
+  logToConsole: true,
+  logToAPI: process.env.NODE_ENV === "production",
 };

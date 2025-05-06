@@ -1,4 +1,4 @@
-import { ValidationResult } from './types';
+import { ValidationResult } from "./types";
 /**
  * Validates that database functions have proper security settings
  */

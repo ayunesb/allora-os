@@ -14,60 +14,76 @@ export const adminRoutes: RouteObject[] = [
       React.createElement(
         React.Suspense,
         { fallback: React.createElement(Loading) },
-        React.createElement(LazyAdminDashboard)
-      )
+        React.createElement(LazyAdminDashboard),
+      ),
     ),
     async lazy() {
-      const { default: AdminLayout } = await import("@/components/layouts/AdminLayout");
+      const { default: AdminLayout } = await import(
+        "@/components/layouts/AdminLayout"
+      );
       return { Component: AdminLayout };
     },
     children: [
       {
         index: true,
         async lazy() {
-          const { default: AdminDashboard } = await import("@/pages/admin/AdminDashboard");
+          const { default: AdminDashboard } = await import(
+            "@/pages/admin/AdminDashboard"
+          );
           return { Component: AdminDashboard };
         },
       },
       {
         path: "entities",
         async lazy() {
-          const { default: AdminEntities } = await import("@/pages/admin/AdminEntities");
+          const { default: AdminEntities } = await import(
+            "@/pages/admin/AdminEntities"
+          );
           return { Component: AdminEntities };
         },
       },
       {
         path: "users",
         async lazy() {
-          const { default: AdminUsers } = await import("@/pages/admin/AdminUsers");
+          const { default: AdminUsers } = await import(
+            "@/pages/admin/AdminUsers"
+          );
           return { Component: AdminUsers };
         },
       },
       {
         path: "companies",
         async lazy() {
-          const { default: AdminCompanies } = await import("@/pages/admin/AdminCompanies");
+          const { default: AdminCompanies } = await import(
+            "@/pages/admin/AdminCompanies"
+          );
           return { Component: AdminCompanies };
         },
       },
       {
         path: "settings",
         async lazy() {
-          const { default: AdminSettings } = await import("@/pages/admin/AdminSettings");
+          const { default: AdminSettings } = await import(
+            "@/pages/admin/AdminSettings"
+          );
           return { Component: AdminSettings };
         },
       },
       {
         path: "webhooks",
         async lazy() {
-          const { default: AdminWebhooks } = await import("@/pages/admin/AdminWebhooks");
+          const { default: AdminWebhooks } = await import(
+            "@/pages/admin/AdminWebhooks"
+          );
           return { Component: AdminWebhooks };
         },
       },
       {
         path: "system-health",
         async lazy() {
-          const { default: AdminSystemHealth } = await import("@/pages/admin/SystemHealth");
+          const { default: AdminSystemHealth } = await import(
+            "@/pages/admin/SystemHealth"
+          );
           return { Component: AdminSystemHealth };
         },
       },
@@ -81,61 +97,77 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "launch-prep",
         async lazy() {
-          const { default: AdminLaunchPrep } = await import("@/pages/admin/AdminLaunchPrep");
+          const { default: AdminLaunchPrep } = await import(
+            "@/pages/admin/AdminLaunchPrep"
+          );
           return { Component: AdminLaunchPrep };
         },
       },
       {
         path: "campaigns",
         async lazy() {
-          const { default: AdminCampaigns } = await import("@/pages/admin/AdminCampaigns");
+          const { default: AdminCampaigns } = await import(
+            "@/pages/admin/AdminCampaigns"
+          );
           return { Component: AdminCampaigns };
         },
       },
       {
         path: "analytics",
         async lazy() {
-          const { default: AdminAnalytics } = await import("@/pages/admin/AdminAnalytics");
+          const { default: AdminAnalytics } = await import(
+            "@/pages/admin/AdminAnalytics"
+          );
           return { Component: AdminAnalytics };
         },
       },
       {
         path: "leads",
         async lazy() {
-          const { default: AdminLeads } = await import("@/pages/admin/AdminLeads");
+          const { default: AdminLeads } = await import(
+            "@/pages/admin/AdminLeads"
+          );
           return { Component: AdminLeads };
         },
       },
       {
         path: "notion-integration",
         async lazy() {
-          const { default: NotionIntegration } = await import("@/pages/admin/NotionIntegration");
+          const { default: NotionIntegration } = await import(
+            "@/pages/admin/NotionIntegration"
+          );
           return { Component: NotionIntegration };
         },
       },
       {
         path: "stripe-integration",
         async lazy() {
-          const { default: StripeIntegration } = await import("@/pages/admin/StripeIntegration");
+          const { default: StripeIntegration } = await import(
+            "@/pages/admin/StripeIntegration"
+          );
           return { Component: StripeIntegration };
         },
       },
       {
         path: "clearbit-integration",
         async lazy() {
-          const { default: ClearbitIntegration } = await import("@/pages/admin/ClearbitIntegration");
+          const { default: ClearbitIntegration } = await import(
+            "@/pages/admin/ClearbitIntegration"
+          );
           return { Component: ClearbitIntegration };
         },
       },
       {
         path: "calendly-integration",
         async lazy() {
-          const { default: CalendlyIntegration } = await import("@/pages/admin/CalendlyIntegration");
+          const { default: CalendlyIntegration } = await import(
+            "@/pages/admin/CalendlyIntegration"
+          );
           return { Component: CalendlyIntegration };
         },
-      }
-    ]
-  }
+      },
+    ],
+  },
 ];
 
 export default adminRoutes;

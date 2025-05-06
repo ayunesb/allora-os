@@ -1,2 +1,2 @@
-import WebhookConfigTab from './WebhookConfigTab';
+import WebhookConfigTab from "./WebhookConfigTab";
 export { WebhookConfigTab };

@@ -1,5 +1,7 @@
 type CampaignHeaderProps = {
-    onNewCampaign: () => void;
+  onNewCampaign: () => void;
 };
-export default function CampaignHeader({ onNewCampaign }: CampaignHeaderProps): import("react").JSX.Element;
+export default function CampaignHeader({
+  onNewCampaign,
+}: CampaignHeaderProps): import("react").JSX.Element;
 export {};

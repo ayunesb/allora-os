@@ -1,4 +1,3 @@
-
 import { ExecutiveDecision } from "@/types/agents";
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
@@ -19,15 +18,20 @@ export interface Strategy {
 /**
  * Generate a business strategy from an executive decision
  */
-export async function generateStrategy(decision: ExecutiveDecision): Promise<Strategy> {
+export async function generateStrategy(
+  decision: ExecutiveDecision,
+): Promise<Strategy> {
   try {
     // Call our Supabase edge function to generate a strategy
-    const { data, error } = await supabase.functions.invoke("generate-strategy", {
-      body: {
-        decision: decision,
-        format: "json"
+    const { data, error } = await supabase.functions.invoke(
+      "generate-strategy",
+      {
+        body: {
+          decision: decision,
+          format: "json",
+        },
       },
-    });
+    );
 
     if (error) {
       console.error("Error generating strategy:", error);
@@ -48,19 +52,23 @@ export async function generateStrategy(decision: ExecutiveDecision): Promise<Str
         "Analyze current market position",
         "Develop detailed action plan",
         "Allocate necessary resources",
-        "Execute and monitor progress"
+        "Execute and monitor progress",
       ],
       expected_outcomes: data.strategy.expected_outcomes || [
         "Improved market position",
         "Increased revenue",
-        "Enhanced customer satisfaction"
+        "Enhanced customer satisfaction",
       ],
       timeline: data.strategy.timeline || "3-6 months",
-      resources_required: data.strategy.resources_required || "To be determined based on scope",
-      risk_level: decision.riskAssessment.includes("high") ? "High" : 
-                  decision.riskAssessment.includes("low") ? "Low" : "Medium",
+      resources_required:
+        data.strategy.resources_required || "To be determined based on scope",
+      risk_level: decision.riskAssessment.includes("high")
+        ? "High"
+        : decision.riskAssessment.includes("low")
+          ? "Low"
+          : "Medium",
       created_at: new Date().toISOString(),
-      decision_id: decision.id
+      decision_id: decision.id,
     };
   } catch (error) {
     console.error("Failed to generate strategy:", error);
@@ -80,19 +88,22 @@ function createFallbackStrategy(decision: ExecutiveDecision): Strategy {
       "Analyze current market position",
       "Develop detailed action plan",
       "Allocate necessary resources",
-      "Execute and monitor progress"
+      "Execute and monitor progress",
     ],
     expected_outcomes: [
       "Improved market position",
       "Increased revenue",
-      "Enhanced customer satisfaction"
+      "Enhanced customer satisfaction",
     ],
     timeline: "3-6 months",
     resources_required: "To be determined based on scope",
-    risk_level: decision.riskAssessment.includes("high") ? "High" : 
-                decision.riskAssessment.includes("low") ? "Low" : "Medium",
+    risk_level: decision.riskAssessment.includes("high")
+      ? "High"
+      : decision.riskAssessment.includes("low")
+        ? "Low"
+        : "Medium",
     created_at: new Date().toISOString(),
-    decision_id: decision.id
+    decision_id: decision.id,
   };
 }
 
@@ -100,14 +111,12 @@ function createFallbackStrategy(decision: ExecutiveDecision): Strategy {
  * Save a strategy to the database
  */
 export async function saveStrategy(strategy: Strategy, userId: string) {
-  const { data, error } = await supabase
-    .from("strategies")
-    .insert([
-      {
-        ...strategy,
-        user_id: userId,
-      },
-    ]);
+  const { data, error } = await supabase.from("strategies").insert([
+    {
+      ...strategy,
+      user_id: userId,
+    },
+  ]);
 
   if (error) {
     console.error("Failed to save strategy:", error);

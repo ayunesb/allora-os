@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 interface TimeoutErrorProps {
-    onRefresh: () => void;
+  onRefresh: () => void;
 }
 export declare const TimeoutError: React.FC<TimeoutErrorProps>;
 export {};

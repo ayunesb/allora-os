@@ -1,6 +1,8 @@
-import { ChecklistItem as ChecklistItemType } from './types';
+import { ChecklistItem as ChecklistItemType } from "./types";
 interface ChecklistItemProps {
-    item: ChecklistItemType;
+  item: ChecklistItemType;
 }
-export declare function ChecklistItem({ item }: ChecklistItemProps): JSX.Element;
+export declare function ChecklistItem({
+  item,
+}: ChecklistItemProps): JSX.Element;
 export {};

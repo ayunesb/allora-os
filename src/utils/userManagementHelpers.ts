@@ -1,22 +1,21 @@
-
 /**
  * This file is maintained for backward compatibility.
  * For new development, please import from '@/utils/users' instead.
- * 
+ *
  * This file will be deprecated in a future release.
  */
 
-import { 
+import {
   fetchCompanyUsers,
   getUserIdByEmail,
   getUserProfileByEmail,
   updateUserRole,
-  removeUserFromCompany
-} from './users';
+  removeUserFromCompany,
+} from "./users";
 
 // Import the inviteUserToCompany function and the renamed function
-import { inviteUserToCompany } from './users/invitations';
-import { assignUserToCompany } from './users/companyUsers';
+import { inviteUserToCompany } from "./users/invitations";
+import { assignUserToCompany } from "./users/companyUsers";
 
 // Re-export all functions for backward compatibility
 export {
@@ -27,5 +26,5 @@ export {
   removeUserFromCompany,
   inviteUserToCompany,
   // Also export the legacy function
-  assignUserToCompany
+  assignUserToCompany,
 };

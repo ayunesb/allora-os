@@ -8,10 +8,16 @@
  * @param options.errorMessage - Optional message to display on error
  * @returns Promise that resolves when refresh is complete
  */
-export declare const refreshData: ({ fetchFn, onComplete, setIsRefreshing, successMessage, errorMessage }: {
-    fetchFn: () => Promise<void>;
-    onComplete?: () => Promise<void>;
-    setIsRefreshing: (isRefreshing: boolean) => void;
-    successMessage?: string;
-    errorMessage?: string;
+export declare const refreshData: ({
+  fetchFn,
+  onComplete,
+  setIsRefreshing,
+  successMessage,
+  errorMessage,
+}: {
+  fetchFn: () => Promise<void>;
+  onComplete?: () => Promise<void>;
+  setIsRefreshing: (isRefreshing: boolean) => void;
+  successMessage?: string;
+  errorMessage?: string;
 }) => Promise<void>;

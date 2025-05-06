@@ -1,9 +1,8 @@
-
 export interface ChecklistItem {
   id: string;
   name: string;
   description?: string;
-  status: 'pending' | 'error' | 'completed' | 'warning' | 'in-progress';
+  status: "pending" | "error" | "completed" | "warning" | "in-progress";
   details?: string;
   statusMessage?: string;
   isRequired?: boolean;

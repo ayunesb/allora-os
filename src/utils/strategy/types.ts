@@ -1,15 +1,14 @@
-
 // Types for strategy generation system
 
 export type StrategyAction = {
   title: string;
   description: string;
-  impact: 'Low' | 'Medium' | 'High';
-  timeframe: 'Short-term' | 'Medium-term' | 'Long-term';
+  impact: "Low" | "Medium" | "High";
+  timeframe: "Short-term" | "Medium-term" | "Long-term";
 };
 
 export type GeneratedStrategy = {
-  riskLevel: 'Low' | 'Medium' | 'High';
+  riskLevel: "Low" | "Medium" | "High";
   title: string;
   description: string;
   primaryFocus: string;

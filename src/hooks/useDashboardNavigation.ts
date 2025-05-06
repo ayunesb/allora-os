@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -23,14 +22,14 @@ export function useDashboardNavigation() {
     const checkUserOnboarding = async () => {
       if (user && !isLoading) {
         const hasCompletedOnboarding = await checkOnboardingStatus(user.id);
-        
+
         if (!hasCompletedOnboarding) {
           toast.info("Please complete onboarding first");
           navigate("/onboarding");
         }
       }
     };
-    
+
     checkUserOnboarding();
   }, [user, isLoading, profile, navigate]);
 
@@ -42,12 +41,12 @@ export function useDashboardNavigation() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
-    toast.success('You have been logged out');
+    navigate("/");
+    toast.success("You have been logged out");
   };
 
   const handleNavigateToProfile = () => {
-    navigate('/dashboard/profile');
+    navigate("/dashboard/profile");
     setMobileMenuOpen(false);
   };
 
@@ -68,6 +67,6 @@ export function useDashboardNavigation() {
     needsSessionRefresh,
     handleRefreshSession,
     handleSignOut,
-    handleNavigateToProfile
+    handleNavigateToProfile,
   };
 }

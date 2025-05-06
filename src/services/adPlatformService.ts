@@ -1,11 +1,10 @@
-
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { handleApiError } from '@/utils/api/errorHandling';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { handleApiError } from "@/utils/api/errorHandling";
 
 export interface AdPlatformConnection {
   id: string;
-  platform: 'meta' | 'tiktok';
+  platform: "meta" | "tiktok";
   ad_account_id: string;
   access_token: string;
   token_expires_at: string;
@@ -18,22 +17,22 @@ export interface AdPlatformConnection {
  */
 export async function initiateMetaAuth() {
   try {
-    const { data, error } = await supabase.functions.invoke('meta-auth', {
-      body: { action: 'authorize' }
+    const { data, error } = await supabase.functions.invoke("meta-auth", {
+      body: { action: "authorize" },
     });
 
     if (error) throw error;
-    
+
     if (data.url) {
       window.location.href = data.url;
       return { success: true };
     } else {
-      throw new Error('Failed to get authorization URL');
+      throw new Error("Failed to get authorization URL");
     }
   } catch (error: any) {
-    handleApiError(error, { 
-      customMessage: 'Meta authorization failed',
-      showToast: true
+    handleApiError(error, {
+      customMessage: "Meta authorization failed",
+      showToast: true,
     });
     return { success: false, error: error.message };
   }
@@ -44,24 +43,26 @@ export async function initiateMetaAuth() {
  */
 export async function initiateTikTokAuth() {
   try {
-    const { data, error } = await supabase.functions.invoke('tiktok-auth', {
-      body: { action: 'authorize' }
+    const { data, error } = await supabase.functions.invoke("tiktok-auth", {
+      body: { action: "authorize" },
     });
 
     if (error) {
       throw error;
     }
-    
+
     if (data?.url) {
       window.location.href = data.url;
       return { success: true };
     } else {
-      console.error('TikTok auth response:', data);
-      throw new Error('Failed to get TikTok authorization URL');
+      console.error("TikTok auth response:", data);
+      throw new Error("Failed to get TikTok authorization URL");
     }
   } catch (error: any) {
-    console.error('TikTok auth error:', error);
-    toast.error(`TikTok authorization failed: ${error.message || 'Unknown error'}`);
+    console.error("TikTok auth error:", error);
+    toast.error(
+      `TikTok authorization failed: ${error.message || "Unknown error"}`,
+    );
     return { success: false, error: error.message };
   }
 }
@@ -69,19 +70,21 @@ export async function initiateTikTokAuth() {
 /**
  * Get all ad platform connections for the company
  */
-export async function getAdPlatformConnections(): Promise<AdPlatformConnection[]> {
+export async function getAdPlatformConnections(): Promise<
+  AdPlatformConnection[]
+> {
   try {
     const { data, error } = await supabase
-      .from('ad_platform_connections')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
+      .from("ad_platform_connections")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
-    
+
     return data || [];
   } catch (error: any) {
-    console.error('Error fetching ad platform connections:', error);
+    console.error("Error fetching ad platform connections:", error);
     return [];
   }
 }
@@ -89,26 +92,28 @@ export async function getAdPlatformConnections(): Promise<AdPlatformConnection[]
 /**
  * Disconnect an ad platform
  */
-export async function disconnectAdPlatform(platform: 'meta' | 'tiktok') {
+export async function disconnectAdPlatform(platform: "meta" | "tiktok") {
   try {
-    const endpoint = platform === 'meta' ? 'meta-auth' : 'tiktok-auth';
-    
+    const endpoint = platform === "meta" ? "meta-auth" : "tiktok-auth";
+
     const { data, error } = await supabase.functions.invoke(endpoint, {
-      body: { action: 'revoke' }
+      body: { action: "revoke" },
     });
 
     if (error) throw error;
-    
+
     if (data.success) {
-      toast.success(`${platform === 'meta' ? 'Meta' : 'TikTok'} account disconnected successfully`);
+      toast.success(
+        `${platform === "meta" ? "Meta" : "TikTok"} account disconnected successfully`,
+      );
       return { success: true };
     } else {
-      throw new Error(data.error || 'Failed to disconnect account');
+      throw new Error(data.error || "Failed to disconnect account");
     }
   } catch (error: any) {
     handleApiError(error, {
       customMessage: `Failed to disconnect ${platform} account`,
-      showToast: true
+      showToast: true,
     });
     return { success: false, error: error.message };
   }

@@ -1,4 +1,3 @@
-
 // Default strategic focuses for various executive roles
 export const defaultStrategicFocuses: Record<string, string> = {
   ceo: "Aligning company vision with market opportunities",
@@ -9,7 +8,7 @@ export const defaultStrategicFocuses: Record<string, string> = {
   chro: "Building high-performance organizational culture",
   strategy: "Identifying new market opportunities and competitive advantages",
   sales: "Optimizing sales pipeline and conversion processes",
-  operations: "Streamlining operational efficiency and scalability"
+  operations: "Streamlining operational efficiency and scalability",
 };
 
 /**
@@ -18,13 +17,13 @@ export const defaultStrategicFocuses: Record<string, string> = {
 export function determineStrategicFocus(role: string): string {
   const roleLower = role.toLowerCase();
   let strategicFocus = "Optimizing business performance and innovation";
-  
+
   for (const [roleKey, focus] of Object.entries(defaultStrategicFocuses)) {
     if (roleLower.includes(roleKey)) {
       strategicFocus = focus;
       break;
     }
   }
-  
+
   return strategicFocus;
 }

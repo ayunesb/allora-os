@@ -1,14 +1,17 @@
-
-import { useState, useCallback } from 'react';
-import { useApiClient } from '@/utils/api/enhancedApiClient';
-import { toast } from 'sonner';
-import { DatabaseTableStatus, PolicyStatus, FunctionStatus } from '@/components/admin/database-verification/types';
+import { useState, useCallback } from "react";
+import { useApiClient } from "@/utils/api/enhancedApiClient";
+import { toast } from "sonner";
+import {
+  DatabaseTableStatus,
+  PolicyStatus,
+  FunctionStatus,
+} from "@/components/admin/database-verification/types";
 
 export interface TableInfo {
   name: string;
   rowCount: number;
   description: string | null;
-  status: 'ok' | 'warning' | 'error';
+  status: "ok" | "warning" | "error";
   message?: string;
 }
 
@@ -16,7 +19,7 @@ export interface FunctionInfo {
   name: string;
   returnType: string;
   language: string;
-  status: 'ok' | 'warning' | 'error';
+  status: "ok" | "warning" | "error";
   message?: string;
 }
 
@@ -25,7 +28,7 @@ export interface RlsPolicy {
   name: string;
   definition: string;
   roles: string[];
-  status: 'ok' | 'warning' | 'error';
+  status: "ok" | "warning" | "error";
   message?: string;
 }
 
@@ -37,79 +40,85 @@ export interface DatabaseVerificationResult {
 }
 
 export interface DatabaseIssue {
-  type: 'table' | 'function' | 'policy';
+  type: "table" | "function" | "policy";
   name: string;
   message: string;
-  severity: 'warning' | 'error';
+  severity: "warning" | "error";
 }
 
 export function useDatabaseVerification() {
   const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<DatabaseVerificationResult | null>(null);
+  const [results, setResults] = useState<DatabaseVerificationResult | null>(
+    null,
+  );
   const [issues, setIssues] = useState<DatabaseIssue[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { execute } = useApiClient();
-  
+
   // This is a compatibility object to match the structure expected by tests
   const verificationResult = {
     tables: [],
     policies: [],
     functions: [],
-    isVerifying: isLoading
+    isVerifying: isLoading,
   };
 
   const fetchDatabaseInfo = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const data = await execute<DatabaseVerificationResult>('/api/admin/database-verification', 'GET');
+      const data = await execute<DatabaseVerificationResult>(
+        "/api/admin/database-verification",
+        "GET",
+      );
       setResults(data);
-      
+
       // Process issues
       const newIssues: DatabaseIssue[] = [];
-      
+
       // Table issues
-      data.tables.forEach(table => {
-        if (table.status !== 'ok') {
+      data.tables.forEach((table) => {
+        if (table.status !== "ok") {
           newIssues.push({
-            type: 'table',
+            type: "table",
             name: table.name,
             message: table.message || `Issue with table: ${table.name}`,
-            severity: table.status === 'error' ? 'error' : 'warning'
+            severity: table.status === "error" ? "error" : "warning",
           });
         }
       });
-      
+
       // Function issues
-      data.functions.forEach(func => {
-        if (func.status !== 'ok') {
+      data.functions.forEach((func) => {
+        if (func.status !== "ok") {
           newIssues.push({
-            type: 'function',
+            type: "function",
             name: func.name,
             message: func.message || `Issue with function: ${func.name}`,
-            severity: func.status === 'error' ? 'error' : 'warning'
+            severity: func.status === "error" ? "error" : "warning",
           });
         }
       });
-      
+
       // RLS policy issues
-      data.rlsPolicies.forEach(policy => {
-        if (policy.status !== 'ok') {
+      data.rlsPolicies.forEach((policy) => {
+        if (policy.status !== "ok") {
           newIssues.push({
-            type: 'policy',
+            type: "policy",
             name: `${policy.table}.${policy.name}`,
             message: policy.message || `Issue with RLS policy: ${policy.name}`,
-            severity: policy.status === 'error' ? 'error' : 'warning'
+            severity: policy.status === "error" ? "error" : "warning",
           });
         }
       });
-      
+
       setIssues(newIssues);
-      
+
       return data;
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to fetch database information';
+      const errorMessage =
+        err.message || "Failed to fetch database information";
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;
@@ -124,21 +133,25 @@ export function useDatabaseVerification() {
   const repairAutomatically = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const result = await execute<{ success: boolean; message: string; repaired: string[] }>('/api/admin/database-repair', 'POST');
-      
+      const result = await execute<{
+        success: boolean;
+        message: string;
+        repaired: string[];
+      }>("/api/admin/database-repair", "POST");
+
       if (result.success) {
-        toast.success(result.message || 'Database repaired successfully');
+        toast.success(result.message || "Database repaired successfully");
         // Refresh verification data
         await fetchDatabaseInfo();
       } else {
-        toast.error(result.message || 'Failed to repair database');
+        toast.error(result.message || "Failed to repair database");
       }
-      
+
       return result;
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to repair database';
+      const errorMessage = err.message || "Failed to repair database";
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;
@@ -156,6 +169,6 @@ export function useDatabaseVerification() {
     repairAutomatically,
     // Added to fix test compatibility
     verificationResult,
-    verifyDatabaseConfiguration
+    verifyDatabaseConfiguration,
   };
 }

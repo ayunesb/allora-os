@@ -1,9 +1,8 @@
+import { useState, useEffect, useCallback } from "react";
+import { Message } from "@/types/fixed/Message";
+import { Bot } from "@/types/fixed/Bot";
 
-import { useState, useEffect, useCallback } from 'react';
-import { Message } from '@/types/fixed/Message';
-import { Bot } from '@/types/fixed/Bot';
-
-export { Bot };  // Export Bot for use in other components
+export { Bot }; // Export Bot for use in other components
 
 export interface UseBotConsultationResult {
   messages: Message[];
@@ -33,74 +32,77 @@ export const useBotConsultation = (botId: string): UseBotConsultationResult => {
   useEffect(() => {
     const loadBot = async () => {
       if (!botId) return;
-      
+
       setIsLoading(true);
       try {
         // Placeholder for actual API call
         const dummyBot: Bot = {
           id: botId,
-          name: 'AI Assistant',
-          role: 'Customer Support',
-          description: 'A helpful AI assistant',
-          avatar: '/assets/bot-avatar.jpg'
+          name: "AI Assistant",
+          role: "Customer Support",
+          description: "A helpful AI assistant",
+          avatar: "/assets/bot-avatar.jpg",
         };
-        
+
         setBot(dummyBot);
-        
+
         // Welcome message
         setMessages([
           {
-            id: 'welcome',
+            id: "welcome",
             text: `Hello! I'm ${dummyBot.name}, your AI assistant. How can I help you today?`,
-            sender: 'bot',
-            timestamp: new Date()
-          }
+            sender: "bot",
+            timestamp: new Date(),
+          },
         ]);
       } catch (err) {
-        console.error('Error loading bot:', err);
-        setError('Failed to load bot details.');
+        console.error("Error loading bot:", err);
+        setError("Failed to load bot details.");
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     loadBot();
   }, [botId]);
 
   // Send a message
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || !bot) return;
-    
-    // Add user message
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      text,
-      sender: 'user',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setIsTyping(true);
-    
-    try {
-      // Simulate bot response after a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const botMessage: Message = {
-        id: `bot-${Date.now()}`,
-        text: `I received your message: "${text}". This is a placeholder response.`,
-        sender: 'bot',
-        timestamp: new Date()
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || !bot) return;
+
+      // Add user message
+      const userMessage: Message = {
+        id: `user-${Date.now()}`,
+        text,
+        sender: "user",
+        timestamp: new Date(),
       };
-      
-      setMessages(prev => [...prev, botMessage]);
-    } catch (err) {
-      console.error('Error sending message:', err);
-      setError('Failed to send message.');
-    } finally {
-      setIsTyping(false);
-    }
-  }, [bot]);
+
+      setMessages((prev) => [...prev, userMessage]);
+      setIsTyping(true);
+
+      try {
+        // Simulate bot response after a delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const botMessage: Message = {
+          id: `bot-${Date.now()}`,
+          text: `I received your message: "${text}". This is a placeholder response.`,
+          sender: "bot",
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, botMessage]);
+      } catch (err) {
+        console.error("Error sending message:", err);
+        setError("Failed to send message.");
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [bot],
+  );
 
   // Clear all messages
   const clearMessages = useCallback(() => {
@@ -109,15 +111,15 @@ export const useBotConsultation = (botId: string): UseBotConsultationResult => {
 
   // Toggle voice interface
   const toggleVoiceInterface = useCallback(() => {
-    setIsVoiceEnabled(prev => !prev);
+    setIsVoiceEnabled((prev) => !prev);
   }, []);
 
   // Start voice recognition
   const startVoiceRecognition = useCallback(() => {
     if (!isVoiceEnabled) return;
-    
+
     setIsListening(true);
-    
+
     // Placeholder for actual speech recognition
     setTimeout(() => {
       setIsListening(false);
@@ -136,6 +138,6 @@ export const useBotConsultation = (botId: string): UseBotConsultationResult => {
     isVoiceEnabled,
     isListening,
     toggleVoiceInterface,
-    startVoiceRecognition
+    startVoiceRecognition,
   };
 };

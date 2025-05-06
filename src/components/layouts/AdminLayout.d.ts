@@ -1,6 +1,8 @@
-import React from 'react';
+import React from "react";
 interface AdminLayoutProps {
-    children?: React.ReactNode;
+  children?: React.ReactNode;
 }
-export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element;
+export default function AdminLayout({
+  children,
+}: AdminLayoutProps): JSX.Element;
 export {};

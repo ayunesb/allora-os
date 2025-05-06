@@ -1,6 +1,9 @@
 interface AuthIssueProps {
-    onSignOut: () => void;
-    onRefresh: () => void;
+  onSignOut: () => void;
+  onRefresh: () => void;
 }
-export declare function AuthIssue({ onSignOut, onRefresh }: AuthIssueProps): import("react").JSX.Element;
+export declare function AuthIssue({
+  onSignOut,
+  onRefresh,
+}: AuthIssueProps): import("react").JSX.Element;
 export {};

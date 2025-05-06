@@ -1,6 +1,5 @@
-
-import { createClient } from '@supabase/supabase-js';
-import { getSupabaseUrl, getSupabaseAnonKey } from '@/utils/env';
+import { createClient } from "@supabase/supabase-js";
+import { getSupabaseUrl, getSupabaseAnonKey } from "@/utils/env";
 
 const SUPABASE_URL = getSupabaseUrl();
 const SUPABASE_ANON_KEY = getSupabaseAnonKey();
@@ -9,8 +8,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined
-  }
+    storage: typeof window !== "undefined" ? window.localStorage : undefined,
+  },
 });
 
 /**
@@ -21,23 +20,23 @@ export const checkSupabaseConnection = async () => {
   try {
     // Try a simple query to test the connection
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id')
+      .from("profiles")
+      .select("id")
       .limit(1);
-    
+
     if (error) {
       throw error;
     }
-    
+
     return {
       connected: true,
-      message: 'Successfully connected to Supabase'
+      message: "Successfully connected to Supabase",
     };
   } catch (err) {
-    console.error('Supabase connection error:', err);
+    console.error("Supabase connection error:", err);
     return {
       connected: false,
-      message: err instanceof Error ? err.message : 'Unknown connection error'
+      message: err instanceof Error ? err.message : "Unknown connection error",
     };
   }
 };

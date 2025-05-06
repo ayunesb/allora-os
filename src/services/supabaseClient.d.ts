@@ -1,2 +1,2 @@
-import { supabase } from '@/backend/supabase';
+import { supabase } from "@/backend/supabase";
 export { supabase };

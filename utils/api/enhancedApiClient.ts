@@ -6,7 +6,7 @@ export async function enhancedApiClient<T>(
     method?: "GET" | "POST" | "PUT" | "DELETE";
     headers?: Record<string, string>;
     body?: any;
-  } = {}
+  } = {},
 ): Promise<ApiResponse<T>> {
   try {
     const res = await fetch(url, {

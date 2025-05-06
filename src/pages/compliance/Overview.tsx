@@ -1,55 +1,76 @@
-import React from 'react';
-import ComplianceUpdateNotification from '@/components/compliance/ComplianceUpdateNotification';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import ComplianceUpdateNotification from "@/components/compliance/ComplianceUpdateNotification";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, CheckCircle, Clock, FileWarning } from 'lucide-react';
+import { Shield, CheckCircle, Clock, FileWarning } from "lucide-react";
 export default function Overview() {
-    return (<div className="space-y-6">
-      <ComplianceUpdateNotification className="mb-6"/>
-      
+  return (
+    <div className="space-y-6">
+      <ComplianceUpdateNotification className="mb-6" />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-xl">
-              <Shield className="mr-2 h-5 w-5 text-primary"/>
+              <Shield className="mr-2 h-5 w-5 text-primary" />
               Compliance Status
             </CardTitle>
-            <CardDescription>Current regulatory compliance status</CardDescription>
+            <CardDescription>
+              Current regulatory compliance status
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">GDPR</span>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center">
-                  <CheckCircle className="mr-1 h-3 w-3"/> Compliant
+                <Badge
+                  variant="outline"
+                  className="bg-green-50 text-green-700 border-green-200 flex items-center"
+                >
+                  <CheckCircle className="mr-1 h-3 w-3" /> Compliant
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">CCPA</span>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center">
-                  <CheckCircle className="mr-1 h-3 w-3"/> Compliant
+                <Badge
+                  variant="outline"
+                  className="bg-green-50 text-green-700 border-green-200 flex items-center"
+                >
+                  <CheckCircle className="mr-1 h-3 w-3" /> Compliant
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">HIPAA</span>
-                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 flex items-center">
-                  <Clock className="mr-1 h-3 w-3"/> Partial
+                <Badge
+                  variant="outline"
+                  className="bg-yellow-50 text-yellow-700 border-yellow-200 flex items-center"
+                >
+                  <Clock className="mr-1 h-3 w-3" /> Partial
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">PCI DSS</span>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center">
-                  <CheckCircle className="mr-1 h-3 w-3"/> Compliant
+                <Badge
+                  variant="outline"
+                  className="bg-green-50 text-green-700 border-green-200 flex items-center"
+                >
+                  <CheckCircle className="mr-1 h-3 w-3" /> Compliant
                 </Badge>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-xl">
-              <FileWarning className="mr-2 h-5 w-5 text-primary"/>
+              <FileWarning className="mr-2 h-5 w-5 text-primary" />
               Required Actions
             </CardTitle>
             <CardDescription>Items that need your attention</CardDescription>
@@ -61,7 +82,9 @@ export default function Overview() {
                 <p className="text-muted-foreground">Due in 14 days</p>
               </div>
               <div className="text-sm">
-                <p className="font-medium mb-1">Review Data Retention Settings</p>
+                <p className="font-medium mb-1">
+                  Review Data Retention Settings
+                </p>
                 <p className="text-muted-foreground">Due in 30 days</p>
               </div>
               <div className="text-sm">
@@ -72,11 +95,13 @@ export default function Overview() {
           </CardContent>
         </Card>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Compliance Calendar</CardTitle>
-          <CardDescription>Upcoming compliance deadlines and events</CardDescription>
+          <CardDescription>
+            Upcoming compliance deadlines and events
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -88,7 +113,8 @@ export default function Overview() {
               <div>
                 <h4 className="font-medium">GDPR Training Session</h4>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Annual required training for all employees handling customer data.
+                  Annual required training for all employees handling customer
+                  data.
                 </p>
               </div>
             </div>
@@ -119,5 +145,6 @@ export default function Overview() {
           </div>
         </CardContent>
       </Card>
-    </div>);
+    </div>
+  );
 }

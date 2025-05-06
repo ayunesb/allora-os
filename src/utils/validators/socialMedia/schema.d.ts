@@ -1,5 +1,6 @@
-import { z } from 'zod';
-export declare const socialMediaPostSchema: z.ZodObject<{
+import { z } from "zod";
+export declare const socialMediaPostSchema: z.ZodObject<
+  {
     title: z.ZodString;
     content: z.ZodString;
     platform: z.ZodEnum<["Facebook", "Twitter", "Instagram", "LinkedIn"]>;
@@ -10,7 +11,10 @@ export declare const socialMediaPostSchema: z.ZodObject<{
     link_url: z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>;
     campaign_id: z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>;
     tags: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     content?: string;
     title?: string;
     platform?: "Facebook" | "Twitter" | "Instagram" | "LinkedIn";
@@ -21,7 +25,8 @@ export declare const socialMediaPostSchema: z.ZodObject<{
     tags?: string[];
     media_urls?: string[];
     link_url?: string;
-}, {
+  },
+  {
     content?: string;
     title?: string;
     platform?: "Facebook" | "Twitter" | "Instagram" | "LinkedIn";
@@ -32,5 +37,6 @@ export declare const socialMediaPostSchema: z.ZodObject<{
     tags?: string[];
     media_urls?: string[];
     link_url?: string;
-}>;
+  }
+>;
 export type SocialMediaPostSchema = z.infer<typeof socialMediaPostSchema>;

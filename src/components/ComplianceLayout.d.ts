@@ -1,6 +1,8 @@
-import React from 'react';
+import React from "react";
 interface ComplianceLayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
-export default function ComplianceLayout({ children }: ComplianceLayoutProps): JSX.Element;
+export default function ComplianceLayout({
+  children,
+}: ComplianceLayoutProps): JSX.Element;
 export {};

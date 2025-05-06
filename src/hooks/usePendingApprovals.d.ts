@@ -1,4 +1,4 @@
 export declare function usePendingApprovals(): {
-    isLoading: boolean;
-    pendingApprovals: number;
+  isLoading: boolean;
+  pendingApprovals: number;
 };

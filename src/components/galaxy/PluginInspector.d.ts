@@ -1,3 +1,5 @@
-export default function PluginInspector({ plugin }: {
-    plugin: any;
+export default function PluginInspector({
+  plugin,
+}: {
+  plugin: any;
 }): JSX.Element;

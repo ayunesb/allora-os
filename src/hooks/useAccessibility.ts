@@ -1,35 +1,35 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import { ExtendedAccessibilityContextType } from '@/types/unified-types';
+import { useState, useEffect, useCallback } from "react";
+import { ExtendedAccessibilityContextType } from "@/types/unified-types";
 
 export function useAccessibility(): ExtendedAccessibilityContextType {
   const [fontSize, setFontSize] = useState<number>(16);
   const [highContrast, setHighContrast] = useState<boolean>(false);
   const [largeText, setLargeText] = useState<boolean>(false);
   const [reducedMotion, setReducedMotion] = useState<boolean>(false);
-  const [screenReaderFriendly, setScreenReaderFriendly] = useState<boolean>(false);
+  const [screenReaderFriendly, setScreenReaderFriendly] =
+    useState<boolean>(false);
   const [invertColors, setInvertColors] = useState<boolean>(false);
 
   // Toggle functions
   const toggleHighContrast = useCallback(() => {
-    setHighContrast(prev => !prev);
+    setHighContrast((prev) => !prev);
   }, []);
 
   const toggleLargeText = useCallback(() => {
-    setLargeText(prev => !prev);
-    setFontSize(prev => prev === 16 ? 20 : 16);
+    setLargeText((prev) => !prev);
+    setFontSize((prev) => (prev === 16 ? 20 : 16));
   }, []);
 
   const toggleReducedMotion = useCallback(() => {
-    setReducedMotion(prev => !prev);
+    setReducedMotion((prev) => !prev);
   }, []);
 
   const toggleScreenReaderFriendly = useCallback(() => {
-    setScreenReaderFriendly(prev => !prev);
+    setScreenReaderFriendly((prev) => !prev);
   }, []);
 
   const toggleInvertColors = useCallback(() => {
-    setInvertColors(prev => !prev);
+    setInvertColors((prev) => !prev);
   }, []);
 
   return {
@@ -44,6 +44,6 @@ export function useAccessibility(): ExtendedAccessibilityContextType {
     toggleLargeText,
     toggleReducedMotion,
     toggleScreenReaderFriendly,
-    toggleInvertColors
+    toggleInvertColors,
   };
 }

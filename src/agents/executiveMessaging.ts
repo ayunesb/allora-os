@@ -1,6 +1,8 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { messageNotificationTemplate, generateMessageTemplate } from "@/agents/promptTemplates";
+import {
+  messageNotificationTemplate,
+  generateMessageTemplate,
+} from "@/agents/promptTemplates";
 
 /**
  * Fetches unread messages for a specific executive
@@ -31,7 +33,7 @@ export function formatInboxForPrompt(messages: any[]): string {
 
   return messages
     .map(
-      (msg) => `From: ${msg.from_executive}\nMessage: ${msg.message_content}`
+      (msg) => `From: ${msg.from_executive}\nMessage: ${msg.message_content}`,
     )
     .join("\n\n");
 }
@@ -57,7 +59,7 @@ export async function markMessagesAsRead(executiveName: string) {
 export async function notifyOtherExecutives(
   executiveName: string,
   executiveRole: string,
-  messages: any[]
+  messages: any[],
 ) {
   for (const msg of messages) {
     const notification = messageNotificationTemplate
@@ -66,11 +68,7 @@ export async function notifyOtherExecutives(
       .replace("{messageContent}", msg.message_content);
 
     // Send the notification to the executive who sent the message
-    await sendExecutiveMessage(
-      executiveName,
-      msg.from_executive,
-      notification
-    );
+    await sendExecutiveMessage(executiveName, msg.from_executive, notification);
   }
 
   // Mark messages as read
@@ -83,16 +81,14 @@ export async function notifyOtherExecutives(
 export async function sendExecutiveMessage(
   fromExecutive: string,
   toExecutive: string,
-  messageContent: string
+  messageContent: string,
 ) {
-  const { error } = await supabase
-    .from("executive_messages")
-    .insert({
-      from_executive: fromExecutive,
-      to_executive: toExecutive,
-      message_content: messageContent,
-      status: "unread"
-    });
+  const { error } = await supabase.from("executive_messages").insert({
+    from_executive: fromExecutive,
+    to_executive: toExecutive,
+    message_content: messageContent,
+    status: "unread",
+  });
 
   if (error) {
     console.error("Failed to send executive message:", error);
@@ -108,7 +104,7 @@ export async function generateExecutiveMessage(
   role: string,
   recipientName: string,
   recipientRole: string,
-  topic: string
+  topic: string,
 ) {
   const prompt = generateMessageTemplate
     .replace("{executiveName}", executiveName)
