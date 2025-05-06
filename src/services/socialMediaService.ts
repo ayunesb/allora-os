@@ -9,7 +9,6 @@ import { supabase } from '@/backend/supabase';
 import { toast } from 'sonner';
 import { 
   SocialMediaPost, 
-  CreatePostInput, 
   SocialMediaCalendarFilters,
   BatchPostResponse,
   PostStatus
@@ -600,36 +599,72 @@ export async function batchSchedulePosts(
   };
 }
 
-export async function postToSocialMedia(platform: string, content: string) {
-	// Mock implementation: Replace with actual API calls
-	if (platform === 'twitter') {
-		console.log(`Posting to Twitter: ${content}`);
-	} else if (platform === 'facebook') {
-		console.log(`Posting to Facebook: ${content}`);
-	} else {
-		throw new Error(`Unsupported platform: ${platform}`);
-	}
+export async function postToSocialMedia(platform: string, content: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Mock implementation: Replace with actual API calls
+    if (platform === 'twitter') {
+      console.log(`Posting to Twitter: ${content}`);
+    } else if (platform === 'facebook') {
+      console.log(`Posting to Facebook: ${content}`);
+    } else {
+      throw new Error(`Unsupported platform: ${platform}`);
+    }
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'An unexpected error occurred' };
+  }
 }
 
 interface ValidationResult<T> {
-  data: T;
-  errors?: string[];
+  valid: boolean; // Ensure the `valid` property exists
+  data?: T;
+  errors?: Record<string, string>;
 }
 
-function validateMyData<T>(input: any): ValidationResult<T> {
+// Example of validateCreatePost function return type
+function validateCreatePost(input: CreatePostInput): ValidationResult<CreatePostInput> {
   // ...validation logic...
-  return { data: /* validated data */, errors: /* optional errors */ };
+  return {
+    valid: true, // or false based on validation
+    data: input, // sanitized data
+    errors: {} // or validation errors
+  };
 }
 
-// Usage example:
-const validation: ValidationResult<MyExpectedType> = validateMyData(input);
-
-if (typeof validation === "object" && validation !== null) {
-  validationErrors: validation.errors;
-  const validatedData = validation.data;
-} else {
-  validationErrors: [];
-  const validatedData = null;
+// Example of validateUpdatePost function return type
+function validateUpdatePost(input: UpdatePostInput): ValidationResult<UpdatePostInput> {
+  // ...validation logic...
+  return {
+    valid: true, // or false based on validation
+    data: input, // sanitized data
+    errors: {} // or validation errors
+  };
 }
 
-const validatedData = (validation as { data: any }).data;
+// Fix usage of validation.valid
+// Removed duplicate implementation of createSocialMediaPost
+
+export async function updateSocialMediaPost(
+  postData: UpdatePostInput
+): Promise<{ success: boolean; error?: string; validationErrors?: Record<string, string> }> {
+  try {
+    const validation = validateUpdatePost(postData);
+
+    if (!validation.valid || !validation.data) {
+      return { 
+        success: false, 
+        error: 'Invalid post update data', 
+        validationErrors: validation.errors 
+      };
+    }
+
+    const validatedData = validation.data;
+    // ...existing code...
+  } catch (error: any) {
+    // ...existing code...
+  }
+}
+
+// Remove redundant or conflicting ValidationResult definitions
+// Ensure all validation functions return the correct structure
+// ...existing code...
