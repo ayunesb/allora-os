@@ -1,3 +1,7 @@
+/**
+ * @stable
+ * This file is locked and strictly typed.
+ */
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva } from "class-variance-authority";
 import { X } from "lucide-react";

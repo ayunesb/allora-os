@@ -1,0 +1,87 @@
+name: Dependency Health Report
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🧰 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Install madge + jq
+        run: |
+          npm install -g madge
+          sudo apt-get update && sudo apt-get install -y jq
+
+      - name: 📊 Generate dependency graph and report
+        run: |
+          madge --json src > dependency-report.json
+          madge --circular src > circular.txt || true
+          madge --orphans src > orphans.txt || true
+          madge --image dependency-graph.svg src || true
+
+      - name: 🧠 Extract and summarize
+        id: summary
+        run: |
+          CIRCULAR_COUNT=$(grep -c src circular.txt || true)
+          ORPHAN_COUNT=$(grep -c src orphans.txt || true)
+          TOP_IMPORTER=$(jq 'to_entries | sort_by(.value | length) | reverse | .[0]' dependency-report.json)
+
+          echo "CIRCULAR=$CIRCULAR_COUNT" >> $GITHUB_OUTPUT
+          echo "ORPHANS=$ORPHAN_COUNT" >> $GITHUB_OUTPUT
+          echo "TOP_IMPORTER=${TOP_IMPORTER}" >> $GITHUB_OUTPUT
+
+      - name: 📤 Upload Dependency Graph
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-graph
+          path: dependency-graph.svg
+
+      - name: 💬 Post PR Comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🔍 Dependency Health Report
+
+            **📦 Summary for this PR:**
+            - 🔁 Circular Imports: `${{ steps.summary.outputs.CIRCULAR }}`
+            - 👻 Orphan Files: `${{ steps.summary.outputs.ORPHANS }}`
+            - 📌 Most-Depended File:
+              ```json
+              ${{ steps.summary.outputs.TOP_IMPORTER }}
+              ```
+
+            ✅ Keep it clean. Refactor circulars, and remove or reuse orphans.
+
+      - name: 🚨 Fail on Too Many Orphans
+        if: ${{ steps.summary.outputs.ORPHANS > 10 }}
+        run: |
+          echo "Too many orphan files! Please address them before merging."
+          exit 1
+
+      - name: 🚨 Tag Reviewers on Circular Increase
+        if: ${{ steps.summary.outputs.CIRCULAR > 0 }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const reviewers = ['reviewer1', 'reviewer2']; // Replace with actual GitHub usernames
+            github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              assignees: reviewers,
+            })

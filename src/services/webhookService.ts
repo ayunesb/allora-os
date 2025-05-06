@@ -62,10 +62,32 @@ export const testWebhook = async (
   type: WebhookType,
 ): Promise<{ success: boolean; message: string }> => {
   try {
-    // Placeholder implementation
+    const payload = {
+      eventType: "TEST",
+      timestamp: new Date().toISOString(),
+      data: { message: "Test webhook payload" },
+    };
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
     return { success: true, message: "Webhook test succeeded" };
   } catch (error: unknown) {
-    return { success: false, message: "Webhook test failed" };
+    logger.error("Error testing webhook:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    };
   }
 };
 
