@@ -20,3 +20,16 @@ export interface ExecutivePersona {
   communicationStyle: string;
   questionExamples: string[];
 }
+
+export interface DebateSession {
+  id: string;
+  topic: string;
+  participants: string[];
+  status: "active" | "complete";
+}
+
+export interface Executive {
+  id: string;
+  name: string;
+  role: string;
+}

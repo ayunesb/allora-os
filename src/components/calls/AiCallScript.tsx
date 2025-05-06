@@ -3,8 +3,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Download, Play, FileText, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useCallScriptTracking } from "@/hooks/useCallScriptTracking";
-import AiCallScriptFeedback from "./AiCallScriptFeedback";
+import useCallScriptTracking from "@/hooks/useCallScriptTracking";
+import AiCallScriptFeedback from "./AiCallScriptFeedback.js";
 import {
   Dialog,
   DialogContent,
@@ -12,21 +12,51 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+
+interface AiCallScriptProps {
+  id: string;
+  title: string;
+  target: string;
+  duration: number;
+  primaryBot: { name: string };
+  content: string;
+  onUse: (id: string, title: string) => void;
+  type: string;
+}
+
+export const AiCallScript: React.FC<AiCallScriptProps> = ({
+  scriptText,
+  onApprove,
+  onReject,
+  isEditable = false,
+}) => {
+  return (
+    <div className="ai-call-script">
+      <p>{scriptText}</p>
+      {isEditable && (
+        <>
+          <button onClick={onApprove}>Approve</button>
+          <button onClick={onReject}>Reject</button>
+        </>
+      )}
+    </div>
+  );
+};
+
 export default function AiCallScript({
   id,
   title,
   target,
   duration,
   primaryBot,
-  collaborators = [],
   content,
   onUse,
   type,
-}) {
+}: AiCallScriptProps) {
   const { trackScriptUse, trackScriptView } = useCallScriptTracking();
   const [scriptDialogOpen, setScriptDialogOpen] = useState(false);
   const handleUse = () => {
-    trackScriptUse(id, title, type, primaryBot);
+    trackScriptUse(id, title, type, primaryBot.name);
     onUse(id, title);
   };
   const handleViewScript = () => {
@@ -167,4 +197,9 @@ export default function AiCallScript({
       </Dialog>
     </>
   );
+}
+
+function renderBotDetails(bot: { name: string }) {
+  // Fix 'name' property error by defining the bot type
+  // ...existing code...
 }

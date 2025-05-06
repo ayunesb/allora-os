@@ -1,11 +1,11 @@
-import { supabase } from "@/integrations/supabase/client";
-import { logger } from "@/utils/loggingService";
+import { supabase } from "@/integrations/supabase/client.js"; // Fix missing module import
+import logger from "@/utils/loggingService.js"; // Fix missing module import
 import "../mocks/executivesMock"; // Import the mock implementation
 
 export async function allocateResources(
   executiveName: string,
   outcome: string,
-) {
+): Promise<void> {
   try {
     const { data, error } = await supabase
       .from("executives")
@@ -60,8 +60,10 @@ export async function allocateResources(
           });
         }
       });
-  } catch (err) {
-    logger.error("Error in allocateResources", { error: err });
+  } catch (error: unknown) { // Explicitly type the error parameter
+    logger.error("Failed to allocate resources", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 }
 

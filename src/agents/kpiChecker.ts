@@ -3,7 +3,7 @@ import { logger } from "@/utils/loggingService";
 import {
   generateSelfCoachingNote,
   saveCoachingNoteToMemory,
-} from "./selfCoach";
+} from "./selfCoach.js";
 
 export async function checkActionOutcome(actionId: string, task: string) {
   logger.info(`Checking outcome for task: ${task}`);

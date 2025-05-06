@@ -19,3 +19,7 @@ export declare function runExecutiveAgent(
   },
   options?: AgentOptions,
 ): Promise<ExecutiveDecision>;
+
+declare module '@/agents/executiveAgent' {
+  export const exampleFunction: () => void;
+}

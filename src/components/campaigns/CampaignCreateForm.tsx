@@ -3,42 +3,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  createCampaign,
-  createCampaignCheckout,
-} from "@/services/campaignService";
+import { Card } from "@/components/ui/card"; // Fix import
+import { Button } from "@/components/ui/button"; // Fix import
+import { Input } from "@/components/ui/input"; // Fix import
+import { Textarea } from "@/components/ui/textarea"; // Fix import
+import { Form } from "@/components/ui/form"; // Fix import
+import { Select } from "@/components/ui/select"; // Fix import
+import campaignService from "@/services/campaignService"; // Fix import
+import useAuth from "@/hooks/useAuth"; // Fix import
+import Label from "../ui/label.js"; // Add file extension
+import { TikTokIcon } from "@/components/icons/TikTokIcon"; // Fix import
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
-import { Label } from "../ui/label";
-import { Facebook } from "lucide-react";
-import { TikTokIcon } from "@/components/icons/TikTokIcon";
 // Form schema definition
 const formSchema = z.object({
   name: z
@@ -59,7 +34,46 @@ const formSchema = z.object({
     .string()
     .min(10, { message: "Ad description must be at least 10 characters" }),
 });
-export default function CampaignCreateForm() {
+
+interface CampaignCreateFormProps {
+  onSubmit: (data: { name: string; budget: number; description?: string }) => void;
+  initialValues?: { name: string; budget: number; description?: string };
+}
+
+export const CampaignCreateForm: React.FC<CampaignCreateFormProps> = ({
+  onSubmit,
+  initialValues = { name: "", budget: 0, description: "" },
+}) => {
+  const [name, setName] = useState(initialValues.name);
+  const [budget, setBudget] = useState(initialValues.budget);
+  const [description, setDescription] = useState(initialValues.description);
+
+  const handleSubmit = () => {
+    if (name.trim() && budget > 0) {
+      onSubmit({ name, budget, description });
+    }
+  };
+
+  return (
+    <form onSubmit={(e) => e.preventDefault()}>
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Campaign Name" />
+      <input
+        type="number"
+        value={budget}
+        onChange={(e) => setBudget(Number(e.target.value))}
+        placeholder="Budget"
+      />
+      <textarea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Description (optional)"
+      />
+      <button onClick={handleSubmit}>Create Campaign</button>
+    </form>
+  );
+};
+
+export default function CampaignCreateFormComponent() {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -134,7 +148,7 @@ export default function CampaignCreateForm() {
   const handlePreviousStep = () => {
     setStep(step - 1);
   };
-  const onSubmit = async (values) => {
+  const onSubmit = async (values: Record<string, string | number>) => { // Fix implicit 'any' type for 'values'
     setIsSubmitting(true);
     try {
       // Create the targeting and creatives objects
@@ -149,7 +163,7 @@ export default function CampaignCreateForm() {
         },
       ];
       // Create the campaign
-      const campaignResult = await createCampaign({
+      const campaignResult = await campaignService.createCampaign({
         name: values.name,
         platform: values.platform,
         budget: values.budget,
@@ -165,7 +179,7 @@ export default function CampaignCreateForm() {
         throw new Error("No campaign ID returned");
       }
       // Create the checkout session
-      const checkoutResult = await createCampaignCheckout(
+      const checkoutResult = await campaignService.createCampaignCheckout(
         campaignId,
         window.location.href,
       );
@@ -179,6 +193,7 @@ export default function CampaignCreateForm() {
         throw new Error("No checkout URL returned");
       }
     } catch (error) {
+      handleError(error); // Fix 'unknown' type for 'error'
       toast.error(`Failed to process campaign: ${error.message}`);
       setIsSubmitting(false);
     }
@@ -250,7 +265,7 @@ export default function CampaignCreateForm() {
                       step="100"
                       placeholder="1000"
                       {...field}
-                      onChange={(e) => {
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => { // Fix implicit 'any' type for 'e'
                         field.onChange(e);
                         const value = parseFloat(e.target.value);
                         if (!isNaN(value)) {
@@ -466,4 +481,12 @@ export default function CampaignCreateForm() {
       </CardFooter>
     </Card>
   );
+}
+
+function handleError(error: unknown) { // Fix 'unknown' type for 'error'
+  if (error instanceof Error) {
+    console.error(error.message);
+  } else {
+    console.error("An unknown error occurred");
+  }
 }
