@@ -30,7 +30,15 @@ jobs:
           madge --json src > dependency-report.json
           madge --circular src > circular.txt || true
           madge --orphans src > orphans.txt || true
-          madge --image dependency-graph.svg src || true
+
+      - name: 🖼 Generate dependency graph image
+        run: madge --image dependency-graph.svg src
+
+      - name: 📤 Upload Dependency Graph
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-graph
+          path: dependency-graph.svg
 
       - name: 🧠 Extract and summarize
         id: summary
@@ -42,12 +50,6 @@ jobs:
           echo "CIRCULAR=$CIRCULAR_COUNT" >> $GITHUB_OUTPUT
           echo "ORPHANS=$ORPHAN_COUNT" >> $GITHUB_OUTPUT
           echo "TOP_IMPORTER=${TOP_IMPORTER}" >> $GITHUB_OUTPUT
-
-      - name: 📤 Upload Dependency Graph
-        uses: actions/upload-artifact@v3
-        with:
-          name: dependency-graph
-          path: dependency-graph.svg
 
       - name: 💬 Post PR Comment
         uses: peter-evans/create-or-update-comment@v3
