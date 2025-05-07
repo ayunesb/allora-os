@@ -7,10 +7,12 @@ export interface DailyMetric {
   spend: number;
   revenue: number;
 }
+
 export interface MetricComparison {
   current: number;
   previous: number;
 }
+
 export interface ComparisonData {
   impressions: MetricComparison;
   clicks: MetricComparison;
@@ -19,6 +21,7 @@ export interface ComparisonData {
   spend: MetricComparison;
   revenue: MetricComparison;
 }
+
 export interface PlatformMetric {
   impressions: number;
   clicks: number;
@@ -31,9 +34,11 @@ export interface PlatformMetric {
   cpa: number;
   roas: number;
 }
+
 export interface PlatformMetrics {
   [platform: string]: PlatformMetric;
 }
+
 export interface AnalyticsData {
   impressions: number;
   clicks: number;
@@ -49,6 +54,7 @@ export interface AnalyticsData {
   platformMetrics: PlatformMetrics;
   comparisonData: ComparisonData;
 }
+
 export interface ChannelPerformance {
   channelName: string;
   metrics: {

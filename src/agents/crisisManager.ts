@@ -1,8 +1,9 @@
 import { runDebateSession } from "./debate/debateSession.js";
 import { detectAnomalies } from "./anomalyDetector.js";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "../integrations/supabase/client";
 import { Anomaly } from "./anomalyDetector.js";
 import { logger } from "@/utils/loggingService";
+import supabaseClient from '@/integrations/supabase/client';
 
 // Mock function to replace supabase.from('executive_actions') to avoid build errors
 function getExecutiveActions() {

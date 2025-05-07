@@ -378,11 +378,11 @@ describe("Database Verification Utils", () => {
     });
   });
 
-  test('example test', (t: string) => {
+  test("example test", (t: string) => {
     // Explicitly type 't' as 'any' or a specific type
   });
 
-  test('another test', (t: string) => {
+  test("another test", (t: string) => {
     // ...existing code...
   });
 

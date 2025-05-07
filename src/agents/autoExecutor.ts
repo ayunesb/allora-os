@@ -62,7 +62,7 @@ export async function runAutoExecutor() {
   }
 }
 
-async function executeAction(action: ExecutiveAction) {
+async function executeAction(action: ExecutiveAction, arg1?: any, arg2?: any) {
   logger.info(`Executing task: ${action.task}`, { actionId: action.id });
 
   try {

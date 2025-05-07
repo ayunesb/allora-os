@@ -7,6 +7,7 @@ import {
 import { getUserProfileByEmail } from "../../utils/users/fetchUsers.js";
 import { supabase } from "../../integrations/supabase/client.js";
 import { User } from "../../types/agents.js";
+import testCompany from '../../utils/company/test.js';
 
 // Mock dependencies
 vi.mock("../../integrations/supabase/client.js", () => ({
@@ -117,3 +118,8 @@ describe("runTestCompanySetup error handling", () => {
     expect(result.error).toBe("Unexpected error");
   });
 });
+
+const normalizedProcedure = (table: string) => {
+  // Ensure the return type matches PostgrestQueryBuilder
+  return {} as PostgrestQueryBuilder<any, any, string, unknown>;
+};

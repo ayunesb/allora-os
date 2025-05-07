@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { runTestCompanySetup } from "@/utils/company/test";
-import { getUserProfileByEmail } from "@/utils/users/fetchUsers";
+import { fetchUsers } from "@/utils/users/fetchUsers";
 import { supabase } from "@/integrations/supabase/client";
 
 // Mock dependencies
