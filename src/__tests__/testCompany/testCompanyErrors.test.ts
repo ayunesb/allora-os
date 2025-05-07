@@ -3,13 +3,14 @@ import {
   runTestCompanySetup,
   getTestCompany,
   createTestCompany,
-} from "@/utils/company/test";
-import { getUserProfileByEmail } from "@/utils/users/fetchUsers";
-import { supabase } from "@/integrations/supabase/client";
-import { User } from "@/types/agents";
+} from "../../utils/company/test.js";
+import { getUserProfileByEmail } from "../../utils/users/fetchUsers.js";
+import { supabase } from "../../integrations/supabase/client.js";
+import { User } from "../../types/agents.js";
+import testCompany from '../../utils/company/test.js';
 
 // Mock dependencies
-vi.mock("@/integrations/supabase/client", () => ({
+vi.mock("../../integrations/supabase/client.js", () => ({
   supabase: {
     from: vi.fn().mockReturnThis(),
     select: vi.fn().mockReturnThis(),
@@ -22,12 +23,12 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 
-vi.mock("@/utils/users/fetchUsers", () => ({
+vi.mock("../../utils/users/fetchUsers.js", () => ({
   getUserProfileByEmail: vi.fn(),
 }));
 
-vi.mock("@/utils/company/test", () => ({
-  ...vi.importActual("@/utils/company/test"),
+vi.mock("../../utils/company/test.js", () => ({
+  ...vi.importActual("../../utils/company/test.js"),
   getTestCompany: vi.fn(),
 }));
 
@@ -84,7 +85,7 @@ describe("runTestCompanySetup error handling", () => {
         return {
           update: mockUpdateFn,
           eq: mockEqFn,
-        } as any;
+        } as unknown;
       }
       return {
         select: vi.fn().mockReturnThis(),
@@ -93,7 +94,7 @@ describe("runTestCompanySetup error handling", () => {
         limit: vi.fn().mockReturnThis(),
         single: vi.fn().mockReturnThis(),
         maybeSingle: vi.fn().mockReturnThis(),
-      } as any;
+      } as unknown;
     });
 
     const result = await runTestCompanySetup("test@example.com");
@@ -117,3 +118,8 @@ describe("runTestCompanySetup error handling", () => {
     expect(result.error).toBe("Unexpected error");
   });
 });
+
+const normalizedProcedure = (table: string) => {
+  // Ensure the return type matches PostgrestQueryBuilder
+  return {} as PostgrestQueryBuilder<any, any, string, unknown>;
+};

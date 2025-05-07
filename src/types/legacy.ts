@@ -40,4 +40,4 @@ export type {
   DatabaseTableStatus,
   PatchedStrategy,
   GeneratedStrategy,
-};
+}; // Ensure proper type export

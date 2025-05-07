@@ -1,12 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Privacy;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var react_router_dom_1 = require("react-router-dom");
-function Privacy() {
-  // Redirect to the privacy policy page
-  return (0, jsx_runtime_1.jsx)(react_router_dom_1.Navigate, {
-    to: "/legal/privacy-policy",
-    replace: true,
-  });
+import { jsx as _jsx } from "react/jsx-runtime";
+import { Navigate } from "react-router-dom";
+export default function Privacy() {
+    // Redirect to the privacy policy page
+    return _jsx(Navigate, { to: "/legal/privacy-policy", replace: true });
 }

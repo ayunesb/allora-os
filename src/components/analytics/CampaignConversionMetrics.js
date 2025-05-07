@@ -1,40 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var jsx_runtime_1 = require("react/jsx-runtime");
-var card_1 = require("@/components/ui/card");
-var CampaignConversionMetrics = function (_a) {
-  var data = _a.data,
-    _b = _a.isLoading,
-    isLoading = _b === void 0 ? false : _b;
-  if (isLoading) {
-    return (0, jsx_runtime_1.jsxs)(card_1.Card, {
-      children: [
-        (0, jsx_runtime_1.jsx)(card_1.CardHeader, {
-          children: (0, jsx_runtime_1.jsx)(card_1.CardTitle, {
-            children: "Campaign Conversion Metrics",
-          }),
-        }),
-        (0, jsx_runtime_1.jsx)(card_1.CardContent, {
-          children: (0, jsx_runtime_1.jsx)("p", {
-            children: "Loading campaign conversion data...",
-          }),
-        }),
-      ],
-    });
-  }
-  return (0, jsx_runtime_1.jsxs)(card_1.Card, {
-    children: [
-      (0, jsx_runtime_1.jsx)(card_1.CardHeader, {
-        children: (0, jsx_runtime_1.jsx)(card_1.CardTitle, {
-          children: "Campaign Conversion Metrics",
-        }),
-      }),
-      (0, jsx_runtime_1.jsx)(card_1.CardContent, {
-        children: (0, jsx_runtime_1.jsx)("p", {
-          children: "Campaign conversion metrics will be displayed here",
-        }),
-      }),
-    ],
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+const CampaignConversionMetrics = ({ data, isLoading = false }) => {
+    if (isLoading) {
+        return (_jsxs(Card, { children: [_jsx(CardHeader, { children: _jsx(CardTitle, { children: "Campaign Conversion Metrics" }) }), _jsx(CardContent, { children: _jsx("p", { children: "Loading campaign conversion data..." }) })] }));
+    }
+    return (_jsxs(Card, { children: [_jsx(CardHeader, { children: _jsx(CardTitle, { children: "Campaign Conversion Metrics" }) }), _jsx(CardContent, { children: _jsx("p", { children: "Campaign conversion metrics will be displayed here" }) })] }));
 };
-exports.default = CampaignConversionMetrics;
+export default CampaignConversionMetrics;

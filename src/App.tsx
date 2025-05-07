@@ -1,8 +1,8 @@
 import React, { Suspense } from "react";
 import { Toaster } from "sonner";
-import { ThemeProvider } from "./context/ThemeContext";
-import { AuthProvider } from "./context/AuthContext";
-import { GlobalErrorBoundary } from "./components/errorHandling/GlobalErrorBoundary";
+import { ThemeProvider } from "./context/ThemeContext.js";
+import { AuthProvider } from "./context/AuthContext.js";
+import { GlobalErrorBoundary } from "./components/errorHandling/GlobalErrorBoundary.js";
 import { setupErrorLogging } from "./utils/errorHandling/errorLogging";
 import { GlobalErrorModal } from "./components/errorHandling/GlobalErrorModal";
 import { CompanyAPIProvider } from "./context/CompanyAPIContext";

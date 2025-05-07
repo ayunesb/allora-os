@@ -2,7 +2,7 @@ import {
   runExecutiveDebate,
   saveDebateResult,
   analyzeDebateResponse,
-} from "./debateEngine";
+} from "./debateEngine.js";
 import {
   DebateSessionResult,
   DebateEntry,

@@ -19,22 +19,47 @@ import {
   LayoutList,
   ArrowRightCircle,
 } from "lucide-react";
+import type { Lead } from "@/types/Leads";
 
-type LeadProfileDrawerProps = {
-  children: React.ReactNode;
-  variant?: "default" | "detailed";
-  size?: "small" | "large";
-};
+interface LeadProfileDrawerProps {
+  lead: Lead;
+  isOpen: boolean;
+  onClose: () => void;
+  onStatusChange?: (newStatus: string) => void;
+}
 
 export const LeadProfileDrawer: React.FC<LeadProfileDrawerProps> = ({
-  children,
-  variant = "default",
-  size = "large",
+  lead,
+  isOpen,
+  onClose,
+  onStatusChange,
 }) => {
+  if (!isOpen) return null;
+
   const leadScore = getLeadScore(lead);
   const nextAction = getNextBestAction(lead);
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <aside className="drawer">
+      <header>
+        <h2>{lead.name}</h2>
+        <button onClick={onClose} aria-label="Close Drawer">Close</button>
+      </header>
+      <section>
+        <p>Email: {lead.email}</p>
+        <p>Status: {lead.status}</p>
+        {onStatusChange && (
+          <select
+            value={lead.status}
+            onChange={(e) => onStatusChange(e.target.value)}
+            aria-label="Change Lead Status"
+          >
+            <option value="new">New</option>
+            <option value="qualified">Qualified</option>
+            <option value="unqualified">Unqualified</option>
+          </select>
+        )}
+      </section>
       <DrawerContent className="max-h-[85vh]">
         <DrawerHeader>
           <DrawerTitle className="text-xl">{lead.name}</DrawerTitle>
@@ -177,6 +202,6 @@ export const LeadProfileDrawer: React.FC<LeadProfileDrawerProps> = ({
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
+    </aside>
   );
 };

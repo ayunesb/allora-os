@@ -20,12 +20,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { runDebateSession } from "@/agents/debate/debateSession";
 import { toast } from "sonner";
 import { Loader2, AlertTriangle, ThumbsUp, ThumbsDown } from "lucide-react";
+
 export default function ExecutiveDebateRunner() {
   const [task, setTask] = useState("");
   const [riskAppetite, setRiskAppetite] = useState("medium");
   const [businessPriority, setBusinessPriority] = useState("growth");
   const [isLoading, setIsLoading] = useState(false);
   const [debateResult, setDebateResult] = useState(null);
+  const [inputValue, setInputValue] = useState("");
+
   const runDebate = async () => {
     if (!task) {
       toast.error("Please enter a task to debate");
@@ -40,6 +43,7 @@ export default function ExecutiveDebateRunner() {
       );
       setDebateResult(result);
       toast.success("Executive debate completed");
+      setInputValue(""); // Clear the input field after sending
     } catch (error) {
       console.error("Error running debate:", error);
       toast.error("Failed to run executive debate");
@@ -47,6 +51,7 @@ export default function ExecutiveDebateRunner() {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="space-y-6">
       <Card>

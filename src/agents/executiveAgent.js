@@ -1,164 +1,20 @@
-"use strict";
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __generator =
-  (this && this.__generator) ||
-  function (thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function () {
-          if (t[0] & 1) throw t[1];
-          return t[1];
-        },
-        trys: [],
-        ops: [],
-      },
-      f,
-      y,
-      t,
-      g = Object.create(
-        (typeof Iterator === "function" ? Iterator : Object).prototype,
-      );
-    return (
-      (g.next = verb(0)),
-      (g["throw"] = verb(1)),
-      (g["return"] = verb(2)),
-      typeof Symbol === "function" &&
-        (g[Symbol.iterator] = function () {
-          return this;
-        }),
-      g
-    );
-    function verb(n) {
-      return function (v) {
-        return step([n, v]);
-      };
-    }
-    function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
-      while ((g && ((g = 0), op[0] && (_ = 0)), _))
-        try {
-          if (
-            ((f = 1),
-            y &&
-              (t =
-                op[0] & 2
-                  ? y["return"]
-                  : op[0]
-                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                    : y.next) &&
-              !(t = t.call(y, op[1])).done)
-          )
-            return t;
-          if (((y = 0), t)) op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
-              t = op;
-              break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (
-                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
-                (op[0] === 6 || op[0] === 2)
-              ) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2]) _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
-        }
-      if (op[0] & 5) throw op[1];
-      return { value: op[0] ? op[1] : void 0, done: true };
-    }
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getExecutiveDecisions = exports.executiveProfiles = void 0;
-exports.runExecutiveAgent = runExecutiveAgent;
-var uuid_1 = require("uuid");
-var executiveMemory_1 = require("./executiveMemory");
-var client_1 = require("@/integrations/supabase/client");
-var loggingService_1 = require("@/utils/loggingService");
+};
+import { v4 as uuidv4 } from "uuid";
+import { saveExecutiveDecision, } from "./executiveMemory";
+import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/utils/loggingService";
 // Re-export executiveProfiles from agentProfiles
-var agentProfiles_1 = require("./agentProfiles");
-Object.defineProperty(exports, "executiveProfiles", {
-  enumerable: true,
-  get: function () {
-    return agentProfiles_1.executiveProfiles;
-  },
-});
+export { executiveProfiles } from "./agentProfiles";
 // Re-export getExecutiveDecisions from executiveMemory
-var executiveMemory_2 = require("./executiveMemory");
-Object.defineProperty(exports, "getExecutiveDecisions", {
-  enumerable: true,
-  get: function () {
-    return executiveMemory_2.getExecutiveDecisions;
-  },
-});
+export { getExecutiveDecisions } from "./executiveMemory";
 /**
  * Runs an executive agent to make a decision on a given task
  * @param task The task to perform
@@ -166,119 +22,66 @@ Object.defineProperty(exports, "getExecutiveDecisions", {
  * @param options Additional options
  * @returns The decision made by the executive
  */
-function runExecutiveAgent(task_1, executiveProfile_1) {
-  return __awaiter(
-    this,
-    arguments,
-    void 0,
-    function (task, executiveProfile, options) {
-      var _a,
-        saveToDatabase,
-        decisionId,
-        _b,
-        data,
-        error,
-        content,
-        decision,
-        user,
-        error_1;
-      if (options === void 0) {
-        options = {};
-      }
-      return __generator(this, function (_c) {
-        switch (_c.label) {
-          case 0:
-            (_a = options.saveToDatabase),
-              (saveToDatabase = _a === void 0 ? true : _a);
-            _c.label = 1;
-          case 1:
-            _c.trys.push([1, 7, , 8]);
-            loggingService_1.logger.info(
-              "Running "
-                .concat(executiveProfile.name, " (")
-                .concat(executiveProfile.role, ") for task: ")
-                .concat(task),
-            );
-            decisionId = (0, uuid_1.v4)();
-            return [
-              4 /*yield*/,
-              client_1.supabase.functions.invoke("executive-agent", {
+export function runExecutiveAgent(task_1, executiveProfile_1) {
+    return __awaiter(this, arguments, void 0, function* (task, executiveProfile, options = {}) {
+        const { saveToDatabase = true } = options;
+        try {
+            logger.info(`Running ${executiveProfile.name} (${executiveProfile.role}) for task: ${task}`);
+            // Create a UUID for this decision
+            const decisionId = uuidv4();
+            // Call the edge function to get the agent's response
+            const { data, error } = yield supabase.functions.invoke("executive-agent", {
                 body: {
-                  task: task,
-                  executiveName: executiveProfile.name,
-                  executiveRole: executiveProfile.role,
+                    task,
+                    executiveName: executiveProfile.name,
+                    executiveRole: executiveProfile.role,
                 },
-              }),
-            ];
-          case 2:
-            (_b = _c.sent()), (data = _b.data), (error = _b.error);
+            });
             if (error) {
-              throw new Error(
-                "Error running executive agent: ".concat(error.message),
-              );
+                throw new Error(`Error running executive agent: ${error.message}`);
             }
-            content = JSON.parse(data.content);
-            decision = {
-              id: decisionId,
-              executiveName: executiveProfile.name,
-              executiveRole: executiveProfile.role,
-              task: task,
-              options: content.options || [],
-              selectedOption: content.selectedOption || "N/A",
-              reasoning: content.reasoning || "No reasoning provided",
-              riskAssessment:
-                content.riskAssessment || "No risk assessment provided",
-              priority: content.priority || "medium",
-              timestamp: new Date().toISOString(),
-            };
-            if (!saveToDatabase) return [3 /*break*/, 6];
-            return [4 /*yield*/, client_1.supabase.auth.getUser()];
-          case 3:
-            user = _c.sent().data.user;
-            if (!user) return [3 /*break*/, 5];
-            return [
-              4 /*yield*/,
-              (0, executiveMemory_1.saveExecutiveDecision)(decision, user.id),
-            ];
-          case 4:
-            _c.sent();
-            return [3 /*break*/, 6];
-          case 5:
-            loggingService_1.logger.warn(
-              "No user found, decision not saved to database",
-            );
-            _c.label = 6;
-          case 6:
-            return [2 /*return*/, decision];
-          case 7:
-            error_1 = _c.sent();
-            loggingService_1.logger.error(
-              "Error in runExecutiveAgent:",
-              error_1,
-            );
-            // Return a complete fallback decision object with all required properties
-            return [
-              2 /*return*/,
-              {
-                id: (0, uuid_1.v4)(),
+            // Parse the response
+            const content = JSON.parse(data.content);
+            const decision = {
+                id: decisionId,
                 executiveName: executiveProfile.name,
                 executiveRole: executiveProfile.role,
-                task: task,
+                task,
+                options: content.options || [],
+                selectedOption: content.selectedOption || "N/A",
+                reasoning: content.reasoning || "No reasoning provided",
+                riskAssessment: content.riskAssessment || "No risk assessment provided",
+                priority: content.priority || "medium",
+                timestamp: new Date().toISOString(),
+            };
+            // Save the decision to the database if requested
+            if (saveToDatabase) {
+                // Get the current user
+                const { data: { user }, } = yield supabase.auth.getUser();
+                if (user) {
+                    yield saveExecutiveDecision(decision, user.id);
+                }
+                else {
+                    logger.warn("No user found, decision not saved to database");
+                }
+            }
+            return decision;
+        }
+        catch (error) {
+            logger.error("Error in runExecutiveAgent:", error);
+            // Return a complete fallback decision object with all required properties
+            return {
+                id: uuidv4(),
+                executiveName: executiveProfile.name,
+                executiveRole: executiveProfile.role,
+                task,
                 options: ["Error occurred"],
                 selectedOption: "N/A",
-                reasoning:
-                  "Unable to complete task due to technical issues: ".concat(
-                    error_1.message,
-                  ),
+                reasoning: `Unable to complete task due to technical issues: ${error.message}`,
                 riskAssessment: "N/A - Error occurred",
                 priority: "medium",
                 timestamp: new Date().toISOString(),
-              },
-            ];
-          case 8:
-            return [2 /*return*/];
+            };
         }
-      });
-    },
-  );
+    });
 }

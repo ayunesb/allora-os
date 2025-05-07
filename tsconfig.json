@@ -1,14 +1,24 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"],
-      "@/components/*": ["components/*"],
-      "@/pages/*": ["pages/*"],
-      "@/services/*": ["services/*"],
-      "@/layouts/*": ["layouts/*"],
-      "@/hooks/*": ["hooks/*"]
+      "@/*": ["*"]
     },
-    "jsx": "react-jsx"
-  }
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "src/__tests__/**/*",
+    "supabase/functions",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
 }

@@ -31,14 +31,7 @@ export const getAllUsers = async (): Promise<User[]> => {
     // Transform the data to include email (which might come from auth.users
     // but we can't directly query that with client-side code)
     // For now, we'll use the id as a placeholder for email
-    return (data || []).map((profile) => ({
-      id: profile.id,
-      name: profile.name || "",
-      email: `user-${profile.id.substring(0, 8)}@example.com`, // Placeholder email
-      company_id: profile.company_id,
-      role: profile.role as "admin" | "user",
-      created_at: profile.created_at,
-    }));
+    return (data || []).map((profile) => processProfile(profile));
   } catch (error: any) {
     console.error("Error fetching all users:", error.message);
     toast.error(`Admin error: ${error.message}`);
@@ -174,17 +167,21 @@ export const getCompanyUsers = async (companyId: string): Promise<User[]> => {
     }
 
     // Transform the data to include required fields for the User type
-    return (data || []).map((profile) => ({
-      id: profile.id,
-      name: profile.name || "",
-      email: `user-${profile.id.substring(0, 8)}@example.com`, // Placeholder email
-      company_id: profile.company_id,
-      role: profile.role as "admin" | "user",
-      created_at: profile.created_at,
-    }));
+    return (data || []).map((profile) => processProfile(profile));
   } catch (error: any) {
     console.error("Error fetching company users:", error.message);
     toast.error(`Admin error: ${error.message}`);
     return [];
   }
 };
+
+function processProfile(profile: Record<string, any>) {
+  return {
+    id: profile.id,
+    name: profile.name || "",
+    email: `user-${profile.id.substring(0, 8)}@example.com`, // Placeholder email
+    company_id: profile.company_id,
+    role: profile.role as "admin" | "user",
+    created_at: profile.created_at,
+  };
+}

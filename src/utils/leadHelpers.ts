@@ -122,6 +122,6 @@ export function formatLeadData(lead: Lead) {
   return {
     ...lead,
     status: lead.status || "new",
-    campaignName: lead.campaigns?.name || "Unknown Campaign",
+    campaignName: lead.campaigns?.name ?? "Unknown Campaign", // Use nullish coalescing for better handling
   };
 }

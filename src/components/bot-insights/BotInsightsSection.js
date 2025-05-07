@@ -1,197 +1,42 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = BotInsightsSection;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var react_1 = require("react");
-var tabs_1 = require("@/components/ui/tabs");
-var BotInsightCard_1 = require("./BotInsightCard");
-var useCompanyInsights_1 = require("@/hooks/useCompanyInsights");
-var InsightDetailsDialog_1 = require("./InsightDetailsDialog");
-var skeleton_1 = require("@/components/ui/skeleton");
-var card_1 = require("@/components/ui/card");
-var lucide_react_1 = require("lucide-react");
-var button_1 = require("@/components/ui/button");
-var react_router_dom_1 = require("react-router-dom");
-function BotInsightsSection() {
-  var _a = (0, useCompanyInsights_1.useCompanyInsights)(),
-    insights = _a.insights,
-    isLoading = _a.isLoading,
-    error = _a.error;
-  var _b = (0, react_1.useState)(null),
-    selectedInsight = _b[0],
-    setSelectedInsight = _b[1];
-  var _c = (0, react_1.useState)(false),
-    detailsOpen = _c[0],
-    setDetailsOpen = _c[1];
-  var _d = (0, react_1.useState)("all"),
-    activeTab = _d[0],
-    setActiveTab = _d[1];
-  // Handle viewing insight details
-  var handleViewDetails = function (insight) {
-    setSelectedInsight(insight);
-    setDetailsOpen(true);
-  };
-  // Filter insights based on active tab
-  var getFilteredInsights = function () {
-    if (activeTab === "all") return insights;
-    return insights.filter(function (insight) {
-      return insight.type === activeTab;
-    });
-  };
-  // Loading skeletons
-  if (isLoading) {
-    return (0, jsx_runtime_1.jsxs)("div", {
-      className: "space-y-6",
-      children: [
-        (0, jsx_runtime_1.jsxs)("div", {
-          className: "flex items-center gap-4",
-          children: [
-            (0, jsx_runtime_1.jsx)(skeleton_1.Skeleton, {
-              className: "h-10 w-40",
-            }),
-            (0, jsx_runtime_1.jsx)(skeleton_1.Skeleton, {
-              className: "h-10 w-48",
-            }),
-          ],
-        }),
-        (0, jsx_runtime_1.jsx)("div", {
-          className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
-          children: [1, 2, 3].map(function (i) {
-            return (0, jsx_runtime_1.jsx)(
-              skeleton_1.Skeleton,
-              { className: "h-64 w-full" },
-              i,
-            );
-          }),
-        }),
-      ],
-    });
-  }
-  // Error state
-  if (error) {
-    return (0, jsx_runtime_1.jsxs)(card_1.Card, {
-      className: "border-destructive/50",
-      children: [
-        (0, jsx_runtime_1.jsx)(card_1.CardHeader, {
-          className: "text-destructive",
-          children: "Error loading insights",
-        }),
-        (0, jsx_runtime_1.jsx)(card_1.CardContent, {
-          children: (0, jsx_runtime_1.jsx)("p", {
-            className: "text-sm",
-            children:
-              "We encountered a problem while generating insights. Please try again later.",
-          }),
-        }),
-      ],
-    });
-  }
-  // No insights available
-  if (insights.length === 0) {
-    return (0, jsx_runtime_1.jsx)(card_1.Card, {
-      className: "border-dotted",
-      children: (0, jsx_runtime_1.jsxs)(card_1.CardContent, {
-        className:
-          "flex flex-col items-center justify-center py-10 text-center",
-        children: [
-          (0, jsx_runtime_1.jsx)(lucide_react_1.BadgeInfo, {
-            className: "h-10 w-10 text-muted-foreground mb-4",
-          }),
-          (0, jsx_runtime_1.jsx)("h3", {
-            className: "text-lg font-medium mb-2",
-            children: "No AI insights available",
-          }),
-          (0, jsx_runtime_1.jsx)("p", {
-            className: "text-muted-foreground max-w-md mb-4",
-            children:
-              "To generate executive advisor insights, please complete your company details in your profile.",
-          }),
-          (0, jsx_runtime_1.jsx)(button_1.Button, {
-            asChild: true,
-            children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, {
-              to: "/dashboard/profile",
-              children: "Update Company Information",
-            }),
-          }),
-        ],
-      }),
-    });
-  }
-  var filteredInsights = getFilteredInsights();
-  return (0, jsx_runtime_1.jsxs)("div", {
-    className: "space-y-6",
-    children: [
-      (0, jsx_runtime_1.jsxs)(tabs_1.Tabs, {
-        value: activeTab,
-        onValueChange: setActiveTab,
-        children: [
-          (0, jsx_runtime_1.jsxs)(tabs_1.TabsList, {
-            children: [
-              (0, jsx_runtime_1.jsx)(tabs_1.TabsTrigger, {
-                value: "all",
-                children: "All Insights",
-              }),
-              (0, jsx_runtime_1.jsx)(tabs_1.TabsTrigger, {
-                value: "strategy",
-                children: "Strategies",
-              }),
-              (0, jsx_runtime_1.jsx)(tabs_1.TabsTrigger, {
-                value: "campaign",
-                children: "Campaigns",
-              }),
-              (0, jsx_runtime_1.jsx)(tabs_1.TabsTrigger, {
-                value: "call_script",
-                children: "Call Scripts",
-              }),
-            ],
-          }),
-          (0, jsx_runtime_1.jsx)(tabs_1.TabsContent, {
-            value: activeTab,
-            className: "mt-6",
-            children:
-              filteredInsights.length === 0
-                ? (0, jsx_runtime_1.jsx)(card_1.Card, {
-                    children: (0, jsx_runtime_1.jsxs)(card_1.CardContent, {
-                      className:
-                        "flex flex-col items-center justify-center py-10 text-center",
-                      children: [
-                        (0, jsx_runtime_1.jsx)(lucide_react_1.BadgeInfo, {
-                          className: "h-10 w-10 text-muted-foreground mb-4",
-                        }),
-                        (0, jsx_runtime_1.jsx)("h3", {
-                          className: "text-lg font-medium mb-2",
-                          children: "No insights found",
-                        }),
-                        (0, jsx_runtime_1.jsxs)("p", {
-                          className: "text-muted-foreground max-w-md",
-                          children: [
-                            "We couldn't find any ",
-                            activeTab !== "all" ? activeTab + " " : "",
-                            "insights. Try selecting a different filter.",
-                          ],
-                        }),
-                      ],
-                    }),
-                  })
-                : (0, jsx_runtime_1.jsx)("div", {
-                    className:
-                      "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
-                    children: filteredInsights.map(function (insight) {
-                      return (0, jsx_runtime_1.jsx)(
-                        BotInsightCard_1.default,
-                        { insight: insight, onViewDetails: handleViewDetails },
-                        insight.id,
-                      );
-                    }),
-                  }),
-          }),
-        ],
-      }),
-      (0, jsx_runtime_1.jsx)(InsightDetailsDialog_1.default, {
-        insight: selectedInsight,
-        open: detailsOpen,
-        onOpenChange: setDetailsOpen,
-      }),
-    ],
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import BotInsightCard from "./BotInsightCard";
+import { useCompanyInsights } from "@/hooks/useCompanyInsights";
+import InsightDetailsDialog from "./InsightDetailsDialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { BadgeInfo } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+export default function BotInsightsSection() {
+    const { insights, isLoading, error } = useCompanyInsights();
+    const [selectedInsight, setSelectedInsight] = useState(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState("all");
+    // Handle viewing insight details
+    const handleViewDetails = (insight) => {
+        setSelectedInsight(insight);
+        setDetailsOpen(true);
+    };
+    // Filter insights based on active tab
+    const getFilteredInsights = () => {
+        if (activeTab === "all")
+            return insights;
+        return insights.filter((insight) => insight.type === activeTab);
+    };
+    // Loading skeletons
+    if (isLoading) {
+        return (_jsxs("div", { className: "space-y-6", children: [_jsxs("div", { className: "flex items-center gap-4", children: [_jsx(Skeleton, { className: "h-10 w-40" }), _jsx(Skeleton, { className: "h-10 w-48" })] }), _jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", children: [1, 2, 3].map((i) => (_jsx(Skeleton, { className: "h-64 w-full" }, i))) })] }));
+    }
+    // Error state
+    if (error) {
+        return (_jsxs(Card, { className: "border-destructive/50", children: [_jsx(CardHeader, { className: "text-destructive", children: "Error loading insights" }), _jsx(CardContent, { children: _jsx("p", { className: "text-sm", children: "We encountered a problem while generating insights. Please try again later." }) })] }));
+    }
+    // No insights available
+    if (insights.length === 0) {
+        return (_jsx(Card, { className: "border-dotted", children: _jsxs(CardContent, { className: "flex flex-col items-center justify-center py-10 text-center", children: [_jsx(BadgeInfo, { className: "h-10 w-10 text-muted-foreground mb-4" }), _jsx("h3", { className: "text-lg font-medium mb-2", children: "No AI insights available" }), _jsx("p", { className: "text-muted-foreground max-w-md mb-4", children: "To generate executive advisor insights, please complete your company details in your profile." }), _jsx(Button, { asChild: true, children: _jsx(Link, { to: "/dashboard/profile", children: "Update Company Information" }) })] }) }));
+    }
+    const filteredInsights = getFilteredInsights();
+    return (_jsxs("div", { className: "space-y-6", children: [_jsxs(Tabs, { value: activeTab, onValueChange: setActiveTab, children: [_jsxs(TabsList, { children: [_jsx(TabsTrigger, { value: "all", children: "All Insights" }), _jsx(TabsTrigger, { value: "strategy", children: "Strategies" }), _jsx(TabsTrigger, { value: "campaign", children: "Campaigns" }), _jsx(TabsTrigger, { value: "call_script", children: "Call Scripts" })] }), _jsx(TabsContent, { value: activeTab, className: "mt-6", children: filteredInsights.length === 0 ? (_jsx(Card, { children: _jsxs(CardContent, { className: "flex flex-col items-center justify-center py-10 text-center", children: [_jsx(BadgeInfo, { className: "h-10 w-10 text-muted-foreground mb-4" }), _jsx("h3", { className: "text-lg font-medium mb-2", children: "No insights found" }), _jsxs("p", { className: "text-muted-foreground max-w-md", children: ["We couldn't find any", " ", activeTab !== "all" ? activeTab + " " : "", "insights. Try selecting a different filter."] })] }) })) : (_jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", children: filteredInsights.map((insight) => (_jsx(BotInsightCard, { insight: insight, onViewDetails: handleViewDetails }, insight.id))) })) })] }), _jsx(InsightDetailsDialog, { insight: selectedInsight, open: detailsOpen, onOpenChange: setDetailsOpen })] }));
 }

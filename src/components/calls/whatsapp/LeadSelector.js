@@ -1,46 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = LeadSelector;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var label_1 = require("@/components/ui/label");
-var select_1 = require("@/components/ui/select");
-function LeadSelector(_a) {
-  var selectedLeadId = _a.selectedLeadId,
-    onSelectLead = _a.onSelectLead,
-    leads = _a.leads,
-    isLoading = _a.isLoading;
-  return (0, jsx_runtime_1.jsxs)("div", {
-    className: "space-y-2",
-    children: [
-      (0, jsx_runtime_1.jsx)(label_1.Label, {
-        htmlFor: "lead-select",
-        children: "Select Lead (Optional)",
-      }),
-      (0, jsx_runtime_1.jsxs)(select_1.Select, {
-        value: selectedLeadId,
-        onValueChange: onSelectLead,
-        disabled: isLoading,
-        children: [
-          (0, jsx_runtime_1.jsx)(select_1.SelectTrigger, {
-            id: "lead-select",
-            children: (0, jsx_runtime_1.jsx)(select_1.SelectValue, {
-              placeholder: "Select a lead",
-            }),
-          }),
-          (0, jsx_runtime_1.jsx)(select_1.SelectContent, {
-            children:
-              leads === null || leads === void 0
-                ? void 0
-                : leads.map(function (lead) {
-                    return (0, jsx_runtime_1.jsx)(
-                      select_1.SelectItem,
-                      { value: lead.id, children: lead.name },
-                      lead.id,
-                    );
-                  }),
-          }),
-        ],
-      }),
-    ],
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
+export default function LeadSelector({ selectedLeadId, onSelectLead, leads, isLoading, }) {
+    return (_jsxs("div", { className: "space-y-2", children: [_jsx(Label, { htmlFor: "lead-select", children: "Select Lead (Optional)" }), _jsxs(Select, { value: selectedLeadId, onValueChange: onSelectLead, disabled: isLoading, children: [_jsx(SelectTrigger, { id: "lead-select", children: _jsx(SelectValue, { placeholder: "Select a lead" }) }), _jsx(SelectContent, { children: leads === null || leads === void 0 ? void 0 : leads.map((lead) => (_jsx(SelectItem, { value: lead.id, children: lead.name }, lead.id))) })] })] }));
 }

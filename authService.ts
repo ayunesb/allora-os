@@ -1,5 +1,5 @@
-import { AuthService } from "./authService"; // Normalized import casing
-import { Slug, TenantId, CompanyId } from "@/types/fixed"; // Consistent shared types
+import AuthService from "./authService";
+import { Slug, TenantId, CompanyId, FixedType } from "@/types/fixed"; // Consistent shared types
 
 class AuthService {
   // ...existing code...

@@ -1,4 +1,5 @@
-import { enhancedApiClient } from "../api/enhancedApiClient"; // Corrected path
+import enhancedApiClient from '../api/enhancedApiClient';
+import { ApiType } from '../../types/api';
 import type { ApiResponse } from "../../types/api"; // Corrected path
 
 export async function publishTemplate(

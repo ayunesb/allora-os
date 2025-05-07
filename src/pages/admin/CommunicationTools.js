@@ -1,31 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = CommunicationTools;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var card_1 = require("@/components/ui/card");
-function CommunicationTools() {
-  return (0, jsx_runtime_1.jsx)("div", {
-    className: "space-y-6",
-    children: (0, jsx_runtime_1.jsxs)(card_1.Card, {
-      children: [
-        (0, jsx_runtime_1.jsxs)(card_1.CardHeader, {
-          children: [
-            (0, jsx_runtime_1.jsx)(card_1.CardTitle, {
-              children: "Communication Tools",
-            }),
-            (0, jsx_runtime_1.jsx)(card_1.CardDescription, {
-              children:
-                "Configure calling, messaging, and other communication features",
-            }),
-          ],
-        }),
-        (0, jsx_runtime_1.jsx)(card_1.CardContent, {
-          children: (0, jsx_runtime_1.jsx)("p", {
-            children:
-              "Communication tools configuration content will be displayed here.",
-          }),
-        }),
-      ],
-    }),
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
+export default function CommunicationTools() {
+    return (_jsx("div", { className: "space-y-6", children: _jsxs(Card, { children: [_jsxs(CardHeader, { children: [_jsx(CardTitle, { children: "Communication Tools" }), _jsx(CardDescription, { children: "Configure calling, messaging, and other communication features" })] }), _jsx(CardContent, { children: _jsx("p", { children: "Communication tools configuration content will be displayed here." }) })] }) }));
 }

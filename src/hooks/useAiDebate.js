@@ -1,511 +1,227 @@
-"use strict";
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __generator =
-  (this && this.__generator) ||
-  function (thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function () {
-          if (t[0] & 1) throw t[1];
-          return t[1];
-        },
-        trys: [],
-        ops: [],
-      },
-      f,
-      y,
-      t,
-      g = Object.create(
-        (typeof Iterator === "function" ? Iterator : Object).prototype,
-      );
-    return (
-      (g.next = verb(0)),
-      (g["throw"] = verb(1)),
-      (g["return"] = verb(2)),
-      typeof Symbol === "function" &&
-        (g[Symbol.iterator] = function () {
-          return this;
-        }),
-      g
-    );
-    function verb(n) {
-      return function (v) {
-        return step([n, v]);
-      };
-    }
-    function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
-      while ((g && ((g = 0), op[0] && (_ = 0)), _))
+};
+import { useState, useCallback } from "react";
+import { supabase } from "@/backend/supabase";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+export function useAiDebate() {
+    const { user } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+    const [debateId, setDebateId] = useState(null);
+    const [debateMessages, setDebateMessages] = useState([]);
+    const [debateSummary, setDebateSummary] = useState(null);
+    // Initiate a new debate
+    const initiateDebate = useCallback((topic_1, participants_1, ...args_1) => __awaiter(this, [topic_1, participants_1, ...args_1], void 0, function* (topic, participants, context = {}) {
+        if (!(user === null || user === void 0 ? void 0 : user.id)) {
+            toast.error("You must be logged in to start a debate");
+            return null;
+        }
+        setIsLoading(true);
         try {
-          if (
-            ((f = 1),
-            y &&
-              (t =
-                op[0] & 2
-                  ? y["return"]
-                  : op[0]
-                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                    : y.next) &&
-              !(t = t.call(y, op[1])).done)
-          )
-            return t;
-          if (((y = 0), t)) op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
-              t = op;
-              break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (
-                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
-                (op[0] === 6 || op[0] === 2)
-              ) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2]) _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
-        }
-      if (op[0] & 5) throw op[1];
-      return { value: op[0] ? op[1] : void 0, done: true };
-    }
-  };
-var __spreadArray =
-  (this && this.__spreadArray) ||
-  function (to, from, pack) {
-    if (pack || arguments.length === 2)
-      for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-          if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-          ar[i] = from[i];
-        }
-      }
-    return to.concat(ar || Array.prototype.slice.call(from));
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useAiDebate = useAiDebate;
-var react_1 = require("react");
-var supabase_1 = require("@/backend/supabase");
-var AuthContext_1 = require("@/context/AuthContext");
-var sonner_1 = require("sonner");
-function useAiDebate() {
-  var _this = this;
-  var user = (0, AuthContext_1.useAuth)().user;
-  var _a = (0, react_1.useState)(false),
-    isLoading = _a[0],
-    setIsLoading = _a[1];
-  var _b = (0, react_1.useState)(null),
-    debateId = _b[0],
-    setDebateId = _b[1];
-  var _c = (0, react_1.useState)([]),
-    debateMessages = _c[0],
-    setDebateMessages = _c[1];
-  var _d = (0, react_1.useState)(null),
-    debateSummary = _d[0],
-    setDebateSummary = _d[1];
-  // Initiate a new debate
-  var initiateDebate = (0, react_1.useCallback)(
-    function (topic_1, participants_1) {
-      var args_1 = [];
-      for (var _i = 2; _i < arguments.length; _i++) {
-        args_1[_i - 2] = arguments[_i];
-      }
-      return __awaiter(
-        _this,
-        __spreadArray([topic_1, participants_1], args_1, true),
-        void 0,
-        function (topic, participants, context) {
-          var _a, data, error, error_1;
-          if (context === void 0) {
-            context = {};
-          }
-          return __generator(this, function (_b) {
-            switch (_b.label) {
-              case 0:
-                if (!(user === null || user === void 0 ? void 0 : user.id)) {
-                  sonner_1.toast.error(
-                    "You must be logged in to start a debate",
-                  );
-                  return [2 /*return*/, null];
-                }
-                setIsLoading(true);
-                _b.label = 1;
-              case 1:
-                _b.trys.push([1, 3, 4, 5]);
-                return [
-                  4 /*yield*/,
-                  supabase_1.supabase.functions.invoke("debate", {
-                    body: {
-                      action: "initiate_debate",
-                      userId: user.id,
-                      topic: topic,
-                      participants: participants,
-                      context: context,
-                    },
-                  }),
-                ];
-              case 2:
-                (_a = _b.sent()), (data = _a.data), (error = _a.error);
-                if (error) throw error;
-                setDebateId(data.debateId);
-                setDebateMessages([
-                  {
+            const { data, error } = yield supabase.functions.invoke("debate", {
+                body: {
+                    action: "initiate_debate",
+                    userId: user.id,
+                    topic,
+                    participants,
+                    context,
+                },
+            });
+            if (error)
+                throw error;
+            setDebateId(data.debateId);
+            setDebateMessages([
+                {
                     id: "system-0",
                     sender: "system",
-                    content: "Debate started: ".concat(topic),
+                    content: `Debate started: ${topic}`,
                     timestamp: new Date().toISOString(),
                     sequence: 0,
-                  },
-                ]);
-                sonner_1.toast.success("AI executive debate initiated");
-                return [2 /*return*/, data.debateId];
-              case 3:
-                error_1 = _b.sent();
-                console.error("Error initiating debate:", error_1);
-                sonner_1.toast.error("Failed to initiate AI executive debate");
-                return [2 /*return*/, null];
-              case 4:
-                setIsLoading(false);
-                return [7 /*endfinally*/];
-              case 5:
-                return [2 /*return*/];
-            }
-          });
-        },
-      );
-    },
-    [user],
-  );
-  // Add a user message to the debate
-  var addUserMessage = (0, react_1.useCallback)(
-    function (message) {
-      return __awaiter(_this, void 0, void 0, function () {
-        var newMessage_1, _a, data, error, error_2;
-        return __generator(this, function (_b) {
-          switch (_b.label) {
-            case 0:
-              if (
-                !(user === null || user === void 0 ? void 0 : user.id) ||
-                !debateId
-              ) {
-                sonner_1.toast.error("No active debate session");
-                return [2 /*return*/, false];
-              }
-              setIsLoading(true);
-              _b.label = 1;
-            case 1:
-              _b.trys.push([1, 4, 5, 6]);
-              newMessage_1 = {
-                id: "user-".concat(Date.now()),
+                },
+            ]);
+            toast.success("AI executive debate initiated");
+            return data.debateId;
+        }
+        catch (error) {
+            console.error("Error initiating debate:", error);
+            toast.error("Failed to initiate AI executive debate");
+            return null;
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }), [user]);
+    // Add a user message to the debate
+    const addUserMessage = useCallback((message) => __awaiter(this, void 0, void 0, function* () {
+        if (!(user === null || user === void 0 ? void 0 : user.id) || !debateId) {
+            toast.error("No active debate session");
+            return false;
+        }
+        setIsLoading(true);
+        try {
+            // Optimistically add the message to the UI
+            const newMessage = {
+                id: `user-${Date.now()}`,
                 sender: "user",
                 content: message,
                 timestamp: new Date().toISOString(),
                 sequence: debateMessages.length,
-              };
-              setDebateMessages(function (prev) {
-                return __spreadArray(
-                  __spreadArray([], prev, true),
-                  [newMessage_1],
-                  false,
-                );
-              });
-              return [
-                4 /*yield*/,
-                supabase_1.supabase.functions.invoke("debate", {
-                  body: {
+            };
+            setDebateMessages((prev) => [...prev, newMessage]);
+            const { data, error } = yield supabase.functions.invoke("debate", {
+                body: {
                     action: "add_user_message",
                     userId: user.id,
                     userMessage: {
-                      debateId: debateId,
-                      message: message,
+                        debateId,
+                        message,
                     },
-                  },
-                }),
-              ];
-            case 2:
-              (_a = _b.sent()), (data = _a.data), (error = _a.error);
-              if (error) throw error;
-              // Generate executive responses
-              return [4 /*yield*/, generateExecutiveResponses()];
-            case 3:
-              // Generate executive responses
-              _b.sent();
-              return [2 /*return*/, true];
-            case 4:
-              error_2 = _b.sent();
-              console.error("Error adding user message:", error_2);
-              sonner_1.toast.error("Failed to add message to debate");
-              return [2 /*return*/, false];
-            case 5:
-              setIsLoading(false);
-              return [7 /*endfinally*/];
-            case 6:
-              return [2 /*return*/];
-          }
-        });
-      });
-    },
-    [user, debateId, debateMessages],
-  );
-  // Generate responses from all executives
-  var generateExecutiveResponses = (0, react_1.useCallback)(
-    function () {
-      return __awaiter(_this, void 0, void 0, function () {
-        var _a, data, error, newMessages_1, error_3;
-        return __generator(this, function (_b) {
-          switch (_b.label) {
-            case 0:
-              if (
-                !(user === null || user === void 0 ? void 0 : user.id) ||
-                !debateId
-              ) {
-                return [2 /*return*/, false];
-              }
-              setIsLoading(true);
-              _b.label = 1;
-            case 1:
-              _b.trys.push([1, 3, 4, 5]);
-              return [
-                4 /*yield*/,
-                supabase_1.supabase.functions.invoke("debate", {
-                  body: {
+                },
+            });
+            if (error)
+                throw error;
+            // Generate executive responses
+            yield generateExecutiveResponses();
+            return true;
+        }
+        catch (error) {
+            console.error("Error adding user message:", error);
+            toast.error("Failed to add message to debate");
+            return false;
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }), [user, debateId, debateMessages]);
+    // Generate responses from all executives
+    const generateExecutiveResponses = useCallback(() => __awaiter(this, void 0, void 0, function* () {
+        if (!(user === null || user === void 0 ? void 0 : user.id) || !debateId) {
+            return false;
+        }
+        setIsLoading(true);
+        try {
+            const { data, error } = yield supabase.functions.invoke("debate", {
+                body: {
                     action: "generate_executive_responses",
                     userId: user.id,
                     userMessage: {
-                      debateId: debateId,
+                        debateId,
                     },
-                  },
-                }),
-              ];
-            case 2:
-              (_a = _b.sent()), (data = _a.data), (error = _a.error);
-              if (error) throw error;
-              newMessages_1 = data.responses.map(function (resp) {
-                return {
-                  id: ""
-                    .concat(resp.executive.name, "-")
-                    .concat(Date.now(), "-")
-                    .concat(resp.sequence),
-                  sender: resp.executive.name,
-                  senderRole: resp.executive.role,
-                  content: resp.content,
-                  timestamp: new Date().toISOString(),
-                  sequence: resp.sequence,
-                };
-              });
-              setDebateMessages(function (prev) {
-                return __spreadArray(
-                  __spreadArray([], prev, true),
-                  newMessages_1,
-                  true,
-                );
-              });
-              return [2 /*return*/, true];
-            case 3:
-              error_3 = _b.sent();
-              console.error("Error generating executive responses:", error_3);
-              sonner_1.toast.error("Failed to generate AI responses");
-              return [2 /*return*/, false];
-            case 4:
-              setIsLoading(false);
-              return [7 /*endfinally*/];
-            case 5:
-              return [2 /*return*/];
-          }
-        });
-      });
-    },
-    [user, debateId],
-  );
-  // Generate a summary of the debate
-  var generateDebateSummary = (0, react_1.useCallback)(
-    function () {
-      return __awaiter(_this, void 0, void 0, function () {
-        var _a, data, error, error_4;
-        return __generator(this, function (_b) {
-          switch (_b.label) {
-            case 0:
-              if (
-                !(user === null || user === void 0 ? void 0 : user.id) ||
-                !debateId
-              ) {
-                return [2 /*return*/, null];
-              }
-              setIsLoading(true);
-              _b.label = 1;
-            case 1:
-              _b.trys.push([1, 3, 4, 5]);
-              return [
-                4 /*yield*/,
-                supabase_1.supabase.functions.invoke("debate", {
-                  body: {
+                },
+            });
+            if (error)
+                throw error;
+            // Add the responses to the UI
+            const newMessages = data.responses.map((resp) => ({
+                id: `${resp.executive.name}-${Date.now()}-${resp.sequence}`,
+                sender: resp.executive.name,
+                senderRole: resp.executive.role,
+                content: resp.content,
+                timestamp: new Date().toISOString(),
+                sequence: resp.sequence,
+            }));
+            setDebateMessages((prev) => [...prev, ...newMessages]);
+            return true;
+        }
+        catch (error) {
+            console.error("Error generating executive responses:", error);
+            toast.error("Failed to generate AI responses");
+            return false;
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }), [user, debateId]);
+    // Generate a summary of the debate
+    const generateDebateSummary = useCallback(() => __awaiter(this, void 0, void 0, function* () {
+        if (!(user === null || user === void 0 ? void 0 : user.id) || !debateId) {
+            return null;
+        }
+        setIsLoading(true);
+        try {
+            const { data, error } = yield supabase.functions.invoke("debate", {
+                body: {
                     action: "generate_debate_summary",
                     userId: user.id,
                     userMessage: {
-                      debateId: debateId,
+                        debateId,
                     },
-                  },
-                }),
-              ];
-            case 2:
-              (_a = _b.sent()), (data = _a.data), (error = _a.error);
-              if (error) throw error;
-              setDebateSummary(data.summary);
-              sonner_1.toast.success("Debate summary generated");
-              return [2 /*return*/, data.summary];
-            case 3:
-              error_4 = _b.sent();
-              console.error("Error generating debate summary:", error_4);
-              sonner_1.toast.error("Failed to generate debate summary");
-              return [2 /*return*/, null];
-            case 4:
-              setIsLoading(false);
-              return [7 /*endfinally*/];
-            case 5:
-              return [2 /*return*/];
-          }
-        });
-      });
-    },
-    [user, debateId],
-  );
-  // Fetch messages for an existing debate
-  var fetchDebateMessages = (0, react_1.useCallback)(
-    function (existingDebateId) {
-      return __awaiter(_this, void 0, void 0, function () {
-        var _a, data, error, formattedMessages, error_5;
-        return __generator(this, function (_b) {
-          switch (_b.label) {
-            case 0:
-              if (!(user === null || user === void 0 ? void 0 : user.id)) {
-                return [2 /*return*/, false];
-              }
-              setIsLoading(true);
-              setDebateId(existingDebateId);
-              _b.label = 1;
-            case 1:
-              _b.trys.push([1, 3, 4, 5]);
-              return [
-                4 /*yield*/,
-                supabase_1.supabase
-                  .from("debate_messages")
-                  .select("*")
-                  .eq("debate_id", existingDebateId)
-                  .order("sequence", { ascending: true }),
-              ];
-            case 2:
-              (_a = _b.sent()), (data = _a.data), (error = _a.error);
-              if (error) throw error;
-              formattedMessages = data.map(function (msg) {
-                return {
-                  id: "".concat(msg.sender, "-").concat(msg.id),
-                  sender: msg.sender,
-                  senderRole: msg.sender_role,
-                  content: msg.content,
-                  timestamp: msg.created_at,
-                  sequence: msg.sequence,
-                };
-              });
-              setDebateMessages(formattedMessages);
-              return [2 /*return*/, true];
-            case 3:
-              error_5 = _b.sent();
-              console.error("Error fetching debate messages:", error_5);
-              sonner_1.toast.error("Failed to load debate history");
-              return [2 /*return*/, false];
-            case 4:
-              setIsLoading(false);
-              return [7 /*endfinally*/];
-            case 5:
-              return [2 /*return*/];
-          }
-        });
-      });
-    },
-    [user],
-  );
-  // Reset the debate state
-  var resetDebate = (0, react_1.useCallback)(function () {
-    setDebateId(null);
-    setDebateMessages([]);
-    setDebateSummary(null);
-  }, []);
-  return {
-    isLoading: isLoading,
-    debateId: debateId,
-    debateMessages: debateMessages,
-    debateSummary: debateSummary,
-    initiateDebate: initiateDebate,
-    addUserMessage: addUserMessage,
-    generateExecutiveResponses: generateExecutiveResponses,
-    generateDebateSummary: generateDebateSummary,
-    fetchDebateMessages: fetchDebateMessages,
-    resetDebate: resetDebate,
-  };
+                },
+            });
+            if (error)
+                throw error;
+            setDebateSummary(data.summary);
+            toast.success("Debate summary generated");
+            return data.summary;
+        }
+        catch (error) {
+            console.error("Error generating debate summary:", error);
+            toast.error("Failed to generate debate summary");
+            return null;
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }), [user, debateId]);
+    // Fetch messages for an existing debate
+    const fetchDebateMessages = useCallback((existingDebateId) => __awaiter(this, void 0, void 0, function* () {
+        if (!(user === null || user === void 0 ? void 0 : user.id)) {
+            return false;
+        }
+        setIsLoading(true);
+        setDebateId(existingDebateId);
+        try {
+            // Get debate messages from Supabase
+            const { data, error } = yield supabase
+                .from("debate_messages")
+                .select("*")
+                .eq("debate_id", existingDebateId)
+                .order("sequence", { ascending: true });
+            if (error)
+                throw error;
+            const formattedMessages = data.map((msg) => ({
+                id: `${msg.sender}-${msg.id}`,
+                sender: msg.sender,
+                senderRole: msg.sender_role,
+                content: msg.content,
+                timestamp: msg.created_at,
+                sequence: msg.sequence,
+            }));
+            setDebateMessages(formattedMessages);
+            return true;
+        }
+        catch (error) {
+            console.error("Error fetching debate messages:", error);
+            toast.error("Failed to load debate history");
+            return false;
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }), [user]);
+    // Reset the debate state
+    const resetDebate = useCallback(() => {
+        setDebateId(null);
+        setDebateMessages([]);
+        setDebateSummary(null);
+    }, []);
+    return {
+        isLoading,
+        debateId,
+        debateMessages,
+        debateSummary,
+        initiateDebate,
+        addUserMessage,
+        generateExecutiveResponses,
+        generateDebateSummary,
+        fetchDebateMessages,
+        resetDebate,
+    };
 }

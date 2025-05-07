@@ -2,7 +2,34 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-const AlertDialog = AlertDialogPrimitive.Root;
+
+interface AlertDialogProps {
+  title: string;
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+}
+
+export const AlertDialog: React.FC<AlertDialogProps> = ({
+  title,
+  description = "", // Default value
+  confirmText = "OK",
+  cancelText = "Cancel",
+  onConfirm = () => {}, // Default value
+  onCancel = () => {}, // Default value
+}) => {
+  return (
+    <div>
+      <h2>{title}</h2>
+      <p>{description}</p>
+      <button onClick={onConfirm}>{confirmText}</button>
+      <button onClick={onCancel}>{cancelText}</button>
+    </div>
+  );
+};
+
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
 const AlertDialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
@@ -90,7 +117,6 @@ const AlertDialogCancel = React.forwardRef(({ className, ...props }, ref) => (
 ));
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
 export {
-  AlertDialog,
   AlertDialogPortal,
   AlertDialogOverlay,
   AlertDialogTrigger,

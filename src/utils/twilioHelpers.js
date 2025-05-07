@@ -1,386 +1,136 @@
-"use strict";
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __generator =
-  (this && this.__generator) ||
-  function (thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function () {
-          if (t[0] & 1) throw t[1];
-          return t[1];
-        },
-        trys: [],
-        ops: [],
-      },
-      f,
-      y,
-      t,
-      g = Object.create(
-        (typeof Iterator === "function" ? Iterator : Object).prototype,
-      );
-    return (
-      (g.next = verb(0)),
-      (g["throw"] = verb(1)),
-      (g["return"] = verb(2)),
-      typeof Symbol === "function" &&
-        (g[Symbol.iterator] = function () {
-          return this;
-        }),
-      g
-    );
-    function verb(n) {
-      return function (v) {
-        return step([n, v]);
-      };
-    }
-    function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
-      while ((g && ((g = 0), op[0] && (_ = 0)), _))
+};
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+export function sendSMS(to_1, body_1, leadId_1) {
+    return __awaiter(this, arguments, void 0, function* (to, body, leadId, channel = "sms") {
         try {
-          if (
-            ((f = 1),
-            y &&
-              (t =
-                op[0] & 2
-                  ? y["return"]
-                  : op[0]
-                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                    : y.next) &&
-              !(t = t.call(y, op[1])).done)
-          )
-            return t;
-          if (((y = 0), t)) op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
-              t = op;
-              break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (
-                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
-                (op[0] === 6 || op[0] === 2)
-              ) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2]) _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
-        }
-      if (op[0] & 5) throw op[1];
-      return { value: op[0] ? op[1] : void 0, done: true };
-    }
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendSMS = sendSMS;
-exports.sendWhatsApp = sendWhatsApp;
-exports.sendBulkSMS = sendBulkSMS;
-exports.sendBulkWhatsApp = sendBulkWhatsApp;
-exports.getWhatsAppTemplates = getWhatsAppTemplates;
-exports.sendWhatsAppTemplate = sendWhatsAppTemplate;
-exports.trackMessageStatus = trackMessageStatus;
-var client_1 = require("@/integrations/supabase/client");
-var sonner_1 = require("sonner");
-function sendSMS(to_1, body_1, leadId_1) {
-  return __awaiter(
-    this,
-    arguments,
-    void 0,
-    function (to, body, leadId, channel) {
-      var _a, data, error, channelName, error_1, channelName;
-      if (channel === void 0) {
-        channel = "sms";
-      }
-      return __generator(this, function (_b) {
-        switch (_b.label) {
-          case 0:
-            _b.trys.push([0, 2, , 3]);
-            return [
-              4 /*yield*/,
-              client_1.supabase.functions.invoke("twilio", {
-                body: {
-                  action: "send-sms",
-                  to: to,
-                  body: body,
-                  leadId: leadId,
-                  channel: channel,
-                },
-              }),
-            ];
-          case 1:
-            (_a = _b.sent()), (data = _a.data), (error = _a.error);
-            if (error) throw error;
+            const { data, error } = yield supabase.functions.invoke("twilio", {
+                body: { action: "send-sms", to, body, leadId, channel },
+            });
+            if (error)
+                throw error;
             if (data.success) {
-              channelName = channel === "whatsapp" ? "WhatsApp message" : "SMS";
-              sonner_1.toast.success(
-                "".concat(channelName, " sent successfully"),
-              );
-              return [2 /*return*/, true];
-            } else {
-              throw new Error(
-                data.message || "Failed to send ".concat(channel),
-              );
+                const channelName = channel === "whatsapp" ? "WhatsApp message" : "SMS";
+                toast.success(`${channelName} sent successfully`);
+                return true;
             }
-            return [3 /*break*/, 3];
-          case 2:
-            error_1 = _b.sent();
-            channelName = channel === "whatsapp" ? "WhatsApp" : "SMS";
-            sonner_1.toast.error(
-              "".concat(channelName, " error: ").concat(error_1.message),
-            );
-            return [2 /*return*/, false];
-          case 3:
-            return [2 /*return*/];
+            else {
+                throw new Error(data.message || `Failed to send ${channel}`);
+            }
         }
-      });
-    },
-  );
-}
-function sendWhatsApp(to, body, leadId) {
-  return __awaiter(this, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-      return [2 /*return*/, sendSMS(to, body, leadId, "whatsapp")];
+        catch (error) {
+            const channelName = channel === "whatsapp" ? "WhatsApp" : "SMS";
+            toast.error(`${channelName} error: ${error.message}`);
+            return false;
+        }
     });
-  });
 }
-function sendBulkSMS(body_1, messageType_1) {
-  return __awaiter(
-    this,
-    arguments,
-    void 0,
-    function (body, messageType, channel) {
-      var _a, data, error, channelName, error_2, channelName;
-      if (channel === void 0) {
-        channel = "sms";
-      }
-      return __generator(this, function (_b) {
-        switch (_b.label) {
-          case 0:
-            _b.trys.push([0, 2, , 3]);
-            return [
-              4 /*yield*/,
-              client_1.supabase.functions.invoke("twilio", {
-                body: {
-                  action: "send-bulk-sms",
-                  body: body,
-                  messageType: messageType,
-                  channel: channel,
-                },
-              }),
-            ];
-          case 1:
-            (_a = _b.sent()), (data = _a.data), (error = _a.error);
-            if (error) throw error;
+export function sendWhatsApp(to, body, leadId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return sendSMS(to, body, leadId, "whatsapp");
+    });
+}
+export function sendBulkSMS(body_1, messageType_1) {
+    return __awaiter(this, arguments, void 0, function* (body, messageType, channel = "sms") {
+        try {
+            const { data, error } = yield supabase.functions.invoke("twilio", {
+                body: { action: "send-bulk-sms", body, messageType, channel },
+            });
+            if (error)
+                throw error;
             if (data.success) {
-              channelName =
-                channel === "whatsapp" ? "WhatsApp messages" : "SMS messages";
-              sonner_1.toast.success(
-                "Sent "
-                  .concat(data.totalSent, " ")
-                  .concat(channelName, ", failed ")
-                  .concat(data.totalFailed),
-              );
-              return [2 /*return*/, data];
-            } else {
-              throw new Error(
-                data.message || "Failed to send bulk ".concat(channel),
-              );
+                const channelName = channel === "whatsapp" ? "WhatsApp messages" : "SMS messages";
+                toast.success(`Sent ${data.totalSent} ${channelName}, failed ${data.totalFailed}`);
+                return data;
             }
-            return [3 /*break*/, 3];
-          case 2:
-            error_2 = _b.sent();
-            channelName = channel === "whatsapp" ? "WhatsApp" : "SMS";
-            sonner_1.toast.error(
-              "Bulk ".concat(channelName, " error: ").concat(error_2.message),
-            );
-            return [2 /*return*/, null];
-          case 3:
-            return [2 /*return*/];
+            else {
+                throw new Error(data.message || `Failed to send bulk ${channel}`);
+            }
         }
-      });
-    },
-  );
-}
-function sendBulkWhatsApp(body, messageType) {
-  return __awaiter(this, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-      return [2 /*return*/, sendBulkSMS(body, messageType, "whatsapp")];
+        catch (error) {
+            const channelName = channel === "whatsapp" ? "WhatsApp" : "SMS";
+            toast.error(`Bulk ${channelName} error: ${error.message}`);
+            return null;
+        }
     });
-  });
 }
-function getWhatsAppTemplates() {
-  return __awaiter(this, void 0, void 0, function () {
-    var _a, data, error, error_3;
-    return __generator(this, function (_b) {
-      switch (_b.label) {
-        case 0:
-          _b.trys.push([0, 2, , 3]);
-          return [
-            4 /*yield*/,
-            client_1.supabase.functions.invoke("twilio", {
-              body: { action: "get-whatsapp-templates" },
-            }),
-          ];
-        case 1:
-          (_a = _b.sent()), (data = _a.data), (error = _a.error);
-          if (error) {
-            console.error("Error invoking Twilio function:", error);
-            throw new Error(
-              "Error invoking Twilio function: ".concat(error.message),
-            );
-          }
-          if (!data.success) {
-            console.error("Error from Twilio API:", data.error);
-            throw new Error(
-              data.error || "Failed to retrieve WhatsApp templates",
-            );
-          }
-          return [2 /*return*/, data.templates || []];
-        case 2:
-          error_3 = _b.sent();
-          console.error("WhatsApp template fetch error:", error_3);
-          sonner_1.toast.error(
-            "Error fetching WhatsApp templates: ".concat(error_3.message),
-          );
-          throw error_3; // Re-throw to allow caller to handle
-        case 3:
-          return [2 /*return*/];
-      }
+export function sendBulkWhatsApp(body, messageType) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return sendBulkSMS(body, messageType, "whatsapp");
     });
-  });
 }
-function sendWhatsAppTemplate(to, templateName, variables, leadId) {
-  return __awaiter(this, void 0, void 0, function () {
-    var _a, data, error, error_4;
-    return __generator(this, function (_b) {
-      switch (_b.label) {
-        case 0:
-          _b.trys.push([0, 2, , 3]);
-          return [
-            4 /*yield*/,
-            client_1.supabase.functions.invoke("twilio", {
-              body: {
-                action: "send-whatsapp-template",
-                to: to,
-                templateName: templateName,
-                variables: variables,
-                leadId: leadId,
-              },
-            }),
-          ];
-        case 1:
-          (_a = _b.sent()), (data = _a.data), (error = _a.error);
-          if (error) throw error;
-          if (data.success) {
-            sonner_1.toast.success("WhatsApp template sent successfully");
-            return [2 /*return*/, true];
-          } else {
-            throw new Error(data.message || "Failed to send WhatsApp template");
-          }
-          return [3 /*break*/, 3];
-        case 2:
-          error_4 = _b.sent();
-          sonner_1.toast.error(
-            "WhatsApp template error: ".concat(error_4.message),
-          );
-          return [2 /*return*/, false];
-        case 3:
-          return [2 /*return*/];
-      }
+export function getWhatsAppTemplates() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { data, error } = yield supabase.functions.invoke("twilio", {
+                body: { action: "get-whatsapp-templates" },
+            });
+            if (error) {
+                console.error("Error invoking Twilio function:", error);
+                throw new Error(`Error invoking Twilio function: ${error.message}`);
+            }
+            if (!data.success) {
+                console.error("Error from Twilio API:", data.error);
+                throw new Error(data.error || "Failed to retrieve WhatsApp templates");
+            }
+            return data.templates || [];
+        }
+        catch (error) {
+            console.error("WhatsApp template fetch error:", error);
+            toast.error(`Error fetching WhatsApp templates: ${error.message}`);
+            throw error; // Re-throw to allow caller to handle
+        }
     });
-  });
 }
-function trackMessageStatus(messageSid) {
-  return __awaiter(this, void 0, void 0, function () {
-    var _a, data, error, error_5;
-    return __generator(this, function (_b) {
-      switch (_b.label) {
-        case 0:
-          _b.trys.push([0, 2, , 3]);
-          return [
-            4 /*yield*/,
-            client_1.supabase.functions.invoke("twilio", {
-              body: { action: "get-message-status", messageSid: messageSid },
-            }),
-          ];
-        case 1:
-          (_a = _b.sent()), (data = _a.data), (error = _a.error);
-          if (error) throw error;
-          return [2 /*return*/, data.status || "unknown"];
-        case 2:
-          error_5 = _b.sent();
-          console.error(
-            "Error tracking message status: ".concat(error_5.message),
-          );
-          return [2 /*return*/, "error"];
-        case 3:
-          return [2 /*return*/];
-      }
+export function sendWhatsAppTemplate(to, templateName, variables, leadId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { data, error } = yield supabase.functions.invoke("twilio", {
+                body: {
+                    action: "send-whatsapp-template",
+                    to,
+                    templateName,
+                    variables,
+                    leadId,
+                },
+            });
+            if (error)
+                throw error;
+            if (data.success) {
+                toast.success("WhatsApp template sent successfully");
+                return true;
+            }
+            else {
+                throw new Error(data.message || "Failed to send WhatsApp template");
+            }
+        }
+        catch (error) {
+            toast.error(`WhatsApp template error: ${error.message}`);
+            return false;
+        }
     });
-  });
+}
+export function trackMessageStatus(messageSid) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { data, error } = yield supabase.functions.invoke("twilio", {
+                body: { action: "get-message-status", messageSid },
+            });
+            if (error)
+                throw error;
+            return data.status || "unknown";
+        }
+        catch (error) {
+            console.error(`Error tracking message status: ${error.message}`);
+            return "error";
+        }
+    });
 }

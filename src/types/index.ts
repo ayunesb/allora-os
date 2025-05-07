@@ -1,3 +1,7 @@
+/**
+ * @stable
+ * This file is locked and strictly typed.
+ */
 // Export base types
 export * from "./fixed/User";
 export * from "./fixed/Auth";

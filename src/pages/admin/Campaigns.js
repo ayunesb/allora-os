@@ -1,29 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = Campaigns;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var card_1 = require("@/components/ui/card");
-function Campaigns() {
-  return (0, jsx_runtime_1.jsx)("div", {
-    className: "space-y-6",
-    children: (0, jsx_runtime_1.jsxs)(card_1.Card, {
-      children: [
-        (0, jsx_runtime_1.jsxs)(card_1.CardHeader, {
-          children: [
-            (0, jsx_runtime_1.jsx)(card_1.CardTitle, {
-              children: "Campaign Management",
-            }),
-            (0, jsx_runtime_1.jsx)(card_1.CardDescription, {
-              children: "Manage marketing campaigns across different platforms",
-            }),
-          ],
-        }),
-        (0, jsx_runtime_1.jsx)(card_1.CardContent, {
-          children: (0, jsx_runtime_1.jsx)("p", {
-            children: "Campaign management content will be displayed here.",
-          }),
-        }),
-      ],
-    }),
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card";
+export default function Campaigns() {
+    return (_jsx("div", { className: "space-y-6", children: _jsxs(Card, { children: [_jsxs(CardHeader, { children: [_jsx(CardTitle, { children: "Campaign Management" }), _jsx(CardDescription, { children: "Manage marketing campaigns across different platforms" })] }), _jsx(CardContent, { children: _jsx("p", { children: "Campaign management content will be displayed here." }) })] }) }));
 }

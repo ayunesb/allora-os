@@ -1,64 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var jsx_runtime_1 = require("react/jsx-runtime");
-var card_1 = require("@/components/ui/card");
-var lucide_react_1 = require("lucide-react");
-var BotInfo = function (_a) {
-  var bot = _a.bot;
-  return (0, jsx_runtime_1.jsxs)("div", {
-    className: "flex items-start gap-4",
-    children: [
-      (0, jsx_runtime_1.jsx)("div", {
-        className:
-          "h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0",
-        "aria-hidden": "true",
-        children: (0, jsx_runtime_1.jsx)(lucide_react_1.Bot, {
-          className: "h-6 w-6 text-primary",
-        }),
-      }),
-      (0, jsx_runtime_1.jsxs)("div", {
-        className: "overflow-hidden",
-        children: [
-          (0, jsx_runtime_1.jsx)(card_1.CardTitle, {
-            id: "bot-".concat(bot.name.replace(/\s+/g, "-").toLowerCase()),
-            children: bot.name,
-          }),
-          (0, jsx_runtime_1.jsxs)(card_1.CardDescription, {
-            className: "flex items-center gap-1 mt-1 truncate",
-            "aria-labelledby": "bot-".concat(
-              bot.name.replace(/\s+/g, "-").toLowerCase(),
-            ),
-            children: [
-              (0, jsx_runtime_1.jsx)(lucide_react_1.Briefcase, {
-                className: "h-3.5 w-3.5 flex-shrink-0",
-                "aria-hidden": "true",
-              }),
-              (0, jsx_runtime_1.jsx)("span", {
-                className: "truncate",
-                children: bot.title,
-              }),
-            ],
-          }),
-          (0, jsx_runtime_1.jsxs)("div", {
-            className:
-              "flex items-center gap-1 text-sm text-muted-foreground mt-1 truncate",
-            "aria-label": ""
-              .concat(bot.name, "'s expertise: ")
-              .concat(bot.expertise),
-            children: [
-              (0, jsx_runtime_1.jsx)(lucide_react_1.GraduationCap, {
-                className: "h-3.5 w-3.5 flex-shrink-0",
-                "aria-hidden": "true",
-              }),
-              (0, jsx_runtime_1.jsx)("span", {
-                className: "truncate",
-                children: bot.expertise,
-              }),
-            ],
-          }),
-        ],
-      }),
-    ],
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { CardTitle, CardDescription } from "@/components/ui/card";
+import { Bot, Briefcase, GraduationCap } from "lucide-react";
+const BotInfo = ({ bot }) => {
+    return (_jsxs("div", { className: "flex items-start gap-4", children: [_jsx("div", { className: "h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0", "aria-hidden": "true", children: _jsx(Bot, { className: "h-6 w-6 text-primary" }) }), _jsxs("div", { className: "overflow-hidden", children: [_jsx(CardTitle, { id: `bot-${bot.name.replace(/\s+/g, "-").toLowerCase()}`, children: bot.name }), _jsxs(CardDescription, { className: "flex items-center gap-1 mt-1 truncate", "aria-labelledby": `bot-${bot.name.replace(/\s+/g, "-").toLowerCase()}`, children: [_jsx(Briefcase, { className: "h-3.5 w-3.5 flex-shrink-0", "aria-hidden": "true" }), _jsx("span", { className: "truncate", children: bot.title })] }), _jsxs("div", { className: "flex items-center gap-1 text-sm text-muted-foreground mt-1 truncate", "aria-label": `${bot.name}'s expertise: ${bot.expertise}`, children: [_jsx(GraduationCap, { className: "h-3.5 w-3.5 flex-shrink-0", "aria-hidden": "true" }), _jsx("span", { className: "truncate", children: bot.expertise })] })] })] }));
 };
-exports.default = BotInfo;
+export default BotInfo;

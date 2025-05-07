@@ -1,6 +1,6 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-export default async function logPluginEvent(session, pluginId) {
+export default async function logPluginEvent(session: any, pluginId: string) {
   const supabase = createClientComponentClient();
 
   await supabase.from("plugin_logs").insert({

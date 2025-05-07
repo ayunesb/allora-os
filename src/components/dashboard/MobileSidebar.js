@@ -1,19 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MobileSidebar = MobileSidebar;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var sheet_1 = require("@/components/ui/sheet");
-var Sidebar_1 = require("./Sidebar");
-function MobileSidebar(_a) {
-  var open = _a.open,
-    onClose = _a.onClose;
-  return (0, jsx_runtime_1.jsx)(sheet_1.Sheet, {
-    open: open,
-    onOpenChange: onClose,
-    children: (0, jsx_runtime_1.jsx)(sheet_1.SheetContent, {
-      side: "left",
-      className: "p-0 w-72",
-      children: (0, jsx_runtime_1.jsx)(Sidebar_1.Sidebar, {}),
-    }),
-  });
+import { jsx as _jsx } from "react/jsx-runtime";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sidebar } from "./Sidebar";
+export function MobileSidebar({ open, onClose }) {
+    return (_jsx(Sheet, { open: open, onOpenChange: onClose, children: _jsx(SheetContent, { side: "left", className: "p-0 w-72", children: _jsx(Sidebar, {}) }) }));
 }

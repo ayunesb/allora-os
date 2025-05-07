@@ -1,31 +1,33 @@
-import * as React from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "outline";
-  size?: "sm" | "lg";
-  children: React.ReactNode;
+interface ButtonProps {
+    children: React.ReactNode;
+    variant?: "default" | "outline" | "ghost";
+    size?: "sm" | "md" | "lg";
+    onClick?: () => void;
+    disabled?: boolean;
+    className?: string; // Ensure optional
+    type?: "button" | "submit" | "reset";
 }
 
 export const Button: React.FC<ButtonProps> = ({
-  children,
-  className,
-  variant = "default",
-  size = "sm",
-  ...props
+    children,
+    variant = "default",
+    size = "md",
+    onClick,
+    disabled = false,
+    className = "", // Default value
+    type = "button",
 }) => {
-  return (
-    <button
-      className={cn(
-        "btn",
-        variant === "outline" && "btn-outline",
-        size === "lg" && "btn-lg",
-        size === "sm" && "btn-sm",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
+    return (
+        <button
+            type={type}
+            onClick={onClick}
+            disabled={disabled}
+            className={`btn ${variant} ${size} ${className}`.trim()} // Ensure no trailing spaces
+        >
+            {children}
+        </button>
+    );
 };

@@ -1,54 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = DashboardModulesPage;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var card_1 = require("@/components/ui/card");
-function DashboardModulesPage() {
-  return (0, jsx_runtime_1.jsxs)("div", {
-    className: "space-y-6",
-    children: [
-      (0, jsx_runtime_1.jsx)("h1", {
-        className: "text-3xl font-bold tracking-tight",
-        children: "Dashboard Modules",
-      }),
-      (0, jsx_runtime_1.jsx)("p", {
-        className: "text-muted-foreground",
-        children: "Configure and manage dashboard modules and components.",
-      }),
-      (0, jsx_runtime_1.jsxs)("div", {
-        className: "grid gap-4 md:grid-cols-2",
-        children: [
-          (0, jsx_runtime_1.jsxs)(card_1.Card, {
-            children: [
-              (0, jsx_runtime_1.jsx)(card_1.CardHeader, {
-                children: (0, jsx_runtime_1.jsx)(card_1.CardTitle, {
-                  children: "Module Manager",
-                }),
-              }),
-              (0, jsx_runtime_1.jsx)(card_1.CardContent, {
-                children: (0, jsx_runtime_1.jsx)("p", {
-                  children:
-                    "Dashboard module management interface will be displayed here.",
-                }),
-              }),
-            ],
-          }),
-          (0, jsx_runtime_1.jsxs)(card_1.Card, {
-            children: [
-              (0, jsx_runtime_1.jsx)(card_1.CardHeader, {
-                children: (0, jsx_runtime_1.jsx)(card_1.CardTitle, {
-                  children: "Layout Configuration",
-                }),
-              }),
-              (0, jsx_runtime_1.jsx)(card_1.CardContent, {
-                children: (0, jsx_runtime_1.jsx)("p", {
-                  children: "Configure dashboard layouts and positioning here.",
-                }),
-              }),
-            ],
-          }),
-        ],
-      }),
-    ],
-  });
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+export default function DashboardModulesPage() {
+    return (_jsxs("div", { className: "space-y-6", children: [_jsx("h1", { className: "text-3xl font-bold tracking-tight", children: "Dashboard Modules" }), _jsx("p", { className: "text-muted-foreground", children: "Configure and manage dashboard modules and components." }), _jsxs("div", { className: "grid gap-4 md:grid-cols-2", children: [_jsxs(Card, { children: [_jsx(CardHeader, { children: _jsx(CardTitle, { children: "Module Manager" }) }), _jsx(CardContent, { children: _jsx("p", { children: "Dashboard module management interface will be displayed here." }) })] }), _jsxs(Card, { children: [_jsx(CardHeader, { children: _jsx(CardTitle, { children: "Layout Configuration" }) }), _jsx(CardContent, { children: _jsx("p", { children: "Configure dashboard layouts and positioning here." }) })] })] })] }));
 }

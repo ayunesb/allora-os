@@ -1,29 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Goals = Goals;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var GoalsForm_1 = require("@/components/onboarding/GoalsForm");
-function Goals(_a) {
-  var goals = _a.goals,
-    toggleGoal = _a.toggleGoal,
-    companyName = _a.companyName,
-    industry = _a.industry,
-    companyDetails = _a.companyDetails,
-    updateCompanyDetails = _a.updateCompanyDetails,
-    errorMessage = _a.errorMessage;
-  return (0, jsx_runtime_1.jsx)(GoalsForm_1.default, {
-    goals: goals,
-    toggleGoal: toggleGoal,
-    companyName: companyName,
-    industry: industry,
-    companyDetails: companyDetails,
-    updateCompanyDetails: updateCompanyDetails,
-    error: (
-      errorMessage === null || errorMessage === void 0
-        ? void 0
-        : errorMessage.includes("goal")
-    )
-      ? errorMessage
-      : undefined,
-  });
+import { jsx as _jsx } from "react/jsx-runtime";
+import GoalsForm from "@/components/onboarding/GoalsForm";
+export function Goals({ goals, toggleGoal, companyName, industry, companyDetails, updateCompanyDetails, errorMessage, }) {
+    return (_jsx(GoalsForm, { goals: goals, toggleGoal: toggleGoal, companyName: companyName, industry: industry, companyDetails: companyDetails, updateCompanyDetails: updateCompanyDetails, error: (errorMessage === null || errorMessage === void 0 ? void 0 : errorMessage.includes("goal")) ? errorMessage : undefined }));
 }

@@ -68,5 +68,13 @@ export async function testDebateSession() {
   }
 }
 
+function evaluateRisk(risk: number, i: number): void {
+  // ...existing code...
+}
+
+function analyzeOpponent(opp: string, i: number): void {
+  // ...existing code...
+}
+
 // Uncomment to run the test directly
 // testDebateSession().catch(console.error);

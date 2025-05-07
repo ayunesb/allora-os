@@ -1,98 +1,16 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var jsx_runtime_1 = require("react/jsx-runtime");
-var react_1 = require("react");
-var react_router_dom_1 = require("react-router-dom");
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Suspense, lazy } from "react";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 // Lazy load compliance components
-var ComplianceLayout = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/components/ComplianceLayout");
-  });
-});
-var ComplianceOverview = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/pages/compliance/Overview");
-  });
-});
-var AuditLogs = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/pages/compliance/AuditLogs");
-  });
-});
-var ComplianceDataPolicies = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/pages/compliance/DataPolicies");
-  });
-});
-var ComplianceReports = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/pages/compliance/Reports");
-  });
-});
-var NotFound = (0, react_1.lazy)(function () {
-  return Promise.resolve().then(function () {
-    return require("@/pages/NotFound");
-  });
-});
+const ComplianceLayout = lazy(() => import("@/components/ComplianceLayout"));
+const ComplianceOverview = lazy(() => import("@/pages/compliance/Overview"));
+const AuditLogs = lazy(() => import("@/pages/compliance/AuditLogs"));
+const ComplianceDataPolicies = lazy(() => import("@/pages/compliance/DataPolicies"));
+const ComplianceReports = lazy(() => import("@/pages/compliance/Reports"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 // Loading fallback
-var LoadingFallback = function () {
-  return (0, jsx_runtime_1.jsx)("div", {
-    className: "flex items-center justify-center min-h-screen",
-    children: (0, jsx_runtime_1.jsxs)("div", {
-      className: "flex flex-col items-center space-y-4",
-      children: [
-        (0, jsx_runtime_1.jsx)("div", {
-          className:
-            "h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin",
-        }),
-        (0, jsx_runtime_1.jsx)("p", {
-          className: "text-muted-foreground",
-          children: "Loading compliance section...",
-        }),
-      ],
-    }),
-  });
+const LoadingFallback = () => (_jsx("div", { className: "flex items-center justify-center min-h-screen", children: _jsxs("div", { className: "flex flex-col items-center space-y-4", children: [_jsx("div", { className: "h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" }), _jsx("p", { className: "text-muted-foreground", children: "Loading compliance section..." })] }) }));
+const ComplianceRoutesWrapper = () => {
+    return (_jsx(Suspense, { fallback: _jsx(LoadingFallback, {}), children: _jsx(Routes, { children: _jsxs(Route, { path: "/", element: _jsx(ComplianceLayout, { children: _jsx(Outlet, {}) }), children: [_jsx(Route, { index: true, element: _jsx(Navigate, { to: "overview", replace: true }) }), _jsx(Route, { path: "overview", element: _jsx(ComplianceOverview, {}) }), _jsx(Route, { path: "audit-logs", element: _jsx(AuditLogs, {}) }), _jsx(Route, { path: "data-policies", element: _jsx(ComplianceDataPolicies, {}) }), _jsx(Route, { path: "reports", element: _jsx(ComplianceReports, {}) }), _jsx(Route, { path: "*", element: _jsx(NotFound, {}) })] }) }) }));
 };
-var ComplianceRoutesWrapper = function () {
-  return (0, jsx_runtime_1.jsx)(react_1.Suspense, {
-    fallback: (0, jsx_runtime_1.jsx)(LoadingFallback, {}),
-    children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Routes, {
-      children: (0, jsx_runtime_1.jsxs)(react_router_dom_1.Route, {
-        path: "/",
-        element: (0, jsx_runtime_1.jsx)(ComplianceLayout, {
-          children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Outlet, {}),
-        }),
-        children: [
-          (0, jsx_runtime_1.jsx)(react_router_dom_1.Route, {
-            index: true,
-            element: (0, jsx_runtime_1.jsx)(react_router_dom_1.Navigate, {
-              to: "overview",
-              replace: true,
-            }),
-          }),
-          (0, jsx_runtime_1.jsx)(react_router_dom_1.Route, {
-            path: "overview",
-            element: (0, jsx_runtime_1.jsx)(ComplianceOverview, {}),
-          }),
-          (0, jsx_runtime_1.jsx)(react_router_dom_1.Route, {
-            path: "audit-logs",
-            element: (0, jsx_runtime_1.jsx)(AuditLogs, {}),
-          }),
-          (0, jsx_runtime_1.jsx)(react_router_dom_1.Route, {
-            path: "data-policies",
-            element: (0, jsx_runtime_1.jsx)(ComplianceDataPolicies, {}),
-          }),
-          (0, jsx_runtime_1.jsx)(react_router_dom_1.Route, {
-            path: "reports",
-            element: (0, jsx_runtime_1.jsx)(ComplianceReports, {}),
-          }),
-          (0, jsx_runtime_1.jsx)(react_router_dom_1.Route, {
-            path: "*",
-            element: (0, jsx_runtime_1.jsx)(NotFound, {}),
-          }),
-        ],
-      }),
-    }),
-  });
-};
-exports.default = ComplianceRoutesWrapper;
+export default ComplianceRoutesWrapper;

@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client"; // Fixed import path
 import { WebhookResult, TempWebhookEvent } from "@/types/unified-types"; // Fixed import path
 import { logger } from "@/utils/logger"; // Added logger import
+import { fetchApi } from "@/utils/api/fetchApi";
 
 export const getWebhookEvents = async (): Promise<WebhookEvent[]> => {
   try {
@@ -62,10 +63,32 @@ export const testWebhook = async (
   type: WebhookType,
 ): Promise<{ success: boolean; message: string }> => {
   try {
-    // Placeholder implementation
+    const payload = {
+      eventType: "TEST",
+      timestamp: new Date().toISOString(),
+      data: { message: "Test webhook payload" },
+    };
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
     return { success: true, message: "Webhook test succeeded" };
   } catch (error: unknown) {
-    return { success: false, message: "Webhook test failed" };
+    logger.error("Error testing webhook:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    };
   }
 };
 
@@ -89,3 +112,23 @@ const tempWebhookEvent: TempWebhookEvent = {
   validProperty: "value", // ✅ Now valid
   payload: { id: "mock-id" },
 };
+
+interface WebhookPayload {
+  event: string;
+  data: any;
+  source: string;
+}
+
+export async function sendWebhook(payload: WebhookPayload): Promise<boolean> {
+  try {
+    const res = await fetchApi("/api/webhooks", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    });
+    return true;
+  } catch (err: unknown) {
+    if (err instanceof Error) console.error("Webhook error:", err.message);
+    return false;
+  }
+}

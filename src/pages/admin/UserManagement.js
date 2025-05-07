@@ -1,240 +1,57 @@
-"use strict";
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __generator =
-  (this && this.__generator) ||
-  function (thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function () {
-          if (t[0] & 1) throw t[1];
-          return t[1];
-        },
-        trys: [],
-        ops: [],
-      },
-      f,
-      y,
-      t,
-      g = Object.create(
-        (typeof Iterator === "function" ? Iterator : Object).prototype,
-      );
-    return (
-      (g.next = verb(0)),
-      (g["throw"] = verb(1)),
-      (g["return"] = verb(2)),
-      typeof Symbol === "function" &&
-        (g[Symbol.iterator] = function () {
-          return this;
-        }),
-      g
-    );
-    function verb(n) {
-      return function (v) {
-        return step([n, v]);
-      };
-    }
-    function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
-      while ((g && ((g = 0), op[0] && (_ = 0)), _))
-        try {
-          if (
-            ((f = 1),
-            y &&
-              (t =
-                op[0] & 2
-                  ? y["return"]
-                  : op[0]
-                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                    : y.next) &&
-              !(t = t.call(y, op[1])).done)
-          )
-            return t;
-          if (((y = 0), t)) op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
-              t = op;
-              break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (
-                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
-                (op[0] === 6 || op[0] === 2)
-              ) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2]) _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
-        }
-      if (op[0] & 5) throw op[1];
-      return { value: op[0] ? op[1] : void 0, done: true };
-    }
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = UserManagement;
-var jsx_runtime_1 = require("react/jsx-runtime");
-var react_1 = require("react");
-var react_helmet_async_1 = require("react-helmet-async");
-var users_1 = require("@/components/admin/users");
-var sonner_1 = require("sonner");
-var useUserManagement_1 = require("@/hooks/admin/useUserManagement");
-var card_1 = require("@/components/ui/card");
-var UserListSkeleton_1 = require("@/components/admin/users/UserListSkeleton");
-var use_mobile_1 = require("@/hooks/use-mobile");
-function UserManagement() {
-  var _this = this;
-  var _a = (0, useUserManagement_1.useUserManagement)(),
-    users = _a.users,
-    isLoading = _a.isLoading,
-    loadUsers = _a.loadUsers,
-    updateUser = _a.updateUser,
-    deleteUser = _a.deleteUser;
-  var _b = (0, react_1.useState)([]),
-    companies = _b[0],
-    setCompanies = _b[1];
-  var _c = (0, react_1.useState)(true),
-    loadingCompanies = _c[0],
-    setLoadingCompanies = _c[1];
-  var breakpoint = (0, use_mobile_1.useBreakpoint)();
-  var isMobileView = ["xs", "mobile"].includes(breakpoint);
-  (0, react_1.useEffect)(
-    function () {
-      // Load users when component mounts
-      loadUsers();
-      fetchCompanies();
-    },
-    [loadUsers],
-  );
-  var fetchCompanies = function () {
-    return __awaiter(_this, void 0, void 0, function () {
-      return __generator(this, function (_a) {
+};
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { UserManagementHeader, UserTable } from "@/components/admin/users";
+import { toast } from "sonner";
+import { useUserManagement } from "@/hooks/admin/useUserManagement";
+import { Card } from "@/components/ui/card";
+import { UserListSkeleton } from "@/components/admin/users/UserListSkeleton";
+import { useBreakpoint } from "@/hooks/use-mobile";
+export default function UserManagement() {
+    const { users, isLoading, loadUsers, updateUser, deleteUser } = useUserManagement();
+    const [companies, setCompanies] = useState([]);
+    const [loadingCompanies, setLoadingCompanies] = useState(true);
+    const breakpoint = useBreakpoint();
+    const isMobileView = ["xs", "mobile"].includes(breakpoint);
+    useEffect(() => {
+        // Load users when component mounts
+        loadUsers();
+        fetchCompanies();
+    }, [loadUsers]);
+    const fetchCompanies = () => __awaiter(this, void 0, void 0, function* () {
         setLoadingCompanies(true);
         try {
-          // For this implementation, we'll use a simple mock data
-          // In a real implementation, this would fetch from the database
-          setTimeout(function () {
-            setCompanies([
-              { id: "company-1", name: "Acme Inc." },
-              { id: "company-2", name: "Global Tech" },
-              { id: "company-3", name: "Future Solutions" },
-            ]);
-            setLoadingCompanies(false);
-          }, 500);
-        } catch (error) {
-          console.error("Error fetching companies:", error);
-          sonner_1.toast.error("Failed to load companies");
-          setLoadingCompanies(false);
+            // For this implementation, we'll use a simple mock data
+            // In a real implementation, this would fetch from the database
+            setTimeout(() => {
+                setCompanies([
+                    { id: "company-1", name: "Acme Inc." },
+                    { id: "company-2", name: "Global Tech" },
+                    { id: "company-3", name: "Future Solutions" },
+                ]);
+                setLoadingCompanies(false);
+            }, 500);
         }
-        return [2 /*return*/];
-      });
+        catch (error) {
+            console.error("Error fetching companies:", error);
+            toast.error("Failed to load companies");
+            setLoadingCompanies(false);
+        }
     });
-  };
-  var handleDeleteUser = function (userId, userName) {
-    if (
-      window.confirm(
-        "Are you sure you want to delete user ".concat(userName, "?"),
-      )
-    ) {
-      deleteUser(userId);
-      sonner_1.toast.success("User deleted successfully");
-    }
-  };
-  return (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, {
-    children: [
-      (0, jsx_runtime_1.jsx)(react_helmet_async_1.Helmet, {
-        children: (0, jsx_runtime_1.jsx)("title", {
-          children: "User Management | Allora AI",
-        }),
-      }),
-      (0, jsx_runtime_1.jsxs)("div", {
-        className: "space-y-6",
-        children: [
-          (0, jsx_runtime_1.jsx)(users_1.UserManagementHeader, {
-            companies: companies,
-            loadingCompanies: loadingCompanies,
-            onUserAdded: loadUsers,
-          }),
-          (0, jsx_runtime_1.jsx)(card_1.Card, {
-            className: "border-white/10 shadow-md ".concat(
-              isMobileView ? "p-2" : "",
-              " bg-[#111827]",
-            ),
-            children: isLoading
-              ? (0, jsx_runtime_1.jsx)(UserListSkeleton_1.UserListSkeleton, {})
-              : (0, jsx_runtime_1.jsx)(users_1.UserTable, {
-                  users: users,
-                  onUpdateUser: updateUser,
-                  onDeleteUser: handleDeleteUser,
-                }),
-          }),
-        ],
-      }),
-    ],
-  });
+    const handleDeleteUser = (userId, userName) => {
+        if (window.confirm(`Are you sure you want to delete user ${userName}?`)) {
+            deleteUser(userId);
+            toast.success("User deleted successfully");
+        }
+    };
+    return (_jsxs(_Fragment, { children: [_jsx(Helmet, { children: _jsx("title", { children: "User Management | Allora AI" }) }), _jsxs("div", { className: "space-y-6", children: [_jsx(UserManagementHeader, { companies: companies, loadingCompanies: loadingCompanies, onUserAdded: loadUsers }), _jsx(Card, { className: `border-white/10 shadow-md ${isMobileView ? "p-2" : ""} bg-[#111827]`, children: isLoading ? (_jsx(UserListSkeleton, {})) : (_jsx(UserTable, { users: users, onUpdateUser: updateUser, onDeleteUser: handleDeleteUser })) })] })] }));
 }

@@ -2,15 +2,15 @@ import { v4 as uuidv4 } from "uuid";
 import {
   saveExecutiveDecision,
   getExecutiveDecisions,
-} from "./executiveMemory";
-import { supabase } from "@/integrations/supabase/client";
-import { ExecutiveDecision } from "@/types/agents";
-import { logger } from "@/utils/loggingService";
+} from "./executiveMemory.js";
+import supabaseClient from '@/integrations/supabase/client.js';
+import { AgentType } from '@/types/agents.js';
+import loggingService from '@/utils/loggingService';
 
 // Re-export executiveProfiles from agentProfiles
 export { executiveProfiles } from "./agentProfiles";
 // Re-export getExecutiveDecisions from executiveMemory
-export { getExecutiveDecisions } from "./executiveMemory";
+export { getExecutiveDecisions } from "./executiveMemory.js";
 
 interface AgentOptions {
   saveToDatabase?: boolean;

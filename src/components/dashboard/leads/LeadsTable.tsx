@@ -18,7 +18,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LeadStatusBadge } from "@/components/admin/leads/LeadStatusBadge";
 import { LeadScoreBadge } from "./LeadScoreBadge";
-export const LeadsTable = ({
+import type { Lead } from "@/types/Leads"; // Make sure this exists
+
+interface LeadsTableProps {
+  leads: Lead[];
+  sortBy: string;
+  sortOrder: "asc" | "desc";
+  onSort: (field: string) => void;
+  onViewLead: (lead: Lead) => void;
+  onStatusUpdate: (id: string, status: string) => void;
+  onDelete: (id: string) => void;
+  selectedLeads: string[];
+  onLeadSelect: (id: string, selected: boolean) => void;
+  onSelectAll: (selected: boolean) => void;
+  getLeadScore: (lead: Lead) => number;
+  getNextBestAction: (lead: Lead) => string;
+}
+
+export const LeadsTable: React.FC<LeadsTableProps> = ({
   leads,
   sortBy,
   sortOrder,

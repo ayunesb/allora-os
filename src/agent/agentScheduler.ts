@@ -1,3 +1,11 @@
 "analytical" | "creative" | "diplomatic" | "aggressive" | "cautious";
 // Or cast with:
 "analytical" as const;
+
+const value1: number = 10; // Define value1
+const value2: number = 20; // Define value2
+const result = value1 + value2; // Example arithmetic operation
+
+const leftOperand: number = 5;
+const rightOperand: number = 10;
+const result = leftOperand + rightOperand; // Ensure no redeclaration

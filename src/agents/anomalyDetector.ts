@@ -1,4 +1,4 @@
-import { logger } from "@/utils/loggingService";
+import { loggingService } from "../utils/loggingService";
 
 /**
  * Interface for anomaly detection thresholds

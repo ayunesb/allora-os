@@ -1,7 +1,3 @@
-personality: "analytical" |
-  "creative" |
-  "diplomatic" |
-  "aggressive" |
-  "cautious";
+"analytical" | "creative" | "diplomatic" | "aggressive" | "cautious";
 // Or cast with:
-personality: "analytical";
+"analytical";

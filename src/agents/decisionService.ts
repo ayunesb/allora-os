@@ -1,10 +1,10 @@
-import { supabase } from "@/integrations/supabase/client";
+import supabaseClient from "@/integrations/supabase/client";
 import { ExecutiveDecision } from "@/types/agents";
-import { logger } from "@/utils/loggingService";
+import loggingService from "@/utils/loggingService";
 
 export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from("executive_decisions")
       .select("*")
       .order("created_at", { ascending: false });
@@ -26,7 +26,7 @@ export async function getExecutiveDecisions(): Promise<ExecutiveDecision[]> {
       priority: item.priority,
     }));
   } catch (error) {
-    logger.error("Failed to get executive decisions from database", error);
+    loggingService.error("Failed to get executive decisions from database", error);
     return [];
   }
 }
@@ -35,7 +35,7 @@ export async function saveDecisionToDatabase(
   decision: ExecutiveDecision,
 ): Promise<string | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from("executive_decisions")
       .insert([
         {
@@ -58,7 +58,7 @@ export async function saveDecisionToDatabase(
 
     return data?.[0]?.id || null;
   } catch (error) {
-    logger.error("Failed to save executive decision to database", error, {
+    loggingService.error("Failed to save executive decision to database", error, {
       executiveName: decision.executiveName,
       task: decision.task,
     });

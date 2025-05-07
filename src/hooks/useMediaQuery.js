@@ -1,40 +1,34 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useMediaQuery = useMediaQuery;
-var react_1 = require("react");
+import { useState, useEffect } from "react";
 /**
  * Custom hook for responsive design
  * @param query - CSS media query string
  * @returns boolean indicating if the media query matches
  */
-function useMediaQuery(query) {
-  var _a = (0, react_1.useState)(false),
-    matches = _a[0],
-    setMatches = _a[1];
-  (0, react_1.useEffect)(
-    function () {
-      var mediaQuery = window.matchMedia(query);
-      setMatches(mediaQuery.matches);
-      var handler = function (event) {
-        setMatches(event.matches);
-      };
-      if (mediaQuery.addEventListener) {
-        mediaQuery.addEventListener("change", handler);
-      } else {
-        // For older browsers
-        mediaQuery.addListener(handler);
-      }
-      return function () {
-        if (mediaQuery.removeEventListener) {
-          mediaQuery.removeEventListener("change", handler);
-        } else {
-          // For older browsers
-          mediaQuery.removeListener(handler);
+export function useMediaQuery(query) {
+    const [matches, setMatches] = useState(false);
+    useEffect(() => {
+        const mediaQuery = window.matchMedia(query);
+        setMatches(mediaQuery.matches);
+        const handler = (event) => {
+            setMatches(event.matches);
+        };
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener("change", handler);
         }
-      };
-    },
-    [query],
-  );
-  return matches;
+        else {
+            // For older browsers
+            mediaQuery.addListener(handler);
+        }
+        return () => {
+            if (mediaQuery.removeEventListener) {
+                mediaQuery.removeEventListener("change", handler);
+            }
+            else {
+                // For older browsers
+                mediaQuery.removeListener(handler);
+            }
+        };
+    }, [query]);
+    return matches;
 }
-exports.default = useMediaQuery;
+export default useMediaQuery;

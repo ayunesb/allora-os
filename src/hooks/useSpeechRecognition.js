@@ -1,265 +1,93 @@
-"use strict";
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __generator =
-  (this && this.__generator) ||
-  function (thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function () {
-          if (t[0] & 1) throw t[1];
-          return t[1];
-        },
-        trys: [],
-        ops: [],
-      },
-      f,
-      y,
-      t,
-      g = Object.create(
-        (typeof Iterator === "function" ? Iterator : Object).prototype,
-      );
-    return (
-      (g.next = verb(0)),
-      (g["throw"] = verb(1)),
-      (g["return"] = verb(2)),
-      typeof Symbol === "function" &&
-        (g[Symbol.iterator] = function () {
-          return this;
-        }),
-      g
-    );
-    function verb(n) {
-      return function (v) {
-        return step([n, v]);
-      };
-    }
-    function step(op) {
-      if (f) throw new TypeError("Generator is already executing.");
-      while ((g && ((g = 0), op[0] && (_ = 0)), _))
+};
+import { useState, useEffect, useCallback } from "react";
+export function useSpeechRecognition(options = {}) {
+    const [transcript, setTranscript] = useState("");
+    const [isListening, setIsListening] = useState(false);
+    const [recognition, setRecognition] = useState(null);
+    const [error, setError] = useState(null);
+    // Initialize speech recognition
+    useEffect(() => {
+        var _a, _b;
+        // Check if browser supports speech recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            setError("Speech recognition not supported in this browser");
+            return;
+        }
+        // Create a recognition instance
+        const recognitionInstance = new SpeechRecognition();
+        // Configure recognition
+        recognitionInstance.lang = options.lang || "en-US";
+        recognitionInstance.continuous = (_a = options.continuous) !== null && _a !== void 0 ? _a : true;
+        recognitionInstance.interimResults = (_b = options.interimResults) !== null && _b !== void 0 ? _b : true;
+        // Set up event handlers
+        recognitionInstance.onresult = (event) => {
+            const current = event.resultIndex;
+            const result = event.results[current];
+            const transcriptText = result[0].transcript;
+            if (result.isFinal) {
+                setTranscript(transcriptText);
+            }
+        };
+        recognitionInstance.onend = () => {
+            setIsListening(false);
+        };
+        recognitionInstance.onerror = (event) => {
+            setError(`Speech recognition error: ${event.error}`);
+            setIsListening(false);
+        };
+        setRecognition(recognitionInstance);
+        // Clean up on unmount
+        return () => {
+            if (recognitionInstance) {
+                recognitionInstance.stop();
+            }
+        };
+    }, [options.lang, options.continuous, options.interimResults]);
+    // Start listening
+    const startListening = useCallback(() => __awaiter(this, void 0, void 0, function* () {
+        if (!recognition) {
+            setError("Speech recognition not initialized");
+            return;
+        }
+        // Request microphone permission explicitly
         try {
-          if (
-            ((f = 1),
-            y &&
-              (t =
-                op[0] & 2
-                  ? y["return"]
-                  : op[0]
-                    ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                    : y.next) &&
-              !(t = t.call(y, op[1])).done)
-          )
-            return t;
-          if (((y = 0), t)) op = [op[0] & 2, t.value];
-          switch (op[0]) {
-            case 0:
-            case 1:
-              t = op;
-              break;
-            case 4:
-              _.label++;
-              return { value: op[1], done: false };
-            case 5:
-              _.label++;
-              y = op[1];
-              op = [0];
-              continue;
-            case 7:
-              op = _.ops.pop();
-              _.trys.pop();
-              continue;
-            default:
-              if (
-                !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
-                (op[0] === 6 || op[0] === 2)
-              ) {
-                _ = 0;
-                continue;
-              }
-              if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                _.label = op[1];
-                break;
-              }
-              if (op[0] === 6 && _.label < t[1]) {
-                _.label = t[1];
-                t = op;
-                break;
-              }
-              if (t && _.label < t[2]) {
-                _.label = t[2];
-                _.ops.push(op);
-                break;
-              }
-              if (t[2]) _.ops.pop();
-              _.trys.pop();
-              continue;
-          }
-          op = body.call(thisArg, _);
-        } catch (e) {
-          op = [6, e];
-          y = 0;
-        } finally {
-          f = t = 0;
+            yield navigator.mediaDevices.getUserMedia({ audio: true });
+            setError(null);
+            setTranscript("");
+            recognition.start();
+            setIsListening(true);
         }
-      if (op[0] & 5) throw op[1];
-      return { value: op[0] ? op[1] : void 0, done: true };
-    }
-  };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.useSpeechRecognition = useSpeechRecognition;
-var react_1 = require("react");
-function useSpeechRecognition(options) {
-  var _this = this;
-  if (options === void 0) {
-    options = {};
-  }
-  var _a = (0, react_1.useState)(""),
-    transcript = _a[0],
-    setTranscript = _a[1];
-  var _b = (0, react_1.useState)(false),
-    isListening = _b[0],
-    setIsListening = _b[1];
-  var _c = (0, react_1.useState)(null),
-    recognition = _c[0],
-    setRecognition = _c[1];
-  var _d = (0, react_1.useState)(null),
-    error = _d[0],
-    setError = _d[1];
-  // Initialize speech recognition
-  (0, react_1.useEffect)(
-    function () {
-      var _a, _b;
-      // Check if browser supports speech recognition
-      var SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        setError("Speech recognition not supported in this browser");
-        return;
-      }
-      // Create a recognition instance
-      var recognitionInstance = new SpeechRecognition();
-      // Configure recognition
-      recognitionInstance.lang = options.lang || "en-US";
-      recognitionInstance.continuous =
-        (_a = options.continuous) !== null && _a !== void 0 ? _a : true;
-      recognitionInstance.interimResults =
-        (_b = options.interimResults) !== null && _b !== void 0 ? _b : true;
-      // Set up event handlers
-      recognitionInstance.onresult = function (event) {
-        var current = event.resultIndex;
-        var result = event.results[current];
-        var transcriptText = result[0].transcript;
-        if (result.isFinal) {
-          setTranscript(transcriptText);
+        catch (err) {
+            setError("Microphone permission denied");
+            console.error("Microphone permission denied:", err);
         }
-      };
-      recognitionInstance.onend = function () {
-        setIsListening(false);
-      };
-      recognitionInstance.onerror = function (event) {
-        setError("Speech recognition error: ".concat(event.error));
-        setIsListening(false);
-      };
-      setRecognition(recognitionInstance);
-      // Clean up on unmount
-      return function () {
-        if (recognitionInstance) {
-          recognitionInstance.stop();
+    }), [recognition]);
+    // Stop listening
+    const stopListening = useCallback(() => {
+        if (recognition && isListening) {
+            recognition.stop();
+            setIsListening(false);
         }
-      };
-    },
-    [options.lang, options.continuous, options.interimResults],
-  );
-  // Start listening
-  var startListening = (0, react_1.useCallback)(
-    function () {
-      return __awaiter(_this, void 0, void 0, function () {
-        var err_1;
-        return __generator(this, function (_a) {
-          switch (_a.label) {
-            case 0:
-              if (!recognition) {
-                setError("Speech recognition not initialized");
-                return [2 /*return*/];
-              }
-              _a.label = 1;
-            case 1:
-              _a.trys.push([1, 3, , 4]);
-              return [
-                4 /*yield*/,
-                navigator.mediaDevices.getUserMedia({ audio: true }),
-              ];
-            case 2:
-              _a.sent();
-              setError(null);
-              setTranscript("");
-              recognition.start();
-              setIsListening(true);
-              return [3 /*break*/, 4];
-            case 3:
-              err_1 = _a.sent();
-              setError("Microphone permission denied");
-              console.error("Microphone permission denied:", err_1);
-              return [3 /*break*/, 4];
-            case 4:
-              return [2 /*return*/];
-          }
-        });
-      });
-    },
-    [recognition],
-  );
-  // Stop listening
-  var stopListening = (0, react_1.useCallback)(
-    function () {
-      if (recognition && isListening) {
-        recognition.stop();
-        setIsListening(false);
-      }
-    },
-    [recognition, isListening],
-  );
-  // Reset transcript
-  var resetTranscript = (0, react_1.useCallback)(function () {
-    setTranscript("");
-  }, []);
-  return {
-    transcript: transcript,
-    isListening: isListening,
-    startListening: startListening,
-    stopListening: stopListening,
-    resetTranscript: resetTranscript,
-    error: error,
-  };
+    }, [recognition, isListening]);
+    // Reset transcript
+    const resetTranscript = useCallback(() => {
+        setTranscript("");
+    }, []);
+    return {
+        transcript,
+        isListening,
+        startListening,
+        stopListening,
+        resetTranscript,
+        error,
+    };
 }

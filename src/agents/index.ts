@@ -1,3 +1,3 @@
-export * from "./executiveAgent";
-export * from "./executiveMemory";
-export * from "./agentProfiles";
+export * from './executiveAgent.js';
+export * from './executiveMemory.js';
+export * from './agentProfiles.js';
