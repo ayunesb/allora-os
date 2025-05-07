@@ -1,5 +1,14 @@
+/// <reference lib="deno.unstable" />
+/// <reference types="https://deno.land/std@0.177.0/node/global.d.ts" />
+
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,6 +50,15 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    return await handleEmail(req, supabase);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), { status: 500 });
+  }
+});
+
+async function handleEmail(req: Request, supabase: SupabaseClient) {
+  try {
     // Get user profile data
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
@@ -215,17 +233,11 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );
-  } catch (error) {
-    console.error("Error in welcome-email function:", error);
-    return new Response(
-      JSON.stringify({ error: error.message || "Unknown error" }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), { status: 500 });
   }
-});
+}
 
 // Helper function to select executive team based on risk appetite
 function getExecutiveTeam(

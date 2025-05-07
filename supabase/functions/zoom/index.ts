@@ -1,5 +1,14 @@
+/// <reference lib="deno.unstable" />
+/// <reference types="https://deno.land/std@0.177.0/node/global.d.ts" />
+
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,9 +59,10 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-  } catch (error) {
-    console.error("Zoom function error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Zoom function error:", message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -90,16 +100,17 @@ async function handleAuthUrl(req: Request) {
     return new Response(JSON.stringify({ url: authUrl.toString() }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    console.error("Error generating auth URL:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error generating auth URL:", message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 }
 
-async function handleAuthCallback(req: Request, supabase) {
+async function handleAuthCallback(req: Request, supabase: SupabaseClient) {
   try {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
@@ -167,16 +178,17 @@ async function handleAuthCallback(req: Request, supabase) {
     return new Response(JSON.stringify({ success: true, companyId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    console.error("Error handling auth callback:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error handling auth callback:", message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 }
 
-async function handleRefreshToken(req: Request, supabase) {
+async function handleRefreshToken(req: Request, supabase: SupabaseClient) {
   try {
     const { companyId } = await req.json();
 
@@ -260,16 +272,17 @@ async function handleRefreshToken(req: Request, supabase) {
     return new Response(JSON.stringify({ success: true, needsRefresh: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error refreshing token:", message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 }
 
-async function handleCreateMeeting(req: Request, supabase) {
+async function handleCreateMeeting(req: Request, supabase: SupabaseClient) {
   try {
     const { companyId, topic, agenda, startTime, duration, password } =
       await req.json();
@@ -399,16 +412,17 @@ async function handleCreateMeeting(req: Request, supabase) {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );
-  } catch (error) {
-    console.error("Error creating meeting:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error creating meeting:", message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 }
 
-async function handleWebhook(req: Request, supabase) {
+async function handleWebhook(req: Request, supabase: SupabaseClient) {
   try {
     const payload = await req.json();
     console.log("Zoom webhook received:", JSON.stringify(payload));
@@ -423,43 +437,49 @@ async function handleWebhook(req: Request, supabase) {
     return new Response(JSON.stringify({ received: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    console.error("Error handling webhook:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error handling webhook:", message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 }
 
-async function handleMeetingUpdated(payload, supabase) {
-  const meetingId = payload.payload.object.id.toString();
+async function handleMeetingUpdated(payload: any, supabase: SupabaseClient) {
+  try {
+    const meetingId = payload.payload.object.id.toString();
 
-  // Find the meeting in our database
-  const { data: meeting } = await supabase
-    .from("company_zoom_meetings")
-    .select("*")
-    .eq("zoom_meeting_id", meetingId)
-    .single();
+    // Find the meeting in our database
+    const { data: meeting } = await supabase
+      .from("company_zoom_meetings")
+      .select("*")
+      .eq("zoom_meeting_id", meetingId)
+      .single();
 
-  if (!meeting) {
-    console.log(`Meeting ${meetingId} not found in database`);
-    return;
+    if (!meeting) {
+      console.log(`Meeting ${meetingId} not found in database`);
+      return;
+    }
+
+    // Update meeting details
+    await supabase
+      .from("company_zoom_meetings")
+      .update({
+        topic: payload.payload.object.topic,
+        start_time: payload.payload.object.start_time,
+        duration: payload.payload.object.duration,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("zoom_meeting_id", meetingId);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(message);
   }
-
-  // Update meeting details
-  await supabase
-    .from("company_zoom_meetings")
-    .update({
-      topic: payload.payload.object.topic,
-      start_time: payload.payload.object.start_time,
-      duration: payload.payload.object.duration,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("zoom_meeting_id", meetingId);
 }
 
-async function handleMeetingDeleted(payload, supabase) {
+async function handleMeetingDeleted(payload: any, supabase: SupabaseClient) {
   const meetingId = payload.payload.object.id.toString();
 
   // Delete the meeting from our database
@@ -469,7 +489,7 @@ async function handleMeetingDeleted(payload, supabase) {
     .eq("zoom_meeting_id", meetingId);
 }
 
-async function handleDisconnect(req: Request, supabase) {
+async function handleDisconnect(req: Request, supabase: SupabaseClient) {
   try {
     const { companyId } = await req.json();
 
@@ -515,9 +535,10 @@ async function handleDisconnect(req: Request, supabase) {
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error) {
-    console.error("Error disconnecting Zoom:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error disconnecting Zoom:", message);
+    return new Response(JSON.stringify({ error: message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
